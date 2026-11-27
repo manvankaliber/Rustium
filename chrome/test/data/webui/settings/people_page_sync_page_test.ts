@@ -7,9 +7,7 @@ import 'chrome://settings/lazy_load.js';
 
 import {webUIListenerCallback} from 'chrome://resources/js/cr.js';
 import type {CrExpandButtonElement, CrInputElement, SettingsSyncEncryptionOptionsElement, SettingsSyncPageElement} from 'chrome://settings/lazy_load.js';
-// <if expr="not is_chromeos">
 import type {CrDialogElement} from 'chrome://settings/lazy_load.js';
-// </if>
 import type {CrCollapseElement} from 'chrome://settings/lazy_load.js';
 import type {CrButtonElement, CrRadioButtonElement, CrRadioGroupElement} from 'chrome://settings/settings.js';
 import {MetricsBrowserProxyImpl} from 'chrome://settings/settings.js';
@@ -20,17 +18,11 @@ import {isChildVisible, microtasksFinished} from 'chrome://webui-test/test_util.
 
 import {TestPrefsBrowserProxy} from './test_prefs_browser_proxy.js';
 
-// <if expr="not is_chromeos">
 import {eventToPromise} from 'chrome://webui-test/test_util.js';
 
 import {simulateStoredAccounts} from './sync_test_util.js';
 
-// </if>
 
-// <if expr="is_chromeos">
-import {resetRouterForTesting} from 'chrome://settings/settings.js';
-
-// </if>
 
 import {getSyncAllPrefs} from './sync_test_util.js';
 import {TestMetricsBrowserProxy} from './test_metrics_browser_proxy.js';
@@ -580,7 +572,6 @@ suite('SyncSettings', function() {
   // ##################################
 
 
-  // <if expr="not is_chromeos">
   test('SyncSetupCancel', async function() {
     webUIListenerCallback('sync-status-changed', {
       syncSystemEnabled: true,
@@ -825,18 +816,9 @@ suite('SyncSettings', function() {
     assertFalse(
         !!syncPage.shadowRoot.querySelector('settings-sync-account-control'));
   });
-  // </if>
 });
 
 suite('SyncSettingsWithReplaceSyncPromosWithSignInPromos', function() {
-  // <if expr="is_chromeos">
-  suiteSetup(function() {
-    loadTimeData.overrideValues({
-      replaceSyncPromosWithSignInPromos: true,
-    });
-    resetRouterForTesting();
-  });
-  // </if>
 
   setup(async function() {
     document.body.innerHTML = window.trustedTypes!.emptyHTML;

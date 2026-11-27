@@ -14,45 +14,19 @@
   <release seq="1">
     <includes>
       <!-- All resources included on Android should use the lite bindings. -->
-      <if expr="not is_android">
+
         <include name="IDR_MOJO_MOJO_BINDINGS_JS"
             file="${root_gen_dir}/mojo/public/js/mojo_bindings.js"
             use_base_dir="false"
             resource_path="mojo/mojo/public/js/mojo_bindings.js"
             type="BINDATA" />
-      </if>
+
       <include name="IDR_MOJO_BINDINGS_JS"
           file="${root_gen_dir}/mojo/public/js/bindings.js"
           use_base_dir="false"
           resource_path="mojo/mojo/public/js/bindings.js"
           type="BINDATA" />
-      <if expr="is_chromeos">
-        <include name="IDR_MOJO_MOJO_BINDINGS_LITE_JS"
-            file="${root_gen_dir}/mojo/public/js/mojo_bindings_lite.js"
-            use_base_dir="false"
-            resource_path="mojo/mojo/public/js/mojo_bindings_lite.js"
-            type="BINDATA" />
-        <include name="IDR_MOJO_BIG_BUFFER_MOJOM_LITE_JS"
-            file="${root_gen_dir}/mojo/public/mojom/base/big_buffer.mojom-lite.js"
-            use_base_dir="false"
-            resource_path="mojo/mojo/public/mojom/base/big_buffer.mojom-lite.js"
-            type="BINDATA" />
-        <include name="IDR_MOJO_STRING16_MOJOM_LITE_JS"
-            file="${root_gen_dir}/mojo/public/mojom/base/string16.mojom-lite.js"
-            use_base_dir="false"
-            resource_path="mojo/mojo/public/mojom/base/string16.mojom-lite.js"
-            type="BINDATA" />
-        <include name="IDR_MOJO_TEXT_DIRECTION_MOJOM_LITE_JS"
-            file="${root_gen_dir}/mojo/public/mojom/base/text_direction.mojom-lite.js"
-            use_base_dir="false"
-            resource_path="mojo/mojo/public/mojom/base/text_direction.mojom-lite.js"
-            type="BINDATA" />
-        <include name="IDR_MOJO_TIME_MOJOM_LITE_JS"
-            file="${root_gen_dir}/mojo/public/mojom/base/time.mojom-lite.js"
-            resource_path="mojo/mojo/public/mojom/base/time.mojom-lite.js"
-            use_base_dir="false"
-            type="BINDATA" />
-      </if>
+
     </includes>
   </release>
 </grit>

@@ -6,7 +6,6 @@ import("//extensions/buildflags/buildflags.gni")
 
 assert(enable_extensions,
        "Cannot depend on extensions because enable_extensions=false.")
-assert(!is_fuchsia, "Fuchsia does not support extensions.")
 
 import("//build/config/features.gni")
 
@@ -58,20 +57,6 @@ source_set("networking_private") {
                 "networking_private_service_client.h",
               ]
     deps += [ "//components/wifi" ]
-  } else if (is_chromeos) {
-    sources = default_sources + [
-                "networking_private_chromeos.cc",
-                "networking_private_chromeos.h",
-                "networking_private_event_router_chromeos.cc",
-              ]
-    deps += [
-      "//chromeos/ash/components/browser_context_helper",
-      "//chromeos/ash/components/network",
-      "//chromeos/components/onc",
-      "//components/proxy_config",
-      "//components/session_manager/core",
-      "//components/user_manager",
-    ]
   } else {
     not_needed([ "default_sources" ])
     sources = [ "networking_private_stubs.cc" ]

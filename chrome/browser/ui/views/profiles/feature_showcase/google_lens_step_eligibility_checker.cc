@@ -8,9 +8,6 @@
 
 #include "base/functional/callback.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
-#include "chrome/browser/ui/lens/lens_search_feature_flag_utils.h"
-
 GoogleLensStepEligibilityChecker::GoogleLensStepEligibilityChecker() = default;
 
 GoogleLensStepEligibilityChecker::~GoogleLensStepEligibilityChecker() = default;
@@ -18,13 +15,11 @@ GoogleLensStepEligibilityChecker::~GoogleLensStepEligibilityChecker() = default;
 void GoogleLensStepEligibilityChecker::CheckEligibility(
     Profile& profile,
     base::OnceCallback<void(bool)> callback) {
-  if (!lens::LensOverlayEntryPointController::IsEnabledOnInit(&profile)) {
+  {
     std::move(callback).Run(false);
     return;
   }
 
-  std::move(callback).Run(
-      !lens::DidUserGrantLensOverlayNeededPermissions(&profile));
 }
 
 std::string GoogleLensStepEligibilityChecker::GetStepIdentifier() const {

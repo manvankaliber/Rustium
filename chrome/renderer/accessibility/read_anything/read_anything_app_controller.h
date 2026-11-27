@@ -188,11 +188,7 @@ class ReadAnythingAppController
   void OnTranslationStateChanged(bool is_translated) override;
   void OnTranslationFailed() override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void OnDeviceLocked() override;
-#else
   void OnTtsEngineInstalled() override;
-#endif
 
   // ui::AXTreeObserver:
   void OnNodeWillBeDeleted(ui::AXTree* tree, ui::AXNode* node) override;

@@ -20,7 +20,6 @@
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "services/network/test/test_shared_url_loader_factory.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/extensions/extension_management_test_util.h"
 #include "chrome/browser/extensions/updater/extension_updater.h"
 #include "chrome/browser/ui/safety_hub/password_status_check_service_factory.h"
@@ -31,13 +30,11 @@
 #include "extensions/common/extension_builder.h"
 #include "extensions/common/manifest_constants.h"
 #include "extensions/common/mojom/manifest.mojom-shared.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #include "chrome/browser/ui/safety_hub/safety_hub_result.h"
 #include "chrome/browser/ui/safety_hub/safety_hub_service.h"
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 using extensions::mojom::ManifestLocation;
 
 const char kAllHostsPermission[] = "*://*/*";
@@ -89,7 +86,6 @@ std::unique_ptr<KeyedService> BuildPasswordStatusCheckService(
   return std::make_unique<PasswordStatusCheckService>(
       Profile::FromBrowserContext(context));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 std::unique_ptr<KeyedService> BuildRevokedPermissionsService(
     content::BrowserContext* context) {
@@ -115,7 +111,6 @@ class TestObserver : public SafetyHubService::Observer {
 
 namespace safety_hub_test_util {
 
-#if !BUILDFLAG(IS_ANDROID)
 using password_manager::BulkLeakCheckService;
 using password_manager::PasswordString;
 
@@ -295,7 +290,6 @@ password_manager::PasswordForm MakeForm(std::u16string_view username,
   }
   return form;
 }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void CreateRevokedPermissionsService(content::BrowserContext* context) {
   RevokedPermissionsServiceFactory::GetInstance()->SetTestingFactory(

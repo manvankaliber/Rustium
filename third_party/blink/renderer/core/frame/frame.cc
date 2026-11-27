@@ -69,9 +69,7 @@
 #include "third_party/blink/renderer/platform/loader/fetch/resource_fetcher.h"
 #include "third_party/blink/renderer/platform/wtf/assertions.h"
 
-#if !BUILDFLAG(TARGET_OS_IS_ANDROID)
 #include "third_party/blink/renderer/core/frame/picture_in_picture_controller.h"
-#endif  // !BUILDFLAG(TARGET_OS_IS_ANDROID)
 
 namespace blink {
 
@@ -315,7 +313,6 @@ void Frame::NotifyUserActivationInFrameTree(
     NotifyUserActivationInFrame(node, notification_type, sticky_only);
   }
 
-#if !BUILDFLAG(TARGET_OS_IS_ANDROID)
   if (RuntimeEnabledFeatures::DocumentPictureInPictureUserActivationEnabled()) {
     // If we are contained in a document picture-in-picture window, then also
     // propagate the activation up to our opener frame.
@@ -330,7 +327,6 @@ void Frame::NotifyUserActivationInFrameTree(
       }
     }
   }
-#endif  // !BUILDFLAG(TARGET_OS_IS_ANDROID)
 
   // See the "Same-origin Visibility" section in |UserActivationState| class
   // doc.
@@ -349,7 +345,6 @@ void Frame::NotifyUserActivationInFrameTree(
       }
     }
 
-#if !BUILDFLAG(TARGET_OS_IS_ANDROID)
     if (RuntimeEnabledFeatures::
             DocumentPictureInPictureUserActivationEnabled()) {
       // If we are contained in a frame that owns a document picture-in-picture
@@ -371,7 +366,6 @@ void Frame::NotifyUserActivationInFrameTree(
         }
       }
     }
-#endif  // !BUILDFLAG(TARGET_OS_IS_ANDROID)
   }
 }
 
@@ -388,7 +382,6 @@ bool Frame::ConsumeTransientUserActivationInFrameTree() {
   for (Frame* node = &root; node; node = node->Tree().TraverseNext())
     node->user_activation_state_.ConsumeIfActive();
 
-#if !BUILDFLAG(TARGET_OS_IS_ANDROID)
   if (RuntimeEnabledFeatures::DocumentPictureInPictureUserActivationEnabled()) {
     auto* local_top_frame = DynamicTo<LocalFrame>(Tree().Top());
     if (local_top_frame) {
@@ -414,7 +407,6 @@ bool Frame::ConsumeTransientUserActivationInFrameTree() {
       }
     }
   }
-#endif  // !BUILDFLAG(TARGET_OS_IS_ANDROID)
 
   return was_active;
 }

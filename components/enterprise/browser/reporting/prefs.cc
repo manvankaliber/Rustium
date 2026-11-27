@@ -25,9 +25,7 @@ void RegisterLocalStatePrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(kCloudReportingEnabled, false);
   registry->RegisterTimePref(kLastUploadTimestamp, base::Time());
   registry->RegisterTimePref(kLastUploadSucceededTimestamp, base::Time());
-#if !BUILDFLAG(IS_IOS)
   registry->RegisterStringPref(kLastUploadVersion, std::string());
-#endif  // !BUILDFLAG(IS_IOS)
   registry->RegisterTimeDeltaPref(kCloudReportingUploadFrequency,
                                   kDefaultReportFrequency);
   registry->RegisterListPref(kSaasUsageDomainUrlsForBrowser);
@@ -44,9 +42,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
                              base::Time());
   registry->RegisterStringPref(kLastSignalsUploadSucceededConfig,
                                std::string());
-#if !BUILDFLAG(IS_IOS)
   registry->RegisterStringPref(kLastUploadVersion, std::string());
-#endif  // !BUILDFLAG(IS_IOS)
   registry->RegisterTimeDeltaPref(kCloudReportingUploadFrequency,
                                   kDefaultReportFrequency);
   registry->RegisterBooleanPref(kUserSecuritySignalsReporting, false);
@@ -61,13 +57,8 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
   registry->RegisterDictionaryPref(kCloudExtensionRequestUploadedIds);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if !BUILDFLAG(IS_IOS)
   registry->RegisterListPref(kCloudLegacyTechReportAllowlist);
-#endif  // !BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_IOS)
-  registry->RegisterBooleanPref(kPoliciesEverFetchedWithProfileId, false);
-#endif  // BUILDFLAG(IS_IOS)
 
   registry->RegisterListPref(kSaasUsageDomainUrlsForProfile);
   registry->RegisterDictionaryPref(kSaasUsageReport);

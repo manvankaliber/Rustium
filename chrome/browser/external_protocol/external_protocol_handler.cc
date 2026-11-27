@@ -46,15 +46,11 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/navigation_interception/intercept_navigation_delegate.h"
-#else
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"  // nogncheck
 #include "components/url_formatter/elide_url.h"
 #include "components/web_modal/web_contents_modal_dialog_manager.h"
-#endif
 
 namespace {
 
@@ -112,7 +108,6 @@ void AddMessageToConsole(const content::WeakDocumentPtr& document,
     rfh->AddMessageToConsole(level, message);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Functions enabling unit testing. Using a NULL delegate will use the default
 // behavior; if a delegate is provided it will be used instead.
 scoped_refptr<shell_integration::DefaultSchemeClientWorker> CreateShellWorker(
@@ -123,7 +118,6 @@ scoped_refptr<shell_integration::DefaultSchemeClientWorker> CreateShellWorker(
   return base::MakeRefCounted<shell_integration::DefaultSchemeClientWorker>(
       url);
 }
-#endif
 
 ExternalProtocolHandler::BlockState GetBlockStateWithDelegate(
     const std::string& scheme,
@@ -136,7 +130,6 @@ ExternalProtocolHandler::BlockState GetBlockStateWithDelegate(
                                                 profile);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void RunExternalProtocolDialogWithDelegate(
     const GURL& url,
     content::WebContents* web_contents,
@@ -172,7 +165,6 @@ void RunExternalProtocolDialogWithDelegate(
       is_in_fenced_frame_tree, initiating_origin, std::move(initiator_document),
       program_name);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void LaunchUrlWithoutSecurityCheckWithDelegate(
     const GURL& url,
@@ -194,12 +186,8 @@ void LaunchUrlWithoutSecurityCheckWithDelegate(
       "Launched external handler for '" + ElideUrlForConsole(url) + "'.");
 
   platform_util::OpenExternal(
-#if BUILDFLAG(IS_CHROMEOS)
-      Profile::FromBrowserContext(web_contents->GetBrowserContext()),
-#endif
       url);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   // If the protocol navigation occurs in a new tab, close it.
   // Avoid calling CloseContents if the tab is not in this browser's tab strip
   // model; this can happen if the protocol was initiated by something
@@ -216,10 +204,8 @@ void LaunchUrlWithoutSecurityCheckWithDelegate(
         FROM_HERE, base::BindOnce(&content::WebContents::Close,
                                   web_contents->GetWeakPtr()));
   }
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // When we are about to launch a URL with the default OS level application, we
 // check if the external application will be us. If it is we just ignore the
 // request.
@@ -298,7 +284,6 @@ void OnDefaultSchemeClientWorkerFinished(
   LaunchUrlWithoutSecurityCheckWithDelegate(
       escaped_url, web_contents, std::move(initiator_document), delegate);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 bool IsSchemeOriginPairAllowedByPolicy(const std::string& scheme,
                                        const url::Origin* initiating_origin,
@@ -523,10 +508,6 @@ void ExternalProtocolHandler::LaunchUrl(
     bool is_in_fenced_frame_tree,
     const std::optional<url::Origin>& initiating_origin,
     content::WeakDocumentPtr initiator_document
-#if BUILDFLAG(IS_ANDROID)
-    ,
-    mojo::PendingRemote<network::mojom::URLLoaderFactory>* out_factory
-#endif
 ) {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
 
@@ -574,16 +555,6 @@ void ExternalProtocolHandler::LaunchUrl(
   // The Origin is used for security checks, not for displaying to the user, so
   // the precursor origin should not be used.
   // Also, a protocol dialog isn't used on Android.
-#if BUILDFLAG(IS_ANDROID)
-  navigation_interception::InterceptNavigationDelegate* delegate =
-      navigation_interception::InterceptNavigationDelegate::Get(web_contents);
-  if (delegate) {
-    delegate->HandleSubframeExternalProtocol(escaped_url, page_transition,
-                                             has_user_gesture,
-                                             initiating_origin, out_factory);
-  }
-  return;
-#else
   std::optional<url::Origin> initiating_origin_or_precursor;
   if (initiating_origin) {
     // Transform the initiating origin to its precursor origin if it is
@@ -613,7 +584,6 @@ void ExternalProtocolHandler::LaunchUrl(
   // OnDefaultSchemeClientWorkerFinished().
   CreateShellWorker(escaped_url, g_external_protocol_handler_delegate)
       ->StartCheckIsDefaultAndGetDefaultClientName(std::move(callback));
-#endif
 }
 
 // static

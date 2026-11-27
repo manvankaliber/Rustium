@@ -12,9 +12,6 @@
 #include "base/memory_coordinator/memory_coordinator_features.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/memory_coordinator/memory_consumer_android.h"
-#endif
 
 namespace base {
 
@@ -55,13 +52,6 @@ MemoryConsumerRegistry* MemoryConsumerRegistry::MaybeGet() {
 void MemoryConsumerRegistry::Set(MemoryConsumerRegistry* instance) {
   CHECK_NE(bool(g_memory_consumer_registry), bool(instance));
   g_memory_consumer_registry = instance;
-#if BUILDFLAG(IS_ANDROID)
-  if (g_memory_consumer_registry) {
-    android::FlushPendingMemoryConsumerRegistrations();
-  } else {
-    android::OnMemoryConsumerRegistryDestroyed();
-  }
-#endif
 }
 
 MemoryConsumerRegistry::MemoryConsumerRegistry() = default;

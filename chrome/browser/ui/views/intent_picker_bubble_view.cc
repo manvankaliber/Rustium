@@ -62,9 +62,6 @@
 #include "ui/views/view_utils.h"
 #include "ui/views/window/dialog_client_view.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/chromeos/devicetype_utils.h"
-#endif
 
 namespace {
 

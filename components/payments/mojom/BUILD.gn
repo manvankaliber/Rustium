@@ -6,7 +6,7 @@ import("//mojo/public/tools/bindings/mojom.gni")
 
 mojom("mojom") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "payment_request_data.mojom" ]
 
   # TODO(crbug.com/40509833): Convert to use the new JS bindings.

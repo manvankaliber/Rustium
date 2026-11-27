@@ -27,10 +27,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/android/network_change_notifier_factory_android.h"
-#include "net/base/network_change_notifier.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "services/network/broker_helper_win.h"
@@ -345,60 +341,6 @@ TEST_F(BrokeredUdpClientSocketTest, ConnectUsingNetworkAsync) {
                                  /*port=*/8080);
   const net::handles::NetworkHandle wrong_network_handle = 65536;
   net::TestCompletionCallback callback;
-#if BUILDFLAG(IS_ANDROID)
-  net::NetworkChangeNotifierFactoryAndroid ncn_factory;
-  net::NetworkChangeNotifierDelegateAndroid::
-      EnableNetworkChangeNotifierAutoDetectForTest();
-  std::unique_ptr<net::NetworkChangeNotifier> ncn(ncn_factory.CreateInstance());
-  if (!net::NetworkChangeNotifier::AreNetworkHandlesSupported()) {
-    GTEST_SKIP() << "Network handles are required to test BindToNetwork.";
-  }
-
-  {
-    // Connecting using a not existing network should fail but not report
-    // ERR_NOT_IMPLEMENTED when network handles are supported.
-    auto socket = client_socket_factory_.CreateDatagramClientSocket(
-        net::DatagramSocket::DEFAULT_BIND, net::handles::kInvalidNetworkHandle,
-        net::NetLog::Get(), net::NetLogSource());
-    int rv = socket->ConnectUsingNetworkAsync(
-        wrong_network_handle, server_address, callback.callback());
-    EXPECT_EQ(rv, net::ERR_IO_PENDING);
-    rv = callback.WaitForResult();
-    EXPECT_NE(net::ERR_NOT_IMPLEMENTED, rv);
-    EXPECT_NE(net::OK, rv);
-  }
-
-  {
-    // Connecting using an existing network should succeed when
-    // NetworkChangeNotifier returns a valid default network.
-    const net::handles::NetworkHandle network_handle =
-        net::NetworkChangeNotifier::GetDefaultNetwork();
-    if (network_handle != net::handles::kInvalidNetworkHandle) {
-      auto socket2 = client_socket_factory_.CreateDatagramClientSocket(
-          net::DatagramSocket::DEFAULT_BIND,
-          net::handles::kInvalidNetworkHandle, net::NetLog::Get(),
-          net::NetLogSource());
-      int rv = socket2->ConnectUsingNetworkAsync(network_handle, server_address,
-                                                 callback.callback());
-      EXPECT_EQ(rv, net::ERR_IO_PENDING);
-      rv = callback.WaitForResult();
-      EXPECT_EQ(net::OK, rv);
-      EXPECT_EQ(network_handle, socket2->GetBoundNetwork());
-      // Also check that connecting using the default network succeeds with a
-      // valid default network.
-      auto socket3 = client_socket_factory_.CreateDatagramClientSocket(
-          net::DatagramSocket::DEFAULT_BIND,
-          net::handles::kInvalidNetworkHandle, net::NetLog::Get(),
-          net::NetLogSource());
-      rv = socket3->ConnectUsingDefaultNetworkAsync(server_address,
-                                                    callback.callback());
-      EXPECT_EQ(rv, net::ERR_IO_PENDING);
-      rv = callback.WaitForResult();
-      EXPECT_EQ(net::OK, rv);
-      EXPECT_EQ(network_handle, socket3->GetBoundNetwork());
-    }
-  }
-#else
   EXPECT_EQ(net::ERR_NOT_IMPLEMENTED,
             socket_->ConnectUsingNetworkAsync(
                 wrong_network_handle, server_address, callback.callback()));
@@ -407,48 +349,9 @@ TEST_F(BrokeredUdpClientSocketTest, ConnectUsingNetworkAsync) {
       net::NetLog::Get(), net::NetLogSource());
   EXPECT_EQ(net::ERR_NOT_IMPLEMENTED, socket2->ConnectUsingDefaultNetworkAsync(
                                           server_address, callback.callback()));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 // On Android, where socket tagging is supported, verify that the
 // BrokeredUdpClientSocket sets tags correctly.
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(BrokeredUdpClientSocketTest, Tag) {
-  if (!net::CanGetTaggedBytes()) {
-    DVLOG(0) << "Skipping test - GetTaggedBytes unsupported.";
-    return;
-  }
-
-  net::TestCompletionCallback callback;
-  net::UDPServerSocket server(nullptr, net::NetLogSource());
-  ASSERT_THAT(
-      server.Listen(net::IPEndPoint(net::IPAddress::IPv4Localhost(), 0)),
-      IsOk());
-  net::IPEndPoint server_address;
-  ASSERT_THAT(server.GetLocalAddress(&server_address), IsOk());
-
-  // Verify tag is properly set when ApplySocketTag is called before connecting.
-  int32_t tag_val1 = 0x12345678;
-  uint64_t old_traffic = net::GetTaggedBytes(tag_val1);
-  net::SocketTag tag1(net::SocketTag::UNSET_UID, tag_val1);
-  socket_->ApplySocketTag(tag1);
-  int rv = socket_->ConnectAsync(server_address, callback.callback());
-
-  ASSERT_EQ(rv, net::ERR_IO_PENDING);
-  rv = callback.WaitForResult();
-  EXPECT_EQ(rv, net::OK);
-  SimpleReadAndWrite(&server);
-  EXPECT_GT(net::GetTaggedBytes(tag_val1), old_traffic);
-
-  // Verify socket can be retagged with a new value and the current process's
-  // UID.
-  int32_t tag_val2 = 0x87654321;
-  old_traffic = net::GetTaggedBytes(tag_val2);
-  net::SocketTag tag2(getuid(), tag_val2);
-  socket_->ApplySocketTag(tag2);
-  SimpleReadAndWrite(&server);
-  EXPECT_GT(net::GetTaggedBytes(tag_val2), old_traffic);
-}
-#endif
 
 }  // namespace network

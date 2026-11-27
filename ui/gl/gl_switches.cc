@@ -20,14 +20,8 @@
 #include "ui/gl/buildflags.h"
 #include "ui/gl/gl_display_manager.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/android/device_info.h"
-#include "third_party/re2/src/re2/re2.h"
-#endif
 
-#if BUILDFLAG(ENABLE_VULKAN) && \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID))
+#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_LINUX)
 #include <vulkan/vulkan_core.h>
 #include "third_party/angle/src/gpu_info_util/SystemInfo.h"  // nogncheck
 #endif  // BUILDFLAG(ENABLE_VULKAN) && (BUILDFLAG(IS_LINUX) ||
@@ -222,17 +216,6 @@ const auto kGLSwitchesCopiedFromGpuProcessHostArray = std::to_array({
 const base::span<const char* const> kGLSwitchesCopiedFromGpuProcessHost =
     kGLSwitchesCopiedFromGpuProcessHostArray;
 
-#if BUILDFLAG(IS_ANDROID)
-// On some Android emulators with software GL, ANGLE
-// is exposing the native fence sync extension but it doesn't
-// actually work. This switch is used to disable the Android native fence sync
-// during test to avoid crashes.
-//
-// TODO(https://crbug.com/337886037): Remove this flag once the upstream ANGLE
-// is fixed.
-const char kDisableAndroidNativeFenceSyncForTesting[] =
-    "disable-android-native-fence-sync-for-testing";
-#endif
 
 #if BUILDFLAG(IS_WIN)
 const char kFakeVsyncRate[] = "fake-vsync-rate";
@@ -260,84 +243,6 @@ namespace features {
 
 namespace {
 
-#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_ANDROID)
-
-constexpr uint32_t kVendorARM = 0x13b5;
-constexpr uint32_t kVendorQualcomm = 0x5143;
-constexpr uint32_t kVendorImagination = 0x1010;
-constexpr uint32_t kVendorIntel = 0x8086;
-constexpr uint32_t kVendorGoogle = 0x1AE0;
-constexpr uint32_t kDeviceSwiftShader = 0xC0DE;
-constexpr uint32_t kVendorMesa = 0x10005;
-constexpr uint32_t kDeviceLavapipe = 0x0;
-
-bool IsDeviceBlocked(std::string_view field, std::string_view block_list) {
-  auto disable_patterns = base::SplitString(
-      block_list, "|", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
-  for (const auto& disable_pattern : disable_patterns) {
-    if (base::MatchPattern(field, disable_pattern)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-int GetEMUIVersion() {
-  // TODO(crbug.com/40136096): check Honor devices as well.
-  if (base::android::android_info::manufacturer() != "HUAWEI") {
-    return -1;
-  }
-
-  // Huawei puts EMUI version in the build version incremental.
-  // Example: 11.0.0.130C00
-  int version = 0;
-  if (UNSAFE_TODO(
-          sscanf(base::android::android_info::version_incremental().c_str(),
-                 "%d.", &version)) != 1) {
-    return -1;
-  }
-
-  return version;
-}
-
-bool IsBlockedByBuildInfo() {
-  const char* kBlockListByHardware = "mt*";
-  const char* kBlockListByBrand = "HONOR";
-  const char* kBlockListByDevice = "OP4863|OP4883";
-  const char* kBlockListByBoard =
-      "RM67*|RM68*|k68*|mt6*|oppo67*|oppo68*|QM215|rk30sdk";
-
-  if (IsDeviceBlocked(base::android::android_info::hardware(),
-                      kBlockListByHardware)) {
-    return true;
-  }
-  if (IsDeviceBlocked(base::android::android_info::brand(),
-                      kBlockListByBrand)) {
-    return true;
-  }
-  if (IsDeviceBlocked(base::android::android_info::device(),
-                      kBlockListByDevice)) {
-    return true;
-  }
-  if (IsDeviceBlocked(base::android::android_info::board(),
-                      kBlockListByBoard)) {
-    return true;
-  }
-
-  return false;
-}
-
-// Everything that passed 2022 deQP tests.
-bool HasMinDeqpLevelForMediaTek() {
-  // We require at least android V deqp test to pass for v2.
-  constexpr int32_t kVulkanDEQPAndroidV = 0x7e80301;
-  if (base::android::device_info::vulkan_deqp_level() < kVulkanDEQPAndroidV) {
-    return false;
-  }
-
-  return true;
-}
-#endif  // BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -429,11 +334,7 @@ BASE_FEATURE(kSkipVulkanBlocklist,
 // --use-vulkan will be followed.
 // Note Android WebView uses kWebViewDrawFunctorUsesVulkan instead of this.
 BASE_FEATURE(kVulkan,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 VulkanPhysicalDeviceProperties::VulkanPhysicalDeviceProperties() = default;
@@ -474,23 +375,7 @@ bool IsDefaultANGLEVulkan() {
 #if defined(MEMORY_SANITIZER)
   return false;
 #else  // !defined(MEMORY_SANITIZER)
-#if BUILDFLAG(IS_ANDROID)
-  // No support for devices before Q -- exit before checking feature flags
-  // so that devices are not counted in finch trials.
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_Q) {
-    return false;
-  }
-
-  // For the sake of finch trials, limit to newer devices (Android T+); this
-  // condition can be relaxed over time.
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_T) {
-    return false;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(ENABLE_VULKAN) && \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID))
+#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_LINUX)
   angle::SystemInfo system_info;
   {
     TRACE_EVENT("gpu,startup", "angle::GetSystemInfoVulkan");
@@ -517,73 +402,6 @@ bool IsDefaultANGLEVulkan() {
   if (active_gpu.driverId == 0)
     return false;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Samsung GPUs already use ANGLE as the GLES driver.  Always choose
-  // ANGLE/Vulkan on these GPUs to avoid the inefficiencies of translating
-  // over ANGLE twice.
-  if (active_gpu.driverId == VK_DRIVER_ID_SAMSUNG_PROPRIETARY) {
-    if (!(feature_list && feature_list->IsFeatureOverriddenFromCommandLine(
-                              features::kDefaultANGLEVulkan.name,
-                              base::FeatureList::OVERRIDE_DISABLE_FEATURE))) {
-      return true;
-    }
-  }
-
-  // Exclude SwiftShader and Gfxstream-based Android emulators for now.
-  if (active_gpu.driverId == VK_DRIVER_ID_GOOGLE_SWIFTSHADER ||
-      active_gpu.driverId == VK_DRIVER_ID_MESA_GFXSTREAM) {
-    return false;
-  }
-
-  // Encountered bugs with older Imagination drivers. crbug.com/371512561
-  if (active_gpu.driverId == VK_DRIVER_ID_IMAGINATION_PROPRIETARY &&
-      (active_gpu.detailedDriverVersion.major < 1 ||
-       active_gpu.detailedDriverVersion.minor < 662)) {
-    return false;
-  }
-
-  // Exclude old ARM drivers due to crashes related to creating
-  // AHB-based Video images in Vulkan.  http://crbug.com/382676807.
-  if (active_gpu.driverId == VK_DRIVER_ID_ARM_PROPRIETARY &&
-      active_gpu.detailedDriverVersion.major <= 32) {
-    return false;
-  }
-
-  // Exclude old ARM chipsets due to rendering bugs, G52 is still found in
-  // Xiaomi phones. Note that if included in the future, there still seems to be
-  // a driver bug with async garbage collection, so that feature needs to be
-  // disabled in ANGLE. http://crbug.com/405085132
-  if (active_gpu.driverId == VK_DRIVER_ID_ARM_PROPRIETARY &&
-      active_gpu.deviceName.find("G52") != std::string::npos) {
-    return false;
-  }
-
-  // Exclude old Qualcomm drivers due to inefficient (and buggy) fallback
-  // to CPU path in glCopyTextureCHROMIUM with multi-plane images.
-  // http://crbug.com/383056998.
-  if (active_gpu.driverId == VK_DRIVER_ID_QUALCOMM_PROPRIETARY &&
-      active_gpu.detailedDriverVersion.minor <= 530) {
-    return false;
-  }
-
-  // Exclude Qualcomm 512.615 driver on Xiaomi phones that is the cause of
-  // yet-to-be explained GPU hangs.
-  // http://crbug.com/382725542
-  if (active_gpu.driverId == VK_DRIVER_ID_QUALCOMM_PROPRIETARY &&
-      active_gpu.detailedDriverVersion.minor == 615) {
-    return false;
-  }
-
-  // Exclude Qualcomm 512.676 driver on Adreno 720 that is the cause of
-  // undiagnosed rendering issues.
-  // http://crbug.com/440110161
-  if (active_gpu.driverId == VK_DRIVER_ID_QUALCOMM_PROPRIETARY &&
-      active_gpu.deviceName.find("Adreno") != std::string::npos &&
-      active_gpu.deviceName.find("720") != std::string::npos &&
-      active_gpu.detailedDriverVersion.minor == 676) {
-    return false;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_LINUX)
   // AMDVLK driver is buggy, so disable Vulkan with AMDVLK for now.
@@ -605,22 +423,6 @@ bool IsDefaultANGLEVulkan() {
 }
 
 bool IsUsingVulkan() {
-#if BUILDFLAG(IS_ANDROID)
-  // Force on if Vulkan feature is enabled from command line.
-  base::FeatureList* feature_list = base::FeatureList::GetInstance();
-  if (feature_list &&
-      feature_list->IsFeatureOverriddenFromCommandLine(
-          features::kVulkan.name, base::FeatureList::OVERRIDE_ENABLE_FEATURE)) {
-    return true;
-  }
-
-  // WebView checks, which do not use (and disables) kVulkan.
-  // Do this above the Android version check because there are test devices
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kWebViewDrawFunctorUsesVulkan)) {
-    return true;
-  }
-#endif
 
 #if BUILDFLAG(ENABLE_VULKAN)
   return base::FeatureList::IsEnabled(kVulkan);
@@ -633,110 +435,14 @@ bool CheckVulkanCompatibilities(
     const VulkanPhysicalDeviceProperties& device_properties) {
 #if !BUILDFLAG(ENABLE_VULKAN)
   return false;
-#elif !BUILDFLAG(IS_ANDROID)
+#else
 #if BUILDFLAG(IS_LINUX) && !defined(OZONE_PLATFORM_IS_X11)
   // Vulkan is only supported with X11 on Linux for now.
   return false;
 #else
   return true;
 #endif
-#else   // BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(features::kSkipVulkanBlocklist)) {
-    return true;
-  }
-
-  if (IsBlockedByBuildInfo() && !HasMinDeqpLevelForMediaTek()) {
-    return false;
-  }
-
-  if (device_properties.vendor_id == kVendorARM) {
-    int emui_version = GetEMUIVersion();
-    // TODO(crbug.com/40136096) Display problem with Huawei EMUI < 11 and Honor
-    // devices with Mali GPU. The Mali driver version is < 19.0.0.
-    if (device_properties.driver_version < VK_MAKE_VERSION(19, 0, 0) &&
-        emui_version < 11) {
-      return false;
-    }
-
-    // Remove "Mali-" prefix.
-    std::string_view device_name(device_properties.device_name);
-    if (!base::StartsWith(device_name, "Mali-")) {
-      LOG(ERROR) << "Unexpected device_name " << device_name;
-      return false;
-    }
-    device_name.remove_prefix(5);
-
-    // Remove anything trailing a space (e.g. "G76 MC4" => "G76").
-    device_name = device_name.substr(0, device_name.find(" "));
-
-    // Older Mali GPUs are not performant with Vulkan -- this blocks all Utgard
-    // gen, Midgard gen, and some Bifrost 1st & 2nd gen.
-    std::vector<const char*> slow_gpus = {"2??", "3??", "4??", "T???",
-                                          "G31", "G51", "G52"};
-    for (std::string_view slow_gpu : slow_gpus) {
-      if (base::MatchPattern(device_name, slow_gpu)) {
-        return false;
-      }
-    }
-
-    // Most Mali-G57 devices had vkCreateInstance() fail and would use GL. Add
-    // them to the blocklist to keep these devices from using Vulkan with
-    // Graphite. The exception is devices with driver version >= 41 had
-    // vkCreateInstance() pass and were running Vulkan. See
-    // https://crbug.com/384531040 for more info.
-    if (device_name == "G57" &&
-        device_properties.driver_version < VK_MAKE_VERSION(41, 0, 0)) {
-      return false;
-    }
-
-    // Allow remaining Mali GPUs that aren't MediaTek. https://crbug.com/1183702
-    if (!IsDeviceBlocked(device_properties.device_name, "*Mali-G?? M*")) {
-      return true;
-    }
-
-    // MediaTek Mali-G57 has problems initializing Vulkan even with 2022 deQP
-    // tests passed, devices that init successfully show performance regression.
-    if (device_name == "G57") {
-      return false;
-    }
-
-    // For MediaTek allow everything that passed 2022 deQP tests.
-    return HasMinDeqpLevelForMediaTek();
-  }
-
-  if (device_properties.vendor_id == kVendorQualcomm) {
-    // Only Adreno 630 with drivers newer than 444.0. This was launched for
-    // Pixel 3 in the original Vulkan launch but otherwise Vulkan hasn't
-    // performan as well as GL. https://crbug.com/1165783
-    return device_properties.device_name ==
-               std::string_view("Adreno (TM) 630") &&
-           device_properties.driver_version > VK_MAKE_VERSION(512, 444, 0);
-  }
-
-  if (device_properties.vendor_id == kVendorImagination) {
-    // Only newer PowerVR GPU series allowed. Older PowerVR GPUs showed poor
-    // performance and stability problems, see https://crbug.com/1122650.
-    return RE2::FullMatch(device_properties.device_name,
-                          "PowerVR ([CDE]-Series)? [CDE]X.*");
-  }
-
-  // Some devices implement Vulkan using Swiftshader or Lavapipe. We do not want
-  // those, because of performance, and stability (crbug.com/1479335).
-  if ((device_properties.vendor_id == kVendorGoogle &&
-       device_properties.device_id == kDeviceSwiftShader) ||
-      (device_properties.vendor_id == kVendorMesa &&
-       device_properties.device_id == kDeviceLavapipe)) {
-    return false;
-  }
-
-  // Some android x86 devices (e.g older gpu on auto devices) don't report
-  // format support correctly. See crbug.com/379205391
-  if (device_properties.vendor_id == kVendorIntel) {
-    return false;
-  }
-
-  return true;
-#endif  // BUILDFLAG(IS_ANDROID)
+#endif
 }
 
 // Use waitable swap chain on Windows to reduce display latency.

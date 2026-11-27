@@ -1377,16 +1377,10 @@ void AXObject::SerializeBoundingBoxAttributes(ui::AXNodeData& dst) const {
   AXObjectCache().SetCachedBoundingBox(AXObjectID(), dst.relative_bounds,
                                        scroll_offset.x(), scroll_offset.y());
 
-#if BUILDFLAG(IS_ANDROID)
-  if (blink::features::IsXrDevice() && GetPaintOrder() > 0) {
-    dst.AddIntAttribute(ax::mojom::blink::IntAttribute::kPaintOrder,
-                        GetPaintOrder());
-  }
-#endif
 }
 
 static bool AXShouldIncludePageScaleFactorInRoot() {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC)
+#if !BUILDFLAG(IS_MAC)
   return true;
 #else
   return false;
@@ -2107,22 +2101,12 @@ void AXObject::SerializeMathContent(ui::AXNodeData* node_data) const {
     return;
   }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
   if (node_data->role == ax::mojom::blink::Role::kMath ||
       node_data->role == ax::mojom::blink::Role::kMathMLMath) {
     TruncateAndAddStringAttribute(
         node_data, ax::mojom::blink::StringAttribute::kMathContent,
         element->GetInnerHTMLString(), kMaxStaticTextLength);
-  }
-#elif BUILDFLAG(IS_ANDROID)
-  if (element->IsMathMLElement()) {
-    // Add `arg` and `intent` attributes if non-empty.
-    TruncateAndAddStringAttribute(
-        node_data, ax::mojom::blink::StringAttribute::kMathArg,
-        element->getAttribute(mathml_names::kArgAttr));
-    TruncateAndAddStringAttribute(
-        node_data, ax::mojom::blink::StringAttribute::kMathIntent,
-        element->getAttribute(mathml_names::kIntentAttr));
   }
 #endif
 }
@@ -2369,15 +2353,7 @@ void AXObject::SerializeUnignoredAttributes(ui::AXNodeData* node_data,
 
   if (accessibility_mode.has_mode(ui::AXMode::kExtendedProperties)) {
     SerializeMarkerAttributes(node_data);
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, style attributes are only serialized for snapshots, or, when
-    // the experimental feature flag for text formatting data is enabled.
-    if (is_snapshot || ::features::IsAccessibilityTextFormattingEnabled()) {
-      SerializeStyleAttributes(node_data);
-    }
-#else
     SerializeStyleAttributes(node_data);
-#endif
   } else if (accessibility_mode.has_mode(ui::AXMode::kPDFPrinting)) {
     // For PDF printing, we need to serialize the list style to distinguish
     // ordered vs unordered lists in the PDF structure tree.
@@ -4427,34 +4403,6 @@ bool AXObject::IsExcludedByFormControlsFilter() const {
   return true;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void AXObject::AnnotateXrHitTestOrder(const Document& document,
-                                      const HashMap<DOMNodeId, int>& order_map,
-                                      int inherited_paint_order) {
-  CHECK(blink::features::IsXrDevice());
-  if (IsDetached() || GetDocument() != &document) {
-    return;
-  }
-
-  // If we don't find a paint order for this node, use the paint order
-  // inherited from its nearest ancestor.
-  paint_order_ = inherited_paint_order;
-  Node* node = GetNode();
-  if (node) {
-    DOMNodeId dom_node_id = node->GetDomNodeId();
-    if (dom_node_id != kInvalidDOMNodeId) {
-      auto it = order_map.find(dom_node_id);
-      if (it != order_map.end()) {
-        paint_order_ = it->value;
-      }
-    }
-  }
-
-  for (auto& child : CachedChildrenIncludingIgnored()) {
-    child->AnnotateXrHitTestOrder(document, order_map, paint_order_);
-  }
-}
-#endif
 
 bool AXObject::ComputeIsIgnoredButIncludedInTree() {
   CHECK(!IsDetached());

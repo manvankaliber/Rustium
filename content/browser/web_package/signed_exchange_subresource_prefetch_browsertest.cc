@@ -623,7 +623,7 @@ IN_PROC_BROWSER_TEST_F(SignedExchangePrefetchBrowserTest,
 }
 
 // Flaky on Linux TSan, http://crbug.com/1050879
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(THREAD_SANITIZER)
+#if BUILDFLAG(IS_LINUX) && defined(THREAD_SANITIZER)
 #define MAYBE_PrefetchMainResourceSXG_SignatureExpire \
   DISABLED_PrefetchMainResourceSXG_SignatureExpire
 #else
@@ -1100,8 +1100,7 @@ IN_PROC_BROWSER_TEST_F(SignedExchangeSubresourcePrefetchBrowserTest,
 }
 
 // Flaky. See https://crbug.com/1415204 and https://crbug.com/1494880.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID) || \
-    (BUILDFLAG(IS_LINUX) && defined(ADDRESS_SANITIZER))
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) && defined(ADDRESS_SANITIZER)
 #define MAYBE_MainResourceSXGAndScriptSXG_CrossOrigin_AsDocument \
   DISABLED_MainResourceSXGAndScriptSXG_CrossOrigin_AsDocument
 #else

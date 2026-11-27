@@ -357,8 +357,6 @@ void DriverGL::InitializeDynamicBindings(GLGetProcAddressProc get_proc_address,
       gfx::HasExtension(extensions, "GL_ANGLE_instanced_arrays");
   ext.b_GL_ANGLE_memory_object_flags =
       gfx::HasExtension(extensions, "GL_ANGLE_memory_object_flags");
-  ext.b_GL_ANGLE_memory_object_fuchsia =
-      gfx::HasExtension(extensions, "GL_ANGLE_memory_object_fuchsia");
   ext.b_GL_ANGLE_multi_draw =
       gfx::HasExtension(extensions, "GL_ANGLE_multi_draw");
   ext.b_GL_ANGLE_polygon_mode =
@@ -373,8 +371,6 @@ void DriverGL::InitializeDynamicBindings(GLGetProcAddressProc get_proc_address,
       gfx::HasExtension(extensions, "GL_ANGLE_robust_client_memory");
   ext.b_GL_ANGLE_robust_resource_initialization =
       gfx::HasExtension(extensions, "GL_ANGLE_robust_resource_initialization");
-  ext.b_GL_ANGLE_semaphore_fuchsia =
-      gfx::HasExtension(extensions, "GL_ANGLE_semaphore_fuchsia");
   ext.b_GL_ANGLE_shader_pixel_local_storage =
       gfx::HasExtension(extensions, "GL_ANGLE_shader_pixel_local_storage");
   ext.b_GL_ANGLE_texture_external_update =
@@ -1443,12 +1439,6 @@ void DriverGL::InitializeDynamicBindings(GLGetProcAddressProc get_proc_address,
             get_proc_address("glImportMemoryWin32HandleEXT"));
   }
 
-  if (ext.b_GL_ANGLE_memory_object_fuchsia) {
-    fn.glImportMemoryZirconHandleANGLEFn =
-        reinterpret_cast<glImportMemoryZirconHandleANGLEProc>(
-            get_proc_address("glImportMemoryZirconHandleANGLE"));
-  }
-
   if (ext.b_GL_EXT_semaphore_fd) {
     fn.glImportSemaphoreFdEXTFn = reinterpret_cast<glImportSemaphoreFdEXTProc>(
         get_proc_address("glImportSemaphoreFdEXT"));
@@ -1458,12 +1448,6 @@ void DriverGL::InitializeDynamicBindings(GLGetProcAddressProc get_proc_address,
     fn.glImportSemaphoreWin32HandleEXTFn =
         reinterpret_cast<glImportSemaphoreWin32HandleEXTProc>(
             get_proc_address("glImportSemaphoreWin32HandleEXT"));
-  }
-
-  if (ext.b_GL_ANGLE_semaphore_fuchsia) {
-    fn.glImportSemaphoreZirconHandleANGLEFn =
-        reinterpret_cast<glImportSemaphoreZirconHandleANGLEProc>(
-            get_proc_address("glImportSemaphoreZirconHandleANGLE"));
   }
 
   if (ext.b_GL_EXT_debug_marker) {
@@ -2267,170 +2251,168 @@ void DriverGL::InitializeDynamicBindings(GLGetProcAddressProc get_proc_address,
             "glHint",                                                    // 237
             "glImportMemoryFdEXT",                                       // 238
             "glImportMemoryWin32HandleEXT",                              // 239
-            "glImportMemoryZirconHandleANGLE",                           // 240
-            "glImportSemaphoreFdEXT",                                    // 241
-            "glImportSemaphoreWin32HandleEXT",                           // 242
-            "glImportSemaphoreZirconHandleANGLE",                        // 243
-            "glInsertEventMarkerEXT",                                    // 244
-            "glInvalidateFramebuffer",                                   // 245
-            "glInvalidateSubFramebuffer",                                // 246
-            "glInvalidateTextureANGLE",                                  // 247
-            "glIsBuffer",                                                // 248
-            "glIsEnabled",                                               // 249
-            "glIsEnablediOES",                                           // 250
-            "glIsFenceNV",                                               // 251
-            "glIsFramebuffer",                                           // 252
-            "glIsProgram",                                               // 253
-            "glIsQuery",                                                 // 254
-            "glIsRenderbuffer",                                          // 255
-            "glIsSampler",                                               // 256
-            "glIsShader",                                                // 257
-            "glIsSync",                                                  // 258
-            "glIsTexture",                                               // 259
-            "glIsTransformFeedback",                                     // 260
-            "glIsVertexArray",                                           // 261
-            "glLineWidth",                                               // 262
-            "glLinkProgram",                                             // 263
-            "glMapBufferOES",                                            // 264
-            "glMapBufferRange",                                          // 265
-            "glMaxShaderCompilerThreadsKHR",                             // 266
-            "glMemoryObjectParameterivEXT",                              // 267
-            "glMultiDrawArraysANGLE",                                    // 268
-            "glMultiDrawArraysInstancedANGLE",                           // 269
-            "glMultiDrawArraysInstancedBaseInstanceANGLE",               // 270
-            "glMultiDrawElementsANGLE",                                  // 271
-            "glMultiDrawElementsInstancedANGLE",                         // 272
-            "glMultiDrawElementsInstancedBaseVertexBaseInstanceANGLE",   // 273
-            "glObjectLabelKHR",                                          // 274
-            "glObjectPtrLabelKHR",                                       // 275
-            "glPatchParameteriOES",                                      // 276
-            "glPauseTransformFeedback",                                  // 277
-            "glPixelLocalStorageBarrierANGLE",                           // 278
-            "glPixelStorei",                                             // 279
-            "glPointParameteri",                                         // 280
-            "glPolygonMode",                                             // 281
-            "glPolygonModeANGLE",                                        // 282
-            "glPolygonOffset",                                           // 283
-            "glPolygonOffsetClampEXT",                                   // 284
-            "glPopDebugGroupKHR",                                        // 285
-            "glPopGroupMarkerEXT",                                       // 286
-            "glPrimitiveRestartIndex",                                   // 287
-            "glProgramBinary",                                           // 288
-            "glProgramParameteri",                                       // 289
-            "glProvokingVertexANGLE",                                    // 290
-            "glPushDebugGroupKHR",                                       // 291
-            "glPushGroupMarkerEXT",                                      // 292
-            "glQueryCounterEXT",                                         // 293
-            "glReadBuffer",                                              // 294
-            "glReadPixels",                                              // 295
-            "glReadPixelsRobustANGLE",                                   // 296
-            "glReleaseShaderCompiler",                                   // 297
-            "glReleaseTexturesANGLE",                                    // 298
-            "glRenderbufferStorage",                                     // 299
-            "glRenderbufferStorageMultisample",                          // 300
-            "glRenderbufferStorageMultisampleAdvancedAMD",               // 301
-            "glRenderbufferStorageMultisampleEXT",                       // 302
-            "glRequestExtensionANGLE",                                   // 303
-            "glResumeTransformFeedback",                                 // 304
-            "glSampleCoverage",                                          // 305
-            "glSamplerParameterf",                                       // 306
-            "glSamplerParameterfv",                                      // 307
-            "glSamplerParameterfvRobustANGLE",                           // 308
-            "glSamplerParameteri",                                       // 309
-            "glSamplerParameteriv",                                      // 310
-            "glSamplerParameterivRobustANGLE",                           // 311
-            "glScissor",                                                 // 312
-            "glSetFenceNV",                                              // 313
-            "glShaderBinary",                                            // 314
-            "glShaderSource",                                            // 315
-            "glSignalSemaphoreEXT",                                      // 316
-            "glStartTilingQCOM",                                         // 317
-            "glStencilFunc",                                             // 318
-            "glStencilFuncSeparate",                                     // 319
-            "glStencilMask",                                             // 320
-            "glStencilMaskSeparate",                                     // 321
-            "glStencilOp",                                               // 322
-            "glStencilOpSeparate",                                       // 323
-            "glTestFenceNV",                                             // 324
-            "glTexBufferOES",                                            // 325
-            "glTexBufferRangeOES",                                       // 326
-            "glTexImage2D",                                              // 327
-            "glTexImage2DExternalANGLE",                                 // 328
-            "glTexImage2DRobustANGLE",                                   // 329
-            "glTexImage3D",                                              // 330
-            "glTexImage3DRobustANGLE",                                   // 331
-            "glTexParameterf",                                           // 332
-            "glTexParameterfv",                                          // 333
-            "glTexParameterfvRobustANGLE",                               // 334
-            "glTexParameteri",                                           // 335
-            "glTexParameteriv",                                          // 336
-            "glTexParameterivRobustANGLE",                               // 337
-            "glTexStorage2D",                                            // 338
-            "glTexStorage3D",                                            // 339
-            "glTexStorageMem2DEXT",                                      // 340
-            "glTexStorageMemFlags2DANGLE",                               // 341
-            "glTexSubImage2D",                                           // 342
-            "glTexSubImage2DRobustANGLE",                                // 343
-            "glTexSubImage3D",                                           // 344
-            "glTexSubImage3DRobustANGLE",                                // 345
-            "glTransformFeedbackVaryings",                               // 346
-            "glTrimMemoryANGLE",                                         // 347
-            "glUniform1f",                                               // 348
-            "glUniform1fv",                                              // 349
-            "glUniform1i",                                               // 350
-            "glUniform1iv",                                              // 351
-            "glUniform1ui",                                              // 352
-            "glUniform1uiv",                                             // 353
-            "glUniform2f",                                               // 354
-            "glUniform2fv",                                              // 355
-            "glUniform2i",                                               // 356
-            "glUniform2iv",                                              // 357
-            "glUniform2ui",                                              // 358
-            "glUniform2uiv",                                             // 359
-            "glUniform3f",                                               // 360
-            "glUniform3fv",                                              // 361
-            "glUniform3i",                                               // 362
-            "glUniform3iv",                                              // 363
-            "glUniform3ui",                                              // 364
-            "glUniform3uiv",                                             // 365
-            "glUniform4f",                                               // 366
-            "glUniform4fv",                                              // 367
-            "glUniform4i",                                               // 368
-            "glUniform4iv",                                              // 369
-            "glUniform4ui",                                              // 370
-            "glUniform4uiv",                                             // 371
-            "glUniformBlockBinding",                                     // 372
-            "glUniformMatrix2fv",                                        // 373
-            "glUniformMatrix2x3fv",                                      // 374
-            "glUniformMatrix2x4fv",                                      // 375
-            "glUniformMatrix3fv",                                        // 376
-            "glUniformMatrix3x2fv",                                      // 377
-            "glUniformMatrix3x4fv",                                      // 378
-            "glUniformMatrix4fv",                                        // 379
-            "glUniformMatrix4x2fv",                                      // 380
-            "glUniformMatrix4x3fv",                                      // 381
-            "glUnmapBuffer",                                             // 382
-            "glUseProgram",                                              // 383
-            "glValidateProgram",                                         // 384
-            "glVertexAttrib1f",                                          // 385
-            "glVertexAttrib1fv",                                         // 386
-            "glVertexAttrib2f",                                          // 387
-            "glVertexAttrib2fv",                                         // 388
-            "glVertexAttrib3f",                                          // 389
-            "glVertexAttrib3fv",                                         // 390
-            "glVertexAttrib4f",                                          // 391
-            "glVertexAttrib4fv",                                         // 392
-            "glVertexAttribDivisor",                                     // 393
-            "glVertexAttribI4i",                                         // 394
-            "glVertexAttribI4iv",                                        // 395
-            "glVertexAttribI4ui",                                        // 396
-            "glVertexAttribI4uiv",                                       // 397
-            "glVertexAttribIPointer",                                    // 398
-            "glVertexAttribPointer",                                     // 399
-            "glViewport",                                                // 400
-            "glWaitSemaphoreEXT",                                        // 401
-            "glWaitSync",                                                // 402
-            "glWindowRectanglesEXT",                                     // 403
+            "glImportSemaphoreFdEXT",                                    // 240
+            "glImportSemaphoreWin32HandleEXT",                           // 241
+            "glInsertEventMarkerEXT",                                    // 242
+            "glInvalidateFramebuffer",                                   // 243
+            "glInvalidateSubFramebuffer",                                // 244
+            "glInvalidateTextureANGLE",                                  // 245
+            "glIsBuffer",                                                // 246
+            "glIsEnabled",                                               // 247
+            "glIsEnablediOES",                                           // 248
+            "glIsFenceNV",                                               // 249
+            "glIsFramebuffer",                                           // 250
+            "glIsProgram",                                               // 251
+            "glIsQuery",                                                 // 252
+            "glIsRenderbuffer",                                          // 253
+            "glIsSampler",                                               // 254
+            "glIsShader",                                                // 255
+            "glIsSync",                                                  // 256
+            "glIsTexture",                                               // 257
+            "glIsTransformFeedback",                                     // 258
+            "glIsVertexArray",                                           // 259
+            "glLineWidth",                                               // 260
+            "glLinkProgram",                                             // 261
+            "glMapBufferOES",                                            // 262
+            "glMapBufferRange",                                          // 263
+            "glMaxShaderCompilerThreadsKHR",                             // 264
+            "glMemoryObjectParameterivEXT",                              // 265
+            "glMultiDrawArraysANGLE",                                    // 266
+            "glMultiDrawArraysInstancedANGLE",                           // 267
+            "glMultiDrawArraysInstancedBaseInstanceANGLE",               // 268
+            "glMultiDrawElementsANGLE",                                  // 269
+            "glMultiDrawElementsInstancedANGLE",                         // 270
+            "glMultiDrawElementsInstancedBaseVertexBaseInstanceANGLE",   // 271
+            "glObjectLabelKHR",                                          // 272
+            "glObjectPtrLabelKHR",                                       // 273
+            "glPatchParameteriOES",                                      // 274
+            "glPauseTransformFeedback",                                  // 275
+            "glPixelLocalStorageBarrierANGLE",                           // 276
+            "glPixelStorei",                                             // 277
+            "glPointParameteri",                                         // 278
+            "glPolygonMode",                                             // 279
+            "glPolygonModeANGLE",                                        // 280
+            "glPolygonOffset",                                           // 281
+            "glPolygonOffsetClampEXT",                                   // 282
+            "glPopDebugGroupKHR",                                        // 283
+            "glPopGroupMarkerEXT",                                       // 284
+            "glPrimitiveRestartIndex",                                   // 285
+            "glProgramBinary",                                           // 286
+            "glProgramParameteri",                                       // 287
+            "glProvokingVertexANGLE",                                    // 288
+            "glPushDebugGroupKHR",                                       // 289
+            "glPushGroupMarkerEXT",                                      // 290
+            "glQueryCounterEXT",                                         // 291
+            "glReadBuffer",                                              // 292
+            "glReadPixels",                                              // 293
+            "glReadPixelsRobustANGLE",                                   // 294
+            "glReleaseShaderCompiler",                                   // 295
+            "glReleaseTexturesANGLE",                                    // 296
+            "glRenderbufferStorage",                                     // 297
+            "glRenderbufferStorageMultisample",                          // 298
+            "glRenderbufferStorageMultisampleAdvancedAMD",               // 299
+            "glRenderbufferStorageMultisampleEXT",                       // 300
+            "glRequestExtensionANGLE",                                   // 301
+            "glResumeTransformFeedback",                                 // 302
+            "glSampleCoverage",                                          // 303
+            "glSamplerParameterf",                                       // 304
+            "glSamplerParameterfv",                                      // 305
+            "glSamplerParameterfvRobustANGLE",                           // 306
+            "glSamplerParameteri",                                       // 307
+            "glSamplerParameteriv",                                      // 308
+            "glSamplerParameterivRobustANGLE",                           // 309
+            "glScissor",                                                 // 310
+            "glSetFenceNV",                                              // 311
+            "glShaderBinary",                                            // 312
+            "glShaderSource",                                            // 313
+            "glSignalSemaphoreEXT",                                      // 314
+            "glStartTilingQCOM",                                         // 315
+            "glStencilFunc",                                             // 316
+            "glStencilFuncSeparate",                                     // 317
+            "glStencilMask",                                             // 318
+            "glStencilMaskSeparate",                                     // 319
+            "glStencilOp",                                               // 320
+            "glStencilOpSeparate",                                       // 321
+            "glTestFenceNV",                                             // 322
+            "glTexBufferOES",                                            // 323
+            "glTexBufferRangeOES",                                       // 324
+            "glTexImage2D",                                              // 325
+            "glTexImage2DExternalANGLE",                                 // 326
+            "glTexImage2DRobustANGLE",                                   // 327
+            "glTexImage3D",                                              // 328
+            "glTexImage3DRobustANGLE",                                   // 329
+            "glTexParameterf",                                           // 330
+            "glTexParameterfv",                                          // 331
+            "glTexParameterfvRobustANGLE",                               // 332
+            "glTexParameteri",                                           // 333
+            "glTexParameteriv",                                          // 334
+            "glTexParameterivRobustANGLE",                               // 335
+            "glTexStorage2D",                                            // 336
+            "glTexStorage3D",                                            // 337
+            "glTexStorageMem2DEXT",                                      // 338
+            "glTexStorageMemFlags2DANGLE",                               // 339
+            "glTexSubImage2D",                                           // 340
+            "glTexSubImage2DRobustANGLE",                                // 341
+            "glTexSubImage3D",                                           // 342
+            "glTexSubImage3DRobustANGLE",                                // 343
+            "glTransformFeedbackVaryings",                               // 344
+            "glTrimMemoryANGLE",                                         // 345
+            "glUniform1f",                                               // 346
+            "glUniform1fv",                                              // 347
+            "glUniform1i",                                               // 348
+            "glUniform1iv",                                              // 349
+            "glUniform1ui",                                              // 350
+            "glUniform1uiv",                                             // 351
+            "glUniform2f",                                               // 352
+            "glUniform2fv",                                              // 353
+            "glUniform2i",                                               // 354
+            "glUniform2iv",                                              // 355
+            "glUniform2ui",                                              // 356
+            "glUniform2uiv",                                             // 357
+            "glUniform3f",                                               // 358
+            "glUniform3fv",                                              // 359
+            "glUniform3i",                                               // 360
+            "glUniform3iv",                                              // 361
+            "glUniform3ui",                                              // 362
+            "glUniform3uiv",                                             // 363
+            "glUniform4f",                                               // 364
+            "glUniform4fv",                                              // 365
+            "glUniform4i",                                               // 366
+            "glUniform4iv",                                              // 367
+            "glUniform4ui",                                              // 368
+            "glUniform4uiv",                                             // 369
+            "glUniformBlockBinding",                                     // 370
+            "glUniformMatrix2fv",                                        // 371
+            "glUniformMatrix2x3fv",                                      // 372
+            "glUniformMatrix2x4fv",                                      // 373
+            "glUniformMatrix3fv",                                        // 374
+            "glUniformMatrix3x2fv",                                      // 375
+            "glUniformMatrix3x4fv",                                      // 376
+            "glUniformMatrix4fv",                                        // 377
+            "glUniformMatrix4x2fv",                                      // 378
+            "glUniformMatrix4x3fv",                                      // 379
+            "glUnmapBuffer",                                             // 380
+            "glUseProgram",                                              // 381
+            "glValidateProgram",                                         // 382
+            "glVertexAttrib1f",                                          // 383
+            "glVertexAttrib1fv",                                         // 384
+            "glVertexAttrib2f",                                          // 385
+            "glVertexAttrib2fv",                                         // 386
+            "glVertexAttrib3f",                                          // 387
+            "glVertexAttrib3fv",                                         // 388
+            "glVertexAttrib4f",                                          // 389
+            "glVertexAttrib4fv",                                         // 390
+            "glVertexAttribDivisor",                                     // 391
+            "glVertexAttribI4i",                                         // 392
+            "glVertexAttribI4iv",                                        // 393
+            "glVertexAttribI4ui",                                        // 394
+            "glVertexAttribI4uiv",                                       // 395
+            "glVertexAttribIPointer",                                    // 396
+            "glVertexAttribPointer",                                     // 397
+            "glViewport",                                                // 398
+            "glWaitSemaphoreEXT",                                        // 399
+            "glWaitSync",                                                // 400
+            "glWindowRectanglesEXT",                                     // 401
         });
 
     // The loop below writes the i-th function pointer at
@@ -3004,357 +2986,351 @@ void DriverGL::InitializeDynamicBindings(GLGetProcAddressProc get_proc_address,
     static_assert(
         offsetof(ProcsGL, glImportMemoryWin32HandleEXTContextANGLEFn) ==
         kFirstOffset + 239 * sizeof(GLFunctionPointerType));
-    static_assert(
-        offsetof(ProcsGL, glImportMemoryZirconHandleANGLEContextANGLEFn) ==
-        kFirstOffset + 240 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glImportSemaphoreFdEXTContextANGLEFn) ==
-                  kFirstOffset + 241 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 240 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glImportSemaphoreWin32HandleEXTContextANGLEFn) ==
-        kFirstOffset + 242 * sizeof(GLFunctionPointerType));
-    static_assert(
-        offsetof(ProcsGL, glImportSemaphoreZirconHandleANGLEContextANGLEFn) ==
-        kFirstOffset + 243 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 241 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glInsertEventMarkerEXTContextANGLEFn) ==
-                  kFirstOffset + 244 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 242 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glInvalidateFramebufferContextANGLEFn) ==
-                  kFirstOffset + 245 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 243 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glInvalidateSubFramebufferContextANGLEFn) ==
-                  kFirstOffset + 246 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 244 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glInvalidateTextureANGLEContextANGLEFn) ==
-                  kFirstOffset + 247 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 245 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsBufferContextANGLEFn) ==
-                  kFirstOffset + 248 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 246 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsEnabledContextANGLEFn) ==
-                  kFirstOffset + 249 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 247 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsEnablediOESContextANGLEFn) ==
-                  kFirstOffset + 250 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 248 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsFenceNVContextANGLEFn) ==
-                  kFirstOffset + 251 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 249 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsFramebufferEXTContextANGLEFn) ==
-                  kFirstOffset + 252 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 250 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsProgramContextANGLEFn) ==
-                  kFirstOffset + 253 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 251 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsQueryContextANGLEFn) ==
-                  kFirstOffset + 254 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 252 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsRenderbufferEXTContextANGLEFn) ==
-                  kFirstOffset + 255 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 253 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsSamplerContextANGLEFn) ==
-                  kFirstOffset + 256 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 254 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsShaderContextANGLEFn) ==
-                  kFirstOffset + 257 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 255 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsSyncContextANGLEFn) ==
-                  kFirstOffset + 258 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 256 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsTextureContextANGLEFn) ==
-                  kFirstOffset + 259 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 257 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsTransformFeedbackContextANGLEFn) ==
-                  kFirstOffset + 260 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 258 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glIsVertexArrayOESContextANGLEFn) ==
-                  kFirstOffset + 261 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 259 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glLineWidthContextANGLEFn) ==
-                  kFirstOffset + 262 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 260 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glLinkProgramContextANGLEFn) ==
-                  kFirstOffset + 263 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 261 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glMapBufferContextANGLEFn) ==
-                  kFirstOffset + 264 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 262 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glMapBufferRangeContextANGLEFn) ==
-                  kFirstOffset + 265 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 263 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glMaxShaderCompilerThreadsKHRContextANGLEFn) ==
-        kFirstOffset + 266 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 264 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glMemoryObjectParameterivEXTContextANGLEFn) ==
-        kFirstOffset + 267 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 265 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glMultiDrawArraysANGLEContextANGLEFn) ==
-                  kFirstOffset + 268 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 266 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glMultiDrawArraysInstancedANGLEContextANGLEFn) ==
-        kFirstOffset + 269 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 267 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL,
                  glMultiDrawArraysInstancedBaseInstanceANGLEContextANGLEFn) ==
-        kFirstOffset + 270 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 268 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glMultiDrawElementsANGLEContextANGLEFn) ==
-                  kFirstOffset + 271 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 269 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glMultiDrawElementsInstancedANGLEContextANGLEFn) ==
-        kFirstOffset + 272 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 270 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(
             ProcsGL,
             glMultiDrawElementsInstancedBaseVertexBaseInstanceANGLEContextANGLEFn) ==
-        kFirstOffset + 273 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 271 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glObjectLabelKHRContextANGLEFn) ==
-                  kFirstOffset + 274 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 272 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glObjectPtrLabelKHRContextANGLEFn) ==
-                  kFirstOffset + 275 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 273 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPatchParameteriOESContextANGLEFn) ==
-                  kFirstOffset + 276 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 274 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPauseTransformFeedbackContextANGLEFn) ==
-                  kFirstOffset + 277 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 275 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glPixelLocalStorageBarrierANGLEContextANGLEFn) ==
-        kFirstOffset + 278 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 276 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPixelStoreiContextANGLEFn) ==
-                  kFirstOffset + 279 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 277 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPointParameteriContextANGLEFn) ==
-                  kFirstOffset + 280 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 278 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPolygonModeContextANGLEFn) ==
-                  kFirstOffset + 281 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 279 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPolygonModeANGLEContextANGLEFn) ==
-                  kFirstOffset + 282 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 280 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPolygonOffsetContextANGLEFn) ==
-                  kFirstOffset + 283 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 281 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPolygonOffsetClampEXTContextANGLEFn) ==
-                  kFirstOffset + 284 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 282 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPopDebugGroupKHRContextANGLEFn) ==
-                  kFirstOffset + 285 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 283 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPopGroupMarkerEXTContextANGLEFn) ==
-                  kFirstOffset + 286 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 284 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPrimitiveRestartIndexContextANGLEFn) ==
-                  kFirstOffset + 287 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 285 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glProgramBinaryContextANGLEFn) ==
-                  kFirstOffset + 288 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 286 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glProgramParameteriContextANGLEFn) ==
-                  kFirstOffset + 289 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 287 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glProvokingVertexANGLEContextANGLEFn) ==
-                  kFirstOffset + 290 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 288 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPushDebugGroupKHRContextANGLEFn) ==
-                  kFirstOffset + 291 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 289 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glPushGroupMarkerEXTContextANGLEFn) ==
-                  kFirstOffset + 292 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 290 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glQueryCounterContextANGLEFn) ==
-                  kFirstOffset + 293 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 291 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glReadBufferContextANGLEFn) ==
-                  kFirstOffset + 294 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 292 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glReadPixelsContextANGLEFn) ==
-                  kFirstOffset + 295 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 293 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glReadPixelsRobustANGLEContextANGLEFn) ==
-                  kFirstOffset + 296 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 294 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glReleaseShaderCompilerContextANGLEFn) ==
-                  kFirstOffset + 297 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 295 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glReleaseTexturesANGLEContextANGLEFn) ==
-                  kFirstOffset + 298 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 296 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glRenderbufferStorageEXTContextANGLEFn) ==
-                  kFirstOffset + 299 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 297 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glRenderbufferStorageMultisampleContextANGLEFn) ==
-        kFirstOffset + 300 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 298 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL,
                  glRenderbufferStorageMultisampleAdvancedAMDContextANGLEFn) ==
-        kFirstOffset + 301 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 299 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glRenderbufferStorageMultisampleEXTContextANGLEFn) ==
-        kFirstOffset + 302 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 300 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glRequestExtensionANGLEContextANGLEFn) ==
-                  kFirstOffset + 303 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 301 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glResumeTransformFeedbackContextANGLEFn) ==
-                  kFirstOffset + 304 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 302 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glSampleCoverageContextANGLEFn) ==
-                  kFirstOffset + 305 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 303 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glSamplerParameterfContextANGLEFn) ==
-                  kFirstOffset + 306 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 304 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glSamplerParameterfvContextANGLEFn) ==
-                  kFirstOffset + 307 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 305 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glSamplerParameterfvRobustANGLEContextANGLEFn) ==
-        kFirstOffset + 308 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 306 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glSamplerParameteriContextANGLEFn) ==
-                  kFirstOffset + 309 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 307 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glSamplerParameterivContextANGLEFn) ==
-                  kFirstOffset + 310 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 308 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glSamplerParameterivRobustANGLEContextANGLEFn) ==
-        kFirstOffset + 311 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 309 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glScissorContextANGLEFn) ==
-                  kFirstOffset + 312 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 310 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glSetFenceNVContextANGLEFn) ==
-                  kFirstOffset + 313 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 311 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glShaderBinaryContextANGLEFn) ==
-                  kFirstOffset + 314 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 312 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glShaderSourceContextANGLEFn) ==
-                  kFirstOffset + 315 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 313 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glSignalSemaphoreEXTContextANGLEFn) ==
-                  kFirstOffset + 316 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 314 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glStartTilingQCOMContextANGLEFn) ==
-                  kFirstOffset + 317 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 315 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glStencilFuncContextANGLEFn) ==
-                  kFirstOffset + 318 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 316 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glStencilFuncSeparateContextANGLEFn) ==
-                  kFirstOffset + 319 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 317 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glStencilMaskContextANGLEFn) ==
-                  kFirstOffset + 320 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 318 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glStencilMaskSeparateContextANGLEFn) ==
-                  kFirstOffset + 321 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 319 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glStencilOpContextANGLEFn) ==
-                  kFirstOffset + 322 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 320 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glStencilOpSeparateContextANGLEFn) ==
-                  kFirstOffset + 323 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 321 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTestFenceNVContextANGLEFn) ==
-                  kFirstOffset + 324 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 322 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexBufferOESContextANGLEFn) ==
-                  kFirstOffset + 325 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 323 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexBufferRangeOESContextANGLEFn) ==
-                  kFirstOffset + 326 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 324 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexImage2DContextANGLEFn) ==
-                  kFirstOffset + 327 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 325 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexImage2DExternalANGLEContextANGLEFn) ==
-                  kFirstOffset + 328 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 326 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexImage2DRobustANGLEContextANGLEFn) ==
-                  kFirstOffset + 329 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 327 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexImage3DContextANGLEFn) ==
-                  kFirstOffset + 330 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 328 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexImage3DRobustANGLEContextANGLEFn) ==
-                  kFirstOffset + 331 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 329 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexParameterfContextANGLEFn) ==
-                  kFirstOffset + 332 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 330 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexParameterfvContextANGLEFn) ==
-                  kFirstOffset + 333 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 331 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glTexParameterfvRobustANGLEContextANGLEFn) ==
-        kFirstOffset + 334 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 332 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexParameteriContextANGLEFn) ==
-                  kFirstOffset + 335 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 333 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexParameterivContextANGLEFn) ==
-                  kFirstOffset + 336 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 334 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glTexParameterivRobustANGLEContextANGLEFn) ==
-        kFirstOffset + 337 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 335 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexStorage2DEXTContextANGLEFn) ==
-                  kFirstOffset + 338 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 336 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexStorage3DContextANGLEFn) ==
-                  kFirstOffset + 339 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 337 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexStorageMem2DEXTContextANGLEFn) ==
-                  kFirstOffset + 340 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 338 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glTexStorageMemFlags2DANGLEContextANGLEFn) ==
-        kFirstOffset + 341 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 339 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexSubImage2DContextANGLEFn) ==
-                  kFirstOffset + 342 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 340 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexSubImage2DRobustANGLEContextANGLEFn) ==
-                  kFirstOffset + 343 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 341 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexSubImage3DContextANGLEFn) ==
-                  kFirstOffset + 344 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 342 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTexSubImage3DRobustANGLEContextANGLEFn) ==
-                  kFirstOffset + 345 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 343 * sizeof(GLFunctionPointerType));
     static_assert(
         offsetof(ProcsGL, glTransformFeedbackVaryingsContextANGLEFn) ==
-        kFirstOffset + 346 * sizeof(GLFunctionPointerType));
+        kFirstOffset + 344 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glTrimMemoryANGLEContextANGLEFn) ==
-                  kFirstOffset + 347 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 345 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform1fContextANGLEFn) ==
-                  kFirstOffset + 348 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 346 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform1fvContextANGLEFn) ==
-                  kFirstOffset + 349 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 347 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform1iContextANGLEFn) ==
-                  kFirstOffset + 350 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 348 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform1ivContextANGLEFn) ==
-                  kFirstOffset + 351 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 349 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform1uiContextANGLEFn) ==
-                  kFirstOffset + 352 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 350 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform1uivContextANGLEFn) ==
-                  kFirstOffset + 353 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 351 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform2fContextANGLEFn) ==
-                  kFirstOffset + 354 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 352 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform2fvContextANGLEFn) ==
-                  kFirstOffset + 355 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 353 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform2iContextANGLEFn) ==
-                  kFirstOffset + 356 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 354 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform2ivContextANGLEFn) ==
-                  kFirstOffset + 357 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 355 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform2uiContextANGLEFn) ==
-                  kFirstOffset + 358 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 356 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform2uivContextANGLEFn) ==
-                  kFirstOffset + 359 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 357 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform3fContextANGLEFn) ==
-                  kFirstOffset + 360 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 358 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform3fvContextANGLEFn) ==
-                  kFirstOffset + 361 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 359 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform3iContextANGLEFn) ==
-                  kFirstOffset + 362 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 360 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform3ivContextANGLEFn) ==
-                  kFirstOffset + 363 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 361 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform3uiContextANGLEFn) ==
-                  kFirstOffset + 364 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 362 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform3uivContextANGLEFn) ==
-                  kFirstOffset + 365 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 363 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform4fContextANGLEFn) ==
-                  kFirstOffset + 366 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 364 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform4fvContextANGLEFn) ==
-                  kFirstOffset + 367 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 365 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform4iContextANGLEFn) ==
-                  kFirstOffset + 368 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 366 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform4ivContextANGLEFn) ==
-                  kFirstOffset + 369 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 367 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform4uiContextANGLEFn) ==
-                  kFirstOffset + 370 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 368 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniform4uivContextANGLEFn) ==
-                  kFirstOffset + 371 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 369 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformBlockBindingContextANGLEFn) ==
-                  kFirstOffset + 372 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 370 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformMatrix2fvContextANGLEFn) ==
-                  kFirstOffset + 373 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 371 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformMatrix2x3fvContextANGLEFn) ==
-                  kFirstOffset + 374 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 372 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformMatrix2x4fvContextANGLEFn) ==
-                  kFirstOffset + 375 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 373 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformMatrix3fvContextANGLEFn) ==
-                  kFirstOffset + 376 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 374 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformMatrix3x2fvContextANGLEFn) ==
-                  kFirstOffset + 377 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 375 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformMatrix3x4fvContextANGLEFn) ==
-                  kFirstOffset + 378 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 376 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformMatrix4fvContextANGLEFn) ==
-                  kFirstOffset + 379 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 377 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformMatrix4x2fvContextANGLEFn) ==
-                  kFirstOffset + 380 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 378 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUniformMatrix4x3fvContextANGLEFn) ==
-                  kFirstOffset + 381 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 379 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUnmapBufferContextANGLEFn) ==
-                  kFirstOffset + 382 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 380 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glUseProgramContextANGLEFn) ==
-                  kFirstOffset + 383 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 381 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glValidateProgramContextANGLEFn) ==
-                  kFirstOffset + 384 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 382 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttrib1fContextANGLEFn) ==
-                  kFirstOffset + 385 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 383 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttrib1fvContextANGLEFn) ==
-                  kFirstOffset + 386 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 384 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttrib2fContextANGLEFn) ==
-                  kFirstOffset + 387 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 385 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttrib2fvContextANGLEFn) ==
-                  kFirstOffset + 388 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 386 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttrib3fContextANGLEFn) ==
-                  kFirstOffset + 389 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 387 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttrib3fvContextANGLEFn) ==
-                  kFirstOffset + 390 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 388 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttrib4fContextANGLEFn) ==
-                  kFirstOffset + 391 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 389 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttrib4fvContextANGLEFn) ==
-                  kFirstOffset + 392 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 390 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttribDivisorANGLEContextANGLEFn) ==
-                  kFirstOffset + 393 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 391 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttribI4iContextANGLEFn) ==
-                  kFirstOffset + 394 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 392 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttribI4ivContextANGLEFn) ==
-                  kFirstOffset + 395 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 393 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttribI4uiContextANGLEFn) ==
-                  kFirstOffset + 396 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 394 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttribI4uivContextANGLEFn) ==
-                  kFirstOffset + 397 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 395 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttribIPointerContextANGLEFn) ==
-                  kFirstOffset + 398 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 396 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glVertexAttribPointerContextANGLEFn) ==
-                  kFirstOffset + 399 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 397 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glViewportContextANGLEFn) ==
-                  kFirstOffset + 400 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 398 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glWaitSemaphoreEXTContextANGLEFn) ==
-                  kFirstOffset + 401 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 399 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glWaitSyncContextANGLEFn) ==
-                  kFirstOffset + 402 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 400 * sizeof(GLFunctionPointerType));
     static_assert(offsetof(ProcsGL, glWindowRectanglesEXTContextANGLEFn) ==
-                  kFirstOffset + 403 * sizeof(GLFunctionPointerType));
+                  kFirstOffset + 401 * sizeof(GLFunctionPointerType));
 
     for (size_t i = 0; i < kExplicitContextSourceNames.size(); ++i) {
       std::string name = kExplicitContextSourceNames[i];
@@ -4940,14 +4916,6 @@ void GLApiBase::glImportMemoryWin32HandleEXTFn(GLuint memory,
   driver_->fn.glImportMemoryWin32HandleEXTFn(memory, size, handleType, handle);
 }
 
-void GLApiBase::glImportMemoryZirconHandleANGLEFn(GLuint memory,
-                                                  GLuint64 size,
-                                                  GLenum handleType,
-                                                  GLuint handle) {
-  driver_->fn.glImportMemoryZirconHandleANGLEFn(memory, size, handleType,
-                                                handle);
-}
-
 void GLApiBase::glImportSemaphoreFdEXTFn(GLuint semaphore,
                                          GLenum handleType,
                                          GLint fd) {
@@ -4958,13 +4926,6 @@ void GLApiBase::glImportSemaphoreWin32HandleEXTFn(GLuint semaphore,
                                                   GLenum handleType,
                                                   void* handle) {
   driver_->fn.glImportSemaphoreWin32HandleEXTFn(semaphore, handleType, handle);
-}
-
-void GLApiBase::glImportSemaphoreZirconHandleANGLEFn(GLuint semaphore,
-                                                     GLenum handleType,
-                                                     GLuint handle) {
-  driver_->fn.glImportSemaphoreZirconHandleANGLEFn(semaphore, handleType,
-                                                   handle);
 }
 
 void GLApiBase::glInsertEventMarkerEXTFn(GLsizei length, const char* marker) {
@@ -7860,15 +7821,6 @@ void TraceGLApi::glImportMemoryWin32HandleEXTFn(GLuint memory,
   gl_api_->glImportMemoryWin32HandleEXTFn(memory, size, handleType, handle);
 }
 
-void TraceGLApi::glImportMemoryZirconHandleANGLEFn(GLuint memory,
-                                                   GLuint64 size,
-                                                   GLenum handleType,
-                                                   GLuint handle) {
-  TRACE_EVENT_BINARY_EFFICIENT0("gpu",
-                                "TraceGLAPI::glImportMemoryZirconHandleANGLE");
-  gl_api_->glImportMemoryZirconHandleANGLEFn(memory, size, handleType, handle);
-}
-
 void TraceGLApi::glImportSemaphoreFdEXTFn(GLuint semaphore,
                                           GLenum handleType,
                                           GLint fd) {
@@ -7882,14 +7834,6 @@ void TraceGLApi::glImportSemaphoreWin32HandleEXTFn(GLuint semaphore,
   TRACE_EVENT_BINARY_EFFICIENT0("gpu",
                                 "TraceGLAPI::glImportSemaphoreWin32HandleEXT");
   gl_api_->glImportSemaphoreWin32HandleEXTFn(semaphore, handleType, handle);
-}
-
-void TraceGLApi::glImportSemaphoreZirconHandleANGLEFn(GLuint semaphore,
-                                                      GLenum handleType,
-                                                      GLuint handle) {
-  TRACE_EVENT_BINARY_EFFICIENT0(
-      "gpu", "TraceGLAPI::glImportSemaphoreZirconHandleANGLE");
-  gl_api_->glImportSemaphoreZirconHandleANGLEFn(semaphore, handleType, handle);
 }
 
 void TraceGLApi::glInsertEventMarkerEXTFn(GLsizei length, const char* marker) {
@@ -11438,17 +11382,6 @@ void LogGLApi::glImportMemoryWin32HandleEXTFn(GLuint memory,
   gl_api_->glImportMemoryWin32HandleEXTFn(memory, size, handleType, handle);
 }
 
-void LogGLApi::glImportMemoryZirconHandleANGLEFn(GLuint memory,
-                                                 GLuint64 size,
-                                                 GLenum handleType,
-                                                 GLuint handle) {
-  GL_SERVICE_LOG("glImportMemoryZirconHandleANGLE"
-                 << "(" << memory << ", " << size << ", "
-                 << GLEnums::GetStringEnum(handleType) << ", " << handle
-                 << ")");
-  gl_api_->glImportMemoryZirconHandleANGLEFn(memory, size, handleType, handle);
-}
-
 void LogGLApi::glImportSemaphoreFdEXTFn(GLuint semaphore,
                                         GLenum handleType,
                                         GLint fd) {
@@ -11466,16 +11399,6 @@ void LogGLApi::glImportSemaphoreWin32HandleEXTFn(GLuint semaphore,
                  << GLEnums::GetStringEnum(handleType) << ", "
                  << static_cast<const void*>(handle) << ")");
   gl_api_->glImportSemaphoreWin32HandleEXTFn(semaphore, handleType, handle);
-}
-
-void LogGLApi::glImportSemaphoreZirconHandleANGLEFn(GLuint semaphore,
-                                                    GLenum handleType,
-                                                    GLuint handle) {
-  GL_SERVICE_LOG("glImportSemaphoreZirconHandleANGLE"
-                 << "(" << semaphore << ", "
-                 << GLEnums::GetStringEnum(handleType) << ", " << handle
-                 << ")");
-  gl_api_->glImportSemaphoreZirconHandleANGLEFn(semaphore, handleType, handle);
 }
 
 void LogGLApi::glInsertEventMarkerEXTFn(GLsizei length, const char* marker) {
@@ -14521,13 +14444,6 @@ void NoContextGLApi::glImportMemoryWin32HandleEXTFn(GLuint memory,
   NoContextHelper("glImportMemoryWin32HandleEXT");
 }
 
-void NoContextGLApi::glImportMemoryZirconHandleANGLEFn(GLuint memory,
-                                                       GLuint64 size,
-                                                       GLenum handleType,
-                                                       GLuint handle) {
-  NoContextHelper("glImportMemoryZirconHandleANGLE");
-}
-
 void NoContextGLApi::glImportSemaphoreFdEXTFn(GLuint semaphore,
                                               GLenum handleType,
                                               GLint fd) {
@@ -14538,12 +14454,6 @@ void NoContextGLApi::glImportSemaphoreWin32HandleEXTFn(GLuint semaphore,
                                                        GLenum handleType,
                                                        void* handle) {
   NoContextHelper("glImportSemaphoreWin32HandleEXT");
-}
-
-void NoContextGLApi::glImportSemaphoreZirconHandleANGLEFn(GLuint semaphore,
-                                                          GLenum handleType,
-                                                          GLuint handle) {
-  NoContextHelper("glImportSemaphoreZirconHandleANGLE");
 }
 
 void NoContextGLApi::glInsertEventMarkerEXTFn(GLsizei length,

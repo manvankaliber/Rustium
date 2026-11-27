@@ -241,17 +241,11 @@ TEST_F(OtpSuggestionGeneratorTest, SmsOtps) {
   EXPECT_EQ(suggestions[0].type, SuggestionType::kOneTimePasswordEntry);
   EXPECT_EQ(suggestions[0].voice_over, u"Verification code: 123456");
   EXPECT_EQ(suggestions[0].acceptance_a11y_announcement, u"Autofilled code");
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(suggestions[0].icon, Suggestion::Icon::kAndroidMessages);
-#endif
 
   EXPECT_EQ(suggestions[1].main_text.value, u"789012");
   EXPECT_EQ(suggestions[1].type, SuggestionType::kOneTimePasswordEntry);
   EXPECT_EQ(suggestions[1].voice_over, u"Verification code: 789012");
   EXPECT_EQ(suggestions[1].acceptance_a11y_announcement, u"Autofilled code");
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(suggestions[1].icon, Suggestion::Icon::kAndroidMessages);
-#endif
 }
 
 // Test that OTP suggestions are silently suppressed on insecure contexts.

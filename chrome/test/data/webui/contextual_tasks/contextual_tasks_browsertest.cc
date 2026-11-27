@@ -18,15 +18,13 @@
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/test/base/chrome_test_utils.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/test/browser_test_utils.h"
 #include "third_party/blink/public/common/web_preferences/web_preferences.h"
 #include "third_party/blink/public/mojom/css/preferred_color_scheme.mojom.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID) && BUILDFLAG(ENABLE_EXTENSIONS_CORE)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include <cstddef>
 #include <string>
 #include <utility>
@@ -109,17 +107,10 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest, DISABLED_App) {
 }
 
 // TODO(crbug.com/565086795): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_App_TracksFinishedTopLevelNavigation \
-  DISABLED_App_TracksFinishedTopLevelNavigation
-#define MAYBE_App_TracksFinishedTopLevelNavigationRace \
-  DISABLED_App_TracksFinishedTopLevelNavigationRace
-#else
 #define MAYBE_App_TracksFinishedTopLevelNavigation \
   App_TracksFinishedTopLevelNavigation
 #define MAYBE_App_TracksFinishedTopLevelNavigationRace \
   App_TracksFinishedTopLevelNavigationRace
-#endif
 IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest,
                        MAYBE_App_TracksFinishedTopLevelNavigation) {
   RunTest("contextual_tasks/app_test.js",
@@ -135,7 +126,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest,
       "'tracks finished top level navigation when content load wins race')");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest,
                        App_SidePanelZeroStateVisibleBeforeDomContentLoads) {
   RunTest("contextual_tasks/app_test.js",
@@ -597,7 +587,7 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest,
 }
 
 // TODO(crbug.com/487147580): Re-enable the test
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_Composebox_Submit DISABLED_Composebox_Submit
 #else
 #define MAYBE_Composebox_Submit Composebox_Submit
@@ -607,7 +597,7 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest, MAYBE_Composebox_Submit) {
 }
 
 // TODO(crbug.com/480689282): Flaky on Linux and ChromeOS.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_Composebox_ZeroState DISABLED_Composebox_ZeroState
 #else
 #define MAYBE_Composebox_ZeroState Composebox_ZeroState
@@ -686,20 +676,12 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest,
           "runMochaSuite('ContextualTasksComposeboxForkVoiceTest "
           "\\\\(coherence = true\\\\) CoherenceCarouselAndToolChips')");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // TODO(crbug.com/565086795): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PostMessageHandler DISABLED_PostMessageHandler
-#define MAYBE_OverflowMenu DISABLED_OverflowMenu
-#define MAYBE_Toolbar DISABLED_Toolbar
-#define MAYBE_OnboardingTooltip DISABLED_OnboardingTooltip
-#else
 #define MAYBE_PostMessageHandler PostMessageHandler
 #define MAYBE_OverflowMenu OverflowMenu
 #define MAYBE_Toolbar Toolbar
 #define MAYBE_OnboardingTooltip OnboardingTooltip
-#endif
 IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest, MAYBE_PostMessageHandler) {
   RunTest("contextual_tasks/post_message_handler_test.js", "mocha.run();");
 }
@@ -723,7 +705,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest, MAYBE_OnboardingTooltip) {
   RunTest("contextual_tasks/onboarding_tooltip_test.js", "mocha.run();");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest, InfoTooltip) {
   RunTest("contextual_tasks/info_tooltip_test.js", "mocha.run();");
 }
@@ -823,18 +804,11 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksToolbarThemeBrowserTest,
         .backgroundColor === 'rgb(255, 255, 255)' ? 'light' : 'mismatch'
   )"));
 }
-#endif
 
 // TODO(crbug.com/565086795): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ClipPath DISABLED_ClipPath
-#define MAYBE_WindowManager DISABLED_WindowManager
-#define MAYBE_Utils DISABLED_Utils
-#else
 #define MAYBE_ClipPath ClipPath
 #define MAYBE_WindowManager WindowManager
 #define MAYBE_Utils Utils
-#endif
 IN_PROC_BROWSER_TEST_F(ContextualTasksBrowserTest, MAYBE_ClipPath) {
   RunTest("contextual_tasks/utils/clip_path_test.js", "mocha.run();");
 }

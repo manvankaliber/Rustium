@@ -36,9 +36,6 @@
 #include "util/stream/log_output_stream.h"
 #include "util/stream/zlib_output_stream.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <android/log.h>
-#endif
 
 namespace crashpad {
 namespace {
@@ -52,30 +49,10 @@ class Logger final : public LogOutputStream::Delegate {
 
   ~Logger() override = default;
 
-#if BUILDFLAG(IS_ANDROID)
-  bool Log(const char* buf) override {
-    return __android_log_buf_write(
-        LOG_ID_CRASH, ANDROID_LOG_FATAL, "crashpad", buf) > 0;
-  }
-
-  size_t OutputCap() override {
-    // Most minidumps are expected to be compressed and encoded into less than
-    // 128k.
-    return 128 * 1024;
-  }
-
-  size_t LineWidth() override {
-    // From Android NDK r20 <android/log.h>, log message text may be truncated
-    // to less than an implementation-specific limit (1023 bytes), for sake of
-    // safe and being easy to read in logcat, choose 512.
-    return 512;
-  }
-#else
   // TODO(jperaza): Log to an appropriate location on Linux.
   bool Log(const char* buf) override { return false; }
   size_t OutputCap() override { return 0; }
   size_t LineWidth() override { return 0; }
-#endif
 };
 
 bool WriteMinidumpLogFromFile(FileReaderInterface* file_reader) {

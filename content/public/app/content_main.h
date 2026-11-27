@@ -49,7 +49,7 @@ struct CONTENT_EXPORT ContentMainParams {
   // |sandbox_info| should be initialized using InitializeSandboxInfo from
   // sandbox_helper_win.h
   raw_ptr<sandbox::SandboxInterfaceInfo> sandbox_info = nullptr;
-#elif !BUILDFLAG(IS_ANDROID)
+#else
   int argc = 0;
   raw_ptr<const char*> argv = nullptr;
 #endif
@@ -80,7 +80,7 @@ struct CONTENT_EXPORT ContentMainParams {
 #if BUILDFLAG(IS_WIN)
     copy.instance = instance;
     copy.sandbox_info = sandbox_info;
-#elif !BUILDFLAG(IS_ANDROID)
+#else
     copy.argc = argc;
     copy.argv = argv;
 #endif
@@ -97,20 +97,11 @@ struct CONTENT_EXPORT ContentMainParams {
 CONTENT_EXPORT int RunContentProcess(ContentMainParams params,
                                      ContentMainRunner* content_main_runner);
 
-#if BUILDFLAG(IS_ANDROID)
-// In the Android, the content main starts from ContentMain.java, This function
-// provides a way to set the |delegate| as ContentMainDelegate for
-// ContentMainRunner.
-// This should only be called once before ContentMainRunner actually running.
-// The ownership of |delegate| is transferred.
-CONTENT_EXPORT void SetContentMainDelegate(ContentMainDelegate* delegate);
-#else
 // ContentMain should be called from the embedder's main() function to do the
 // initial setup for every process. The embedder has a chance to customize
 // startup using the ContentMainDelegate interface. The embedder can also pass
 // in null for |delegate| if they don't want to override default startup.
 CONTENT_EXPORT int ContentMain(ContentMainParams params);
-#endif
 
 }  // namespace content
 

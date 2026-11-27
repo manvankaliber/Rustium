@@ -120,11 +120,6 @@ void SidePanelControllerBase::CreateAndRegisterEntry() {
       base::BindRepeating(&SidePanelControllerBase::CreateCustomizeChromeView,
                           base::Unretained(this)),
       /*default_content_width_callback=*/base::NullCallback());
-#if BUILDFLAG(IS_ANDROID)
-  entry->SetProperty(
-      kSidePanelTitleKey,
-      l10n_util::GetStringUTF16(IDS_SIDE_PANEL_CUSTOMIZE_CHROME_TITLE));
-#endif
   entry->AddObserver(this);
   registry->Register(std::move(entry));
 }

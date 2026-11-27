@@ -110,9 +110,6 @@ TEST_F(SegmentationPlatformConfigTest, MultipleConfigs) {
   features.push_back(base::test::FeatureRefAndParams(
       features::kSegmentationPlatformFeedSegmentFeature,
       {{"segmentation_platform_add_config_param", kValidConfig1}}));
-  features.push_back(base::test::FeatureRefAndParams(
-      features::kShoppingUserSegmentFeature,
-      {{"segmentation_platform_add_config_param", kValidConfig2}}));
   EnableFeaturesWithParams(features);
 
   std::vector<std::unique_ptr<Config>> configs;

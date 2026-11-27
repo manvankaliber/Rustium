@@ -23,18 +23,8 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/signin/public/identity_manager/identity_test_utils.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/account_manager/account_manager_factory.h"
-#include "components/account_manager_core/chromeos/account_manager.h"
-#endif
 
-#if BUILDFLAG(IS_IOS)
-#include "components/signin/public/identity_manager/ios/fake_device_accounts_provider.h"
-#endif
 
 namespace signin {
 
@@ -103,9 +93,6 @@ TEST_F(IdentityManagerBuilderTest, BuildIdentityManagerInitParameters) {
   ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
   base::FilePath profile_path = temp_dir.GetPath();
 
-#if BUILDFLAG(IS_ANDROID)
-  SetUpFakeAccountManagerFacade();
-#endif
 
   IdentityManagerBuildParams params;
   params.image_decoder = std::make_unique<image_fetcher::FakeImageDecoder>();
@@ -117,26 +104,7 @@ TEST_F(IdentityManagerBuilderTest, BuildIdentityManagerInitParameters) {
   params.signin_client = GetSigninClient();
   params.profile_metrics_service = GetProfileMetricsService();
 
-#if BUILDFLAG(IS_IOS)
-  params.device_accounts_provider =
-      std::make_unique<FakeDeviceAccountsProvider>();
-  params.account_fetcher_factory =
-      std::make_unique<MockAccountFetcherFactory>();
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // This enables `AccountManagerFactory::Get()`, which is needed for
-  // `ProfileOAuth2TokenServiceDelegateChromeOS`.
-  ash::AccountManagerFactory account_manager_factory;
-
-  account_manager_factory.GetAccountManager(profile_path.value())
-      ->InitializeInEphemeralMode(
-          GetTestURLLoaderFactory()->GetSafeWeakWrapper());
-
-  params.account_manager_facade =
-      account_manager_factory.GetAccountManagerFacade(profile_path.value());
-  params.is_regular_profile = true;
-#endif
 
   const IdentityManager::InitParameters init_params =
       signin::BuildIdentityManagerInitParameters(&params);
@@ -149,16 +117,8 @@ TEST_F(IdentityManagerBuilderTest, BuildIdentityManagerInitParameters) {
   EXPECT_NE(init_params.primary_account_mutator, nullptr);
   EXPECT_NE(init_params.accounts_cookie_mutator, nullptr);
   EXPECT_NE(init_params.diagnostics_provider, nullptr);
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-  EXPECT_NE(init_params.device_accounts_synchronizer, nullptr);
-  EXPECT_EQ(init_params.accounts_mutator, nullptr);
-#else
   EXPECT_EQ(init_params.device_accounts_synchronizer, nullptr);
   EXPECT_NE(init_params.accounts_mutator, nullptr);
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_NE(init_params.account_manager_facade, nullptr);
-#endif
 }
 
 }  // namespace signin

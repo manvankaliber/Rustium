@@ -56,7 +56,7 @@
 #include "third_party/skia/include/core/SkRefCnt.h"
 #include "third_party/skia/include/core/SkTypeface.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "ui/gfx/font_fallback_linux.h"
 #endif
 
@@ -90,9 +90,6 @@ enum class AlternateFontName {
 extern const char kColorEmojiLocale[];
 extern const char kMonoEmojiLocale[];
 
-#if BUILDFLAG(IS_ANDROID)
-extern const char kNotoColorEmojiCompat[];
-#endif
 
 class PLATFORM_EXPORT FontCache final {
   DISALLOW_NEW();
@@ -138,7 +135,7 @@ class PLATFORM_EXPORT FontCache final {
 
   void Invalidate();
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   static WebFontPrewarmer* GetFontPrewarmer() { return prewarmer_; }
   static void SetFontPrewarmer(WebFontPrewarmer* prewarmer) {
     prewarmer_ = prewarmer;
@@ -150,7 +147,7 @@ class PLATFORM_EXPORT FontCache final {
 
   static void MaybePreloadSystemFonts();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // These are needed for calling QueryRenderStyleForStrike, since
   // gfx::GetFontRenderParams makes distinctions based on DSF.
   static float DeviceScaleFactor() { return device_scale_factor_; }
@@ -214,25 +211,12 @@ class PLATFORM_EXPORT FontCache final {
 
   static void AcceptLanguagesChanged(const String&);
 
-#if BUILDFLAG(IS_ANDROID)
-  static AtomicString GetGenericFamilyNameForScript(
-      const AtomicString& family_name,
-      const AtomicString& generic_family_name_fallback,
-      const FontDescription&);
-  // Locale-specific families can use different |SkTypeface| for a family name
-  // if locale is different.
-  static const char* GetLocaleSpecificFamilyName(
-      const AtomicString& family_name);
-  sk_sp<SkTypeface> CreateLocaleSpecificTypeface(
-      const FontDescription& font_description,
-      const char* locale_family_name);
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   static bool GetFontForCharacter(UChar32,
                                   const char* preferred_locale,
                                   gfx::FallbackFontData*);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   const SimpleFontData* FontDataFromFontPlatformData(
       const FontPlatformData*,
@@ -290,7 +274,7 @@ class PLATFORM_EXPORT FontCache final {
                                    const FontFaceCreationParams&,
                                    std::string& name);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   // SkFontMgr_FCI::onMatchFamilyStyleCharacter always crashes.
   static const FontPlatformData* CreateFontPlatformDataForCharacter(
       SkFontMgr*,
@@ -312,7 +296,7 @@ class PLATFORM_EXPORT FontCache final {
   const SimpleFontData* FallbackOnStandardFontStyle(const FontDescription&,
                                                     UChar32);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   static WebFontPrewarmer* prewarmer_;
 #endif
 
@@ -328,7 +312,7 @@ class PLATFORM_EXPORT FontCache final {
   static int32_t status_font_height_;
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   static float device_scale_factor_;
 #endif
 
@@ -370,17 +354,6 @@ class PLATFORM_EXPORT FontCache final {
 
 AtomicString ToAtomicString(const SkString&);
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/1241875) Can this be simplified?
-// static
-inline const char* FontCache::GetLocaleSpecificFamilyName(
-    const AtomicString& family_name) {
-  // Only `serif` has `fallbackFor` according to the current `fonts.xml`.
-  if (family_name == font_family_names::kSerif)
-    return "serif";
-  return nullptr;
-}
-#endif
 
 }  // namespace blink
 

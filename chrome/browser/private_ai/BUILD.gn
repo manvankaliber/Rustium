@@ -14,7 +14,6 @@ source_set("private_ai") {
   deps = [
     "//base",
     "//chrome/browser:browser_process",
-    "//chrome/browser/glic/suggestions",
     "//chrome/browser/net",
     "//chrome/browser/profiles:profile",
     "//chrome/browser/signin",

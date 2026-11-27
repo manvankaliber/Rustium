@@ -143,8 +143,6 @@ SystemSnapshot::OperatingSystem SystemSnapshotMinidump::GetOperatingSystem()
       return OperatingSystem::kOperatingSystemLinux;
     case kMinidumpOSAndroid:
       return OperatingSystem::kOperatingSystemAndroid;
-    case kMinidumpOSFuchsia:
-      return OperatingSystem::kOperatingSystemFuchsia;
     default:
       return OperatingSystem::kOperatingSystemUnknown;
   }

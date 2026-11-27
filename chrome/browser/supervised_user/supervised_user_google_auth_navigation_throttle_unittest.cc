@@ -148,9 +148,7 @@ class SupervisedUserGoogleAuthNavigationThrottleTest
 TEST_F(SupervisedUserGoogleAuthNavigationThrottleTest,
        NavigationForValidSignedinSupervisedUsers) {
   SupervisedUserTestEnvironment::EnableSupervisedAccount(identity_manager());
-#if !BUILDFLAG(IS_ANDROID)
   SetRefreshTokenForPrimaryAccount(identity_manager());
-#endif
   CoreAccountInfo account_info =
       identity_manager()->GetPrimaryAccountInfo(signin::ConsentLevel::kSignin);
   signin::SetListAccountsResponseOneAccountWithParams(
@@ -202,11 +200,9 @@ TEST_F(SupervisedUserGoogleAuthNavigationThrottleTest,
 TEST_F(SupervisedUserGoogleAuthNavigationThrottleTest,
        NavigationForPendingSignedInSupervisedUsers) {
   SupervisedUserTestEnvironment::EnableSupervisedAccount(identity_manager());
-#if !BUILDFLAG(IS_ANDROID)
   SetInvalidRefreshTokenForPrimaryAccount(
       identity_manager(),
       signin_metrics::SourceForRefreshTokenOperation::kUnknown);
-#endif  // !BUILDFLAG(IS_ANDROID)
   // An invalid, signed-in account is not authenticated.
   CoreAccountInfo account_info =
       identity_manager()->GetPrimaryAccountInfo(signin::ConsentLevel::kSignin);
@@ -252,40 +248,6 @@ TEST_F(SupervisedUserGoogleAuthNavigationThrottleTest,
   EXPECT_NE(std::string::npos,
             youtube_navigation_throttle.error_page_content()->find(
                 "supervised-user-verify"));
-#elif BUILDFLAG(IS_CHROMEOS)
-  // For ChromeOS, navigation to Google and YouTube are deferred.
-  EXPECT_EQ(content::NavigationThrottle::DEFER,
-            CreateNavigationThrottle(GURL(kGoogleSearchURL))
-                ->throttles()
-                .back()
-                ->WillStartRequest());
-  EXPECT_EQ(content::NavigationThrottle::DEFER,
-            CreateNavigationThrottle(GURL(kGoogleHomeURL))
-                ->throttles()
-                .back()
-                ->WillStartRequest());
-  EXPECT_EQ(content::NavigationThrottle::DEFER,
-            CreateNavigationThrottle(GURL(kYoutubeDomain))
-                ->throttles()
-                .back()
-                ->WillStartRequest());
-#elif BUILDFLAG(IS_ANDROID)
-  // For Android, navigation to Google and YouTube are deferred.
-  EXPECT_EQ(content::NavigationThrottle::DEFER,
-            CreateNavigationThrottle(GURL(kGoogleSearchURL), true)
-                ->throttles()
-                .back()
-                ->WillStartRequest());
-  EXPECT_EQ(content::NavigationThrottle::DEFER,
-            CreateNavigationThrottle(GURL(kGoogleHomeURL))
-                ->throttles()
-                .back()
-                ->WillStartRequest());
-  EXPECT_EQ(content::NavigationThrottle::DEFER,
-            CreateNavigationThrottle(GURL(kYoutubeDomain))
-                ->throttles()
-                .back()
-                ->WillStartRequest());
 #endif
 
   // Prerendering is not supported for supervised users.

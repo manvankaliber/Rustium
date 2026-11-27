@@ -3,9 +3,8 @@
 import argparse
 import os
 import platform
-import subprocess
 import sys
-from shutil import copyfile, which
+from shutil import which
 from typing import ClassVar, Tuple, Type
 
 import mozlog
@@ -58,8 +57,6 @@ def create_parser():
     parser.add_argument("--install-browser-url", action="store", default=None,
                         help="URL to download the browser from"
                         "(or the nightly channel by default).")
-    parser.add_argument("--logcat-dir",
-                        help="Directory to write Android logcat files to")
     parser._add_container_actions(wptcommandline.create_parser())
     return parser
 
@@ -112,8 +109,7 @@ otherwise install OpenSSL and ensure that it's on your $PATH.""")
 
 def check_environ(product):
     builtin_skip = {
-        "android_webview", "chrome", "chrome_android", "chrome_ios",
-        "edge", "firefox", "firefox_android", "headless_shell",
+        "chrome", "edge", "firefox", "headless_shell",
         "ladybird", "servo", "wktr"
     }
 
@@ -162,62 +158,6 @@ in PowerShell with Administrator privileges.""" % (wpt_path, hosts_path)
 %s make-hosts-file | sudo tee -a %s""" % ("./wpt" if wpt_path == "wpt" else wpt_path,
                                           hosts_path)
                 raise WptrunError(message)
-
-
-class AndroidLogcat:
-    def __init__(self, adb_path, base_path=None):
-        self.adb_path = adb_path
-        self.base_path = base_path if base_path is not None else os.curdir
-        self.procs = {}
-
-    def start(self, device_serial):
-        """
-        Start recording logcat. Writes logcat to the upload directory.
-        """
-        # Start logcat for the device. The adb process runs until the
-        # corresponding device is stopped. Output is written directly to
-        # the blobber upload directory so that it is uploaded automatically
-        # at the end of the job.
-        if device_serial in self.procs:
-            logger.warning(f"Logcat for {device_serial} already started")
-            return
-
-        logcat_path = os.path.join(self.base_path, f"logcat-{device_serial}.log")
-        out_file = open(logcat_path, "w")
-        cmd = [
-            self.adb_path,
-            "-s",
-            device_serial,
-            "logcat",
-            "-v",
-            "threadtime",
-            "Trace:S",
-            "StrictMode:S",
-            "ExchangeService:S",
-        ]
-        logger.debug(" ".join(cmd))
-        proc = subprocess.Popen(
-            cmd, stdout=out_file, stdin=subprocess.PIPE
-        )
-        logger.info(f"Started logcat for device {device_serial} pid {proc.pid}")
-        self.procs[device_serial] = (proc, out_file)
-
-    def stop(self, device_serial=None):
-        """
-        Stop logcat process started by logcat_start.
-        """
-        if device_serial is None:
-            for key in list(self.procs.keys()):
-                self.stop(key)
-            return
-
-        proc, out_file = self.procs.get(device_serial, (None, None))
-        if proc is not None:
-            try:
-                proc.kill()
-                out_file.close()
-            finally:
-                del self.procs[device_serial]
 
 
 class BrowserSetup:
@@ -383,118 +323,6 @@ Consider installing certutil via your OS package manager or directly.""")
             else:
                 logger.warning("OpenH264 is not installed. Some tests may fail.")
 
-class FirefoxAndroid(BrowserSetup):
-    name = "firefox_android"
-    browser_cls = browser.FirefoxAndroid
-
-    def setup_kwargs(self, kwargs):
-        import mozdevice
-
-        from . import android
-
-        # We don't support multiple channels for android yet
-        if kwargs["browser_channel"] is None:
-            kwargs["browser_channel"] = "nightly"
-
-        if kwargs["prefs_root"] is None:
-            prefs_root = self.browser.install_prefs(kwargs["binary"],
-                                                    self.venv.path,
-                                                    channel=kwargs["browser_channel"])
-            kwargs["prefs_root"] = prefs_root
-
-        if kwargs["package_name"] is None:
-            kwargs["package_name"] = "org.mozilla.geckoview.test_runner"
-        app = kwargs["package_name"]
-
-        if not kwargs["device_serial"]:
-            kwargs["device_serial"] = ["emulator-5554"]
-
-        if kwargs["webdriver_binary"] is None and "wdspec" in kwargs["test_types"]:
-            webdriver_binary = None
-            if not kwargs["install_webdriver"]:
-                webdriver_binary = self.browser.find_webdriver()
-
-            if webdriver_binary is None:
-                install = self.prompt_install("geckodriver")
-
-                if install:
-                    logger.info("Downloading geckodriver")
-                    webdriver_binary = self.browser.install_webdriver(
-                        dest=self.venv.bin_path,
-                        channel=kwargs["browser_channel"],
-                        browser_binary=kwargs["binary"])
-            else:
-                logger.info("Using webdriver binary %s" % webdriver_binary)
-
-            if webdriver_binary:
-                kwargs["webdriver_binary"] = webdriver_binary
-            else:
-                logger.info("Unable to find or install geckodriver, skipping wdspec tests")
-                kwargs["test_types"].remove("wdspec")
-
-        if kwargs["adb_binary"] is None:
-            if "ADB_PATH" not in os.environ:
-                adb_path = os.path.join(android.get_paths(None)["sdk"],
-                                        "platform-tools",
-                                        "adb")
-                os.environ["ADB_PATH"] = adb_path
-            kwargs["adb_binary"] = os.environ["ADB_PATH"]
-
-        self._logcat = AndroidLogcat(kwargs["adb_binary"], base_path=kwargs["logcat_dir"])
-
-        for device_serial in kwargs["device_serial"]:
-            if device_serial.startswith("emulator-"):
-                # We're running on an emulator so ensure that's set up
-                android.start(logger,
-                              reinstall=False,
-                              device_serial=device_serial,
-                              prompt=kwargs["prompt"])
-
-        for device_serial in kwargs["device_serial"]:
-            device = mozdevice.ADBDeviceFactory(adb=kwargs["adb_binary"],
-                                                device=device_serial)
-            self._logcat.start(device_serial)
-            max_retries = 5
-            last_exception = None
-            if self.browser.apk_path:
-                device.uninstall_app(app)
-                for i in range(max_retries + 1):
-                    logger.info(f"Installing {app} on {device_serial} "
-                                f"attempt {i + 1}/{max_retries + 1}")
-                    try:
-                        # Temporarily replace mozdevice function with custom code
-                        # that passes in the `--no-incremental` option
-                        cmd = ["install", "--no-incremental", self.browser.apk_path]
-                        logger.debug(" ".join(cmd))
-                        data = device.command_output(cmd, timeout=120)
-                        if data.find("Success") == -1:
-                            raise mozdevice.ADBError(f"Install failed for {self.browser.apk_path}."
-                                                     f" Got: {data}")
-                    except Exception as e:
-                        last_exception = e
-                    else:
-                        break
-                else:
-                    assert last_exception is not None
-                    raise WptrunError(f"Failed to install {app} on device {device_serial} "
-                                      f"after {max_retries} retries") from last_exception
-            elif not device.is_app_installed(app):
-                raise WptrunError(f"app {app} not installed on device {device_serial}")
-
-
-    def teardown(self):
-        from . import android
-
-        if hasattr(self, "_logcat"):
-            emulator_log = os.path.join(android.get_paths(None)["sdk"],
-                                        ".android",
-                                        "emulator.log")
-            if os.path.exists(emulator_log):
-                dest_path = os.path.join(self._logcat.base_path, "emulator.log")
-                copyfile(emulator_log, dest_path)
-
-            self._logcat.stop()
-
 
 class ChromeAndEdgeSetup(BrowserSetup):
     """Base class for Chrome and Edge."""
@@ -618,77 +446,6 @@ class Chromium(Chrome):
     name = "chromium"
     browser_cls: Type[browser.ChromeChromiumBase] = browser.Chromium
     experimental_channels = ("nightly",)
-
-
-class ChromeAndroidBase(BrowserSetup):
-    experimental_channels = ("dev", "canary")
-
-    def setup_kwargs(self, kwargs):
-        if kwargs.get("device_serial"):
-            self.browser.device_serial = kwargs["device_serial"]
-        if kwargs.get("adb_binary"):
-            self.browser.adb_binary = kwargs["adb_binary"]
-        browser_channel = kwargs["browser_channel"]
-        if kwargs["package_name"] is None:
-            kwargs["package_name"] = self.browser.find_binary(
-                channel=browser_channel)
-        if not kwargs["device_serial"]:
-            kwargs["device_serial"] = ["emulator-5554"]
-        if kwargs["webdriver_binary"] is None:
-            webdriver_binary = None
-            if not kwargs["install_webdriver"]:
-                webdriver_binary = self.browser.find_webdriver()
-
-            if webdriver_binary is None:
-                install = self.prompt_install("chromedriver")
-
-                if install:
-                    logger.info("Downloading chromedriver")
-                    webdriver_binary = self.browser.install_webdriver(
-                        dest=self.venv.bin_path,
-                        channel=browser_channel,
-                        browser_binary=kwargs["package_name"],
-                    )
-            else:
-                logger.info("Using webdriver binary %s" % webdriver_binary)
-
-            if webdriver_binary:
-                kwargs["webdriver_binary"] = webdriver_binary
-            else:
-                raise WptrunError("Unable to locate or install chromedriver binary")
-
-
-class ChromeAndroid(ChromeAndroidBase):
-    name = "chrome_android"
-    browser_cls = browser.ChromeAndroid
-
-    def setup_kwargs(self, kwargs):
-        super().setup_kwargs(kwargs)
-        if kwargs["browser_channel"] in self.experimental_channels:
-            # HACK(Hexcles): work around https://github.com/web-platform-tests/wpt/issues/16448
-            kwargs["webdriver_args"].append("--disable-build-check")
-            if kwargs["enable_experimental"] is None:
-                logger.info("Automatically turning on experimental features for Chrome Dev/Canary")
-                kwargs["enable_experimental"] = True
-
-
-class ChromeiOS(BrowserSetup):
-    name = "chrome_ios"
-    browser_cls = browser.ChromeiOS
-
-    def setup_kwargs(self, kwargs):
-        if kwargs["webdriver_binary"] is None:
-            raise WptrunError("Unable to locate or install chromedriver binary")
-
-
-class AndroidWebview(ChromeAndroidBase):
-    name = "android_webview"
-    browser_cls = browser.AndroidWebview
-
-    def setup_kwargs(self, kwargs):
-        if kwargs["mojojs_path"]:
-            kwargs["enable_mojojs"] = True
-            logger.info("--mojojs-path is provided, enabling MojoJS")
 
 
 class Opera(BrowserSetup):
@@ -869,12 +626,8 @@ class Epiphany(BrowserSetup):
 
 
 BUILTIN_PRODUCT_SETUP = {
-    "android_webview": AndroidWebview,
     "firefox": Firefox,
-    "firefox_android": FirefoxAndroid,
     "chrome": Chrome,
-    "chrome_android": ChromeAndroid,
-    "chrome_ios": ChromeiOS,
     "chromium": Chromium,
     "edge": Edge,
     "headless_shell": HeadlessShell,
@@ -1022,8 +775,7 @@ def setup_wptrunner(venv, **kwargs):
                   "install_browser",
                   "install_webdriver",
                   "channel",
-                  "prompt",
-                  "logcat_dir"]:
+                  "prompt"]:
         del wptrunner_kwargs[kwarg]
 
     wptcommandline.check_args(wptrunner_kwargs)
@@ -1032,7 +784,7 @@ def setup_wptrunner(venv, **kwargs):
     # argument, so that it can be overridden on the command line.
     if not wptrunner_kwargs["browser_version"]:
         wptrunner_kwargs["browser_version"] = setup_cls.browser.version(
-            binary=wptrunner_kwargs.get("binary") or wptrunner_kwargs.get("package_name"),
+            binary=wptrunner_kwargs.get("binary"),
             webdriver_binary=wptrunner_kwargs.get("webdriver_binary"),
         )
 

@@ -8,9 +8,7 @@ import type {ChromeSigninUserChoiceInfo} from 'chrome://settings/settings.js';
 import {PageStatus, SignedInState, StatusAction, ChromeSigninUserChoice} from 'chrome://settings/settings.js';
 import {TestBrowserProxy} from 'chrome://webui-test/test_browser_proxy.js';
 import type {UserSelectableType} from 'chrome://settings/settings.js';
-// <if expr="not is_chromeos">
 import type {ChromeSigninAccessPoint} from 'chrome://settings/settings.js';
-// </if>
 
 // clang-format on
 
@@ -52,18 +50,12 @@ export class TestSyncBrowserProxy extends TestBrowserProxy implements
       'didNavigateToAccountSettingsPage',
       'setSyncDatatype',
 
-      // <if expr="not is_chromeos">
       'pauseSync',
       'signOut',
       'startSignIn',
       'recordSigninPendingOffered',
       'recordSigninOffered',
-      // </if>
 
-      // <if expr="is_chromeos">
-      'turnOnSync',
-      'turnOffSync',
-      // </if>
       'setChromeSigninUserChoice',
       'getChromeSigninUserChoiceInfo',
       'showBookmarkLimitExceededHelp',
@@ -114,7 +106,6 @@ export class TestSyncBrowserProxy extends TestBrowserProxy implements
     return Promise.resolve(PageStatus.CONFIGURE);
   }
 
-  // <if expr="not is_chromeos">
   signOut(deleteProfile: boolean) {
     this.methodCalled('signOut', deleteProfile);
   }
@@ -134,7 +125,6 @@ export class TestSyncBrowserProxy extends TestBrowserProxy implements
   recordSigninOffered(accessPoint: ChromeSigninAccessPoint): void {
     this.methodCalled('recordSigninOffered', accessPoint);
   }
-  // </if>
 
   startSyncingWithEmail(email: string, isDefaultPromoAccount: boolean) {
     this.methodCalled('startSyncingWithEmail', [email, isDefaultPromoAccount]);
@@ -183,17 +173,6 @@ export class TestSyncBrowserProxy extends TestBrowserProxy implements
     this.methodCalled('showBookmarkLimitExceededHelp');
   }
 
-  // <if expr="is_chromeos">
-  attemptUserExit() {}
-
-  turnOnSync() {
-    this.methodCalled('turnOnSync');
-  }
-
-  turnOffSync() {
-    this.methodCalled('turnOffSync');
-  }
-  // </if>
 
   setChromeSigninUserChoice(): void {
     this.methodCalled('setChromeSigninUserChoice');

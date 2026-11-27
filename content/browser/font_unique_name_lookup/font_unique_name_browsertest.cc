@@ -23,20 +23,7 @@
 namespace content {
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr auto kExpectedFontFamilyNames = std::to_array({
-    "AndroidClock",
-    "Droid Sans Mono",
-    "Roboto",
-    "Noto Color Emoji",
-    "Noto Sans Lao UI",
-    "Noto Sans Lao UI",
-    "Noto Sans Thai",
-    "Noto Sans Thai",
-    "Noto Sans Thai UI",
-    "Noto Sans Thai UI",
-});
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 constexpr auto kExpectedFontFamilyNames = std::to_array({
     "Ahem",
     "Arimo",
@@ -113,9 +100,7 @@ class FontUniqueNameBrowserTest : public DevToolsProtocolTest {
 };
 
 // TODO(crbug.com/42050634): Make this work on Fuchsia.
-#if !BUILDFLAG(IS_FUCHSIA)
-IN_PROC_BROWSER_TEST_F(FontUniqueNameBrowserTest,
-                       ContentLocalFontsMatching) {
+IN_PROC_BROWSER_TEST_F(FontUniqueNameBrowserTest, ContentLocalFontsMatching) {
   LoadAndWait("/font_src_local_matching.html");
   Attach();
 
@@ -160,6 +145,5 @@ IN_PROC_BROWSER_TEST_F(FontUniqueNameBrowserTest,
     ASSERT_EQ(*first_font_name, kExpectedFontFamilyNames[i]);
   }
 }
-#endif
 
 }  // namespace content

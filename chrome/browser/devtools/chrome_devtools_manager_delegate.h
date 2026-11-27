@@ -50,7 +50,7 @@ class ChromeDevToolsManagerDelegate : public content::DevToolsManagerDelegate,
   void UpdateDeviceDiscovery();
 
   // Resets |device_manager_|.
-  void ResetAndroidDeviceManagerForTesting();
+  void ResetRemoteDeviceManagerForTesting();
 
   std::vector<base::WeakPtr<content::BrowserContext>> GetBrowserContexts()
       override;
@@ -124,7 +124,7 @@ class ChromeDevToolsManagerDelegate : public content::DevToolsManagerDelegate,
            std::unique_ptr<ChromeDevToolsSession>>
       sessions_;
 
-  std::unique_ptr<AndroidDeviceManager> device_manager_;
+  std::unique_ptr<RemoteDeviceManager> device_manager_;
   std::unique_ptr<DevToolsDeviceDiscovery> device_discovery_;
   content::DevToolsAgentHost::List remote_agent_hosts_;
   RemoteLocations remote_locations_;

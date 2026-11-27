@@ -239,9 +239,6 @@ class CaptionBubbleEventObserver : public ui::EventObserver {
   std::unique_ptr<views::EventMonitor> event_monitor_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-DEFINE_UI_CLASS_PROPERTY_KEY(bool, kIsCaptionBubbleKey, false)
-#endif
 
 #if BUILDFLAG(IS_WIN)
 class MediaFoundationRendererErrorMessageView : public views::StyledLabel {
@@ -1170,9 +1167,6 @@ void CaptionBubble::OnBeforeBubbleWidgetInit(views::Widget::InitParams* params,
   params->z_order = ui::ZOrderLevel::kFloatingWindow;
   params->visible_on_all_workspaces = true;
   params->name = "LiveCaptionWindow";
-#if BUILDFLAG(IS_CHROMEOS)
-  params->init_properties_container.SetProperty(kIsCaptionBubbleKey, true);
-#endif
 }
 
 bool CaptionBubble::ShouldShowCloseButton() const {
@@ -1251,9 +1245,6 @@ void CaptionBubble::CloseButtonPressed() {
     model_->CloseButtonPressed();
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  caption_bubble_settings_->SetLiveCaptionEnabled(false);
-#endif
 }
 
 void CaptionBubble::ExpandOrCollapseButtonPressed() {
@@ -1596,9 +1587,6 @@ const gfx::FontList CaptionBubble::GetFontList(int font_size) {
   font_names.push_back(kPrimaryFont);
   font_names.push_back(kSecondaryFont);
   font_names.push_back(kTertiaryFont);
-#if BUILDFLAG(IS_CHROMEOS)
-  font_names.push_back(kArabicFont);
-#endif
 
   const gfx::FontList font_list = new_font_list_getter_.Run(
       font_names, gfx::Font::FontStyle::NORMAL,

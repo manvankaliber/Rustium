@@ -48,7 +48,6 @@ struct MEDIA_EXPORT AudioProcessingSettings {
   bool NeedWebrtcAudioProcessing() const {
     // TODO(crbug.com/40205004): Legacy iOS-specific behavior;
     // reconsider.
-#if !BUILDFLAG(IS_IOS)
     if (echo_cancellation || automatic_gain_control) {
       return true;
     }
@@ -56,7 +55,6 @@ struct MEDIA_EXPORT AudioProcessingSettings {
     if (voice_isolation) {
       return true;
     }
-#endif
 #endif
 
     return noise_suppression;

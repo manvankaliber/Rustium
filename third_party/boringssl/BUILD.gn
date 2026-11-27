@@ -175,7 +175,7 @@ component("boringssl") {
   configs -= [ "//build/config/compiler:chromium_code" ]
   configs += [ "//build/config/compiler:no_chromium_code" ]
 
-  if (!is_debug && !(is_fuchsia && optimize_for_size)) {
+  if (!is_debug) {
     configs -= [ "//build/config/compiler:default_optimization" ]
     configs += [ "//build/config/compiler:optimize_max" ]
   }
@@ -241,11 +241,6 @@ if (build_with_chromium) {
     sources -= [ "src/crypto/test/gtest_main.cc" ]
     sources += [ "gtest_main_chromium.cc" ]
     deps += [ "//base/test:test_support" ]
-
-    if (is_fuchsia) {
-      additional_manifest_fragments =
-          [ "//build/config/fuchsia/test/network.shard.test-cml" ]
-    }
   }
 
   test("boringssl_ssl_tests") {

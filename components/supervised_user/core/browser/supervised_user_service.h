@@ -99,14 +99,6 @@ class SupervisedUserService : public KeyedService {
   // ProfileKeyedService override:
   void Shutdown() override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  bool signout_required_after_supervision_enabled() {
-    return signout_required_after_supervision_enabled_;
-  }
-  void set_signout_required_after_supervision_enabled() {
-    signout_required_after_supervision_enabled_ = true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Use |supervised_user::SupervisedUserServiceFactory::GetForProfile(..)| to get
   // an instance of this service.
@@ -153,9 +145,6 @@ class SupervisedUserService : public KeyedService {
   // Manages remote web approvals.
   RemoteWebApprovalsManager remote_web_approvals_manager_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  bool signout_required_after_supervision_enabled_ = false;
-#endif
 };
 
 }  // namespace supervised_user

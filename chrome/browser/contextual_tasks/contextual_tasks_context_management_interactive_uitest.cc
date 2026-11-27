@@ -23,10 +23,8 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_test_user_variation.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_web_view.h"
 // TabUnderlineView currently resides in glic/browser_ui.
-#include "chrome/browser/glic/browser_ui/tab_underline_view.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
 #include "chrome/browser/ui/omnibox/omnibox_context_menu_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
@@ -197,7 +195,6 @@ class ContextualTasksContextManagementInteractiveTestBase
               const GURL& url = params->url_request.url;
               if (url.host().find("lensfrontend-pa") != std::string::npos) {
                 if (url.path().find("gsessionid") != std::string::npos) {
-                  lens::LensOverlayServerClusterInfoResponse cluster_info;
                   cluster_info.set_server_session_id("fake_server_session_id");
                   cluster_info.set_search_session_id("fake_search_session_id");
                   std::string response_data;
@@ -221,7 +218,6 @@ class ContextualTasksContextManagementInteractiveTestBase
                   stalled_upload_clients_.push_back(std::move(params->client));
                   return true;
                 }
-                lens::LensOverlayServerResponse upload_response;
                 std::string response_data;
                 upload_response.SerializeToString(&response_data);
                 content::URLLoaderInterceptor::WriteResponse(
@@ -335,7 +331,6 @@ class ContextualTasksContextManagementInteractiveTestBase
           if (!tab) {
             return false;
           }
-          auto* underline = tab->glic_underline();
           bool is_showing = underline && underline->IsShowing();
           bool should_underline = expected_indices.contains(i);
           if (is_showing != should_underline) {
@@ -731,11 +726,6 @@ class ContextualTasksContextManagementInteractiveTestBase
   // turns in multi-turn flows.
   auto ShowSidePanel() {
     return Do([this]() {
-      if (auto* lens_controller = LensSearchController::FromTabWebContents(
-              browser()->GetActiveTabInterface()->GetContents())) {
-        lens_controller->SetInvocationSource(
-            lens::LensOverlayInvocationSource::kOmniboxPageAction);
-      }
       auto* coordinator = ContextualTasksPanelController::From(browser());
       coordinator->Show(
           false, omnibox::DESKTOP_CHROME_LENS_CONTEXTUAL_SEARCHBOX_ENTRY_POINT);
@@ -1564,44 +1554,6 @@ class ContextualTasksOmniboxContextManagementInteractiveUiTest
       default;
 
   void SetUpFeatureList() override {
-    feature_list_.InitWithFeaturesAndParameters(
-        /*enabled_features=*/
-        {
-            {kContextualTasks, {}},
-            {kContextualTasksForceEntryPointEligibility, {}},
-            {omnibox::kContextManagementInComposebox,
-             {{"enable_tab_deselection", "true"}}},
-            // Gates the native "Add tabs" submenu. Without this
-            // `AddRecentTabItems()` puts tabs directly in the main menu
-            // instead, and `kSharedTabsSubmenuIdForTesting` is never attached.
-            {omnibox::kContextManagementInOmnibox, {}},
-            {omnibox::kTabFaviconChipsToCoins, {}},
-            // Unlike the base fixture, the WebUI omnibox popups are the surface
-            // under test here.
-            {omnibox::internal::kWebUIOmniboxPopup, {}},
-            {omnibox::internal::kWebUIOmniboxAimPopup, {}},
-            {omnibox::internal::kWebUIOmniboxSimplification,
-             {{omnibox::kWebUIOmniboxAimPopupAddContextButtonVariantParam.name,
-               "below_results"},
-              {omnibox::kHideClassicContextButton.name, "false"}}},
-            {omnibox::kOmniboxWebUIDeferShowUntilVisualStateReady, {}},
-            {omnibox::kAimEnabled, {}},
-            {omnibox::kAimUsePecApi, {}},
-            {lens::features::kLensOverlay, {}},
-            {lens::features::kLensOverlayContextualSearchbox, {}},
-        },
-        /*disabled_features=*/{
-            kContextualTasksRearchitecture,
-            kContextualTasksSidePanelRearchitecture,
-            // Keep `kOmniboxElementId` a Views element so focus and key presses
-            // target it directly.
-            features::kWebUILocationBar,
-            // Eligibility is supplied by `MockAimEligibilityService`; don't let
-            // the real service race it.
-            omnibox::kAimServerEligibilityEnabled,
-            omnibox::kAimFuseboxEligibilityCheckEnabled,
-            omnibox::kComposeboxPersistentAimButtonOmnibox,
-        });
   }
 
   void SetUpOnMainThread() override {

@@ -90,21 +90,6 @@ void NativeViewHost::SetNativeViewSize(const gfx::Size& size) {
   InvalidateLayout();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void NativeViewHost::SetLayerManagedByViews(bool managed) {
-  if (layer_managed_by_views_ == managed) {
-    return;
-  }
-
-  CHECK(!native_wrapper_);
-  CHECK(!native_view_, base::NotFatalUntil::M163);
-  layer_managed_by_views_ = managed;
-}
-
-void NativeViewHost::SetCreateLayer(bool create_layer) {
-  create_layer_ = create_layer;
-}
-#endif
 
 gfx::NativeView NativeViewHost::GetNativeViewContainer() const {
   return native_view_ ? native_wrapper_->GetNativeViewContainer()
@@ -123,11 +108,7 @@ void NativeViewHost::SetBackgroundColorWhenClipped(
 }
 
 ui::Layer* NativeViewHost::GetUILayer() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return layer_managed_by_views() ? layer() : native_wrapper_->GetUILayer();
-#else
   return layer();
-#endif
 }
 
 void NativeViewHost::SetMouseEventFallback(ui::EventHandler* handler) {

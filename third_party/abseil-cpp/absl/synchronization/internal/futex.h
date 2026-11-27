@@ -38,10 +38,6 @@
 
 #ifdef ABSL_INTERNAL_HAVE_FUTEX
 #error ABSL_INTERNAL_HAVE_FUTEX may not be set on the command line
-#elif defined(__BIONIC__)
-// Bionic supports all the futex operations we need even when some of the futex
-// definitions are missing.
-#define ABSL_INTERNAL_HAVE_FUTEX
 #elif defined(__linux__) && defined(FUTEX_CLOCK_REALTIME)
 // FUTEX_CLOCK_REALTIME requires Linux >= 2.6.28.
 #define ABSL_INTERNAL_HAVE_FUTEX
@@ -55,23 +51,6 @@ namespace synchronization_internal {
 
 // Some Android headers are missing these definitions even though they
 // support these futex operations.
-#ifdef __BIONIC__
-#ifndef SYS_futex
-#define SYS_futex __NR_futex
-#endif
-#ifndef FUTEX_WAIT_BITSET
-#define FUTEX_WAIT_BITSET 9
-#endif
-#ifndef FUTEX_PRIVATE_FLAG
-#define FUTEX_PRIVATE_FLAG 128
-#endif
-#ifndef FUTEX_CLOCK_REALTIME
-#define FUTEX_CLOCK_REALTIME 256
-#endif
-#ifndef FUTEX_BITSET_MATCH_ANY
-#define FUTEX_BITSET_MATCH_ANY 0xFFFFFFFF
-#endif
-#endif
 
 #if defined(__NR_futex_time64) && !defined(SYS_futex_time64)
 #define SYS_futex_time64 __NR_futex_time64

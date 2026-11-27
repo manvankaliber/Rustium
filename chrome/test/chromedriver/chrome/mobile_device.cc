@@ -27,7 +27,6 @@ const char kAndroidUnifiedPlatformName[] = "Linux; Android 10; K";
 const char kChromeOSUnifiedPlatformName[] = "X11; CrOS x86_64 14541.0.0";
 const char kMacOSUnifiedPlatformName[] = "Macintosh; Intel Mac OS X 10_15_7";
 const char kWindowsUnifiedPlatformName[] = "Windows NT 10.0; Win64; x64";
-const char kFuchsiaUnifiedPlatformName[] = "Fuchsia";
 const char kLinuxUnifiedPlatformName[] = "X11; Linux x86_64";
 const char kFrozenUserAgentTemplate[] =
     "Mozilla/5.0 (%s) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/%s.0.0.0 "
@@ -66,12 +65,6 @@ Platform kWindowsPlatform{
     false,
 };
 
-Platform kFuchsiaPlatform{
-    "Fuchsia",
-    kFuchsiaUnifiedPlatformName,
-    false,
-};
-
 Platform kLinuxPlatform{
     "Linux",
     kLinuxUnifiedPlatformName,
@@ -80,8 +73,7 @@ Platform kLinuxPlatform{
 
 const Platform* kPlatformsWithReducedUserAgentSupport[] = {
     &kAndroidPlatform, &kChromeOSPlatform, &kChromiumOSPlatform,
-    &kMacOSPlatform,   &kWindowsPlatform,  &kFuchsiaPlatform,
-    &kLinuxPlatform,
+    &kMacOSPlatform,   &kWindowsPlatform,  &kLinuxPlatform,
 };
 
 Status ParsePresetDeviceMetrics(const base::DictValue& device_metrics_dict,
@@ -183,18 +175,21 @@ Status MobileDevice::FindMobileDevice(std::string device_name,
                                       MobileDevice* mobile_device) {
   auto parsed_json = base::JSONReader::ReadAndReturnValueWithError(
       kMobileDevices, base::JSON_ALLOW_TRAILING_COMMAS);
-  if (!parsed_json.has_value())
+  if (!parsed_json.has_value()) {
     return Status(kUnknownError, "could not parse mobile device list because " +
                                      parsed_json.error().message);
+  }
 
-  if (!parsed_json->is_dict())
+  if (!parsed_json->is_dict()) {
     return Status(kUnknownError, "malformed device metrics dictionary");
+  }
   base::DictValue& mobile_devices = parsed_json->GetDict();
 
   const base::DictValue* device =
       mobile_devices.FindDictByDottedPath(device_name);
-  if (!device)
+  if (!device) {
     return Status(kUnknownError, "must be a valid device");
+  }
 
   MobileDevice tmp_mobile_device;
   const std::string* maybe_ua = device->FindString("userAgent");
@@ -298,7 +293,6 @@ bool MobileDevice::GuessPlatform(const std::string& user_agent,
           std::make_pair("Mozilla/5.0 (Mac", kMacOSPlatform.name),
           std::make_pair("Mozilla/5.0 (X11; C", kChromeOSPlatform.name),
           std::make_pair("Mozilla/5.0 (X11; L", kLinuxPlatform.name),
-          std::make_pair("Mozilla/5.0 (Fuchsia", kFuchsiaPlatform.name),
       };
   for (auto p : prefix_to_platform) {
     if (base::StartsWith(user_agent, p.first)) {

@@ -3,19 +3,13 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-"""Compares two orderfiles, from filenames or a commit.
-
-This shows some statistics about two orderfiles, possibly extracted from an
-updating commit made by the orderfile bot.
-"""
+"""Compares two local orderfiles and reports their symbol ordering statistics."""
 
 from __future__ import print_function
 
 import argparse
 import collections
 import logging
-import os
-import subprocess
 import sys
 
 
@@ -132,95 +126,11 @@ def Compare(first_filename, second_filename):
   )
 
 
-def CheckOrderfileCommit(commit_hash, clank_path):
-  """Asserts that a commit is an orderfile update from the bot.
-
-  Args:
-    commit_hash: (str) Git hash of the orderfile roll commit.
-    clank_path: (str) Path to the clank repository.
-  """
-  output = subprocess.check_output(
-    ['git', 'show', r'--format=%s', commit_hash], cwd=clank_path
-  )
-  first_line = output.decode().split('\n')[0]
-  # Capitalization changed at some point. Not checking the bot name because it
-  # changed too.
-  assert first_line.upper().endswith('Update Orderfile.'.upper()), (
-    'Not an orderfile commit'
-  )
-
-
-def GetBeforeAfterOrderfileHashes(commit_hash, clank_path):
-  """Downloads the orderfiles before and afer an orderfile roll.
-
-  Args:
-    commit_hash: (str) Git hash of the orderfile roll commit.
-    clank_path: (str) Path to the clank repository.
-
-  Returns:
-    (str, str) Path to the before and after commit orderfiles.
-  """
-  orderfile_hash_relative_path = 'orderfiles/orderfile.arm.out.sha1'
-  before_output = subprocess.check_output(
-    ['git', 'show', '%s^:%s' % (commit_hash, orderfile_hash_relative_path)],
-    cwd=clank_path,
-  )
-  before_hash = before_output.decode().split('\n')[0]
-  after_output = subprocess.check_output(
-    ['git', 'show', '%s:%s' % (commit_hash, orderfile_hash_relative_path)],
-    cwd=clank_path,
-  )
-  after_hash = after_output.decode().split('\n')[0]
-  assert before_hash != after_hash
-  return (before_hash, after_hash)
-
-
-def DownloadOrderfile(orderfile_hash, output_filename):
-  """Downloads an orderfile with a given hash to a given destination."""
-  cloud_storage_path = (
-    'gs://clank-archive/orderfile-clankium/%s' % orderfile_hash
-  )
-  subprocess.check_call(
-    ['gsutil.py', 'cp', cloud_storage_path, output_filename]
-  )
-
-
-def GetOrderfilesFromCommit(commit_hash):
-  """Returns paths to the before and after orderfiles for a commit."""
-  clank_path = os.path.join(
-    os.path.dirname(__file__), os.pardir, os.pardir, 'clank'
-  )
-  logging.info('Checking that the commit is an orderfile')
-  CheckOrderfileCommit(commit_hash, clank_path)
-  (before_hash, after_hash) = GetBeforeAfterOrderfileHashes(
-    commit_hash, clank_path
-  )
-  logging.info('Before / after hashes: %s %s', before_hash, after_hash)
-  before_filename = os.path.join('/tmp/', before_hash)
-  after_filename = os.path.join('/tmp/', after_hash)
-  logging.info('Downloading files')
-  DownloadOrderfile(before_hash, before_filename)
-  DownloadOrderfile(after_hash, after_filename)
-  return (before_filename, after_filename)
-
-
 def CreateArgumentParser():
-  """Returns the argumeng parser."""
+  """Returns the argument parser for local orderfile comparison."""
   parser = argparse.ArgumentParser()
   parser.add_argument('--first', help='First orderfile')
   parser.add_argument('--second', help='Second orderfile')
-  parser.add_argument(
-    '--keep',
-    default=False,
-    action='store_true',
-    help='Keep the downloaded orderfiles',
-  )
-  parser.add_argument(
-    '--from-commit',
-    help='Analyze the difference in the '
-    'orderfile from an orderfile bot commit.',
-  )
-  parser.add_argument('--csv-output', help='Appends the result to a CSV file.')
   return parser
 
 
@@ -231,20 +141,6 @@ def main():
   if args.first or args.second:
     assert args.first and args.second, 'Need both files.'
     Compare(args.first, args.second)
-  elif args.from_commit:
-    first, second = GetOrderfilesFromCommit(args.from_commit)
-    try:
-      logging.info('Comparing the orderfiles')
-      result = Compare(first, second)
-      if args.csv_output:
-        with open(args.csv_output, 'a') as f:
-          f.write(
-            '%s,%d,%d,%d,%d,%f\n' % tuple([args.from_commit] + list(result))
-          )
-    finally:
-      if not args.keep:
-        os.remove(first)
-        os.remove(second)
   else:
     return False
   return True

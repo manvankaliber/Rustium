@@ -34,7 +34,7 @@ namespace {
 const char kDeviceModel[] = "Remote Target";
 const char kBrowserName[] = "Target";
 
-static void RunSocketCallback(AndroidDeviceManager::SocketCallback callback,
+static void RunSocketCallback(RemoteDeviceManager::SocketCallback callback,
                               std::unique_ptr<net::StreamSocket> socket,
                               int result) {
   std::move(callback).Run(result, std::move(socket));
@@ -43,7 +43,7 @@ static void RunSocketCallback(AndroidDeviceManager::SocketCallback callback,
 class ResolveHostAndOpenSocket final : public network::ResolveHostClientBase {
  public:
   ResolveHostAndOpenSocket(const net::HostPortPair& address,
-                           AndroidDeviceManager::SocketCallback callback)
+                           RemoteDeviceManager::SocketCallback callback)
       : callback_(std::move(callback)) {
     mojo::PendingRemote<network::mojom::ResolveHostClient> response_client =
         receiver_.BindNewPipeAndPassRemote();
@@ -102,7 +102,7 @@ class ResolveHostAndOpenSocket final : public network::ResolveHostClientBase {
     delete this;
   }
 
-  AndroidDeviceManager::SocketCallback callback_;
+  RemoteDeviceManager::SocketCallback callback_;
   mojo::Receiver<network::mojom::ResolveHostClient> receiver_{this};
 };
 
@@ -121,12 +121,12 @@ TCPDeviceProvider::TCPDeviceProvider(const HostPortSet& targets)
 
 void TCPDeviceProvider::QueryDevices(SerialsCallback callback) {
   std::vector<
-      std::pair<std::string, AndroidDeviceManager::DeviceInfo::ConnectedState>>
+      std::pair<std::string, RemoteDeviceManager::DeviceInfo::ConnectedState>>
       result;
   for (const net::HostPortPair& target : targets_) {
     const std::pair<std::string,
-                    AndroidDeviceManager::DeviceInfo::ConnectedState>
-        host = {target.host(), AndroidDeviceManager::DeviceInfo::kUnknown};
+                    RemoteDeviceManager::DeviceInfo::ConnectedState>
+        host = {target.host(), RemoteDeviceManager::DeviceInfo::kUnknown};
     if (std::ranges::contains(result, host)) {
       continue;
     }
@@ -137,17 +137,17 @@ void TCPDeviceProvider::QueryDevices(SerialsCallback callback) {
 
 void TCPDeviceProvider::QueryDeviceInfo(const std::string& serial,
                                         DeviceInfoCallback callback) {
-  AndroidDeviceManager::DeviceInfo device_info;
+  RemoteDeviceManager::DeviceInfo device_info;
   device_info.model = kDeviceModel;
-  device_info.connected_state = AndroidDeviceManager::DeviceInfo::kConnected;
+  device_info.connected_state = RemoteDeviceManager::DeviceInfo::kConnected;
 
   for (const net::HostPortPair& target : targets_) {
     if (serial != target.host())
       continue;
-    AndroidDeviceManager::BrowserInfo browser_info;
+    RemoteDeviceManager::BrowserInfo browser_info;
     browser_info.socket_name = base::NumberToString(target.port());
     browser_info.display_name = kBrowserName;
-    browser_info.type = AndroidDeviceManager::BrowserInfo::kTypeChrome;
+    browser_info.type = RemoteDeviceManager::BrowserInfo::kTypeChrome;
 
     device_info.browser_info.push_back(browser_info);
   }
@@ -159,7 +159,7 @@ void TCPDeviceProvider::QueryDeviceInfo(const std::string& serial,
 void TCPDeviceProvider::OpenSocket(const std::string& serial,
                                    const std::string& socket_name,
                                    SocketCallback callback) {
-  // Use plain socket for remote debugging and port forwarding on Desktop
+  // Use a plain socket for desktop remote debugging.
   // (debugging purposes).
   int port;
   base::StringToInt(socket_name, &port);

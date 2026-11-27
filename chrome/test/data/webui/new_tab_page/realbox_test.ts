@@ -1289,7 +1289,6 @@ suite('NewTabPageRealboxNextTest', () => {
 });
 
 // TODO(crbug.com/570702014): Smart Tab Sharing is desktop-only.
-// <if expr="not is_android">
 suite('NewTabPageRealboxSmartTabSharingTest', () => {
   let realbox: NtpSearchboxElement;
   let testProxy: TestSearchboxBrowserProxy;
@@ -1384,4 +1383,3 @@ suite('NewTabPageRealboxSmartTabSharingTest', () => {
     assertTrue(realbox.smartTabSharingActive);
   });
 });
-// </if>

@@ -39,11 +39,9 @@
 #include "chrome/common/chrome_result_codes.h"
 #include "chrome/common/chrome_version.h"
 #include "chrome/test/chromedriver/chrome/browser_info.h"
-#include "chrome/test/chromedriver/chrome/chrome_android_impl.h"
 #include "chrome/test/chromedriver/chrome/chrome_desktop_impl.h"
 #include "chrome/test/chromedriver/chrome/chrome_finder.h"
 #include "chrome/test/chromedriver/chrome/chrome_remote_impl.h"
-#include "chrome/test/chromedriver/chrome/device_manager.h"
 #include "chrome/test/chromedriver/chrome/devtools_client_impl.h"
 #include "chrome/test/chromedriver/chrome/devtools_event_listener.h"
 #include "chrome/test/chromedriver/chrome/devtools_http_client.h"
@@ -113,17 +111,13 @@ const char* const kDesktopSwitches[] = {
     "no-service-autorun",
 };
 
-const char* const kAndroidSwitches[] = {
-    "disable-fre", "enable-remote-debugging",
-};
 
 const char kEnableCrashReport[] = "enable-crash-reporter-for-testing";
 const base::FilePath::CharType kDevToolsActivePort[] =
     FILE_PATH_LITERAL("DevToolsActivePort");
 
-const char kTempAndroidUserDataDirFormat[] = "/data/data/%s/temp_profile_%s";
 
-enum ChromeType { Remote, Desktop, Android, Replay };
+enum ChromeType { Remote, Desktop, Replay };
 
 Status WrapStatusIfNeeded(Status status, StatusCode code) {
   if (status.code() != code) {
@@ -311,9 +305,6 @@ Status CheckVersion(const BrowserInfo& browser_info,
           browser_info.browser_version.c_str());
       if (ct == ChromeType::Desktop && !fp.empty()) {
         version_info.append(" with binary path " + fp);
-      } else if (ct == ChromeType::Android) {
-        version_info.append(" with package name " +
-                            capabilities.android_package);
       }
       return Status(kSessionNotCreated, version_info);
     }
@@ -347,13 +338,7 @@ Status WaitForDevToolsAndCheckVersion(
     return status;
 
   const BrowserInfo* browser_info = client->browser_info();
-  if (browser_info->is_android &&
-      browser_info->android_package != capabilities.android_package) {
-    return Status(
-      kSessionNotCreated,
-      base::StringPrintf("please close '%s' and try again",
-                          browser_info->android_package.c_str()));
-  }
+
 
   status = CheckVersion(*browser_info, capabilities, ct, fp);
   retry = status.IsOk();
@@ -536,7 +521,7 @@ Status LaunchDesktopChrome(network::mojom::URLLoaderFactory* factory,
       command.AppendSwitch(kEnableCrashReport);
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // We need to allow new privileges so that chrome's setuid sandbox can run.
   options.allow_new_privs = true;
 #endif
@@ -795,112 +780,7 @@ Status LaunchDesktopChrome(network::mojom::URLLoaderFactory* factory,
   return Status(kOk);
 }
 
-Status LaunchAndroidChrome(network::mojom::URLLoaderFactory* factory,
-                           const SyncWebSocketFactory& socket_factory,
-                           const Capabilities& capabilities,
-                           std::vector<std::unique_ptr<DevToolsEventListener>>
-                               devtools_event_listeners,
-                           DeviceManager& device_manager,
-                           base::RepeatingClosure on_socket_message,
-                           std::unique_ptr<Chrome>& chrome) {
-  Status status(kOk);
-  std::unique_ptr<Device> device;
-  int devtools_port = capabilities.android_devtools_port;
-  if (capabilities.android_device_serial.empty()) {
-    status = device_manager.AcquireDevice(&device);
-  } else {
-    status = device_manager.AcquireSpecificDevice(
-        capabilities.android_device_serial, &device);
-  }
-  if (status.IsError())
-    return WrapStatusIfNeeded(status, kSessionNotCreated);
 
-  Switches switches(capabilities.switches);
-  for (auto* common_switch : kCommonSwitches)
-    switches.SetUnparsedSwitch(common_switch);
-  for (auto* android_switch : kAndroidSwitches)
-    switches.SetUnparsedSwitch(android_switch);
-  if (capabilities.accept_insecure_certs) {
-    switches.SetSwitch("ignore-certificate-errors");
-  }
-  for (auto excluded_switch : capabilities.exclude_switches)
-    switches.RemoveSwitch(excluded_switch);
-
-  // We intentionally store the paths as string and not as base::FilePath,
-  // in order to make sure the paths are formatted for android, and not for
-  // the host OS.
-  std::string user_data_dir;
-  if (switches.HasSwitch("user-data-dir")) {
-    base::FilePath::StringType user_data_dir_value =
-        switches.GetSwitchValueNative("user-data-dir");
-    if (user_data_dir_value.empty()) {
-      return Status(kInvalidArgument, "user data dir can not be empty");
-    }
-
-#if BUILDFLAG(IS_WIN)
-    user_data_dir = base::WideToUTF8(user_data_dir_value);
-#else
-    user_data_dir = user_data_dir_value;
-#endif
-  } else if (capabilities.prefs.get() || capabilities.local_state.get()) {
-    user_data_dir = base::StringPrintf(
-        kTempAndroidUserDataDirFormat, capabilities.android_package.c_str(),
-        base::Uuid::GenerateRandomV4().AsLowercaseString().c_str());
-    switches.SetSwitch("user-data-dir", user_data_dir);
-  }
-
-  std::string preferences_path =
-      base::StringPrintf("%s/%s/%s", user_data_dir.c_str(),
-                         chrome::kInitialProfile, chrome::kPreferencesFilename);
-  std::string local_state_path = base::StringPrintf(
-      "%s/%s", user_data_dir.c_str(), chrome::kLocalStateFilename);
-
-  status = device->SetUp(
-      capabilities.android_package, capabilities.android_activity,
-      capabilities.android_process, capabilities.android_device_socket,
-      capabilities.android_exec_name, switches.ToString(),
-      capabilities.android_use_running_app,
-      capabilities.android_keep_app_data_dir,
-      capabilities.android_grant_permissions, &devtools_port, preferences_path,
-      capabilities.prefs.get(), local_state_path,
-      capabilities.local_state.get());
-  if (status.IsError()) {
-    device->TearDown();
-    return WrapStatusIfNeeded(status, kSessionNotCreated);
-  }
-
-  std::unique_ptr<DevToolsHttpClient> devtools_http_client;
-  bool retry = true;
-  status = WaitForDevToolsAndCheckVersion(
-      DevToolsEndpoint(devtools_port), factory, capabilities,
-      Timeout(capabilities.browser_startup_timeout), ChromeType::Android,
-      devtools_http_client, retry);
-  if (status.IsError()) {
-    device->TearDown();
-    return WrapStatusIfNeeded(status, kSessionNotCreated);
-  }
-
-  std::unique_ptr<DevToolsClient> devtools_websocket_client;
-  std::unique_ptr<SyncWebSocket> socket = socket_factory.Run();
-  socket->SetNotificationCallback(std::move(on_socket_message));
-  BrowserInfo browser_info = *devtools_http_client->browser_info();
-  if (browser_info.web_socket_url.empty()) {
-    browser_info.web_socket_url =
-        DevToolsEndpoint(devtools_port).GetBrowserDebuggerUrl();
-  }
-  status = CreateBrowserwideDevToolsClientAndConnect(
-      std::move(socket), devtools_event_listeners,
-      devtools_http_client->browser_info()->web_socket_url,
-      !capabilities.web_socket_url, devtools_websocket_client);
-
-  chrome = std::make_unique<ChromeAndroidImpl>(
-      browser_info, capabilities.window_types,
-      std::move(devtools_websocket_client), std::move(devtools_event_listeners),
-      capabilities.mobile_device, capabilities.page_load_strategy,
-      std::move(device), !capabilities.web_socket_url,
-      capabilities.enable_extension_targets);
-  return Status(kOk);
-}
 
 Status LaunchReplayChrome(network::mojom::URLLoaderFactory* factory,
                           const Capabilities& capabilities,
@@ -996,7 +876,6 @@ Switches GetDesktopSwitches() {
 
 Status LaunchChrome(network::mojom::URLLoaderFactory* factory,
                     const SyncWebSocketFactory& socket_factory,
-                    DeviceManager& device_manager,
                     const Capabilities& capabilities,
                     std::vector<std::unique_ptr<DevToolsEventListener>>
                         devtools_event_listeners,
@@ -1011,12 +890,7 @@ Status LaunchChrome(network::mojom::URLLoaderFactory* factory,
                                      std::move(on_socket_message), chrome);
   }
   const base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
-  if (capabilities.IsAndroid()) {
-    return LaunchAndroidChrome(factory, socket_factory, capabilities,
-                               std::move(devtools_event_listeners),
-                               device_manager, std::move(on_socket_message),
-                               chrome);
-  } else if (cmd_line->HasSwitch("devtools-replay")) {
+  if (cmd_line->HasSwitch("devtools-replay")) {
     return LaunchReplayChrome(
         factory, capabilities, std::move(devtools_event_listeners),
         std::move(on_socket_message), w3c_compliant, chrome);
@@ -1345,15 +1219,8 @@ std::string GetTerminationReason(base::TerminationStatus status) {
     case base::TERMINATION_STATUS_ABNORMAL_TERMINATION:
       return "exited abnormally";
     case base::TERMINATION_STATUS_PROCESS_WAS_KILLED:
-#if BUILDFLAG(IS_CHROMEOS)
-    case base::TERMINATION_STATUS_PROCESS_WAS_KILLED_BY_OOM:
-#endif
     case base::TERMINATION_STATUS_OOM:
       return "was killed";
-#if BUILDFLAG(IS_ANDROID)
-    case base::TERMINATION_STATUS_OOM_PROTECTED:
-      return "protected from oom";
-#endif
     case base::TERMINATION_STATUS_PROCESS_CRASHED:
       return "crashed";
     case base::TERMINATION_STATUS_LAUNCH_FAILED:

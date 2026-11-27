@@ -106,10 +106,6 @@
 #include "third_party/blink/renderer/platform/wtf/hash_set.h"
 #include "third_party/perfetto/include/perfetto/tracing/traced_value_forward.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/blink/public/mojom/facilitated_payments/payment_link_handler.mojom-blink.h"
-#include "third_party/blink/renderer/platform/mojo/heap_mojo_remote.h"
-#endif
 
 namespace base {
 class SingleThreadTaskRunner;
@@ -2360,11 +2356,6 @@ class CORE_EXPORT Document : public ContainerNode,
   };
   net::SchemefulSite GetCachedTopFrameSite(VisitedLinkPassKey);
 
-#if BUILDFLAG(IS_ANDROID)
-  // This method is invoked when a payment link element is encountered. It
-  // passes the payment link back to browser process through the mojo pipe.
-  void HandlePaymentLink(const KURL& href);
-#endif
 
 
   // https://dom.spec.whatwg.org/#effective-global-custom-element-registry
@@ -3356,13 +3347,6 @@ class CORE_EXPORT Document : public ContainerNode,
   std::optional<net::SchemefulSite> cached_top_frame_site_for_visited_links_ =
       std::nullopt;
 
-#if BUILDFLAG(IS_ANDROID)
-  HeapMojoRemote<payments::facilitated::mojom::blink::PaymentLinkHandler>
-      payment_link_handler_{nullptr};
-
-  // If a payment link is handled before.
-  bool payment_link_handled_ = false;
-#endif
 
   bool responsive_embedded_sizing_ = false;
   bool text_scale_meta_tag_present_ = false;

@@ -53,25 +53,13 @@ TEST_F(SupervisedUserPreferencesTest, ToggleParentalControlsSetsUserId) {
                 prefs::kSupervisedUserId),
             kChildAccountSUID);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Signing out of the supervised account on ChromeOS not supported.
   supervised_user_test_environment_.DisableSupervisedAccount();
   EXPECT_EQ(supervised_user_test_environment_.pref_service()->GetString(
                 prefs::kSupervisedUserId),
             std::string());
-#endif
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(SupervisedUserPreferencesTest, ToggleParentalControlsSetsChildStatus) {
-  EXPECT_FALSE(IsChildAccountStatusKnown(
-      *supervised_user_test_environment_.pref_service()));
-
-  supervised_user_test_environment_.EnableSupervisedAccount();
-  EXPECT_TRUE(IsChildAccountStatusKnown(
-      *supervised_user_test_environment_.pref_service()));
-}
-#endif
 
 TEST_F(SupervisedUserPreferencesTest, StartFetchingFamilyInfo) {
   kidsmanagement::ListMembersResponse list_family_members_response;

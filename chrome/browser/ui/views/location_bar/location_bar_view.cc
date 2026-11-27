@@ -18,7 +18,6 @@
 #include "base/trace_event/trace_event.h"
 #include "build/build_config.h"
 #include "chrome/app/vector_icons/vector_icons.h"
-#include "chrome/browser/actor/ui/actor_ui_window_controller.h"
 #include "chrome/browser/autocomplete/aim_eligibility_service_factory.h"
 #include "chrome/browser/autocomplete/autocomplete_classifier_factory.h"
 #include "chrome/browser/browser_process.h"
@@ -39,8 +38,6 @@
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "chrome/browser/ui/content_settings/content_setting_bubble_model.h"
 #include "chrome/browser/ui/layout_constants.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
-#include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/omnibox/chrome_omnibox_client.h"
 #include "chrome/browser/ui/omnibox/clipboard_utils.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
@@ -92,7 +89,6 @@
 #include "chrome/browser/web_applications/link_capturing_features.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/grit/generated_resources.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/contextual_search/input_state_model.h"
 #include "components/favicon/content/content_favicon_driver.h"
@@ -499,13 +495,6 @@ void LocationBarView::Init() {
       AddChildView(std::make_unique<page_actions::PageActionContainerView>(
           page_action_items, page_actions::PageActionPropertiesProvider(),
           page_action_params));
-  if (base::FeatureList::IsEnabled(
-          omnibox::kComposeboxPersistentAimButtonOmnibox)) {
-    if (auto* ai_mode_page_action_view =
-            page_action_container_->GetPageActionView(kActionAiMode)) {
-      ai_mode_page_action_view->SetFontList(omnibox_chip_font_list);
-    }
-  }
 
   auto clear_all_button = views::CreateVectorImageButton(base::BindRepeating(
       static_cast<void (OmniboxView::*)(const std::u16string&)>(
@@ -1332,23 +1321,11 @@ bool LocationBarView::ShouldHidePageActionIcons() const {
 // Returns information about visible page actions in the location bar.
 LocationBarView::PageActionInfo LocationBarView::GetPageActionInfo() const {
   PageActionInfo info;
-
-  bool aim_page_action_is_visible = false;
   for (views::View* view : page_action_container_->children()) {
     if (view->GetVisible()) {
       info.num_page_actions_shown++;
-      page_actions::PageActionView* page_action_view =
-          static_cast<page_actions::PageActionView*>(view);
-      if (page_action_view->GetActionId() == kActionAiMode) {
-        aim_page_action_is_visible = true;
-      }
     }
   }
-
-  if (aim_page_action_is_visible && info.num_page_actions_shown == 1) {
-    info.is_aim_last_visible_page_action = true;
-  }
-
   return info;
 }
 
@@ -1526,28 +1503,7 @@ void LocationBarView::RefreshPageActionIconViews() {
   }
 }
 
-void LocationBarView::RefreshAiModePageAction() {
-  auto* aim_page_action_controller =
-      omnibox::AiModePageActionController::From(browser_);
-  if (aim_page_action_controller) {
-    aim_page_action_controller->UpdatePageAction();
-  }
-
-  if (omnibox::kShowRhsAimHint.Get()) {
-    if (omnibox_controller_->popup_state_manager()->popup_state() ==
-        OmniboxPopupState::kClassic) {
-      ai_mode_hint_label_->SetVisible(true);
-    } else {
-      ai_mode_hint_label_->SetVisible(false);
-    }
-#if BUILDFLAG(IS_MAC)
-    ai_mode_hint_label_->SetText(u"⌘ + return for AI Mode");
-#else
-    ai_mode_hint_label_->SetText(u"Ctrl + Enter for AI Mode");
-#endif
-    ai_mode_hint_label_->SetEnabledColor(kColorOmniboxTextDimmed);
-  }
-}
+void LocationBarView::RefreshAiModePageAction() {}
 
 void LocationBarView::RefreshPageActionContainerViewAndIconsVisibility(
     bool should_hide_page_actions) {
@@ -1717,7 +1673,7 @@ void LocationBarView::VisibilityChanged(views::View* starting_from,
   // On macOS and ChromeOS, fullscreen keeps the location bar drawn (immersive
   // mode). Ignore the momentary visibility changes while entering or exiting
   // it there, which would otherwise close a focused popup.
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC)
   if (!is_full_webui_omnibox_ || !starting_from) {
     return;
   }
@@ -1747,7 +1703,7 @@ void LocationBarView::VisibilityChanged(views::View* starting_from,
   if (had_focus) {
     contents->Focus();
   }
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 }
 
 void LocationBarView::RestoreOmniboxStateIfDrawn() {
@@ -1946,13 +1902,6 @@ void LocationBarView::OnPopupStateChanged(OmniboxPopupState old_state,
                      weak_factory_.GetWeakPtr()),
       base::Milliseconds(100));
 
-  if (browser_ && base::FeatureList::IsEnabled(
-                      features::kGlicHandoffButtonHideWhenOmniboxPopupOpened)) {
-    if (auto* window_controller = ActorUiWindowController::From(browser_)) {
-      window_controller->OnOmniboxPopupStateChanged(new_state !=
-                                                    OmniboxPopupState::kNone);
-    }
-  }
 
 #if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   if (new_state != OmniboxPopupState::kNone) {

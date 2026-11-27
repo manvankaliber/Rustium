@@ -378,11 +378,7 @@ TEST(DeepScanningUtilsTest, InitializeBinaryUploadRequest_IsMobile) {
   InitializeBinaryUploadRequest(&request, info,
                                 /*include_enterprise_only_fields=*/true);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  EXPECT_TRUE(request.content_analysis_request().is_mobile());
-#else
   EXPECT_FALSE(request.content_analysis_request().is_mobile());
-#endif
 }
 
 class InitializeBinaryUploadRequestInitiatorTest

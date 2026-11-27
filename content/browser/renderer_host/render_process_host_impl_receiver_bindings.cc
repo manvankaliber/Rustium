@@ -48,18 +48,12 @@
 #include "third_party/blink/public/mojom/plugins/plugin_registry.mojom.h"
 #include "third_party/blink/public/public_buildflags.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/android/java_interfaces_impl.h"
-#include "content/browser/font_unique_name_lookup/font_unique_name_lookup_service.h"
-#include "content/public/browser/android/java_interfaces.h"
-#include "third_party/blink/public/mojom/android_font_lookup/android_font_lookup.mojom.h"
-#endif
 
 #if BUILDFLAG(IS_P2P_ENABLED)
 #include "content/browser/renderer_host/p2p/socket_dispatcher_host.h"
 #endif  // BUILDFLAG(IS_P2P_ENABLED)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "components/services/font/public/mojom/font_service.mojom.h"  // nogncheck
 #include "content/browser/font_service.h"  // nogncheck
 #endif
@@ -81,7 +75,7 @@
 #include "content/public/common/font_cache_win.mojom.h"
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 #include "components/services/font_data/font_data_service_impl.h"
 #endif
 
@@ -112,13 +106,6 @@ void RenderProcessHost::InterceptBindHostReceiverForTesting(
 
 void RenderProcessHostImpl::OnBindHostReceiver(
     mojo::GenericPendingReceiver receiver) {
-#if BUILDFLAG(IS_ANDROID)
-  // content::GetGlobalJavaInterfaces() works only on the UI Thread.
-  if (auto r = receiver.As<blink::mojom::AndroidFontLookup>()) {
-    content::GetGlobalJavaInterfaces()->GetInterface(std::move(r));
-    return;
-  }
-#endif
 
   GetContentClient()->browser()->BindHostReceiverForRenderer(
       this, std::move(receiver));
@@ -217,17 +204,10 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
           {base::MayBlock(), base::TaskShutdownBehavior::SKIP_ON_SHUTDOWN,
            base::TaskPriority::USER_BLOCKING}));
 #if BUILDFLAG(USE_MINIKIN_HYPHENATION)
-#if !BUILDFLAG(IS_ANDROID)
   hyphenation::HyphenationImpl::RegisterGetDictionary();
-#endif
   registry->AddInterface(
       base::BindRepeating(&hyphenation::HyphenationImpl::Create),
       hyphenation::HyphenationImpl::GetTaskRunner());
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  registry->AddInterface(
-      base::BindRepeating(&FontUniqueNameLookupService::Create),
-      FontUniqueNameLookupService::GetTaskRunner());
 #endif
 #if BUILDFLAG(IS_WIN)
   if (!base::FeatureList::IsEnabled(
@@ -325,13 +305,6 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
       base::BindRepeating(&RenderProcessHostImpl::BindAecDumpManager,
                           instance_weak_factory_.GetWeakPtr()));
 
-#if BUILDFLAG(IS_FUCHSIA)
-  AddUIThreadInterface(
-      registry.get(),
-      base::BindRepeating(&RenderProcessHostImpl::BindMediaCodecProvider,
-                          instance_weak_factory_.GetWeakPtr()));
-#endif
-
   // ---- Please do not register interfaces below this line ------
   //
   // This call should be done after registering all interfaces above, so that
@@ -356,7 +329,7 @@ void RenderProcessHostImpl::IOThreadHostImpl::BindHostReceiver(
     }
   }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   if (features::IsFontDataServiceEnabled()) {
     if (auto font_data_receiver =
             receiver.As<font_data_service::mojom::FontDataService>()) {
@@ -367,7 +340,7 @@ void RenderProcessHostImpl::IOThreadHostImpl::BindHostReceiver(
   }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (auto font_receiver = receiver.As<font_service::mojom::FontService>()) {
     ConnectToFontService(std::move(font_receiver));
     return;
@@ -395,7 +368,7 @@ void RenderProcessHostImpl::IOThreadHostImpl::BindHostReceiver(
   }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (auto r = receiver.As<mojom::ThreadTypeSwitcher>()) {
     child_thread_type_switcher_.Bind(std::move(r));
     return;
@@ -432,14 +405,6 @@ void RenderProcessHostImpl::IOThreadHostImpl::BindHostReceiver(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Bind the font lookup on the IO thread as an optimization to avoid
-  // running navigation critical path tasks on the UI thread.
-  if (auto r = receiver.As<blink::mojom::AndroidFontLookup>()) {
-    GetGlobalJavaInterfacesOnIOThread()->GetInterface(std::move(r));
-    return;
-  }
-#endif
 
   std::string interface_name = *receiver.interface_name();
   mojo::ScopedMessagePipeHandle pipe = receiver.PassPipe();

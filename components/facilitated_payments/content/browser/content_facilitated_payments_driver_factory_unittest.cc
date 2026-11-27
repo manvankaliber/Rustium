@@ -33,38 +33,10 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/facilitated_payments/content/browser/security_checker.h"
-#include "content/public/test/navigation_simulator.h"
-#include "net/base/net_errors.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace payments::facilitated {
 
 // Pix copy detection is only supported on Android.
-#if BUILDFLAG(IS_ANDROID)
-class MockContentFacilitatedPaymentsDriver
-    : public ContentFacilitatedPaymentsDriver {
- public:
-  MockContentFacilitatedPaymentsDriver(
-      FacilitatedPaymentsClient* client,
-      content::RenderFrameHost* rfh,
-      std::unique_ptr<SecurityChecker> security_checker)
-      : ContentFacilitatedPaymentsDriver(client,
-                                         rfh,
-                                         std::move(security_checker)) {}
-
-  MOCK_METHOD(void,
-              OnTextCopiedToClipboard,
-              (const GURL& main_frame_url,
-               const std::optional<GURL>& iframe_url,
-               const url::Origin& main_frame_origin,
-               const std::u16string& copied_text,
-               ukm::SourceId ukm_source_id,
-               bool is_same_origin),
-              (override));
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -155,121 +127,6 @@ class ContentFacilitatedPaymentsDriverFactoryTest
   raw_ptr<FakeBarcodeDetector> barcode_detector_ = nullptr;
 };
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(
-    ContentFacilitatedPaymentsDriverFactoryTest,
-    OnTextCopiedToClipboard_PixCodeInIFrame_FlagEnabled_PixFlowExitedReasonNotLogged) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(kEnableIframeForPix);
-  base::HistogramTester histogram_tester;
-
-  ON_CALL(*client_, GetOptimizationGuideDecider)
-      .WillByDefault(testing::Return(decider_.get()));
-
-  NavigateAndCommit(GURL("https://example.com"));
-  content::RenderFrameHost* main_frame = web_contents()->GetPrimaryMainFrame();
-  content::RenderFrameHost* iframe =
-      content::RenderFrameHostTester::For(main_frame)->AppendChild("iframe");
-
-  const std::u16string kValidPixCode = u"00020126180014br.gov.bcb.pix63041D3D";
-
-  factory_->OnTextCopiedToClipboard(iframe, kValidPixCode);
-
-  histogram_tester.ExpectBucketCount(
-      "FacilitatedPayments.Pix.PayflowExitedReason",
-      /*sample=*/PixFlowExitedReason::kPixCodeInIFrame,
-      /*expected_count=*/0);
-}
-
-TEST_F(
-    ContentFacilitatedPaymentsDriverFactoryTest,
-    OnTextCopiedToClipboard_PixCodeInIFrame_FlagEnabled_CorrectIframeUrlPassedToDriver) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(kEnableIframeForPix);
-
-  ON_CALL(*client_, GetOptimizationGuideDecider)
-      .WillByDefault(testing::Return(decider_.get()));
-
-  NavigateAndCommit(GURL("https://example.com"));
-  content::RenderFrameHost* main_frame = web_contents()->GetPrimaryMainFrame();
-  content::RenderFrameHost* iframe =
-      content::RenderFrameHostTester::For(main_frame)->AppendChild("iframe");
-  const std::u16string kValidPixCode = u"00020126180014br.gov.bcb.pix63041D3D";
-
-  auto mock_driver = std::make_unique<MockContentFacilitatedPaymentsDriver>(
-      client_.get(), iframe, std::make_unique<SecurityChecker>());
-  MockContentFacilitatedPaymentsDriver* mock_driver_ptr = mock_driver.get();
-  factory_->driver_map_[iframe] = std::move(mock_driver);
-
-  // Verify the driver receives the correct iframe URL.
-  EXPECT_CALL(
-      *mock_driver_ptr,
-      OnTextCopiedToClipboard(
-          /*main_frame_url=*/main_frame->GetLastCommittedURL(),
-          /*iframe_url=*/std::make_optional(iframe->GetLastCommittedURL()),
-          /*main_frame_origin=*/main_frame->GetLastCommittedOrigin(),
-          kValidPixCode, iframe->GetPageUkmSourceId(),
-          /*is_same_origin=*/testing::_));
-
-  factory_->OnTextCopiedToClipboard(iframe, kValidPixCode);
-}
-
-TEST_F(
-    ContentFacilitatedPaymentsDriverFactoryTest,
-    OnTextCopiedToClipboard_FrameNotActive_DoesNotTriggerPixDetection_PixFlowExitedReasonLogged) {
-  base::HistogramTester histogram_tester;
-  NavigateAndCommit(GURL("https://example.com/initial"));
-  content::RenderFrameHost* initial_rfh = web_contents()->GetPrimaryMainFrame();
-  NavigateAndCommit(GURL("https://example.com/final"));
-  ASSERT_FALSE(initial_rfh->IsActive());
-
-  const std::u16string kValidPixCode = u"00020126180014br.gov.bcb.pix63041D3D";
-
-  // Expect that the client is not called because the frame is inactive.
-  EXPECT_CALL(*client_, ShowPixPaymentPrompt).Times(0);
-
-  factory_->OnTextCopiedToClipboard(initial_rfh, kValidPixCode);
-
-  histogram_tester.ExpectUniqueSample(
-      "FacilitatedPayments.Pix.PayflowExitedReason",
-      /*sample=*/PixFlowExitedReason::kFrameNotActive,
-      /*expected_bucket_count=*/1);
-}
-
-TEST_F(
-    ContentFacilitatedPaymentsDriverFactoryTest,
-    OnTextCopiedToClipboard_ErrorDocument_DoesNotTriggerPixDetection_PixFlowExitedReasonLogged) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndEnableFeature(kEnableIframeForPix);
-
-  base::HistogramTester histogram_tester;
-  NavigateAndCommit(GURL("https://example.com"));
-  content::RenderFrameHost* main_frame = web_contents()->GetPrimaryMainFrame();
-  content::RenderFrameHost* iframe =
-      content::RenderFrameHostTester::For(main_frame)->AppendChild("iframe");
-
-  std::unique_ptr<content::NavigationSimulator> simulator =
-      content::NavigationSimulator::CreateRendererInitiated(
-          GURL("https://example.com/error"), iframe);
-  simulator->Fail(net::ERR_BLOCKED_BY_CLIENT);
-  simulator->CommitErrorPage();
-  content::RenderFrameHost* error_frame = simulator->GetFinalRenderFrameHost();
-  ASSERT_TRUE(error_frame->IsErrorDocument());
-
-  const std::u16string kValidPixCode = u"00020126180014br.gov.bcb.pix63041D3D";
-
-  // Expect that the client is not called because the frame is an error
-  // document.
-  EXPECT_CALL(*client_, ShowPixPaymentPrompt).Times(0);
-
-  factory_->OnTextCopiedToClipboard(error_frame, kValidPixCode);
-
-  histogram_tester.ExpectUniqueSample(
-      "FacilitatedPayments.Pix.PayflowExitedReason",
-      /*sample=*/PixFlowExitedReason::kFrameIsErrorDocument,
-      /*expected_bucket_count=*/1);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Test that QR code detection is eligible when the merchant is on the
 // allowlist and the feature is enabled.

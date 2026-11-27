@@ -26,19 +26,6 @@ namespace ui {
 namespace {
 
 std::optional<KeyboardCode> RemapButtonsToKeyboardCodes(unsigned int key) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (key >= BTN_0 && key <= BTN_9) {
-    return static_cast<KeyboardCode>(static_cast<int>(VKEY_BUTTON_0) +
-                                     (key - BTN_0));
-  }
-
-  // BTN_A through BTN_Z is only 6 buttons as it only includes {A, B, C, X, Y,
-  // Z}.
-  if (key >= BTN_A && key <= BTN_Z) {
-    return static_cast<KeyboardCode>(static_cast<int>(VKEY_BUTTON_A) +
-                                     (key - BTN_A));
-  }
-#endif
 
   return std::nullopt;
 }

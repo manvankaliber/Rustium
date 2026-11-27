@@ -223,15 +223,6 @@ Suggestion CreateBnplFootnoteSuggestion() {
   return bnpl_footnote;
 }
 
-Suggestion CreateAtMemoryFetchingSuggestion() {
-  Suggestion suggestion(l10n_util::GetStringUTF16(
-                            IDS_AUTOFILL_AT_MEMORY_SEARCH_AFFORDANCE_SUBTITLE),
-                        SuggestionType::kAtMemoryFetching);
-  suggestion.acceptability =
-      Suggestion::Acceptability::kSelectableButUnacceptable;
-  return suggestion;
-}
-
 class PopupViewViewsBrowsertestBase
     : public PopupPixelTest<PopupViewViews, MockAutofillPopupController> {
  public:
@@ -538,14 +529,6 @@ IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest,
   ShowAndVerifyUi();
 }
 
-IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest, InvokeUi_AtMemoryFetching) {
-  PrepareSuggestions({CreateAtMemoryFetchingSuggestion()});
-  ShowAndVerifyUi(
-      /*popup_has_parent=*/false,
-      AutofillPopupView::SearchBarConfig{.placeholders = {u"Find and fill"},
-                                         .initial_value = {},
-                                         .no_results_message = u""});
-}
 
 IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest,
                        InvokeUi_MultiSuggestionNotice) {
@@ -565,22 +548,6 @@ IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest,
   ShowAndVerifyUi();
 }
 
-IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest,
-                       InvokeUi_AtMemory_PersonalContextNotice) {
-  ON_CALL(controller(), GetMainFillingProduct())
-      .WillByDefault(Return(FillingProduct::kAtMemory));
-  Suggestion search_result(u"Passport number",
-                           SuggestionType::kAtMemorySearchResult);
-  Suggestion notice_suggestion(SuggestionType::kPersonalContextNotice);
-  PrepareSuggestions({std::move(search_result),
-                      Suggestion(SuggestionType::kSeparator),
-                      std::move(notice_suggestion)});
-  ShowAndVerifyUi(
-      /*popup_has_parent=*/false,
-      AutofillPopupView::SearchBarConfig{.placeholders = {u"Find and fill"},
-                                         .initial_value = {},
-                                         .no_results_message = u""});
-}
 
 IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest,
                        InvokeUi_SuggestionNoticeIsTheOnlySuggestion) {
@@ -592,16 +559,6 @@ IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest,
 }
 
 IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest, InvokeUi_AutofillAi_SubMenu) {
-  Suggestion source_attribution(
-      u"From Gemini and connected apps · Photos\u00A0[1]",
-      SuggestionType::kAutofillAiSourceAttribution);
-  source_attribution.icon = Suggestion::Icon::kSpark;
-  source_attribution.payload = Suggestion::AutofillAiPayload(
-      autofill::EntityInstance::EntityId("test-guid"),
-      {Suggestion::PersonalContextSourceCitation(
-          GURL("https://photos.google.com/test"), gfx::Range(40, 43),
-          u"Photos source 1")});
-
   Suggestion remove_suggestion(
       l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_REMOVE_INFO),
       SuggestionType::kRemoveAutofillAi);
@@ -613,23 +570,12 @@ IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest, InvokeUi_AutofillAi_SubMenu) {
   manage_suggestion.icon = Suggestion::Icon::kSettings;
 
   PrepareSuggestions(
-      {std::move(source_attribution), Suggestion(SuggestionType::kSeparator),
-       std::move(remove_suggestion), std::move(manage_suggestion)});
+      {std::move(remove_suggestion), std::move(manage_suggestion)});
   ShowAndVerifyUi(/*popup_has_parent=*/true);
 }
 
 IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest,
                        InvokeUi_AutofillAi_SubMenu_Selected) {
-  Suggestion source_attribution(
-      u"From Gemini and connected apps · Photos\u00A0[1]",
-      SuggestionType::kAutofillAiSourceAttribution);
-  source_attribution.icon = Suggestion::Icon::kSpark;
-  source_attribution.payload = Suggestion::AutofillAiPayload(
-      autofill::EntityInstance::EntityId("test-guid"),
-      {Suggestion::PersonalContextSourceCitation(
-          GURL("https://photos.google.com/test"), gfx::Range(40, 43),
-          u"Photos source 1")});
-
   Suggestion remove_suggestion(
       l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_REMOVE_INFO),
       SuggestionType::kRemoveAutofillAi);
@@ -641,9 +587,8 @@ IN_PROC_BROWSER_TEST_P(PopupViewViewsBrowsertest,
   manage_suggestion.icon = Suggestion::Icon::kSettings;
 
   PrepareSuggestions(
-      {std::move(source_attribution), Suggestion(SuggestionType::kSeparator),
-       std::move(remove_suggestion), std::move(manage_suggestion)});
-  PrepareSelectedCell(CellIndex{3, CellType::kContent});
+      {std::move(remove_suggestion), std::move(manage_suggestion)});
+  PrepareSelectedCell(CellIndex{1, CellType::kContent});
   ShowAndVerifyUi(/*popup_has_parent=*/true);
 }
 

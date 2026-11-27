@@ -32,8 +32,7 @@ class GPU_CONFIG_EXPORT GpuControlList {
     kOsWin,
     kOsChromeOS,
     kOsAndroid,
-    kOsFuchsia,
-    kOsIOS,
+    kOsIOS = 6,
     kOsAny
   };
 
@@ -46,11 +45,11 @@ class GPU_CONFIG_EXPORT GpuControlList {
 
   enum NumericOp {
     kBetween,  // <= * <=
-    kEQ,  // =
-    kLT,  // <
-    kLE,  // <=
-    kGT,  // >
-    kGE,  // >=
+    kEQ,       // =
+    kLT,       // <
+    kLE,       // <=
+    kGT,       // >
+    kGE,       // >=
     kAny,
     kUnknown  // Indicates the data is invalid.
   };

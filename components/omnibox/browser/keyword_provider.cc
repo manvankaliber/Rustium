@@ -123,6 +123,12 @@ const TemplateURL* KeywordProvider::GetTemplateUrlForText(
     return nullptr;
   }
 
+  // Older profiles may retain a user-edited Gemini starter-pack entry.
+  if (template_url->starter_pack_id() ==
+      template_url_starter_pack_data::StarterPackId::kGemini) {
+    return nullptr;
+  }
+
   // The built-in history keyword mode is disabled in incognito mode. Don't
   // provide the "@history" keyword in that case.
   if (client_->IsOffTheRecord() &&

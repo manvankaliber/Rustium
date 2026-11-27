@@ -46,21 +46,13 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "components/content_settings/core/common/features.h"
-#else
 #include "components/privacy_sandbox/privacy_sandbox_features.h"
-#endif
 
 namespace {
 using ProviderType = content_settings::ProviderType;
 
 const bool kSupports3pcBlocking = {
-#if BUILDFLAG(IS_IOS)
-    false
-#else
     true
-#endif
 };
 
 // To avoid an explosion of test cases, please don't just add a boolean to
@@ -564,7 +556,6 @@ TEST_F(CookieSettingsTest, CookiesControlsDefault) {
           /*cookie_partition_key=*/std::nullopt));
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(CookieSettingsTest, CookiesControlsDisabled) {
   prefs_.SetInteger(prefs::kCookieControlsMode,
                     static_cast<int>(CookieControlsMode::kOff));
@@ -577,7 +568,6 @@ TEST_F(CookieSettingsTest, CookiesControlsDisabled) {
       /*top_frame_origin=*/std::nullopt, net::CookieSettingOverrides(),
       /*cookie_partition_key=*/std::nullopt));
 }
-#endif
 
 TEST_F(CookieSettingsTest, CookiesControlsEnabledForIncognito) {
   prefs_.SetInteger(prefs::kCookieControlsMode,
@@ -707,7 +697,6 @@ TEST_F(CookieSettingsTest, ThirdPartyExceptionSessionOnly) {
 class CookieSettingsTestUserBypass : public CookieSettingsTest {};
 
 // UserBypass is a desktop and android-only feature
-#if !BUILDFLAG(IS_IOS)
 TEST_F(CookieSettingsTestUserBypass, UserBypassExceptions) {
   // Bypass shouldn't be enabled.
   EXPECT_FALSE(IsUserBypassEnabled(kFirstPartySite));
@@ -720,7 +709,6 @@ TEST_F(CookieSettingsTestUserBypass, UserBypassExceptions) {
   EXPECT_TRUE(IsUserBypassEnabled(kFirstPartySite));
   EXPECT_FALSE(IsUserBypassEnabled(kBlockedSite));
 }
-#endif
 
 TEST_F(CookieSettingsTestUserBypass, UserBypassThirdPartyCookiesExceptions) {
   GURL first_party_url = kFirstPartySiteForCookies.RepresentativeUrl();
@@ -1083,7 +1071,6 @@ TEST_F(CookieSettingsTest, CookiesBlockEverythingExceptAllowed) {
   EXPECT_FALSE(cookie_settings_->IsCookieSessionOnly(kAllowedSite));
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(CookieSettingsTest, GetCookieSettingAllowedTelemetry) {
   const GURL top_level_url = GURL(kFirstPartySite);
   const GURL url = GURL(kAllowedSite);
@@ -1324,7 +1311,6 @@ TEST_P(CookieSettingsTestP, GetCookieSettingSAAExpiredGrant) {
 }
 
 
-#endif
 
 TEST_F(CookieSettingsTest, ExtensionsRegularSettings) {
   cookie_settings_->SetCookieSetting(kBlockedSite, CONTENT_SETTING_BLOCK);
@@ -1445,7 +1431,6 @@ TEST_F(CookieSettingsTest, ManagedThirdPartyException) {
   EXPECT_EQ(info.source, SettingSource::kPolicy);
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(CookieSettingsTest, Blocks3pcsInIncognitoWithCookieControlsModeOff) {
   prefs_.SetInteger(prefs::kCookieControlsMode,
                     static_cast<int>(CookieControlsMode::kOff));
@@ -1454,7 +1439,6 @@ TEST_F(CookieSettingsTest, Blocks3pcsInIncognitoWithCookieControlsModeOff) {
                     static_cast<int>(CookieControlsMode::kOff));
   EXPECT_TRUE(cookie_settings_incognito_->ShouldBlockThirdPartyCookies());
 }
-#endif
 
 TEST_F(CookieSettingsTest, ThirdPartySettingObserver) {
   CookieSettingsObserver observer(cookie_settings_.get());
@@ -1476,11 +1460,7 @@ TEST_F(CookieSettingsTest, IsFullCookieAccessAllowedForEmptyFirstParty) {
   prefs_.SetInteger(prefs::kCookieControlsMode,
                     static_cast<int>(CookieControlsMode::kBlockThirdParty));
   EXPECT_EQ(
-#if BUILDFLAG(IS_IOS)
-      true,
-#else
       false,
-#endif
       cookie_settings_->IsFullCookieAccessAllowed(
           GURL(kAllowedSite), net::SiteForCookies(), url::Origin(),
           net::CookieSettingOverrides(), std::nullopt));
@@ -1606,11 +1586,7 @@ TEST_F(CookieSettingsTest, GetStorageAccessStatus) {
           *allowing_permissions_policy),
 // We expect kActive when running the following in IOS due to the behavior of
 // `CookieSettings::ShouldBlockThirdPartyCookiesInternal()`.
-#if BUILDFLAG(IS_IOS)
-      net::cookie_util::StorageAccessStatus::kActive
-#else
       net::cookie_util::StorageAccessStatus::kNone
-#endif
   );
 
   EXPECT_EQ(
@@ -1619,11 +1595,7 @@ TEST_F(CookieSettingsTest, GetStorageAccessStatus) {
           net::CookieSettingOverrides(
               {net::CookieSettingOverride::kStorageAccessGrantEligible}),
           /*cookie_partition_key=*/std::nullopt, *allowing_permissions_policy),
-#if BUILDFLAG(IS_IOS)
-      net::cookie_util::StorageAccessStatus::kActive
-#else
       net::cookie_util::StorageAccessStatus::kNone
-#endif
   );
 
   settings_map_->SetContentSettingDefaultScope(
@@ -1635,11 +1607,7 @@ TEST_F(CookieSettingsTest, GetStorageAccessStatus) {
           url, net::SiteForCookies(), top_frame_origin,
           net::CookieSettingOverrides(), /*cookie_partition_key=*/std::nullopt,
           *allowing_permissions_policy),
-#if BUILDFLAG(IS_IOS)
-      net::cookie_util::StorageAccessStatus::kActive
-#else
       net::cookie_util::StorageAccessStatus::kInactive
-#endif
   );
 
   const std::unique_ptr<network::PermissionsPolicy>
@@ -1656,11 +1624,7 @@ TEST_F(CookieSettingsTest, GetStorageAccessStatus) {
           url, net::SiteForCookies(), top_frame_origin,
           net::CookieSettingOverrides(), /*cookie_partition_key=*/std::nullopt,
           *blocking_permissions_policy),
-#if BUILDFLAG(IS_IOS)
-      net::cookie_util::StorageAccessStatus::kActive
-#else
       net::cookie_util::StorageAccessStatus::kNone
-#endif
   );
 
   EXPECT_EQ(
@@ -1721,11 +1685,7 @@ std::string CustomTestName(
 INSTANTIATE_TEST_SUITE_P(
     /* no prefix */,
     CookieSettingsTestP,
-#if BUILDFLAG(IS_IOS)
-    testing::Values(GrantSource::kNoneGranted),
-#else
     testing::Range(GrantSource::kNoneGranted, GrantSource::kGrantSourceCount),
-#endif
     CustomTestName);
 
 

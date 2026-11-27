@@ -78,9 +78,9 @@ export class MemoryBanksElement extends CrLitElement {
       filteredEntries_: {type: Array, state: true},
       viewMode_: {type: String, state: true},
       currentPage_: {type: Number, state: true},
-      geminiResponse_: {type: String, state: true},
-      isAskingGemini_: {type: Boolean, state: true},
-      showGeminiPanel_: {type: Boolean, state: true},
+
+
+
       editingEntry_: {type: Object, state: true},
       searchSuggestions_: {type: Array, state: true},
       highlightedSuggestionIndex_: {type: Number, state: true},
@@ -103,9 +103,9 @@ export class MemoryBanksElement extends CrLitElement {
   protected accessor viewMode_: 'card'|'table' = 'table';
   protected accessor currentPage_: number = 0;
   protected pageSize_: number = 10;
-  protected accessor geminiResponse_: string = '';
-  protected accessor isAskingGemini_: boolean = false;
-  protected accessor showGeminiPanel_: boolean = false;
+
+
+
   protected accessor editingEntry_: MemoryBankEntry|null = null;
   protected accessor searchSuggestions_: SearchSuggestion[] = [];
   protected accessor highlightedSuggestionIndex_: number = -1;
@@ -646,9 +646,7 @@ export class MemoryBanksElement extends CrLitElement {
     }
   }
 
-  protected onDownloadGeminiResponseClick_() {
-    downloadFile('gemini_response.md', this.geminiResponse_);
-  }
+
 
   protected async onDeleteClick_() {
     await this.deleteEntries_(Array.from(this.selectedIds));
@@ -664,39 +662,15 @@ export class MemoryBanksElement extends CrLitElement {
     this.selectedIds = updated;
   }
 
-  protected onAskGeminiClick_() {
-    this.showGeminiPanel_ = !this.showGeminiPanel_;
-  }
+
 
   protected onClosePanelClick_() {
-    this.showGeminiPanel_ = false;
-    this.geminiResponse_ = '';
+
+
   }
 
   protected onCloseResponseClick_() {
-    this.geminiResponse_ = '';
-  }
 
-  protected async onQuickOptionClick_(e: Event) {
-    const target = e.currentTarget as HTMLElement;
-    const action = target.dataset['option'];
-    if (!action || this.selectedIds.size === 0 || this.isAskingGemini_) {
-      return;
-    }
-    this.isAskingGemini_ = true;
-    this.geminiResponse_ = '';
-    const memoryBankEntryIds = Array.from(this.selectedIds);
-    try {
-      const {response} =
-          await browserProxyFactory.getInstance().handler.askGeminiWithContext(
-              action, memoryBankEntryIds, /*save_to_history=*/ false);
-      this.geminiResponse_ = response ? response.content : '';
-    } catch (err) {
-      console.error('Failed to ask Gemini:', err);
-      this.geminiResponse_ = 'Error generating response from Gemini.';
-    } finally {
-      this.isAskingGemini_ = false;
-    }
   }
 
   private convertDateToMojoTime_(date: Date): {internalValue: bigint} {

@@ -231,13 +231,11 @@ class ContentScriptApiTestWithContextType
 INSTANTIATE_TEST_SUITE_P(PersistentBackground,
                          ContentScriptApiTestWithContextType,
                          ::testing::Values(ContextType::kPersistentBackground));
-#if !BUILDFLAG(IS_ANDROID)
 // These tests use chrome.tabs.executeScript, which is not available in MV3 and
 // above. Android only supports MV3 and above, so skip these tests on Android.
 INSTANTIATE_TEST_SUITE_P(ServiceWorker,
                          ContentScriptApiTestWithContextType,
                          ::testing::Values(ContextType::kServiceWorkerMV2));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(ContentScriptApiTestWithContextType, AllFrames) {
   ASSERT_TRUE(StartEmbeddedTestServer());
@@ -696,7 +694,6 @@ IN_PROC_BROWSER_TEST_F(ContentScriptCssInjectionTest,
   EXPECT_EQ(kInjectedDivColor, get_element_color("#div3"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 class ContentScriptCssApiTest : public ContentScriptApiTest {
  protected:
@@ -765,7 +762,6 @@ IN_PROC_BROWSER_TEST_F(ContentScriptApiTest, LocalizedWithDynamicUrl) {
   EXPECT_EQ("rgb(255, 0, 0)", content::EvalJs(web_contents, kGetBodyColor));
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(ContentScriptApiTestWithContextType,
                        ContentScriptCSSLocalization) {
@@ -828,13 +824,11 @@ class ContentScriptApiManagementPolicyTestWithContextType
 INSTANTIATE_TEST_SUITE_P(PersistentBackground,
                          ContentScriptApiManagementPolicyTestWithContextType,
                          ::testing::Values(ContextType::kPersistentBackground));
-#if !BUILDFLAG(IS_ANDROID)
 // These tests use chrome.tabs.executeScript, which is not available in MV3 and
 // above. Android only supports MV3 and up, so skip these tests on Android.
 INSTANTIATE_TEST_SUITE_P(ServiceWorker,
                          ContentScriptApiManagementPolicyTestWithContextType,
                          ::testing::Values(ContextType::kServiceWorkerMV2));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(ContentScriptApiManagementPolicyTestWithContextType,
                        Policy) {
@@ -1192,13 +1186,8 @@ IN_PROC_BROWSER_TEST_F(ContentScriptApiTest,
 }
 
 // TODO(crbug.com/441557607) Causes flaky GPU crashes on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DontInjectContentScriptsInBackgroundPages \
-  DISABLED_DontInjectContentScriptsInBackgroundPages
-#else
 #define MAYBE_DontInjectContentScriptsInBackgroundPages \
   DontInjectContentScriptsInBackgroundPages
-#endif
 IN_PROC_BROWSER_TEST_F(ContentScriptApiTest,
                        MAYBE_DontInjectContentScriptsInBackgroundPages) {
   ASSERT_TRUE(StartEmbeddedTestServer());
@@ -1238,9 +1227,6 @@ IN_PROC_BROWSER_TEST_P(ContentScriptApiTestWithContextType,
   // There are different possible NTP URLs.
   std::vector<GURL> possible_ntp_urls = {
       chrome::ChromeUINewTabURLAsGURL(),
-#if BUILDFLAG(IS_ANDROID)
-      GURL(chrome::kChromeUINativeNewTabURL),
-#endif
   };
   EXPECT_THAT(web_contents->GetLastCommittedURL(),
               testing::AnyOfArray(possible_ntp_urls));
@@ -2241,13 +2227,8 @@ IN_PROC_BROWSER_TEST_F(ContentScriptMatchOriginAsFallbackTest,
   EXPECT_FALSE(DidScriptRunInFrame(render_frame_host));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DataURLInjection_NestedDataIframe_SameOrigin \
-  DISABLED_DataURLInjection_NestedDataIframe_SameOrigin
-#else
 #define MAYBE_DataURLInjection_NestedDataIframe_SameOrigin \
   DataURLInjection_NestedDataIframe_SameOrigin
-#endif
 // Inject into nested iframes with data: URLs. Flaky on Android.
 IN_PROC_BROWSER_TEST_F(ContentScriptMatchOriginAsFallbackTest,
                        MAYBE_DataURLInjection_NestedDataIframe_SameOrigin) {
@@ -2367,7 +2348,6 @@ IN_PROC_BROWSER_TEST_F(ContentScriptMatchOriginAsFallbackTest,
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Test fixture which sets a custom NTP Page for content script injection tests.
 // These tests are skipped on Android because Android uses native UI instead of
 // webui for the NTP and hence the NTP isn't scriptable.
@@ -2428,7 +2408,6 @@ IN_PROC_BROWSER_TEST_P(NTPInterceptionTest, ContentScript) {
 
   EXPECT_EQ(false, EvalJs(web_contents, "document.title !== 'Fake NTP';"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ContentScriptApiTest, CoepFrameTest) {
   using HttpRequest = net::test_server::HttpRequest;

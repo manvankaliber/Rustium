@@ -1760,7 +1760,7 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerBrowserTest, StartWorkerWhileInstalling) {
   run_loop.Run();
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 // http://crbug.com/1347684
 #define MAYBE_DispatchFetchEventToStoppedWorkerSynchronously \
   DISABLED_DispatchFetchEventToStoppedWorkerSynchronously
@@ -3638,14 +3638,8 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerV8CodeCacheForCacheStorageTest,
 
   // Second load: The V8 code cache should be stored in CacheStorage.
   NavigateToTestPage();
-#if BUILDFLAG(IS_FUCHSIA) && defined(__OPTIMIZE_SIZE__)
-  // V8 code caching for CacheStorage is explicitly disabled on Fuchsia
-  // size-optimized builds to save storage space.
-  WaitUntilSideDataSizeIs(0);
-#else
   // It must have size greater than 16 bytes.
   WaitUntilSideDataSizeIsBiggerThan(kV8CacheTimeStampDataSize);
-#endif
 
   // Third load: The V8 code cache stored in CacheStorage should be consumed.
   NavigateToTestPage();
@@ -3674,14 +3668,8 @@ IN_PROC_BROWSER_TEST_F(
   // |response.clone()| from CacheStorage. The V8 code cache should be stored in
   // CacheStorage even when the cached Response is cloned before respondWith().
   NavigateToTestPage();
-#if BUILDFLAG(IS_FUCHSIA) && defined(__OPTIMIZE_SIZE__)
-  // V8 code caching for CacheStorage is explicitly disabled on Fuchsia
-  // size-optimized builds to save storage space.
-  WaitUntilSideDataSizeIs(0);
-#else
   // It must have size greater than 16 bytes.
   WaitUntilSideDataSizeIsBiggerThan(kV8CacheTimeStampDataSize);
-#endif
 
   // Third load: The V8 code cache stored in CacheStorage should be consumed.
   NavigateToTestPage();
@@ -3950,12 +3938,7 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerDisableWebSecurityTest,
   RunTestWithCrossOriginURL(kPageUrl, kScopeUrl);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Flaky on Android, http://crbug.com/1141870.
-#define MAYBE_RegisterNoCrash DISABLED_RegisterNoCrash
-#else
 #define MAYBE_RegisterNoCrash RegisterNoCrash
-#endif
 IN_PROC_BROWSER_TEST_F(ServiceWorkerDisableWebSecurityTest,
                        MAYBE_RegisterNoCrash) {
   StartServerAndNavigateToSetup();
@@ -4525,12 +4508,7 @@ IN_PROC_BROWSER_TEST_P(ServiceWorkerCrossOriginIsolatedBrowserTest,
             process_lock.GetWebExposedIsolationInfo().is_isolated());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Flaky on Android, http://crbug.com/1335344.
-#define MAYBE_PostInstallRun DISABLED_PostInstallRun
-#else
 #define MAYBE_PostInstallRun PostInstallRun
-#endif
 IN_PROC_BROWSER_TEST_P(ServiceWorkerCrossOriginIsolatedBrowserTest,
                        MAYBE_PostInstallRun) {
   StartServerAndNavigateToSetup();
@@ -4940,13 +4918,8 @@ class ServiceWorkerBackForwardCacheBrowserTest
 };
 
 // Fails on Android. https://crbug.com/1216619
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_EvictionOfBackForwardCacheWithMultipleServiceWorkers \
-  DISABLED_EvictionOfBackForwardCacheWithMultipleServiceWorkers
-#else
 #define MAYBE_EvictionOfBackForwardCacheWithMultipleServiceWorkers \
   EvictionOfBackForwardCacheWithMultipleServiceWorkers
-#endif
 
 // Regression test for https://crbug.com/1212618.
 IN_PROC_BROWSER_TEST_F(
@@ -5174,7 +5147,7 @@ INSTANTIATE_FEATURE_OVERRIDE_TEST_SUITE(
     ServiceWorkerBrowserTestWithStoragePartitioning);
 
 // http://crbug.com/1385779
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_StorageKeyWithHostPermissionsWithDedicatedWorkers \
   DISABLED_StorageKeyWithHostPermissionsWithDedicatedWorkers
 #else
@@ -5188,7 +5161,6 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // Android does not have Shared Workers, so skip the shared worker test.
-#if !BUILDFLAG(IS_ANDROID)
 // http://crbug.com/1385779
 #if BUILDFLAG(IS_MAC)
 #define MAYBE_StorageKeyWithHostPermissionsWithSharedWorkers \
@@ -5201,7 +5173,6 @@ IN_PROC_BROWSER_TEST_P(ServiceWorkerBrowserTestWithStoragePartitioning,
                        MAYBE_StorageKeyWithHostPermissionsWithSharedWorkers) {
   RunTestWithWorkers("with-shared-worker");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ServiceWorkerBrowserTest, WarmUpAndStartServiceWorker) {
   base::HistogramTester histogram_tester;
@@ -5461,7 +5432,6 @@ class ServiceWorkerWarmUpBrowserTestBase : public ServiceWorkerBrowserTest {
 };
 
 // Pointer triggered ServiceWorkerWarmUp is not currently available on Android.
-#if !BUILDFLAG(IS_ANDROID)
 
 struct ServiceWorkerWarmUpByPointerBrowserTestParam {
   bool enable_warm_up_by_pointerover;
@@ -5589,7 +5559,6 @@ IN_PROC_BROWSER_TEST_P(ServiceWorkerWarmUpByPointerBrowserTest,
   WaitForWarmedUp(*version);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class ServiceWorkerSkipEmptyFetchHandlerBrowserTest
     : public ServiceWorkerBrowserTest {
@@ -5778,8 +5747,8 @@ class ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest
       request_quit_closures_[relative_url] = run_loop.QuitClosure();
     }
 
-    base::test::ScopedRunLoopTimeout timeout(
-        FROM_HERE, TestTimeouts::action_timeout());
+    base::test::ScopedRunLoopTimeout timeout(FROM_HERE,
+                                             TestTimeouts::action_timeout());
     run_loop.Run();
 
     base::AutoLock auto_lock(request_log_lock_);
@@ -6190,13 +6159,8 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40263529): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_NetworkRequest_Wins_FetchHandler_Fallback \
-  DISABLED_NetworkRequest_Wins_FetchHandler_Fallback
-#else
 #define MAYBE_NetworkRequest_Wins_FetchHandler_Fallback \
   NetworkRequest_Wins_FetchHandler_Fallback
-#endif
 IN_PROC_BROWSER_TEST_P(
     ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest,
     MAYBE_NetworkRequest_Wins_FetchHandler_Fallback) {
@@ -6259,11 +6223,7 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40263529): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_NetworkRequest_Wins_Redirect DISABLED_NetworkRequest_Wins_Redirect
-#else
 #define MAYBE_NetworkRequest_Wins_Redirect NetworkRequest_Wins_Redirect
-#endif
 IN_PROC_BROWSER_TEST_P(
     ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest,
     MAYBE_NetworkRequest_Wins_Redirect) {
@@ -6287,13 +6247,8 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40263529): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_NetworkRequest_Wins_Redirect_PassThrough \
-  DISABLED_NetworkRequest_Wins_Redirect_PassThrough
-#else
 #define MAYBE_NetworkRequest_Wins_Redirect_PassThrough \
   NetworkRequest_Wins_Redirect_PassThrough
-#endif
 IN_PROC_BROWSER_TEST_P(
     ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest,
     MAYBE_NetworkRequest_Wins_Redirect_PassThrough) {
@@ -6394,11 +6349,7 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40263529): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_FetchHandler_Wins_Redirect DISABLED_FetchHandler_Wins_Redirect
-#else
 #define MAYBE_FetchHandler_Wins_Redirect FetchHandler_Wins_Redirect
-#endif
 IN_PROC_BROWSER_TEST_P(
     ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest,
     MAYBE_FetchHandler_Wins_Redirect) {
@@ -6419,13 +6370,8 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40263529): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_FetchHandler_Wins_Redirect_PassThrough \
-  DISABLED_FetchHandler_Wins_Redirect_PassThrough
-#else
 #define MAYBE_FetchHandler_Wins_Redirect_PassThrough \
   FetchHandler_Wins_Redirect_PassThrough
-#endif
 IN_PROC_BROWSER_TEST_P(
     ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest,
     MAYBE_FetchHandler_Wins_Redirect_PassThrough) {
@@ -6523,12 +6469,7 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40263529): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_Subresource_NetworkRequest_Wins \
-  DISABLED_Subresource_NetworkRequest_Wins
-#else
 #define MAYBE_Subresource_NetworkRequest_Wins Subresource_NetworkRequest_Wins
-#endif
 IN_PROC_BROWSER_TEST_P(
     ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest,
     MAYBE_Subresource_NetworkRequest_Wins) {
@@ -6676,13 +6617,8 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40263529): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_Subresource_NetworkRequest_Wins_Redirect \
-  DISABLED_Subresource_NetworkRequest_Wins_Redirect
-#else
 #define MAYBE_Subresource_NetworkRequest_Wins_Redirect \
   Subresource_NetworkRequest_Wins_Redirect
-#endif
 IN_PROC_BROWSER_TEST_P(
     ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest,
     MAYBE_Subresource_NetworkRequest_Wins_Redirect) {
@@ -6705,13 +6641,8 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40263529): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_Subresource_NetworkRequest_Wins_Redirect_PassThrough \
-  DISABLED_Subresource_NetworkRequest_Wins_Redirect_PassThrough
-#else
 #define MAYBE_Subresource_NetworkRequest_Wins_Redirect_PassThrough \
   Subresource_NetworkRequest_Wins_Redirect_PassThrough
-#endif
 IN_PROC_BROWSER_TEST_P(
     ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest,
     MAYBE_Subresource_NetworkRequest_Wins_Redirect_PassThrough) {
@@ -6842,13 +6773,8 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // TODO(crbug.com/40263529): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_Subresource_FetchHandler_Wins_Redirect_PassThrough \
-  DISABLED_Subresource_FetchHandler_Wins_Redirect_PassThrough
-#else
 #define MAYBE_Subresource_FetchHandler_Wins_Redirect_PassThrough \
   Subresource_FetchHandler_Wins_Redirect_PassThrough
-#endif
 IN_PROC_BROWSER_TEST_P(
     ServiceWorkerStaticRouterRaceNetworkAndFetchHandlerSourceBrowserTest,
     MAYBE_Subresource_FetchHandler_Wins_Redirect_PassThrough) {
@@ -9217,7 +9143,8 @@ IN_PROC_BROWSER_TEST_P(ServiceWorkerSyntheticResponseBrowserTest,
   histogram_tester.ExpectUniqueSample(
       "ServiceWorker.SyntheticResponse.Eligibility",
       static_cast<int>(ServiceWorkerMetrics::SyntheticResponseEligibility::
-                           kNotEligibleByIntercepted), 1);
+                           kNotEligibleByIntercepted),
+      1);
 }
 
 IN_PROC_BROWSER_TEST_F(ServiceWorkerBrowserTest,

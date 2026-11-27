@@ -128,12 +128,7 @@ bool CurrentThread::ApplicationTasksAllowedInNativeNestedLoop() const {
 CurrentUIThread CurrentUIThread::Get() {
   auto* sequence_manager = GetCurrentSequenceManagerImpl();
   DCHECK(sequence_manager);
-#if BUILDFLAG(IS_ANDROID)
-  DCHECK(sequence_manager->IsType(MessagePumpType::UI) ||
-         sequence_manager->IsType(MessagePumpType::JAVA));
-#else   // BUILDFLAG(IS_ANDROID)
   DCHECK(sequence_manager->IsType(MessagePumpType::UI));
-#endif  // BUILDFLAG(IS_ANDROID)
   return CurrentUIThread(sequence_manager);
 }
 
@@ -142,19 +137,14 @@ bool CurrentUIThread::IsSet() {
   sequence_manager::internal::SequenceManagerImpl* sequence_manager =
       GetCurrentSequenceManagerImpl();
   return sequence_manager &&
-#if BUILDFLAG(IS_ANDROID)
-         (sequence_manager->IsType(MessagePumpType::UI) ||
-          sequence_manager->IsType(MessagePumpType::JAVA));
-#else   // BUILDFLAG(IS_ANDROID)
          sequence_manager->IsType(MessagePumpType::UI);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 MessagePumpForUI* CurrentUIThread::GetMessagePumpForUI() const {
   return static_cast<MessagePumpForUI*>(current_->GetMessagePump());
 }
 
-#if BUILDFLAG(IS_OZONE) && !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_OZONE) && !BUILDFLAG(IS_WIN)
 bool CurrentUIThread::WatchFileDescriptor(
     int fd,
     bool persistent,
@@ -167,17 +157,7 @@ bool CurrentUIThread::WatchFileDescriptor(
 }
 #endif
 
-#if BUILDFLAG(IS_IOS)
-void CurrentUIThread::Attach() {
-  current_->AttachToMessagePump();
-}
-#endif  // BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_ANDROID)
-void CurrentUIThread::Abort() {
-  GetMessagePumpForUI()->Abort();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 void CurrentUIThread::RegisterNativeEventObserver(
@@ -231,7 +211,7 @@ bool CurrentIOThread::RegisterJobObject(HANDLE job,
   return GetMessagePumpForIO()->RegisterJobObject(job, handler);
 }
 
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 bool CurrentIOThread::WatchFileDescriptor(
     int fd,
     bool persistent,
@@ -244,8 +224,7 @@ bool CurrentIOThread::WatchFileDescriptor(
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_IOS) && !BUILDFLAG(CRONET_BUILD) && !BUILDFLAG(IS_IOS_TVOS))
+#if BUILDFLAG(IS_MAC)
 bool CurrentIOThread::WatchMachReceivePort(
     mach_port_t port,
     MessagePumpForIO::MachPortWatchController* controller,
@@ -253,20 +232,6 @@ bool CurrentIOThread::WatchMachReceivePort(
   DCHECK(current_->IsBoundToCurrentThread());
   return GetMessagePumpForIO()->WatchMachReceivePort(port, controller,
                                                      delegate);
-}
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-// Additional watch API for native platform resources.
-bool CurrentIOThread::WatchZxHandle(
-    zx_handle_t handle,
-    bool persistent,
-    zx_signals_t signals,
-    MessagePumpForIO::ZxHandleWatchController* controller,
-    MessagePumpForIO::ZxHandleWatcher* delegate) {
-  DCHECK(current_->IsBoundToCurrentThread());
-  return GetMessagePumpForIO()->WatchZxHandle(handle, persistent, signals,
-                                              controller, delegate);
 }
 #endif
 

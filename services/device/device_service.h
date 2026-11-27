@@ -41,22 +41,14 @@
 #include "services/device/wake_lock/wake_lock_provider.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#include "services/device/public/mojom/nfc_provider.mojom.h"
-#else
 #include "services/device/public/mojom/hid.mojom.h"
-#endif
 
 #if BUILDFLAG(ENABLE_COMPUTE_PRESSURE)
 #include "services/device/public/mojom/pressure_manager.mojom.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "services/device/media_transfer_protocol/mtp_device_manager.h"
-#endif
 
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(USE_UDEV)
+#if BUILDFLAG(IS_LINUX) && defined(USE_UDEV)
 #include "services/device/public/mojom/input_service.mojom.h"
 #endif
 
@@ -106,9 +98,6 @@ struct DeviceServiceParams {
       geolocation_system_permission_manager = nullptr;
   WakeLockContextCallback wake_lock_context_callback;
 
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaGlobalRef<jobject> java_nfc_delegate;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 std::unique_ptr<DeviceService> CreateDeviceService(
@@ -150,12 +139,6 @@ class DeviceService : public mojom::DeviceService {
   static void OverrideTimeZoneMonitorBinderForTesting(
       TimeZoneMonitorBinder binder);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Allows tests to override how frame hosts bind NFCProvider receivers.
-  using NFCProviderBinder = base::RepeatingCallback<void(
-      mojo::PendingReceiver<device::mojom::NFCProvider>)>;
-  static void OverrideNFCProviderBinderForTesting(NFCProviderBinder binder);
-#endif
 
   // Supports global override of UsbDeviceManager binding within the service.
   using UsbDeviceManagerBinder = base::RepeatingCallback<void(
@@ -174,7 +157,7 @@ class DeviceService : public mojom::DeviceService {
   void BindGeolocationInternals(
       mojo::PendingReceiver<mojom::GeolocationInternals> receiver) override;
 
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(USE_UDEV)
+#if BUILDFLAG(IS_LINUX) && defined(USE_UDEV)
   void BindInputDeviceManager(
       mojo::PendingReceiver<mojom::InputDeviceManager> receiver) override;
 #endif
@@ -187,10 +170,6 @@ class DeviceService : public mojom::DeviceService {
       mojo::PendingReceiver<mojom::PressureManager> receiver) override;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  void BindNFCProvider(
-      mojo::PendingReceiver<mojom::NFCProvider> receiver) override;
-#endif
 
   void BindVibrationManager(
       mojo::PendingReceiver<mojom::VibrationManager> receiver,
@@ -202,10 +181,6 @@ class DeviceService : public mojom::DeviceService {
   void BindHidManager(
       mojo::PendingReceiver<mojom::HidManager> receiver) override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void BindMtpManager(
-      mojo::PendingReceiver<mojom::MtpManager> receiver) override;
-#endif
 
   void BindPowerMonitor(
       mojo::PendingReceiver<mojom::PowerMonitor> receiver) override;
@@ -255,19 +230,6 @@ class DeviceService : public mojom::DeviceService {
   WakeLockProvider wake_lock_provider_;
   std::unique_ptr<HidManagerImpl> hid_manager_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Binds |java_interface_provider_| to an interface registry that exposes
-  // factories for the interfaces that are provided via Java on Android.
-  service_manager::InterfaceProvider* GetJavaInterfaceProvider();
-
-  // InterfaceProvider that is bound to the Java-side interface registry.
-  service_manager::InterfaceProvider java_interface_provider_{
-      base::SingleThreadTaskRunner::GetCurrentDefault()};
-
-  bool java_interface_provider_initialized_ = false;
-
-  base::android::ScopedJavaGlobalRef<jobject> java_nfc_delegate_;
-#endif
 
 #if BUILDFLAG(ENABLE_COMPUTE_PRESSURE)
   std::unique_ptr<PressureManagerImpl> pressure_manager_;
@@ -277,9 +239,6 @@ class DeviceService : public mojom::DeviceService {
   base::SequenceBound<SerialPortManagerImpl> serial_port_manager_;
 #endif  // defined(IS_SERIAL_ENABLED_PLATFORM)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<MtpDeviceManager> mtp_device_manager_;
-#endif
 };
 
 }  // namespace device

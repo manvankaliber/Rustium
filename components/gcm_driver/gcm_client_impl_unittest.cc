@@ -34,7 +34,7 @@
 #include "google_apis/gcm/engine/fake_connection_handler.h"
 #include "google_apis/gcm/engine/gservices_settings.h"
 #include "google_apis/gcm/monitoring/gcm_stats_recorder.h"
-#include "google_apis/gcm/protocol/android_checkin.pb.h"
+#include "google_apis/gcm/protocol/device_checkin.pb.h"
 #include "google_apis/gcm/protocol/checkin.pb.h"
 #include "google_apis/gcm/protocol/mcs.pb.h"
 #include "net/test/gtest_util.h"

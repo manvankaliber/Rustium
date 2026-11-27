@@ -138,33 +138,6 @@ size_t PushPullFIFO::Pull(AudioBus* output_bus, uint32_t frames_requested) {
   base::AutoLock locker(lock_);
   TRACE_EVENT0("webaudio", "PushPullFIFO::Pull under lock");
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!output_bus) {
-    // Log when outputBus or FIFO object is invalid. (crbug.com/692423)
-    LOG(WARNING) << "[WebAudio/PushPullFIFO::pull <" << static_cast<void*>(this)
-                 << ">] `outputBus` is invalid.";
-    // Silently return to avoid crash.
-    return 0;
-  }
-
-  // The following checks are in place to catch the inexplicable crash.
-  // (crbug.com/692423)
-  if (frames_requested > output_bus->length()) {
-    LOG(WARNING) << "[WebAudio/PushPullFIFO::pull <" << static_cast<void*>(this)
-                 << ">] framesRequested > outputBus->length() ("
-                 << frames_requested << " > " << output_bus->length() << ")";
-  }
-  if (frames_requested > fifo_length_) {
-    LOG(WARNING) << "[WebAudio/PushPullFIFO::pull <" << static_cast<void*>(this)
-                 << ">] framesRequested > fifo_length_ (" << frames_requested
-                 << " > " << fifo_length_ << ")";
-  }
-  if (index_read_ >= fifo_length_) {
-    LOG(WARNING) << "[WebAudio/PushPullFIFO::pull <" << static_cast<void*>(this)
-                 << ">] index_read_ >= fifo_length_ (" << index_read_
-                 << " >= " << fifo_length_ << ")";
-  }
-#endif
 
   CHECK(output_bus);
   CHECK_EQ(output_bus->NumberOfChannels(), fifo_bus_->NumberOfChannels());

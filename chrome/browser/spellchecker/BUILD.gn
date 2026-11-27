@@ -20,7 +20,7 @@ source_set("spellchecker") {
     public += [ "spelling_request.h" ]
   }
 
-  if (is_win || is_linux || is_chromeos) {
+  if (is_win || is_linux) {
     public += [
       "spellcheck_language_blocklist_policy_handler.h",
       "spellcheck_language_policy_handler.h",
@@ -44,7 +44,7 @@ source_set("spellchecker") {
     "//services/network/public/cpp",
   ]
 
-  if (is_win || is_linux || is_chromeos) {
+  if (is_win || is_linux) {
     public_deps += [ "//components/policy/core/browser" ]
   }
 }
@@ -63,7 +63,7 @@ source_set("impl") {
     sources += [ "spelling_request.cc" ]
   }
 
-  if (is_win || is_linux || is_chromeos) {
+  if (is_win || is_linux) {
     sources += [
       "spellcheck_language_blocklist_policy_handler.cc",
       "spellcheck_language_policy_handler.cc",
@@ -96,13 +96,7 @@ source_set("impl") {
     "//url",
   ]
 
-  if (!is_android) {
-    deps += [ "//third_party/hunspell" ]
-  }
-
-  if (is_chromeos) {
-    deps += [ "//ash/constants" ]
-  }
+  deps += [ "//third_party/hunspell" ]
 }
 
 if (has_spellcheck_panel) {
@@ -146,7 +140,7 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (is_chromeos || is_linux || is_win) {
+  if (is_linux || is_win) {
     sources += [ "spellcheck_language_policy_handlers_unittest.cc" ]
     deps += [ "//components/policy/core/browser" ]
   }
@@ -173,35 +167,33 @@ source_set("unit_tests") {
   }
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
+source_set("browser_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = []
+  sources = []
 
-    deps = [
-      ":spellchecker",
-      "//base",
-      "//chrome/test:test_support",
-      "//components/spellcheck/browser",
-      "//components/spellcheck/common",
-      "//content/test:test_support",
-      "//testing/gtest",
-    ]
+  deps = [
+    ":spellchecker",
+    "//base",
+    "//chrome/test:test_support",
+    "//components/spellcheck/browser",
+    "//components/spellcheck/common",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
 
-    if (!is_mac) {
-      sources += [ "spellcheck_service_browsertest.cc" ]
-    }
+  if (!is_mac) {
+    sources += [ "spellcheck_service_browsertest.cc" ]
+  }
 
-    if (is_mac) {
-      sources += [ "spell_check_host_chrome_impl_mac_browsertest.cc" ]
-    }
+  if (is_mac) {
+    sources += [ "spell_check_host_chrome_impl_mac_browsertest.cc" ]
+  }
 
-    if (is_win) {
-      sources += [ "spell_check_host_chrome_impl_win_browsertest.cc" ]
-    }
+  if (is_win) {
+    sources += [ "spell_check_host_chrome_impl_win_browsertest.cc" ]
   }
 }
 

@@ -19,14 +19,8 @@ namespace suggest_template_info {
 namespace {
 
 TEST(SuggestTemplateInfoUtilsTest, ACMatchClassificationToColorType) {
-#if BUILDFLAG(IS_IOS)
-  // iOS shows URLs in the secondary text color, not blue.
-  constexpr omnibox::FormattedString::ColorType kUrlColor =
-      omnibox::FormattedString::COLOR_SUGGEST_HINT_TEXT;
-#else
   constexpr omnibox::FormattedString::ColorType kUrlColor =
       omnibox::FormattedString::COLOR_SUGGEST_ACTION_HIGH;
-#endif
   EXPECT_EQ(
       internal::ACMatchClassificationToColorType(ACMatchClassification::NONE),
       omnibox::FormattedString::COLOR_SUGGEST_QUERY_TEXT);

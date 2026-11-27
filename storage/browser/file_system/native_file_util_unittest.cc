@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "storage/browser/file_system/native_file_util.h"
+
 #include <stdint.h>
 
 #include <memory>
@@ -12,13 +14,8 @@
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
 #include "build/build_config.h"
-#include "storage/browser/file_system/native_file_util.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/content_uri_utils.h"
-#include "base/test/android/content_uri_test_utils.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "windows.h"
@@ -123,28 +120,6 @@ TEST_F(NativeFileUtilTest, EnsureFileExists) {
             NativeFileUtil::EnsureFileExists(file_name, &created));
   EXPECT_FALSE(created);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Delete file and recreate using content-URI rather than path.
-  ASSERT_TRUE(base::DeleteFile(file_name));
-  base::FilePath parent =
-      *base::test::android::GetInMemoryContentTreeUriFromCacheDirDirectory(
-          Path());
-  base::FilePath content_uri = base::ContentUriGetChildDocumentOrQuery(
-      parent, "foobar", "text/plain", /*is_directory=*/false,
-      /*create=*/true);
-  ASSERT_FALSE(content_uri.empty());
-
-  EXPECT_EQ(base::File::FILE_OK,
-            NativeFileUtil::EnsureFileExists(content_uri, &created));
-  EXPECT_TRUE(created);
-
-  EXPECT_TRUE(FileExists(file_name));
-  EXPECT_EQ(0, GetSize(file_name));
-
-  EXPECT_EQ(base::File::FILE_OK,
-            NativeFileUtil::EnsureFileExists(file_name, &created));
-  EXPECT_FALSE(created);
-#endif
 }
 
 TEST_F(NativeFileUtilTest, CreateAndDeleteDirectory) {
@@ -164,31 +139,6 @@ TEST_F(NativeFileUtilTest, CreateAndDeleteDirectory) {
   EXPECT_FALSE(base::DirectoryExists(dir_name));
   EXPECT_FALSE(NativeFileUtil::DirectoryExists(dir_name));
 
-#if BUILDFLAG(IS_ANDROID)
-  base::FilePath parent =
-      *base::test::android::GetInMemoryContentTreeUriFromCacheDirDirectory(
-          Path());
-  base::FilePath query = base::ContentUriGetChildDocumentOrQuery(
-      parent, "test_dir", "", /*is_directory=*/true, /*create=*/true);
-  ASSERT_FALSE(query.empty());
-  ASSERT_EQ(base::File::FILE_OK,
-            NativeFileUtil::CreateDirectory(query, false /* exclusive */,
-                                            false /* recursive */));
-  base::FilePath content_uri =
-      base::ContentUriGetDocumentFromQuery(query, /*create=*/false);
-  ASSERT_FALSE(content_uri.empty());
-
-  EXPECT_TRUE(NativeFileUtil::DirectoryExists(content_uri));
-  EXPECT_TRUE(base::DirectoryExists(dir_name));
-
-  ASSERT_EQ(base::File::FILE_ERROR_EXISTS,
-            NativeFileUtil::CreateDirectory(content_uri, true /* exclusive */,
-                                            false /* recursive */));
-
-  ASSERT_EQ(base::File::FILE_OK, NativeFileUtil::DeleteDirectory(content_uri));
-  EXPECT_FALSE(NativeFileUtil::DirectoryExists(content_uri));
-  EXPECT_FALSE(base::DirectoryExists(dir_name));
-#endif
 }
 
 // TODO(crbug.com/40511450): Remove this test once last_access_time has
@@ -196,7 +146,6 @@ TEST_F(NativeFileUtilTest, CreateAndDeleteDirectory) {
 // which breaks this test that relies on it. Since PPAPI is being deprecated,
 // this test is excluded from the Fuchsia build.
 // See https://crbug.com/1077456 for details.
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST_F(NativeFileUtilTest, TouchFileAndGetFileInfo) {
   base::FilePath file_name = Path("test_file");
   base::File::Info native_info;
@@ -229,7 +178,6 @@ TEST_F(NativeFileUtilTest, TouchFileAndGetFileInfo) {
   EXPECT_EQ(new_accessed, info.last_accessed);
   EXPECT_EQ(new_modified, info.last_modified);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(NativeFileUtilTest, CreateFileEnumerator) {
   base::FilePath path_1 = Path("dir1");
@@ -257,8 +205,9 @@ TEST_F(NativeFileUtilTest, CreateFileEnumerator) {
     set.insert(path_1);
     set.insert(path_2);
     for (base::FilePath path = enumerator->Next(); !path.empty();
-         path = enumerator->Next())
+         path = enumerator->Next()) {
       EXPECT_EQ(1U, set.erase(path));
+    }
     EXPECT_TRUE(set.empty());
   }
 
@@ -272,8 +221,9 @@ TEST_F(NativeFileUtilTest, CreateFileEnumerator) {
     set.insert(path_12);
     set.insert(path_121);
     for (base::FilePath path = enumerator->Next(); !path.empty();
-         path = enumerator->Next())
+         path = enumerator->Next()) {
       EXPECT_EQ(1U, set.erase(path));
+    }
     EXPECT_TRUE(set.empty());
   }
 }
@@ -290,41 +240,6 @@ TEST_F(NativeFileUtilTest, Truncate) {
   EXPECT_TRUE(FileExists(file_name));
   EXPECT_EQ(1020, GetSize(file_name));
 
-#if BUILDFLAG(IS_ANDROID)
-  base::FilePath content_uri =
-      *base::test::android::GetContentUriFromCacheDirFilePath(file_name);
-
-  // Content-URIs only support truncate to zero.
-  base::WriteFile(file_name, "foobar");
-  EXPECT_EQ(base::File::FILE_ERROR_FAILED,
-            NativeFileUtil::Truncate(content_uri, 1020));
-  EXPECT_TRUE(FileExists(file_name));
-  EXPECT_EQ(6, GetSize(file_name));
-
-  EXPECT_EQ(base::File::FILE_OK, NativeFileUtil::Truncate(content_uri, 0));
-  EXPECT_TRUE(FileExists(file_name));
-  EXPECT_EQ(0, GetSize(file_name));
-
-  // Virtual document paths only support truncate to zero.
-  base::ScopedTempDir temp_dir;
-  ASSERT_TRUE(temp_dir.CreateUniqueTempDir());
-  base::FilePath dir_vp =
-      *base::test::android::GetVirtualDocumentPathFromCacheDirDirectory(
-          temp_dir.GetPath());
-  base::FilePath file_vp = dir_vp.Append("truncated");
-  ASSERT_TRUE(file_vp.IsVirtualDocumentPath());
-
-  base::FilePath file_path = temp_dir.GetPath().AppendASCII("truncated");
-  base::WriteFile(file_path, "foobar");
-  EXPECT_EQ(base::File::FILE_ERROR_FAILED,
-            NativeFileUtil::Truncate(file_vp, 1020));
-  EXPECT_TRUE(base::PathExists(file_path));
-  EXPECT_EQ(6, GetSize(file_path));
-
-  EXPECT_EQ(base::File::FILE_OK, NativeFileUtil::Truncate(file_vp, 0));
-  EXPECT_TRUE(base::PathExists(file_path));
-  EXPECT_EQ(0, GetSize(file_path));
-#endif
 }
 
 TEST_F(NativeFileUtilTest, CopyFile) {

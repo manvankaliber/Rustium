@@ -22,7 +22,7 @@ void EnumerateGPUDevice(const gpu::GPUInfo::GPUDevice& device,
   enumerator->BeginGPUDevice();
   enumerator->AddInt("vendorId", device.vendor_id);
   enumerator->AddInt("deviceId", device.device_id);
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
   enumerator->AddInt("revision", device.revision);
 #endif
 #if BUILDFLAG(IS_WIN)

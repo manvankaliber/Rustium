@@ -51,13 +51,11 @@ bool IsInvalidateSearchEngineChoiceOnDeviceRestoreDetectionEnabled();
 COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
 bool IsInvalidateChoiceOnRestoreRetroactive();
 
-#if !BUILDFLAG(IS_IOS)
 COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
 BASE_DECLARE_FEATURE(kInvalidateSearchEngineChoiceOnDeviceRestoreDetection);
 
 COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
 extern const base::FeatureParam<bool> kInvalidateChoiceOnRestoreIsRetroactive;
-#endif  // !BUILDFLAG(IS_IOS)
 
 // The string that's passed to
 // `switches::kSearchEngineChoiceTriggerRepromptParams` so that we don't
@@ -108,30 +106,11 @@ BASE_DECLARE_FEATURE(kClankDefaultSearchApi);
 COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
 BASE_DECLARE_FEATURE(kKwdbRefreshDebugging);
 
-#if !BUILDFLAG(IS_ANDROID)
 // Restructuring of the search settings pages.
 COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
 BASE_DECLARE_FEATURE(kSearchSettingsUpdate);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// Refactoring of search engine sorting and filtering in the settings page.
-COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
-BASE_DECLARE_FEATURE(kSearchSettingsUpdateV2);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_ANDROID)
-// Guards search engine choice status reporting via Choice Engine infra. See
-// http://go/chrome-rcaps-dd/choice-engine-integration for more details.
-COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
-BASE_DECLARE_FEATURE(kChoiceEngineStatusReporting);
-
-// Enables the CHROME_SEARCH_ONLY scope for the device choice dialog on
-// Android, displaying search-engine-specific strings instead of OS-wide
-// default app strings.
-COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
-BASE_DECLARE_FEATURE(kChromeSearchOnlyClayScope);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 // When enabled, will reject encrypted keyword table hashes that are weakly

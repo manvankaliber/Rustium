@@ -38,13 +38,8 @@
 #include "net/base/url_util.h"
 #include "third_party/blink/public/mojom/site_engagement/site_engagement.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/safe_browsing/security_settings_bundle_toast_helper.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Minimum score of an HTTPS origin to enable HFM on its hostname.
 const base::FeatureParam<int> kHttpsAddThreshold{
@@ -170,14 +165,6 @@ GURL GetHttpUrlFromHttps(const GURL& https_url) {
 
 std::unique_ptr<KeyedService> BuildService(content::BrowserContext* context) {
   Profile* profile = Profile::FromBrowserContext(context);
-#if BUILDFLAG(IS_CHROMEOS)
-  // Explicitly check for ChromeOS sign-in profiles (which would cause
-  // double-counting of at-startup metrics for ChromeOS restarts) which are not
-  // covered by the `IsRegularProfile()` check.
-  if (ash::ProfileHelper::IsSigninProfile(profile)) {
-    return nullptr;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   return std::make_unique<HttpsFirstModeService>(profile, GetClock());
 }
 
@@ -375,12 +362,10 @@ void HttpsFirstModeService::MigrateEnhancedBundleUsersAndMaybeShowToast() {
             safe_browsing::SecuritySettingsBundleToastState::kPending));
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Dynamically trigger the toast on the active window immediately for the
   // current session.
   safe_browsing::SecuritySettingsBundleToastHelper::GetForProfile(profile_)
       ->TriggerIfNeeded();
-#endif
 }
 
 void HttpsFirstModeService::

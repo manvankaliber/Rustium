@@ -71,8 +71,7 @@ class EnterpriseProxyBrowserTestBase : public MixinBasedPlatformBrowserTest {
   // Sets the "ProxyProvisioningDomains" policy at the machine (device) scope.
   void SetMachineProxyProvisioningDomains(base::ListValue domains);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   void SetEnableForAllUsers(bool enable);
 #endif
 

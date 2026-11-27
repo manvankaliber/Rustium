@@ -127,7 +127,6 @@ void PerformanceControlsHatsService::OpenedNewTabPage() {
   }
 
 // ChromeOS defaults to the OS battery saver so this survey isn't relevant.
-#if !BUILDFLAG(IS_CHROMEOS)
   if (base::FeatureList::IsEnabled(
           performance_manager::features::
               kPerformanceControlsBatteryPerformanceSurvey)) {
@@ -145,7 +144,6 @@ void PerformanceControlsHatsService::OpenedNewTabPage() {
           kHatsSurveyTriggerPerformanceControlsBatteryPerformance);
     }
   }
-#endif
 }
 
 void PerformanceControlsHatsService::OnBatterySaverModeChanged(

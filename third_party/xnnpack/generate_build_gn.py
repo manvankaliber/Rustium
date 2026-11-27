@@ -58,7 +58,6 @@ _HEADER = '''
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-import("//build/config/android/config.gni")
 import("//build_overrides/build.gni")
 if (build_with_chromium) {
   import("//components/optimization_guide/features.gni")
@@ -73,9 +72,6 @@ config("xnnpack_public_config") {
     "src",
   ]
 
-  if (is_android && current_cpu == "arm64") {
-    asmflags = [ "-mmark-bti-property" ]
-  }
 
   defines = [
     "CHROMIUM",
@@ -145,9 +141,7 @@ if (build_with_internal_optimization_guide) {
 
     public_configs = [ ":xnnpack_public_config" ]
 
-    if (!(is_android && use_order_profiling)) {
-      assert_no_deps = [ "//base" ]
-    }
+    assert_no_deps = [ "//base" ]
   }
 }
 '''.strip()
@@ -206,9 +200,7 @@ if (build_with_internal_optimization_guide) {
 
     public_configs = [ ":xnnpack_public_config" ]
 
-    if (!(is_android && use_order_profiling)) {
-      assert_no_deps = [ "//base" ]
-    }
+    assert_no_deps = [ "//base" ]
   }
 }
 '''.strip()
@@ -386,8 +378,7 @@ def _query_object_builds(platform: _Platform) -> list[ObjectBuild]:
     """
     logging.info('Querying xnnpack compile commands '
                  f'for {platform.bazel_platform} with bazel...')
-    # Make sure we have a clean start, this is important if the Android NDK
-    # version changed.
+    # Make sure we have a clean start before querying compile actions.
     _run_bazel_cmd(['clean'])
 
     logs = _run_bazel_cmd([

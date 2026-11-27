@@ -43,18 +43,6 @@ void NetworkQualityEstimatorProviderImpl::PostReplyOnNetworkQualityChanged(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(tbansal): https://crbug.com/40599428: Tasks posted at BEST_EFFORT
-  // may take up to ~20 seconds to execute. Figure out a way to call
-  // g_browser_process->network_quality_tracker earlier rather than waiting for
-  // BEST_EFFORT to run (which happens sometime after startup is completed)
-  content::BrowserThread::PostBestEffortTask(
-      FROM_HERE, base::SequencedTaskRunner::GetCurrentDefault(),
-      base::BindOnce(&NetworkQualityEstimatorProviderImpl::
-                         AddEffectiveConnectionTypeObserverNow,
-                     weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
-  return;
-#else
   bool task_posted =
       base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
           FROM_HERE,
@@ -62,7 +50,6 @@ void NetworkQualityEstimatorProviderImpl::PostReplyOnNetworkQualityChanged(
                              AddEffectiveConnectionTypeObserverNow,
                          weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
   CHECK(task_posted, base::NotFatalUntil::M161);
-#endif
 }
 
 void NetworkQualityEstimatorProviderImpl::AddEffectiveConnectionTypeObserverNow(

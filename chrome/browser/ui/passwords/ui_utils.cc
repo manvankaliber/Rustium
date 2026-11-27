@@ -50,12 +50,10 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/hats/hats_service.h"          // nogncheck
 #include "chrome/browser/ui/hats/hats_service_factory.h"  // nogncheck
 #include "chrome/browser/ui/user_education/show_promo_in_page.h"
-#endif
 
 namespace {
 
@@ -225,7 +223,6 @@ std::string GetGooglePasswordManagerSubPageURLStr() {
 }
 
 // Navigation is handled differently on Android.
-#if !BUILDFLAG(IS_ANDROID)
 void TriggerManagePasswordsPerceptionSurvey(BrowserWindowInterface* browser,
                                             ManagePasswordsReferrer referrer) {
   Profile* profile = browser->GetProfile();
@@ -269,7 +266,6 @@ void NavigateToPasswordDetailsPage(BrowserWindowInterface* browser,
   chrome::ShowPasswordDetailsPage(browser, password_domain_name);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 mojo::Remote<network::mojom::URLLoaderFactory> GetURLLoaderForMainFrame(
     content::WebContents* web_contents) {

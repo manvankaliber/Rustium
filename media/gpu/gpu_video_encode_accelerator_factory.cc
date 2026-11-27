@@ -32,9 +32,6 @@
 #include "media/gpu/macros.h"
 #include "media/video/video_encode_accelerator.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "media/gpu/android/ndk_video_encode_accelerator.h"
-#endif
 #if BUILDFLAG(IS_MAC)
 #include "media/gpu/mac/vt_video_encode_accelerator_mac.h"
 #endif
@@ -50,9 +47,6 @@
 #if BUILDFLAG(USE_VAAPI)
 #include "media/gpu/vaapi/vaapi_video_encode_accelerator.h"
 #endif
-#if BUILDFLAG(IS_FUCHSIA)
-#include "media/fuchsia/video/fuchsia_video_encode_accelerator.h"
-#endif
 
 namespace media {
 
@@ -62,14 +56,7 @@ std::unique_ptr<VideoEncodeAccelerator> CreateV4L2VEA(
     const gpu::GpuPreferences&,
     const gpu::GpuDriverBugWorkarounds&,
     const gpu::GPUInfo::GPUDevice&) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // TODO(crbug.com/901264): Encoders use hack for passing offset within
-  // a DMA-buf, which is not supported upstream.
-  return base::WrapUnique<VideoEncodeAccelerator>(
-      new V4L2VideoEncodeAccelerator(base::MakeRefCounted<V4L2Device>()));
-#else
   return nullptr;
-#endif
 }
 #endif
 
@@ -88,15 +75,6 @@ std::unique_ptr<VideoEncodeAccelerator> CreateVaapiVEA(
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-std::unique_ptr<VideoEncodeAccelerator> CreateAndroidVEA(
-    const gpu::GpuPreferences&,
-    const gpu::GpuDriverBugWorkarounds& gpu_workarounds,
-    const gpu::GPUInfo::GPUDevice&) {
-  return base::WrapUnique<VideoEncodeAccelerator>(new NdkVideoEncodeAccelerator(
-      base::SequencedTaskRunner::GetCurrentDefault(), gpu_workarounds));
-}
-#endif
 
 #if BUILDFLAG(IS_MAC)
 std::unique_ptr<VideoEncodeAccelerator> CreateVTVEA(
@@ -166,19 +144,6 @@ std::unique_ptr<VideoEncodeAccelerator> CreateD3D12VEA(
 }
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-std::unique_ptr<VideoEncodeAccelerator> CreateFuchsiaVEA(
-    const gpu::GpuPreferences&,
-    const gpu::GpuDriverBugWorkarounds&,
-    const gpu::GPUInfo::GPUDevice&) {
-  if (!base::FeatureList::IsEnabled(kFuchsiaMediacodecVideoEncoder)) {
-    return nullptr;
-  }
-  return base::WrapUnique<VideoEncodeAccelerator>(
-      new FuchsiaVideoEncodeAccelerator());
-}
-#endif
-
 using VEAFactoryFunction = std::unique_ptr<VideoEncodeAccelerator> (*)(
     const gpu::GpuPreferences&,
     const gpu::GpuDriverBugWorkarounds&,
@@ -211,9 +176,6 @@ base::span<const VEAFactoryFunction> GetVEAFactoryFunctions(
     default:
       return {};
   }
-#elif BUILDFLAG(IS_ANDROID)
-  static constexpr VEAFactoryFunction kFactories[] = {&CreateAndroidVEA};
-  return kFactories;
 #elif BUILDFLAG(IS_MAC)
   static constexpr VEAFactoryFunction kFactories[] = {&CreateVTVEA};
   return kFactories;
@@ -222,9 +184,6 @@ base::span<const VEAFactoryFunction> GetVEAFactoryFunctions(
       &CreateD3D12VEA,
       &CreateMediaFoundationVEA,
   };
-  return kFactories;
-#elif BUILDFLAG(IS_FUCHSIA)
-  static constexpr VEAFactoryFunction kFactories[] = {&CreateFuchsiaVEA};
   return kFactories;
 #else
   return {};
@@ -235,8 +194,9 @@ VideoEncodeAccelerator::SupportedProfiles GetSupportedProfilesInternal(
     const gpu::GpuPreferences& gpu_preferences,
     const gpu::GpuDriverBugWorkarounds& gpu_workarounds,
     const gpu::GPUInfo::GPUDevice& gpu_device) {
-  if (gpu_preferences.disable_accelerated_video_encode)
+  if (gpu_preferences.disable_accelerated_video_encode) {
     return VideoEncodeAccelerator::SupportedProfiles();
+  }
 
   VideoEncodeAccelerator::SupportedProfiles profiles;
   for (VEAFactoryFunction create_vea :
@@ -288,8 +248,9 @@ GpuVideoEncodeAcceleratorFactory::CreateVEA(
     GetCommandBufferHelperCB get_command_buffer_helper_cb,
     scoped_refptr<base::SingleThreadTaskRunner> gpu_task_runner) {
   // NullMediaLog silently and safely does nothing.
-  if (!media_log)
+  if (!media_log) {
     media_log = std::make_unique<media::NullMediaLog>();
+  }
 
   EncoderStatus initialization_err{
       EncoderStatus::Codes::kEncoderInitializationError};

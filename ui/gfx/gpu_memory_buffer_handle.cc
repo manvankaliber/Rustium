@@ -108,24 +108,12 @@ GpuMemoryBufferHandle::GpuMemoryBufferHandle(
       native_pixmap_handle_(std::move(native_pixmap_handle)) {}
 #endif  // BUILDFLAG(IS_OZONE)
 
-#if BUILDFLAG(IS_ANDROID)
-GpuMemoryBufferHandle::GpuMemoryBufferHandle(
-    base::android::ScopedHardwareBufferHandle handle)
-    : type(GpuMemoryBufferType::ANDROID_HARDWARE_BUFFER),
-      android_hardware_buffer(std::move(handle)) {}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_APPLE)
 GpuMemoryBufferHandle::GpuMemoryBufferHandle(ScopedIOSurface io_surface)
     : type(GpuMemoryBufferType::IO_SURFACE_BUFFER),
       io_surface_(std::move(io_surface)) {
   CHECK(io_surface_);
-#if BUILDFLAG(IS_IOS)
-  io_surface_mach_port_.reset(IOSurfaceCreateMachPort(io_surface_.get()));
-  ExportIOSurfaceSharedMemoryRegion(
-      io_surface_.get(), io_surface_shared_memory_region_,
-      io_surface_plane_strides_, io_surface_plane_offsets_);
-#endif  // BUILDFLAG(IS_IOS)
 }
 #endif  // BUILDFLAG(IS_APPLE)
 
@@ -148,19 +136,8 @@ GpuMemoryBufferHandle GpuMemoryBufferHandle::Clone() const {
   handle.native_pixmap_handle_ = CloneHandleForIPC(native_pixmap_handle_);
 #elif BUILDFLAG(IS_APPLE)
   handle.io_surface_ = io_surface_;
-#if BUILDFLAG(IS_IOS)
-  handle.io_surface_mach_port_ = io_surface_mach_port_;
-  handle.io_surface_shared_memory_region_ =
-      io_surface_shared_memory_region_.Duplicate();
-  handle.io_surface_plane_strides_ = io_surface_plane_strides_;
-  handle.io_surface_plane_offsets_ = io_surface_plane_offsets_;
-#endif
 #elif BUILDFLAG(IS_WIN)
   handle.dxgi_handle_ = dxgi_handle_.Clone();
-#elif BUILDFLAG(IS_ANDROID)
-  if (android_hardware_buffer.is_valid()) {
-    handle.android_hardware_buffer = android_hardware_buffer.Clone();
-  }
 #endif
   handle.region_ = region_.Duplicate();
   return handle;

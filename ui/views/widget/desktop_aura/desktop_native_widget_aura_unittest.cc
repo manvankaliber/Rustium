@@ -86,7 +86,7 @@ TEST_F(DesktopNativeWidgetAuraTest, DesktopAuraWindowSizeTest) {
 
   // On Linux we test this with popup windows because the WM may ignore the size
   // suggestion for normal windows.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   Widget::InitParams init_params = CreateParams(
       Widget::InitParams::CLIENT_OWNS_WIDGET, Widget::InitParams::TYPE_POPUP);
 #else
@@ -201,12 +201,7 @@ TEST_F(DesktopNativeWidgetAuraTest, WidgetNotVisibleOnlyWindowTreeHostShown) {
 }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/40607034): investigate fixing and enabling on Chrome OS.
-#define MAYBE_GlobalCursorState DISABLED_GlobalCursorState
-#else
 #define MAYBE_GlobalCursorState GlobalCursorState
-#endif
 
 // Verify that the cursor state is shared between two native widgets.
 TEST_F(DesktopNativeWidgetAuraTest, MAYBE_GlobalCursorState) {
@@ -586,7 +581,6 @@ TEST_F(DesktopNativeWidgetAuraWithNoDelegateTest, UpdateVisualStateTest) {
       ->UpdateVisualState();
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // TODO(crbug.com/40192931): Under Fuchsia pop-up and fullscreen windows are not
 // reparented to be top-level, so the following tests are not valid.
 
@@ -928,8 +922,6 @@ TEST_F(DesktopNativeWidgetAuraTest, TopLevelOwnedPopupKeepsSizeOnHostResize) {
   ASSERT_NO_FATAL_FAILURE(popup_window.DestroyOwnedWindow());
 }
 
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-
 // The following code verifies we can correctly destroy a Widget from a mouse
 // enter/exit. We could test move/drag/enter/exit but in general we don't run
 // nested run loops from such events, nor has the code ever really dealt
@@ -1006,12 +998,7 @@ TEST_F(DesktopNativeWidgetAuraTest, CloseWidgetDuringMouseReleased) {
   RunCloseWidgetDuringDispatchTest(this, ui::EventType::kMouseReleased);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/40607034): investigate fixing and enabling on Chrome OS.
-#define MAYBE_WindowMouseModalityTest DISABLED_WindowMouseModalityTest
-#else
 #define MAYBE_WindowMouseModalityTest WindowMouseModalityTest
-#endif
 
 // This test verifies that whether mouse events when a modal dialog is
 // displayed are eaten or received by the dialog.

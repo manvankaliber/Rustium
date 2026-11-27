@@ -50,10 +50,8 @@ class ExtensionRequestObserver
   void ShowNotification(ExtensionRequestNotification::NotifyType type);
   void CloseAllNotifications();
 
-#if !BUILDFLAG(IS_ANDROID)
   void OnNotificationClosed(std::vector<std::string>&& extension_ids,
                             bool by_user);
-#endif
 
   std::array<std::unique_ptr<ExtensionRequestNotification>,
              ExtensionRequestNotification::kNumberOfTypes>

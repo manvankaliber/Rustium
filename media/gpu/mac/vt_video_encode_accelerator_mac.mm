@@ -61,7 +61,7 @@ using base::apple::CFToNSPtrCast;
 using base::apple::NSToCFOwnershipCast;
 using base::apple::NSToCFPtrCast;
 
-#define SOFTWARE_ENCODING_SUPPORTED BUILDFLAG(IS_MAC)
+#define SOFTWARE_ENCODING_SUPPORTED !BUILDFLAG(IS_IOS)
 
 namespace media {
 

@@ -6,7 +6,6 @@
 
 #include <memory>
 
-#include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/actor_internals/actor_internals_ui_handler.h"
 #include "chrome/common/chrome_features.h"

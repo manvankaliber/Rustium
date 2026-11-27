@@ -66,7 +66,7 @@
 #include "chrome/browser/web_applications/test/web_app_test_observers.h"
 #include "chrome/browser/web_applications/user_display_mode.h"
 #include "chrome/browser/web_applications/web_app.h"
-#include "chrome/browser/web_applications/web_app_chromeos_data.h"
+#include "chrome/browser/web_applications/legacy_platform_app_data.h"
 #include "chrome/browser/web_applications/web_app_command_scheduler.h"
 #include "chrome/browser/web_applications/web_app_constants.h"
 #include "chrome/browser/web_applications/web_app_helpers.h"
@@ -1055,7 +1055,7 @@ std::unique_ptr<WebApp> CreateRandomWebApp(
     // Use a separate random generator for CrOS so the result is deterministic
     // across cros and non-cros builds.
     RandomHelper cros_random(params.seed, params.non_zero);
-    auto chromeos_data = std::make_optional<WebAppChromeOsData>();
+    auto chromeos_data = std::make_optional<LegacyPlatformAppData>();
     chromeos_data->show_in_launcher = cros_random.next_bool();
     chromeos_data->show_in_search_and_shelf = cros_random.next_bool();
     chromeos_data->show_in_management = cros_random.next_bool();
@@ -1066,7 +1066,7 @@ std::unique_ptr<WebApp> CreateRandomWebApp(
     if (app->IsSystemApp() || app->IsIwaShimlessRmaApp()) {
       chromeos_data->oem_installed = false;
     }
-    app->SetWebAppChromeOsData(std::move(chromeos_data));
+    app->SetLegacyPlatformAppData(std::move(chromeos_data));
   }
 
   WebApp::ExternalConfigMap management_to_external_config;

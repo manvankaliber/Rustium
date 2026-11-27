@@ -9,13 +9,11 @@ import {pageVisibility} from './page_visibility.js';
 import type {SettingsRoutes} from './router.js';
 import {Route, Router} from './router.js';
 
-// LINT.IfChange(AiSettingsSection)
 export enum AiSettingsSection {
   NONE = '',
-  GEMINI = 'gemini',
-  GEMINI_ENTERPRISE = 'geminiEnterprise',
+
+
 }
-// LINT.ThenChange(//chrome/browser/glic/public/glic_provider_spec.h:AiSettingsSection)
 
 /**
  * Add all of the child routes that originate from the privacy route,
@@ -62,17 +60,6 @@ function addPrivacyChildRoutes(r: Partial<SettingsRoutes>) {
     r.SITE_SETTINGS_CAPTURED_SURFACE_CONTROL =
         r.SITE_SETTINGS.createChild('capturedSurfaceControl');
   }
-  // <if expr="enable_smart_card">
-  if (loadTimeData.getBoolean('enableSmartCardReadersContentSetting')) {
-    r.SITE_SETTINGS_SMART_CARD_READERS =
-        r.SITE_SETTINGS.createChild('smartCardReaders');
-  }
-  // </if>
-  // <if expr="is_chromeos">
-  if (loadTimeData.getBoolean('enableWebPrintingContentSetting')) {
-    r.SITE_SETTINGS_WEB_PRINTING = r.SITE_SETTINGS.createChild('webPrinting');
-  }
-  // </if>
   r.SITE_SETTINGS_AUTO_VERIFY = r.SITE_SETTINGS.createChild('autoVerify');
   r.SITE_SETTINGS_BACKGROUND_SYNC =
       r.SITE_SETTINGS.createChild('backgroundSync');
@@ -152,13 +139,11 @@ function addSharedPeopleRoutes(r: Partial<SettingsRoutes>, parent: Route) {
     r.ACCOUNT = parent.createChild('/account');
     r.GOOGLE_SERVICES = parent.createChild('/googleServices');
   }
-  // <if expr="not is_chromeos">
   r.SIGN_OUT = parent.createChild('/signOut');
   r.SIGN_OUT.isNavigableDialog = true;
   r.IMPORT_DATA = parent.createChild('/importData');
   r.IMPORT_DATA.isNavigableDialog = true;
   r.MANAGE_PROFILE = parent.createChild('/manageProfile');
-  // </if>
 
   r.SYNC = parent.createChild('/syncSetup');
   r.SYNC_ADVANCED = r.SYNC.createChild('/syncSetup/advanced');
@@ -203,9 +188,6 @@ function createRoutes(): SettingsRoutes {
   if (visibility.ai !== false && loadTimeData.getBoolean('showAiPage')) {
     r.AI = r.BASIC.createSection(
         '/ai', 'ai', loadTimeData.getString('aiPageTitle'));
-    if (loadTimeData.getBoolean('enableAiModeSearchSetting')) {
-      r.AI_MODE_SEARCH = r.AI.createChild('/ai/aiModeSearch');
-    }
     if (loadTimeData.getBoolean('showComposeControl')) {
       r.OFFER_WRITING_HELP = r.AI.createChild('/ai/helpMeWrite');
     }
@@ -214,16 +196,8 @@ function createRoutes(): SettingsRoutes {
     switch (aiSettingsSection) {
       case AiSettingsSection.NONE:
         break;
-      case AiSettingsSection.GEMINI:
-        r.GEMINI = r.AI.createChild('/ai/gemini');
-        if (loadTimeData.getBoolean(
-                'actorLoginFederatedLoginSupportEnabled')) {
-          r.GEMINI_LOGIN = r.GEMINI.createChild('/ai/gemini/login');
-        }
-        break;
-      case AiSettingsSection.GEMINI_ENTERPRISE:
-        r.GEMINI_ENTERPRISE = r.AI.createChild('/ai/geminienterprise');
-        break;
+
+
       default:
         assertNotReachedCase(aiSettingsSection);
     }
@@ -233,9 +207,7 @@ function createRoutes(): SettingsRoutes {
     if (loadTimeData.getBoolean('showInlineCueMenuControl')) {
       r.INLINE_CUE_MENU = r.AI.createChild('/ai/inlineCueMenu');
     }
-    if (loadTimeData.getBoolean('showSkillsSettingPage')) {
-      r.SKILLS = r.AI.createChild('/ai/skills');
-    }
+
     if (loadTimeData.getBoolean('showDictationControl')) {
       r.DICTATION = r.AI.createChild('/ai/dictation');
     }
@@ -264,13 +236,8 @@ function createRoutes(): SettingsRoutes {
     r.IDENTITY_DOCS =
         r.AUTOFILL.createChild('/identityDocs');
     r.TRAVEL = r.AUTOFILL.createChild('/travel');
-    if (loadTimeData.getBoolean('shoppingIntegrationEnabled')) {
-      r.SHOPPING = r.AUTOFILL.createChild('/shopping');
-    }
-    if (loadTimeData.getBoolean('showSuggestionsFromGeminiSettings')) {
-      r.SUGGESTIONS_FROM_GEMINI =
-          r.AUTOFILL.createChild('/enhancedAutofill');
-    }
+
+
     // <if expr="is_win or is_macosx">
     r.PASSKEYS = r.AUTOFILL.createChild('/passkeys');
     // </if>
@@ -282,13 +249,11 @@ function createRoutes(): SettingsRoutes {
     addPrivacyChildRoutes(r);
   }
 
-  // <if expr="not is_chromeos">
   if (!isSettingsRefresh2026Enabled && visibility.defaultBrowser !== false) {
     r.DEFAULT_BROWSER = r.BASIC.createSection(
         '/defaultBrowser', 'defaultBrowser',
         loadTimeData.getString('defaultBrowser'));
   }
-  // </if>
 
   if (!isSettingsRefresh2026Enabled && visibility.onStartup !== false) {
     r.ON_STARTUP = r.BASIC.createSection(
@@ -302,7 +267,7 @@ function createRoutes(): SettingsRoutes {
     r.LANGUAGES = r.ADVANCED.createSection(
         '/languages', 'languages',
         loadTimeData.getString('languagesPageTitle'));
-    // <if expr="not is_chromeos and not is_macosx">
+    // <if expr="not is_macosx">
     r.EDIT_DICTIONARY = r.LANGUAGES.createChild('/editDictionary');
     // </if>
   }
@@ -332,12 +297,10 @@ function createRoutes(): SettingsRoutes {
     r.TRIGGERED_RESET_DIALOG.isNavigableDialog = true;
   }
 
-  // <if expr="not is_chromeos">
   if (!isSettingsRefresh2026Enabled && visibility.system !== false) {
     r.SYSTEM = r.ADVANCED.createSection(
         '/system', 'system', loadTimeData.getString('systemPageTitle'));
   }
-  // </if>
 
   if (!isSettingsRefresh2026Enabled && visibility.reset !== false) {
     r.RESET = r.ADVANCED.createSection(
@@ -393,9 +356,6 @@ export function getTopLevelRoute(): Route {
   }
 
   let guestTopLevelRoute = routes.SEARCH;
-  // <if expr="is_chromeos">
-  guestTopLevelRoute = routes.PRIVACY;
-  // </if>
 
   return guestTopLevelRoute;
 }

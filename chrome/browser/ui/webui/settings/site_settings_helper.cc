@@ -29,8 +29,6 @@
 #include "chrome/browser/file_system_access/chrome_file_system_access_permission_context.h"
 #include "chrome/browser/file_system_access/file_system_access_features.h"
 #include "chrome/browser/file_system_access/file_system_access_permission_context_factory.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/selection/inline_cue_blocklist_utils.h"
 #include "chrome/browser/hid/hid_chooser_context.h"
 #include "chrome/browser/hid/hid_chooser_context_factory.h"
 #include "chrome/browser/profiles/profile.h"
@@ -86,10 +84,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-#include "chrome/browser/smart_card/smart_card_permission_context.h"
-#include "chrome/browser/smart_card/smart_card_permission_context_factory.h"
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
 
 #if BUILDFLAG(ENABLE_VR)
 #include "device/vr/public/cpp/features.h"
@@ -482,24 +476,12 @@ permissions::ObjectPermissionContextBase* GetBluetoothChooserContext(
   return nullptr;
 }
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-permissions::ObjectPermissionContextBase* GetSmartCardChooserContext(
-    Profile* profile) {
-  if (base::FeatureList::IsEnabled(blink::features::kSmartCard)) {
-    return &SmartCardPermissionContextFactory::GetForProfile(*profile);
-  }
-  return nullptr;
-}
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
 
 const ChooserTypeNameEntry kChooserTypeGroupNames[] = {
     {&GetUsbChooserContext, kUsbChooserDataGroupType},
     {&GetSerialChooserContext, kSerialChooserDataGroupType},
     {&GetHidChooserContext, kHidChooserDataGroupType},
     {&GetBluetoothChooserContext, kBluetoothChooserDataGroupType},
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    {&GetSmartCardChooserContext, kSmartCardChooserDataGroupType}
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
 };
 
 // These variables represent different formatting options for default (i.e. not
@@ -590,14 +572,11 @@ std::vector<ContentSettingsType> GetVisiblePermissionCategories(
       ContentSettingsType::JAVASCRIPT_JIT,
       ContentSettingsType::NOTIFICATIONS,
       ContentSettingsType::POPUPS,
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
       ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER,
 #endif
       ContentSettingsType::SENSORS,
       ContentSettingsType::SERIAL_GUARD,
-#if BUILDFLAG(ENABLE_SMART_CARD)
-      ContentSettingsType::SMART_CARD_GUARD,
-#endif
       ContentSettingsType::SOUND,
       ContentSettingsType::STORAGE_ACCESS,
       ContentSettingsType::USB_GUARD,
@@ -671,13 +650,6 @@ std::vector<ContentSettingsType> GetVisiblePermissionCategories(
     types_for_origin.push_back(ContentSettingsType::AUTOMATIC_FULLSCREEN);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (base::FeatureList::IsEnabled(blink::features::kWebPrinting) &&
-      ShouldShowIwaContentSettingForOrigin(profile, origin,
-                                           ContentSettingsType::WEB_PRINTING)) {
-    types_for_origin.push_back(ContentSettingsType::WEB_PRINTING);
-  }
-#endif
 
   return types_for_origin;
 }
@@ -1143,22 +1115,6 @@ void GetExceptionsForContentType(ContentSettingsType type,
     auto& urls_with_granted_entries =
         all_provider_exceptions[ProviderType::kDefaultProvider];
     GetFileSystemGrantedEntries(&urls_with_granted_entries, profile, incognito);
-  }
-
-  // Display default blocked sites for the inline cue in the
-  // settings so users can see and manage those sites.
-  if (type == ContentSettingsType::INLINE_CUE_MENU) {
-    auto& pref_exceptions =
-        all_provider_exceptions[ProviderType::kPrefProvider];
-    std::vector<std::string> blocked_sites =
-        glic::GetActiveDefaultBlockedSitePatternsForInlineCue(profile);
-    for (const std::string& site : blocked_sites) {
-      ContentSettingsPattern pattern = ContentSettingsPattern::FromString(site);
-      pref_exceptions.push_back(GetExceptionForPage(
-          type, profile, pattern, ContentSettingsPattern::Wildcard(),
-          GetDisplayNameForPattern(profile, pattern), CONTENT_SETTING_BLOCK,
-          SiteSettingSource::kPreference, base::Time(), incognito));
-    }
   }
 
   for (auto& one_provider_exceptions : all_provider_exceptions) {

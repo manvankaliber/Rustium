@@ -72,13 +72,6 @@
 #include "third_party/perfetto/protos/perfetto/trace/track_event/track_event.pbzero.h"
 #include "v8/include/v8.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/self_compaction_manager.h"
-#include "base/functional/callback_forward.h"
-#include "base/functional/callback_helpers.h"
-#include "base/task/thread_pool.h"
-#include "base/task/thread_pool/thread_pool_instance.h"
-#endif
 
 namespace base {
 class LazyNow;
@@ -89,11 +82,7 @@ namespace scheduler {
 
 // When within 500ms of a committed load, busy loop more aggressively.
 BASE_FEATURE(kBusyLoopAggressiveAfterCommittedLoad,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 namespace {
@@ -107,58 +96,10 @@ constexpr base::TimeDelta kBusyLoopAggressiveTime = base::Milliseconds(500);
 // Android only, as it's been evaluated in the field only on this platform.
 // TODO(crbug.com/503682317): Evaluate on desktop as well.
 BASE_FEATURE(kLowerPriorityForCompositorGestures,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 
-#if BUILDFLAG(IS_ANDROID)
-// If set, the PerformanceHelper determines when to boost CPU performance
-// via affinity hints.
-BASE_FEATURE(kUsePerformanceHelper, base::FEATURE_DISABLED_BY_DEFAULT);
-
-enum class PerformanceHintMode {
-  kNone = 0,
-  kAffinity = 1,
-};
-constexpr base::FeatureParam<
-    PerformanceHintMode>::Option kUsePerformanceHelperModeOption[] = {
-    {PerformanceHintMode::kNone, "none"},
-    {PerformanceHintMode::kAffinity, "affinity"},
-};
-
-[[maybe_unused]] const base::FeatureParam<PerformanceHintMode>
-    kUsePerformanceHelperParam{
-        &kUsePerformanceHelper,
-        "helper_mode",
-        PerformanceHintMode::kAffinity,
-        &kUsePerformanceHelperModeOption,
-    };
-
-const base::FeatureParam<base::TimeDelta> kPageLoadBoostParam{
-    &kUsePerformanceHelper, "page_load_boost", base::Seconds(3.0)};
-const base::FeatureParam<base::TimeDelta> kUserInputBoostParam{
-    &kUsePerformanceHelper, "user_input_boost", base::Seconds(0.5)};
-const base::FeatureParam<base::TimeDelta> kScrollBoostParam{
-    &kUsePerformanceHelper, "scroll_boost", base::Seconds(0.2)};
-
-namespace {
-PerformanceHintMode GetPerformanceHelperMode() {
-  if (!base::IsEligibleForBigCoreAffinityChange()) {
-    // Control.
-    return PerformanceHintMode::kNone;
-  }
-  if (!base::FeatureList::IsEnabled(kUsePerformanceHelper)) {
-    return PerformanceHintMode::kNone;
-  }
-
-  return kUsePerformanceHelperParam.Get();
-}
-}  // namespace
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using base::sequence_manager::TaskQueue;
 using base::sequence_manager::TaskTimeObserver;
@@ -388,20 +329,6 @@ MainThreadSchedulerImpl::MainThreadSchedulerImpl(
       ComputePriority(memory_purge_task_queue_.get()));
 
 
-#if BUILDFLAG(IS_ANDROID)
-  PerformanceHelper::Params perf_params = {
-      .loading_boost = kPageLoadBoostParam.Get(),
-      .scrolling_boost = kScrollBoostParam.Get(),
-      .input_boost = kUserInputBoostParam.Get(),
-      .callback = GetPerformanceHelperMode() != PerformanceHintMode::kNone
-                      ? base::BindRepeating(
-                            &MainThreadSchedulerImpl::ApplyPerformanceState,
-                            base::Unretained(this))
-                      : base::NullCallback()};
-  performance_helper_.Configure(std::move(perf_params));
-  // Start in high-performance mode.
-  performance_helper_.Add(PerformanceHelper::BoostType::kPageLoad);
-#endif
 }
 
 MainThreadSchedulerImpl::~MainThreadSchedulerImpl() {
@@ -1198,17 +1125,6 @@ bool MainThreadSchedulerImpl::IsBatterySaverEnabled() const {
   return main_thread_only().battery_saver_enabled;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void MainThreadSchedulerImpl::PauseTimersForAndroidWebView() {
-  main_thread_only().pause_timers_for_webview = true;
-  UpdatePolicy();
-}
-
-void MainThreadSchedulerImpl::ResumeTimersForAndroidWebView() {
-  main_thread_only().pause_timers_for_webview = false;
-  UpdatePolicy();
-}
-#endif
 
 void MainThreadSchedulerImpl::OnAudioStateChanged() {
   bool is_audio_playing = false;
@@ -2559,34 +2475,6 @@ void MainThreadSchedulerImpl::RemovePageScheduler(
 
 void MainThreadSchedulerImpl::OnPageFrozen(
     base::MemoryReductionTaskContext called_from) {
-#if BUILDFLAG(IS_ANDROID)
-  base::android::SelfCompactionManager::SetOnStartSelfCompactionCallback(
-      base::BindRepeating(
-          [](scoped_refptr<base::SequencedTaskRunner> task_runner,
-             base::WeakPtr<MainThreadSchedulerImpl> s) {
-            task_runner->PostTask(
-                FROM_HERE,
-                base::BindOnce(
-                    [](base::WeakPtr<MainThreadSchedulerImpl> s) {
-                      s->memory_purge_manager_.RecordAreAllPagesFrozenMetric(
-                          "Memory.SelfCompact2.Renderer.AreAllPagesFrozen");
-                    },
-                    s));
-          },
-          base::SequencedTaskRunner::GetCurrentDefault(),
-          // |memory_purge_manager_| is a member of |this|, and will be deleted
-          // first, so a raw pointer is safe here.
-          weak_factory_.GetWeakPtr()));
-  memory_purge_manager_.SetOnAllPagesFrozenCallback(base::BindRepeating(
-      [](MainThreadSchedulerImpl* s, bool is_frozen) {
-        if (s->isolate()) {
-          s->isolate()->Freeze(is_frozen);
-        }
-      },
-      // |memory_purge_manager_| is a member of |this|, and will be deleted
-      // first, so a raw pointer is safe here.
-      base::Unretained(this)));
-#endif
   memory_purge_manager_.OnPageFrozen(called_from);
   UpdatePolicy();
 }
@@ -2803,18 +2691,6 @@ void MainThreadSchedulerImpl::UpdateCompositorTaskQueuePriority() {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void MainThreadSchedulerImpl::ApplyPerformanceState(
-    const bool prefer_efficient_scheduling) {
-  DCHECK(base::FeatureList::IsEnabled(kUsePerformanceHelper));
-  if (GetPerformanceHelperMode() == PerformanceHintMode::kAffinity) {
-    base::SetCanRunOnBigCore(base::PlatformThread::CurrentId(),
-                             !prefer_efficient_scheduling);
-  }
-  // Emit for tracking.
-  main_thread_only().restrict_cpu_performance = prefer_efficient_scheduling;
-}
-#endif
 
 void MainThreadSchedulerImpl::MaybeUpdatePolicyOnTaskCompleted(
     MainThreadTaskQueue* queue,

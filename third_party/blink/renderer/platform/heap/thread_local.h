@@ -39,8 +39,6 @@
 #else
 #if BUILDFLAG(IS_WIN)
 #define BLINK_HEAP_THREAD_LOCAL_MODEL "initial-exec"
-#elif BUILDFLAG(IS_ANDROID)
-#define BLINK_HEAP_THREAD_LOCAL_MODEL "local-dynamic"
 #else
 #define BLINK_HEAP_THREAD_LOCAL_MODEL "local-exec"
 #endif
@@ -56,8 +54,7 @@
 // TODO(Shuangshuang): Inlining on Apple would still fold away the outer getter
 // call (2 -> 1), but measured a regression on M1. Investigate whether copying
 // the _tlv_get_addr sequence into every call site is the cause.
-#if !BLINK_HEAP_HIDE_THREAD_LOCAL_IN_LIBRARY && !BUILDFLAG(IS_ANDROID) && \
-    !BUILDFLAG(IS_APPLE)
+#if !BLINK_HEAP_HIDE_THREAD_LOCAL_IN_LIBRARY && !BUILDFLAG(IS_APPLE)
 #define BLINK_HEAP_INLINE_THREAD_LOCAL_GETTER 1
 #else
 #define BLINK_HEAP_INLINE_THREAD_LOCAL_GETTER 0

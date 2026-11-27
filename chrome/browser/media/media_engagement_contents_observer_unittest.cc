@@ -42,7 +42,6 @@
 #include "third_party/blink/public/common/features.h"
 
 // TODO(crbug.com/40099090) All these tests crash on Android
-#if !BUILDFLAG(IS_ANDROID)
 class MediaEngagementContentsObserverTest
     : public ChromeRenderViewHostTestHarness {
  public:
@@ -1211,5 +1210,3 @@ TEST_F(MediaEngagementContentsObserverPrerenderTest,
             content::RenderFrameHost::LifecycleState::kActive);
   EXPECT_EQ(0u, GetAudioContextPlayersCount());
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID)

@@ -59,7 +59,7 @@ config("zstd_fastest_compressor_only") {
 
 # Set to true to only include the fastest compression level (ZSTD_fast) to save
 # binary size. Enabled on non-high-end Android by default.
-zstd_fastest_compressor_only = is_android && !is_high_end_android
+zstd_fastest_compressor_only = false
 
 source_set("headers") {
   sources = [

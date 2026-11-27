@@ -45,6 +45,26 @@ class FeatureCompilerTest(unittest.TestCase):
   def setUp(self):
     feature_compiler.ENABLE_ASSERTIONS = False
 
+  def testRetiredPlatformSelectorsAreRejected(self):
+    for platform in (
+      'android', 'desktop_android', 'chromeos', 'ios', 'fuchsia', 'castos'
+    ):
+      with self.subTest(platform=platform):
+        feature = self._parseFeature({'platforms': [platform]})
+        self._hasError(feature, 'Illegal value: "%s"' % platform)
+
+  def testRetiredExtensionTypesAreRejected(self):
+    for extension_type in ('login_screen_extension', 'chromeos_system_extension'):
+      with self.subTest(extension_type=extension_type):
+        feature = self._parseFeature({'extension_types': [extension_type]})
+        self._hasError(feature, 'Illegal value: "%s"' % extension_type)
+
+  def testRetiredSessionSelectorsAreRejected(self):
+    for session_type in ('kiosk', 'kiosk.autolaunched'):
+      with self.subTest(session_type=session_type):
+        feature = self._parseFeature({'session_types': [session_type]})
+        self._hasError(feature, 'Illegal value: "%s"' % session_type)
+
   def testFeature(self):
     # Test some basic feature parsing for a sanity check.
     f = self._parseFeature(
@@ -72,7 +92,7 @@ class FeatureCompilerTest(unittest.TestCase):
         'requires_delegated_availability_check': True,
         'noparent': True,
         'platforms': ['mac', 'win'],
-        'session_types': ['kiosk', 'regular'],
+        'session_types': ['regular'],
         'allowlist': [
           '0123456789ABCDEF0123456789ABCDEF01234567',
           '76543210FEDCBA9876543210FEDCBA9876543210',
@@ -799,7 +819,7 @@ class FeatureCompilerTest(unittest.TestCase):
         'channel': 'beta',
         'contexts': ['privileged_extension'],
         'extension_types': ['extension'],
-        'platforms': ['chromeos'],
+        'platforms': ['linux'],
         'session_types': ['regular'],
       }
     }
@@ -819,7 +839,7 @@ class FeatureCompilerTest(unittest.TestCase):
             {Manifest::Type::kExtension});
     static constexpr auto kPlatforms =
         std::to_array<Feature::Platform>(
-            {Feature::CHROMEOS_PLATFORM});
+            {Feature::LINUX_PLATFORM});
     static constexpr auto kSessionTypes =
         std::to_array<mojom::FeatureSessionType>(
             {mojom::FeatureSessionType::kRegular});

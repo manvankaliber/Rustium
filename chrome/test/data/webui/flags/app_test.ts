@@ -109,9 +109,6 @@ suite('FlagsAppTest', function() {
     'needsRestart': false,
     'showBetaChannelPromotion': false,
     'showDevChannelPromotion': false,
-    // <if expr="is_chromeos">
-    'showOwnerWarning': true,
-    // </if>
   };
 
   let app: FlagsAppElement;
@@ -181,10 +178,6 @@ suite('FlagsAppTest', function() {
 
     // Blurb warning
     assertTrue(isVisible(app.getRequiredElement('.blurb-container')));
-    // <if expr="is_chromeos">
-    // Owner warning
-    assertTrue(!!app.getRequiredElement('#owner-warning'));
-    // </if>
   });
 
   test('AvailableUnavailableTabsRendered', async function() {

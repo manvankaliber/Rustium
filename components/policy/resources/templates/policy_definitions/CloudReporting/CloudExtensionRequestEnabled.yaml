@@ -20,7 +20,6 @@ features:
   dynamic_refresh: true
   per_profile: true
 future_on:
-- fuchsia
 - android
 items:
 - caption: Create and upload extension install requests to the Admin console

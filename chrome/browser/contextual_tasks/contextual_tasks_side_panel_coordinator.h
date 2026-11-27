@@ -28,20 +28,16 @@
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/theme_service_observer.h"
 #include "chrome/browser/ui/views/bubble/webui_bubble_reopen_suppressor.h"
 #include "ui/native_theme/native_theme_observer.h"
 #include "ui/views/bubble/bubble_anchor.h"
-#endif
 
 class BrowserWindowInterface;
 class PrefService;
-#if !BUILDFLAG(IS_ANDROID)
 class ThemeService;
-#endif
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 namespace contextual_tasks {
 class ContextualTasksExtensionsContainer;
 }  // namespace contextual_tasks
@@ -68,9 +64,7 @@ class ContextualTasksService;
 class ContextualTasksUiService;
 class ActiveTaskContextProvider;
 class EntryPointEligibilityManager;
-#if !BUILDFLAG(IS_ANDROID)
 class ContextualTasksOnboardingTooltipController;
-#endif
 
 // These values are persisted to logs. Entries should not be renumbered and
 // numeric values should never be reused.
@@ -88,11 +82,9 @@ class ContextualTasksSidePanelCoordinator
       public TabListInterfaceObserver,
       public signin::IdentityManager::Observer,
       content::WebContentsObserver
-#if !BUILDFLAG(IS_ANDROID)
     ,
       public ThemeServiceObserver,
       public ui::NativeThemeObserver
-#endif
 {
  public:
   using PaintCallback = base::OnceCallback<void(content::WebContents*)>;
@@ -239,13 +231,11 @@ class ContextualTasksSidePanelCoordinator
   void ShowPageInfoBubble(bool is_pointer_interaction) override;
   void OnLogoPointerDown() override;
   ContextualTasksPermissionController* permission_controller() override;
-#if !BUILDFLAG(IS_ANDROID)
   ContextualTasksOnboardingTooltipController*
   onboarding_controller_for_testing() {
     return onboarding_controller_.get();
   }
-#endif
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   ContextualTasksExtensionsContainer* GetExtensionsContainerForTesting() {
     return extensions_container_.get();
   }
@@ -288,13 +278,11 @@ class ContextualTasksSidePanelCoordinator
   void OnIdentityManagerShutdown(
       signin::IdentityManager* identity_manager) override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // ThemeServiceObserver:
   void OnThemeChanged() override;
 
   // ui::NativeThemeObserver:
   void OnNativeThemeUpdated(ui::NativeTheme* observed_theme) override;
-#endif
 
   // Get the WebContentsCacheItem for web_contents, return nullptr if not found.
   ContextualTasksSidePanelCoordinator::WebContentsCacheItem*
@@ -542,7 +530,6 @@ class ContextualTasksSidePanelCoordinator
 
   base::ObserverList<ContextualTasksPanelController::Observer> observers_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(crbug.com/536100150): Support this on Android Desktop
   WebUIBubbleReopenSuppressor page_info_bubble_suppressor_;
 
@@ -552,12 +539,11 @@ class ContextualTasksSidePanelCoordinator
   // with it, so callers must re-resolve the anchor on every use instead of
   // caching it.
   views::BubbleAnchor GetSuperGButtonAnchor();
-#endif
 
   // Returns the browser window hosting this side panel.
   BrowserWindowInterface* GetBrowserWindow() const;
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   void OnSeeExtensionsClicked();
   std::unique_ptr<ContextualTasksExtensionsContainer> extensions_container_;
 #endif
@@ -574,7 +560,6 @@ class ContextualTasksSidePanelCoordinator
                           signin::IdentityManager::Observer>
       identity_manager_observation_{this};
 
-#if !BUILDFLAG(IS_ANDROID)
   // Refreshes cached side panel `WebContents` when the profile's effective dark
   // mode changes so embedded pages stay in sync with the shared toolbar.
   void MaybeRefreshWebContentsForDarkModeChange();
@@ -586,7 +571,6 @@ class ContextualTasksSidePanelCoordinator
       native_theme_observation_{this};
   std::unique_ptr<ContextualTasksOnboardingTooltipController>
       onboarding_controller_;
-#endif
 
   base::WeakPtrFactory<ContextualTasksSidePanelCoordinator> weak_ptr_factory_{
       this};

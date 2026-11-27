@@ -15,7 +15,7 @@
 #include "third_party/blink/renderer/platform/testing/runtime_enabled_features_test_helpers.h"
 #include "third_party/blink/renderer/platform/testing/unit_test_helpers.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "base/files/file_path.h"
 #include "third_party/blink/public/platform/linux/web_sandbox_support.h"
 #include "third_party/blink/renderer/platform/testing/testing_platform_support.h"
@@ -59,7 +59,7 @@ TEST_P(TestReset, TestResetWithFallbackPriority) {
   EXPECT_EQ(fallback_iterator_reset, fallback_iterator);
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 namespace {
 
 class FakeSandboxSupport final : public WebSandboxSupport {
@@ -217,6 +217,6 @@ TEST_F(FontFallbackIteratorPriorityTest,
   ASSERT_EQ(2u, platform->RequestedLocales().size());
   EXPECT_NE("und-Zsye", platform->RequestedLocales()[1]);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 }  // namespace blink

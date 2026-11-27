@@ -34,7 +34,6 @@ namespace extensions {
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 
 // Delegate for ExtensionViewHost attached to a specific browser window.
 class ExtensionViewHostBrowserDelegate : public ExtensionViewHost::Delegate {
@@ -141,55 +140,6 @@ class ExtensionViewHostTabDelegate : public ExtensionViewHost::Delegate {
   raw_ptr<content::WebContents> web_contents_;
 };
 
-#else  // !BUILDFLAG(IS_ANDROID)
-
-// Delegate for ExtensionViewHost on Android.
-class ExtensionViewHostDelegateAndroid : public ExtensionViewHost::Delegate {
- public:
-  ExtensionViewHostDelegateAndroid() = default;
-  ExtensionViewHostDelegateAndroid(const ExtensionViewHostDelegateAndroid&) =
-      delete;
-  ExtensionViewHostDelegateAndroid& operator=(
-      const ExtensionViewHostDelegateAndroid&) = delete;
-  ~ExtensionViewHostDelegateAndroid() override = default;
-
-  content::WebContents* OpenURL(
-      const content::OpenURLParams& params,
-      base::OnceCallback<void(content::NavigationHandle&)>
-          navigation_handle_callback) override {
-    // TODO(cbrug.com/430430820): Investigate and remove if truly unused.
-    //  Return nullptr for now. Initial investigations (see crrev.com/c/7214213)
-    //  suggest that OpenURL methods within ExtensionViewHost::Delegate
-    //  implementations are never actually called. This unblocks Android
-    //  extension work while further analysis is conducted.
-    base::debug::DumpWithoutCrashing();
-    return nullptr;
-  }
-
-  content::KeyboardEventProcessingResult PreHandleKeyboardEvent(
-      content::WebContents* source,
-      const input::NativeWebKeyboardEvent& event) override {
-    // TODO(cbrug.com/385987224): Implement this method for Android.
-    NOTIMPLEMENTED();
-    return content::KeyboardEventProcessingResult::NOT_HANDLED;
-  }
-
-  std::unique_ptr<content::EyeDropper> OpenEyeDropper(
-      content::RenderFrameHost* frame,
-      content::EyeDropperListener* listener) override {
-    // TODO(cbrug.com/385987224): Implement this method for Android.
-    NOTIMPLEMENTED();
-    return nullptr;
-  }
-
-  WindowController* GetExtensionWindowController() override {
-    // TODO(cbrug.com/385987224): Implement this method for Android.
-    NOTIMPLEMENTED();
-    return nullptr;
-  }
-};
-
-#endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
 // Creates a new ExtensionHost with its associated view, grouping it in the
 // appropriate SiteInstance (and therefore process) based on the URL and
@@ -263,11 +213,7 @@ std::unique_ptr<ExtensionViewHost> ExtensionViewHostFactory::CreatePopupHost(
     BrowserWindowInterface* browser) {
   CHECK(browser, base::NotFatalUntil::M161);
 
-#if !BUILDFLAG(IS_ANDROID)
   auto delegate = std::make_unique<ExtensionViewHostBrowserDelegate>(browser);
-#else
-  auto delegate = std::make_unique<ExtensionViewHostDelegateAndroid>();
-#endif
 
   return CreateExtensionViewHost(extension, url, browser->GetProfile(),
                                  mojom::ViewType::kExtensionPopup,
@@ -288,16 +234,11 @@ ExtensionViewHostFactory::CreateSidePanelHost(
       browser ? browser->GetProfile()
               : tab_interface->GetBrowserWindowInterface()->GetProfile();
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<ExtensionViewHost::Delegate> delegate =
       browser ? static_cast<std::unique_ptr<ExtensionViewHost::Delegate>>(
                     std::make_unique<ExtensionViewHostBrowserDelegate>(browser))
               : std::make_unique<ExtensionViewHostTabDelegate>(
                     tab_interface->GetContents());
-#else
-  std::unique_ptr<ExtensionViewHost::Delegate> delegate =
-      std::make_unique<ExtensionViewHostDelegateAndroid>();
-#endif
 
   return CreateExtensionViewHost(extension, url, profile,
                                  mojom::ViewType::kExtensionSidePanel,

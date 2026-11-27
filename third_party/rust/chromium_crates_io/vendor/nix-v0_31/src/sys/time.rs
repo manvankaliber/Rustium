@@ -13,22 +13,7 @@ const fn zero_init_timespec() -> timespec {
     unsafe { std::mem::transmute([0u8; std::mem::size_of::<timespec>()]) }
 }
 
-#[cfg(any(
-    all(
-        feature = "time",
-        any(target_os = "android", target_os = "freebsd", target_os = "linux")
-    ),
-    all(
-        any(
-            target_os = "freebsd",
-            solarish,
-            target_os = "linux",
-            target_os = "netbsd"
-        ),
-        feature = "time",
-        feature = "signal"
-    )
-))]
+#[cfg(any(all(feature = "time", any(target_os = "freebsd", target_os = "linux")), all(any(target_os = "freebsd", solarish, target_os = "linux", target_os = "netbsd"), feature = "time", feature = "signal")))]
 pub(crate) mod timer {
     use crate::sys::time::{zero_init_timespec, TimeSpec};
     use bitflags::bitflags;
@@ -91,7 +76,7 @@ pub(crate) mod timer {
         Interval(TimeSpec),
     }
 
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     bitflags! {
         /// Flags that are used for arming the timer.
         #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

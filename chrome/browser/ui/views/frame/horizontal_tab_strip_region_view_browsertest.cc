@@ -17,8 +17,6 @@
 #include "base/time/time.h"
 #include "build/branding_buildflags.h"
 #include "build/build_config.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
@@ -59,14 +57,8 @@
 #include "ui/views/view_utils.h"
 #include "ui/views/widget/widget.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/common/chrome_switches.h"
-#include "chrome/test/base/testing_profile.h"
-#include "components/user_manager/user_names.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
 #endif
 
@@ -328,7 +320,7 @@ IN_PROC_BROWSER_TEST_F(HorizontalTabStripRegionViewTest,
 class HorizontalTabStripRegionViewNewTest : public InProcessBrowserTest {
  public:
   HorizontalTabStripRegionViewNewTest()
-      : glic_test_env_({}, GetEnabledFeatures(), GetDisabledFeatures()) {}
+       {}
   HorizontalTabStripRegionViewNewTest(
       const HorizontalTabStripRegionViewNewTest&) = delete;
   HorizontalTabStripRegionViewNewTest& operator=(
@@ -353,20 +345,14 @@ class HorizontalTabStripRegionViewNewTest : public InProcessBrowserTest {
 
  private:
   static std::vector<base::test::FeatureRef> GetEnabledFeatures() {
-    std::vector<base::test::FeatureRef> enabled =
-        glic::GetDefaultEnabledGlicTestFeatures();
     enabled.push_back(tabs::kTabStripUnification);
     return enabled;
   }
 
   static std::vector<base::test::FeatureRef> GetDisabledFeatures() {
-    std::vector<base::test::FeatureRef> disabled =
-        glic::GetDefaultDisabledGlicTestFeatures();
-    disabled.push_back(features::kGlicHorizontalTabToolbarButton);
     return disabled;
   }
 
-  glic::GlicTestEnvironment glic_test_env_;
 };
 
 IN_PROC_BROWSER_TEST_F(HorizontalTabStripRegionViewNewTest,
@@ -488,27 +474,11 @@ class HorizontalTabStripRegionViewUnifiedGuestTest
       const HorizontalTabStripRegionViewUnifiedGuestTest&) = delete;
   ~HorizontalTabStripRegionViewUnifiedGuestTest() override = default;
 
-#if BUILDFLAG(IS_CHROMEOS)
- protected:
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    HorizontalTabStripRegionViewUnifiedTest::SetUpCommandLine(command_line);
-    command_line->AppendSwitch(ash::switches::kGuestSession);
-    command_line->AppendSwitchASCII(ash::switches::kLoginUser,
-                                    user_manager::kGuestUserName);
-    command_line->AppendSwitchASCII(ash::switches::kLoginProfile,
-                                    TestingProfile::kTestUserProfileDir);
-    command_line->AppendSwitch(switches::kIncognito);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 };
 
 IN_PROC_BROWSER_TEST_F(HorizontalTabStripRegionViewUnifiedGuestTest,
                        RecordsTabCountGuest) {
-#if BUILDFLAG(IS_CHROMEOS)
-  BrowserWindowInterface* guest_browser = browser();
-#else
   BrowserWindowInterface* guest_browser = CreateGuestBrowser();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ASSERT_NE(guest_browser, nullptr);
   ASSERT_TRUE(guest_browser->GetProfile()->IsGuestSession());
 
@@ -539,7 +509,7 @@ class HorizontalTabStripRegionViewUnifiedIsolatedTest
   }
 
  private:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   chrome::ScopedChannelOverride channel_override_{
       chrome::ScopedChannelOverride::Channel::kDev};
 #endif

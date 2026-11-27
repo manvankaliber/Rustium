@@ -129,8 +129,9 @@ base::DictValue NetLogHostResolverSystemTaskFailedParams(
     int net_error,
     int os_error) {
   base::DictValue dict;
-  if (attempt_number)
+  if (attempt_number) {
     dict.Set("attempt_number", base::saturated_cast<int>(attempt_number));
+  }
 
   dict.Set("net_error", net_error);
 
@@ -148,7 +149,7 @@ base::DictValue NetLogHostResolverSystemTaskFailedParams(
                   nullptr);  // Arguments (unused).
     dict.Set("os_error_string", base::WideToUTF8(error_string));
     LocalFree(error_string);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
     dict.Set("os_error_string", gai_strerror(os_error));
 #endif
   }
@@ -231,8 +232,9 @@ HostResolverSystemTask::Params::Params(
       unresponsive_delay(kDnsDefaultUnresponsiveDelay) {
   // Maximum of 4 retry attempts for host resolution.
   static const size_t kDefaultMaxRetryAttempts = 4u;
-  if (max_retry_attempts == kDefaultRetryAttempts)
+  if (max_retry_attempts == kDefaultRetryAttempts) {
     max_retry_attempts = kDefaultMaxRetryAttempts;
+  }
 }
 
 HostResolverSystemTask::Params::Params(const Params& other) = default;
@@ -310,8 +312,9 @@ HostResolverSystemTask::HostResolverSystemTask(
   }
   // If a resolver_proc has not been specified, try to use a default if one is
   // set, as it may be in tests.
-  if (!params_.resolver_proc.get())
+  if (!params_.resolver_proc.get()) {
     params_.resolver_proc = HostResolverProc::GetDefault();
+  }
 }
 
 // Cancels this HostResolverSystemTask. Any outstanding resolve attempts cannot
@@ -322,8 +325,9 @@ HostResolverSystemTask::~HostResolverSystemTask() {
 
   // If this is cancellation, log the EndEvent (otherwise this was logged in
   // OnLookupComplete()).
-  if (!was_completed())
+  if (!was_completed()) {
     net_log_.EndEvent(NetLogEventType::HOST_RESOLVER_SYSTEM_TASK);
+  }
 }
 
 void HostResolverSystemTask::Start(SystemDnsResultsCallback results_cb) {
@@ -456,11 +460,13 @@ void HostResolverSystemTask::OnLookupComplete(const uint32_t attempt_number,
 
   // If results are empty, we should return an error.
   bool empty_list_on_ok = (error == OK && results.empty());
-  if (empty_list_on_ok)
+  if (empty_list_on_ok) {
     error = ERR_NAME_NOT_RESOLVED;
+  }
 
-  if (error != OK && NetworkChangeNotifier::IsOffline())
+  if (error != OK && NetworkChangeNotifier::IsOffline()) {
     error = ERR_INTERNET_DISCONNECTED;
+  }
 
   if (error != OK) {
     net_log_.EndEvent(NetLogEventType::HOST_RESOLVER_SYSTEM_TASK, [&] {
@@ -602,15 +608,17 @@ int SystemHostResolverCall(const std::string& host,
     hints.ai_flags &= ~AI_ADDRCONFIG;
   }
 
-  if (host_resolver_flags & HOST_RESOLVER_CANONNAME)
+  if (host_resolver_flags & HOST_RESOLVER_CANONNAME) {
     hints.ai_flags |= AI_CANONNAME;
+  }
 
 #if BUILDFLAG(IS_WIN)
   // See crbug.com/1176970. Flag not documented (other than the declaration
   // comment in ws2def.h) but confirmed by Microsoft to work for this purpose
   // and be safe.
-  if (host_resolver_flags & HOST_RESOLVER_AVOID_MULTICAST)
+  if (host_resolver_flags & HOST_RESOLVER_AVOID_MULTICAST) {
     hints.ai_flags |= AI_DNS_ONLY;
+  }
 #endif  // BUILDFLAG(IS_WIN)
 
   // Restrict result set to only this socket type to avoid duplicates.
@@ -645,11 +653,13 @@ int SystemHostResolverCall(const std::string& host,
         AddressInfo::Get(host, hints, nullptr, network);
   }
 
-  if (os_error_opt)
+  if (os_error_opt) {
     *os_error_opt = os_error;
+  }
 
-  if (!ai)
+  if (!ai) {
     return err;
+  }
 
   *addrlist = ai->CreateAddressList();
   return OK;

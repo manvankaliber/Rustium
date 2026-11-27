@@ -58,10 +58,6 @@
 #include "media/filters/iamf_audio_decoder.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "media/base/android/media_codec_util.h"
-#include "media/filters/android/media_codec_audio_decoder.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "media/filters/mac/audio_toolbox_audio_decoder.h"
@@ -180,12 +176,7 @@ class AudioDecoderTest
             task_environment_.GetMainThreadTaskRunner(), &media_log_);
         break;
 #endif
-#if BUILDFLAG(IS_ANDROID)
-      case AudioDecoderType::kMediaCodec:
-        decoder_ = std::make_unique<MediaCodecAudioDecoder>(
-            task_environment_.GetMainThreadTaskRunner());
-        break;
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
       case AudioDecoderType::kAudioToolbox:
         decoder_ =
             std::make_unique<AudioToolboxAudioDecoder>(media_log_.Clone());
@@ -238,11 +229,6 @@ class AudioDecoderTest
       disabled_features.push_back(kDirectOpusAudioDecoding);
     }
 
-#if BUILDFLAG(IS_ANDROID)
-    if (decoder_type_ == AudioDecoderType::kMediaCodec) {
-      disabled_features.push_back(kStrictMediaCodecAudioDecoderSupport);
-    }
-#endif
 
     scoped_feature_list_.InitWithFeatures(enabled_features, disabled_features);
     if (!IsSupported()) {
@@ -332,8 +318,7 @@ class AudioDecoderTest
         reader_->codec_context_for_testing(), EncryptionScheme::kUnencrypted,
         &config));
 
-#if (BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)) && \
-    BUILDFLAG(USE_PROPRIETARY_CODECS)
+#if BUILDFLAG(IS_WIN) && BUILDFLAG(USE_PROPRIETARY_CODECS)
     // MediaCodec type requires config->extra_data() for AAC codec. For ADTS
     // streams we need to extract it with a separate procedure.
     if ((decoder_type_ == AudioDecoderType::kMediaCodec ||
@@ -620,36 +605,8 @@ constexpr TestParams kHatBrokenParams = {
     44100,
     CHANNEL_LAYOUT_MONO};
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr TestParams kMediaCodecTestParams[] = {
-    kBearOpusParams,
-#if BUILDFLAG(USE_PROPRIETARY_CODECS)
-    {AudioCodec::kAAC,
-     "sfx.adts",
-     {{
-         {0, 23219, "-1.80,-1.49,-0.23,1.11,1.54,-0.11,"},
-         {23219, 23219, "-1.90,-1.53,-0.15,1.28,1.23,-0.33,"},
-         {46439, 23219, "0.54,0.88,2.19,3.54,3.24,1.63,"},
-     }},
-     0,
-     44100,
-     CHANNEL_LAYOUT_MONO},
-    {AudioCodec::kAAC,
-     "bear-audio-implicit-he-aac-v2.aac",
-     {{
-         {0, 42666, "-1.76,-0.12,1.72,1.45,0.10,-1.32,"},
-         {42666, 42666, "-1.78,-0.13,1.70,1.44,0.09,-1.32,"},
-         {85333, 42666, "-1.78,-0.13,1.70,1.44,0.08,-1.33,"},
-     }},
-     0,
-     24000,
-     CHANNEL_LAYOUT_MONO},
-#endif  // defined(USE_PROPRIETARY_CODECS)
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)) && \
-    BUILDFLAG(USE_PROPRIETARY_CODECS)
+#if (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)) && BUILDFLAG(USE_PROPRIETARY_CODECS)
 // Note: We don't test hashes for xHE-AAC content since the decoder is provided
 // by the operating system and will apply DRC based on device specific params.
 //
@@ -711,7 +668,7 @@ constexpr TestParams kXheAacTestParams[] = {
 #endif
     },
 };
-#endif  // (BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)) &&
+#endif
         // BUILDFLAG(USE_PROPRIETARY_CODECS)
 
 constexpr DataExpectations kSfxFlacExpectations = {{
@@ -1537,23 +1494,6 @@ INSTANTIATE_TEST_SUITE_P(IamfDecoding,
                                  ValuesIn(kIamfTestParams)));
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-std::vector<TestParams> GetAndroidParams() {
-  std::vector<TestParams> params;
-  params.insert(params.end(), std::cbegin(kMediaCodecTestParams),
-                std::cend(kMediaCodecTestParams));
-#if BUILDFLAG(USE_PROPRIETARY_CODECS)
-  params.insert(params.end(), std::cbegin(kXheAacTestParams),
-                std::cend(kXheAacTestParams));
-#endif
-  return params;
-}
-
-INSTANTIATE_TEST_SUITE_P(MediaCodec,
-                         AudioDecoderTest,
-                         Combine(Values(AudioDecoderType::kMediaCodec),
-                                 ValuesIn(GetAndroidParams())));
-#endif
 
 #if BUILDFLAG(USE_PROPRIETARY_CODECS)
 #if BUILDFLAG(IS_MAC)

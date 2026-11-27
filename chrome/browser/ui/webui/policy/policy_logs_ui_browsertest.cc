@@ -53,11 +53,6 @@ class PolicyUILogsPageTest : public PlatformBrowserTest,
 };
 
 IN_PROC_BROWSER_TEST_P(PolicyUILogsPageTest, LogsVisibleOnPage) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!policy::PolicyLogger::IsPolicyLoggingEnabled()) {
-    GTEST_SKIP() << "Policy logging is disabled on ChromeOS stable.";
-  }
-#endif
   static constexpr char test_message[] = "This is a test!";
   LOG_POLICY(ERROR, PLATFORM_POLICY) << test_message;
   ASSERT_TRUE(content::NavigateToURL(web_contents(),
@@ -68,11 +63,6 @@ IN_PROC_BROWSER_TEST_P(PolicyUILogsPageTest, LogsVisibleOnPage) {
 }
 
 IN_PROC_BROWSER_TEST_P(PolicyUILogsPageTest, LogsRefresh) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!policy::PolicyLogger::IsPolicyLoggingEnabled()) {
-    GTEST_SKIP() << "Policy logging is disabled on ChromeOS stable.";
-  }
-#endif
   static constexpr char test_message[] = "This is a test!";
   ASSERT_TRUE(content::NavigateToURL(web_contents(),
                                      GURL(chrome::kChromeUIPolicyLogsURL)));
@@ -86,11 +76,6 @@ IN_PROC_BROWSER_TEST_P(PolicyUILogsPageTest, LogsRefresh) {
 }
 
 IN_PROC_BROWSER_TEST_P(PolicyUILogsPageTest, DownloadLogs) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!policy::PolicyLogger::IsPolicyLoggingEnabled()) {
-    GTEST_SKIP() << "Policy logging is disabled on ChromeOS stable.";
-  }
-#endif
   static constexpr char test_message[] = "This is a test!";
   LOG_POLICY(ERROR, PLATFORM_POLICY) << test_message;
   ASSERT_TRUE(content::NavigateToURL(web_contents(),

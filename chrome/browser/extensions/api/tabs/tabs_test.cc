@@ -119,7 +119,6 @@
 #include "ui/ozone/public/ozone_platform.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_source.h"
 #include "chrome/browser/resource_coordinator/tab_manager.h"
 #include "chrome/browser/resource_coordinator/time.h"
@@ -147,7 +146,6 @@
 #include "components/split_tabs/split_tab_id.h"
 #include "components/split_tabs/split_tab_visual_data.h"
 #include "components/webapps/isolated_web_apps/test_support/signing_keys.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "ui/base/test/scoped_fake_nswindow_fullscreen.h"
@@ -167,11 +165,6 @@
 #include "extensions/browser/app_window/app_window_registry.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/wm/window_pin_util.h"
-#include "chrome/browser/chromeos/policy/dlp/test/mock_dlp_content_manager.h"
-#include "chrome/common/pref_names.h"
-#endif
 
 namespace extensions {
 
@@ -1840,11 +1833,9 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, DiscardSavedTabGroupTabAllowed) {
       tab_groups::TabGroupSyncServiceFactory::GetForProfile(profile());
   ASSERT_TRUE(saved_service);
 
-#if !BUILDFLAG(IS_ANDROID)
   tab_groups::TabGroupSyncServiceInitializedObserver sync_observer(
       saved_service);
   sync_observer.Wait();
-#endif
 
   // Activate the first tab since the second one will be discarded and active
   // tabs cannot be discarded on Android.
@@ -2852,10 +2843,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsUpdate_SavedTabGroupTab) {
   ASSERT_TRUE(saved_service);
   // Wait for the TabGroupSyncService to properly initialize before making any
   // changes to tab groups. This is not used on Android.
-#if !BUILDFLAG(IS_ANDROID)
   tab_groups::TabGroupSyncServiceInitializedObserver observer(saved_service);
   observer.Wait();
-#endif
 
   // Group the tab and save it.
   tab_groups::TabGroupId group =
@@ -2870,13 +2859,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsUpdate_SavedTabGroupTab) {
 
 // TabGroupSyncService takes in different types for its methods depending on
 // platform.
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_TRUE(saved_service->GetGroup(tab1_group_id->token()).has_value());
-  auto group_id = group.token();
-#else
   EXPECT_TRUE(saved_service->GetGroup(*tab1_group_id).has_value());
   tab_groups::TabGroupId group_id = group;
-#endif
 
   {  // Test the active state change for a saved tab.
     tab_list->ActivateTab(tab_list->GetTab(2)->GetHandle());
@@ -2953,7 +2937,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsUpdate_SavedTabGroupTab) {
 
 // TODO(https://crbug.com/447211263): Re-enable this subtest once there is
 // support on desktop android.
-#if !BUILDFLAG(IS_ANDROID)
   {  // Test setting the discard state.
     auto function = base::MakeRefCounted<TabsUpdateFunction>();
     function->set_extension(extension.get());
@@ -2970,7 +2953,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsUpdate_SavedTabGroupTab) {
   }
 
   ASSERT_TRUE(saved_service->GetGroup(group_id));
-#endif
 
   {  // Test setting URL should pass.
     EXPECT_EQ(example_url, tab1_contents->GetLastCommittedURL());
@@ -4014,7 +3996,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsMovePinnedBoundaryWithinWindow) {
 }
 
 // Android keeps a moved tab's pinned state.
-#if !BUILDFLAG(IS_ANDROID)
 // Tests that a pinned tab moved to another window is unpinned, and that a tab
 // moved to another window is placed after that window's pinned tabs.
 IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsMovePinnedBoundaryAcrossWindows) {
@@ -4074,7 +4055,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsMovePinnedBoundaryAcrossWindows) {
   EXPECT_EQ(1, utils::GetInteger(tab, "index"));
   EXPECT_FALSE(utils::GetBoolean(tab, "pinned"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Tests that WINDOW_ID_CURRENT resolves to the calling extension's window, not
 // to whichever window the OS last activated.
@@ -4123,10 +4103,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsMoveSavedTabGroupTabAllowed) {
   ASSERT_TRUE(saved_service);
   // Wait for the TabGroupSyncService to properly initialize before making any
   // changes to tab groups. This is not used on Android.
-#if !BUILDFLAG(IS_ANDROID)
   tab_groups::TabGroupSyncServiceInitializedObserver observer(saved_service);
   observer.Wait();
-#endif
 
   // Group the tab and save it.
   std::optional<tab_groups::TabGroupId> group = tab_list->CreateTabGroup(
@@ -4315,10 +4293,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsGroupForSavedTabGroupTab) {
       tab_groups::TabGroupSyncServiceFactory::GetForProfile(profile());
   ASSERT_TRUE(saved_service);
 
-#if !BUILDFLAG(IS_ANDROID)
   tab_groups::TabGroupSyncServiceInitializedObserver observer(saved_service);
   observer.Wait();
-#endif
 
   // Group the first tab.
   std::optional<tab_groups::TabGroupId> old_group =
@@ -4393,10 +4369,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest,
       tab_groups::TabGroupSyncServiceFactory::GetForProfile(profile());
   ASSERT_TRUE(saved_service);
 
-#if !BUILDFLAG(IS_ANDROID)
   tab_groups::TabGroupSyncServiceInitializedObserver observer(saved_service);
   observer.Wait();
-#endif
 
   // Group the tab and save it.
   std::optional<tab_groups::TabGroupId> group =
@@ -4562,11 +4536,9 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest,
       tab_groups::TabGroupSyncServiceFactory::GetForProfile(profile());
   ASSERT_TRUE(saved_service);
 
-#if !BUILDFLAG(IS_ANDROID)
   tab_groups::TabGroupSyncServiceInitializedObserver sync_observer(
       saved_service);
   sync_observer.Wait();
-#endif
 
   // Save the tab and expect that it cannot be navigated forwards or backwards.
   std::optional<tab_groups::TabGroupId> group =
@@ -4669,89 +4641,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, TabsGoForwardAndBackWithoutTabId) {
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Ensure tabs.captureVisibleTab respects any Data Leak Prevention restrictions.
-IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, ScreenshotsRestricted) {
-  // Setup the function and extension.
-  scoped_refptr<const Extension> extension =
-      ExtensionBuilder("Screenshot")
-          .AddAPIPermission("tabs")
-          .AddHostPermission("<all_urls>")
-          .Build();
-  auto function = base::MakeRefCounted<TabsCaptureVisibleTabFunction>();
-  function->set_extension(extension.get());
 
-  // Add a visible tab.
-  TabListInterface* tab_list = GetTabListInterface();
-  const GURL kGoogle("http://www.google.com");
-  tabs::TabInterface* tab = tab_list->OpenTab(kGoogle, -1);
-  content::WebContents* web_contents = tab->GetContents();
-  content::WaitForLoadStop(web_contents);
-
-  // Setup Data Leak Prevention restriction.
-  policy::MockDlpContentManager mock_dlp_content_manager;
-  policy::ScopedDlpContentObserverForTesting scoped_dlp_content_observer_(
-      &mock_dlp_content_manager);
-  EXPECT_CALL(mock_dlp_content_manager, IsScreenshotApiRestricted(testing::_))
-      .Times(1)
-      .WillOnce(testing::Return(true));
-
-  // Run the function and check result.
-  std::string error = utils::RunFunctionAndReturnError(
-      function.get(), "[{}]", profile(), utils::FunctionMode::kNone);
-  EXPECT_EQ(keys::kScreenshotsDisabledByDlp, error);
-}
-
-IN_PROC_BROWSER_TEST_F(ExtensionTabsTest,
-                       DontCreateTabsInLockedFullscreenMode) {
-  scoped_refptr<const Extension> extension_with_tabs_permission =
-      ExtensionBuilder("Test").AddAPIPermission("tabs").Build();
-
-  // In locked fullscreen mode we should not be able to create any tabs.
-  ash::PinWindow(browser_window_interface()->GetWindow()->GetNativeWindow(),
-                 /*trusted=*/true);
-
-  auto function = base::MakeRefCounted<TabsCreateFunction>();
-  function->set_extension(extension_with_tabs_permission.get());
-
-  EXPECT_EQ(ExtensionTabUtil::kLockedFullscreenModeNewTabError,
-            utils::RunFunctionAndReturnError(function.get(), "[{}]", profile(),
-                                             utils::FunctionMode::kNone));
-
-  // Unpin for cleanup.
-  ash::UnpinWindow(browser_window_interface()->GetWindow()->GetNativeWindow());
-}
-
-// Screenshot should return an error when disabled in user profile preferences.
-IN_PROC_BROWSER_TEST_F(ExtensionTabsTest,
-                       ScreenshotDisabledInProfilePreferences) {
-  // Setup the function and extension.
-  scoped_refptr<const Extension> extension =
-      ExtensionBuilder("Screenshot")
-          .AddAPIPermission("tabs")
-          .AddHostPermission("<all_urls>")
-          .Build();
-  auto function = base::MakeRefCounted<TabsCaptureVisibleTabFunction>();
-  function->set_extension(extension.get());
-
-  // Add a visible tab.
-  TabListInterface* tab_list = GetTabListInterface();
-  const GURL kGoogle("http://www.google.com");
-  tabs::TabInterface* tab = tab_list->OpenTab(kGoogle, -1);
-  content::WebContents* web_contents = tab->GetContents();
-  content::WaitForLoadStop(web_contents);
-
-  // Disable screenshot.
-  profile()->GetPrefs()->SetBoolean(prefs::kDisableScreenshots, true);
-
-  // Run the function and check result.
-  std::string error = utils::RunFunctionAndReturnError(
-      function.get(), "[{}]", profile(), utils::FunctionMode::kNone);
-  EXPECT_EQ(keys::kScreenshotsDisabled, error);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if !BUILDFLAG(IS_ANDROID)
 // Picture in picture is not supported for Android.
 IN_PROC_BROWSER_TEST_F(ExtensionTabsTest,
                        CannotDuplicatePictureInPictureWindows) {
@@ -4841,60 +4731,8 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, CannotDuplicateAppPopupWindows) {
       error);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Tests that calling chrome.tabs.discard on a saved tab does discard for
-// extensions with locked fullscreen permission. Locked fullscreen permission
-// is ChromeOS only.
-IN_PROC_BROWSER_TEST_F(
-    ExtensionTabsTest,
-    TabsDiscardSavedTabGroupTabAllowedForLockedFullscreenPermission) {
-  scoped_refptr<const Extension> extension =
-      ExtensionBuilder("DiscardTest")
-          .SetID("pmgljoohajacndjcjlajcopidgnhphcl")
-          .AddAPIPermission("lockWindowFullscreenPrivate")
-          .Build();
-  const GURL kExampleCom("http://example.com");
 
-  TabListInterface* tab_list = GetTabListInterface();
-  tabs::TabInterface* tab = tab_list->OpenTab(kExampleCom, -1);
-  content::WebContents* web_contents = tab->GetContents();
-  content::WaitForLoadStop(web_contents);
-
-  int index = tab_list->GetIndexOfTab(tab->GetHandle());
-  int tab_id = ExtensionTabUtil::GetTabId(web_contents);
-
-  tab_groups::TabGroupSyncService* saved_service =
-      tab_groups::TabGroupSyncServiceFactory::GetForProfile(profile());
-  ASSERT_TRUE(saved_service);
-
-#if !BUILDFLAG(IS_ANDROID)
-  tab_groups::TabGroupSyncServiceInitializedObserver sync_observer(
-      saved_service);
-  sync_observer.Wait();
-#endif
-
-  // Group the tab and save it.
-  std::optional<tab_groups::TabGroupId> group =
-      tab_list->CreateTabGroup({tab->GetHandle()});
-  ASSERT_TRUE(group.has_value());
-  tab_groups::TabGroupVisualData visual_data(
-      u"Initial title", tab_groups::TabGroupColorId::kBlue);
-  tab_list->SetTabGroupVisualData(*group, visual_data);
-
-  // The tab discard function should not fail.
-  auto function = base::MakeRefCounted<TabsDiscardFunction>();
-  function->set_extension(extension);
-  ASSERT_TRUE(utils::RunFunction(function.get(),
-                                 base::StringPrintf("[%d]", tab_id), profile(),
-                                 utils::FunctionMode::kNone));
-  // Check that the tab was discarded.
-  EXPECT_TRUE(tab_list->GetTab(index)->GetContents()->WasDiscarded());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if !BUILDFLAG(IS_ANDROID)
 // Split view is not enabled on Android.
 IN_PROC_BROWSER_TEST_F(ExtensionTabsTest, SplitViewAddedAndRemoved) {
   // Create the `TabsEventRouter`, which is required to get a tab update event.
@@ -5317,9 +5155,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabsTest,
   }
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 class ExtensionTabsDiscardTest : public ExtensionTabsTest,
                                  public ::testing::WithParamInterface<bool> {
  public:
@@ -5389,7 +5225,6 @@ IN_PROC_BROWSER_TEST_P(ExtensionTabsDiscardTest, DiscardEvent) {
   ASSERT_TRUE(success_listener.WaitUntilSatisfied());
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Verifies that TabsMoveFunction::MoveTab returns kTabStripNotEditableError
 // rather than crashing on a null source_tab_list when moving a tab within a

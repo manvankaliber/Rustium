@@ -110,8 +110,9 @@ class RedirectObserver : public WebContentsObserver {
 
   void DidRedirectNavigation(NavigationHandle* handle) override {
     const net::HttpResponseHeaders* response = handle->GetResponseHeaders();
-    if (response)
+    if (response) {
       response_code_ = response->response_code();
+    }
   }
 
   const std::optional<int>& response_code() const { return response_code_; }
@@ -1071,12 +1072,7 @@ IN_PROC_BROWSER_TEST_P(SignedExchangeRequestHandlerBrowserTest,
 }
 
 // TODO(crbug.com/40890897): Re-enable this test when de-flaked.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_NotControlledByDistributorsSW \
-  DISABLED_NotControlledByDistributorsSW
-#else
 #define MAYBE_NotControlledByDistributorsSW NotControlledByDistributorsSW
-#endif
 IN_PROC_BROWSER_TEST_P(SignedExchangeRequestHandlerBrowserTest,
                        MAYBE_NotControlledByDistributorsSW) {
   // SW-scope: http://127.0.0.1:PORT/sxg/
@@ -1265,8 +1261,9 @@ class SignedExchangeAcceptHeaderBrowserTest : public ContentBrowserTest {
   std::optional<std::string> GetInterceptedAcceptHeader(const GURL& url) const {
     base::AutoLock lock(url_accept_header_map_lock_);
     const auto it = url_accept_header_map_.find(url);
-    if (it == url_accept_header_map_.end())
+    if (it == url_accept_header_map_.end()) {
       return std::nullopt;
+    }
     return it->second;
   }
 
@@ -1325,8 +1322,9 @@ class SignedExchangeAcceptHeaderBrowserTest : public ContentBrowserTest {
 
   void MonitorRequest(const net::test_server::HttpRequest& request) {
     const auto it = request.headers.find(net::HttpRequestHeaders::kAccept);
-    if (it == request.headers.end())
+    if (it == request.headers.end()) {
       return;
+    }
     // Note this method is called on the EmbeddedTestServer's background thread.
     base::AutoLock lock(url_accept_header_map_lock_);
     url_accept_header_map_[request.base_url.Resolve(request.relative_url)] =

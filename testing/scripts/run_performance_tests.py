@@ -96,11 +96,6 @@ else:
 
 SHARD_MAPS_DIR = CHROMIUM_SRC_DIR / 'tools/perf/core/shard_maps'
 CROSSBENCH_TOOL = CHROMIUM_SRC_DIR / 'third_party/crossbench/cb.py'
-ALUM_RUNNER = CHROMIUM_SRC_DIR / 'tools/perf/web_tests_cuj.py'
-ADB_TOOL = THIRD_PARTY_DIR / 'android_sdk/public/platform-tools/adb'
-BUNDLETOOL = (
-  THIRD_PARTY_DIR / 'android_build_tools/bundletool/cipd/bundletool.jar'
-)
 GSUTIL_DIR = THIRD_PARTY_DIR / 'catapult/third_party/gsutil'
 PAGE_SETS_DATA = CHROMIUM_SRC_DIR / 'tools/perf/page_sets/data'
 PERF_TOOLS = ['benchmarks', 'executables', 'crossbench']
@@ -593,8 +588,6 @@ class TelemetryCommandGenerator(object):
       reference_browser_flag = '--browser=reference'
       # TODO(crbug.com/40113070): Make the logic generic once more reference
       # settings are added
-      if '--browser=android-chrome-bundle' in self._get_passthrough_args():
-        reference_browser_flag = '--browser=reference-android-chrome-bundle'
       return [reference_browser_flag, '--max-failures=5']
     return []
 
@@ -815,12 +808,6 @@ class CrossbenchTest(object):
   EXECUTABLE = 'cb.py'
   OUTDIR = '--out-dir=%s/output'
   CHROME_BROWSER = '--browser=%s'
-  ANDROID_HJSON = (
-    '{browser:"%s", %s driver:{type:"Android", '
-    f'adb_bin:"{ADB_TOOL}", '
-    f'bundletool:"{BUNDLETOOL}'
-    '"}}'
-  )
   STORY_LABEL = 'default'
   BENCHMARK_FILESERVERS = {
     'speedometer_3.1': 'third_party/speedometer/v3.1',
@@ -850,14 +837,8 @@ class CrossbenchTest(object):
       self.browser = '--browser=%s' % get_abs_user_path('chrome')
       driver_path = get_abs_user_path('chromedriver')
       self.driver_path_arg = [f'--driver-path={driver_path}']
-      self.is_android = False
-    elif self._is_alum():
-      self.is_android = True
-      # TODO(crbug.com/435031130): Experimenting.
-      self._find_browser('android-chrome-bundle')
     else:
       browser_arg = _get_browser_arg(options.passthrough_args)
-      self.is_android = _is_android(browser_arg)
       self._find_browser(browser_arg)
     self.env = self._create_env_arg()
     self.network = self._get_network_arg(options.passthrough_args)
@@ -878,19 +859,6 @@ class CrossbenchTest(object):
       help='Use official build of the browser',
     )
     parser.add_argument(
-      '--reinstall',
-      action='store_true',
-      default=False,
-      help='Reinstall Android APK even if already installed',
-    )
-    parser.add_argument(
-      '--connect-to-device-over-network',
-      action='store_true',
-      default=False,
-      help='Connect to test device over TCP (used on Android desktop)',
-    )
-    parser.add_argument('--device', help='The device to connect to')
-    parser.add_argument(
       '--disable-field-trial-config',
       action='store_true',
       help='Start Chrome with --disable-field-trial-config option',
@@ -905,12 +873,6 @@ class CrossbenchTest(object):
       action='extend',
       nargs=1,
       help='Additional arguments to pass to the browser when it starts',
-    )
-    parser.add_argument(
-      '--web-tests-cuj',
-      action='store_true',
-      default=False,
-      help=f'Use {ALUM_RUNNER} to run web tests',
     )
     parser.add_argument('--wpr', help='The WPR archive file name')
     parser.add_argument(
@@ -941,7 +903,7 @@ class CrossbenchTest(object):
       return self._create_fileserver_network(_arg)
     if self.cb_options.wpr:
       return self._create_wpr_network()
-    if self.options.benchmarks.startswith('motionmark') and not self.is_android:
+    if self.options.benchmarks.startswith('motionmark'):
       # TODO(crbug.com/413452730): Enable local file server in all platforms.
       return []
     if self.options.benchmarks in self.BENCHMARK_FILESERVERS:
@@ -958,18 +920,6 @@ class CrossbenchTest(object):
     ):
       # Set screen refresh rate to 60Hz on Mac due to crbug.com/415318275.
       return ['--env={screen_refresh_rate:60}']
-    if self.is_android:
-      # Set Android CPU governor due to crbug.com/487175106.
-      # In most cases, use "performance" to be consistent with Telemetry.
-      # But for CBB (indicated by using official build of Chrome), or for
-      # idle power regression tests, use "sched_pixel", which is the default
-      # mode for Pixel Tablets (see crbug.com/495679726).
-      is_web_power = self.options.benchmarks.startswith('web-power')
-      if self.cb_options.official_browser or is_web_power:
-        power_mode = 'sched_pixel'
-      else:
-        power_mode = 'performance'
-      return [f'--env={{"cpu_power_mode":"{power_mode}"}}']
     return []
 
   def _create_fileserver_network(self, arg):
@@ -1002,15 +952,6 @@ class CrossbenchTest(object):
       )
     ]
 
-  def _check_for_embedder_arg(self):
-    embedder_arg = _get_arg(self.options.passthrough_args, '--embedder=')
-    if embedder_arg:
-      embedder_package_name = embedder_arg.split('=', 1)[1]
-      # This will affect browser arg, but is not to be passed by itself
-      self.options.passthrough_args.remove(embedder_arg)
-      return embedder_package_name
-    return None
-
   def _find_browser(self, browser_arg):
     # Replacing --browser with the generated self.browser.
     self.options.passthrough_args = [
@@ -1019,15 +960,7 @@ class CrossbenchTest(object):
       if not arg.startswith('--browser=')
     ]
     if self.cb_options.official_browser:
-      if self.is_android:
-        extra_config = '"reinstall":true,' if self.cb_options.reinstall else ''
-        android_json = self.ANDROID_HJSON % (
-          self.cb_options.official_browser,
-          extra_config,
-        )
-        self.browser = self.CHROME_BROWSER % android_json
-      else:
-        self.browser = self.CHROME_BROWSER % self.cb_options.official_browser
+      self.browser = self.CHROME_BROWSER % self.cb_options.official_browser
       self.driver_path_arg = []
       return
     self.driver_path_arg = self._find_chromedriver()
@@ -1039,28 +972,15 @@ class CrossbenchTest(object):
     options.chrome_root = CHROMIUM_SRC_DIR
     parser = options.CreateParser()
     browser_finder_args = [self.CHROME_BROWSER % browser_arg]
-    if self.cb_options.connect_to_device_over_network:
-      browser_finder_args.append('--connect-to-device-over-network')
-      logging.getLogger().setLevel(logging.DEBUG)
-    if self.cb_options.device:
-      browser_finder_args.extend(['--device', self.cb_options.device])
     parser.parse_args(browser_finder_args)
     possible_browser = browser_finder.FindBrowser(options)
     if not possible_browser:
       raise ValueError(f'Unable to find Chrome browser of type: {browser_arg}')
-    if self.is_android:
-      # Check for an arg with embedder package name to override browser (WV)
-      browser_app = (
-        self._check_for_embedder_arg() or possible_browser.settings.package
-      )
-      android_json = self.ANDROID_HJSON % (browser_app, '')
-      self.browser = self.CHROME_BROWSER % android_json
-    else:
-      assert hasattr(possible_browser, 'local_executable')
-      self.browser = self.CHROME_BROWSER % possible_browser.local_executable
+    assert hasattr(possible_browser, 'local_executable')
+    self.browser = self.CHROME_BROWSER % possible_browser.local_executable
 
   def _find_chromedriver(self):
-    path = 'clang_x64' if self.is_android else '.'
+    path = '.'
     abspath = pathlib.Path(path).absolute()
     if (driver_path := (abspath / 'chromedriver')).exists() or (
       driver_path := (abspath / 'chromedriver.exe')
@@ -1071,7 +991,7 @@ class CrossbenchTest(object):
 
   def _get_default_args(self):
     default_args = ['--no-symlinks']
-    if self.is_chrome and not self.is_android:
+    if self.is_chrome:
       if self.cb_options.disable_field_trial_config:
         default_args.append('--disable-field-trial-config')
       else:
@@ -1082,14 +1002,6 @@ class CrossbenchTest(object):
     return default_args
 
   def _generate_command_list(self, benchmark, benchmark_args, working_dir):
-    if self._is_alum():
-      return (
-        ['vpython3', '-Xutf8']
-        + [ALUM_RUNNER]
-        + [self.OUTDIR % working_dir]
-        + [f'--adb-bin={ADB_TOOL}']
-        + self._get_default_args()
-      )
     extra_browser_args = []
     if self.cb_options.extra_browser_args:
       extra_browser_args = ['--']
@@ -1133,10 +1045,6 @@ class CrossbenchTest(object):
     env['CHROME_HEADLESS'] = '1'
     env['PATH'] = f"{GSUTIL_DIR}{';' if IsWindows() else ':'}{env['PATH']}"
 
-    if self._is_alum():
-      # TODO(crbug.com/525430279): A workaround to run perfetto per comment #16.
-      env['LD_LIBRARY_PATH'] = '/opt/glibc/lib'
-
     return_code = 1
     output_paths = OutputFilePaths(self.isolated_out_dir, display_name).SetUp()
     infra_failure = False
@@ -1153,27 +1061,18 @@ class CrossbenchTest(object):
         )
       else:
         with open(output_paths.logs, 'w') as handle:
-          if self._is_alum():
-            # TODO(crbug.com/435031130): Remove after experimenting
-            test_env.run_command_output_to_handle(
-              [ADB_TOOL, 'devices'], handle, env=env
-            )
           return_code = test_env.run_command_output_to_handle(
             command, handle, env=env
           )
 
       if return_code == 0 or self.options.ignore_benchmark_exit_code:
-        if self._is_alum():
-          # TODO(crbug.com/435031130): Convert results after experimenting.
-          pass
-        else:
-          crossbench_result_converter.convert(
-            pathlib.Path(output_paths.benchmark_path) / 'output',
-            pathlib.Path(output_paths.perf_results),
-            display_name,
-            self.STORY_LABEL,
-            self.options.results_label,
-          )
+        crossbench_result_converter.convert(
+          pathlib.Path(output_paths.benchmark_path) / 'output',
+          pathlib.Path(output_paths.perf_results),
+          display_name,
+          self.STORY_LABEL,
+          self.options.results_label,
+        )
       if return_code and os.path.exists(output_paths.logs):
         # To avoid printing too large log file, we print the last 100 lines.
         bottom_of_log = deque(maxlen=100)
@@ -1222,9 +1121,6 @@ class CrossbenchTest(object):
       )
       return 0
     return return_code
-
-  def _is_alum(self):
-    return self.cb_options.web_tests_cuj
 
   def execute(self):
     if not self.options.benchmarks:
@@ -1276,14 +1172,6 @@ def _get_arg(args, arg, must_exists=False):
   if must_exists:
     raise ValueError(f'{arg} argument is missing!')
   return []
-
-
-def _is_android(browser_arg):
-  """Is the test running on an Android device.
-
-  See third_party/catapult/telemetry/telemetry/internal/backends/android_browser_backend_settings.py  # pylint: disable=line-too-long
-  """
-  return browser_arg.lower().startswith('android')
 
 
 def parse_arguments(args):
@@ -1338,7 +1226,6 @@ def parse_arguments(args):
     help='Benchmark name displayed to the user, supported with crossbench only',
     required=False,
   )
-  # Added to address android flakiness.
   parser.add_argument(
     '--benchmark-max-runs',
     help='Max number of benchmark runs until it succeeds.',

@@ -35,14 +35,7 @@
 #include "mediapipe/gpu/shader_util.h"
 #endif  // !MEDIAPIPE_DISABLE_GPU
 
-#if defined(__ANDROID__)
-// The size of Java arrays is dynamic, which makes it difficult to
-// generate the right packet type with a fixed size. Therefore, we
-// are using unsized arrays on Android.
-typedef int DimensionsPacketType[];
-#else
 typedef int DimensionsPacketType[2];
-#endif  // __ANDROID__
 
 #define DEFAULT_SCALE_MODE mediapipe::ScaleMode_Mode_STRETCH
 
@@ -51,9 +44,6 @@ namespace mediapipe {
 #if !MEDIAPIPE_DISABLE_GPU
 
 #endif  // !MEDIAPIPE_DISABLE_GPU
-#if defined(MEDIAPIPE_IOS)
-
-#endif  // defined(MEDIAPIPE_IOS)
 
 namespace {
 constexpr char kImageFrameTag[] = "IMAGE";
@@ -612,19 +602,6 @@ absl::Status ImageTransformationCalculator::RenderGpu(CalculatorContext* cc) {
   QuadRenderer* renderer = nullptr;
   GlTexture src1;
 
-#if defined(MEDIAPIPE_IOS)
-  if (input.format() == GpuBufferFormat::kBiPlanar420YpCbCr8VideoRange ||
-      input.format() == GpuBufferFormat::kBiPlanar420YpCbCr8FullRange) {
-    if (!yuv_renderer_) {
-      yuv_renderer_ = absl::make_unique<QuadRenderer>();
-      ABSL_RETURN_IF_ERROR(
-          yuv_renderer_->GlSetup(::mediapipe::kYUV2TexToRGBFragmentShader,
-                                 {"video_frame_y", "video_frame_uv"}));
-    }
-    renderer = yuv_renderer_.get();
-    src1 = gpu_helper_.CreateSourceTexture(input, 0);
-  } else  // NOLINT(readability/braces)
-#endif    // iOS
   {
     src1 = gpu_helper_.CreateSourceTexture(input);
 #if defined(TEXTURE_EXTERNAL_OES)

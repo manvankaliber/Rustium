@@ -228,27 +228,11 @@ class NET_EXPORT_PRIVATE DnsResponse {
   DnsRecordParser Parser() const;
 
  private:
-  bool WriteHeader(base::SpanWriter<uint8_t>* writer,
-                   const dns_protocol::Header& header);
-  bool WriteQuestion(base::SpanWriter<uint8_t>* writer, const DnsQuery& query);
-  bool WriteRecord(base::SpanWriter<uint8_t>* writer,
-                   const DnsResourceRecord& record,
-                   bool validate_record,
-                   bool validate_name_as_internet_hostname);
-  bool WriteAnswer(base::SpanWriter<uint8_t>* writer,
-                   const DnsResourceRecord& answer,
-                   const std::optional<DnsQuery>& query,
-                   bool validate_record,
-                   bool validate_name_as_internet_hostname);
-
-  // Convenience for header access.
-  const dns_protocol::Header* header() const;
-
   // Buffer into which response bytes are read.
   scoped_refptr<IOBuffer> io_buffer_;
 
   // Size of the buffer.
-  size_t io_buffer_size_;
+  size_t io_buffer_size_ = 0;
 
   // Iterator constructed after InitParse positioned at the answer section.
   // It is never updated afterwards, so can be used in accessors.

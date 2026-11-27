@@ -31,14 +31,6 @@
 #include "util/stdlib/map_insert.h"
 #include "util/string/split_string.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/fdio/spawn.h>
-#include <zircon/process.h>
-#include <zircon/syscalls.h>
-
-#include "base/fuchsia/fuchsia_logging.h"
-#endif
-
 namespace crashpad {
 namespace {
 
@@ -48,17 +40,10 @@ void Usage(const std::string& me) {
 "Usage: %s [OPTION]... COMMAND [ARG]...\n"
 "Start a Crashpad handler and have it handle crashes from COMMAND.\n"
 "\n"
-  // clang-format on
-#if BUILDFLAG(IS_FUCHSIA)
-          // clang-format off
-"COMMAND is run via fdio_spawn, so must be a qualified path to the subprocess to\n"
-"be executed.\n"
-  // clang-format on
-#else
+          // clang-format on
           // clang-format off
 "COMMAND is run via execvp() so the PATH will be searched.\n"
-  // clang-format on
-#endif
+          // clang-format on
           // clang-format off
 "\n"
 "  -h, --handler=HANDLER       invoke HANDLER instead of crashpad_handler\n"
@@ -197,44 +182,11 @@ int RunWithCrashpadMain(int argc, char* argv[]) {
     return kExitFailure;
   }
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // Fuchsia doesn't implement execvp(), launch with fdio_spawn here.
-  zx_handle_t child = ZX_HANDLE_INVALID;
-  zx_status_t status = fdio_spawn(
-      ZX_HANDLE_INVALID, FDIO_SPAWN_CLONE_ALL, argv[0], argv, &child);
-  if (status != ZX_OK) {
-    ZX_LOG(ERROR, status) << "fdio_spawn failed";
-    return status == ZX_ERR_IO ? kExitExecENOENT : kExitExecFailure;
-  }
-
-  zx_signals_t observed;
-  status = zx_object_wait_one(
-      child, ZX_TASK_TERMINATED, ZX_TIME_INFINITE, &observed);
-  if (status != ZX_OK) {
-    ZX_LOG(ERROR, status) << "zx_object_wait_one";
-    return kExitExecFailure;
-  }
-  if (!(observed & ZX_TASK_TERMINATED)) {
-    LOG(ERROR) << "did not observe ZX_TASK_TERMINATED";
-    return kExitExecFailure;
-  }
-
-  zx_info_process_t proc_info;
-  status = zx_object_get_info(
-      child, ZX_INFO_PROCESS, &proc_info, sizeof(proc_info), nullptr, nullptr);
-  if (status != ZX_OK) {
-    ZX_LOG(ERROR, status) << "zx_object_get_info";
-    return kExitExecFailure;
-  }
-
-  return proc_info.return_code;
-#else
   // Using the remaining arguments, start a new program with the new exception
   // port in effect.
   execvp(argv[0], argv);
   PLOG(ERROR) << "execvp " << argv[0];
   return errno == ENOENT ? kExitExecENOENT : kExitExecFailure;
-#endif
 }
 
 }  // namespace

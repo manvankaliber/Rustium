@@ -8,9 +8,6 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/common/apps/platform_apps/media_galleries_permission.h"
-#endif
 
 using extensions::mojom::APIPermissionID;
 
@@ -27,17 +24,15 @@ std::unique_ptr<extensions::APIPermission> CreateAPIPermission(
 // add the corresponding permission message rule to
 // ChromePermissionMessageProvider::GetPermissionMessages as well.
 constexpr extensions::APIPermissionInfo::InitInfo permissions_to_register[] = {
+    // Legacy permission names and IDs also decode stored permission sets.
+    // API feature providers and function registries control callable APIs;
+    // these compatibility mappings do not register native implementations.
     {APIPermissionID::kArcAppsPrivate, "arcAppsPrivate"},
     {APIPermissionID::kBrowser, "browser",
      extensions::APIPermissionInfo::
          kFlagDoesNotRequireManagedSessionFullLoginWarning},
     {APIPermissionID::kFirstRunPrivate, "firstRunPrivate",
      extensions::APIPermissionInfo::kFlagCannotBeOptional},
-#if BUILDFLAG(IS_CHROMEOS)
-    {APIPermissionID::kMediaGalleries, "mediaGalleries",
-     extensions::APIPermissionInfo::kFlagNone,
-     &CreateAPIPermission<chrome_apps::MediaGalleriesPermission>},
-#endif
     {APIPermissionID::kPointerLock, "pointerLock",
      extensions::APIPermissionInfo::
          kFlagDoesNotRequireManagedSessionFullLoginWarning},

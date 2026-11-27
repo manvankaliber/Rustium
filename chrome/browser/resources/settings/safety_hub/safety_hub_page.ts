@@ -8,9 +8,7 @@
  * state of Chrome.
  */
 
-// <if expr="not is_chromeos">
 import '../relaunch_confirmation_dialog.js';
-// </if>
 import '../settings_page/settings_subpage.js';
 import './safety_hub_card.js';
 import './safety_hub_module.js';

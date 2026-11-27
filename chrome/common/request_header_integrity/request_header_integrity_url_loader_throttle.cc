@@ -73,7 +73,7 @@ BASE_FEATURE(kRequestHeaderIntegrity, base::FEATURE_ENABLED_BY_DEFAULT);
 constexpr char kIntegritySeed[] = "";
 #endif
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 // Fraction of requests for which the Platform Runtime apply result is recorded.
 constexpr double kApplyResultSamplingRate = 0.01;
 #endif
@@ -120,7 +120,6 @@ void AddRequestIntegrityHeaderNamesToVector(
 }
 
 void ApplyPlatformRuntimeHeaders(net::HttpRequestHeaders* headers) {
-#if !BUILDFLAG(IS_ANDROID)
   // PlatformRuntimeHost does not run on Android, so no headers are ever
   // published there.
   [[maybe_unused]] const PlatformRuntimeApplyResult result =
@@ -133,7 +132,6 @@ void ApplyPlatformRuntimeHeaders(net::HttpRequestHeaders* headers) {
         "ComponentUpdater.PlatformRuntime.RequestHeaderApplyResult", result);
   }
 #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 using ResourceType = RequestHeaderIntegrityURLLoaderThrottle::ResourceType;

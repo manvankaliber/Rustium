@@ -66,7 +66,7 @@ IPEndPoint GetMdnsReceiveEndPoint(AddressFamily address_family) {
     default:
       NOTREACHED();
   }
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   // With POSIX/Fuchsia, any socket can receive messages for multicast groups
   // joined by any socket on the system. Sockets intending to receive messages
   // for a specific multicast group should bind to that group address.
@@ -95,22 +95,25 @@ std::string GetNameForHttpsQuery(const url::SchemeHostPort& scheme_host_port,
   uint16_t port = scheme_host_port.port();
   if (normalized_scheme == url::kHttpScheme) {
     normalized_scheme = url::kHttpsScheme;
-    if (port == 80)
+    if (port == 80) {
       port = 443;
+    }
   }
 
   // Scheme should always end up normalized to "https" to create HTTPS
   // transactions.
   DCHECK_EQ(normalized_scheme, url::kHttpsScheme);
 
-  if (out_port != nullptr)
+  if (out_port != nullptr) {
     *out_port = port;
+  }
 
   // Per the rules in draft-ietf-dnsop-svcb-https-08, Section 9.1 and 2.3,
   // encode scheme and port in the transaction hostname, unless the port is
   // the default 443.
-  if (port == 443)
+  if (port == 443) {
     return scheme_host_port.host();
+  }
   return base::StrCat({"_", base::NumberToString(scheme_host_port.port()),
                        "._https.", scheme_host_port.host()});
 }

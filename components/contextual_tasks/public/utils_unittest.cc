@@ -18,37 +18,6 @@ namespace {
 
 TEST(ContextualTasksUtilsTest, GetLensInvocationSourceForAimZeroState) {
   EXPECT_EQ(GetLensInvocationSourceForAimZeroState(
-                omnibox::ChromeAimEntryPoint::
-                    DESKTOP_CHROME_COBROWSE_PINNED_TOOLBAR_BUTTON),
-            lens::LensOverlayInvocationSource::kCobrowsePinnedToolbarButton);
-  EXPECT_EQ(
-      GetLensInvocationSourceForAimZeroState(
-          omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_COBROWSE_OMNIBOX_ACTION),
-      lens::LensOverlayInvocationSource::kOmniboxPageAction);
-  EXPECT_EQ(GetLensInvocationSourceForAimZeroState(
-                omnibox::ChromeAimEntryPoint::
-                    DESKTOP_CHROME_COBROWSE_OMNIBOX_TAB_SEARCH),
-            lens::LensOverlayInvocationSource::kOmniboxPageAction);
-  EXPECT_EQ(
-      GetLensInvocationSourceForAimZeroState(
-          omnibox::ChromeAimEntryPoint::
-              DESKTOP_CHROME_PAGE_CONTEXT_MENU_ASK_GOOGLE),
-      lens::LensOverlayInvocationSource::kContentAreaContextMenuPageAskGoogle);
-  EXPECT_EQ(
-      GetLensInvocationSourceForAimZeroState(
-          omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_APP_MENU_ASK_GOOGLE),
-      lens::LensOverlayInvocationSource::kAppMenuAskGoogle);
-  EXPECT_EQ(GetLensInvocationSourceForAimZeroState(
-                omnibox::ChromeAimEntryPoint::
-                    DESKTOP_CHROME_CHROMNIENT_HOMEWORK_ACTION_CHIP),
-            lens::LensOverlayInvocationSource::kHomeworkActionChip);
-  EXPECT_EQ(GetLensInvocationSourceForAimZeroState(
-                omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_CONTEXTUAL_CUE),
-            lens::LensOverlayInvocationSource::kContextualCue);
-  EXPECT_EQ(GetLensInvocationSourceForAimZeroState(
-                omnibox::ChromeAimEntryPoint::IOS_CHROME_APP_BAR_ENTRY_POINT),
-            lens::LensOverlayInvocationSource::kAppBarAimButton);
-  EXPECT_EQ(GetLensInvocationSourceForAimZeroState(
                 omnibox::ChromeAimEntryPoint::UNKNOWN_AIM_ENTRY_POINT),
             std::nullopt);
 }

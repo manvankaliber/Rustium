@@ -364,8 +364,7 @@ bool WebGraphicsContext3DVideoFramePool::ConvertVideoFrame(
 // static
 bool WebGraphicsContext3DVideoFramePool::
     IsGpuMemoryBufferReadbackFromTextureEnabled() {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   return !base::CommandLine::ForCurrentProcess()->HasSwitch(
       switches::kGpuMemoryBufferReadbackFromTextureForceDisabledForDebugging);
 #else

@@ -268,11 +268,7 @@ Response MediaRecorder::Start(RenderFrameHostImpl* host,
     last_surface_size_ = snapshot_size;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  constexpr auto kScreencastPixelFormat = media::PIXEL_FORMAT_I420;
-#else
   constexpr auto kScreencastPixelFormat = media::PIXEL_FORMAT_ARGB;
-#endif
 
   content::WebContentsMediaCaptureId capture_id(
       host->GetProcess()->GetDeprecatedID(), host->GetRoutingID());
@@ -321,12 +317,6 @@ void MediaRecorder::StartDisplayCapture(
 #if !BUILDFLAG(ENABLE_LIBAOM)
   std::move(callback).Run(Response::ServerError(
       "Video recording is not supported without AV1/libaom enabled."));
-#elif BUILDFLAG(IS_ANDROID)
-  // On Android, the display capture device needs a MediaProjection that the
-  // user grants in a system dialog for each capture, and it fails without it.
-  // A CDP client cannot get that grant.
-  std::move(callback).Run(Response::ServerError(
-      "Recording a display surface is not supported on Android."));
 #else
   const bool has_audio = audio && audio_source;
   StartEncodingService(max_width, max_height, frame_rate, has_audio);

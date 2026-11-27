@@ -62,14 +62,9 @@
 #include "ui/base/ui_base_features.h"
 #include "ui/color/color_id.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/ash/system_web_apps/system_web_app_ui_utils.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "ui/views/vector_icons.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/browser/extension_util.h"
@@ -84,9 +79,7 @@
 #include "chrome/browser/safe_browsing/download_protection/download_feedback_service.h"
 #include "chrome/browser/enterprise/connectors/connectors_manager.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/safe_browsing/download_protection/deep_scanning_request.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 #endif  // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
@@ -183,7 +176,7 @@ DownloadItemModelData::DownloadItemModelData() = default;
 
 // This is for sending download reports from the download bubble UI on
 // desktop, so it is not needed on Android.
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 void MaybeSendDownloadReport(bool did_proceed,
                              download::DownloadItem* download) {
   if (safe_browsing::SafeBrowsingService* sb_service =
@@ -454,7 +447,6 @@ void DownloadItemModel::SetEphemeralWarningUiShownTime(
 bool DownloadItemModel::ShouldPreferOpeningInBrowser() {
   const DownloadItemModelData* data =
       DownloadItemModelData::GetOrCreate(download_);
-#if !BUILDFLAG(IS_ANDROID)
   if (!data->should_prefer_opening_in_browser_) {
     base::FilePath path = GetTargetFilePath();
     std::string mime_type = GetMimeType();
@@ -462,7 +454,6 @@ bool DownloadItemModel::ShouldPreferOpeningInBrowser() {
         path, DownloadTargetDeterminer::DetermineIfHandledSafelyHelper(
                   download_, path, mime_type));
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   return data->should_prefer_opening_in_browser_.value_or(false);
 }
 
@@ -640,33 +631,7 @@ void DownloadItemModel::OpenUsingPlatformHandler() {
                      download_->GetMimeType());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-std::optional<DownloadCommands::Command>
-DownloadItemModel::MaybeGetMediaAppAction() const {
-  std::string mime_type = GetMimeType();
 
-  if (mime_type == "application/pdf") {
-    return DownloadCommands::EDIT_WITH_MEDIA_APP;
-  }
-
-  if (base::StartsWith(mime_type, "audio/", base::CompareCase::SENSITIVE) ||
-      base::StartsWith(mime_type, "video/", base::CompareCase::SENSITIVE)) {
-    return DownloadCommands::OPEN_WITH_MEDIA_APP;
-  }
-
-  return std::nullopt;
-}
-
-void DownloadItemModel::OpenUsingMediaApp() {
-  ash::SystemAppLaunchParams params;
-  params.launch_paths.push_back(GetFullPath());
-  ash::LaunchSystemWebAppAsync(profile(), ash::SystemWebAppType::MEDIA, params);
-
-  RecordDownloadOpen(DOWNLOAD_OPEN_METHOD_MEDIA_APP, GetMimeType());
-}
-#endif
-
-#if !BUILDFLAG(IS_ANDROID)
 bool DownloadItemModel::IsCommandEnabled(
     const DownloadCommands* download_commands,
     DownloadCommands::Command command) const {
@@ -702,15 +667,7 @@ bool DownloadItemModel::IsCommandEnabled(
              DownloadUIModel::IsCommandEnabled(download_commands, command);
     case DownloadCommands::OPEN_WITH_MEDIA_APP:
     case DownloadCommands::EDIT_WITH_MEDIA_APP: {
-#if BUILDFLAG(IS_CHROMEOS)
-      std::optional<DownloadCommands::Command> media_app_command =
-          MaybeGetMediaAppAction();
-
-      return media_app_command == command && download_->CanOpenDownload() &&
-             !IsExtensionDownload();
-#else
       return false;
-#endif
     }
     case DownloadCommands::CANCEL:
     case DownloadCommands::RESUME:
@@ -740,8 +697,7 @@ bool DownloadItemModel::IsCommandChecked(
     case DownloadCommands::OPEN_WHEN_COMPLETE:
       return download_->GetOpenWhenComplete() || IsExtensionDownload();
     case DownloadCommands::ALWAYS_OPEN_TYPE:
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
       if (download_commands->CanOpenPdfInSystemViewer()) {
         DownloadPrefs* prefs = DownloadPrefs::FromBrowserContext(profile());
         return prefs->ShouldOpenPdfInSystemReader();
@@ -789,8 +745,7 @@ void DownloadItemModel::ExecuteCommand(DownloadCommands* download_commands,
       bool is_checked = IsCommandChecked(download_commands,
                                          DownloadCommands::ALWAYS_OPEN_TYPE);
       DownloadPrefs* prefs = DownloadPrefs::FromBrowserContext(profile());
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
       if (download_commands->CanOpenPdfInSystemViewer()) {
         prefs->SetShouldOpenPdfInSystemReader(!is_checked);
         SetShouldPreferOpeningInBrowser(is_checked);
@@ -895,7 +850,7 @@ void DownloadItemModel::ExecuteCommand(DownloadCommands* download_commands,
       DownloadUIModel::ExecuteCommand(download_commands, command);
       break;
     case DownloadCommands::DEEP_SCAN: {
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
       // Deep scanning is not supported on Android.
       safe_browsing::DownloadProtectionService::UploadForConsumerDeepScanning(
           download_,
@@ -1065,13 +1020,11 @@ bool DownloadItemModel::ShouldShowInBubble() const {
 
   return DownloadUIModel::ShouldShowInBubble();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 bool DownloadItemModel::IsEphemeralWarning() const {
   // On Android, insecure downloads display a InsecureDownloadDialog prior to
   // the download and do not display any warning in the UI, so there is no
   // associated warning message to hide/cancel.
-#if !BUILDFLAG(IS_ANDROID)
   switch (GetInsecureDownloadStatus()) {
     case download::DownloadItem::InsecureDownloadStatus::BLOCK:
     case download::DownloadItem::InsecureDownloadStatus::WARN:
@@ -1082,16 +1035,7 @@ bool DownloadItemModel::IsEphemeralWarning() const {
     case download::DownloadItem::InsecureDownloadStatus::SILENT_BLOCK:
       break;
   }
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-  // When MaliciousApkDownloadCheck is enabled, only downloads blocked by Safe
-  // Browsing for dangerous content should be subject to ephemeral warnings
-  // and scheduled cancellation.
-  if (ShouldShowSafeBrowsingAndroidDownloadWarnings()) {
-    return GetDangerType() == download::DOWNLOAD_DANGER_TYPE_DANGEROUS_CONTENT;
-  }
-#endif
 
   switch (GetDangerType()) {
     case download::DOWNLOAD_DANGER_TYPE_DANGEROUS_FILE:
@@ -1224,7 +1168,7 @@ void DownloadItemModel::DetermineAndSetShouldPreferOpeningInBrowser(
     return;
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (download_->GetOriginalMimeType() == "application/x-x509-user-cert") {
     SetShouldPreferOpeningInBrowser(true);
     return;

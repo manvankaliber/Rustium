@@ -4,8 +4,8 @@
 
 import("//build/circular_includes_bedrock.gni")
 import("//build/circular_includes_untriaged.gni")
-import("//build/strict_deps_failures.gni")
 import("//build/dotfile_settings.gni")
+import("//build/strict_deps_failures.gni")
 import("//third_party/angle/dotfile_settings.gni")
 
 # The location of the build configuration file.
@@ -58,10 +58,6 @@ default_args = {
   # Override VMA's Vulkan dependencies.
   vma_vulkan_headers_dir = "//third_party/vulkan-headers/src"
 
-  # Overwrite default args declared in the Fuchsia sdk
-  fuchsia_sdk_readelf_exec =
-      "//third_party/llvm-build/Release+Asserts/bin/llvm-readelf"
-
   # Overwrite default args declared in the pdfium library
   pdf_partition_alloc_dir = "//base/allocator/partition_allocator"
 
@@ -110,7 +106,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/about_sys:resources",
   "//chrome/browser/resources/access_code_cast:resources",
   "//chrome/browser/resources/accessibility:resources",
-  "//chrome/browser/resources/actor_overlay:resources",
+
   "//chrome/browser/resources/app_home:resources",
   "//chrome/browser/resources/app_service_internals:resources",
   "//chrome/browser/resources/app_settings:resources",
@@ -143,9 +139,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/feature_showcase:resources",
   "//chrome/browser/resources/feedback:resources",
   "//chrome/browser/resources/gaia_auth_host:resources",
-  "//chrome/browser/resources/glic/experimental_opt_in:resources",
-  "//chrome/browser/resources/glic/selection_overlay:resources",
-  "//chrome/browser/resources/glic:resources",
+
   "//chrome/browser/resources/guest_view_shared:resources",
   "//chrome/browser/resources/history:resources",
   "//chrome/browser/resources/indigo:resources",
@@ -155,8 +149,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/intro:resources",
   "//chrome/browser/resources/iwa_dev:resources",
   "//chrome/browser/resources/key_value_pair_viewer_shared:resources",
-  "//chrome/browser/resources/lens/overlay:resources",
-  "//chrome/browser/resources/lens/shared:resources",
+
   "//chrome/browser/resources/location_internals:resources",
   "//chrome/browser/resources/management:resources",
   "//chrome/browser/resources/media:resources",
@@ -170,7 +163,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/new_tab_page_third_party:resources",
   "//chrome/browser/resources/new_tab_shared:resources",
   "//chrome/browser/resources/omnibox_everywhere:resources",
-  "//chrome/browser/resources/omnibox_internals/aim_eligibility_extension:resources",
+
   "//chrome/browser/resources/omnibox_internals:resources",
   "//chrome/browser/resources/omnibox_popup:resources",
   "//chrome/browser/resources/on_device_internals:resources",
@@ -191,7 +184,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/settings_shared:resources",
   "//chrome/browser/resources/side_panel/bookmarks:resources",
   "//chrome/browser/resources/side_panel/comments:resources",
-  "//chrome/browser/resources/side_panel/commerce:resources",
+
   "//chrome/browser/resources/side_panel/customize_chrome:resources",
   "//chrome/browser/resources/side_panel/history:resources",
   "//chrome/browser/resources/side_panel/history_clusters:resources",
@@ -204,7 +197,7 @@ no_check_generated_targets = [
   "//chrome/browser/resources/signin/profile_picker:resources",
   "//chrome/browser/resources/signin/signout_confirmation:resources",
   "//chrome/browser/resources/signin:resources",
-  "//chrome/browser/resources/skills:resources",
+
   "//chrome/browser/resources/subresource_filter:resources",
   "//chrome/browser/resources/suggest_internals:resources",
   "//chrome/browser/resources/support_tool:resources",
@@ -225,7 +218,6 @@ no_check_generated_targets = [
   "//chrome/browser/resources/whats_new:resources",
   "//chrome/browser/resources:app_icon_resources",
   "//chrome/browser/resources:component_extension_resources",
-  "//chrome/browser/ttc/resources:resources",
   "//chrome/browser/ui/webui/app_home:mojo_bindings",
   "//chrome/browser:expired_flags_list",
   "//chrome/common/apps/platform_apps/api:api_features",
@@ -245,7 +237,7 @@ no_check_generated_targets = [
   "//components/autofill/core/browser:autofill_address_rewriter_resources",
   "//components/autofill/core/browser:autofill_alternative_state_name_map_resources",
   "//components/browser_apis/tab_strip/resources:resources",
-  "//components/commerce/core/internals/resources:resources",
+
   "//components/crash/core/browser/resources:resources",
   "//components/data_sharing/data_sharing_internals/resources:resources",
   "//components/download/resources/download_internals:resources",
@@ -329,8 +321,8 @@ no_check_generated_targets = [
   "//third_party/blink/public/mojom/storage_key:storage_key",
   "//third_party/blink/public/mojom/usb:usb",
   "//third_party/blink/public/mojom/webnn:webnn_blink",
-  "//third_party/blink/public/mojom:android_mojo_bindings",
-  "//third_party/blink/public/mojom:android_mojo_bindings_blink",
+  "//third_party/blink/public/mojom:shared_mojo_bindings",
+  "//third_party/blink/public/mojom:shared_mojo_bindings_blink",
   "//third_party/blink/public/mojom:color_scheme_mojo_bindings",
   "//third_party/blink/public/mojom:embedded_frame_sink_mojo_bindings",
   "//third_party/blink/public/mojom:mojom_core_blink",
@@ -361,8 +353,7 @@ no_check_generated_targets = [
   "//third_party/openscreen/src/util:json_serde_cxx_generated",
   "//third_party/perfetto/protos/perfetto/trace:minimal_lite",
   "//third_party/perfetto/protos/perfetto/trace:non_minimal_lite",
-  "//third_party/perfetto/protos/third_party/android/frameworks/base/proto/tracing:frameworks_base_interned_data_lite",
-  "//third_party/perfetto/protos/third_party/android/frameworks/native/tracing:frameworks_native_interned_data_lite",
+
   "//third_party/search_engines_data:prepopulated_engines",
   "//third_party/search_engines_data:regional_settings",
   "//third_party/shell-encryption:coefficient_polynomial_proto",
@@ -450,10 +441,6 @@ exec_script_allowlist =
 
       "//google_apis/BUILD.gn",
       "//printing/BUILD.gn",
-
-      "//remoting/host/installer/linux/BUILD.gn",
-      "//remoting/remoting_version.gni",
-      "//remoting/host/installer/win/generate_clsids.gni",
 
       "//tools/grit/grit_rule.gni",
       "//tools/gritsettings/BUILD.gn",

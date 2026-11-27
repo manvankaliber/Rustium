@@ -14,10 +14,8 @@ import {assertEquals, assertNull} from 'chrome://webui-test/chai_assert.js';
 import {TestPluralStringProxy} from 'chrome://webui-test/test_plural_string_proxy.js';
 import {microtasksFinished} from 'chrome://webui-test/test_util.js';
 
-// <if expr="not is_chromeos">
 import {assertFalse, assertTrue} from 'chrome://webui-test/chai_assert.js';
 import {isVisible} from 'chrome://webui-test/test_util.js';
-// </if>
 
 import {FakePageHandler} from './certificate_manager_test_support.js';
 
@@ -48,7 +46,6 @@ suite('LocalCertsSectionV2Test', () => {
     document.body.appendChild(localCertsSection);
   }
 
-  // <if expr="not is_chromeos">
   test('Policy - OS certs number string', async () => {
     const pluralStringProxy = new CertManagerTestPluralStringProxy();
     PluralStringProxyImpl.setInstance(pluralStringProxy);
@@ -73,9 +70,7 @@ suite('LocalCertsSectionV2Test', () => {
         'num system certs string incorrect');
     assertTrue(isVisible(localCertsSection.$.numSystemCerts));
   });
-  // </if>
 
-  // <if expr="not is_chromeos">
   test('Policy - OS certs imported and managed', async () => {
     const metadata: CertManagementMetadata = {
       includeSystemTrustStore: true,
@@ -220,7 +215,6 @@ suite('LocalCertsSectionV2Test', () => {
         isVisible(localCertsSection.$.viewOsImportedCerts),
         'view imported os certs should not be visible w/ 0 certs');
   });
-  // </if>
 
   // <if expr="is_win or is_macosx">
   test('Open native certificate management', async () => {
@@ -247,11 +241,9 @@ suite('LocalCertsSectionV2Test', () => {
 
   test('no admin certs, hide admin certs section', async () => {
     const metadata: CertManagementMetadata = {
-      // <if expr="not is_chromeos">
       includeSystemTrustStore: true,
       numUserAddedSystemCerts: 0,
       isIncludeSystemTrustStoreManaged: true,
-      // </if>
       numPolicyCerts: 0,
       numUserCerts: 0,
       showUserCertsUi: true,
@@ -273,11 +265,9 @@ suite('LocalCertsSectionV2Test', () => {
     PluralStringProxyImpl.setInstance(pluralStringProxy);
     pluralStringProxy.text = '5 certificates';
     const metadata: CertManagementMetadata = {
-      // <if expr="not is_chromeos">
       includeSystemTrustStore: true,
       numUserAddedSystemCerts: 0,
       isIncludeSystemTrustStoreManaged: true,
-      // </if>
       numPolicyCerts: 5,
       numUserCerts: 0,
       showUserCertsUi: false,
@@ -294,7 +284,6 @@ suite('LocalCertsSectionV2Test', () => {
     assertEquals('5 certificates', adminLinkRow!.subLabel);
   });
 
-  // <if expr="not is_chromeos">
   test('os certs set by policy, disable OS certs toggle', async () => {
     const metadata: CertManagementMetadata = {
       includeSystemTrustStore: true,
@@ -328,9 +317,7 @@ suite('LocalCertsSectionV2Test', () => {
     await microtasksFinished();
     assertFalse(localCertsSection.$.importOsCerts.disabled);
   });
-  // </if>
 
-  // <if expr="not is_chromeos">
   test('import OS certs toggle disable', async () => {
     const metadata: CertManagementMetadata = {
       includeSystemTrustStore: true,
@@ -370,18 +357,15 @@ suite('LocalCertsSectionV2Test', () => {
     await testHandler.whenCalled('setIncludeSystemTrustStore');
     assertTrue(testHandler.getArgs('setIncludeSystemTrustStore')[0]);
   });
-  // </if>
 
   test('user certs write enabled, show user certs section', async () => {
     const pluralStringProxy = new CertManagerTestPluralStringProxy();
     PluralStringProxyImpl.setInstance(pluralStringProxy);
     pluralStringProxy.text = '5 certificates';
     const metadata: CertManagementMetadata = {
-      // <if expr="not is_chromeos">
       includeSystemTrustStore: true,
       numUserAddedSystemCerts: 0,
       isIncludeSystemTrustStoreManaged: true,
-      // </if>
       numPolicyCerts: 5,
       numUserCerts: 5,
       showUserCertsUi: true,
@@ -400,11 +384,9 @@ suite('LocalCertsSectionV2Test', () => {
 
   test('user certs write disabled, hide user certs section', async () => {
     const metadata: CertManagementMetadata = {
-      // <if expr="not is_chromeos">
       includeSystemTrustStore: true,
       numUserAddedSystemCerts: 0,
       isIncludeSystemTrustStoreManaged: true,
-      // </if>
       numPolicyCerts: 1,
       numUserCerts: 0,
       showUserCertsUi: false,
@@ -425,11 +407,9 @@ suite('LocalCertsSectionV2Test', () => {
       'no admin certs, user certs write disabled, hide custom certs section',
       async () => {
         const metadata: CertManagementMetadata = {
-          // <if expr="not is_chromeos">
           includeSystemTrustStore: true,
           numUserAddedSystemCerts: 0,
           isIncludeSystemTrustStoreManaged: true,
-          // </if>
           numPolicyCerts: 0,
           numUserCerts: 0,
           showUserCertsUi: false,

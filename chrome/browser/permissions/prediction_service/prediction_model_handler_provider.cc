@@ -16,9 +16,6 @@
 #include "components/permissions/prediction_service/prediction_model_handler.h"
 #include "components/permissions/request_type.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/download/public/background_service/download_params.h"
-#endif
 
 namespace permissions {
 
@@ -27,22 +24,12 @@ using optimization_guide::proto::OptimizationTarget;
 namespace {
 
 inline OptimizationTarget getGeolocationAiv4OptTarget() {
-#if BUILDFLAG(IS_ANDROID)
-  return OptimizationTarget::
-      OPTIMIZATION_TARGET_PERMISSIONS_AIV4_GEOLOCATION_ANDROID;
-#else
   return OptimizationTarget::
       OPTIMIZATION_TARGET_PERMISSIONS_AIV4_GEOLOCATION_DESKTOP;
-#endif
 }
 inline OptimizationTarget getNotificationsAiv4OptTarget() {
-#if BUILDFLAG(IS_ANDROID)
-  return OptimizationTarget::
-      OPTIMIZATION_TARGET_PERMISSIONS_AIV4_NOTIFICATIONS_ANDROID;
-#else
   return OptimizationTarget::
       OPTIMIZATION_TARGET_PERMISSIONS_AIV4_NOTIFICATIONS_DESKTOP;
-#endif
 }
 
 }  // namespace
@@ -98,16 +85,7 @@ PredictionModelHandlerProvider::PredictionModelHandlerProvider(
 
   if (IsAIv4FeatureEnabled()) {
     VLOG(1) << "[PermissionsAI] PredictionModelHandlerProvider init AIv4";
-#if BUILDFLAG(IS_ANDROID)
-    download::SchedulingParams scheduling_params;
-    scheduling_params.priority = download::SchedulingParams::Priority::HIGH;
-    scheduling_params.battery_requirements =
-        download::SchedulingParams::BatteryRequirements::BATTERY_SENSITIVE;
-    scheduling_params.network_requirements =
-        download::SchedulingParams::NetworkRequirements::UNMETERED;
-#else
     std::optional<download::SchedulingParams> scheduling_params;
-#endif
     notification_aiv4_handler_ = std::make_unique<PermissionsAiv4Handler>(
         optimization_guide, getNotificationsAiv4OptTarget(),
         RequestType::kNotifications, scheduling_params);

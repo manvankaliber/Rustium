@@ -20,8 +20,7 @@
 
 namespace enterprise_net {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 namespace {
 
 bool IsAffiliationEnforcedOnPlatformManagedDevices() {

@@ -11,15 +11,12 @@
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#include "chrome/browser/ui/views/commerce/shopping_collection_iph_view.h"
 #include "chrome/test/base/in_process_browser_test.h"
 #include "chrome/test/base/interactive_test_utils.h"
 #include "chrome/test/base/ui_test_utils.h"
 #include "chrome/test/interaction/interactive_browser_test.h"
 #include "components/bookmarks/browser/bookmark_model.h"
 #include "components/bookmarks/test/bookmark_test_helpers.h"
-#include "components/commerce/core/price_tracking_utils.h"
-#include "components/commerce/core/test_utils.h"
 #include "components/feature_engagement/test/mock_tracker.h"
 #include "components/keyed_service/content/browser_context_dependency_manager.h"
 #include "components/signin/public/base/consent_level.h"
@@ -132,58 +129,3 @@ class BookmarkBubbleViewIPHInteractiveTest
   base::WeakPtrFactory<BookmarkBubbleViewIPHInteractiveTest> weak_ptr_factory_{
       this};
 };
-
-IN_PROC_BROWSER_TEST_F(BookmarkBubbleViewIPHInteractiveTest,
-                       ShoppingCollectionIPH_Shown) {
-  bookmarks::BookmarkModel* model = CreateBookmarkModel();
-
-  ON_CALL(*GetMockTracker(browser()->GetProfile()),
-          ShouldTriggerHelpUI(
-              testing::Ref(feature_engagement::kIPHShoppingCollectionFeature)))
-      .WillByDefault(testing::Return(true));
-
-  RunTestSequence(InstrumentTab(kTestTab),
-                  NavigateWebContents(
-                      kTestTab, embedded_test_server()->GetURL(kBookmarkURL)));
-
-  // Make sure the bookmark is added to the shopping collection.
-  const bookmarks::BookmarkNode* node = model->AddURL(
-      commerce::GetShoppingCollectionBookmarkFolder(model, true), 0,
-      u"bookmark",
-      browser()->GetTabStripModel()->GetActiveWebContents()->GetURL());
-
-  commerce::AddProductInfoToExistingBookmark(model, node, u"Product", 12345L);
-
-  EXPECT_CALL(*GetMockTracker(browser()->GetProfile()),
-              Dismissed(testing::Ref(
-                  feature_engagement::kIPHShoppingCollectionFeature)));
-
-  RunTestSequence(PressButton(kBookmarkStarViewElementId),
-                  WaitForShow(commerce::kShoppingCollectionIPHViewId),
-                  PressButton(kBookmarkBubbleOkButtonId),
-                  WaitForHide(commerce::kShoppingCollectionIPHViewId));
-}
-
-IN_PROC_BROWSER_TEST_F(BookmarkBubbleViewIPHInteractiveTest,
-                       ShoppingCollectionIPH_NotShown) {
-  bookmarks::BookmarkModel* model = CreateBookmarkModel();
-
-  ON_CALL(*GetMockTracker(browser()->GetProfile()),
-          ShouldTriggerHelpUI(testing::_))
-      .WillByDefault(testing::Return(false));
-
-  RunTestSequence(InstrumentTab(kTestTab),
-                  NavigateWebContents(
-                      kTestTab, embedded_test_server()->GetURL(kBookmarkURL)));
-
-  // Make sure the bookmark is added to the shopping collection.
-  const bookmarks::BookmarkNode* node = model->AddURL(
-      commerce::GetShoppingCollectionBookmarkFolder(model, true), 0,
-      u"bookmark",
-      browser()->GetTabStripModel()->GetActiveWebContents()->GetURL());
-
-  commerce::AddProductInfoToExistingBookmark(model, node, u"Product", 12345L);
-
-  RunTestSequence(PressButton(kBookmarkStarViewElementId),
-                  EnsureNotPresent(commerce::kShoppingCollectionIPHViewId));
-}

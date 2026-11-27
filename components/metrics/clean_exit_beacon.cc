@@ -51,7 +51,7 @@ using ::variations::prefs::kVariationsCrashStreak;
 // This may be modified by SkipCleanShutdownStepsForTesting().
 bool g_skip_clean_shutdown_steps = false;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_WIN)
 // Records the the combined state of two distinct beacons' values in a
 // histogram.
 void RecordBeaconConsistency(
@@ -83,7 +83,7 @@ void RecordBeaconConsistency(
   }
   base::UmaHistogramEnumeration("UMA.CleanExitBeaconConsistency3", consistency);
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_IOS)
+#endif
 
 // Increments kVariationsCrashStreak if |did_previous_session_exit_cleanly| is
 // false. Also, emits the crash streak to a histogram.
@@ -296,17 +296,11 @@ bool CleanExitBeacon::DidPreviousSessionExitCleanly(
                                  prefs::kStabilityExitedCleanly)
                            : std::nullopt;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_WIN)
   std::optional<bool> backup_beacon_value = ExitedCleanly();
   RecordBeaconConsistency(beacon_file_beacon_value, backup_beacon_value);
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_IOS)
+#endif
 
-#if BUILDFLAG(IS_IOS)
-  // TODO(crbug.com/40190558): For the time being, this is a no-op; i.e.,
-  // ShouldUseUserDefaultsBeacon() always returns false.
-  if (ShouldUseUserDefaultsBeacon())
-    return backup_beacon_value.value_or(true);
-#endif  // BUILDFLAG(IS_IOS)
 
   return beacon_file_beacon_value.value_or(true);
 }
@@ -365,14 +359,12 @@ void CleanExitBeacon::WriteBeaconValue(bool exited_cleanly,
     regkey.WriteValue(base::ASCIIToWide(prefs::kStabilityExitedCleanly).c_str(),
                       exited_cleanly ? 1u : 0u);
   }
-#elif BUILDFLAG(IS_IOS)
-  SetUserDefaultsBeacon(exited_cleanly);
 #endif  // BUILDFLAG(IS_WIN)
 
   has_exited_cleanly_ = std::make_optional(exited_cleanly);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_WIN)
 std::optional<bool> CleanExitBeacon::ExitedCleanly() {
 #if BUILDFLAG(IS_WIN)
   base::win::RegKey regkey;
@@ -386,13 +378,8 @@ std::optional<bool> CleanExitBeacon::ExitedCleanly() {
   }
   return std::nullopt;
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_IOS)
-  if (HasUserDefaultsBeacon())
-    return GetUserDefaultsBeacon();
-  return std::nullopt;
-#endif  // BUILDFLAG(IS_IOS)
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_IOS)
+#endif
 
 void CleanExitBeacon::UpdateLastLiveTimestamp() {
   local_state_->SetTime(prefs::kStabilityBrowserLastLiveTimeStamp,
@@ -433,9 +420,6 @@ void CleanExitBeacon::SetStabilityExitedCleanlyForTesting(
     PrefService* local_state,
     bool exited_cleanly) {
   local_state->SetBoolean(prefs::kStabilityExitedCleanly, exited_cleanly);
-#if BUILDFLAG(IS_IOS)
-  SetUserDefaultsBeacon(exited_cleanly);
-#endif  // BUILDFLAG(IS_IOS)
 }
 
 // static
@@ -455,9 +439,6 @@ std::string CleanExitBeacon::CreateBeaconFileContentsForTesting(
 void CleanExitBeacon::ResetStabilityExitedCleanlyForTesting(
     PrefService* local_state) {
   local_state->ClearPref(prefs::kStabilityExitedCleanly);
-#if BUILDFLAG(IS_IOS)
-  ResetUserDefaultsBeacon();
-#endif  // BUILDFLAG(IS_IOS)
 }
 
 // static

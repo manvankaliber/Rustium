@@ -33,9 +33,6 @@ const char kAutoplayTestPageURL[] = "/media/autoplay_iframe.html";
 class AutoplayPolicyTest : public PolicyTest {
  public:
   AutoplayPolicyTest() {
-#if BUILDFLAG(IS_ANDROID)
-    scoped_feature_list_.InitAndEnableFeature(media::kAutoplayPoliciesAndroid);
-#endif
     // Start two embedded test servers on different ports. This will ensure
     // the test works correctly with cross origin iframes and site-per-process.
     embedded_test_server2()->AddDefaultHandlers(GetChromeTestDataDir());
@@ -208,7 +205,7 @@ IN_PROC_BROWSER_TEST_F(AutoplayPolicyTest, AutoplayAllowlist_Missing) {
 }
 
 // Flaky on Linux and ChromeOS. See: crbug.com/40745945.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_AutoplayDeniedByPolicy DISABLED_AutoplayDeniedByPolicy
 #else
 #define MAYBE_AutoplayDeniedByPolicy AutoplayDeniedByPolicy
@@ -246,7 +243,7 @@ IN_PROC_BROWSER_TEST_F(AutoplayPolicyTest, MAYBE_AutoplayDeniedByPolicy) {
 }
 
 // Flaky on Linux. See: crbug.com/40745945.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_AutoplayDeniedAllowedWithURL DISABLED_AutoplayDeniedAllowedWithURL
 #else
 #define MAYBE_AutoplayDeniedAllowedWithURL AutoplayDeniedAllowedWithURL

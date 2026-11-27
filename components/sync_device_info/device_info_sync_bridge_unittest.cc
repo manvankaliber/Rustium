@@ -49,9 +49,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#endif
 
 namespace syncer {
 namespace {
@@ -589,10 +586,6 @@ class DeviceInfoSyncBridgeTest : public testing::Test,
       : store_(DataTypeStoreTestUtil::CreateInMemoryStoreForTest()) {
     DeviceInfoPrefs::RegisterProfilePrefs(pref_service_.registry());
 
-#if BUILDFLAG(IS_CHROMEOS)
-    statistics_provider_ =
-        std::make_unique<ash::system::ScopedFakeStatisticsProvider>();
-#endif
 
     local_device_name_info_ = GetLocalDeviceNameInfoBlocking();
     // By default, mimic a real processor's behavior for IsTrackingMetadata().
@@ -693,12 +686,6 @@ class DeviceInfoSyncBridgeTest : public testing::Test,
     return local_device_info_provider_;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::system::ScopedFakeStatisticsProvider* statistics_provider() {
-    EXPECT_TRUE(statistics_provider_);
-    return statistics_provider_.get();
-  }
-#endif
 
   // Allows access to the bridge after InitializeBridge() is called.
   DeviceInfoSyncBridge* bridge() {
@@ -804,10 +791,6 @@ class DeviceInfoSyncBridgeTest : public testing::Test,
 
   raw_ptr<TestLocalDeviceInfoProvider> local_device_info_provider_ = nullptr;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<ash::system::ScopedFakeStatisticsProvider>
-      statistics_provider_;
-#endif
 };
 
 TEST_F(DeviceInfoSyncBridgeTest, BeforeSyncEnabled) {
@@ -1900,21 +1883,10 @@ TEST_F(DeviceInfoSyncBridgeTest, ShouldDeriveAndroidBuildFingerprintPrefix) {
   const DeviceInfo* local_device_info =
       bridge()->GetLocalDeviceInfoProvider()->GetLocalDeviceInfo();
   ASSERT_TRUE(local_device_info);
-#if BUILDFLAG(IS_ANDROID)
-  std::string real_fingerprint = base::SysInfo::GetAndroidBuildFingerprint();
-  std::string expected_prefix =
-      DeriveAndroidBuildFingerprintPrefixForTesting(real_fingerprint);
-  EXPECT_EQ(local_device_info->android_os_build_fingerprint_prefix(),
-            expected_prefix);
-  EXPECT_EQ(ReadAllFromStore()[local_device_info->guid()]
-                .android_os_build_fingerprint_prefix(),
-            expected_prefix);
-#else
   EXPECT_EQ(local_device_info->android_os_build_fingerprint_prefix(),
             std::nullopt);
   EXPECT_FALSE(ReadAllFromStore()[local_device_info->guid()]
                    .has_android_os_build_fingerprint_prefix());
-#endif
 }
 
 TEST(DeriveAndroidBuildFingerprintPrefixTest,

@@ -23,7 +23,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #include <unistd.h>
 #endif
 
@@ -95,7 +95,7 @@ void Thread::CreateAndSetCompositorThread() {
           // the program's lifetime once assigned.
           base::Unretained(compositor_thread.get())));
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   compositor_thread->GetTaskRunner()->PostTaskAndReplyWithResult(
       FROM_HERE, base::BindOnce(&base::PlatformThread::CurrentId),
       base::BindOnce([](base::PlatformThreadId compositor_thread_id) {
@@ -150,7 +150,7 @@ void Thread::RemoveTaskObserver(TaskObserver* task_observer) {
 #if BUILDFLAG(IS_WIN)
 static_assert(sizeof(blink::PlatformThreadId) >= sizeof(DWORD),
               "size of platform thread id is too small");
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 static_assert(sizeof(blink::PlatformThreadId) >= sizeof(pid_t),
               "size of platform thread id is too small");
 #else

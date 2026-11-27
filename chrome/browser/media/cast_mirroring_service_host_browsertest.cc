@@ -52,11 +52,6 @@
 #include "mojo/public/cpp/bindings/remote.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/shell.h"
-#include "ash/system/privacy/screen_security_observer.h"
-#include "ash/system/tray/system_tray_notifier.h"
-#endif
 
 using testing::_;
 using testing::InvokeWithoutArgs;
@@ -524,92 +519,5 @@ IN_PROC_BROWSER_TEST_F(CastMirroringServiceHostBrowserTestTabSwitcher,
   StopMirroring();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace {
-
-class TestScreenSecurityObserver : public ash::ScreenSecurityObserver {
- public:
-  TestScreenSecurityObserver() {
-    ash::Shell::Get()->system_tray_notifier()->AddScreenSecurityObserver(this);
-  }
-  ~TestScreenSecurityObserver() override {
-    ash::Shell::Get()->system_tray_notifier()->RemoveScreenSecurityObserver(
-        this);
-  }
-
-  // ash::ScreenSecurityObserver:
-  void OnScreenAccessStart(base::OnceClosure stop_callback,
-                           const base::RepeatingClosure& source_callback,
-                           const std::u16string& access_app_name) override {
-    ++start_count_;
-  }
-  void OnScreenAccessStop() override { ++stop_count_; }
-
-  int start_count() const { return start_count_; }
-  int stop_count() const { return stop_count_; }
-
- private:
-  int start_count_ = 0;
-  int stop_count_ = 0;
-};
-
-}  // namespace
-
-// Desktop mirroring must be registered as screen access with ash, so that
-// ash::ScreenSwitchCheckController gates switching to another user in a
-// multi-profile session, and so that mirroring is stopped when ash stops all
-// screen access (as it does when the active user changes).
-// Regression test for https://crbug.com/518998812.
-IN_PROC_BROWSER_TEST_F(CastMirroringServiceHostBrowserTest,
-                       DesktopMirroringRegistersScreenAccess) {
-  TestScreenSecurityObserver observer;
-  StartDesktopMirroring();
-  EXPECT_EQ(1, observer.start_count());
-  EXPECT_TRUE(IsMirroringServiceBound());
-
-  // Simulate what ash::ScreenSwitchCheckController does on an active user
-  // session change.
-  ash::Shell::Get()->system_tray_notifier()->NotifyScreenAccessStop();
-  EXPECT_FALSE(IsMirroringServiceBound());
-
-  StopMirroring();
-}
-
-// After ash stops desktop mirroring (e.g. on a user switch), destroying the
-// host must not stop screen access sessions that were started in the meantime,
-// such as a getDisplayMedia() capture by the new active user.
-IN_PROC_BROWSER_TEST_F(CastMirroringServiceHostBrowserTest,
-                       StoppedDesktopMirroringDoesNotStopLaterScreenAccess) {
-  TestScreenSecurityObserver observer;
-  StartDesktopMirroring();
-  ash::Shell::Get()->system_tray_notifier()->NotifyScreenAccessStop();
-  EXPECT_FALSE(IsMirroringServiceBound());
-  EXPECT_EQ(1, observer.stop_count());
-  // Wait for the notification UI to be released, which notifies ash again.
-  ASSERT_TRUE(base::test::RunUntil([&] { return observer.stop_count() == 2; }));
-
-  bool other_session_stopped = false;
-  ash::Shell::Get()->system_tray_notifier()->NotifyScreenAccessStart(
-      base::BindLambdaForTesting([&] { other_session_stopped = true; }),
-      base::RepeatingClosure(), u"Other capture");
-
-  StopMirroring();
-  EXPECT_FALSE(other_session_stopped);
-
-  // Clean up the other session.
-  ash::Shell::Get()->system_tray_notifier()->NotifyScreenAccessStop();
-  EXPECT_TRUE(other_session_stopped);
-}
-
-// Tab mirroring does not capture the whole screen, so it should not be
-// registered as screen access.
-IN_PROC_BROWSER_TEST_F(CastMirroringServiceHostBrowserTest,
-                       TabMirroringDoesNotRegisterScreenAccess) {
-  TestScreenSecurityObserver observer;
-  StartTabMirroring();
-  EXPECT_EQ(0, observer.start_count());
-  StopMirroring();
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace mirroring

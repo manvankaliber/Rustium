@@ -28,11 +28,6 @@
 #include "net/http/http_util.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "base/logging.h"
-#include "net/base/ip_address.h"
-#include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
-#endif  // BUILDFLAG(IS_IOS)
 
 namespace enterprise_net {
 
@@ -245,63 +240,6 @@ ParseProxy(const base::DictValue& proxy_dict) {
           std::move(proxy_chain), std::move(auth), std::move(extra_headers)));
 }
 
-#if BUILDFLAG(IS_IOS)
-// Clears `ports` so that the rule matches every port of its destinations.
-// WebKit's proxy configuration API cannot match on port, so the only way to
-// honor a rule that declares ports is to proxy the whole host/address.
-void StripPortMatchers(std::vector<uint16_t>& ports, bool is_wildcard_rule) {
-  if (ports.empty()) {
-    return;
-  }
-
-  const char* affected_destinations =
-      is_wildcard_rule ? "all destinations" : "the matched destinations";
-  DVLOG(1) << "PvD routing rule declares " << ports.size()
-           << " port matcher(s), but WebKit's proxy configuration API cannot "
-              "match on port. Proxying all ports for "
-           << affected_destinations << ".";
-
-  ports.clear();
-}
-
-// Returns whether `domain` names a single host. Wildcard patterns (including
-// the leading-dot form `net` treats as a wildcard), subnets and IP literals are
-// excluded. Subnets and IPs show up in `domains` when a cached config is parsed
-// because its serialized rules keep every matcher under `domains`.
-bool IsPlainHostname(std::string_view domain) {
-  if (domain.empty() || domain.starts_with('.') ||
-      domain.find('*') != std::string_view::npos) {
-    return false;
-  }
-  net::IPAddress address;
-  size_t prefix_length_in_bits = 0;
-  return !net::ParseCIDRBlock(domain, &address, &prefix_length_in_bits) &&
-         !net::ParseURLHostnameToAddress(domain, &address);
-}
-
-// Rewrites plain hostnames in `domains` to `*.<hostname>`. WebKit's proxy
-// configuration API matches domains as suffixes, so it routes every subdomain
-// of `example.com` through the proxy. The rewrite gives the parsed rule the
-// same reach so auth challenges for those subdomains resolve to this rule. The
-// host itself keeps matching because `*.` entries also add the bare domain.
-// `example.com` and `*.example.com` collapse into the same entry, so duplicates
-// are dropped to keep re-parsing a serialized config stable. Duplicates are
-// compared case-insensitively because `net` lowercases every pattern.
-void WidenDomainsToSubdomains(std::vector<std::string>& domains) {
-  absl::flat_hash_set<std::string> seen_domains;
-  std::vector<std::string> widened_domains;
-  widened_domains.reserve(domains.size());
-  for (std::string& domain : domains) {
-    if (IsPlainHostname(domain)) {
-      domain = base::StrCat({kWildcardSubdomainPrefix, domain});
-    }
-    if (seen_domains.insert(base::ToLowerASCII(domain)).second) {
-      widened_domains.push_back(std::move(domain));
-    }
-  }
-  domains = std::move(widened_domains);
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 }  // namespace
 
@@ -384,10 +322,6 @@ std::optional<ProvisioningDomainProxyConfig::RoutingRule> ParseRoutingRule(
   // them widens it to every destination.
   const bool is_wildcard_rule = domains.empty() && subnets.empty();
 
-#if BUILDFLAG(IS_IOS)
-  StripPortMatchers(ports, is_wildcard_rule);
-  WidenDomainsToSubdomains(domains);
-#endif  // BUILDFLAG(IS_IOS)
 
   net::ProxyHostMatchingRules destination_matchers;
 
@@ -684,12 +618,7 @@ base::DictValue ProvisioningDomainProxyConfigToDict(
 
 bool IsSecureGatewayEnabled(PrefService* prefs) {
   CHECK(prefs);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return IsDynamicRouteFetchingEnabled() &&
-         !prefs->GetList(kProxyProvisioningDomains).empty();
-#else
   return false;
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 }
 
 }  // namespace enterprise_net

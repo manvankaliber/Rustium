@@ -31,8 +31,8 @@
 #include "extensions/buildflags/buildflags.h"
 #include "ui/base/unowned_user_data/user_data_factory.h"
 
-class ActorBorderViewController;
-class ActorUiWindowController;
+
+
 class AvatarToolbarIphController;
 class BookmarkBarController;
 class BookmarksSidePanelCoordinator;
@@ -87,7 +87,6 @@ class IncognitoClearBrowsingDataDialogCoordinator;
 class InitialWebUIManager;
 class InitialWebUIWindowMetricsManager;
 class InstantController;
-class IOSPromoController;
 class LocationBarModel;
 class MemorySaverOptInIPHController;
 class ProfileMenuCoordinator;
@@ -133,9 +132,7 @@ class WindowsTaskbarIconUpdater;
 class ProfileCustomizationBubbleSyncController;
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class DownloadToolbarUIController;
-#endif
 
 #if defined(USE_AURA)
 class OverscrollPrefManager;
@@ -145,15 +142,6 @@ class OverscrollPrefManager;
 class DefaultSearchExtensionControlledController;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace ash::boca {
-class OnTaskLockedController;
-}  // namespace ash::boca
-
-namespace chromeos {
-class LockedStateController;
-}  // namespace chromeos
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace chrome {
 class BrowserCommandController;
@@ -185,15 +173,9 @@ class ExtensionBrowserWindowHelper;
 class ExtensionSidePanelManager;
 }  // namespace extensions
 
-namespace glic {
-class GlicIphController;
-class GlicSplitButtonController;
-}  // namespace glic
+  // namespace glic
 
-namespace lens {
-class LensOverlayEntryPointController;
-class LensRegionSearchController;
-}  // namespace lens
+namespace lens {}  // namespace lens
 
 namespace media_router {
 class CastBrowserController;
@@ -208,7 +190,6 @@ class NewTabFooterController;
 }  // namespace new_tab_footer
 
 namespace omnibox {
-class AiModePageActionController;
 class OmniboxPopupCloser;
 }  // namespace omnibox
 
@@ -228,9 +209,7 @@ namespace sharing_hub {
 class SharingHubWindowController;
 }  // namespace sharing_hub
 
-namespace skills {
-class SkillsUiWindowController;
-}  // namespace skills
+namespace skills {}  // namespace skills
 
 namespace split_tabs {
 class SplitTabHighlightController;
@@ -251,10 +230,6 @@ namespace tabs_api {
 class TabStripUIControllerImpl;
 }  // namespace tabs_api
 
-namespace ttc {
-class AiOverlayDialogController;
-class EntrypointController;
-}  // namespace ttc
 
 namespace web_app {
 class AppBrowserController;
@@ -307,8 +282,6 @@ class BrowserWindowFeatures {
 
   // Members owned by all browser window types.
   std::unique_ptr<UnloadController> unload_controller_;
-  std::unique_ptr<ActorBorderViewController> actor_border_view_controller_;
-  std::unique_ptr<ttc::AiOverlayDialogController> ai_overlay_dialog_controller_;
 
   // Helper which handles bookmark app specific browser configuration.
   // This must be initialized before |command_controller_| to ensure the correct
@@ -358,8 +331,6 @@ class BrowserWindowFeatures {
   //   extension_window_controller_ depends on tab_list_bridge_.
   std::unique_ptr<TabListBridge> tab_list_bridge_;
 
-  std::unique_ptr<contextual_tasks::ContextualTasksBrowserController>
-      contextual_tasks_browser_controller_;
   std::unique_ptr<CookieControlsBubbleCoordinator>
       cookie_controls_bubble_coordinator_;
   std::unique_ptr<content_settings::CookieControlsController>
@@ -392,9 +363,6 @@ class BrowserWindowFeatures {
 
   std::unique_ptr<FindBarOwner> find_bar_owner_;
   std::unique_ptr<BrowserWindowFullscreenController> fullscreen_controller_;
-  std::unique_ptr<glic::GlicIphController> glic_iph_controller_;
-  std::unique_ptr<glic::GlicSplitButtonController>
-      glic_split_button_controller_;
   std::unique_ptr<HistoryClustersSidePanelCoordinator>
       history_clusters_side_panel_coordinator_;
   std::unique_ptr<HistorySidePanelCoordinator> history_side_panel_coordinator_;
@@ -404,11 +372,6 @@ class BrowserWindowFeatures {
   std::unique_ptr<InitialWebUIWindowMetricsManager>
       initial_webui_window_metrics_manager_;
   std::unique_ptr<InstantController> instant_controller_;
-  std::unique_ptr<IOSPromoController> ios_promo_controller_;
-  std::unique_ptr<lens::LensOverlayEntryPointController>
-      lens_overlay_entry_point_controller_;
-  std::unique_ptr<lens::LensRegionSearchController>
-      lens_region_search_controller_;
 
   // Helper which implements the LiveTabContext interface.
   std::unique_ptr<BrowserLiveTabContext> live_tab_context_;
@@ -455,7 +418,6 @@ class BrowserWindowFeatures {
       tabs_from_other_devices_side_panel_coordinator_;
   std::unique_ptr<ToastService> toast_service_;
   std::unique_ptr<TranslateController> translate_bubble_controller_;
-  std::unique_ptr<ttc::EntrypointController> ttc_entrypoint_controller_;
   std::unique_ptr<UpgradeNotificationController>
       upgrade_notification_controller_;
   std::unique_ptr<BrowserUserEducationInterface> user_education_;
@@ -477,9 +439,6 @@ class BrowserWindowFeatures {
   std::unique_ptr<ZoomBubbleCoordinator> zoom_bubble_coordinator_;
 
   // Members owned only when a BrowserView is attached.
-  std::unique_ptr<ActorUiWindowController> actor_ui_window_controller_;
-  std::unique_ptr<omnibox::AiModePageActionController>
-      ai_mode_page_action_controller_;
   std::unique_ptr<media_router::CastBrowserController> cast_browser_controller_;
   std::unique_ptr<ColorProviderBrowserHelper> color_provider_browser_helper_;
   std::unique_ptr<ContentsBorderController> contents_border_controller_;
@@ -502,8 +461,6 @@ class BrowserWindowFeatures {
   std::unique_ptr<tab_groups::SharedTabGroupFeedbackController>
       shared_tab_group_feedback_controller_;
   std::unique_ptr<SidePanelUI> side_panel_coordinator_;
-  std::unique_ptr<skills::SkillsUiWindowController>
-      skills_ui_window_controller_;
   std::unique_ptr<split_tabs::SplitTabHighlightController>
       split_tab_highlight_controller_;
 
@@ -535,14 +492,8 @@ class BrowserWindowFeatures {
       session_restore_infobar_controller_;
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<chromeos::LockedStateController> locked_state_controller_;
-  std::unique_ptr<ash::boca::OnTaskLockedController> on_task_locked_controller_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_CHROMEOS)
   std::unique_ptr<DownloadToolbarUIController> download_toolbar_ui_controller_;
-#endif
 
 #if defined(USE_AURA)
   std::unique_ptr<OverscrollPrefManager> overscroll_pref_manager_;

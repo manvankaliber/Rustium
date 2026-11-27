@@ -165,8 +165,6 @@ int GetVirtualConnectPlatformValue() {
   return 3;
 #elif BUILDFLAG(IS_APPLE)
   return 4;
-#elif BUILDFLAG(IS_CHROMEOS)
-  return 5;
 #elif BUILDFLAG(IS_LINUX)
   return 6;
 #else

@@ -21,9 +21,6 @@
 #include "components/webapps/common/web_app_id.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system_web_apps/system_web_app_type.h"
-#endif
 
 namespace content {
 class WebContents;
@@ -99,7 +96,7 @@ struct WebAppInstallParams {
   // defaults to false on ChromeOS, while remaining true by default on other
   // desktop platforms where it has the expected native shortcut-creation
   // effect.
-  bool add_to_quick_launch_bar = !BUILDFLAG(IS_CHROMEOS);
+  bool add_to_quick_launch_bar = !false;
 
   // These have no effect outside of Chrome OS.
   bool add_to_search = true;
@@ -117,9 +114,6 @@ struct WebAppInstallParams {
   std::vector<std::string> additional_search_terms;
 
   std::optional<std::string> launch_query_params;
-#if BUILDFLAG(IS_CHROMEOS)
-  std::optional<ash::SystemWebAppType> system_app_type;
-#endif
 
   bool oem_installed = false;
 
@@ -138,10 +132,6 @@ enum class WebAppInstallFlow {
   // TODO(crbug.com/40184819): This should be removed by adding all known flows
   // to this enum.
   kUnknown,
-#if BUILDFLAG(IS_CHROMEOS)
-  // Perform the `Create Shortcut` flow on CrOS that creates a DIY app.
-  kCreateShortcut,
-#endif
   // The 'Install Site' flow for installing the current site with an app
   // experience determined by the site.
   kInstallSite,

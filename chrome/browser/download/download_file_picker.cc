@@ -20,7 +20,7 @@
 #include "ui/display/types/display_constants.h"
 #include "ui/shell_dialogs/selected_file_info.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
 #include "ui/base/base_window.h"
 #endif
@@ -104,7 +104,7 @@ DownloadFilePicker::DownloadFilePicker(download::DownloadItem* item,
     owning_window = gfx::NativeWindow();
   }
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
   // If the download was initiated without a WebContents (e.g., from an
   // extension background service worker) or with a hostless Aura window, fall
   // back to the last active browser window.

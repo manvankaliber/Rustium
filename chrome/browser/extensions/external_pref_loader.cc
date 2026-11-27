@@ -31,17 +31,6 @@
 #include "extensions/browser/extension_file_task_runner.h"
 #include "extensions/buildflags/buildflags.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "ash/constants/ash_pref_names.h"
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/sync/sync_service_factory.h"
-#include "components/prefs/pref_change_registrar.h"
-#include "components/sync/base/data_type.h"
-#include "components/sync/service/sync_service.h"
-#include "components/sync/service/sync_service_observer.h"
-#include "components/sync/service/sync_user_settings.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -56,23 +45,7 @@ constexpr base::FilePath::CharType kExternalExtensionJson[] =
 // is a bit complicated.
 // TODO(crbug.com/40658053) This is a temporary measure and should be replaced.
 bool SkipInstallForChromeOSTablet(const base::FilePath& file_path) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!ash::switches::IsTabletFormFactor())
-    return false;
-
-  constexpr char const* kIdsNotToBeInstalledOnTabletFormFactor[] = {
-      "blpcfgokakmgnkcojhhkbfbldkacnbeo.json",  // Youtube file name.
-      "ejjicmeblgpmajnghnpcppodonldlgfn.json",  // Calendar file name.
-      "hcglmfcclpfgljeaiahehebeoaiicbko.json",  // Google Photos file name.
-      "lneaknkopdijkpnocmklfnjbeapigfbh.json",  // Google Maps file name.
-      "pjkljhegncpnkpknbcohdijeoejaedia.json",  // Gmail file name.
-  };
-
-  return std::ranges::contains(kIdsNotToBeInstalledOnTabletFormFactor,
-                               file_path.BaseName().value());
-#else
   return false;
-#endif
 }
 
 std::set<base::FilePath> GetPrefsCandidateFilesFromFolder(
@@ -116,63 +89,6 @@ std::set<base::FilePath> GetPrefsCandidateFilesFromFolder(
 
 namespace extensions {
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Helper class to wait for priority pref sync to be ready.
-class ExternalPrefLoader::PrioritySyncReadyWaiter
-    : public syncer::SyncServiceObserver {
- public:
-  explicit PrioritySyncReadyWaiter(Profile* profile) : profile_(profile) {
-    CHECK(profile_, base::NotFatalUntil::M161);
-  }
-
-  PrioritySyncReadyWaiter(const PrioritySyncReadyWaiter&) = delete;
-  PrioritySyncReadyWaiter& operator=(const PrioritySyncReadyWaiter&) = delete;
-
-  ~PrioritySyncReadyWaiter() override = default;
-
-  void Start(base::OnceClosure done_closure) {
-    syncer::SyncService* service = SyncServiceFactory::GetForProfile(profile_);
-    if (!IsWaitingForPrioritySync(service)) {
-      std::move(done_closure).Run();
-      // Note: |this| is deleted here.
-      return;
-    }
-    CHECK(!done_closure_, base::NotFatalUntil::M161);
-    done_closure_ = std::move(done_closure);
-    sync_service_observation_.Observe(service);
-  }
-
- private:
-  // Returns whether OS priority prefs are still expected to be downloaded.
-  static bool IsWaitingForPrioritySync(const syncer::SyncService* service) {
-    return service->GetDownloadStatusFor(syncer::OS_PRIORITY_PREFERENCES) ==
-           syncer::SyncService::DataTypeDownloadStatus::kWaitingForUpdates;
-  }
-
-  // syncer::SyncServiceObserver
-  void OnStateChanged(syncer::SyncService* sync) override {
-    if (!IsWaitingForPrioritySync(sync)) {
-      Finish();
-      // Note: |this| is deleted here.
-    }
-  }
-
-  void OnSyncShutdown(syncer::SyncService* sync) override {
-    CHECK(sync_service_observation_.IsObservingSource(sync),
-          base::NotFatalUntil::M161);
-    sync_service_observation_.Reset();
-  }
-
-  void Finish() { std::move(done_closure_).Run(); }
-
-  raw_ptr<Profile, LeakedDanglingUntriaged> profile_;
-
-  base::OnceClosure done_closure_;
-
-  base::ScopedObservation<syncer::SyncService, syncer::SyncServiceObserver>
-      sync_service_observation_{this};
-};
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 ExternalPrefLoader::ExternalPrefLoader(int base_path_id,
                                        int options,
@@ -195,34 +111,11 @@ const base::FilePath ExternalPrefLoader::GetBaseCrxFilePath() {
 
 void ExternalPrefLoader::StartLoading() {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M161);
-#if BUILDFLAG(IS_CHROMEOS)
-  if ((options_ & DELAY_LOAD_UNTIL_PRIORITY_SYNC) &&
-      (profile_ && SyncServiceFactory::IsSyncAllowed(profile_))) {
-    pending_waiter_list_.push_back(
-        std::make_unique<PrioritySyncReadyWaiter>(profile_));
-    PrioritySyncReadyWaiter* waiter_ptr = pending_waiter_list_.back().get();
-    waiter_ptr->Start(base::BindOnce(&ExternalPrefLoader::OnPrioritySyncReady,
-                                     this, waiter_ptr));
-    return;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   GetExtensionFileTaskRunner()->PostTask(
       FROM_HERE, base::BindOnce(&ExternalPrefLoader::LoadOnFileThread, this));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ExternalPrefLoader::OnPrioritySyncReady(
-    ExternalPrefLoader::PrioritySyncReadyWaiter* waiter) {
-  // Delete |waiter| from |pending_waiter_list_|.
-  pending_waiter_list_.erase(
-      std::ranges::find(pending_waiter_list_, waiter,
-                        &std::unique_ptr<PrioritySyncReadyWaiter>::get));
-  // Continue loading.
-  GetExtensionFileTaskRunner()->PostTask(
-      FROM_HERE, base::BindOnce(&ExternalPrefLoader::LoadOnFileThread, this));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // static.
 base::DictValue ExternalPrefLoader::ExtractExtensionPrefs(

@@ -18,7 +18,6 @@
 #include "media/capture/video/fake_video_capture_device_factory.h"
 #include "net/test/embedded_test_server/embedded_test_server.h"
 
-
 namespace content {
 
 namespace {
@@ -97,8 +96,7 @@ class WebRtcImageCaptureStressBrowserTest
 // API has already been implemented.
 // Note, these tests must be run sequentially, since multiple parallel test runs
 // competing for a single physical webcam typically causes failures.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 
 IN_PROC_BROWSER_TEST_P(WebRtcImageCaptureStressBrowserTest,
                        MANUAL_Take10Photos) {

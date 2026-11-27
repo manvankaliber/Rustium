@@ -121,7 +121,7 @@ TEST_F(FontCacheTest, NoFallbackForPrivateUseArea) {
   }
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(FontCacheTest, FallbackForEmojis) {
   FontCache& font_cache = FontCache::Get();
 
@@ -177,10 +177,9 @@ TEST_F(FontCacheTest, FallbackForEmojis) {
     }
   }
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(FontCacheTest, FallbackForArabicNastaliq) {
   ScopedNastaliqScriptForTest scoped_feature(true);
   FontCache& font_cache = FontCache::Get();
@@ -218,7 +217,7 @@ TEST_F(FontCacheTest, FallbackForArabicNastaliq) {
   ASSERT_TRUE(ar_font_data);
   EXPECT_NE(nastaliq_family, ar_font_data->PlatformData().FontFamilyName());
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 
 TEST_F(FontCacheTest, firstAvailableOrFirst) {
@@ -241,8 +240,7 @@ TEST_F(FontCacheTest, firstAvailableOrFirst) {
             FontCache::FirstAvailableOrFirst(", not exist, not exist"));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 // local() font matching requires a Mojo connection which is not available in
 // unit tests.
 #define MAYBE_FontUniqueNameMatchAvailable DISABLED_FontUniqueNameMatchAvailable
@@ -267,7 +265,7 @@ TEST_F(FontCacheTest, MAYBE_FontUniqueNameMatchAvailable) {
 // Unfortunately, we can't ensure a font here since on Android and Mac the
 // unittests can't access the font configuration. However, this test passes
 // when it's not crashing in FontCache.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #define MAYBE_GetLargerThanMaxUnsignedFont DISABLED_GetLargerThanMaxUnsignedFont
 #else
 #define MAYBE_GetLargerThanMaxUnsignedFont GetLargerThanMaxUnsignedFont
@@ -293,39 +291,11 @@ TEST_F(FontCacheTest, systemFont) {
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(FontCacheTest, Locale) {
-  FontCacheKey key1(FontFaceCreationParams(), /* font_size */ 16,
-                    /* options */ 0, /* device_scale_factor */ 1.0f,
-                    /* size_adjust */ FontSizeAdjust(),
-                    /* variation_settings */ nullptr,
-                    /* palette */ nullptr,
-                    /* variant_alternates */ nullptr,
-                    /* is_unique_match */ false);
-  FontCacheKey key2 = key1;
-  EXPECT_EQ(key1.GetHash(), key2.GetHash());
-  EXPECT_EQ(key1, key2);
-
-  key2.SetLocale(AtomicString("ja"));
-  EXPECT_NE(key1.GetHash(), key2.GetHash());
-  EXPECT_NE(key1, key2);
-}
-
-TEST_F(FontCacheTest, PrewarmFamily) {
-  test::ScopedTestFontPrewarmer prewarmer;
-  EXPECT_EQ(prewarmer.PrewarmedFamilyNames().size(), 0u);
-  FontCache::PrewarmFamily(AtomicString("test-font-cache-prewarm-family"));
-  EXPECT_EQ(prewarmer.PrewarmedFamilyNames().size(), 1u);
-  EXPECT_EQ(prewarmer.PrewarmedFamilyNames()[0],
-            "test-font-cache-prewarm-family");
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Only these platforms resolve font unique names through
 // FontCache::CreateTypefaceFromUniqueName(); macOS goes through CoreText,
 // which shares the underlying font data itself.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 
 namespace {
 

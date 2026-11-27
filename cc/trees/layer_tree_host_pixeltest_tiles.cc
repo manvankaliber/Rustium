@@ -17,7 +17,6 @@
 #include "components/viz/test/buildflags.h"
 #include "gpu/command_buffer/client/raster_interface.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace cc {
 namespace {
@@ -54,8 +53,9 @@ class LayerTreeHostTilesPixelTest
     // available for use in a timely manner. Needed for the one-copy path.
     viz::RasterContextProvider* context_provider =
         host_impl->layer_tree_frame_sink()->worker_context_provider();
-    if (!context_provider)
+    if (!context_provider) {
       return;
+    }
 
     viz::RasterContextProvider::ScopedRasterContextLock lock(context_provider);
     lock.RasterInterface()->Finish();
@@ -234,8 +234,7 @@ INSTANTIATE_TEST_SUITE_P(All,
                          ::testing::ValuesIn(kTestCases),
                          ::testing::PrintToStringParamName());
 
-#if BUILDFLAG(IS_CHROMEOS) || defined(MEMORY_SANITIZER) || \
-    defined(ADDRESS_SANITIZER)
+#if defined(MEMORY_SANITIZER) || defined(ADDRESS_SANITIZER)
 // TODO(crbug.com/40116070): Flakes on all slower bots.
 #define MAYBE_PartialRaster DISABLED_PartialRaster
 #else
@@ -287,11 +286,10 @@ INSTANTIATE_TEST_SUITE_P(All,
 GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(
     LayerTreeHostTilesTestPartialInvalidationMultiThread);
 
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(THREAD_SANITIZER)
+#if BUILDFLAG(IS_LINUX) && defined(THREAD_SANITIZER)
 // Flaky on Linux TSAN. https://crbug.com/707711
 #define MAYBE_PartialRaster DISABLED_PartialRaster
-#elif BUILDFLAG(IS_CHROMEOS) || defined(MEMORY_SANITIZER) || \
-    defined(ADDRESS_SANITIZER)
+#elif defined(MEMORY_SANITIZER) || defined(ADDRESS_SANITIZER)
 // TODO(crbug.com/40116070): Flakes on all slower bots.
 #define MAYBE_PartialRaster DISABLED_PartialRaster
 #else
@@ -334,9 +332,6 @@ TEST_P(LayerTreeHostTilesTestRasterColorSpace, sRGB) {
 }
 
 TEST_P(LayerTreeHostTilesTestRasterColorSpace, GenericRGB) {
-#if BUILDFLAG(IS_IOS)
-  pixel_comparator_ = std::make_unique<FuzzyPixelOffByOneComparator>();
-#endif
   SetColorSpace(gfx::ColorSpace(gfx::ColorSpace::PrimaryID::APPLE_GENERIC_RGB,
                                 gfx::ColorSpace::TransferID::GAMMA18));
 
@@ -349,9 +344,6 @@ TEST_P(LayerTreeHostTilesTestRasterColorSpace, GenericRGB) {
 }
 
 TEST_P(LayerTreeHostTilesTestRasterColorSpace, CustomColorSpace) {
-#if BUILDFLAG(IS_FUCHSIA)
-  pixel_comparator_ = std::make_unique<FuzzyPixelOffByOneComparator>();
-#endif
   // Create a color space with a different blue point.
   SkColorSpacePrimaries primaries;
   skcms_Matrix3x3 to_XYZD50;
@@ -412,5 +404,3 @@ TEST_P(LayerTreeHostTilesTestPartialInvalidationLowBitDepth,
 
 }  // namespace
 }  // namespace cc
-
-#endif  // !BUILDFLAG(IS_ANDROID)

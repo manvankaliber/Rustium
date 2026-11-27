@@ -82,32 +82,16 @@ void BrowserSigninPolicyHandler::ApplyPolicySettings(const PolicyMap& policies,
 
   switch (static_cast<BrowserSigninMode>(value->GetInt())) {
     case BrowserSigninMode::kForced:
-#if !BUILDFLAG(IS_CHROMEOS)
       prefs->SetValue(prefs::kForceBrowserSignin, base::Value(true));
-#endif
       [[fallthrough]];
     case BrowserSigninMode::kEnabled:
       prefs->SetValue(
-#if BUILDFLAG(IS_ANDROID)
-          // The new kSigninAllowedOnNextStartup pref is only used on Desktop.
-          // Keep the old kSigninAllowed pref for Android until the policy is
-          // fully deprecated in M71 and can be removed.
-          prefs::kSigninAllowed,
-#else
           prefs::kSigninAllowedOnNextStartup,
-#endif
           base::Value(true));
       break;
     case BrowserSigninMode::kDisabled:
       prefs->SetValue(
-#if BUILDFLAG(IS_ANDROID)
-          // The new kSigninAllowedOnNextStartup pref is only used on Desktop.
-          // Keep the old kSigninAllowed pref for Android until the policy is
-          // fully deprecated in M71 and can be removed.
-          prefs::kSigninAllowed,
-#else
           prefs::kSigninAllowedOnNextStartup,
-#endif
           base::Value(false));
       break;
   }

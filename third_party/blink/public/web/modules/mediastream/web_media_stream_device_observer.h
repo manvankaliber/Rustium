@@ -39,11 +39,9 @@ class BLINK_MODULES_EXPORT WebMediaStreamDeviceObserver {
       base::RepeatingCallback<void(const MediaStreamDevice& device)>;
   using OnDeviceCaptureHandleChangeCb =
       base::RepeatingCallback<void(const MediaStreamDevice& device)>;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   using OnZoomLevelChangeCb =
       base::RepeatingCallback<void(const MediaStreamDevice& device,
                                    int zoom_level)>;
-#endif
 
   struct StreamCallbacks {
     OnDeviceStoppedCb on_device_stopped_cb;
@@ -52,9 +50,7 @@ class BLINK_MODULES_EXPORT WebMediaStreamDeviceObserver {
     OnDeviceCaptureConfigurationChangeCb
         on_device_capture_configuration_change_cb;
     OnDeviceCaptureHandleChangeCb on_device_capture_handle_change_cb;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     OnZoomLevelChangeCb on_zoom_level_change_cb;
-#endif
   };
 
   void AddStreams(const WebString& label,

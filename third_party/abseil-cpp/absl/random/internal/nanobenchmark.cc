@@ -38,9 +38,6 @@
 #define ABSL_OS_WIN
 #include <windows.h>  // NOLINT
 
-#elif defined(__ANDROID__)
-#define ABSL_OS_ANDROID
-
 #elif defined(__linux__)
 #define ABSL_OS_LINUX
 #include <sched.h>        // NOLINT
@@ -700,7 +697,7 @@ void PinThreadToCPU(int cpu) {
   }
   const DWORD_PTR prev = SetThreadAffinityMask(GetCurrentThread(), 1ULL << cpu);
   ABSL_RAW_CHECK(prev != 0, "SetAffinity failed");
-#elif defined(ABSL_OS_LINUX) && !defined(ABSL_OS_ANDROID)
+#elif (defined(ABSL_OS_LINUX))
   if (cpu < 0) {
     cpu = sched_getcpu();
     ABSL_RAW_CHECK(cpu >= 0, "PinThreadToCPU detect failed");

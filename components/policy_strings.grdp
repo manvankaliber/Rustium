@@ -202,11 +202,7 @@
   <message name="IDS_POLICY_EMPTY_ORIGIN_LIST_ERROR" desc="The text displayed in the status column for the policy AutoLaunchProtocolsFromOrigins when the origin list is empty">
     Origin list is empty.
   </message>
-  <if expr="is_chromeos">
-    <message name="IDS_POLICY_DUPLICATE_FILE_EXTENSION_ERROR" desc="The text displayed in the status column for the policy DefaultHandlersForFileExtensions when a file extension is assigned to more than one handler.">
-      Duplicate handlers for file_extension "<ph name="FILE_EXTENSION">$1<ex>txt</ex></ph>" referenced by apps "<ph name="POLICY_IDS_LIST">$2<ex>https://google.com/maps, pnomlkjighijklmnopabcdefghijklff</ex></ph>".
-    </message>
-  </if>
+
   <message name="IDS_POLICY_INVALID_EXTENSION_ID_ERROR" desc="The text displayed in the status column when the extension ID doesn't match the expected format.">
     Invalid extension ID.
   </message>
@@ -300,11 +296,7 @@
   <message name="IDS_POLICY_INVALID_PROXY_MODE_ERROR" desc="The text displayed in the status column when the value for ProxyMode is invalid.">
     Invalid proxy mode.
   </message>
-  <if expr="is_chromeos">
-    <message name="IDS_POLICY_UNKNOWN_ARC_MANAGED_CONFIGURATION_VARIABLE" desc="The warning text displayed in the status column when the managed configuration of an ARC application contains an unknown variable.">
-      Unknown variable "<ph name="VARIABLE">$1<ex>${UNKNOWN_VARIABLE}</ex></ph>" in the managed configuration of "<ph name="APPLICATION_ID">$2<ex>com.dropbox.android</ex></ph>".
-    </message>
-  </if>
+
   <message name="IDS_POLICY_OFF_CWS_URL_ERROR" desc="The text displayed in the status column when the update URL points to a location other than the Chrome Webstore and the machine is not enterprise managed.">
     This computer is not detected as enterprise managed so policy can only automatically install extensions hosted on the Chrome Webstore. The Chrome Webstore update URL is "<ph name="CWS_UPDATE_URL">$1<ex>https://clients2.google.com/service/update2/crx</ex></ph>".
   </message>
@@ -368,26 +360,8 @@
   <message name="IDS_POLICY_USER_IS_NOT_AFFILIATED_ERROR" desc="The text displayed in the status column when a user cloud policy is ignored due to user is not affiliated to the machine management.">
     Ignored because user is not affiliated to the machine management or the machine is not managed.
   </message>
-  <if expr="is_chromeos">
-    <message name="IDS_POLICY_NETWORK_CONFIG_PARSE_FAILED" desc="The text displayed in the status column when the corresponding network configuration policy failed to parse.">
-      Network configuration failed to be parsed (invalid JSON).
-    </message>
-    <message name="IDS_POLICY_NETWORK_CONFIG_IMPORT_PARTIAL" desc="The text displayed in the status column when the corresponding network configuration policy is not standard conform and was imported partially. DEBUG_INFO contains non-localized detailed information about existing warnings.">
-      The network configuration doesn't comply to the ONC standard. Parts of the configuration may not be imported.
-Additional details:
-<ph name="DEBUG_INFO">$1<ex>WARNING: Field name 'SomeRandomField' is unknown. (at toplevel)</ex></ph>
-    </message>
-    <message name="IDS_POLICY_NETWORK_CONFIG_IMPORT_FAILED" desc="The text displayed in the status column when the corresponding network configuration policy is invalid. DEBUG_INFO contains non-localized detailed information about existing errors/warnings.">
-      The network configuration is invalid and couldn't be imported.
-Additional details:
-<ph name="DEBUG_INFO">$1<ex>ERROR: Field name 'SomeRandomField' is unknown. (at toplevel)</ex></ph>
-    </message>
-  </if>
-  <if expr="is_chromeos">
-    <message name="IDS_POLICY_SCOPE_ERROR" desc="Text displayed in the status column when a policy is set in an unsupported scope.">
-      Policy scope is not supported.
-    </message>
-  </if>
+
+
   <message name="IDS_POLICY_LEVEL_ERROR" desc="Text displayed in the status column when a policy is set at an unsupported level.">
     Policy level is not supported.
   </message>
@@ -707,16 +681,12 @@ Additional details:
   <message name="IDS_POLICY_SCOPE_USER" desc="Text displayed in the Applies to column when a policy applies to the current user only.">
     Current user
   </message>
-  <if expr="not is_android and not is_chromeos">
+
     <message name="IDS_POLICY_SCOPE_DEVICE" desc="Text displayed in the Applies to column when a policy applies to everyone on the machine.">
       Machine
     </message>
-  </if>
-  <if expr="is_chromeos or is_android">
-    <message name="IDS_POLICY_SCOPE_DEVICE" desc="Mobile: Text displayed in the Applies To column when a policy applies to everyone on the device.">
-      Device
-    </message>
-  </if>
+
+
   <message name="IDS_POLICY_LEVEL_RECOMMENDED" desc="Text displayed in the Level column when a policy is recommended.">
     Recommended
   </message>

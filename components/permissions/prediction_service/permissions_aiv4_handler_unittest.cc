@@ -258,11 +258,7 @@ INSTANTIATE_TEST_SUITE_P(
          PermissionRequestRelevance::kVeryLow, /*metadata=*/std::nullopt},
         {kOptTargetNotifications, test::ModelFilePath(k0_023ReturnModel),
          /*expected_model_return_value=*/0.023f,
-#if BUILDFLAG(IS_ANDROID)
-         PermissionRequestRelevance::kMedium, /*metadata=*/std::nullopt},
-#else
          PermissionRequestRelevance::kLow, /*metadata=*/std::nullopt},
-#endif
         {kOptTargetNotifications, test::ModelFilePath(kOneReturnModel),
          /*expected_model_return_value=*/1.0f,
          PermissionRequestRelevance::kVeryHigh, /*metadata=*/std::nullopt},

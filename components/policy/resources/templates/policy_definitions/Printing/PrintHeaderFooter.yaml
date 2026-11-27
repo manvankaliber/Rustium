@@ -9,8 +9,7 @@ features:
   can_be_recommended: true
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 items:
 - caption: Show headers and footers in print preview
   value: true

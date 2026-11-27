@@ -18,7 +18,6 @@
 #include "chrome/browser/contextual_cueing/features.h"
 #include "chrome/browser/contextual_cueing/prefs.h"
 #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/indigo/indigo_prefs.h"
 #include "chrome/browser/indigo/proto/indigo_config.pb.h"
 #include "chrome/browser/indigo/proto/indigo_prompts.pb.h"
@@ -42,9 +41,6 @@
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #include "base/enterprise_util.h"
-#elif BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/settings/scoped_cros_settings_test_helper.h"
-#include "chromeos/ash/components/install_attributes/stub_install_attributes.h"
 #endif
 
 namespace indigo {
@@ -238,33 +234,6 @@ TEST_F(IndigoServiceTest, RefreshTokenErrorResolved) {
   EXPECT_TRUE(LocalEligibilityBecomes(LocalEligibility::kEligible));
 }
 
-TEST_F(IndigoServiceTest, GlicRequirementEnabledAndDisabled) {
-  scoped_feature_list_.Reset();
-  scoped_feature_list_.InitAndEnableFeatureWithParameters(
-      features::kIndigo, {{features::kIndigoRequireGlicEnabling.name, "true"},
-                          {features::kIndigoSkipEnterpriseCheck.name, "true"}});
-
-  CreateService();
-  MakeAccountAvailableAndCapable();
-
-  // Initially Glic is not enabled for the profile, so local eligibility becomes
-  // kGlicDisabledForProfile.
-  EXPECT_TRUE(
-      LocalEligibilityBecomes(LocalEligibility::kGlicDisabledForProfile));
-
-  // Once Glic is enabled (bypassing enablement checks), local eligibility
-  // becomes kEligible.
-  glic::GlicEnabling::ScopedBypassEnablementChecksForTesting scoped_glic_bypass;
-  {
-    CoreAccountId account_id =
-        identity_test_env_.identity_manager()->GetPrimaryAccountId(
-            signin::ConsentLevel::kSignin);
-    AccountInfo info = identity_test_env_.identity_manager()
-                           ->FindExtendedAccountInfoByAccountId(account_id);
-    service_->OnExtendedAccountInfoUpdated(info);
-  }
-  EXPECT_TRUE(LocalEligibilityBecomes(LocalEligibility::kEligible));
-}
 
 TEST_F(IndigoServiceTest, AnchoredMessageTrigger) {
 #if BUILDFLAG(IS_MAC)
@@ -785,25 +754,6 @@ TEST_P(IndigoServiceManagementPolicyDefaultEnabledTest, EnterpriseDeviceWin) {
 }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_P(IndigoServiceManagementPolicyDefaultEnabledTest,
-       EnterpriseDeviceChromeOS) {
-  CreateService();
-  profile_.ScopedCrosSettingsTestHelper()->InstallAttributes()->SetCloudManaged(
-      "example.com", "device_id");
-  MakeAccountAvailableAndCapable();
-  EXPECT_TRUE(
-      LocalEligibilityBecomes(IsIndigoAllowedForEnterprise()
-                                  ? LocalEligibility::kEligible
-                                  : LocalEligibility::kEnterpriseDisallowed));
-
-  SetPolicySettings(prefs::Policy::kDisallowed);
-  EXPECT_TRUE(
-      LocalEligibilityBecomes(IsIndigoAllowedForEnterprise()
-                                  ? LocalEligibility::kDisabledByPolicy
-                                  : LocalEligibility::kEnterpriseDisallowed));
-}
-#endif
 
 INSTANTIATE_TEST_SUITE_P(
     /* no prefix */,

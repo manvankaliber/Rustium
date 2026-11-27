@@ -259,7 +259,6 @@ INSTANTIATE_TEST_SUITE_P(
 INSTANTIATE_TEST_SUITE_P(All, AppMenuIconControllerTest, ::testing::Values(0));
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_P(AppMenuIconControllerTest, GlobalErrorLowSeverityShowsActionRequired) {
   ::testing::NiceMock<MockAppMenuIconControllerDelegate> mock_delegate;
   AppMenuIconController controller(upgrade_detector(), profile(),
@@ -462,4 +461,3 @@ TEST_P(AppMenuIconControllerTest,
   CreateProfile();
 }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-#endif  // !BUILDFLAG(IS_CHROMEOS)

@@ -167,19 +167,6 @@ void DocumentStyleEnvironmentVariables::UpdatePreferredTextScaleFromDocument() {
     scale_factor = FontSizeFunctions::SnapToClosestFontScaleBucket(
                        settings->GetAccessibilityFontScaleFactor()) *
                    (settings->GetDefaultFontSize() / 16.0);
-#if BUILDFLAG(IS_ANDROID)
-  } else if (!settings->GetScaleAllFontsIfNoMetaTextScaleTag()) {
-    // For compat, we don't expose env(preferred-text-scale)'s true value to
-    // pages in WebView if the page has no meta text-scale tag and the app does
-    // not enable autosizing.
-    //
-    // WebView defaults to inflating ALL text on the page, so if there's a page
-    // that uses env(preferred-text-scale) to inflate *parts* of the page, those
-    // parts will get double-scaled (once along with everything else, then once
-    // again by env()).
-    scale_factor = FontSizeFunctions::SnapToClosestFontScaleBucket(
-        settings->GetAccessibilityFontScaleFactor());
-#endif  // BUILDFLAG(IS_ANDROID)
   } else {
     scale_factor = 1.0;
   }

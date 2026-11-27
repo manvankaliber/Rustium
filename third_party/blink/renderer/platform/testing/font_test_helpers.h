@@ -34,7 +34,7 @@ Font* CreateTestFont(const AtomicString& family_name,
 
 Font* CreateAhemFont(float size);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 class TestFontPrewarmer : public WebFontPrewarmer {
  public:
   void PrewarmFamily(const WebString& family_name) override;

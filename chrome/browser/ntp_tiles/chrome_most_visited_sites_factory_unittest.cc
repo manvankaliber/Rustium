@@ -18,11 +18,6 @@
 #include "content/public/test/browser_task_environment.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/test/scoped_feature_list.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 
 namespace {
 
@@ -33,17 +28,9 @@ class ChromeMostVisitedSitesFactoryTest : public testing::Test {
     TemplateURLServiceFactory::GetInstance()->SetTestingFactory(
         profile(),
         TemplateURLServiceTestUtil::GetTemplateURLServiceTestingFactory());
-#if BUILDFLAG(IS_ANDROID)
-    // Default to WebUI NTP enabled for Android.
-    scoped_feature_list_.InitAndEnableFeature(
-        chrome::android::kUseWebUiNtpAndroid);
-#endif
   }
 
   void TearDown() override {
-#if BUILDFLAG(IS_ANDROID)
-    base::android::device_info::reset_is_desktop_for_testing();
-#endif
     test_util_.reset();
   }
 
@@ -70,9 +57,6 @@ class ChromeMostVisitedSitesFactoryTest : public testing::Test {
   TestingProfile* profile() { return test_util_->profile(); }
 
   content::BrowserTaskEnvironment task_environment_;
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList scoped_feature_list_;
-#endif
   std::unique_ptr<TemplateURLServiceTestUtil> test_util_;
 };
 
@@ -82,82 +66,6 @@ TEST_F(ChromeMostVisitedSitesFactoryTest, OffTheRecordReturnsNull) {
   EXPECT_EQ(nullptr, ChromeMostVisitedSitesFactory::NewForProfile(otr_profile));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ChromeMostVisitedSitesFactoryTest,
-       DesktopAndroid_WebUiNtp3PDSEEnabled_GoogleDSE_CreatesPopularSites) {
-  // Arrange
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{});
-  SetDefaultSearchProvider(u"google",
-                           "https://www.google.com/search?q={searchTerms}");
-
-  // Act & Assert
-  EXPECT_TRUE(DoesPopularSitesSourceExist());
-}
-
-TEST_F(
-    ChromeMostVisitedSitesFactoryTest,
-    DesktopAndroid_WebUiNtp3PDSEEnabled_NotGoogleDSE_DoesNotCreatePopularSites) {
-  // Arrange
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{});
-  SetDefaultSearchProvider(u"bing",
-                           "https://www.bing.com/search?q={searchTerms}");
-
-  // Act & Assert
-  EXPECT_FALSE(DoesPopularSitesSourceExist());
-}
-
-TEST_F(ChromeMostVisitedSitesFactoryTest,
-       DesktopAndroid_WebUiNtp3PDSEDisabled_CreatesPopularSites) {
-  // Arrange
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{},
-      /*disabled_features=*/{chrome::android::kUseWebUiNtp3PDSE});
-  SetDefaultSearchProvider(u"bing",
-                           "https://www.bing.com/search?q={searchTerms}");
-
-  // Act & Assert
-  EXPECT_TRUE(DoesPopularSitesSourceExist());
-}
-
-TEST_F(ChromeMostVisitedSitesFactoryTest,
-       DesktopAndroid_WebUiNtpDisabled_CreatesPopularSites) {
-  // Arrange
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{chrome::android::kUseWebUiNtpAndroid});
-  SetDefaultSearchProvider(u"bing",
-                           "https://www.bing.com/search?q={searchTerms}");
-
-  // Act & Assert
-  EXPECT_TRUE(DoesPopularSitesSourceExist());
-}
-
-TEST_F(ChromeMostVisitedSitesFactoryTest, MobileAndroid_CreatesPopularSites) {
-  // Arrange
-  base::android::device_info::set_is_desktop_for_testing(false);
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/{chrome::android::kUseWebUiNtp3PDSE},
-      /*disabled_features=*/{});
-  SetDefaultSearchProvider(u"bing",
-                           "https://www.bing.com/search?q={searchTerms}");
-
-  // Act & Assert
-  EXPECT_TRUE(DoesPopularSitesSourceExist());
-}
-#else
 TEST_F(ChromeMostVisitedSitesFactoryTest, DesktopDoesNotCreatePopularSites) {
   // Arrange
   SetDefaultSearchProvider(u"google",
@@ -166,5 +74,4 @@ TEST_F(ChromeMostVisitedSitesFactoryTest, DesktopDoesNotCreatePopularSites) {
   // Act & Assert
   EXPECT_FALSE(DoesPopularSitesSourceExist());
 }
-#endif
 }  // namespace

@@ -5,9 +5,7 @@
 import './top_toolbar.js';
 
 // clang-format off
-// <if expr="not is_android">
 import {ColorChangeUpdater} from 'chrome://resources/cr_components/color_change_listener/colors_css_updater.js';
-// </if>
 import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
 import {CrLitElement} from 'chrome://resources/lit/v3_0/lit.rollup.js';
 import type {CSSResultGroup} from 'chrome://resources/lit/v3_0/lit.rollup.js';
@@ -63,9 +61,7 @@ export class ContextualTasksToolbarAppElement extends CrLitElement {
   override connectedCallback() {
     super.connectedCallback();
 
-    // <if expr="not is_android">
     ColorChangeUpdater.forDocument().start();
-    // </if>
 
     const toolbarCallbackRouter = this.toolbarBrowserProxy_.callbackRouter;
     this.toolbarListenerIds_ = [

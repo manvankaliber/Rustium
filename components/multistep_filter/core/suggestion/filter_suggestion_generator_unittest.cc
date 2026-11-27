@@ -33,7 +33,6 @@ namespace {
 
 constexpr char kTestUrl[] = "https://example.com";
 constexpr char kTestDomain[] = "example.com";
-constexpr char kShoppingTask[] = "SHOPPING";
 constexpr char kTestAttributeKey[] = "category";
 constexpr char kTestAttributeValue[] = "shoes";
 constexpr char16_t kTestAttributeValue16[] = u"shoes";
@@ -120,8 +119,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -165,7 +162,6 @@ TEST_F(FilterSuggestionGeneratorTest,
                         callback,
                     int64_t navigation_id) {
         ASSERT_EQ(filter_annotations.size(), 1u);
-        EXPECT_EQ(filter_annotations[0].task_type, kShoppingTask);
         std::move(callback).Run(
             std::vector<FilterSuggestionCandidate>{expected_candidate});
       });
@@ -186,8 +182,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -237,8 +231,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -288,8 +280,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -342,8 +332,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -409,8 +397,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -476,8 +462,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -522,8 +506,6 @@ TEST_F(FilterSuggestionGeneratorTest,
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2},
       {kTestAttributeKey3, kTestAttributeValue3}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -572,8 +554,6 @@ TEST_F(FilterSuggestionGeneratorTest,
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2},
       {kTestAttributeKey3, kTestAttributeValue3}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -620,8 +600,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   const GURL url("https://example.com/search?category=shoes&size=large");
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -805,8 +783,6 @@ TEST_F(FilterSuggestionGeneratorTest,
 
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -1037,8 +1013,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   const std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, attributes);
   annotation.creation_timestamp = now;
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
@@ -1102,8 +1076,6 @@ TEST_F(FilterSuggestionGeneratorTest,
   const std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
-  FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, "different-domain.com", attributes);
   annotation.creation_timestamp = now;
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(

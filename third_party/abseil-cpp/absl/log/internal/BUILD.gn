@@ -206,9 +206,6 @@ absl_source_set("log_sink_set") {
     "//third_party/abseil-cpp/absl/synchronization",
     "//third_party/abseil-cpp/absl/types:span",
   ]
-  if (is_android) {
-    libs = [ "log" ]
-  }
 }
 
 absl_source_set("nullguard") {
@@ -428,7 +425,7 @@ absl_test("stderr_log_sink_test") {
     "//third_party/abseil-cpp/absl/log",
     "//third_party/abseil-cpp/absl/log:globals",
   ]
-  if (is_apple || is_android) {
+  if (is_apple) {
     sources = []
   }
 }

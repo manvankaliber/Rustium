@@ -100,12 +100,6 @@ class NoBestEffortTasksTest : public PlatformBrowserTest {
   }
 
   void TearDownOnMainThread() override {
-#if BUILDFLAG(IS_ANDROID)
-    // Android doesn't shut down the ThreadPool between tests so the validation
-    // task could run during teardown. On other platforms it shouldn't run at
-    // all.
-    *best_effort_tasks_allowed_ptr_ = true;
-#endif
     // The task (and the flag it owns) is destroyed when the ThreadPool shuts
     // down, so don't keep pointing at it.
     best_effort_tasks_allowed_ptr_ = nullptr;
@@ -128,10 +122,6 @@ IN_PROC_BROWSER_TEST_F(NoBestEffortTasksTest, LoadAndPaintAboutBlank) {
   content::WebContents* const web_contents =
       chrome_test_utils::GetActiveWebContents(this);
   ASSERT_TRUE(web_contents);
-#if BUILDFLAG(IS_ANDROID)
-  // Ensure about:blank is loaded, so the last committed URL is correct.
-  ASSERT_TRUE(content::WaitForLoadStop(web_contents));
-#endif
   ASSERT_TRUE(web_contents->GetLastCommittedURL().IsAboutBlank());
 
   WaitUntilLoadedAndPainted(web_contents);

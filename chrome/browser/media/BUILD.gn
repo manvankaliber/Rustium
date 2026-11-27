@@ -118,17 +118,6 @@ source_set("unittests") {
     ]
   }
 
-  if (is_chromeos) {
-    sources += [ "platform_verification_chromeos_unittest.cc" ]
-    deps += [
-      ":impl",
-      "//chrome/browser/content_settings:content_settings_factory",
-      "//components/content_settings/core/browser",
-      "//components/permissions:test_support",
-      "//content/test:test_support",
-    ]
-  }
-
   if (enable_extensions) {
     sources += [ "cast_mirroring_service_host_unittest.cc" ]
     deps += [
@@ -137,7 +126,7 @@ source_set("unittests") {
     ]
   }
 
-  if (enable_media_remoting && !is_android) {
+  if (enable_media_remoting) {
     sources += [ "cast_remoting_connector_unittest.cc" ]
     deps += [
       ":impl",
@@ -153,23 +142,7 @@ source_set("unittests") {
     }
   }
 
-  if (is_android) {
-    sources += [
-      "android/cdm/media_drm_origin_id_manager_unittest.cc",
-      "android/cdm/media_drm_storage_factory_unittest.cc",
-    ]
-    deps += [
-      ":impl",
-      "//base/test:test_support",
-      "//chrome/test:test_support",
-      "//components/prefs:test_support",
-      "//content/test:test_support",
-      "//media/mojo/mojom",
-      "//mojo/public/cpp/bindings",
-    ]
-  }
-
-  if (is_android || is_chromeos || is_win) {
+  if (is_win) {
     sources += [ "protected_media_identifier_permission_context_unittest.cc" ]
     deps += [
       ":impl",
@@ -180,12 +153,6 @@ source_set("unittests") {
       "//components/prefs:test_support",
       "//media",
     ]
-    if (is_chromeos) {
-      deps += [
-        "//ash/constants",
-        "//chromeos/dbus/constants",
-      ]
-    }
   }
 }
 
@@ -212,55 +179,53 @@ source_set("browser_tests") {
     "//testing/gtest",
   ]
 
-  if (!is_android) {
-    sources += [
-      "audio_ducker_browsertest.cc",
-      "autoplay_metrics_browsertest.cc",
-      "cast_mirroring_service_host_browsertest.cc",
-      "defer_background_media_browsertest.cc",
-      "encrypted_media_supported_types_browsertest.cc",
-      "media_browsertest.cc",
-      "media_browsertest.h",
-      "media_engagement_autoplay_browsertest.cc",
-      "media_engagement_browsertest.cc",
-      "media_session_browsertest.cc",
-      "unified_autoplay_browsertest.cc",
-    ]
+  sources += [
+    "audio_ducker_browsertest.cc",
+    "autoplay_metrics_browsertest.cc",
+    "cast_mirroring_service_host_browsertest.cc",
+    "defer_background_media_browsertest.cc",
+    "encrypted_media_supported_types_browsertest.cc",
+    "media_browsertest.cc",
+    "media_browsertest.h",
+    "media_engagement_autoplay_browsertest.cc",
+    "media_engagement_browsertest.cc",
+    "media_session_browsertest.cc",
+    "unified_autoplay_browsertest.cc",
+  ]
 
-    # TODO(crbug.com/40553979): encrypted_media_browsertest is flaky on the
-    # Linux Asan Lsan bot.
-    if (!((is_linux || is_chromeos) && is_asan && is_lsan)) {
-      sources += [ "encrypted_media_browsertest.cc" ]
-    }
-    deps += [
-      ":impl",
-      "//chrome/browser:chrome_content_browser_client",
-      "//chrome/browser/component_updater",
-      "//chrome/browser/content_settings:content_settings_factory",
-      "//chrome/browser/content_settings:content_settings_util",
-      "//chrome/browser/media/router/discovery/access_code:access_code_cast_feature",
-      "//chrome/browser/prefs:util",
-      "//chrome/browser/preloading/prefetch/no_state_prefetch",
-      "//chrome/browser/preloading/prefetch/no_state_prefetch:test_support",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/speech",
-      "//chrome/browser/tab_group_sync",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:recently_audible_helper",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/test/base:test_launcher_utils",
-      "//components/cdm/common:buildflags",
-      "//components/no_state_prefetch/browser",
-      "//components/no_state_prefetch/common",
-      "//components/prefs",
-      "//media:test_support",
-      "//media/capture/mojom:video_capture",
-      "//media/mojo/mojom",
-      "//services/media_session/public/cpp/test:test_support",
-      "//services/metrics/public/cpp:ukm_builders",
-      "//third_party/widevine/cdm:headers",
-    ]
+  # TODO(crbug.com/40553979): encrypted_media_browsertest is flaky on the
+  # Linux Asan Lsan bot.
+  if (!(is_linux && is_asan && is_lsan)) {
+    sources += [ "encrypted_media_browsertest.cc" ]
   }
+  deps += [
+    ":impl",
+    "//chrome/browser:chrome_content_browser_client",
+    "//chrome/browser/component_updater",
+    "//chrome/browser/content_settings:content_settings_factory",
+    "//chrome/browser/content_settings:content_settings_util",
+    "//chrome/browser/media/router/discovery/access_code:access_code_cast_feature",
+    "//chrome/browser/prefs:util",
+    "//chrome/browser/preloading/prefetch/no_state_prefetch",
+    "//chrome/browser/preloading/prefetch/no_state_prefetch:test_support",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/speech",
+    "//chrome/browser/tab_group_sync",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:recently_audible_helper",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/test/base:test_launcher_utils",
+    "//components/cdm/common:buildflags",
+    "//components/no_state_prefetch/browser",
+    "//components/no_state_prefetch/common",
+    "//components/prefs",
+    "//media:test_support",
+    "//media/capture/mojom:video_capture",
+    "//media/mojo/mojom",
+    "//services/media_session/public/cpp/test:test_support",
+    "//services/metrics/public/cpp:ukm_builders",
+    "//third_party/widevine/cdm:headers",
+  ]
 }
 
 source_set("media") {
@@ -294,47 +259,23 @@ source_set("media") {
     "//url",
   ]
 
-  if (is_chromeos) {
-    public += [
-      "chromeos_login_and_lock_media_access_handler.h",
-      "platform_verification_chromeos.h",
-    ]
-    public_deps += [ "//ash" ]
-  }
+  public += [
+    "audio_ducker.h",
+    "cast_mirroring_service_host.h",
+    "cast_mirroring_service_host_factory.h",
+    "mirroring_service_host.h",
+    "offscreen_tab.h",
+  ]
+  public_deps += [
+    "//components/mirroring/mojom:service",
+    "//media/capture/mojom:video_capture",
+    "//media/mojo/mojom",
+    "//mojo/public/cpp/bindings",
+    "//services/media_session/public/mojom",
+    "//ui/gfx/geometry",
+  ]
 
-  if (!is_android) {
-    public += [
-      "audio_ducker.h",
-      "cast_mirroring_service_host.h",
-      "cast_mirroring_service_host_factory.h",
-      "mirroring_service_host.h",
-      "offscreen_tab.h",
-    ]
-    public_deps += [
-      "//components/mirroring/mojom:service",
-      "//media/capture/mojom:video_capture",
-      "//media/mojo/mojom",
-      "//mojo/public/cpp/bindings",
-      "//services/media_session/public/mojom",
-      "//ui/gfx/geometry",
-    ]
-  }
-
-  if (is_android) {
-    public += [
-      "android/cdm/media_drm_origin_id_manager.h",
-      "android/cdm/media_drm_origin_id_manager_factory.h",
-      "android/cdm/media_drm_storage_factory.h",
-      "android/router/chrome_media_router_client.h",
-    ]
-    public_deps += [
-      "//media",
-      "//media/mojo/mojom",
-      "//mojo/public/cpp/bindings",
-    ]
-  }
-
-  if (is_android || is_chromeos || is_win) {
+  if (is_win) {
     public += [ "protected_media_identifier_permission_context.h" ]
     public_deps += [ "//components/permissions" ]
   }
@@ -387,10 +328,6 @@ source_set("media") {
   if (enable_library_cdms || is_win) {
     public += [ "cdm_document_service_impl.h" ]
     public_deps += [ "//media/mojo/mojom" ]
-
-    if (is_chromeos) {
-      public_deps += [ "//chrome/browser/ash/attestation" ]
-    }
   }
 }
 
@@ -438,57 +375,25 @@ source_set("impl") {
     "//third_party/blink/public/common",
   ]
 
-  if (is_chromeos) {
-    sources += [
-      "chromeos_login_and_lock_media_access_handler.cc",
-      "platform_verification_chromeos.cc",
-    ]
-    deps += [
-      "//chrome/browser/ui:screen_capture_notification_ui",
-      "//chrome/browser/ui/ash/login",
-      "//chrome/browser/ui/webui/ash/lock_screen_reauth",
-      "//chromeos/ash/components/settings",
-      "//chromeos/dbus/constants",
-      "//components/guest_view/browser",
-    ]
-  }
+  sources += [
+    "audio_ducker.cc",
+    "cast_mirroring_service_host.cc",
+    "cast_mirroring_service_host_factory.cc",
+    "mirroring_service_host.cc",
+    "offscreen_tab.cc",
+  ]
+  deps += [
+    "//chrome/browser/media/router:media_router_feature",
+    "//chrome/browser/media/router/discovery/access_code:access_code_cast_feature",
+    "//chrome/browser/net",
+    "//chrome/browser/ui/tab_sharing",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//components/media_router/browser",
+    "//components/mirroring/browser",
+    "//media/mojo/services",
+  ]
 
-  if (!is_android) {
-    sources += [
-      "audio_ducker.cc",
-      "cast_mirroring_service_host.cc",
-      "cast_mirroring_service_host_factory.cc",
-      "mirroring_service_host.cc",
-      "offscreen_tab.cc",
-    ]
-    deps += [
-      "//chrome/browser/media/router:media_router_feature",
-      "//chrome/browser/media/router/discovery/access_code:access_code_cast_feature",
-      "//chrome/browser/net",
-      "//chrome/browser/ui/tab_sharing",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//components/media_router/browser",
-      "//components/mirroring/browser",
-      "//media/mojo/services",
-    ]
-  }
-
-  if (is_android) {
-    sources += [
-      "android/cdm/media_drm_origin_id_manager.cc",
-      "android/cdm/media_drm_origin_id_manager_factory.cc",
-      "android/cdm/media_drm_storage_factory.cc",
-      "android/router/chrome_media_router_client.cc",
-    ]
-    deps += [
-      "//chrome/android:chrome_jni_headers",
-      "//chrome/browser/net",
-      "//components/cdm/browser",
-      "//third_party/widevine/cdm:headers",
-    ]
-  }
-
-  if (is_android || is_chromeos || is_win) {
+  if (is_win) {
     sources += [ "protected_media_identifier_permission_context.cc" ]
   }
 

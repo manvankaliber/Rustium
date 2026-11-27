@@ -78,7 +78,7 @@ constexpr base::MemoryConsumerTraits kPrerenderHostRegistryTraits(
 
 // The SuppressMemoryListeners experiment showed that reacting to memory
 // pressure is not beneficial on Android.
-constexpr bool kRegisterMemoryConsumer = !BUILDFLAG(IS_ANDROID);
+constexpr bool kRegisterMemoryConsumer = !false;
 
 bool IsBackground(Visibility visibility) {
   // PrerenderHostRegistry treats HIDDEN and OCCLUDED as background.
@@ -107,11 +107,7 @@ bool DeviceHasEnoughMemoryForPrerender() {
   // TODO(crbug.com/40277975): experiment with 1200 MB threshold like
   // back/forward cache.
   static constexpr int kDefaultMemoryThresholdMb =
-#if BUILDFLAG(IS_ANDROID)
-      1700;
-#else
       0;
-#endif
 
   // The default is overridable by field trial param.
   int memory_threshold_mb = base::GetFieldTrialParamByFeatureAsInt(

@@ -24,8 +24,6 @@
 
 #if BUILDFLAG(IS_WIN)
 #include "chrome/browser/vr/graphics_delegate_win.h"
-#elif BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/vr/graphics_delegate_android.h"
 #endif
 
 namespace vr {
@@ -34,9 +32,6 @@ namespace {
 constexpr float kZNear = 0.1f;
 constexpr float kZFar = 10000.0f;
 constexpr gfx::RectF kFullUvBounds{0.0f, 0.0f, 1.0f, 1.0f};
-#if BUILDFLAG(IS_ANDROID)
-constexpr int kOverlayResolutionDivisor = 2;
-#endif
 
 CameraModel CameraModelViewProjFromXRView(
     const device::mojom::XRViewPtr& view) {
@@ -121,8 +116,6 @@ gfx::RectF ComputeNormalizedFovBounds(
 std::unique_ptr<GraphicsDelegate> GraphicsDelegate::Create() {
 #if BUILDFLAG(IS_WIN)
   return std::make_unique<GraphicsDelegateWin>();
-#elif BUILDFLAG(IS_ANDROID)
-  return std::make_unique<GraphicsDelegateAndroid>();
 #else
   NOTIMPLEMENTED();
   return nullptr;
@@ -149,43 +142,23 @@ void GraphicsDelegate::SetXrViews(
 
   CHECK(left_, base::NotFatalUntil::M163);
   CHECK(right_, base::NotFatalUntil::M163);
-#if BUILDFLAG(IS_ANDROID)
-  // The overlay only renders small 2D UI indicators and is composited with
-  // linear filtering, so half-resolution per axis (4x fewer pixels) keeps the
-  // UI crisp while cutting GPU fillrate and memory bandwidth by 75%.
-  left_->viewport = gfx::Rect(
-      0, 0, std::max(1, left_->viewport.width() / kOverlayResolutionDivisor),
-      std::max(1, left_->viewport.height() / kOverlayResolutionDivisor));
-  right_->viewport = gfx::Rect(
-      left_->viewport.width(), 0,
-      std::max(1, right_->viewport.width() / kOverlayResolutionDivisor),
-      std::max(1, right_->viewport.height() / kOverlayResolutionDivisor));
-#endif
   left_bounds_ = kFullUvBounds;
   right_bounds_ = kFullUvBounds;
 }
 
 gfx::RectF GraphicsDelegate::GetLeft() {
-#if BUILDFLAG(IS_ANDROID)
-  return left_bounds_;
-#else
   gfx::Size size = GetTextureSize();
   return gfx::RectF(
       0, 0, static_cast<float>(left_->viewport.width()) / size.width(),
       static_cast<float>(left_->viewport.height()) / size.height());
-#endif
 }
 
 gfx::RectF GraphicsDelegate::GetRight() {
-#if BUILDFLAG(IS_ANDROID)
-  return right_bounds_;
-#else
   gfx::Size size = GetTextureSize();
   return gfx::RectF(
       static_cast<float>(left_->viewport.width()) / size.width(), 0,
       static_cast<float>(right_->viewport.width()) / size.width(),
       static_cast<float>(right_->viewport.height()) / size.height());
-#endif
 }
 
 FovRectangles GraphicsDelegate::GetRecommendedFovs() {

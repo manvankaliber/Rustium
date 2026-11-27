@@ -83,33 +83,16 @@ target(link_target_type, "gpu_sources") {
     "//ui/gl/init",
   ]
 
-  if (!is_chromeos || !is_chrome_branded) {
-    deps += [
-      "//services/shape_detection:lib",
-      "//services/shape_detection/public/mojom",
-    ]
-  }
-
-  if (is_chromeos) {
-    deps += [
-      "//components/services/font/public/cpp",
-      "//components/services/font/public/mojom",
-    ]
-  }
-
-  if (is_android) {
-    deps += [
-      "//components/tracing:graphics_provider",
-      "//media",
-      "//sandbox/linux:sandbox_services",
-    ]
-  }
+  deps += [
+    "//services/shape_detection:lib",
+    "//services/shape_detection/public/mojom",
+  ]
 
   if (mojo_media_host == "gpu") {
     deps += [ "//media/mojo/services" ]
   }
 
-  if (is_linux || is_chromeos || is_mac || is_win || is_android) {
+  if (is_linux || is_mac || is_win) {
     deps += [ "//sandbox" ]
   }
 
@@ -126,8 +109,7 @@ target(link_target_type, "gpu_sources") {
   }
 
   # Use DRI on desktop Linux builds.
-  if (current_cpu != "s390x" && current_cpu != "ppc64" && is_linux &&
-      !is_castos) {
+  if (current_cpu != "s390x" && current_cpu != "ppc64" && is_linux) {
     configs += [ "//build/config/linux/dri" ]
   }
 }

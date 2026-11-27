@@ -19,9 +19,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "testing/platform_test.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -71,33 +68,6 @@ class TestCrossDevicePrefTracker
     pref_values_[pref_name].push_back(std::move(value));
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaLocalRef<jobject> GetJavaObject() override {
-    return base::android::ScopedJavaLocalRef<jobject>();
-  }
-
-  int GetServiceStatus(JNIEnv* env) const override {
-    return static_cast<int>(GetServiceStatus());
-  }
-
-  base::android::ScopedJavaLocalRef<jobjectArray> GetValues(
-      JNIEnv* env,
-      const base::android::JavaRef<jstring>& pref_name,
-      std::optional<int> os_type,
-      std::optional<int> form_factor,
-      std::optional<int64_t> max_sync_recency_microseconds) const override {
-    return base::android::ScopedJavaLocalRef<jobjectArray>();
-  }
-
-  base::android::ScopedJavaLocalRef<jobject> GetMostRecentValue(
-      JNIEnv* env,
-      const base::android::JavaRef<jstring>& pref_name,
-      std::optional<int> os_type,
-      std::optional<int> form_factor,
-      std::optional<int64_t> max_sync_recency_microseconds) const override {
-    return base::android::ScopedJavaLocalRef<jobject>();
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   // Testing member. Map containing TimestampedPrefValues mapped to their

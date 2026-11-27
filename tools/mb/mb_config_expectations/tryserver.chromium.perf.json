@@ -1,20 +1,4 @@
 {
-  "Android arm64 Compile Perf": {
-    "gn_args": {
-      "chrome_pgo_phase": 0,
-      "clang_use_default_sample_profile": false,
-      "debuggable_apks": false,
-      "ffmpeg_branding": "Chrome",
-      "is_chrome_branded": true,
-      "is_high_end_android": false,
-      "is_official_build": true,
-      "proprietary_codecs": true,
-      "symbol_level": 1,
-      "target_cpu": "arm64",
-      "target_os": "android",
-      "use_remoteexec": true
-    }
-  },
   "Linux Builder Perf": {
     "gn_args": {
       "chrome_pgo_phase": 0,

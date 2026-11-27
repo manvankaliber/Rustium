@@ -19,9 +19,6 @@
 #include "third_party/blink/public/mojom/frame/user_activation_notification_type.mojom.h"
 #include "third_party/blink/public/mojom/frame/user_activation_update_types.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/contacts/contacts_provider_android.h"
-#endif
 
 namespace content {
 
@@ -31,11 +28,7 @@ std::unique_ptr<ContactsProvider> CreateProvider(
     RenderFrameHost& render_frame_host) {
   if (render_frame_host.GetParentOrOuterDocument())
     return nullptr;  // This API is only supported on the main frame.
-#if BUILDFLAG(IS_ANDROID)
-  return std::make_unique<ContactsProviderAndroid>(&render_frame_host);
-#else
   return nullptr;
-#endif
 }
 
 void OnContactsSelected(

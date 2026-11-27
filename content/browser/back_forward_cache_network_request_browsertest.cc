@@ -31,11 +31,7 @@ using NotRestoredReason = BackForwardCacheMetrics::NotRestoredReason;
 // kLoadingTaskUnfreezable, a page will keep processing the in-flight network
 // requests while the page is frozen in BackForwardCache.
 // TODO(crbug.com/513702772): Consistently failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_FetchWhileStoring DISABLED_FetchWhileStoring
-#else
 #define MAYBE_FetchWhileStoring FetchWhileStoring
-#endif
 IN_PROC_BROWSER_TEST_F(BackForwardCacheBrowserTest, MAYBE_FetchWhileStoring) {
   net::test_server::ExpectationHandler handler(embedded_test_server());
   handler.OnRequest("/fetch").RespondWith("text/html", "TheResponse");
@@ -271,7 +267,7 @@ IN_PROC_BROWSER_TEST_F(
 // If too much data is processed while in bfcache, evict the entry.
 // TODO(crbug.com/325558875): Flaky on Mac and ChromeOS bots.
 // TODO(crbug.com/487897247): Flaky on Linux bots.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #define MAYBE_PageWithDrainedDatapipeAsBytesConsumerCannotProcessTooMuchData \
   DISABLED_PageWithDrainedDatapipeAsBytesConsumerCannotProcessTooMuchData
 #else

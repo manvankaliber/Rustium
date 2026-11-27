@@ -102,40 +102,23 @@
 #include "url/url_canon.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/apk_assets.h"
-#include "base/android/path_utils.h"
-#include "content/shell/android/shell_descriptors.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/crash/content/browser/crash_handler_host_linux.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "services/device/public/cpp/test/fake_geolocation_system_permission_manager.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include "components/crash/core/app/crash_switches.h"
 #include "components/crash/core/app/crashpad.h"
 #include "content/public/common/content_descriptors.h"
 #endif
 
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-#include "media/mojo/services/media_service_factory.h"  // nogncheck
-#endif
 
 #if BUILDFLAG(IS_CT_SUPPORTED)
 #include "services/network/public/mojom/ct_log_info.mojom.h"
 #endif
 
-#if BUILDFLAG(IS_IOS)
-#include "components/application_locale_storage/application_locale_storage.h"  // nogncheck
-#include "components/permissions/bluetooth_delegate_impl.h"
-#include "content/shell/browser/bluetooth/shell_bluetooth_delegate_impl_client.h"
-#include "ui/base/l10n/l10n_util_mac.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "media/mojo/mojom/media_foundation_preferences.mojom.h"
@@ -146,9 +129,6 @@ namespace content {
 
 namespace {
 
-#if BUILDFLAG(IS_IOS)
-inline constexpr char kJITEnabled[] = "settings.javascript.jit";
-#endif
 
 using PerformanceManagerRegistry =
     performance_manager::PerformanceManagerRegistry;
@@ -161,11 +141,7 @@ GetShellContentBrowserClientInstancesImpl() {
   return *instances;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-int GetCrashSignalFD(const base::CommandLine& command_line) {
-  return crashpad::CrashHandlerHost::Get()->GetDeathSignalSocket();
-}
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 int GetCrashSignalFD(const base::CommandLine& command_line) {
   int fd;
   pid_t pid;
@@ -289,9 +265,6 @@ std::unique_ptr<PrefService> CreateLocalState() {
   metrics::MetricsService::RegisterPrefs(pref_registry.get());
   variations::VariationsService::RegisterPrefs(pref_registry.get());
 
-#if BUILDFLAG(IS_IOS)
-  pref_registry->RegisterBooleanPref(kJITEnabled, true);
-#endif
 
   base::FilePath path;
   CHECK(base::PathService::Get(SHELL_DIR_USER_DATA, &path));
@@ -467,7 +440,7 @@ void ShellContentBrowserClient::AppendExtraCommandLineSwitches(
   command_line->CopySwitchesFrom(*base::CommandLine::ForCurrentProcess(),
                                  kForwardSwitches);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kEnableCrashReporter)) {
     int fd;
@@ -478,7 +451,7 @@ void ShellContentBrowserClient::AppendExtraCommandLineSwitches(
           base::NumberToString(pid));
     }
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   if (command_line->GetSwitchValueASCII(switches::kProcessType) ==
           switches::kRendererProcess &&
@@ -486,37 +459,13 @@ void ShellContentBrowserClient::AppendExtraCommandLineSwitches(
     command_line->AppendSwitch(switches::kEnableIsolatedWebAppsInRenderer);
   }
 
-#if BUILDFLAG(IS_IOS)
-  if (command_line->GetSwitchValueASCII(switches::kProcessType) ==
-          switches::kRendererProcess &&
-      !IsJITEnabled()) {
-    command_line->AppendSwitchASCII(blink::switches::kJavaScriptFlags,
-                                    "--jitless");
-  }
-#endif
 }
 
-#if BUILDFLAG(IS_IOS)
-bool ShellContentBrowserClient::IsJITEnabled() {
-  return GetSharedState().local_state->GetBoolean(kJITEnabled);
-}
-
-void ShellContentBrowserClient::SetJITEnabled(bool value) {
-  GetSharedState().local_state->SetBoolean(kJITEnabled, value);
-  GetSharedState().local_state->CommitPendingWrite();
-}
-#endif
 
 device::GeolocationSystemPermissionManager*
 ShellContentBrowserClient::GetGeolocationSystemPermissionManager() {
 #if BUILDFLAG(IS_MAC)
   return GetSharedState().location_manager.get();
-#elif BUILDFLAG(IS_IOS)
-  // TODO(crbug.com/1431447, 1411704): Unify this to
-  // FakeGeolocationSystemPermissionManager once exploring browser features in
-  // ContentShell on iOS is done.
-  return GetSharedState()
-      .shell_browser_main_parts->GetGeolocationSystemPermissionManager();
 #else
   return nullptr;
 #endif
@@ -625,12 +574,6 @@ void ShellContentBrowserClient::ExposeInterfacesToChild(
 mojo::Remote<::media::mojom::MediaService>
 ShellContentBrowserClient::RunSecondaryMediaService() {
   mojo::Remote<::media::mojom::MediaService> remote;
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-  static base::SequenceLocalStorageSlot<std::unique_ptr<::media::MediaService>>
-      service;
-  service.emplace(::media::CreateMediaServiceForTesting(
-      remote.BindNewPipeAndPassReceiver()));
-#endif
   return remote;
 }
 
@@ -747,12 +690,6 @@ std::string ShellContentBrowserClient::GetUserAgent() {
 
   std::string product =
       base::StringPrintf("Chrome/%s.0.0.0", CONTENT_SHELL_MAJOR_VERSION);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-          embedder_support::kUseMobileUserAgent)) {
-    product += " Mobile";
-  }
-#endif
 
   return embedder_support::BuildUnifiedPlatformUserAgentFromProduct(product);
 }
@@ -773,23 +710,17 @@ void ShellContentBrowserClient::OverrideURLLoaderFactoryParams(
   }
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 void ShellContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
     const base::CommandLine& command_line,
     int child_process_id,
     content::PosixFileDescriptorInfo* mappings) {
-#if BUILDFLAG(IS_ANDROID)
-  mappings->ShareWithRegion(
-      kShellPakDescriptor,
-      base::GlobalDescriptors::GetInstance()->Get(kShellPakDescriptor),
-      base::GlobalDescriptors::GetInstance()->GetRegion(kShellPakDescriptor));
-#endif
   int crash_signal_fd = GetCrashSignalFD(command_line);
   if (crash_signal_fd >= 0) {
     mappings->Share(kCrashDumpSignal, crash_signal_fd);
   }
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 // Note that ShellContentBrowserClient overrides this method to work around
@@ -800,7 +731,6 @@ void ShellContentBrowserClient::OnNetworkServiceCreated(
     network::mojom::NetworkService* network_service) {
   // TODO(bashi): Consider enabling this for Android. Excluded because the
   // built-in resolver may not work on older SDK versions.
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(net::features::kAsyncDns)) {
     network_service->ConfigureStubHostResolver(
         net::InsecureDnsMode::kEnabledBuiltIn,
@@ -809,7 +739,6 @@ void ShellContentBrowserClient::OnNetworkServiceCreated(
         /*additional_dns_types_enabled=*/true,
         /*fallback_doh_nameservers=*/{});
   }
-#endif
 }
 
 void ShellContentBrowserClient::ConfigureNetworkContextParams(
@@ -828,24 +757,6 @@ ShellContentBrowserClient::GetNetworkContextsParentDirectory() {
   return {browser_context()->GetPath()};
 }
 
-#if BUILDFLAG(IS_IOS)
-base::i18n::LanguageTag ShellContentBrowserClient::GetApplicationLocale() {
-  if (!application_locale_storage_) {
-    application_locale_storage_ = std::make_unique<ApplicationLocaleStorage>();
-    application_locale_storage_->Set(l10n_util::GetLocaleOverride());
-  }
-
-  return application_locale_storage_->GetTag();
-}
-
-BluetoothDelegate* ShellContentBrowserClient::GetBluetoothDelegate() {
-  if (!bluetooth_delegate_) {
-    bluetooth_delegate_ = std::make_unique<permissions::BluetoothDelegateImpl>(
-        std::make_unique<ShellBluetoothDelegateImplClient>());
-  }
-  return bluetooth_delegate_.get();
-}
-#endif
 
 void ShellContentBrowserClient::BindBrowserControlInterface(
     mojo::ScopedMessagePipeHandle pipe) {

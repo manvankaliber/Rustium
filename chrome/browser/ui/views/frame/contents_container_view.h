@@ -23,16 +23,14 @@ class ContentsContainerOutline;
 class ContentsWebView;
 class MultiContentsViewMiniToolbar;
 class ScrimView;
-class ActorOverlayWebView;
+
 class ReadAnythingImmersiveOverlayView;
 
 namespace gfx {
 class Rect;
 }  // namespace gfx
 
-namespace glic {
-class ContextSharingBorderView;
-}  // namespace glic
+  // namespace glic
 
 namespace new_tab_footer {
 class NewTabFooterWebView;
@@ -80,13 +78,9 @@ class ContentsContainerView : public views::View,
   DevToolsDockedPlacement devtools_docked_placement() {
     return current_devtools_docked_placement_;
   }
-  ActorOverlayWebView* actor_overlay_web_view() {
-    return actor_overlay_web_view_;
-  }
   ReadAnythingImmersiveOverlayView* read_anything_immersive_overlay_view() {
     return read_anything_immersive_overlay_view_;
   }
-  glic::ContextSharingBorderView* glic_border_view() { return glic_border_; }
   new_tab_footer::NewTabFooterWebView* new_tab_footer_view() {
     return new_tab_footer_view_;
   }
@@ -97,7 +91,6 @@ class ContentsContainerView : public views::View,
   data_protection_overlay_view() {
     return data_protection_overlay_view_;
   }
-  views::WebView* ai_overlay_dialog_view() { return ai_overlay_dialog_view_; }
   const ContentsContainerOutline* contents_outline_view() const {
     return container_outline_;
   }
@@ -202,7 +195,6 @@ class ContentsContainerView : public views::View,
       data_protection_overlay_view_ = nullptr;
 
   // The overlay dialog view that is displayed on top of the web contents.
-  raw_ptr<views::WebView> ai_overlay_dialog_view_ = nullptr;
 
   // The scrim view that covers the content area when a tab-modal dialog is
   // open.
@@ -210,14 +202,11 @@ class ContentsContainerView : public views::View,
 
   // The view that contains the Glic Actor Overlay. The Actor Overlay is a UI
   // overlay that is shown on top of the web contents.
-  raw_ptr<ActorOverlayWebView> actor_overlay_web_view_ = nullptr;
 
   // Contains glic selection overlay. The overlay renders a static screenshot
   // of the WebContents and is drawn on top of the WebContents.
-  raw_ptr<views::View> glic_selection_overlay_view_ = nullptr;
 
   // The glic browser view that renders around the web contents area.
-  raw_ptr<glic::ContextSharingBorderView> glic_border_ = nullptr;
 
   raw_ptr<MultiContentsViewMiniToolbar> mini_toolbar_ = nullptr;
 

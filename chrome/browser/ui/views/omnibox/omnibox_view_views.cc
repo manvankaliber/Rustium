@@ -234,10 +234,6 @@ OmniboxViewViews::OmniboxViewViews(bool popup_window_mode,
 }
 
 OmniboxViewViews::~OmniboxViewViews() {
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::input_method::InputMethodManager::Get()->RemoveCandidateWindowObserver(
-      this);
-#endif
 }
 
 void OmniboxViewViews::Init() {
@@ -263,10 +259,6 @@ void OmniboxViewViews::Init() {
   constexpr gfx::Insets kTextfieldInsets(0);
   SetBorder(views::CreateEmptyBorder(kTextfieldInsets));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::input_method::InputMethodManager::Get()->AddCandidateWindowObserver(
-      this);
-#endif
   UpdateAccessibleTextSelection();
 }
 
@@ -615,13 +607,7 @@ void OmniboxViewViews::SetFocus(bool is_user_initiated) {
 }
 
 IconLabelBubbleView* OmniboxViewViews::GetAiModePageActionIconView() const {
-  // Verify location bar is fully initialized because the
-  // page_action_icon_controller may not be ready yet.
-  if (!location_bar_view_ || !location_bar_view_->IsInitialized()) {
-    return nullptr;
-  }
-  return location_bar_view_->page_action_container()->GetPageActionView(
-      kActionAiMode);
+  return nullptr;
 }
 
 void OmniboxViewViews::ApplyFocusRingToAimButton(bool force_focus) {
@@ -1367,11 +1353,7 @@ int OmniboxViewViews::GetWidth() const {
 }
 
 bool OmniboxViewViews::IsImeShowingPopup() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  return ime_candidate_window_open_;
-#else
   return GetInputMethod() && GetInputMethod()->IsCandidatePopupOpen();
-#endif
 }
 
 void OmniboxViewViews::ShowVirtualKeyboardIfEnabled() {
@@ -2171,17 +2153,6 @@ void OmniboxViewViews::UpdateAccessibleValue() {
 #endif  // BUILDFLAG(SUPPORTS_AX_TEXT_OFFSETS)
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void OmniboxViewViews::CandidateWindowOpened(
-    ash::input_method::InputMethodManager* manager) {
-  ime_candidate_window_open_ = true;
-}
-
-void OmniboxViewViews::CandidateWindowClosed(
-    ash::input_method::InputMethodManager* manager) {
-  ime_candidate_window_open_ = false;
-}
-#endif
 
 void OmniboxViewViews::ContentsChanged(views::Textfield* sender,
                                        const std::u16string& new_contents) {

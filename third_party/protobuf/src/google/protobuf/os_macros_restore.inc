@@ -80,10 +80,6 @@
 #pragma pop_macro("TYPE_BOOL")
 #endif  // __APPLE__
 
-#if defined(ANDROID) || defined(__ANDROID__)
-#pragma pop_macro("UID_MAX")
-#pragma pop_macro("GID_MAX")
-#endif  // defined(ANDROID) || defined(__ANDROID__)
 
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
 #pragma pop_macro("TRUE")

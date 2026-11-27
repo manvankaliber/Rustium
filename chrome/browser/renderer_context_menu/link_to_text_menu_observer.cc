@@ -153,9 +153,6 @@ void LinkToTextMenuObserver::InitMenu(
             l10n_util::GetStringUTF16(IDS_CONTENT_CONTEXT_REMOVELINKTOTEXT));
         break;
       case blink::mojom::AnnotationType::kGlic:
-        proxy_->AddMenuItem(
-            IDC_CONTENT_CONTEXT_REMOVELINKTOTEXT,
-            l10n_util::GetStringUTF16(IDS_CONTENT_CONTEXT_REMOVELINKTOTEXT));
         break;
       case blink::mojom::AnnotationType::kTextFinder:
       case blink::mojom::AnnotationType::kScrollOnly:
@@ -411,19 +408,8 @@ void LinkToTextMenuObserver::RemoveHighlights() {
       proxy_->GetWebContents()->GetPrimaryMainFrame()->ForEachRenderFrameHost(
           &RemoveHighlightsInFrame);
       return;
-    case blink::mojom::AnnotationType::kGlic: {
-      mojo::Remote<blink::mojom::AnnotationAgentContainer>
-          annotation_agent_container;
-      proxy_->GetWebContents()
-          ->GetPrimaryMainFrame()
-          ->GetRemoteInterfaces()
-          ->GetInterface(
-              annotation_agent_container.BindNewPipeAndPassReceiver());
-      annotation_agent_container->RemoveAgentsOfType(
-          blink::mojom::AnnotationType::kGlic);
-      base::RecordAction(base::UserMetricsAction("GlicRemoveHighlight"));
+    case blink::mojom::AnnotationType::kGlic:
       return;
-    }
     case blink::mojom::AnnotationType::kTextFinder:
     case blink::mojom::AnnotationType::kScrollOnly:
       NOTIMPLEMENTED();

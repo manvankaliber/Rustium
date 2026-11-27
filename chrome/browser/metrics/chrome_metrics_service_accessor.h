@@ -32,9 +32,6 @@ namespace {
 class CrashesDOMHandler;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class ChromeCameraAppUIDelegate;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace subscription_eligibility {
 class SubscriptionEligibilityMetricsProvider;
@@ -48,18 +45,14 @@ class TestDomainReliabilityServiceDelegate;
 namespace extensions {
 class ChromeGuestViewManagerDelegate;
 class ChromeMetricsPrivateDelegate;
-class GlicPrivateInvokeFunction;
+
 }  // namespace extensions
 
 namespace first_run {
 class FirstRunInitialPrefsVariationsSeedTest;
 }
 
-namespace glic {
-class GlicEnabling;
-class GlicMetricsProvider;
-class GlicSyntheticTrialManager;
-}  // namespace glic
+  // namespace glic
 
 namespace metrics {
 class ChromeOSPerUserMetricsBrowserTestBase;
@@ -149,7 +142,6 @@ class ChromeMetricsServiceAccessor : public metrics::MetricsServiceAccessor {
   friend class domain_reliability::TestDomainReliabilityServiceDelegate;
   friend class extensions::ChromeGuestViewManagerDelegate;
   friend class extensions::ChromeMetricsPrivateDelegate;
-  friend class extensions::GlicPrivateInvokeFunction;
   friend void metrics::ChangeMetricsReportingStateWithReply(
       bool,
       metrics::OnMetricsReportingCallbackType,
@@ -173,9 +165,6 @@ class ChromeMetricsServiceAccessor : public metrics::MetricsServiceAccessor {
   friend class BrowserProcessImpl;
   friend class GlobalFeatures;
   friend class subscription_eligibility::SubscriptionEligibilityMetricsProvider;
-  friend class glic::GlicEnabling;
-  friend class glic::GlicMetricsProvider;
-  friend class glic::GlicSyntheticTrialManager;
   friend class OptimizationGuideKeyedService;
   friend class optimization_guide::ChromeOnDeviceModelServiceController;
   friend class WebUITabStripFieldTrial;
@@ -189,13 +178,8 @@ class ChromeMetricsServiceAccessor : public metrics::MetricsServiceAccessor {
   friend class CampaignsManagerClientImpl;
   friend class readaloud::SyntheticTrial;
   friend class tab_groups::TabGroupTrial;
-#if !BUILDFLAG(IS_ANDROID)
   friend class DefaultBrowserPromptTrial;
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  friend class ChromeCameraAppUIDelegate;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Testing related friends.
   friend class first_run::FirstRunInitialPrefsVariationsSeedTest;

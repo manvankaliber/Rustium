@@ -345,13 +345,7 @@ IN_PROC_BROWSER_TEST_F(BrowserChildProcessObserverBrowserTest,
   }
 
   Notification kExitNotification =
-#if BUILDFLAG(IS_ANDROID)
-      // TODO(pmonette): On Android, this currently causes a killed
-      // notification. Consider fixing.
-      Notification::kKilled;
-#else
       Notification::kExitedNormally;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // The host should be deleted now.
   EXPECT_FALSE(host);
@@ -424,12 +418,7 @@ IN_PROC_BROWSER_TEST_F(BrowserChildProcessObserverBrowserTest,
   }
 
   Notification kExitNotification =
-#if BUILDFLAG(IS_ANDROID)
-      // On Android, kKilled is always sent in the case of a crash.
-      Notification::kKilled;
-#else
       Notification::kExitedNormally;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // The host should be deleted now.
   EXPECT_FALSE(host);
@@ -445,7 +434,7 @@ IN_PROC_BROWSER_TEST_F(BrowserChildProcessObserverBrowserTest,
 // notification.
 // TODO(crbug.com/40868150): Times out on Android tests.
 // TODO(crbug.com/440535492): Flaky on Win dbg. Re-enable this test.
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_WIN) && !defined(NDEBUG))
+#if BUILDFLAG(IS_WIN) && !defined(NDEBUG)
 #define MAYBE_LaunchAndCrash DISABLED_LaunchAndCrash
 #else
 #define MAYBE_LaunchAndCrash LaunchAndCrash
@@ -471,12 +460,7 @@ IN_PROC_BROWSER_TEST_F(BrowserChildProcessObserverBrowserTest,
   }
 
   Notification kCrashedNotification =
-#if BUILDFLAG(IS_ANDROID)
-      // On Android, kKilled is always sent in the case of a crash.
-      Notification::kKilled;
-#else
       Notification::kCrashed;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // The host should be deleted now.
   EXPECT_FALSE(host);

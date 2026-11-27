@@ -25,9 +25,6 @@ enum class KeyboardShortcut {
   kMaxValue = kScrollToBottom,
 };
 
-#if BUILDFLAG(IS_ANDROID)
-void RecordKeyboardShortcutForAndroid(const KeyboardShortcut keyboard_shortcut);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace blink
 

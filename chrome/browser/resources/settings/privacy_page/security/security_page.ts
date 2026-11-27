@@ -109,12 +109,6 @@ export class SettingsSecurityPageElement extends
        */
       showSecureDnsSetting_: {type: Boolean},
 
-      // <if expr="is_chromeos">
-      /**
-       * Whether a link to secure DNS OS setting should be displayed.
-       */
-      showSecureDnsSettingLink_: {type: Boolean},
-      // </if>
 
       /**
        * Setting for HTTPS-First Mode when the toggle is off.
@@ -156,10 +150,6 @@ export class SettingsSecurityPageElement extends
   protected accessor showSecureDnsSetting_: boolean =
       loadTimeData.getBoolean('showSecureDnsSetting');
 
-  // <if expr="is_chromeos">
-  protected accessor showSecureDnsSettingLink_: boolean =
-      loadTimeData.getBoolean('showSecureDnsSettingLink');
-  // </if>
 
   protected accessor enableSecurityKeysSubpage_: boolean =
       loadTimeData.getBoolean('enableSecurityKeysSubpage');
@@ -525,13 +515,6 @@ export class SettingsSecurityPageElement extends
         SecurityPageInteraction.EXPAND_BUTTON_STANDARD_CLICK);
   }
 
-  // <if expr="is_chromeos">
-  protected onOpenChromeOsSecureDnsSettingsClick_() {
-    const path =
-        loadTimeData.getString('chromeOSPrivacyAndSecuritySectionPath');
-    OpenWindowProxyImpl.getInstance().openUrl(`chrome://os-settings/${path}`);
-  }
-  // </if>
 
   private recordInteractionHistogramOnRadioChange_(safeBrowsingSetting:
                                                        SafeBrowsingSetting) {

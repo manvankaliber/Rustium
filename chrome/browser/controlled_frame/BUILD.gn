@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/chromeos/args.gni")
 import("//extensions/buildflags/buildflags.gni")
 
 assert(enable_extensions)
@@ -136,25 +135,23 @@ source_set("unit_tests") {
   ]
 }
 
-if (!is_android && !is_chromeos_device) {
-  source_set("interactive_ui_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+source_set("interactive_ui_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [ "controlled_frame_interactive_uitest.cc" ]
+  sources = [ "controlled_frame_interactive_uitest.cc" ]
 
-    deps = [
-      ":controlled_frame",
-      ":test_support",
-      "//chrome/browser/content_settings:content_settings_factory",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/test:test_support",
-      "//components/content_settings/core/browser",
-      "//components/content_settings/core/common",
-      "//content/test:test_support",
-    ]
-  }
+  deps = [
+    ":controlled_frame",
+    ":test_support",
+    "//chrome/browser/content_settings:content_settings_factory",
+    "//chrome/browser/profiles:profile",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/test:test_support",
+    "//components/content_settings/core/browser",
+    "//components/content_settings/core/common",
+    "//content/test:test_support",
+  ]
 }
 
 source_set("browser_tests") {

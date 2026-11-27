@@ -50,9 +50,6 @@ class FCMRevocationTest;
 class ScopedKeepAlive;
 class ScopedProfileKeepAlive;
 
-#if BUILDFLAG(IS_ANDROID)
-class PrefService;
-#endif
 
 namespace blink {
 namespace mojom {
@@ -115,15 +112,6 @@ class PushMessagingServiceImpl : public content::PushMessagingService,
   blink::mojom::PermissionStatus GetPermissionStatus(const GURL& origin,
                                                      bool user_visible);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Registers Local State prefs used by this class.
-  static void RegisterPrefs(PrefRegistrySimple* registry);
-
-  static void RevokePermissionIfPossible(GURL origin,
-                                         bool app_level_notifications_enabled,
-                                         PrefService* prefs,
-                                         Profile* profile);
-#endif
 
   // gcm::GCMAppHandler implementation.
   void ShutdownHandler() override;
@@ -236,14 +224,6 @@ class PushMessagingServiceImpl : public content::PushMessagingService,
   FRIEND_TEST_ALL_PREFIXES(PushMessagingServiceTest, ProfileDestructionTest);
   FRIEND_TEST_ALL_PREFIXES(PushMessagingServiceTest,
                            TestMultipleIncomingPushMessages);
-#if BUILDFLAG(IS_ANDROID)
-  FRIEND_TEST_ALL_PREFIXES(FCMRevocationTest,
-                           TestPermissionRevocationClearPreferences);
-  FRIEND_TEST_ALL_PREFIXES(FCMRevocationTest,
-                           TestPermissionRevocationNoPermissionFirstMessage);
-  FRIEND_TEST_ALL_PREFIXES(FCMRevocationTest,
-                           TestPermissionRevocationGracePeriodIsOver);
-#endif
 
   // A subscription is pending until it has succeeded or failed.
   void IncreasePushSubscriptionCount(int add, bool is_pending);

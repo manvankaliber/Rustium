@@ -407,13 +407,8 @@ IN_PROC_BROWSER_TEST_F(
 
 // Navigate to a web page and then try to load an extension subresource.
 // TODO(crbug.com/565507869): Failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SubresourceReachabilityAfterServerRedirect \
-  DISABLED_SubresourceReachabilityAfterServerRedirect
-#else
 #define MAYBE_SubresourceReachabilityAfterServerRedirect \
   SubresourceReachabilityAfterServerRedirect
-#endif
 IN_PROC_BROWSER_TEST_F(WebAccessibleResourcesBrowserTest,
                        MAYBE_SubresourceReachabilityAfterServerRedirect) {
   // Load extension.
@@ -493,11 +488,7 @@ IN_PROC_BROWSER_TEST_F(WebAccessibleResourcesBrowserTest,
 
 // Server redirect to a web accessible resource whereby `matches` doesn't match.
 // TODO(crbug.com/565503176): Failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ServerRedirectSubresource DISABLED_ServerRedirectSubresource
-#else
 #define MAYBE_ServerRedirectSubresource ServerRedirectSubresource
-#endif
 IN_PROC_BROWSER_TEST_F(WebAccessibleResourcesBrowserTest,
                        MAYBE_ServerRedirectSubresource) {
   // Load extension.
@@ -1108,7 +1099,6 @@ IN_PROC_BROWSER_TEST_F(WebAccessibleResourcesBrowserTest,
   };
 
   // Android only supports manifest V3.
-#if !BUILDFLAG(IS_ANDROID)
   auto TestBrowserRedirectMV2 = [&]() {
     TestBrowserRedirect(
         R"({
@@ -1120,7 +1110,6 @@ IN_PROC_BROWSER_TEST_F(WebAccessibleResourcesBrowserTest,
         "Extensions.WAR.XOriginWebAccessible.MV2");
   };
   TestBrowserRedirectMV2();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   auto TestBrowserRedirectMV3 = [&]() {
     TestBrowserRedirect(
@@ -1288,9 +1277,7 @@ IN_PROC_BROWSER_TEST_F(WebAccessibleResourcesBrowserTest,
 
   TestBrowserRedirect(MV3);
   // Android only supports manifest V3.
-#if !BUILDFLAG(IS_ANDROID)
   TestBrowserRedirect(MV2);
-#endif
 }
 
 // Test dynamic origins in web accessible resources.

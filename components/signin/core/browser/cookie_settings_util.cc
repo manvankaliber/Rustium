@@ -50,11 +50,6 @@ CookieSettingsCallback MakeCookieSettingsCallback(
 bool SettingsAllowSigninCookies(
     const CookieSettingsCallback& cookie_settings_callback,
     bool check_only_gaia_url) {
-#if BUILDFLAG(IS_IOS)
-  // There is no way for users to set the cookies content setting in iOS so
-  // sign-in cookies will always be allowed.
-  return true;
-#else
   GURL gaia_url = GaiaUrls::GetInstance()->gaia_url();
   if (!cookie_settings_callback.Run(
           gaia_url, net::SiteForCookies::FromUrl(gaia_url),
@@ -71,7 +66,6 @@ bool SettingsAllowSigninCookies(
   }
 
   return true;
-#endif
 }
 
 bool SettingsAllowSigninCookies(
@@ -83,11 +77,6 @@ bool SettingsAllowSigninCookies(
 
 bool SettingsDeleteSigninCookiesOnExit(
     const content_settings::CookieSettings* cookie_settings) {
-#if BUILDFLAG(IS_IOS)
-  // There is no way for users to set the cookies content setting in iOS so
-  // sign-in cookies will not be deleted.
-  return false;
-#else
   GURL gaia_url = GaiaUrls::GetInstance()->gaia_url();
   GURL google_url = GaiaUrls::GetInstance()->secure_google_url();
   ContentSettingsForOneType settings = cookie_settings->GetCookieSettings();
@@ -99,7 +88,6 @@ bool SettingsDeleteSigninCookiesOnExit(
          cookie_settings->ShouldDeleteCookieOnExit(
              settings, "." + google_url.GetHost(),
              net::CookieSourceScheme::kSecure);
-#endif
 }
 
 }  // namespace signin

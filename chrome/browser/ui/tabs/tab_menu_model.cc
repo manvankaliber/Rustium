@@ -16,12 +16,6 @@
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
 #include "chrome/app/vector_icons/vector_icons.h"
-#include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/service/glic_instance_coordinator.h"
-#include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/send_tab_to_self/send_tab_to_self_util.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
@@ -34,7 +28,6 @@
 #include "chrome/browser/ui/tabs/existing_tab_group_sub_menu_model.h"
 #include "chrome/browser/ui/tabs/existing_window_sub_menu_model.h"
 #include "chrome/browser/ui/tabs/features.h"
-#include "chrome/browser/ui/tabs/glic_tab_sub_menu_model.h"
 #include "chrome/browser/ui/tabs/split_tab_menu_model.h"
 #include "chrome/browser/ui/tabs/split_tab_mute_menu_model.h"
 #include "chrome/browser/ui/tabs/split_tab_swap_menu_model.h"
@@ -50,8 +43,6 @@
 #include "chrome/common/chrome_features.h"
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/grit/generated_resources.h"
-#include "components/commerce/core/commerce_constants.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/feed/feed_feature_list.h"
 #include "components/split_tabs/split_tab_visual_data.h"
 #include "components/tabs/public/split_tab_data.h"
@@ -254,38 +245,6 @@ void TabMenuModel::BuildSendTabToSelfItem(
           ui::kColorMenuIcon, kTabMenuIconSize));
 }
 
-void TabMenuModel::AppendGlicItems(tabs::TabHandle context_tab,
-                                   const std::vector<tabs::TabHandle>& tabs) {
-  glic_tab_sub_menu_model_ =
-      std::make_unique<glic::GlicTabSubMenuModel>(tab_strip_, context_tab);
-
-  const int num_tabs = tabs.size();
-  if (features::IsMenuSimplificationEnabled()) {
-    AddSubMenuWithIcon(TabStripModel::CommandGlicShare,
-                       l10n_util::GetPluralStringFUTF16(
-                           IDS_TAB_CXMENU_GLIC_START_SHARE, num_tabs),
-                       glic_tab_sub_menu_model_.get(),
-                       ui::ImageModel::FromVectorIcon(
-                           glic::GlicVectorIconManager::GetVectorIcon(
-                               IDR_GLIC_BUTTON_VECTOR_ICON),
-                           ui::kColorMenuIcon, kTabMenuIconSize));
-  } else {
-    AddSubMenu(TabStripModel::CommandGlicShare,
-               l10n_util::GetPluralStringFUTF16(IDS_TAB_CXMENU_GLIC_START_SHARE,
-                                                num_tabs),
-               glic_tab_sub_menu_model_.get());
-  }
-
-  auto* service =
-      glic::GlicKeyedServiceFactory::GetGlicKeyedService(tab_strip_->profile());
-  CHECK(service);
-  if (std::ranges::any_of(tabs, [&](tabs::TabHandle tab) {
-        return service->instance_coordinator().IsTabPinnedToAnyInstance(tab);
-      })) {
-    AddItem(TabStripModel::CommandGlicUnshare,
-            l10n_util::GetStringUTF16(IDS_TAB_CXMENU_GLIC_UNSHARE));
-  }
-}
 
 void TabMenuModel::AppendAiModeItems(tabs::TabHandle context_tab,
                                      const std::vector<tabs::TabHandle>& tabs,
@@ -295,9 +254,9 @@ void TabMenuModel::AppendAiModeItems(tabs::TabHandle context_tab,
     return;
   }
 
+
   const ui::ImageModel ai_mode_icon = ui::ImageModel::FromVectorIcon(
-      glic::GlicVectorIconManager::GetVectorIcon(IDR_GLIC_BUTTON_VECTOR_ICON),
-      ui::kColorMenuIcon, kTabMenuIconSize);
+      vector_icons::kButtonMagicIcon, ui::kColorMenuIcon, kTabMenuIconSize);
 
   if (show_share) {
     contextual_tasks_tab_sub_menu_model_ =
@@ -576,33 +535,25 @@ void TabMenuModel::Build(tabs::TabHandle context_tab) {
             ui::kColorMenuIcon, ui::SimpleMenuModel::kDefaultIconSize));
   }
 
-  const bool show_glic_items =
-      glic::GlicEnabling::IsReadyForProfile(tab_strip_->profile());
   const bool show_ai_mode_share = tab_strip_->IsContextMenuCommandEnabled(
       context_tab, TabStripModel::CommandAiModeShare);
   const bool show_ai_mode_unshare = tab_strip_->IsContextMenuCommandEnabled(
       context_tab, TabStripModel::CommandAiModeUnshare);
   const bool show_ai_mode_items = show_ai_mode_share || show_ai_mode_unshare;
-  bool glic_displayed = false;
-  if (features::IsMenuSimplificationEnabled() &&
-      (show_glic_items || show_ai_mode_items)) {
+  if ((features::IsMenuSimplificationEnabled() && show_ai_mode_items)) {
     AddSeparator(ui::NORMAL_SEPARATOR);
-    if (show_glic_items) {
-      AppendGlicItems(context_tab, tabs);
-    }
     if (show_ai_mode_items) {
       AppendAiModeItems(context_tab, tabs, show_ai_mode_share,
                         show_ai_mode_unshare);
     }
     AddSeparator(ui::NORMAL_SEPARATOR);
-    glic_displayed = true;
   }
 
   const bool display_read_later = tab_strip_->delegate()->SupportsReadLater();
   const bool display_send_to_self =
       send_tab_to_self::ShouldDisplayEntryPoint(context_tab_ptr->GetContents());
 
-  if ((display_read_later || display_send_to_self) && !glic_displayed) {
+  if ((display_read_later || display_send_to_self)) {
     AddSeparator(ui::NORMAL_SEPARATOR);
   }
 
@@ -619,10 +570,8 @@ void TabMenuModel::Build(tabs::TabHandle context_tab) {
                  tab_strip_->IsReadLaterSupportedForAny(tabs));
   }
 
-  if (show_glic_items && !glic_displayed) {
-    AppendGlicItems(context_tab, tabs);
-  }
-  if (show_ai_mode_items && !glic_displayed) {
+
+  if (show_ai_mode_items && !features::IsMenuSimplificationEnabled()) {
     AppendAiModeItems(context_tab, tabs, show_ai_mode_share,
                       show_ai_mode_unshare);
   }

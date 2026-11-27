@@ -75,22 +75,13 @@ constexpr float kMinPinchZoomScale = 0.5f;
 constexpr float kMaxPinchZoomScale = 2.0f;
 
 std::string GetVersionedCss() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
-      IDR_DISTILLER_NEW_CSS);
-#else
   return ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
       IDR_DISTILLER_CSS);
-#endif
 }
 
 std::string GetPlatformSpecificCss() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return "";
-#else  // Desktop
   return ui::ResourceBundle::GetSharedInstance().LoadDataResourceString(
       IDR_DISTILLER_DESKTOP_CSS);
-#endif
 }
 
 // Maps themes to JS themes.
@@ -193,15 +184,8 @@ std::string ReplaceHtmlTemplateValues(const mojom::Theme theme,
   std::ostringstream csp;
   std::ostringstream css;
   std::ostringstream svg;
-#if BUILDFLAG(IS_IOS) && !BUILDFLAG(USE_BLINK)
-  // On iOS the content is inlined as there is no API to detect those requests
-  // and return the local data once a page is loaded.
-  css << "<style>" << viewer::GetCss() << "</style>";
-  svg << viewer::GetLoadingImage();
-#else
   css << "<link rel=\"stylesheet\" href=\"/" << kViewerCssPath << "\">";
   svg << "<img src=\"/" << kViewerLoadingImagePath << "\">";
-#endif  // BUILDFLAG(IS_IOS) && !BUILDFLAG(USE_BLINK)
 
   if (!csp_nonce.empty()) {
     // Reader mode viewer on iOS: the composed document is committed via
@@ -244,13 +228,9 @@ std::string GetErrorPageJs() {
 }
 
 std::string GetSetTitleJs(std::string_view title) {
-#if BUILDFLAG(IS_IOS)
-  base::Value suffix_value("");
-#else  // Desktop and Android.
   std::string suffix(
       l10n_util::GetStringUTF8(IDS_DOM_DISTILLER_VIEWER_TITLE_SUFFIX));
   base::Value suffix_value(base::StrCat({" - ", suffix}));
-#endif
   base::Value title_value(title);
   std::string suffix_js = base::WriteJson(suffix_value).value_or("");
   std::string title_js = base::WriteJson(title_value).value_or("");
@@ -309,19 +289,11 @@ std::string GetLoadingImage() {
 
 static std::string GetMinPinchZoomScale() {
   float min_scale = kMinPinchZoomScale;
-#if BUILDFLAG(IS_ANDROID)
-  // Align the minimum pinch zoom value with the reader mode prefs UI.
-  min_scale = kMinFontScaleAndroid;
-#endif
   return base::NumberToString(min_scale);
 }
 
 static std::string GetMaxPinchZoomScale() {
   float max_scale = kMaxPinchZoomScale;
-#if BUILDFLAG(IS_ANDROID)
-  // Align the maximum pinch zoom value with the reader mode prefs UI.
-  max_scale = kMaxFontScaleAndroid;
-#endif
   return base::NumberToString(max_scale);
 }
 

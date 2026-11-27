@@ -33,11 +33,6 @@ ReadAnythingServiceFactory::ReadAnythingServiceFactory()
 }
 
 bool ReadAnythingServiceFactory::ServiceIsCreatedWithBrowserContext() const {
-  if (base::FeatureList::IsEnabled(
-          ::features::kLazyKeyedServiceInstantiation) &&
-      ::features::kLazyKeyedServiceInstantiationCommerceAndUI.Get()) {
-    return false;
-  }
   return true;
 }
 

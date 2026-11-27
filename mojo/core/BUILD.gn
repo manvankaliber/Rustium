@@ -97,19 +97,13 @@ source_set("impl_for_embedder") {
     "//third_party/ipcz/src:ipcz",
   ]
 
-  if (is_fuchsia) {
-    sources += [ "channel_fuchsia.cc" ]
-
-    public_deps += [ "//third_party/fuchsia-sdk/sdk/pkg/fdio" ]
-  }
-
   if (is_posix && !mojo_use_apple_channel) {
     sources += [
       "channel_posix.cc",
       "channel_posix.h",
     ]
 
-    if (is_linux || is_chromeos || is_android) {
+    if (is_linux) {
       sources += [
         "channel_linux.cc",
         "channel_linux.h",
@@ -125,7 +119,7 @@ source_set("impl_for_embedder") {
 
   # Keep in sync with SHARED_MEMORY_SERVICE_REQUIRED() in
   # ipcz_driver/base_shared_memory_service.cc.
-  if (is_posix && !is_apple && !is_android) {
+  if (is_posix && !is_apple) {
     sources += [
       "broker_host.cc",
       "broker_posix.cc",
@@ -177,7 +171,7 @@ source_set("test_sources") {
   ]
 
   # Keep in sync with the condition guarding the broker sources above.
-  if (is_posix && !is_apple && !is_android) {
+  if (is_posix && !is_apple) {
     sources += [ "broker_unittest.cc" ]
   }
 

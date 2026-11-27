@@ -258,7 +258,6 @@ class IndigoPageActionController : public tabs::ContentsObservingTabFeature,
 
   // Checks whether we should skip Indigo invocation and invoke Glic instead.
   // Returns true if Glic will be invoked.
-  bool MaybeInvokeGlic();
 
   // Helper to invoke IndigoAgent.
   void TriggerIndigoAgent(IndigoTransformationTriggerSource source);

@@ -91,7 +91,7 @@ PA_UNSAFE_BUFFER_USAGE void RandBytes(void* output, size_t output_length) {
 #elif PA_BUILDFLAG(IS_APPLE)
   PA_BASE_CHECK(CCRandomGenerateBytes(output, output_length) == kCCSuccess);
 #else
-#if PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
   // Use `syscall(__NR_getrandom...` to avoid a dependency on
   // `third_party/linux_syscall_support.h`.
   //
@@ -108,7 +108,7 @@ PA_UNSAFE_BUFFER_USAGE void RandBytes(void* output, size_t output_length) {
     PA_MSAN_UNPOISON(output, output_length);
     return;
   }
-#endif  // PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#endif
   // If getrandom(2) above returned with an error and the /dev/urandom fallback
   // took place on Linux/ChromeOS bots, they would fail with a CHECK in
   // nacl_helper. The latter assumes that the number of open file descriptors

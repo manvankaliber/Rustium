@@ -9,9 +9,7 @@
 #include "content/public/browser/web_contents.h"
 #include "content/shell/browser/shell.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "content/public/browser/color_chooser.h"
-#endif
 
 namespace content {
 
@@ -20,11 +18,9 @@ void ShellPlatformDelegate::DidCreateOrAttachWebContents(
     WebContents* web_contents) {}
 
 void ShellPlatformDelegate::DidCloseLastWindow() {
-#if !BUILDFLAG(IS_ANDROID)
   // On Android the browser process outlives its Activity, which closes its
   // shell when destroyed, so closing the last shell must not shut down.
   Shell::Shutdown();
-#endif
 }
 
 std::unique_ptr<JavaScriptDialogManager>
@@ -44,7 +40,6 @@ bool ShellPlatformDelegate::ShouldAllowRunningInsecureContent(Shell* shell) {
   return false;
 }
 
-#if !BUILDFLAG(IS_IOS)
 std::unique_ptr<ColorChooser> ShellPlatformDelegate::OpenColorChooser(
     WebContents* web_contents,
     SkColor color,
@@ -58,6 +53,5 @@ void ShellPlatformDelegate::RunFileChooser(
     const blink::mojom::FileChooserParams& params) {
   listener->FileSelectionCanceled();
 }
-#endif
 
 }  // namespace content

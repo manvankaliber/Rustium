@@ -29,11 +29,7 @@ namespace crashpad {
 namespace test {
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_Basic DISABLED_Basic
-#else
 #define MAYBE_Basic Basic
-#endif
 TEST(SystemSnapshotLinux, MAYBE_Basic) {
   FakePtraceConnection connection;
   ASSERT_TRUE(connection.Initialize(getpid()));
@@ -70,11 +66,7 @@ TEST(SystemSnapshotLinux, MAYBE_Basic) {
   system.CPURevision();
   system.NXEnabled();
 
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(system.MachineDescription().empty());
-#else
   system.MachineDescription();
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if defined(ARCH_CPU_X86_FAMILY)
   system.CPUX86Signature();

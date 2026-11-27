@@ -543,9 +543,6 @@ PasswordCheckDelegate::ConstructInsecureCredentialUiEntry(
   if (change_password_url.has_value()) {
     api_credential.change_password_url = change_password_url->spec();
   }
-  api_credential.is_automatic_password_change_supported =
-      base::FeatureList::IsEnabled(
-          password_change::features::kPasswordChangeWithGlic);
 
   CredentialUIEntry copy(std::move(entry));
   // Weak and reused flags should be cleaned before obtaining id. Otherwise

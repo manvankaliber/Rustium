@@ -48,9 +48,7 @@
 #include "extensions/common/manifest_constants.h"
 #include "extensions/common/permissions/permissions_data.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/web_applications/app_browser_controller.h"
-#endif
 
 namespace {
 
@@ -407,12 +405,7 @@ bool ToolbarActionsModel::HasAction(const ActionId& action_id) const {
 bool ToolbarActionsModel::CanShowActionsInToolbar(
     const BrowserWindowInterface& browser) {
   // Pinning extensions is not available in PWAs.
-#if BUILDFLAG(IS_ANDROID)
-  return browser.GetType() != BrowserWindowInterface::Type::TYPE_APP &&
-         browser.GetType() != BrowserWindowInterface::Type::TYPE_APP_POPUP;
-#else   // BUILDFLAG(IS_ANDROID)
   return !web_app::AppBrowserController::IsWebApp(&browser);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool ToolbarActionsModel::IsRestrictedUrl(const GURL& url) const {

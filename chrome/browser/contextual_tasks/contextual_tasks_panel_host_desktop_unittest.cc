@@ -168,16 +168,6 @@ TEST_F(ContextualTasksPanelHostDesktopTest, IsPanelOpenForContextualTask) {
   EXPECT_FALSE(panel_host_->IsPanelOpenForContextualTask());
 }
 
-TEST_F(ContextualTasksPanelHostDesktopTest,
-       IsContextualTasksPanelSuppressedByDefaultWhenGlicIsShowing) {
-  // By default, it should check for SidePanelEntry::Id::kGlic.
-  EXPECT_CALL(
-      mock_side_panel_ui_,
-      IsSidePanelEntryShowing(SidePanelEntry::Key(SidePanelEntry::Id::kGlic)))
-      .WillOnce(Return(true));
-
-  EXPECT_TRUE(panel_host_->IsPanelSuppressed());
-}
 
 TEST_F(ContextualTasksPanelHostDesktopTest, NotifyObserversOnEntryShown) {
   NiceMock<MockContextualTasksPanelHostObserver> observer;

@@ -10,7 +10,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "base/test/task_environment.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
-#include "chrome/browser/glic/public/features.h"
 #include "chrome/browser/sync/sync_service_factory.h"
 #include "chrome/browser/trusted_vault/trusted_vault_service_factory.h"
 #include "chrome/browser/webid/federated_identity_auto_reauthn_permission_context_factory.h"
@@ -41,10 +40,6 @@ class FederatedIdentityAutoReauthnPermissionContextTest : public testing::Test {
     context_.OnPasswordManagerSettingsServiceInitialized(
         &password_manager_settings_service_);
 
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        /*enabled_features=*/{{features::kGlicActor, {}},
-                              {features::kGlicActorPolicyControlExemption, {}}},
-        /*disabled_features=*/{});
   }
 
   FederatedIdentityAutoReauthnPermissionContextTest(

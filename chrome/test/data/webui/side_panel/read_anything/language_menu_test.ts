@@ -408,34 +408,6 @@ suite('LanguageMenu', () => {
         assertFalse(getToast().$.toast.open);
       });
 
-      // <if expr="is_chromeos">
-      test('it shows downloaded toast', async () => {
-        enabledLangs = ['it-it', 'en-us'];
-        languageMenu.enabledLangs = enabledLangs;
-        notify('it', VoiceClientSideStatusCode.SENT_INSTALL_REQUEST);
-        await drawLanguageMenu();
-        notify('it', VoiceClientSideStatusCode.AVAILABLE);
-        await microtasksFinished();
-
-        assertTrue(getToast().$.toast.open);
-      });
-
-      test('it does not show downloaded toast when closed', async () => {
-        enabledLangs = ['it-it', 'en-us'];
-        languageMenu.enabledLangs = enabledLangs;
-        notify('it', VoiceClientSideStatusCode.SENT_INSTALL_REQUEST);
-        await drawLanguageMenu();
-        const closeButton =
-            languageMenu.$.languageMenu.$.dialog.querySelector<HTMLElement>(
-                '#close');
-        closeButton!.click();
-        await microtasksFinished();
-        notify('it', VoiceClientSideStatusCode.INSTALLED_AND_UNAVAILABLE);
-        await microtasksFinished();
-
-        assertFalse(getToast().$.toast.open);
-      });
-      // </if>
 
       test('it does not show error toast', async () => {
         enabledLangs = ['it-it', 'en-us'];

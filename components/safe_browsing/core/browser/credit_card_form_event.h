@@ -9,9 +9,6 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/safe_browsing/core/browser/referring_app_info/referring_app_info.h"  // nogncheck
-#endif
 
 namespace safe_browsing::credit_card_form {
 
@@ -109,12 +106,6 @@ CreditCardFormEvent GetCreditCardFormEvent(SiteVisit site_visit,
                                            ReferringApp referring_app,
                                            FieldDetectionHeuristic heuristic);
 
-#if BUILDFLAG(IS_ANDROID)
-
-// Translates a ReferringAppInfo to the matching ReferringApp value.
-ReferringApp FromReferringAppInfo(internal::ReferringAppInfo info);
-
-#endif
 
 void LogEvent(SiteVisit site_visit,
               ReferringApp referring_app,

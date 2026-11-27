@@ -46,9 +46,7 @@ TEST(AccountConsistencyModeManagerTest, DefaultValue) {
       BuildTestingProfile(/*is_new_profile=*/false);
 
   signin::AccountConsistencyMethod method =
-#if BUILDFLAG(ENABLE_MIRROR)
-      signin::AccountConsistencyMethod::kMirror;
-#elif BUILDFLAG(ENABLE_DICE_SUPPORT)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
       signin::AccountConsistencyMethod::kDice;
 #else
 #error Either Dice or Mirror should be enabled
@@ -228,60 +226,3 @@ TEST(AccountConsistencyModeManagerTest, DiceOnlyForRegularProfile) {
   }
 }
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
-
-#if BUILDFLAG(ENABLE_MIRROR)
-// Mirror is enabled by default on Chrome OS, unless specified otherwise.
-TEST(AccountConsistencyModeManagerTest, MirrorEnabledByDefault) {
-  // Creation of this object sets the current thread's id as UI thread.
-  content::BrowserTaskEnvironment task_environment;
-
-  TestingProfile profile;
-  EXPECT_TRUE(
-      AccountConsistencyModeManager::IsMirrorEnabledForProfile(&profile));
-  EXPECT_FALSE(
-      AccountConsistencyModeManager::IsDiceEnabledForProfile(&profile));
-  EXPECT_EQ(signin::AccountConsistencyMethod::kMirror,
-            AccountConsistencyModeManager::GetMethodForProfile(&profile));
-}
-
-TEST(AccountConsistencyModeManagerTest, MirrorDisabledForGuestSession) {
-  // Creation of this object sets the current thread's id as UI thread.
-  content::BrowserTaskEnvironment task_environment;
-
-  TestingProfile profile;
-  profile.SetGuestSession(true);
-  EXPECT_FALSE(
-      AccountConsistencyModeManager::IsMirrorEnabledForProfile(&profile));
-  EXPECT_FALSE(
-      AccountConsistencyModeManager::IsDiceEnabledForProfile(&profile));
-  EXPECT_EQ(signin::AccountConsistencyMethod::kDisabled,
-            AccountConsistencyModeManager::GetMethodForProfile(&profile));
-}
-
-TEST(AccountConsistencyModeManagerTest, MirrorDisabledForOffTheRecordProfile) {
-  // Creation of this object sets the current thread's id as UI thread.
-  content::BrowserTaskEnvironment task_environment;
-
-  TestingProfile profile;
-  Profile* incognito_profile =
-      profile.GetPrimaryOTRProfile(/*create_if_needed=*/true);
-  EXPECT_FALSE(AccountConsistencyModeManager::IsMirrorEnabledForProfile(
-      incognito_profile));
-  EXPECT_FALSE(AccountConsistencyModeManager::IsDiceEnabledForProfile(
-      incognito_profile));
-  EXPECT_EQ(
-      signin::AccountConsistencyMethod::kDisabled,
-      AccountConsistencyModeManager::GetMethodForProfile(incognito_profile));
-
-  Profile* otr_profile = profile.GetOffTheRecordProfile(
-      Profile::OTRProfileID::CreateUniqueForTesting(),
-      /*create_if_needed=*/true);
-  EXPECT_FALSE(
-      AccountConsistencyModeManager::IsMirrorEnabledForProfile(otr_profile));
-  EXPECT_FALSE(
-      AccountConsistencyModeManager::IsDiceEnabledForProfile(otr_profile));
-  EXPECT_EQ(signin::AccountConsistencyMethod::kDisabled,
-            AccountConsistencyModeManager::GetMethodForProfile(otr_profile));
-}
-
-#endif  // BUILDFLAG(ENABLE_MIRROR)

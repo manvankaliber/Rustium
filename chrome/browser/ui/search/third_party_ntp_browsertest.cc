@@ -33,10 +33,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "components/search/ntp_features.h"
-#endif
 
 class ThirdPartyNTPBrowserTest : public PlatformBrowserTest,
                                  public InstantTestBase,
@@ -51,11 +47,6 @@ class ThirdPartyNTPBrowserTest : public PlatformBrowserTest,
       disabled_features.push_back(features::kInstantUsesSpareRenderer);
     }
     // The following flags are needed to enable the 3P WebUI NTP on Android.
-#if BUILDFLAG(IS_ANDROID)
-    enabled_features.push_back(ntp_features::kNtpEnableInstantApiAndroid);
-    enabled_features.push_back(chrome::android::kUseWebUiNtpAndroid);
-    enabled_features.push_back(chrome::android::kUseWebUiNtp3PDSE);
-#endif
     scoped_feature_list_.InitWithFeatures(enabled_features, disabled_features);
   }
 
@@ -253,14 +244,8 @@ IN_PROC_BROWSER_TEST_P(ThirdPartyNTPBrowserTest,
   // commits an error page. On Desktop, `HandleExternalProtocol` returns true to
   // handle external protocols asynchronously, which silently aborts the
   // navigation (`ERR_ABORTED`) and leaves `non_instant_url` committed.
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(nav_observer.last_navigation_succeeded());
-  EXPECT_EQ(net::ERR_UNKNOWN_URL_SCHEME, nav_observer.last_net_error_code());
-  EXPECT_TRUE(contents->GetPrimaryMainFrame()->IsErrorDocument());
-#else
   EXPECT_EQ(non_instant_url,
             contents->GetPrimaryMainFrame()->GetLastCommittedURL());
-#endif
 }
 
 // Verifies that an instant process can fetch chrome-search resources.

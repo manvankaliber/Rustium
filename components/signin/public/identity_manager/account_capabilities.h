@@ -17,9 +17,6 @@
 #include "components/signin/internal/identity_manager/account_info_util.h"
 #include "components/signin/public/identity_manager/tribool.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif
 
 namespace ios {
 class AccountCapabilitiesFetcherIOS;
@@ -44,20 +41,9 @@ class AccountCapabilities {
   AccountCapabilities& operator=(const AccountCapabilities& other);
   AccountCapabilities& operator=(AccountCapabilities&& other) noexcept;
 
-#if BUILDFLAG(IS_ANDROID)
-  static AccountCapabilities ConvertFromJavaAccountCapabilities(
-      JNIEnv* env,
-      const base::android::JavaRef<jobject>& accountCapabilities);
-
-  base::android::ScopedJavaLocalRef<jobject> ConvertToJavaAccountCapabilities(
-      JNIEnv* env) const;
-#endif
 
   explicit AccountCapabilities(base::flat_map<std::string, bool> capabilities);
 
-#if BUILDFLAG(IS_IOS)
-  const base::flat_map<std::string, bool>& ConvertToAccountCapabilitiesIOS();
-#endif
 
   // clang-format off
   // keep-sorted start newline_separated=yes sticky_prefixes=#if,BUILDFLAG group_prefixes=#endif,can,has,is,must
@@ -66,16 +52,12 @@ class AccountCapabilities {
   // group for accounts with this capability.
   signin::Tribool can_fetch_family_member_info() const;
 
-#if !BUILDFLAG(IS_IOS)
   // Chrome can display the email address for accounts with this capability.
   signin::Tribool can_have_email_address_displayed() const;
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
   // The primary account type is suitable for choice screens. Signals that are
   // not account-type specific should be checked separately.
   signin::Tribool can_make_chrome_search_engine_choice_screen_choice() const;
-#endif
 
   // Chrome can override the account info for accounts with this capability.
   signin::Tribool can_override_account_info() const;
@@ -85,53 +67,25 @@ class AccountCapabilities {
   signin::Tribool
   can_show_history_sync_opt_ins_without_minor_mode_restrictions() const;
 
-#if BUILDFLAG(IS_IOS)
-  // Whether the user is allowed to sign in to Chrome.
-  signin::Tribool can_sign_in_to_chrome() const;
-#endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   // Whether the account can submit feedback. For iOS, this is implemented by
   // Aloha FeedbackKit. For Android, this is implemented by GMS Core.
   signin::Tribool can_submit_feedback() const;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Chrome can toggle auto updates with this capability.
-  signin::Tribool can_toggle_auto_updates() const;
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // The user account is able to use generative AI features. Since many
-  // generative AI features inherit the same capability (minor restrictions),
-  // this one should be used for future generative AI features, instead of using
-  // a separate one for each of them.
-  signin::Tribool can_use_chromeos_generative_ai() const;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_IOS)
   // The user account is able to use DevTools AI features.
   signin::Tribool can_use_devtools_generative_ai_features() const;
-#endif
 
-#if !BUILDFLAG(IS_IOS)
   // The user account is able to use edu features.
   signin::Tribool can_use_edu_features() const;
-#endif
 
   // The user account is able to use Gemini in Chrome.
   signin::Tribool can_use_gemini_in_chrome() const;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // The user account is able to use generative AI in recorder app.
-  signin::Tribool can_use_generative_ai_in_recorder_app() const;
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // The user account is able to use generative AI photo editing.
-  signin::Tribool can_use_generative_ai_photo_editing() const;
-#endif
 
   // The user account is able to use manta service.
   signin::Tribool can_use_manta_service() const;
@@ -172,10 +126,6 @@ class AccountCapabilities {
   // Whether the user is subject to Universal Opt-Out.
   signin::Tribool is_subject_to_universal_opt_out() const;
 
-#if BUILDFLAG(IS_IOS)
-  // Whether the client must fetch Apple's age range in Chrome.
-  signin::Tribool must_fetch_apple_age_range_in_chrome() const;
-#endif
 
   // Whether Autofill must show equally weighted buttons when offering to save
   // Wallet private passes.
@@ -183,10 +133,6 @@ class AccountCapabilities {
   must_show_equally_weighted_buttons_for_private_passes_in_chrome_autofill()
       const;
 
-#if BUILDFLAG(IS_IOS)
-  // Whether the client must skip Apple's age range check in Chrome.
-  signin::Tribool must_skip_apple_age_range_in_chrome() const;
-#endif
 
   // The user should be addressed in feminine grammatical gender.
   signin::Tribool should_be_addressed_in_feminine_grammatical_gender() const;
@@ -253,11 +199,6 @@ class AccountCapabilities {
   friend class AccountCapabilitiesFetcherGaia;
   friend class signin::test::AccountCapabilitiesObserver;
   friend class AccountFetcherService;
-#if BUILDFLAG(IS_IOS)
-  friend base::span<const std::string_view>
-  GetAccountCapabilityNamesForPrefetch();
-  friend class ios::AccountCapabilitiesFetcherIOS;
-#endif
   // keep-sorted start
   FRIEND_TEST_ALL_PREFIXES(AccountCapabilitiesTest,
                            AreAllCapabilitiesKnown_Empty);

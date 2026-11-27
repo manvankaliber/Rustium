@@ -109,17 +109,6 @@ suite('CrPolicyIndicator', function() {
     assertEquals('extension', getIconTooltipText());
   });
 
-  // <if expr="is_chromeos">
-  test('primary-user controlled indicator', async () => {
-    indicator.indicatorType = CrPolicyIndicatorType.PRIMARY_USER;
-    indicator.indicatorSourceName = 'user@example.com';
-    await microtasksFinished();
-
-    assertTrue(getIconVisible());
-    assertEquals('cr:group-filled', getIconClass());
-    assertEquals('shared: user@example.com', getIconTooltipText());
-  });
-  // </if>
 
   test('indicator', async () => {
     const icon = indicator.shadowRoot.querySelector('cr-tooltip-icon')!;
@@ -130,14 +119,6 @@ suite('CrPolicyIndicator', function() {
     assertEquals('cr20:domain', icon.iconClass);
     assertEquals('policy', icon.tooltipText);
 
-    // <if expr="is_chromeos">
-    indicator.indicatorType = CrPolicyIndicatorType.OWNER;
-    indicator.indicatorSourceName = 'foo@example.com';
-    await microtasksFinished();
-
-    assertEquals('cr:person-filled', icon.iconClass);
-    assertEquals('owner: foo@example.com', icon.tooltipText);
-    // </if>
 
     indicator.indicatorType = CrPolicyIndicatorType.PARENT;
     await microtasksFinished();

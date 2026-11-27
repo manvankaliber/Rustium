@@ -247,7 +247,7 @@ class BASE_EXPORT CurrentUIThread : public CurrentThread {
 
   CurrentUIThread* operator->() { return this; }
 
-#if BUILDFLAG(IS_OZONE) && !BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_OZONE)
   static_assert(
       std::is_base_of_v<WatchableIOMessagePumpPosix, MessagePumpForUI>,
       "CurrentThreadForUI::WatchFileDescriptor is supported only"
@@ -259,21 +259,7 @@ class BASE_EXPORT CurrentUIThread : public CurrentThread {
                            MessagePumpForUI::FdWatcher* delegate);
 #endif
 
-#if BUILDFLAG(IS_IOS)
-  // Forwards to SequenceManager::Attach().
-  // TODO(crbug.com/40568517): Plumb the actual SequenceManager* to
-  // callers and remove ability to access this method from
-  // CurrentUIThread.
-  void Attach();
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-  // Forwards to MessagePumpAndroid::Abort().
-  // TODO(crbug.com/40568517): Plumb the actual MessagePumpForUI* to
-  // callers and remove ability to access this method from
-  // CurrentUIThread.
-  void Abort();
-#endif
 
 #if BUILDFLAG(IS_WIN)
   void RegisterNativeEventObserver(
@@ -312,7 +298,7 @@ class BASE_EXPORT CurrentIOThread : public CurrentThread {
   [[nodiscard]] bool RegisterIOHandler(HANDLE file,
                                        MessagePumpForIO::IOHandler* handler);
   bool RegisterJobObject(HANDLE job, MessagePumpForIO::IOHandler* handler);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   // Please see WatchableIOMessagePumpPosix for definition.
   // Prefer base::FileDescriptorWatcher for non-critical IO.
   bool WatchFileDescriptor(int fd,
@@ -322,22 +308,12 @@ class BASE_EXPORT CurrentIOThread : public CurrentThread {
                            MessagePumpForIO::FdWatcher* delegate);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_IOS) && !BUILDFLAG(CRONET_BUILD) && !BUILDFLAG(IS_IOS_TVOS))
+#if BUILDFLAG(IS_MAC)
   bool WatchMachReceivePort(
       mach_port_t port,
       MessagePumpForIO::MachPortWatchController* controller,
       MessagePumpForIO::MachPortWatcher* delegate);
 #endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  // Additional watch API for native platform resources.
-  bool WatchZxHandle(zx_handle_t handle,
-                     bool persistent,
-                     zx_signals_t signals,
-                     MessagePumpForIO::ZxHandleWatchController* controller,
-                     MessagePumpForIO::ZxHandleWatcher* delegate);
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
  private:
   explicit CurrentIOThread(

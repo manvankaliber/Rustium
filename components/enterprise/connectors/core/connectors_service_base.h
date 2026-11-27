@@ -84,7 +84,6 @@ class ConnectorsServiceBase {
       const GURL& url,
       AnalysisConnector connector);
 
-#if !BUILDFLAG(IS_IOS)
   // Get the AnalysisSettings that apply to a network request made to
   // `request_url` from a tab whose URL is `tab_url`. This returns
   // std::nullopt if Connectors are disabled, if `tab_url` is exempt from
@@ -94,7 +93,6 @@ class ConnectorsServiceBase {
   std::optional<AnalysisSettings> GetNetworkRequestAnalysisSettings(
       const GURL& tab_url,
       const GURL& request_url);
-#endif  // !BUILDFLAG(IS_IOS)
 
   virtual std::optional<std::string> GetBrowserDmToken() const = 0;
 
@@ -120,9 +118,7 @@ class ConnectorsServiceBase {
   // Observe if reporting policies have changed to include telemetry event.
   void ObserveTelemetryReporting(base::RepeatingCallback<void()> callback);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   std::optional<std::string> GetProfileDmToken() const;
-#endif
 
   // Testing functions.
   ConnectorsManagerBase* ConnectorsManagerBaseForTesting();

@@ -22,9 +22,7 @@ class ReadAnythingService : public KeyedService {
   ~ReadAnythingService() override;
 
   static ReadAnythingService* Get(Profile* profile);
-#if !BUILDFLAG(IS_CHROMEOS)
   static void InstallComponent(const base::FilePath& new_dir);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Called by the per-tab ReadAnythingController.
   virtual void OnReadAnythingShown();
@@ -32,9 +30,7 @@ class ReadAnythingService : public KeyedService {
  private:
   void RemoveTtsDownloadExtension();
   static void RecordEngineVersion(const base::FilePath& engine_version);
-#if !BUILDFLAG(IS_CHROMEOS)
   void SetupDesktopEngine();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 };
 
 #endif  // CHROME_BROWSER_UI_READ_ANYTHING_READ_ANYTHING_SERVICE_H_

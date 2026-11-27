@@ -93,19 +93,10 @@ def _CreateGtestCommand(
   gtest_filter: str | None,
   pref_mapping_filter: str | None,
   extra_args: list[str],
-  no_try_android_wrappers: bool,
-  no_fast_local_dev: bool,
-  no_single_variant: bool,
+
 ) -> list[str]:
-  path: str = os.path.join(out_dir, 'bin', f'run_{target_binary}')
+  path = os.path.join(out_dir, target_binary)
   target_extra_args = list(extra_args)
-  if no_try_android_wrappers or not os.path.isfile(path):
-    path = os.path.join(out_dir, target_binary)
-  else:
-    if not no_fast_local_dev:
-      target_extra_args.append('--fast-local-dev')
-    if not no_single_variant:
-      target_extra_args.append('--single-variant')
 
   cmd: list[str] = [path]
   if gtest_filter:
@@ -124,9 +115,7 @@ def RunTestTargets(
   pref_mapping_filter: str | None,
   extra_args: list[str],
   dry_run: bool,
-  no_try_android_wrappers: bool,
-  no_fast_local_dev: bool,
-  no_single_variant: bool,
+
   is_suite: bool = False,
   gemini: bool | None = False,
   web_test_files: list[str] | set[str] | None = None,
@@ -149,9 +138,7 @@ def RunTestTargets(
         gtest_filter,
         pref_mapping_filter,
         extra_args,
-        no_try_android_wrappers,
-        no_fast_local_dev,
-        no_single_variant,
+
       )
 
     command_str = shlex.join(cmd)

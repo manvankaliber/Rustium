@@ -70,7 +70,7 @@ std::optional<DeviceStatisticsTracker::Platform> PlatformFromProto(
     case sync_pb::SyncEnums::OsType::SyncEnums_OsType_OS_TYPE_IOS:
       return DeviceStatisticsTracker::Platform::kIOS;
     case sync_pb::SyncEnums::OsType::SyncEnums_OsType_OS_TYPE_CHROME_OS_LACROS:
-    case sync_pb::SyncEnums::OsType::SyncEnums_OsType_OS_TYPE_FUCHSIA:
+
     case sync_pb::SyncEnums::OsType::SyncEnums_OsType_OS_TYPE_UNSPECIFIED:
       // Unknown, deprecated, or not interesting.
       return std::nullopt;
@@ -141,12 +141,6 @@ std::optional<DeviceStatisticsTracker::Platform> GetLocalPlatform() {
   return DeviceStatisticsTracker::Platform::kMac;
 #elif BUILDFLAG(IS_LINUX)
   return DeviceStatisticsTracker::Platform::kLinux;
-#elif BUILDFLAG(IS_CHROMEOS)
-  return DeviceStatisticsTracker::Platform::kChromeOS;
-#elif BUILDFLAG(IS_ANDROID)
-  return DeviceStatisticsTracker::Platform::kAndroid;
-#elif BUILDFLAG(IS_IOS)
-  return DeviceStatisticsTracker::Platform::kIOS;
 #else
   return std::nullopt;
 #endif

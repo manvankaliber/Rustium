@@ -23,10 +23,6 @@
 #include "components/search_engines/search_engines_switches.h"
 #include "components/search_engines/template_url_service.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/profiles/profiles_state.h"
-#include "chromeos/components/kiosk/kiosk_utils.h"
-#endif
 
 #if BUILDFLAG(CHROME_FOR_TESTING)
 #include "chrome/browser/chrome_for_testing/config.h"
@@ -45,11 +41,6 @@ bool g_is_chrome_build =
 #endif
 
 bool IsSupportedProfileType(Profile& profile) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (chromeos::IsKioskSession() || profiles::IsChromeAppKioskSession()) {
-    return false;
-  }
-#endif
 
   // Guest sessions (including child guest) don't count as "regular" but can be
   // eligible.
@@ -127,9 +118,6 @@ SearchEngineChoiceDialogServiceFactory::ComputeProfileEligibilityForTesting(
 std::unique_ptr<KeyedService>
 SearchEngineChoiceDialogServiceFactory::BuildServiceInstanceForBrowserContext(
     content::BrowserContext* context) const {
-#if BUILDFLAG(IS_ANDROID)
-  return nullptr;
-#else
 
 #if BUILDFLAG(CHROME_FOR_TESTING)
   if (!chrome_for_testing::IsEnableSearchEngineChoiceDialog()) {
@@ -169,5 +157,4 @@ SearchEngineChoiceDialogServiceFactory::BuildServiceInstanceForBrowserContext(
       CHECK_DEREF(TemplateURLServiceFactory::GetForProfile(&profile));
   return std::make_unique<SearchEngineChoiceDialogService>(
       profile, search_engine_choice_service, template_url_service);
-#endif  // BUILDFLAG(IS_ANDROID)
 }

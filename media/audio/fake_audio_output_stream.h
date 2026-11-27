@@ -9,7 +9,7 @@
 
 #include "base/memory/raw_ptr.h"
 #include "base/time/time.h"
-#include "media/audio/android/muteable_audio_output_stream.h"
+#include "media/audio/muteable_audio_output_stream.h"
 #include "media/audio/audio_io.h"
 #include "media/base/audio_parameters.h"
 #include "media/base/fake_audio_worker.h"

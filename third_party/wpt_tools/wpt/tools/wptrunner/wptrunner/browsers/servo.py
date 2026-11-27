@@ -82,7 +82,7 @@ def write_hosts_file(config):
 
 
 class ServoBrowser(WebDriverBrowser):
-    init_timeout = 300  # Large timeout for cases where we're booting an Android emulator
+    init_timeout = 300
     shutdown_retry_attempts = 3
 
     def __init__(self, logger, binary, debug_info=None, webdriver_host="127.0.0.1",

@@ -27,18 +27,10 @@
 #include "ui/color/color_provider_key.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system_web_apps/system_web_app_type.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class BrowserWindowInterface;
 class CustomThemeSupplier;
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace ash {
-class SystemWebAppDelegate;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace base {
 class TimeTicks;
@@ -307,18 +299,12 @@ class AppBrowserController : public ui::ColorProviderKey::InitializerSupplier,
   // app window when captured via window capture.
   virtual bool IsWindowCaptureHandleAllowed() const;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Whether the browser should show the profile menu button in the toolbar.
   // Not appliccable to ChromeOS, because apps can be installed only for
   // one main profile there.
   virtual bool HasProfileMenuButton() const;
   virtual bool IsProfileMenuButtonVisible() const;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Returns the SystemWebAppDelegate if any for this controller.
-  virtual const ash::SystemWebAppDelegate* system_app() const;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Updates the custom tab bar's visibility based on whether it should be
   // currently visible or not. If |animate| is set, the change will be
@@ -330,9 +316,7 @@ class AppBrowserController : public ui::ColorProviderKey::InitializerSupplier,
   // Returns whether this app browser was created from a trusted source.
   bool IsTrustedSource() const;
 
-#if !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* browser() const { return browser_; }
-#endif
 
   // Gets the url that the app browser controller was created with. Note: This
   // may be empty until the web contents begins navigating.
@@ -419,17 +403,6 @@ class AppBrowserController : public ui::ColorProviderKey::InitializerSupplier,
   ui::ScopedUnownedUserData<AppBrowserController> scoped_unowned_user_data_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Returns the SystemWebAppDelegate if `browser` is hosting a System Web App, or
-// nullptr otherwise.
-const ash::SystemWebAppDelegate* GetSystemWebAppDelegate(
-    const BrowserWindowInterface* browser);
-
-// Returns the SystemWebAppType if `browser` is hosting a System Web App, or
-// std::nullopt otherwise.
-std::optional<ash::SystemWebAppType> GetSystemWebAppType(
-    const BrowserWindowInterface* browser);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace web_app
 

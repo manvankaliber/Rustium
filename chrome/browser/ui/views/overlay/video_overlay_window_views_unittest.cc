@@ -192,9 +192,6 @@ class VideoOverlayWindowViewsTest : public ChromeViewsTestBase {
     // web_contents_ needs to be created after the constructor, so that
     // |feature_list_| can be initialized before other threads check if a
     // feature is enabled.
-#if BUILDFLAG(IS_CHROMEOS)
-    test_views_delegate()->set_context(GetContext());
-#endif
     test_views_delegate()->set_use_desktop_native_widgets(true);
 
     // The default work area must be big enough to fit the minimum

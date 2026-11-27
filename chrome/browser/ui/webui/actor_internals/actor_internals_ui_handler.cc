@@ -11,7 +11,6 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/time/time.h"
 #include "base/values.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/common/chrome_paths.h"
@@ -48,20 +47,6 @@ ActorInternalsUIHandler::~ActorInternalsUIHandler() {
   journal.RemoveObserver(this);
 }
 
-void ActorInternalsUIHandler::WillAddJournalEntry(
-    const actor::AggregatedJournal::Entry& entry) {
-  base::flat_map<std::string, std::string> details;
-  for (const auto& detail : entry.data->details) {
-    details[detail->key] = detail->value;
-  }
-
-  handler_->OnJournalEntryAdded(actor_internals::mojom::JournalEntry::New(
-      entry.url, entry.data->event,
-      std::string(actor::JournalEntryTypeToString(entry.data->type)),
-      std::move(details), entry.data->timestamp, entry.data->task_id.value(),
-      actor::TrackToString(entry.data->track_uuid, entry.data->task_id),
-      entry.screenshot, entry.iframe_screenshot));
-}
 
 void ActorInternalsUIHandler::StartLogging() {
   if (select_file_dialog_) {
@@ -97,8 +82,6 @@ void ActorInternalsUIHandler::StopLogging() {
 void ActorInternalsUIHandler::FileSelected(const ui::SelectedFileInfo& file,
                                            int index) {
   auto& journal = GetJournal();
-  trace_logger_ =
-      std::make_unique<actor::AggregatedJournalFileSerializer>(journal);
 
   trace_logger_->Init(
       file.path(), base::BindOnce(&ActorInternalsUIHandler::TraceFileInitDone,
@@ -115,12 +98,4 @@ void ActorInternalsUIHandler::TraceFileInitDone(bool success) {
 void ActorInternalsUIHandler::FileSelectionCanceled() {
   select_file_dialog_.reset();
   trace_logger_.reset();
-}
-
-actor::AggregatedJournal& ActorInternalsUIHandler::GetJournal() {
-  auto* profile =
-      Profile::FromBrowserContext(web_contents_->GetBrowserContext());
-  auto* actor_service = actor::ActorKeyedService::Get(profile);
-  CHECK(actor_service);
-  return actor_service->GetJournal();
 }

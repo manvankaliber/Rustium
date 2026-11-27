@@ -146,9 +146,6 @@ inline constexpr base::FilePath::CharType kJumpListIconDirname[] =
 // directory names
 #if BUILDFLAG(IS_WIN)
 inline constexpr wchar_t kUserDataDirname[] = L"User Data";
-#elif BUILDFLAG(IS_ANDROID)
-inline constexpr base::FilePath::CharType kOTRTempStateDirname[] =
-    FILE_PATH_LITERAL("OTRTempState");
 #endif
 
 // Fraction of the soft process limit that can be consumed by extensions, before

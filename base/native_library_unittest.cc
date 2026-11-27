@@ -39,31 +39,13 @@ TEST(NativeLibraryTest, LoadWithOptionsFailure) {
   EXPECT_FALSE(error.ToString().empty());
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-TEST(NativeLibraryTest, LoadAbsolutePath) {
-  EXPECT_TRUE(LoadNativeLibrary(FilePath("/pkg/lib/libtest_shared_library.so"),
-                                nullptr));
-}
-
-TEST(NativeLibraryTest, LoadAbsolutePath_OutsideLibraryRoot) {
-  NativeLibraryLoadError error;
-  EXPECT_FALSE(LoadNativeLibrary(FilePath("/pkg/tmp/libtest_shared_library.so"),
-                                 &error));
-  std::string expected_error =
-      "Absolute library paths must begin with /pkg/lib";
-  EXPECT_EQ(error.ToString(), expected_error);
-}
-#endif
-
 TEST(NativeLibraryTest, GetNativeLibraryName) {
   const char kExpectedName[] =
 #if BUILDFLAG(IS_WIN)
       "mylib.dll";
-#elif BUILDFLAG(IS_IOS)
-      "mylib.framework/mylib";
 #elif BUILDFLAG(IS_MAC)
       "libmylib.dylib";
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
       "libmylib.so";
 #endif
   EXPECT_EQ(kExpectedName, GetNativeLibraryName("mylib"));
@@ -73,11 +55,9 @@ TEST(NativeLibraryTest, GetLoadableModuleName) {
   const char kExpectedName[] =
 #if BUILDFLAG(IS_WIN)
       "mylib.dll";
-#elif BUILDFLAG(IS_IOS)
-      "mylib.framework";
 #elif BUILDFLAG(IS_MAC)
       "mylib.so";
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
       "libmylib.so";
 #endif
   EXPECT_EQ(kExpectedName, GetLoadableModuleName("mylib"));
@@ -91,11 +71,9 @@ TEST(NativeLibraryTest, GetLoadableModuleName) {
 const char kTestLibraryName[] =
 #if BUILDFLAG(IS_WIN)
     "test_shared_library.dll";
-#elif BUILDFLAG(IS_IOS)
-    "Frameworks/test_shared_library_ios.framework/test_shared_library_ios";
 #elif BUILDFLAG(IS_MAC)
     "libtest_shared_library.dylib";
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
     "libtest_shared_library.so";
 #endif
 
@@ -104,11 +82,9 @@ class TestLibrary {
   TestLibrary() : library_(nullptr) {
     base::FilePath exe_path;
 
-#if !BUILDFLAG(IS_FUCHSIA)
     // Libraries do not sit alongside the executable in Fuchsia. NativeLibrary
     // is aware of this and is able to resolve library paths correctly.
     CHECK(base::PathService::Get(base::DIR_EXE, &exe_path));
-#endif
 
     library_ =
         LoadNativeLibrary(exe_path.AppendASCII(kTestLibraryName), nullptr);
@@ -131,7 +107,6 @@ class TestLibrary {
 
 // NativeLibraaryTest.LoadLibrary is failing on M tablets only.
 // crbug/641309
-#if !BUILDFLAG(IS_ANDROID)
 
 // Verifies that we can load a native library and resolve its exported symbols.
 TEST(NativeLibraryTest, LoadLibrary) {
@@ -206,7 +181,6 @@ TEST(NativeLibraryTest, LoadWithOptions_VerifySignatureDefault) {
 
 #endif  // BUILDFLAG(IS_WIN)
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #endif  // !defined(ADDRESS_SANITIZER)
 

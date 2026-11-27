@@ -39,10 +39,6 @@
 #include "third_party/blink/public/common/manifest/manifest_util.h"
 #include "third_party/blink/public/mojom/manifest/display_mode.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/app_list/arc/arc_app_list_prefs.h"
-#include "chrome/browser/ash/arc/arc_util.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -50,9 +46,6 @@ namespace {
 // https://github.com/w3c/manifest/wiki/Platforms
 const char kPlatformChromeWebStore[] = "chrome_web_store";
 
-#if BUILDFLAG(IS_CHROMEOS)
-const char kPlatformPlay[] = "play";
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -154,13 +147,6 @@ bool AppBannerManagerDesktop::IsSupportedNonWebAppPlatform(
     return true;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (base::EqualsASCII(platform, kPlatformPlay) &&
-      arc::IsArcAllowedForProfile(Profile::FromBrowserContext(
-          app_banner_manager_->web_contents()->GetBrowserContext()))) {
-    return true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   return false;
 }
@@ -179,13 +165,6 @@ bool AppBannerManagerDesktop::IsRelatedNonWebAppInstalled(
     return extension_registry_->enabled_extensions().Contains(id);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (base::EqualsASCII(platform, kPlatformPlay)) {
-    ArcAppListPrefs* arc_app_list_prefs = ArcAppListPrefs::Get(
-        app_banner_manager_->web_contents()->GetBrowserContext());
-    return arc_app_list_prefs && arc_app_list_prefs->GetPackage(id) != nullptr;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   return false;
 }

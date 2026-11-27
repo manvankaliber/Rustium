@@ -29,13 +29,6 @@ ${this.showDrawer_ ? html`
           ?enable-enhanced-site-controls="${this.enableEnhancedSiteControls}">
       </extensions-sidebar>
     </div>
-<if expr="is_android">
-    <picture slot="header-icon">
-      <source media="(prefers-color-scheme: dark)"
-          srcset="//resources/images/chrome_logo_dark.svg">
-      <img srcset="images/product_logo.png" role="presentation">
-    </picture>
-</if>
   </cr-drawer>
 ` : ''}
 <div id="container" class="cr-scrollable">

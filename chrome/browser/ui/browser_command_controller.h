@@ -18,7 +18,6 @@
 #include "chrome/browser/command_updater_impl.h"
 #include "chrome/browser/profiles/profile_attributes_storage.h"
 #include "chrome/browser/profiles/profile_attributes_storage_observer.h"
-#include "chrome/browser/ttc/core/states.h"
 #include "chrome/browser/ui/side_panel/side_panel_enums.h"
 #include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
 #include "chrome/browser/ui/webui/side_panel/customize_chrome/customize_chrome_section.h"
@@ -38,9 +37,6 @@ namespace input {
 struct NativeWebKeyboardEvent;
 }
 
-namespace glic {
-class GlicInstance;
-}
 
 namespace chrome {
 
@@ -78,29 +74,7 @@ class BrowserCommandController : public CommandUpdater,
   void ZoomStateChanged();
   void ContentRestrictionsChanged();
   void FullscreenStateChanged();
-#if BUILDFLAG(IS_CHROMEOS)
-  // Called when the browser goes in or out of the special locked fullscreen
-  // mode. In this mode the user is basically locked into the current browser
-  // window and tab hence we disable most keyboard shortcuts and we also
-  // prevent changing the state of enabled shortcuts while in this mode (so the
-  // other *Changed() functions will be a NO-OP in this state).
-  void LockedFullscreenStateChanged();
-
-  // Called when the OnTask state changes without a pin/unpin, e.g. entering
-  // or leaving the prepared state. Re-derives the commands that depend on the
-  // OnTask state (currently DevTools).
-  // TODO(crbug.com/438540029): Consolidate with LockedFullscreenStateChanged()
-  // and SetTabSwitchCommandsEnabled() into a single notification that
-  // re-derives all command state from LockedStateController.
-  void OnTaskStateChanged();
-
-  // Enables or disables all tab switching commands (IDC_SELECT_NEXT_TAB,
-  // IDC_SELECT_PREVIOUS_TAB, IDC_CYCLE_*, IDC_SELECT_TAB_0..7, etc.).
-  void SetTabSwitchCommandsEnabled(bool enabled);
-#endif
   void PrintingStateChanged();
-  void GlicActiveInstanceChanged(glic::GlicInstance* instance);
-  void TtcStateChanged(ttc::ServiceState state);
   void LoadingStateChanged(bool is_loading, bool force);
   void FindBarVisibilityChanged();
   void ExtensionStateChanged();
@@ -133,9 +107,6 @@ class BrowserCommandController : public CommandUpdater,
       Profile* profile);
 
  private:
-#if BUILDFLAG(IS_CHROMEOS)
-  friend class BrowserCommandControllerBrowserTestLockedFullscreen;
-#endif
 
   // CommandUpdater:
   bool ExecuteCommandWithDispositionAndContext(
@@ -222,23 +193,12 @@ class BrowserCommandController : public CommandUpdater,
   // Update commands that are used in the Extensions menu in the app menu.
   void UpdateCommandsForExtensionsMenu();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Update commands whose state depends on whether the window is in locked
-  // fullscreen mode or not.
-  void UpdateCommandsForLockedFullscreenMode();
-
-  // Updates command states for tab switching commands.
-  void UpdateTabSwitchingCommandState();
-#endif
 
   // Updates the printing command state.
   void UpdatePrintingState();
 
   // Updates the Glic command state.
-  void UpdateGlicState();
 
-  // Updates the TTC command state for `state`.
-  void UpdateTtcState(ttc::ServiceState state);
 
   // Updates the SHOW_SYNC_SETUP menu entry.
   void OnSigninAllowedPrefChange();
@@ -277,7 +237,6 @@ class BrowserCommandController : public CommandUpdater,
   void UpdateCommandsForTabStripStateChanged();
 
   // Updates commands that depend on the enabled state of glic.
-  void UpdateCommandsForEnableGlicChanged();
 
   // Updates commands and actions for profiling.
   void UpdateCommandsForProfiling();
@@ -314,15 +273,7 @@ class BrowserCommandController : public CommandUpdater,
 
   PrefChangeRegistrar profile_pref_registrar_;
   PrefChangeRegistrar local_pref_registrar_;
-  std::unique_ptr<base::CallbackListSubscription> glic_enabling_subscription_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // In locked fullscreen mode disallow enabling/disabling commands.
-  // TODO(crbug.com/438540029): Remove `is_locked_fullscreen_` when migration
-  // is completed.
-  bool is_locked_fullscreen_ = false;
-  bool is_tab_switching_enabled_ = true;
-#endif
 
   // If the Customize Chrome side panel is shown, determines which section to
   // display.
@@ -331,10 +282,7 @@ class BrowserCommandController : public CommandUpdater,
 
   // Callback subscription for listening to changes to the Glic window
   // activation changes.
-  base::CallbackListSubscription glic_active_instance_changed_subscription_;
 
-  // Callback subscription for listening to TTC session state changes.
-  base::CallbackListSubscription ttc_state_subscription_;
 
   // Observes for extension state changes (load/unload).
   class ExtensionStateObserver;

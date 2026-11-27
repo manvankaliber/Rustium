@@ -715,10 +715,6 @@ OmniboxEverywhereUI::GetOrCreateContextualSessionHandle() {
     auto* contextual_search_service =
         ContextualSearchServiceFactory::GetForProfile(profile_);
     if (contextual_search_service) {
-      shared_session_handle_ = contextual_search_service->CreateSession(
-          omnibox::CreateQueryControllerConfigParams(),
-          contextual_search::ContextualSearchSource::kOmniboxEverywhere,
-          lens::LensOverlayInvocationSource::kOmniboxEverywhereComposebox);
       shared_session_handle_->CheckSearchContentSharingSettings(
           profile_->GetPrefs());
     }
@@ -807,10 +803,6 @@ void OmniboxEverywhereUI::ShowScreenshotMenu(
   // re-creating them, avoiding dangling pointers.
   ResetScreenshotMenu();
 
-  if (auto* service =
-          OmniboxEverywhereServiceFactory::GetForProfile(profile_)) {
-    service->OnLensSearchClicked();
-  }
 
   active_screenshot_controller_ = std::move(controller);
 

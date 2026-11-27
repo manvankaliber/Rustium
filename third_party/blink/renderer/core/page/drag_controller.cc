@@ -109,12 +109,7 @@ namespace {
 
 constexpr int kMaxOriginalImageArea = 1500 * 1500;
 constexpr int kLinkDragBorderInset = 2;
-#if BUILDFLAG(IS_ANDROID)
-// Android handles drag image transparency at the browser level
-constexpr float kDragImageAlpha = 1.00f;
-#else
 constexpr float kDragImageAlpha = 0.75f;
-#endif
 
 #if DCHECK_IS_ON()
 bool DragTypeIsValid(DragSourceAction action) {

@@ -31,11 +31,7 @@
 #include "extensions/common/event_args.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/extensions/api/tabs/tabs_event_router_platform_delegate_android.h"
-#else
 #include "chrome/browser/extensions/api/tabs/tabs_event_router_platform_delegate_non_android.h"
-#endif
 
 class Profile;
 

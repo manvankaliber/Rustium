@@ -75,12 +75,10 @@ class CheckClientDownloadRequest : public CheckClientDownloadRequestBase,
       const ClientDownloadResponse::Verdict& verdict,
       const ClientDownloadResponse::TailoredVerdict& tailored_verdict,
       bool is_registered_app_store) override;
-#if !BUILDFLAG(IS_ANDROID)
   void MaybeBeginFeedbackForDownload(DownloadCheckResult result,
                                      bool upload_requested,
                                      const std::string& request_data,
                                      const std::string& response_body) override;
-#endif
   bool ShouldImmediatelyDeepScan(bool server_requests_prompt) const override;
   bool ShouldPromptForDeepScanning(bool server_requests_prompt) const override;
   bool ShouldPromptForLocalDecryption(

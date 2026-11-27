@@ -86,9 +86,9 @@
 #include "ui/base/page_transition_types.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #include "chrome/browser/safe_browsing/test_safe_browsing_service.h"
@@ -787,10 +787,10 @@ class HttpsUpgradesBrowserTest
   void EnableCaptivePortalDetection(BrowserWindowInterface* browser);
 
  private:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   chrome::ScopedChannelOverride channel_override_{
       chrome::ScopedChannelOverride::Channel::kDev};
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
   // TODO(https://crbug.com/423465927): Explore a better approach to make the
   // existing tests run with the prewarm feature enabled.
   test::ScopedPrewarmFeatureList prewarm_feature_list_{
@@ -3360,13 +3360,8 @@ IN_PROC_BROWSER_TEST_P(HttpsUpgradesBrowserTest,
 // Test that HTTPS Upgrades are skipped if the "Insecure content" site setting
 // is set to "allow".
 // MIXED_SCRIPT isn't enabled as a content setting on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_InsecureContentSettingDisablesUpgrades \
-  DISABLED_InsecureContentSettingDisablesUpgrades
-#else
 #define MAYBE_InsecureContentSettingDisablesUpgrades \
   InsecureContentSettingDisablesUpgrades
-#endif
 IN_PROC_BROWSER_TEST_P(HttpsUpgradesBrowserTest,
                        MAYBE_InsecureContentSettingDisablesUpgrades) {
   content::WebContents* contents =
@@ -3430,13 +3425,8 @@ IN_PROC_BROWSER_TEST_P(HttpsUpgradesBrowserTest,
 // This test is identical to InsecureContentSettingDisablesUpgrades except it
 // sets a high site engagement score for the https URL and checks an additional
 // histogram.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_InsecureContentSettingDisablesHFMForEngagedSites \
-  DISABLED_InsecureContentSettingDisablesHFMForEngagedSites
-#else
 #define MAYBE_InsecureContentSettingDisablesHFMForEngagedSites \
   InsecureContentSettingDisablesHFMForEngagedSites
-#endif
 IN_PROC_BROWSER_TEST_P(HttpsUpgradesBrowserTest,
                        MAYBE_InsecureContentSettingDisablesHFMForEngagedSites) {
   content::WebContents* contents =

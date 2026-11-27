@@ -22,16 +22,9 @@
 #include "net/test/embedded_test_server/embedded_test_server.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#else
 #include "chrome/browser/ui/browser_live_tab_context.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#endif
 
 namespace extensions {
 namespace {
@@ -63,13 +56,6 @@ class ViewExtensionSourceTest : public ExtensionBrowserTest {
   void SetUpCommandLine(base::CommandLine* command_line) override {
     ExtensionBrowserTest::SetUpCommandLine(command_line);
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // These tests use chrome:// URLs and are written on the assumption devtools
-    // are always available, so guarantee that assumption holds. Tests that
-    // check if devtools can be disabled should use a test fixture without the
-    // kForceDevToolsAvailable switch set.
-    command_line->AppendSwitch(ash::switches::kForceDevToolsAvailable);
-#endif
   }
 
   static bool CanViewSource(content::WebContents* web_contents) {
@@ -80,16 +66,8 @@ class ViewExtensionSourceTest : public ExtensionBrowserTest {
     sessions::TabRestoreService* service =
         TabRestoreServiceFactory::GetForProfile(GetProfile());
     CHECK(service);
-#if BUILDFLAG(IS_ANDROID)
-    // Android does not provide BrowserWindowInterface::GetFeatures()
-    // so we must get the tab context from the TabModel.
-    TabListInterface* tab_list = GetTabListInterface();
-    TabModel* tab_model = static_cast<TabModel*>(tab_list);
-    sessions::LiveTabContext* context = tab_model->GetLiveTabContext();
-#else
     sessions::LiveTabContext* context =
         BrowserLiveTabContext::From(GetBrowserWindowInterface());
-#endif
     CHECK(context);
     service->RestoreMostRecentEntry(context);
   }

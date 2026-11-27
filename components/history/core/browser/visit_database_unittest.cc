@@ -883,12 +883,6 @@ TEST_F(VisitDatabaseTest, GetVisibleVisitsInRange) {
   }
   AddContextAnnotationsForVisit(visit_404.visit_id, context_annotations_404);
 
-#if BUILDFLAG(IS_IOS)
-  for (auto& test_visit_row : test_visit_rows) {
-    test_visit_row.source = std::nullopt;
-  }
-  visit_404.source = std::nullopt;
-#endif  // BUILDFLAG(IS_IOS)
 
   // Query the visits for all time.
   VisitVector results;
@@ -896,14 +890,9 @@ TEST_F(VisitDatabaseTest, GetVisibleVisitsInRange) {
   options.policy_for_404_visits = VisitQuery404sPolicy::kInclude404s;
   GetVisibleVisitsInRange(options, &results);
   ASSERT_EQ(3U, results.size());
-#if !defined(ANDROID)
   // We should not get the first or the second visit (duplicates of the sixth)
   // or the redirect or subframe visits.
   EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[5]));
-#else
-  // On Android, the one with app_id is chosen among the duplicates.
-  EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[1]));
-#endif
 
   EXPECT_THAT(results[1], MatchesVisitInfo(test_visit_rows[3]));
   // Based on `options.policy_for_404_visits`, we should get the 404 visit.
@@ -914,14 +903,9 @@ TEST_F(VisitDatabaseTest, GetVisibleVisitsInRange) {
   GetVisibleVisitsInRange(options, &results);
   // We shouldn't get the 404 visit anymore.
   ASSERT_EQ(2U, results.size());
-#if !defined(ANDROID)
   // We should not get the first or the second visit (duplicates of the sixth)
   // or the redirect or subframe visits.
   EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[5]));
-#else
-  // On Android, the one with app_id is chosen among the duplicates.
-  EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[1]));
-#endif
 
   // Query the visits with app_id. Only those with the matching app_id will be
   // returned. With app_id, the second visit is not a duplicate of the sixth.
@@ -1224,11 +1208,6 @@ TEST_F(VisitDatabaseTest, GetVisibleVisitsForURL) {
   // Make `visit_info9` a 404 visit.
   AddContextAnnotationsForVisit(visit_info9.visit_id, context_annotations_404);
 
-#if BUILDFLAG(IS_IOS)
-  for (auto& test_visit_row : test_visit_rows) {
-    test_visit_row.source = std::nullopt;
-  }
-#endif  // BUILDFLAG(IS_IOS)
 
   // Query the visits for the first url id, excluding 404s.
   VisitVector results;
@@ -1237,30 +1216,19 @@ TEST_F(VisitDatabaseTest, GetVisibleVisitsForURL) {
   int url_id = test_visit_rows[0].url_id;
   GetVisibleVisitsForURL(url_id, options, &results);
   ASSERT_EQ(1U, results.size());
-#if !defined(ANDROID)
   // We should not get the first, the second or the sixth (duplicates of the
   // seventh), the eighth or ninth (404), or any other urls, redirects or
   // subframe visits.
   EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[6]));
-#else
-  // On Android, the one with app_id is chosen among the duplicates.
-  EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[5]));
-#endif
 
   // Repeat the same query, but include 404s.
   options.policy_for_404_visits = VisitQuery404sPolicy::kInclude404s;
   GetVisibleVisitsForURL(url_id, options, &results);
   ASSERT_EQ(1U, results.size());
-#if !defined(ANDROID)
   // We should not get the first, the second, the sixth, the seventh, or the
   // eighth (duplicates of the ninth) or any other urls, redirects or subframe
   // visits.
   EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[8]));
-#else
-  // On Android, the ones with an app_id are chosen among the duplicates. Visit
-  // 8 is the most recent of those.
-  EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[7]));
-#endif
 
   // Query the visits with app_id, excluding 404s. Only non-404 visits matching
   // both url id (1,2,6,7) and app id(2,3,4,6) will be returned(2, 6) -> 6
@@ -1295,13 +1263,7 @@ TEST_F(VisitDatabaseTest, GetVisibleVisitsForURL) {
   options.duplicate_policy = QueryOptions::REMOVE_DUPLICATES_PER_DAY;
   GetVisibleVisitsForURL(url_id, options, &results);
   ASSERT_EQ(3U, results.size());
-#if !defined(ANDROID)
   EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[8]));
-#else
-  // On Android, the ones with an `app_id` are chosen among the duplicates.
-  // Visit 8 is the most recent of those.
-  EXPECT_THAT(results[0], MatchesVisitInfo(test_visit_rows[7]));
-#endif
   EXPECT_THAT(results[1], MatchesVisitInfo(test_visit_rows[5]));
   EXPECT_THAT(results[2], MatchesVisitInfo(test_visit_rows[1]));
 
@@ -1358,7 +1320,6 @@ TEST_F(VisitDatabaseTest, GetVisibleVisitsForURL) {
   EXPECT_THAT(results[1], MatchesVisitInfo(test_visit_rows[5]));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(VisitDatabaseTest, GetVisibleVisits_ActorVisits) {
   const URLID kUrlId1 = 1U;
   VisitRow visit_browsed(
@@ -1483,7 +1444,6 @@ TEST_F(VisitDatabaseTest, GetVisibleVisits_SeparateBySource) {
                                    MatchesVisitInfo(visit_actor2),
                                    MatchesVisitInfo(visit_user2)));
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 TEST_F(VisitDatabaseTest, GetHistoryCount) {
   // Start with a day in the middle of summer, so that we are nowhere near
@@ -2429,7 +2389,6 @@ TEST_F(VisitDatabaseTest, GetLastRowForVisitByVisitTime) {
   EXPECT_THAT(result3, MatchesVisitInfo(visit3c));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(VisitDatabaseTest, ShouldFilterUserAndActorVisits) {
   auto add_visit_with_source = [&](const GURL& url, VisitSource source) {
     URLRow url_row(url);
@@ -2492,7 +2451,6 @@ TEST_F(VisitDatabaseTest, ShouldFilterUserAndActorVisits) {
     }
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Tests for FillVisitRow micro-optimizations ----------------------------------
 

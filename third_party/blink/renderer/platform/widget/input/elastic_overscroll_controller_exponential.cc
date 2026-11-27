@@ -9,15 +9,9 @@
 namespace blink {
 
 namespace {
-#if BUILDFLAG(IS_ANDROID)
-constexpr double kRubberbandStiffness = 20;
-constexpr double kRubberbandAmplitude = 0.2f;
-constexpr double kRubberbandPeriod = 1.1f;
-#else
 constexpr double kRubberbandStiffness = 20;
 constexpr double kRubberbandAmplitude = 0.31f;
 constexpr double kRubberbandPeriod = 1.6f;
-#endif
 }  // namespace
 
 ElasticOverscrollControllerExponential::ElasticOverscrollControllerExponential(

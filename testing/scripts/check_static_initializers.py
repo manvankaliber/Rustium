@@ -60,22 +60,8 @@ FALLBACK_MIN_MAC_SI_COUNT = 2
 # (InitializeDefaultMallocZoneWithPartitionAlloc) to install a malloc zone.
 FALLBACK_EXPECTED_MAC_SI_COUNT = 3
 
-# Similar to mac, iOS needs the iosstream and PartitionAlloc-Everywhere static
-# initializer (InitializeDefaultMallocZoneWithPartitionAlloc) to install a
-# malloc zone.
-FALLBACK_EXPECTED_IOS_SI_COUNT = 2
-
 # For coverage builds, also allow 'IntrProfilingRuntime.cpp'
 COVERAGE_BUILD_FALLBACK_EXPECTED_MAC_SI_COUNT = 4
-
-
-# Returns true if args contains properties which look like a chromeos-esque
-# builder.
-def check_if_chromeos(args):
-  return (
-    'buildername' in args.properties
-    and 'chromeos' in args.properties['buildername']
-  )
 
 
 def get_mod_init_count(src_dir, executable, hermetic_xcode_path):
@@ -99,27 +85,6 @@ def run_process(command):
       'ERROR from command "%s": %d' % (' '.join(command), p.returncode)
     )
   return stdout
-
-
-def main_ios(src_dir, hermetic_xcode_path):
-  base_names = ('Chromium', 'Chrome')
-  ret = 0
-  for base_name in base_names:
-    app_bundle = base_name + '.app'
-    chromium_executable = os.path.join(app_bundle, base_name)
-    if os.path.exists(chromium_executable):
-      stdout, si_count = get_mod_init_count(
-        src_dir, chromium_executable, hermetic_xcode_path
-      )
-      expected_si_count = FALLBACK_EXPECTED_IOS_SI_COUNT
-      if si_count != expected_si_count:
-        print(
-          'Expected %d static initializers in %s, but found %d'
-          % (expected_si_count, chromium_executable, si_count)
-        )
-        print(stdout)
-        ret = 1
-  return ret
 
 
 def main_mac(src_dir, hermetic_xcode_path, allow_coverage_initializer=False):
@@ -213,24 +178,12 @@ def main_run(args):
       src_dir, 'build', 'mac_files', 'xcode_binaries'
     )
 
-    is_ios = (
-      'target_platform' in args.properties
-      and 'ios' in args.properties['target_platform']
+    rc = main_mac(
+      src_dir,
+      hermetic_xcode_path,
+      allow_coverage_initializer='--allow-coverage-initializer' in args.args,
     )
-    if is_ios:
-      rc = main_ios(src_dir, hermetic_xcode_path)
-    else:
-      rc = main_mac(
-        src_dir,
-        hermetic_xcode_path,
-        allow_coverage_initializer='--allow-coverage-initializer' in args.args,
-      )
   elif sys.platform.startswith('linux'):
-    # TODO(crbug.com/40285648): Delete this assert if it's not seen to fail
-    # anywhere.
-    assert not check_if_chromeos(args), (
-      'This script is no longer supported for CrOS'
-    )
     rc = main_linux(src_dir)
   else:
     sys.stderr.write('Unsupported platform %s.\n' % repr(sys.platform))
@@ -245,10 +198,7 @@ def main_run(args):
 
 def main_compile_targets(args):
   if sys.platform.startswith('darwin'):
-    if 'ios' in args.properties.get('target_platform', []):
-      compile_targets = ['ios/chrome/app:chrome']
-    else:
-      compile_targets = ['chrome']
+    compile_targets = ['chrome']
   elif sys.platform.startswith('linux'):
     compile_targets = ['chrome']
   else:

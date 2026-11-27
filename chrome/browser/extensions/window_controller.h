@@ -103,11 +103,9 @@ class WindowController {
   // if any. Defaults to returning null.
   virtual BrowserWindowInterface* GetBrowserWindowInterface();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Returns a Browser if available. Defaults to returning NULL.
   // TODO(stevenjb): Temporary workaround. Eliminate this.
   virtual BrowserWindowInterface* GetBrowser() const;
-#endif
 
   // Returns the WebContents associated with the active tab, if any. Returns
   // null if there is no active tab.

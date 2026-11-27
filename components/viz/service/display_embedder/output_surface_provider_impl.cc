@@ -53,9 +53,6 @@
 #include "ui/ozone/public/surface_ozone_canvas.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/viz/service/display_embedder/output_surface_unified.h"
-#endif
 
 namespace viz {
 
@@ -94,10 +91,6 @@ std::unique_ptr<OutputSurface> OutputSurfaceProviderImpl::CreateOutputSurface(
     DisplayCompositorMemoryAndTaskController* gpu_dependency,
     const RendererSettings& renderer_settings,
     const DebugRendererSettings* debug_settings) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (surface_handle == gpu::kNullSurfaceHandle)
-    return std::make_unique<OutputSurfaceUnified>();
-#endif
 
   if (!gpu_compositing) {
     return std::make_unique<SoftwareOutputSurface>(
@@ -113,24 +106,9 @@ std::unique_ptr<OutputSurface> OutputSurfaceProviderImpl::CreateOutputSurface(
           gpu_dependency, renderer_settings, debug_settings);
     }
 
-#if BUILDFLAG(IS_ANDROID)
-    // As with non-skia-renderer case, communicate the creation result to
-    // CompositorImplAndroid so that it can attempt to recreate the surface on
-    // failure.
-    display_client->OnContextCreationResult(
-        output_surface ? gpu::ContextResult::kSuccess
-                       : gpu::ContextResult::kSurfaceFailure);
-#endif  // BUILDFLAG(IS_ANDROID)
 
     if (!output_surface) {
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_CASTOS)
-      // GPU compositing is expected to always work on Chrome OS and Cast
-      // devices, so we should never encounter fatal context error. This could
-      // be an unrecoverable hardware error or a bug.
-      LOG(FATAL) << "Unexpected fatal context error";
-#elif !BUILDFLAG(IS_ANDROID)
       gpu_service_impl_->DisableGpuCompositing();
-#endif
     }
 
     return output_surface;
@@ -154,9 +132,6 @@ OutputSurfaceProviderImpl::CreateSoftwareOutputDeviceForPlatform(
   return device;
 #elif BUILDFLAG(IS_APPLE)
   return std::make_unique<SoftwareOutputDeviceMac>(task_runner_);
-#elif BUILDFLAG(IS_ANDROID)
-  // Android does not do software compositing, so we can't get here.
-  NOTREACHED();
 #elif BUILDFLAG(IS_OZONE)
   ui::SurfaceFactoryOzone* factory =
       ui::OzonePlatform::GetInstance()->GetSurfaceFactoryOzone();

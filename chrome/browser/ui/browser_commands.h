@@ -287,7 +287,6 @@ bool CanGenerateQrCode(BrowserWindowInterface* browser);
 void GenerateQRCode(BrowserWindowInterface* browser);
 void SharingHub(BrowserWindowInterface* browser);
 void ScreenshotCapture(BrowserWindowInterface* browser);
-void ShowTtcMenuItem(BrowserWindowInterface* browser);
 void SavePage(BrowserWindowInterface* browser);
 bool CanSavePage(const BrowserWindowInterface* browser);
 void Print(BrowserWindowInterface* browser);
@@ -383,9 +382,6 @@ bool CanViewSource(BrowserWindowInterface* browser);
 bool CanToggleCaretBrowsing(BrowserWindowInterface* browser);
 void ToggleCaretBrowsing(BrowserWindowInterface* browser);
 void PromptToNameWindow(BrowserWindowInterface* browser);
-#if BUILDFLAG(IS_CHROMEOS)
-void ToggleMultitaskMenu(BrowserWindowInterface* browser);
-#endif
 void ExecuteUIDebugCommand(int id, const BrowserWindowInterface* browser);
 
 std::optional<int> GetKeyboardFocusedTabIndex(
@@ -397,12 +393,6 @@ bool ShouldInterceptChromeURLNavigationInIncognito(BrowserWindowInterface* brows
                                                    const GURL& url);
 void ProcessInterceptedChromeURLNavigationInIncognito(BrowserWindowInterface* browser,
                                                       const GURL& url);
-void ExecLensOverlay(BrowserWindowInterface* browser);
-void ExecLensRegionSearch(BrowserWindowInterface* browser);
-void ExecAskGoogleAboutThisPage(
-    BrowserWindowInterface* browser,
-    lens::LensOverlayInvocationSource invocation_source,
-    omnibox::ChromeAimEntryPoint entry_point);
 
 }  // namespace chrome
 

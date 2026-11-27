@@ -59,9 +59,7 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/gfx/image/image_skia_operations.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "ui/gfx/codec/jpeg_codec.h"
-#endif  // !BUILDFLAG(IS_IOS)
 
 constexpr char kContextualInputsParameterKey[] = "cinpts";
 constexpr char kQuerySubmissionTimeQueryParameter[] = "qsubts";
@@ -89,13 +87,8 @@ constexpr char kAimUdmQueryParameterValue[] = "50";
 constexpr char kMultimodalUdmQueryParameterValue[] = "24";
 constexpr char kUnimodalUdmQueryParameterValue[] = "26";
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr lens::CompressionType kExpectedPdfCompressionType =
-    lens::CompressionType::UNCOMPRESSED;
-#else
 constexpr lens::CompressionType kExpectedPdfCompressionType =
     lens::CompressionType::ZSTD;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 base::Time kTestQueryStartTime =
     base::Time::FromMillisecondsSinceUnixEpoch(1000);
@@ -484,7 +477,6 @@ class ComposeboxQueryControllerTest
                                            context_upload_status, error_type);
   }
 
-#if !BUILDFLAG(IS_IOS)
   std::vector<uint8_t> CreateJPGBytes(int width, int height) {
     SkBitmap bitmap;
     bitmap.allocN32Pixels(width, height);
@@ -492,7 +484,6 @@ class ComposeboxQueryControllerTest
     auto image_bytes = gfx::JPEGCodec::Encode(bitmap, 100);
     return image_bytes.value();
   }
-#endif  // !BUILDFLAG(IS_IOS)
 
   std::vector<uint8_t> GetSimpleJPGBytes() {
     // Returns 1x1 progressive jpg image.
@@ -1554,7 +1545,6 @@ TEST_F(ComposeboxQueryControllerTest,
   EXPECT_TRUE(context_upload_status_future_.IsEmpty());
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ComposeboxQueryControllerTest, UploadImageFileRequestSuccess) {
   // Act: Start the session.
   controller().InitializeIfNeeded();
@@ -1726,7 +1716,6 @@ TEST_F(ComposeboxQueryControllerTest, IsSupportedC2paMimeType) {
       ComposeboxQueryController::IsSupportedC2paMimeType(std::nullopt));
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ComposeboxQueryControllerTest,
        UploadHeicImageFileRequestBypassesDecode) {
   base::HistogramTester histogram_tester;
@@ -1952,7 +1941,6 @@ TEST_F(ComposeboxQueryControllerTest, UploadImageRequestC2paFlagDisabled) {
   histogram_tester.ExpectUniqueSample(
       "Lens.Composebox.ImageUpload.File.C2paDetected", true, 1);
 }
-#endif
 
 TEST_F(ComposeboxQueryControllerTest, UploadDriveFileRequestSuccess) {
   // Act: Start the session.
@@ -2457,7 +2445,6 @@ TEST_F(ComposeboxQueryControllerTest,
   EXPECT_EQ(*error_type,
             contextual_search::ContextUploadErrorType::kImageProcessingError);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(ComposeboxQueryControllerTest, UploadPdfFileRequestSuccessWithFileName) {
   // Act: Start the session.
@@ -2890,7 +2877,6 @@ TEST_F(ComposeboxQueryControllerTest, UploadPageContextPdfFileRequestSuccess) {
             kTestServerAddress);
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ComposeboxQueryControllerTest,
        UploadPageContextPdfFileWithViewportSeparateRequestIdsRequestSuccess) {
   CreateController(
@@ -3997,7 +3983,6 @@ TEST_F(ComposeboxQueryControllerTest,
                 .media_type(),
             lens::LensOverlayRequestId::MEDIA_TYPE_PDF);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(ComposeboxQueryControllerTest,
        UploadPageContextWebpageContentWithPageContextIneligibleFailure) {
@@ -5062,7 +5047,6 @@ TEST_F(ComposeboxQueryControllerTest, InteractionQuerySubmittedWithImageCrop) {
       search_url, kVisualInputTypeQueryParameter, &vit_value));
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ComposeboxQueryControllerTest, QuerySubmittedWithUploadedImage) {
   // Act: Start the session.
   controller().InitializeIfNeeded();
@@ -5267,7 +5251,6 @@ TEST_F(ComposeboxQueryControllerTest,
                                          &gsession_id_value));
   EXPECT_EQ(kTestSearchSessionId, gsession_id_value);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(ComposeboxQueryControllerTest,
        QuerySubmittedWithUploadedPdfButInvalidClusterInfoIsUnimodal) {
@@ -6146,7 +6129,6 @@ TEST_F(ComposeboxQueryControllerTest, HandleInteractionResponse) {
   EXPECT_EQ(actual_response.text().content_language(), "en");
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ComposeboxQueryControllerTest,
        CreateClientToAimRequestIncludesVisualSearchInteractionData) {
   // Act: Start the session.
@@ -6185,7 +6167,6 @@ TEST_F(ComposeboxQueryControllerTest,
       client_to_aim_message.submit_query().payload().lens_image_query_data(0);
   EXPECT_FALSE(lens_image_query_data.has_visual_search_interaction_data());
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(ComposeboxQueryControllerTest,
        CreateClientToAimRequest_ForceIncludeInteractionData_HasInteraction) {
@@ -6801,7 +6782,6 @@ TEST_F(ComposeboxQueryControllerTest,
       client_to_aim_message.submit_query().payload().has_added_inputs());
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ComposeboxQueryControllerTest,
        CreateSearchUrl_ImageUpload_DoesNotIncludeAddedInputs) {
   // Act: Start the session.
@@ -6837,7 +6817,6 @@ TEST_F(ComposeboxQueryControllerTest,
       GetAddedInputsFromUrl(search_url);
   ASSERT_FALSE(added_inputs.has_value());
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(ComposeboxQueryControllerTest,
        CreateSearchUrl_StandardSearch_DoesNotIncludeAaiOrAmc) {
@@ -7885,7 +7864,6 @@ TEST_F(ComposeboxQueryControllerTest, UploadRawFileRequestSuccess) {
             "application/pdf");
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ComposeboxQueryControllerTest, StartContextUploadFlow_ViewportOnly) {
   CreateController(
       /*send_lns_surface=*/false,
@@ -8492,7 +8470,6 @@ TEST_F(ComposeboxQueryControllerTest,
   EXPECT_EQ(viewport_id_3.image_sequence_id(), 3);
   EXPECT_EQ(viewport_id_3.long_context_id(), 0);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(ComposeboxQueryControllerTest, BackgroundUploadTaskCleanup) {
   CreateController(
@@ -8524,10 +8501,6 @@ TEST_F(ComposeboxQueryControllerTest, BackgroundUploadTaskCleanup) {
 
   WaitForFileUpload(file_token, lens::MimeType::kPdf);
 
-#if BUILDFLAG(IS_IOS)
-  EXPECT_EQ(
-      0, base::ios::ScopedCriticalAction::GetNumActiveBackgroundTasksForTest());
-#endif
 }
 
 TEST_F(ComposeboxQueryControllerTest,
@@ -9019,7 +8992,6 @@ TEST_F(ComposeboxQueryControllerTest,
                 CONTEXTUAL_INPUT_UPLOAD_TYPE_EXPLICIT);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ComposeboxQueryControllerTest,
        UploadPdfFileRequest_ChunkingDisabledByDefault) {
   CreateController(
@@ -9360,7 +9332,6 @@ TEST_F(ComposeboxQueryControllerTest,
             lens::ContentData::CONTENT_TYPE_PDF);
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ComposeboxQueryControllerTest,
        UploadPdfFileRequest_ChunkingEnabled_WithViewport) {
   identity_test_env()->MakePrimaryAccountAvailable(
@@ -9494,7 +9465,6 @@ TEST_F(ComposeboxQueryControllerTest,
   EXPECT_EQ(viewport_input.request_id().context_id(),
             pdf_input.request_id().context_id());
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(ComposeboxQueryControllerTest,
        UploadPdfRawFileRequest_CompressesPdfAndSetsContentType) {
@@ -9537,7 +9507,6 @@ TEST_F(ComposeboxQueryControllerTest,
                 .compression_type(),
             kExpectedPdfCompressionType);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ComposeboxQueryControllerTest,
        IdentityDelegationUsesAuthUserIndexWhenSet) {

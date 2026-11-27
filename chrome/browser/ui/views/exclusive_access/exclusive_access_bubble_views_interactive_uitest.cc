@@ -508,7 +508,6 @@ IN_PROC_BROWSER_TEST_F(ExclusiveAccessBubbleViewsTest,
 // Excluded on ChromeOS because browser fullscreen uses immersive mode there and
 // suppresses the exit instruction bubble (see
 // `ShouldUseImmersiveFullscreenForUrl()` in `browser_view.cc`).
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(ExclusiveAccessBubbleViewsTest,
                        MenuDuringBrowserFullscreenDoesNotReshowBubble) {
   GetFullscreenController()->ToggleBrowserFullscreenMode(
@@ -530,6 +529,5 @@ IN_PROC_BROWSER_TEST_F(ExclusiveAccessBubbleViewsTest,
 
   EXPECT_FALSE(MustShowOnNextInteraction());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #endif  // !BUILDFLAG(IS_MAC)

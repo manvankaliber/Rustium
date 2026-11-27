@@ -42,10 +42,8 @@
 #include "chrome/browser/search/instant_service.h"
 #endif  // BUILDFLAG(ENABLE_WEBUI_NTP)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_webui_user_profile.h"
 #include "chrome/browser/ui/webui/util/webui_util_desktop.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -268,11 +266,7 @@ std::string FaviconSource::GetAccessControlAllowOriginForOrigin(
 
 ui::NativeTheme* FaviconSource::GetNativeTheme(
     const content::WebContents::Getter& wc_getter) {
-#if BUILDFLAG(IS_ANDROID)
-  return ui::NativeTheme::GetInstanceForNativeUi();
-#else
   return webui::GetNativeThemeDeprecated(wc_getter.Run());
-#endif
 }
 
 Profile* FaviconSource::GetProfileForRequest(
@@ -280,9 +274,6 @@ Profile* FaviconSource::GetProfileForRequest(
   if (profile_) {
     return profile_;
   }
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   // A source created for TopChromeWebUIProfile, see the constructor.
   content::WebContents* web_contents = wc_getter.Run();
   CHECK(web_contents);
@@ -291,7 +282,6 @@ Profile* FaviconSource::GetProfileForRequest(
   Profile* user_profile = webui::GetUserProfile(web_contents);
   CHECK(user_profile);
   return user_profile->GetOriginalProfile();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void FaviconSource::OnFaviconDataAvailable(
@@ -360,7 +350,6 @@ void FaviconSource::SendDefaultResponse(
 
   int resource_id;
   switch (size_in_dip) {
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_DESKTOP_ANDROID)
     case 64:
       resource_id =
           dark_mode ? IDR_DEFAULT_FAVICON_DARK_64 : IDR_DEFAULT_FAVICON_64;
@@ -369,7 +358,6 @@ void FaviconSource::SendDefaultResponse(
       resource_id =
           dark_mode ? IDR_DEFAULT_FAVICON_DARK_32 : IDR_DEFAULT_FAVICON_32;
       break;
-#endif
     default:
       resource_id = dark_mode ? IDR_DEFAULT_FAVICON_DARK : IDR_DEFAULT_FAVICON;
       break;

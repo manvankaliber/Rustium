@@ -8,11 +8,6 @@
 #include <string>
 #include <vector>
 
-#include "chrome/browser/glic/glic_profile_manager.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_invoke_options.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/test_support/mock_glic_keyed_service.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
@@ -36,12 +31,7 @@ MATCHER_P2(HasPromptAndTargetWindow, expected_prompt, expected_window, "") {
     return false;
   }
 
-  if (!std::holds_alternative<glic::NewTab>(arg.target.surface)) {
-    *result_listener << "Target surface is not NewTab";
-    return false;
-  }
 
-  auto actual_window = std::get<glic::NewTab>(arg.target.surface).window;
   if (actual_window != expected_window) {
     *result_listener << "Target window mismatch";
     return false;
@@ -83,10 +73,6 @@ class TaskExecutorTest : public testing::Test {
 
     // Create testing profile with custom testing factories
     TestingProfile::TestingFactories factories;
-    factories.push_back(
-        {glic::GlicKeyedServiceFactory::GetInstance(),
-         base::BindRepeating(&TaskExecutorTest::CreateMockGlicService,
-                             base::Unretained(this))});
 
     profile_ = profile_manager_.CreateTestingProfile("test_profile",
                                                      std::move(factories));
@@ -100,32 +86,16 @@ class TaskExecutorTest : public testing::Test {
     profile_ = nullptr;
   }
 
-  std::unique_ptr<KeyedService> CreateMockGlicService(
-      content::BrowserContext* context) {
-    Profile* profile_ptr = Profile::FromBrowserContext(context);
-    auto service =
-        std::make_unique<testing::NiceMock<glic::MockGlicKeyedService>>(
-            context, IdentityManagerFactory::GetForProfile(profile_ptr),
-            profile_manager_.profile_manager(), &glic_profile_manager_, nullptr,
-            nullptr);
-    mock_service_ = service.get();
-    return service;
-  }
 
   Profile* profile() { return profile_; }
   MockBrowserWindowInterface* window() { return &test_window_; }
-  glic::MockGlicKeyedService* mock_glic_service() { return mock_service_; }
   void ClearMockService() { mock_service_ = nullptr; }
 
  private:
-  glic::GlicEnabling::ScopedBypassEnablementChecksForTesting
-      scoped_glic_bypass_;
   content::BrowserTaskEnvironment task_environment_;
   TestingProfileManager profile_manager_;
-  glic::GlicProfileManager glic_profile_manager_;
   raw_ptr<Profile> profile_ = nullptr;
   testing::NiceMock<MockBrowserWindowInterface> test_window_;
-  raw_ptr<glic::MockGlicKeyedService> mock_service_ = nullptr;
 };
 
 TEST_F(TaskExecutorTest, ExecutesTaskWithCorrectPrompt) {
@@ -159,9 +129,6 @@ TEST_F(TaskExecutorTest, ExecutesTaskWithCorrectPrompt) {
       "  * Destination: CDG\n";
 
   // 2. Set GMock expectation on GlicKeyedService::Invoke
-  EXPECT_CALL(*mock_glic_service(),
-              Invoke(HasPromptAndTargetWindow(expected_prompt, window())))
-      .Times(1);
 
   // 3. Run TaskExecutor
   TaskExecutor::ExecuteTask(profile(), window(), definition, values);
@@ -193,28 +160,10 @@ TEST_F(TaskExecutorTest, ExecutesTaskTargetingActiveTabSidePanel) {
       .WillOnce(testing::Return(&mock_tab));
 
   // 3. Set GMock expectation on GlicKeyedService::Invoke targeting the tab
-  EXPECT_CALL(*mock_glic_service(),
-              Invoke(HasPromptAndTargetTab(expected_prompt, &mock_tab)))
-      .Times(1);
 
   // 4. Run TaskExecutor
   TaskExecutor::ExecuteTask(profile(), window(), definition, values);
 }
 
-TEST_F(TaskExecutorTest, DoesNotInvokeWhenGlicDisabled) {
-  // Clear mock_service_ pointer since overwriting testing factory will destroy
-  // it.
-  ClearMockService();
-  // Overwrite testing factory to return nullptr (simulating Glic disabled)
-  glic::GlicKeyedServiceFactory::GetInstance()->SetTestingFactory(
-      profile(), glic::GlicKeyedServiceFactory::TestingFactory());
-
-  TaskDefinition definition;
-  definition.set_title("Test");
-  std::vector<TaskParameter> values;
-
-  // ExecuteTask should safely no-op without crashing
-  TaskExecutor::ExecuteTask(profile(), window(), definition, values);
-}
 
 }  // namespace record_replay

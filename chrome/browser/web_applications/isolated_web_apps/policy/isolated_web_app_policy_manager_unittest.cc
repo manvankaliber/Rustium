@@ -64,7 +64,6 @@
 #include "components/component_updater/installer_policies/iwa_key_distribution_component_installer_policy.h"
 #include "components/component_updater/mock_component_updater_service.h"
 #include "components/prefs/scoped_user_pref_update.h"
-#include "components/user_manager/user.h"
 #include "components/web_package/signed_web_bundles/signed_web_bundle_id.h"
 #include "components/web_package/test_support/signed_web_bundles/ed25519_key_pair.h"
 #include "components/webapps/common/web_app_id.h"
@@ -275,15 +274,8 @@ class IsolatedWebAppPolicyManagerTestBase : public IsolatedWebAppTest {
       SetUpServedIwas();
     }
 
-#if BUILDFLAG(IS_CHROMEOS)
-    if (!is_user_session_) {
-      test_managed_guest_session_ =
-          std::make_unique<profiles::testing::ScopedTestManagedGuestSession>();
-    }
-#else
     // Suppress -Wunused-private-field warning.
     (void)is_user_session_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   void TearDown() override {
@@ -319,10 +311,6 @@ class IsolatedWebAppPolicyManagerTestBase : public IsolatedWebAppTest {
 
  private:
   const bool is_user_session_;
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<profiles::testing::ScopedTestManagedGuestSession>
-      test_managed_guest_session_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   std::optional<web_package::SignedWebBundleId> lazy_app1_id_;
   std::optional<web_package::SignedWebBundleId> lazy_app2_id_;
@@ -556,42 +544,6 @@ TEST_F(IsolatedWebAppPolicyManagerTest, DevModeAppRemovedWhenForceInstalled) {
               Eq(WebAppManagementTypes({WebAppManagement::Type::kIwaPolicy})));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class ManagedGuestSessionInstallTest
-    : public IsolatedWebAppPolicyManagerTestBase {
- public:
-  ManagedGuestSessionInstallTest()
-      : IsolatedWebAppPolicyManagerTestBase(/*is_user_session=*/false) {}
-
-  // `IsolatedWebAppPolicyManagerTestBase`:
-  void SetCommandScheduler() override {
-    // For these tests we are fine with regular command scheduler.
-  }
-};
-
-TEST_F(ManagedGuestSessionInstallTest, AppInstalled) {
-  auto url_info =
-      IsolatedWebAppUrlInfo::CreateFromSignedWebBundleId(web_bundle_id_1());
-
-  WebAppTestInstallObserver install_observer(profile());
-  install_observer.BeginListening({url_info.app_id()});
-
-  test::AddForceInstalledIwaToPolicy(
-      profile()->GetPrefs(),
-      IwaTestServerConfigurator::CreateForceInstallPolicyEntry(
-          url_info.web_bundle_id()));
-
-  EXPECT_EQ(install_observer.Wait(), url_info.app_id());
-  provider().command_manager().AwaitAllCommandsCompleteForTesting();
-
-  const WebApp* web_app =
-      provider().registrar_unsafe().GetAppById(url_info.app_id());
-  ASSERT_THAT(web_app, NotNull());
-  EXPECT_THAT(web_app->GetSources(),
-              Eq(WebAppManagementTypes({WebAppManagement::Type::kIwaPolicy})));
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class IsolatedWebAppManagedAllowlistTest
     : public IsolatedWebAppPolicyManagerTestBase {

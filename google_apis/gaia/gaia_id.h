@@ -12,13 +12,7 @@
 #include "base/component_export.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_IOS) && defined(__OBJC__)
-@class NSString;
-#endif  // BUILDFLAG(IS_IOS) && defined(__OBJC__)
 
 // A string-like object representing an obfuscated Gaia ID that allows
 // identifying a Google account. This value can be safely persisted to disk as
@@ -37,9 +31,6 @@ class COMPONENT_EXPORT(GOOGLE_APIS) GaiaId {
   // Explicit construction from std::string.
   explicit GaiaId(std::string value);
   // On iOS, allow direct construction from NSString, which is fairly common.
-#if BUILDFLAG(IS_IOS) && defined(__OBJC__)
-  explicit GaiaId(NSString* value);
-#endif  // BUILDFLAG(IS_IOS) && defined(__OBJC__)
   GaiaId(const GaiaId&) = default;
   GaiaId(GaiaId&&) noexcept = default;
   ~GaiaId() = default;
@@ -52,9 +43,6 @@ class COMPONENT_EXPORT(GOOGLE_APIS) GaiaId {
 
   [[nodiscard]] const std::string& ToString() const;
 
-#if BUILDFLAG(IS_IOS) && defined(__OBJC__)
-  [[nodiscard]] NSString* ToNSString() const;
-#endif  // BUILDFLAG(IS_IOS) && defined(__OBJC__)
 
   // Default comparisons.
   friend bool operator==(const GaiaId&, const GaiaId&) = default;
@@ -93,32 +81,5 @@ class COMPONENT_EXPORT(GOOGLE_APIS) GaiaId {
 COMPONENT_EXPORT(GOOGLE_APIS)
 std::ostream& operator<<(std::ostream& out, const GaiaId& id);
 
-#if BUILDFLAG(IS_ANDROID)
-// Constructs a Java GaiaId from the provided C++ GaiaId.
-COMPONENT_EXPORT(GOOGLE_APIS)
-base::android::ScopedJavaLocalRef<jobject> ConvertToJavaGaiaId(
-    JNIEnv* env,
-    const GaiaId& gaia_id);
-
-// Constructs a C++ GaiaId from the provided Java GaiaId.
-COMPONENT_EXPORT(GOOGLE_APIS)
-GaiaId ConvertFromJavaGaiaId(JNIEnv* env,
-                             const base::android::JavaRef<jobject>& j_gaia_id);
-
-namespace jni_zero {
-template <>
-inline GaiaId FromJniType<GaiaId>(
-    JNIEnv* env,
-    const base::android::JavaRef<jobject>& j_gaia_id) {
-  return ConvertFromJavaGaiaId(env, j_gaia_id);
-}
-
-template <>
-inline ScopedJavaLocalRef<jobject> ToJniType(JNIEnv* env,
-                                             const GaiaId& gaia_id) {
-  return ConvertToJavaGaiaId(env, gaia_id);
-}
-}  // namespace jni_zero
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #endif  // GOOGLE_APIS_GAIA_GAIA_ID_H_

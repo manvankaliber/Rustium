@@ -174,7 +174,7 @@ suite('SettingsSectionTest', function() {
     assertFalse(settings.$.autosigninToggle.checked);
   });
 
-  // <if expr="is_win or is_macosx or is_chromeos">
+  // <if expr="is_win or is_macosx">
   // Tests that biometric auth pref is visible, and clicking on it triggers
   // biometric auth validation instead of directly updating the pref value.
   test('biometric auth prefs when feature is available', async function() {

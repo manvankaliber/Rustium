@@ -115,19 +115,12 @@ ExtensionFunction::ResponseAction GcmRegisterFunction::Run() {
       api::gcm::Register::Params::Create(args());
   EXTENSION_FUNCTION_VALIDATE(params);
 
-#if BUILDFLAG(IS_ANDROID)
-  // This server API was deprecated by Firebase in 2019. Don't bother trying to
-  // implement register() on Android - it will just return an error.
-  // TODO(crbug.com/421235963): Consider deprecating on other platforms.
-  return RespondNow(Error(GcmResultToError(gcm::GCMClient::UNKNOWN_ERROR)));
-#else
   GetGCMDriver()->Register(
       extension()->id(), params->sender_ids,
       base::BindOnce(&GcmRegisterFunction::CompleteFunctionWithResult, this));
 
   // Register() might have returned synchronously.
   return did_respond() ? AlreadyResponded() : RespondLater();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void GcmRegisterFunction::CompleteFunctionWithResult(
@@ -149,19 +142,12 @@ GcmUnregisterFunction::GcmUnregisterFunction() = default;
 GcmUnregisterFunction::~GcmUnregisterFunction() = default;
 
 ExtensionFunction::ResponseAction GcmUnregisterFunction::Run() {
-#if BUILDFLAG(IS_ANDROID)
-  // This server API was deprecated by Firebase in 2019. Don't bother trying to
-  // implement register() on Android - it will just return an error.
-  // TODO(crbug.com/421235963): Consider deprecating on other platforms.
-  return RespondNow(Error(GcmResultToError(gcm::GCMClient::UNKNOWN_ERROR)));
-#else
   GetGCMDriver()->Unregister(
       extension()->id(),
       base::BindOnce(&GcmUnregisterFunction::CompleteFunctionWithResult, this));
 
   // Unregister might have responded already (synchronously).
   return did_respond() ? AlreadyResponded() : RespondLater();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void GcmUnregisterFunction::CompleteFunctionWithResult(

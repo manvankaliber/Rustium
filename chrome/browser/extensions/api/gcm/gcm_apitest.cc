@@ -116,7 +116,6 @@ const Extension* GcmApiTest::LoadTestExtension(
   return extension;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Register and unregister are deprecated on the server. Don't test them.
 // TODO(crbug.com/421235963): Consider deprecating on other platforms.
 IN_PROC_BROWSER_TEST_F(GcmApiTest, RegisterValidation) {
@@ -139,7 +138,6 @@ IN_PROC_BROWSER_TEST_F(GcmApiTest, Unregister) {
 
   ASSERT_TRUE(RunExtensionTest("gcm/functions/unregister"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(GcmApiTest, SendValidation) {
   ASSERT_TRUE(RunExtensionTest("gcm/functions/send"));
@@ -256,7 +254,6 @@ IN_PROC_BROWSER_TEST_F(GcmApiTest, OnSendError) {
   EXPECT_TRUE(catcher.GetNextResult()) << catcher.message();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Register and unregister are deprecated on the server. Don't test them.
 // TODO(crbug.com/421235963): Consider deprecating on other platforms.
 IN_PROC_BROWSER_TEST_F(GcmApiTest, Incognito) {
@@ -272,6 +269,5 @@ IN_PROC_BROWSER_TEST_F(GcmApiTest, Incognito) {
   EXPECT_TRUE(catcher.GetNextResult()) << catcher.message();
   EXPECT_TRUE(incognito_catcher.GetNextResult()) << incognito_catcher.message();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace extensions

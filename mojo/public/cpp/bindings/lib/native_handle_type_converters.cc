@@ -21,8 +21,6 @@ IPC::MessageAttachment::Type TypeConverter<
       return IPC::MessageAttachment::Type::WIN_HANDLE;
     case native::SerializedHandleType::MACH_PORT:
       return IPC::MessageAttachment::Type::MACH_PORT;
-    case native::SerializedHandleType::FUCHSIA_HANDLE:
-      return IPC::MessageAttachment::Type::FUCHSIA_HANDLE;
   }
   NOTREACHED();
 }
@@ -40,8 +38,6 @@ native::SerializedHandleType TypeConverter<
       return native::SerializedHandleType::WIN_HANDLE;
     case IPC::MessageAttachment::Type::MACH_PORT:
       return native::SerializedHandleType::MACH_PORT;
-    case IPC::MessageAttachment::Type::FUCHSIA_HANDLE:
-      return native::SerializedHandleType::FUCHSIA_HANDLE;
   }
   NOTREACHED();
 }

@@ -8,6 +8,13 @@ import("//build/config/vpython.gni")
 python_library("common") {
   testonly = true
   data = [
+    "camera.py",
+    "cast_starter.html",
+    "remoting_video.html",
+    "repeating_log.py",
+    "server.py",
+    "video.html",
+    "video_analyzer.py",
     "common.py",
     "cros_setup.py",
     "media_metrics.py",
@@ -22,15 +29,7 @@ python_library("videostack_performance_test") {
   pydeps_file = "videostack_performance_test.pydeps"
   data = [
            "//build/util/lib/proto",
-           "//fuchsia_web/av_testing/server.py",
-           "//fuchsia_web/av_testing/video.html",
-           "//fuchsia_web/av_testing/cast_starter.html",
-           "//build/fuchsia/test/common.py",
-           "//build/fuchsia/test/compatible_utils.py",
-           "//build/fuchsia/test/monitors.py",
-           "//build/fuchsia/test/perf_trace.py",
-           "//build/fuchsia/test/repeating_log.py",
-           "//build/fuchsia/test/version.py",
+
            "//third_party/crossbench/",
          ] + vpython_spec_files
   deps = [ ":common" ]
@@ -41,15 +40,7 @@ python_library("openscreen_cast_performance_test") {
   pydeps_file = "openscreen_cast_performance_test.pydeps"
   data = [
            "//build/util/lib/proto",
-           "//fuchsia_web/av_testing/server.py",
-           "//fuchsia_web/av_testing/video.html",
-           "//fuchsia_web/av_testing/cast_starter.html",
-           "//build/fuchsia/test/common.py",
-           "//build/fuchsia/test/compatible_utils.py",
-           "//build/fuchsia/test/monitors.py",
-           "//build/fuchsia/test/perf_trace.py",
-           "//build/fuchsia/test/repeating_log.py",
-           "//build/fuchsia/test/version.py",
+
            "//third_party/crossbench/",
          ] + vpython_spec_files
   deps = [ ":common" ]
@@ -60,16 +51,7 @@ python_library("openscreen_remoting_performance_test") {
   pydeps_file = "openscreen_remoting_performance_test.pydeps"
   data = [
            "//build/util/lib/proto",
-           "//fuchsia_web/av_testing/server.py",
-           "//fuchsia_web/av_testing/video.html",
-           "//fuchsia_web/av_testing/remoting_video.html",
-           "//fuchsia_web/av_testing/cast_starter.html",
-           "//build/fuchsia/test/common.py",
-           "//build/fuchsia/test/compatible_utils.py",
-           "//build/fuchsia/test/monitors.py",
-           "//build/fuchsia/test/perf_trace.py",
-           "//build/fuchsia/test/repeating_log.py",
-           "//build/fuchsia/test/version.py",
+
            "//third_party/catapult/third_party/gsutil/",
          ] + vpython_spec_files
   deps = [ ":common" ]

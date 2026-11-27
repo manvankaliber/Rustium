@@ -31,7 +31,6 @@
 #include "components/bookmarks/browser/bookmark_node.h"
 #include "components/bookmarks/test/test_matchers.h"
 #include "components/browser_sync/browser_sync_switches.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/sync/base/client_tag_hash.h"
 #include "components/sync/base/command_line_switches.h"
 #include "components/sync/base/data_type.h"
@@ -166,15 +165,10 @@ IN_PROC_BROWSER_TEST_F(LocalSyncTest, ShouldStart) {
       syncer::WEB_APPS,
       syncer::NIGORI};
 
-#if !BUILDFLAG(IS_CHROMEOS)
   if (!base::FeatureList::IsEnabled(syncer::kSyncDoNotSyncAppsAndAppSettings)) {
     expected_active_data_types.Put(syncer::APPS);
     expected_active_data_types.Put(syncer::APP_SETTINGS);
   }
-#else
-  expected_active_data_types.Put(syncer::APPS);
-  expected_active_data_types.Put(syncer::APP_SETTINGS);
-#endif
 
   expected_active_data_types.Put(syncer::AUTOFILL_WALLET_CREDENTIAL);
 

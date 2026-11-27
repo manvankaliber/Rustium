@@ -159,23 +159,9 @@ StartupProfilePathInfo GetStartupProfilePath(
     const base::CommandLine& command_line,
     bool ignore_profile_picker);
 
-#if BUILDFLAG(IS_IOS)
-class ProfileIOSDirectoryBuilder;
-#endif
-
 Profile* GetLastProfileMac();
 bool HasWaylandDisplay(base::Environment* env);
 
-namespace android_webview {
-class AwBrowserContext;
-class AwBrowserContextStore;
-class AwMetricsServiceClient;
-class CookieManager;
-class JsSandboxIsolate;
-class OverlayProcessorWebView;
-class ScopedAllowInitGLBindings;
-class VizCompositorThreadRunnerWebView;
-}  // namespace android_webview
 namespace ash {
 class LoginEventRecorder;
 class StartupCustomizationDocument;
@@ -234,14 +220,10 @@ class BrowserGpuChannelHostFactory;
 class BrowserMainLoop;
 class BrowserProcessIOThread;
 class BrowserTestBase;
-#if BUILDFLAG(IS_IOS)
-class ContentMainRunnerImpl;
-#endif  // BUILDFLAG(IS_IOS)
 class DesktopCaptureDevice;
 class DWriteFontCollectionProxy;
 class DWriteFontProxyImpl;
 class InProcessUtilityThread;
-class NestedMessagePumpAndroid;
 class NetworkServiceInstancePrivate;
 class PepperPrintSettingsManagerImpl;
 class RenderProcessHostImpl;
@@ -378,7 +360,7 @@ class MojoTrap;
 }  // namespace mojo
 namespace mojo_legacy::core {
 class ScopedIPCSupport;
-}  // namespace mojo_legacy
+}  // namespace mojo_legacy::core
 namespace net {
 class GSSAPISharedLibrary;
 class MultiThreadedCertVerifierScopedAllowBaseSyncPrimitives;
@@ -440,7 +422,6 @@ class HttpBridge;
 }  // namespace syncer
 namespace tracing {
 class EmergencyTraceFinalisationCoordinator;
-class FuchsiaPerfettoProducerConnector;
 }
 namespace ui {
 class DrmThreadProxy;
@@ -470,12 +451,6 @@ class WebMainLoop;
 // the list sorted.
 
 namespace base {
-
-namespace android {
-class JavaHandlerThread;
-class PmfUtils;
-class ScopedAllowBlockingForImportantFileWriter;
-}  // namespace android
 
 namespace apple::internal {
 base::FilePath GetExecutablePath();
@@ -524,13 +499,9 @@ class Thread;
 
 // NaCL doesn't support stack capture.
 // Android can hang in stack capture (crbug.com/959139).
-#if BUILDFLAG(IS_ANDROID)
-#define CAPTURE_THREAD_RESTRICTIONS_STACK_TRACES() false
-#else
 // Stack capture is slow. Only enable it in developer builds, to avoid user
 // visible jank when thread restrictions are set.
 #define CAPTURE_THREAD_RESTRICTIONS_STACK_TRACES() EXPENSIVE_DCHECKS_ARE_ON()
-#endif
 
 // A boolean and the stack from which it was set. Note: The stack is not
 // captured in all builds, see `CAPTURE_THREAD_RESTRICTIONS_STACK_TRACES()`.
@@ -603,11 +574,6 @@ class BASE_EXPORT ScopedAllowBlocking {
 #endif
   friend class ::StartupTabProviderImpl;
   friend class ::WebEngineBrowserMainParts;
-  friend class android_webview::AwBrowserContext;
-  friend class android_webview::AwBrowserContextStore;
-  friend class android_webview::AwMetricsServiceClient;
-  friend class android_webview::CookieManager;
-  friend class android_webview::ScopedAllowInitGLBindings;
   friend class ash::LoginEventRecorder;
   friend class ash::StartupCustomizationDocument;  // http://crosbug.com/11103
   friend class ash::StartupUtils;
@@ -619,8 +585,6 @@ class BASE_EXPORT ScopedAllowBlocking {
   friend class base::ScopedAllowBlockingForProc;
   friend class base::ScopedAllowBlockingForProcessMetrics;
   friend class base::StackSamplingProfiler;
-  friend class base::android::ScopedAllowBlockingForImportantFileWriter;
-  friend class base::android::PmfUtils;
   friend class base::debug::StackTrace;
   friend class base::subtle::PlatformSharedMemoryRegion;
   friend class base::win::ScopedAllowBlockingForUser32AndGdi32;
@@ -677,9 +641,6 @@ class BASE_EXPORT ScopedAllowBlocking {
   friend class content::SlowWebPreferenceCache;  // http://crbug.com/1262162
   friend class media::GpuMojoMediaClientWin;     // https://crbug.com/360642944
   friend class gfx::WUCBackdrop;
-#endif
-#if BUILDFLAG(IS_IOS)
-  friend class ::ProfileIOSDirectoryBuilder;
 #endif
 
   // Sorted by function name (with namespace), ignoring the return type.
@@ -771,7 +732,6 @@ class BASE_EXPORT ScopedAllowBaseSyncPrimitives {
   // Sorted by class name (with namespace).
   friend class ::ChromeNSSCryptoModuleDelegate;
   friend class ::PartnerBookmarksReader;
-  friend class ::tracing::FuchsiaPerfettoProducerConnector;
   friend class base::SimpleThread;
   friend class base::internal::GetAppOutputScopedAllowBaseSyncPrimitives;
   friend class blink::SourceStream;
@@ -822,8 +782,6 @@ class BASE_EXPORT ScopedAllowBaseSyncPrimitives {
   // Usage that should be fixed:
   // Sorted by class name (with namespace).
   friend class ::NativeBackendKWallet;  // http://crbug.com/125331
-  friend class android_webview::
-      OverlayProcessorWebView;                     // http://crbug.com/341151462
   friend class blink::VideoFrameResourceProvider;  // http://crbug.com/878070
   friend class viz::
       DisplayCompositorMemoryAndTaskController;    // http://crbug.com/341151462
@@ -836,9 +794,8 @@ class BASE_EXPORT ScopedAllowBaseSyncPrimitives {
   const AutoReset<BooleanWithOptionalStack> resetter_;
 };
 
-class BASE_EXPORT
-    [[maybe_unused,
-      nodiscard]] ScopedAllowBaseSyncPrimitivesOutsideBlockingScope {
+class BASE_EXPORT [[maybe_unused, nodiscard]]
+ScopedAllowBaseSyncPrimitivesOutsideBlockingScope {
  public:
   ScopedAllowBaseSyncPrimitivesOutsideBlockingScope(
       const ScopedAllowBaseSyncPrimitivesOutsideBlockingScope&) = delete;
@@ -862,10 +819,6 @@ class BASE_EXPORT
   friend class ::KeyStorageLinux;
   friend class ::NativeDesktopMediaList;
   friend class ::ash::system::StatisticsProviderImpl;
-  friend class android::JavaHandlerThread;
-  friend class android_webview::CookieManager;
-  friend class android_webview::JsSandboxIsolate;
-  friend class android_webview::VizCompositorThreadRunnerWebView;
   friend class audio::OutputDevice;
   friend class base::FileDescriptorWatcher;
   friend class base::ScopedAllowThreadRecallForStackSamplingProfiler;
@@ -1038,9 +991,6 @@ class BASE_EXPORT PermanentThreadAllowance {
   friend class base::TestCustomDisallow;
   friend class content::BrowserMainLoop;
   friend class content::BrowserTestBase;
-#if BUILDFLAG(IS_IOS)
-  friend class content::ContentMainRunnerImpl;
-#endif  // BUILDFLAG(IS_IOS)
   friend class web::WebMainLoop;
 
   static void AllowBlocking();

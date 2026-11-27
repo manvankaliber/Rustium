@@ -44,25 +44,6 @@ namespace enterprise::test {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-class TestTabHelperDelegate
-    : public enterprise_net::EnterpriseProxyTabHelper::Delegate {
- public:
-  explicit TestTabHelperDelegate(
-      base::OnceCallback<void(content::WebContents*)> on_sign_in)
-      : on_sign_in_(std::move(on_sign_in)) {}
-  ~TestTabHelperDelegate() override = default;
-
-  void SignIn(content::WebContents* web_contents) override {
-    if (on_sign_in_) {
-      std::move(on_sign_in_).Run(web_contents);
-    }
-  }
-
- private:
-  base::OnceCallback<void(content::WebContents*)> on_sign_in_;
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -128,21 +109,10 @@ class EnterpriseProxyErrorBrowserTest : public EnterpriseProxyBrowserTestBase {
     // Verify clicking #primary-button invokes the C++ errorPageController
     // portalSigninButtonClick().
     base::HistogramTester histograms;
-#if BUILDFLAG(IS_ANDROID)
-    base::test::TestFuture<content::WebContents*> sign_in_future;
-    auto* tab_helper = enterprise_net::EnterpriseProxyTabHelper::From(
-        tabs::TabInterface::MaybeGetFromContents(web_contents));
-    ASSERT_TRUE(tab_helper);
-    tab_helper->SetDelegateForTesting(
-        std::make_unique<TestTabHelperDelegate>(sign_in_future.GetCallback()));
-#endif  // BUILDFLAG(IS_ANDROID)
 
     EXPECT_TRUE(content::ExecJs(
         web_contents, "document.getElementById('primary-button').click();"));
 
-#if BUILDFLAG(IS_ANDROID)
-    EXPECT_EQ(web_contents, sign_in_future.Get());
-#endif  // BUILDFLAG(IS_ANDROID)
     content::FetchHistogramsFromChildProcesses();
     metrics::SubprocessMetricsProvider::MergeHistogramDeltasForTesting();
     histograms.ExpectBucketCount(

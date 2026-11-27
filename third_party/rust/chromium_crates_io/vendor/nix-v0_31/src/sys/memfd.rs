@@ -35,7 +35,7 @@ libc_bitflags!(
         /// See also the hugetlb filesystem in [`memfd_create(2)`].
         ///
         /// [`memfd_create(2)`]: https://man7.org/linux/man-pages/man2/memfd_create.2.html
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         MFD_HUGETLB;
         /// Shift to get the huge page size.
         #[cfg(target_env = "ohos")]
@@ -54,34 +54,34 @@ libc_bitflags!(
         /// See also the hugetlb filesystem in [`memfd_create(2)`].
         ///
         /// [`memfd_create(2)`]: https://man7.org/linux/man-pages/man2/memfd_create.2.html
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_1MB;
         /// hugetlb size of 2MB.
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_2MB;
         /// hugetlb size of 8MB.
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_8MB;
         /// hugetlb size of 16MB.
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_16MB;
         /// hugetlb size of 32MB.
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_32MB;
         /// hugetlb size of 256MB.
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_256MB;
         /// hugetlb size of 512MB.
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_512MB;
         /// hugetlb size of 1GB.
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_1GB;
         /// hugetlb size of 2GB.
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_2GB;
         /// hugetlb size of 16GB.
-        #[cfg(all(linux_android, not(target_env = "uclibc")))]
+        #[cfg(all(linux, not(target_env = "uclibc")))]
         MFD_HUGE_16GB;
     }
 );
@@ -106,16 +106,7 @@ pub fn memfd_create<P: NixPath + ?Sized>(
     let res = name.with_nix_path(|cstr| {
         unsafe {
             cfg_if! {
-            if #[cfg(all(
-                // Android does not have a memfd_create symbol
-                not(target_os = "android"),
-                any(
-                    target_os = "freebsd",
-                    // If the OS is Linux, gnu/musl/ohos expose a memfd_create symbol but not uclibc
-                    target_env = "gnu",
-                    target_env = "musl",
-                    target_env = "ohos"
-                )))]
+            if #[cfg(any(target_os = "freebsd", target_env = "gnu", target_env = "musl", target_env = "ohos"))]
             {
                 libc::memfd_create(cstr.as_ptr(), flags.bits())
             } else {

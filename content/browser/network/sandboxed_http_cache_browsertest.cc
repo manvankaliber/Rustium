@@ -35,9 +35,6 @@
 #include "services/network/public/cpp/features.h"
 #include "services/network/public/mojom/network_service_test.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 
 namespace content {
 namespace {
@@ -53,7 +50,7 @@ using FileEnumerationEntry =
 
 // On Mac and Fuchsia, sandboxing is always enabled, so we don't need to test
 // the non-sandboxing configuration.
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_MAC)
 
 class NonSandboxedNetworkServiceBrowserTest : public ContentBrowserTest {
  public:
@@ -102,11 +99,11 @@ class SandboxedHttpCacheBrowserTest : public ContentBrowserTest {
  public:
   SandboxedHttpCacheBrowserTest() {
     std::vector<base::test::FeatureRef> enabled_features = {
-      features::kBrokerFileOperationsOnDiskCacheInNetworkService,
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
-      // Network Service Sandboxing is unconditionally enabled on these
-      // platforms.
-      sandbox::policy::features::kNetworkServiceSandbox,
+        features::kBrokerFileOperationsOnDiskCacheInNetworkService,
+#if !BUILDFLAG(IS_MAC)
+        // Network Service Sandboxing is unconditionally enabled on these
+        // platforms.
+        sandbox::policy::features::kNetworkServiceSandbox,
 #endif
     };
     scoped_feature_list_.InitWithFeatures(enabled_features, {});
@@ -122,19 +119,6 @@ class SandboxedHttpCacheBrowserTest : public ContentBrowserTest {
     }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-    {
-      // On older android, we cannot use ftruncate in the network process.
-      // See https://crbug.com/1315933 and https://crrev.com/c/3581676.
-      // Let's skip the tests.
-      const int sdk_version = base::android::android_info::sdk_int();
-      if (sdk_version <=
-          base::android::android_info::SdkVersion::SDK_VERSION_MARSHMALLOW) {
-        DVLOG(0) << "Android is too old: " << sdk_version;
-        GTEST_SKIP();
-      }
-    }
-#endif
 
     // These assertions need to precede ContentBrowserTest::SetUp to prevent the
     // test body from running when one of the assertions fails.

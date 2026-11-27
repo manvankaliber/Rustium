@@ -5,29 +5,28 @@
 // Brought to you by number 42.
 
 #include "net/cookies/cookie_options.h"
+#include "net/cookies/cookie_family_native.h"
 
 #include <tuple>
 
 #include "net/cookies/cookie_util.h"
 
 namespace net {
+namespace cf=cookie_family;
 
 CookieOptions::SameSiteCookieContext
 CookieOptions::SameSiteCookieContext::MakeInclusive() {
-  return SameSiteCookieContext(ContextType::SAME_SITE_STRICT,
-                               ContextType::SAME_SITE_STRICT);
+  CookieFamilyRequest request{};return cf::Materialize(cf::Run(40,request).context);
 }
 
 CookieOptions::SameSiteCookieContext
 CookieOptions::SameSiteCookieContext::MakeInclusiveForSet() {
-  return SameSiteCookieContext(ContextType::SAME_SITE_LAX,
-                               ContextType::SAME_SITE_LAX);
+  CookieFamilyRequest request{};request.scalar[0]=1;return cf::Materialize(cf::Run(40,request).context);
 }
 
 CookieOptions::SameSiteCookieContext::ContextType
 CookieOptions::SameSiteCookieContext::GetContextForCookieInclusion() const {
-  DCHECK_LE(schemeful_context_, context_);
-  return schemeful_context_;
+  CookieFamilyRequest request{};request.context=cf::Snapshot(*this);return static_cast<ContextType>(cf::Run(41,request).scalar);
 }
 
 const CookieOptions::SameSiteCookieContext::ContextMetadata&
@@ -45,14 +44,14 @@ void CookieOptions::SameSiteCookieContext::SetContextTypesForTesting(
 
 bool CookieOptions::SameSiteCookieContext::CompleteEquivalenceForTesting(
     const SameSiteCookieContext& other) const {
-  return (*this == other) && (metadata() == other.metadata()) &&
-         (schemeful_metadata() == other.schemeful_metadata());
+  CookieFamilyRequest request{};request.context=cf::Snapshot(*this);request.scalar[0]=1;
+  cf::NativeContext native;native.other_context=&other;return cf::Run(42,request,&native).scalar;
 }
 
 bool operator==(const CookieOptions::SameSiteCookieContext& lhs,
                 const CookieOptions::SameSiteCookieContext& rhs) {
-  return std::tie(lhs.context_, lhs.schemeful_context_) ==
-         std::tie(rhs.context_, rhs.schemeful_context_);
+  CookieFamilyRequest request{};request.context=cf::Snapshot(lhs);
+  cf::NativeContext native;native.other_context=&rhs;return cf::Run(42,request,&native).scalar;
 }
 
 // Keep default values in sync with
@@ -70,11 +69,9 @@ CookieOptions& CookieOptions::operator=(CookieOptions&&) = default;
 
 // static
 CookieOptions CookieOptions::MakeAllInclusive() {
-  CookieOptions options;
-  options.set_include_httponly();
-  options.set_same_site_cookie_context(SameSiteCookieContext::MakeInclusive());
-  options.set_do_not_update_access_time();
-  return options;
+  CookieFamilyRequest request{};const auto value=cf::Run(43,request).options;CookieOptions out;
+  out.exclude_httponly_=value.exclude_httponly;out.same_site_cookie_context_=cf::Materialize(value.context);
+  out.update_access_time_=value.update_access_time;out.return_excluded_cookies_=value.return_excluded;return out;
 }
 
 }  // namespace net

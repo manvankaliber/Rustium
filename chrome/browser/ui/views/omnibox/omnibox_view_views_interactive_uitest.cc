@@ -1554,7 +1554,6 @@ class OmniboxViewViewsHintTextLimitingBrowserTest
     : public OmniboxViewViewsAIMBrowserTest {
  public:
   OmniboxViewViewsHintTextLimitingBrowserTest() {
-    scoped_feature_list_.InitAndDisableFeature(lens::features::kLensOverlay);
     SetMockTime(base::subtle::TimeNowIgnoringOverride());
   }
 
@@ -1685,7 +1684,6 @@ class OmniboxViewViewsAIMButtonPreferenceTest
     : public OmniboxViewViewsAIMBrowserTest {
  public:
   OmniboxViewViewsAIMButtonPreferenceTest() {
-    scoped_feature_list_.InitAndDisableFeature(lens::features::kLensOverlay);
   }
 
  protected:
@@ -1723,10 +1721,6 @@ class OmniboxViewViewsAIMButtonDynamicTest
     : public OmniboxViewViewsAIMBrowserTest {
  public:
   OmniboxViewViewsAIMButtonDynamicTest() {
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        {{omnibox::kWebUIOmniboxDynamicAiModeButton,
-          {{"Omnibox_DynamicAnimation", "true"}}}},
-        {lens::features::kLensOverlay});
   }
 
  protected:
@@ -1973,7 +1967,6 @@ IN_PROC_BROWSER_TEST_F(OmniboxViewViewsPlaceholderTest,
   EXPECT_EQ(u"", omnibox_view()->GetText());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Tests for dump accessibility events related to the omnibox.
 class OmniboxViewViewsDumpAccessibilityEventsTest
     : public views::DumpAccessibilityEventsViewsTestBase {
@@ -2059,5 +2052,3 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::ValuesIn(
         views::DumpAccessibilityEventsViewsTestBase::EventTestPasses()),
     views::EventTestPassToString());
-
-#endif

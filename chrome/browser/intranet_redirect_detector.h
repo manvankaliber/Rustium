@@ -25,8 +25,7 @@ class SimpleURLLoader;
 
 class PrefRegistrySimple;
 
-#if !(BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || \
-      BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID))
+#if !(BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX))
 #error \
     "IntranetRedirectDetector should only be built on Desktop platforms " \
     "and Android."

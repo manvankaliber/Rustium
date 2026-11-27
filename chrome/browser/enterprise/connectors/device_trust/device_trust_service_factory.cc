@@ -22,7 +22,6 @@
 #include "components/policy/core/common/management/management_service.h"
 #include "content/public/browser/browser_context.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/enterprise/identifiers/profile_id_service_factory.h"
 #include "chrome/browser/enterprise/signals/signals_aggregator_factory.h"
@@ -39,16 +38,7 @@
 #include "components/policy/core/common/cloud/machine_level_user_cloud_policy_store.h"
 #include "components/policy/core/common/cloud/profile_cloud_policy_manager.h"
 #include "components/policy/core/common/cloud/user_cloud_policy_manager.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/enterprise/connectors/device_trust/ash/ash_attestation_policy_observer.h"
-#include "chrome/browser/enterprise/connectors/device_trust/attestation/ash/ash_attestation_service_impl.h"
-#include "chrome/browser/enterprise/connectors/device_trust/attestation/ash/flex_attester.h"
-#include "chromeos/ash/components/install_attributes/install_attributes.h"
-#include "components/enterprise/device_trust/core/attestation/browser_attestation_service.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 bool IsProfileManaged(Profile* profile) {
@@ -57,7 +47,6 @@ bool IsProfileManaged(Profile* profile) {
   return management_service && management_service->IsManaged();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 policy::CloudPolicyStore* GetUserCloudPolicyStore(Profile* profile) {
   policy::CloudPolicyManager* user_policy_manager =
       profile->GetCloudPolicyManager();
@@ -69,7 +58,6 @@ policy::CloudPolicyStore* GetUserCloudPolicyStore(Profile* profile) {
   }
   return nullptr;
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -112,13 +100,11 @@ DeviceTrustServiceFactory::DeviceTrustServiceFactory()
   DependsOn(DeviceTrustConnectorServiceFactory::GetInstance());
   DependsOn(policy::ManagementServiceFactory::GetInstance());
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Depends on this service via the SignalsService having a dependency on it.
   DependsOn(enterprise_signals::SignalsAggregatorFactory::GetInstance());
   // Depends on this service via the ProfileAttester having a dependency on it
   // which is used to construct the BrowserAttestationService.
   DependsOn(enterprise::ProfileIdServiceFactory::GetInstance());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 bool DeviceTrustServiceFactory::ServiceIsNULLWhileTesting() const {
@@ -155,25 +141,6 @@ DeviceTrustServiceFactory::BuildServiceInstanceForBrowserContext(
     return nullptr;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<AttestationService> attestation_service;
-  if (ash::switches::IsRevenBranding()) {
-    std::vector<std::unique_ptr<Attester>> attesters;
-    attesters.push_back(std::make_unique<FlexAttester>(profile));
-    attestation_service = std::make_unique<BrowserAttestationService>(
-        std::move(attesters),
-        ash::InstallAttributes::Get()->IsEnterpriseManaged()
-            ? ENTERPRISE_MACHINE
-            : DEVICE_TRUST_CONNECTOR);
-  } else {
-    std::unique_ptr<AshAttestationServiceImpl> ash_attestation_service =
-        std::make_unique<AshAttestationServiceImpl>(profile);
-    dt_connector_service->AddObserver(
-        std::make_unique<AshAttestationPolicyObserver>(
-            ash_attestation_service->GetWeakPtr()));
-    attestation_service = std::move(ash_attestation_service);
-  }
-#else
   DeviceTrustKeyManager* key_manager = nullptr;
   policy::CloudPolicyStore* browser_cloud_policy_store = nullptr;
   auto* browser_policy_connector =
@@ -205,7 +172,6 @@ DeviceTrustServiceFactory::BuildServiceInstanceForBrowserContext(
 
   auto attestation_service =
       std::make_unique<BrowserAttestationService>(std::move(attesters), CBCM);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   auto signals_service = CreateSignalsService(profile);
 

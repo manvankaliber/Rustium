@@ -39,10 +39,6 @@ extern const char kOnDataCopiedPref[];
 // Pref that maps to the "OnNetworkRequestEnterpriseConnector" policy.
 extern const char kOnNetworkRequestPref[];
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Pref that maps to the "OnFileTransferEnterpriseConnector" policy.
-extern const char kOnFileTransferPref[];
-#endif
 
 // Pref that maps to the "OnSecurityEventEnterpriseConnector" policy.
 extern const char kOnSecurityEventPref[];
@@ -61,9 +57,6 @@ extern const char kOnBulkDataEntryScopePref[];
 extern const char kOnPrintScopePref[];
 extern const char kOnDataCopiedScopePref[];
 extern const char kOnNetworkRequestScopePref[];
-#if BUILDFLAG(IS_CHROMEOS)
-extern const char kOnFileTransferScopePref[];
-#endif
 extern const char kOnSecurityEventScopePref[];
 inline constexpr const char kWatermarkStyleFillOpacityPref[] =
     "policy.watermark_style.fill_opacity";
@@ -84,11 +77,11 @@ inline constexpr const char kWatermarkStyleTimestampTimezoneFieldName[] =
 // Different tuned default values are set for mobiles and Desktops based on
 // their screen sizes, screen resolutions etc.
 inline constexpr int kWatermarkStyleFillOpacityDefault =
-    BUILDFLAG(IS_IOS) ? 10 : 4;
+    false ? 10 : 4;
 inline constexpr int kWatermarkStyleOutlineOpacityDefault =
-    BUILDFLAG(IS_IOS) ? 15 : 6;
+    false ? 15 : 6;
 inline constexpr int kWatermarkStyleFontSizeDefault =
-    BUILDFLAG(IS_IOS) ? 16 : 24;
+    false ? 16 : 24;
 inline constexpr const char kWatermarkStyleTimestampTimezoneDefault[] =
     "user_device";
 

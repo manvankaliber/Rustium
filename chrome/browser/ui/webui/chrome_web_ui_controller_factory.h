@@ -73,10 +73,6 @@ class ChromeWebUIControllerFactory : public content::WebUIControllerFactory {
       const GURL& page_url,
       ui::ResourceScaleFactor scale_factor) const;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Checks if the given page URL is a chrome native page that has a favicon.
-  bool HasFaviconForNativePage(const GURL& page_url) const;
-#endif
 };
 
 #endif  // CHROME_BROWSER_UI_WEBUI_CHROME_WEB_UI_CONTROLLER_FACTORY_H_

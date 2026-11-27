@@ -179,7 +179,6 @@ See [UTR - The Universal Test Runner].
 
 ## How to debug tests
 *  [Android Debugging Instructions]
-*  [Chrome OS Debugging Tips]
 *  [Debugging Web Tests]
 
 ## How to deal with flaky tests
@@ -215,7 +214,6 @@ Tests are not configured to upload metrics, such as UMA, UKM or crash reports.
 [Run fuzz target locally]: https://chromium.googlesource.com/chromium/src/+/main/testing/libfuzzer/getting_started.md#build-and-run-fuzz-target-locally
 [UTR - The Universal Test Runner]: https://chromium.googlesource.com/chromium/src/+/HEAD/tools/utr/README.md
 [Android Debugging Instructions]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/android_debugging_instructions.md
-[Chrome OS Debugging Tips]: ./chromeos_debugging_tips.md
 [Debugging Web Tests]: https://chromium.googlesource.com/chromium/src/+/HEAD/docs/testing/web_tests.md#Debugging-Web-Tests
 [code coverage dashboard]: https://analysis.chromium.org/p/chromium/coverage
 [How do I disable a flaky test]: https://www.chromium.org/developers/tree-sheriffs/sheriff-details-chromium#TOC-How-do-I-disable-a-flaky-test-

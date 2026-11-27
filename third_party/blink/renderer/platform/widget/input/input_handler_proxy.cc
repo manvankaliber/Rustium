@@ -752,7 +752,7 @@ bool InputHandlerProxy::GenerateAndDispatchSyntheticScrollPrediction(
 
 void InputHandlerProxy::UpdateElasticOverscroll() {
   bool can_use_elastic_overscroll = true;
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_MAC)
   // On android, elastic overscroll introduces quite a bit of motion which can
   // effect those sensitive to it. Disable when prefers_reduced_motion_ is
   // disabled.

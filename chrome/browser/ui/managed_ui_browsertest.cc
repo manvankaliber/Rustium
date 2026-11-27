@@ -33,10 +33,6 @@
 #include "ui/base/ui_base_features.h"
 #include "ui/gfx/vector_icon_types.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/policy/core/device_policy_cros_browser_test.h"
-#include "ui/chromeos/devicetype_utils.h"
-#endif
 
 class ManagedUiTest : public InProcessBrowserTest {
  public:
@@ -79,11 +75,7 @@ IN_PROC_BROWSER_TEST_F(
     ShouldDisplayManagedUiWithPoliciesNotSupervisedReturnsTrueOnDesktop) {
   AddEnterpriseManagedPolicies();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_FALSE(ShouldDisplayManagedUi(browser()->GetProfile()));
-#else
   EXPECT_TRUE(ShouldDisplayManagedUi(browser()->GetProfile()));
-#endif
 }
 
 // On ChromeOS we don't display the management UI for enterprise users.
@@ -111,18 +103,6 @@ IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetDeviceManagedUiHelpLabelEnterprise) {
   entry->SetHostedDomain("hosteddomain.com");
   entry->SetIsManaged(signin::Tribool::kTrue);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(l10n_util::GetStringFUTF16(IDS_MANAGEMENT_NOT_MANAGED_SUBTITLE,
-                                       ui::GetChromeOSDeviceName()),
-            GetDeviceManagedUiHelpLabel(profile.get()));
-  EXPECT_EQ(
-      l10n_util::GetStringFUTF16(IDS_MANAGEMENT_SUBTITLE_MANAGED_BY,
-                                 ui::GetChromeOSDeviceName(), u"example.com"),
-      GetDeviceManagedUiHelpLabel(profile_with_domain.get()));
-  EXPECT_EQ(l10n_util::GetStringFUTF16(IDS_MANAGEMENT_NOT_MANAGED_SUBTITLE,
-                                       ui::GetChromeOSDeviceName()),
-            GetDeviceManagedUiHelpLabel(profile_with_hosted_domain));
-#else
   EXPECT_EQ(l10n_util::GetStringUTF16(IDS_MANAGEMENT_SUBTITLE),
             GetDeviceManagedUiHelpLabel(profile.get()));
   EXPECT_EQ(l10n_util::GetStringFUTF16(IDS_MANAGEMENT_SUBTITLE_MANAGED_BY,
@@ -131,7 +111,6 @@ IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetDeviceManagedUiHelpLabelEnterprise) {
   EXPECT_EQ(l10n_util::GetStringFUTF16(IDS_MANAGEMENT_SUBTITLE_MANAGED_BY,
                                        u"hosteddomain.com"),
             GetDeviceManagedUiHelpLabel(profile_with_hosted_domain));
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetDeviceManagedUiHelpLabelNotManaged) {
@@ -139,21 +118,14 @@ IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetDeviceManagedUiHelpLabelNotManaged) {
   TestingProfile::Builder builder;
   std::unique_ptr<TestingProfile> profile = builder.Build();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(l10n_util::GetStringFUTF16(IDS_MANAGEMENT_NOT_MANAGED_SUBTITLE,
-                                       ui::GetChromeOSDeviceName()),
-            GetDeviceManagedUiHelpLabel(profile.get()));
-#else
   EXPECT_EQ(l10n_util::GetStringUTF16(IDS_MANAGEMENT_NOT_MANAGED_SUBTITLE),
             GetDeviceManagedUiHelpLabel(profile.get()));
-#endif
 }
 
 // TODO(crbug.com/40269124): update the tests below to not depend on the exact
 // value of the user-visible string (to make string updates simpler).
 
 // On ChromeOS we don't display the management UI for enterprise users.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetManagedUiIconEnterprise) {
   // Simulate a managed device.
   AddEnterpriseManagedPolicies();
@@ -434,7 +406,6 @@ IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetManagedUiMenuItemTooltipEnterprise) {
   }
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetManagedUiWebUIIconEnterprise) {
   // Simulate a managed profile.
@@ -446,11 +417,7 @@ IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetManagedUiWebUIIconEnterprise) {
   TestingProfile::Builder builder;
   auto profile = builder.Build();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_TRUE(GetManagedUiWebUIIcon(profile.get()).empty());
-#else
   EXPECT_EQ("cr:domain", GetManagedUiWebUIIcon(profile.get()));
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetManagedUiWebUILabelEnterprise) {
@@ -603,7 +570,6 @@ IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetManagedUiWebUILabelEnterprise) {
   }
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetManagementPageSubtitle) {
   TestingProfile::Builder builder;
   auto profile = builder.Build();
@@ -863,19 +829,3 @@ IN_PROC_BROWSER_TEST_F(ManagedUiTest, GetManagementBubbleTitle) {
         GetManagementBubbleTitle(profile_with_hosted_domain));
   }
 }
-#endif  //  !BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS)
-using ManagedUiTestCros = policy::DevicePolicyCrosBrowserTest;
-IN_PROC_BROWSER_TEST_F(ManagedUiTestCros, GetManagedUiWebUILabel) {
-  policy::ScopedManagementServiceOverrideForTesting platform_management(
-      policy::ManagementServiceFactory::GetForPlatform(),
-      policy::EnterpriseManagementAuthority::DOMAIN_LOCAL);
-
-  EXPECT_EQ(
-      u"Your <a target=\"_blank\" "
-      u"href=\"chrome://management\">Chrome device is "
-      u"managed</a> by example.com",
-      GetDeviceManagedUiWebUILabel());
-}
-#endif

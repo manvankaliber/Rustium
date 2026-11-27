@@ -50,18 +50,14 @@ build_webui("build") {
     "synced_device_manager.html.ts",
     "synced_device_manager.ts",
   ]
-  if (is_android) {
-    ts_files += [ "empty_state_illustration.html.ts" ]
-  }
-  if (!is_chromeos) {
-    ts_files += [
-      "history_cross_device_signin_promo.html.ts",
-      "history_cross_device_signin_promo.ts",
-      "history_cross_device_signin_promo_browser_proxy.ts",
-      "history_sync_promo.html.ts",
-      "history_sync_promo.ts",
-    ]
-  }
+
+  ts_files += [
+    "history_cross_device_signin_promo.html.ts",
+    "history_cross_device_signin_promo.ts",
+    "history_cross_device_signin_promo_browser_proxy.ts",
+    "history_sync_promo.html.ts",
+    "history_sync_promo.ts",
+  ]
 
   # Files that are passed as input to css_to_wrapper().
   css_files = [
@@ -76,12 +72,11 @@ build_webui("build") {
     "synced_device_card.css",
     "synced_device_manager.css",
   ]
-  if (!is_chromeos) {
-    css_files += [
-      "history_cross_device_signin_promo.css",
-      "history_sync_promo.css",
-    ]
-  }
+
+  css_files += [
+    "history_cross_device_signin_promo.css",
+    "history_sync_promo.css",
+  ]
 
   icons_html_files = [ "shared_icons.html" ]
 

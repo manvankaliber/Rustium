@@ -9,11 +9,7 @@
 #include "components/device_reauth/device_authenticator_common.h"
 #include "components/password_manager/core/browser/features/password_features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/device_reauth/android/device_auth_availability_checker_android.h"
-#include "chrome/browser/device_reauth/android/device_authenticator_android.h"
-#include "chrome/browser/device_reauth/android/device_authenticator_bridge_impl.h"
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "chrome/browser/device_reauth/mac/authenticator_mac.h"
 #include "chrome/browser/device_reauth/mac/device_auth_availability_checker_mac.h"
 #include "chrome/browser/device_reauth/mac/device_authenticator_mac.h"
@@ -21,10 +17,6 @@
 #include "chrome/browser/device_reauth/win/authenticator_win.h"
 #include "chrome/browser/device_reauth/win/device_auth_availability_checker_win.h"
 #include "chrome/browser/device_reauth/win/device_authenticator_win.h"
-#elif BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/device_reauth/chromeos/authenticator_chromeos.h"
-#include "chrome/browser/device_reauth/chromeos/device_auth_availability_checker_chromeos.h"
-#include "chrome/browser/device_reauth/chromeos/device_authenticator_chromeos.h"
 #endif
 
 using content::BrowserContext;
@@ -54,14 +46,10 @@ ChromeDeviceAuthenticatorFactory::GetInstance() {
 // static
 std::unique_ptr<DeviceAuthAvailabilityChecker>
 ChromeDeviceAuthenticatorFactory::CreateAvailabilityChecker() {
-#if BUILDFLAG(IS_ANDROID)
-  return std::make_unique<DeviceAuthAvailabilityCheckerAndroid>();
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
   return std::make_unique<DeviceAuthAvailabilityCheckerMac>();
 #elif BUILDFLAG(IS_WIN)
   return std::make_unique<DeviceAuthAvailabilityCheckerWin>();
-#elif BUILDFLAG(IS_CHROMEOS)
-  return std::make_unique<DeviceAuthAvailabilityCheckerChromeOS>();
 #else
   static_assert(false);
 #endif
@@ -73,33 +61,9 @@ ChromeDeviceAuthenticatorFactory::GetForProfile(
     Profile* profile,
     const gfx::NativeWindow window,
     const device_reauth::DeviceAuthParams& params) {
-#if BUILDFLAG(IS_ANDROID)
-  DeviceAuthenticatorProxy* proxy = static_cast<DeviceAuthenticatorProxy*>(
-      GetInstance()->GetServiceForBrowserContext(profile, true));
-  CHECK(proxy);
-  return std::make_unique<DeviceAuthenticatorAndroid>(
-      std::make_unique<DeviceAuthenticatorBridgeImpl>(window), proxy, params);
-#else
   return ChromeDeviceAuthenticatorFactory::GetForProfile(profile, params);
-#endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// static
-std::unique_ptr<device_reauth::DeviceAuthenticator>
-ChromeDeviceAuthenticatorFactory::GetForProfile(
-    Profile* profile,
-    const base::android::JavaRef<jobject>& activity,
-    const device_reauth::DeviceAuthParams& params) {
-  DeviceAuthenticatorProxy* proxy = static_cast<DeviceAuthenticatorProxy*>(
-      GetInstance()->GetServiceForBrowserContext(profile, true));
-
-  CHECK(proxy);
-
-  return std::make_unique<DeviceAuthenticatorAndroid>(
-      std::make_unique<DeviceAuthenticatorBridgeImpl>(activity), proxy, params);
-}
-#else
 // static
 std::unique_ptr<DeviceAuthenticator>
 ChromeDeviceAuthenticatorFactory::GetForProfile(
@@ -116,15 +80,11 @@ ChromeDeviceAuthenticatorFactory::GetForProfile(
 #elif BUILDFLAG(IS_WIN)
   auto device_authenticator = std::make_unique<DeviceAuthenticatorWin>(
       std::make_unique<AuthenticatorWin>(), proxy, params);
-#elif BUILDFLAG(IS_CHROMEOS)
-  auto device_authenticator = std::make_unique<DeviceAuthenticatorChromeOS>(
-      std::make_unique<AuthenticatorChromeOS>(), proxy, params);
 #else
   static_assert(false);
 #endif
   return std::move(device_authenticator);
 }
-#endif
 
 std::unique_ptr<KeyedService>
 ChromeDeviceAuthenticatorFactory::BuildServiceInstanceForBrowserContext(
@@ -141,16 +101,5 @@ ChromeDeviceAuthenticatorFactory::BuildServiceInstanceForBrowserContext(
   }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Asynchronously check for PIN availability and cache the result in a local
-  // state preference.
-  // When the flag is enabled, the caching happens 30 seconds after each user
-  // profile is initialized.
-  if (!base::FeatureList::IsEnabled(
-          password_manager::features::kDeviceReauthRefactor)) {
-    DeviceAuthenticatorChromeOS::CacheIfPinIsAvailable(
-        std::make_unique<AuthenticatorChromeOS>().get());
-  }
-#endif
   return std::make_unique<DeviceAuthenticatorProxy>();
 }

@@ -32,11 +32,6 @@ class ScopedDisableBrowserSpellCheckerForTesting {
 
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-bool IsAndroidSpellCheckFeatureEnabled();
-
-BASE_DECLARE_FEATURE(kAndroidGrammarCheck);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // When enabled, the spellcheck service will use a regionalized endpoint based
 // on the user's data region setting.

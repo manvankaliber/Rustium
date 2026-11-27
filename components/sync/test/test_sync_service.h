@@ -25,9 +25,6 @@
 #include "google_apis/gaia/google_service_auth_error.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif
 
 namespace syncer {
 
@@ -124,9 +121,6 @@ class TestSyncService : public SyncService {
   void SetSetupInProgress();
 
   // SyncService implementation.
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaLocalRef<jobject> GetJavaObject() override;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   TestSyncUserSettings* GetUserSettings() override;
   const TestSyncUserSettings* GetUserSettings() const override;
@@ -178,9 +172,6 @@ class TestSyncService : public SyncService {
       const override;
   void SetCurrentDeviceCacheGuidsForAllGaiaIds(
       base::flat_set<std::string> guids);
-#if BUILDFLAG(IS_ANDROID)
-  void SetInvalidationsForSessionsEnabled(bool enabled) override;
-#endif  // BUILDFLAG(IS_ANDROID)
   void SetPasskeysLocked(bool passkeys_locked) override;
   void SendExplicitPassphraseToPlatformClient() override;
   void GetTypesWithUnsyncedData(

@@ -55,13 +55,6 @@
 
 // We add nognchecks on some includes so that Android bots do not fail
 // dependency checks.
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_android.h"                  // nogncheck
-#include "chrome/browser/ui/android/tab_model/tab_model.h"       // nogncheck
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"  // nogncheck
-#include "chrome/browser/ui/android/tab_model/tab_model_list_observer.h"  // nogncheck
-#include "chrome/browser/ui/android/tab_model/tab_model_observer.h"  // nogncheck
-#else
 #include "chrome/browser/resource_coordinator/lifecycle_unit.h"
 #include "chrome/browser/resource_coordinator/lifecycle_unit_observer.h"
 #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_source.h"
@@ -73,7 +66,6 @@
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
 #include "chrome/browser/ui/tabs/vertical_tab_strip_state_controller.h"
-#endif
 
 namespace metrics {
 
@@ -102,76 +94,6 @@ void UmaHistogramCounts10000WithBatteryStateVariant(const char* histogram_name,
   base::UmaHistogramCounts10000(base::StrCat({histogram_name, suffix}), value);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-struct ActiveAndroidTabAndWindowCounts {
-  size_t tab_count = 0;
-  size_t window_count = 0;
-};
-
-ActiveAndroidTabAndWindowCounts CalculateActiveAndroidTabAndWindowCounts() {
-  base::flat_map<SessionID, gfx::NativeWindow> native_windows_by_session_id;
-  for (BrowserWindowInterface* browser_window :
-       GetAllBrowserWindowInterfaces()) {
-    if (!browser_window || !browser_window->GetSessionID().is_valid()) {
-      continue;
-    }
-    if (ui::BaseWindow* base_window = browser_window->GetWindow()) {
-      if (gfx::NativeWindow native_window = base_window->GetNativeWindow()) {
-        native_windows_by_session_id[browser_window->GetSessionID()] =
-            native_window;
-      }
-    }
-  }
-
-  ActiveAndroidTabAndWindowCounts counts;
-  base::flat_set<gfx::NativeWindow> unique_native_windows;
-  size_t unassociated_window_count = 0;
-
-  TabModelList::ForEachAll([&](TabModel* tab_model) {
-    if (tab_model->GetTabModelType() != TabModel::TabModelType::kStandard ||
-        tab_model->IsEmptyRegularModelForEphemeralOrIncognitoCct()) {
-      return true;
-    }
-
-    const int model_tab_count = tab_model->GetTabCount();
-    if (model_tab_count > 0) {
-      counts.tab_count += static_cast<size_t>(model_tab_count);
-    }
-
-    gfx::NativeWindow native_window = nullptr;
-    if (tab_model->GetSessionId().is_valid()) {
-      if (auto it =
-              native_windows_by_session_id.find(tab_model->GetSessionId());
-          it != native_windows_by_session_id.end()) {
-        native_window = it->second;
-      }
-    }
-
-    if (!native_window) {
-      for (int i = 0; i < model_tab_count; ++i) {
-        if (content::WebContents* web_contents =
-                tab_model->GetWebContentsAt(i)) {
-          native_window = web_contents->GetTopLevelNativeWindow();
-          if (native_window) {
-            break;
-          }
-        }
-      }
-    }
-
-    if (native_window) {
-      unique_native_windows.insert(native_window);
-    } else if (model_tab_count > 0 || tab_model->IsActiveModel()) {
-      ++unassociated_window_count;
-    }
-    return true;
-  });
-
-  counts.window_count =
-      unique_native_windows.size() + unassociated_window_count;
-  return counts;
-}
-#else
 void UmaHistogramCounts10000WithTabStripModeVariant(
     const char* histogram_name,
     const TabStatsTracker::TabStripInterface& tab_strip,
@@ -189,7 +111,6 @@ void UmaHistogramCounts10000WithTabStripModeVariant(
 
   base::UmaHistogramCounts10000(base::StrCat({histogram_name, suffix}), value);
 }
-#endif
 
 }  // namespace
 
@@ -208,52 +129,6 @@ void TabStatsTracker::TabStripInterface::ForEachWebContents(
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-
-size_t TabStatsTracker::TabStripInterface::GetTabCount() const {
-  return tab_model()->GetTabCount();
-}
-
-content::WebContents* TabStatsTracker::TabStripInterface::GetActiveWebContents()
-    const {
-  return tab_model()->GetActiveWebContents();
-}
-
-content::WebContents* TabStatsTracker::TabStripInterface::GetWebContentsAt(
-    size_t index) const {
-  return tab_model()->GetWebContentsAt(index);
-}
-
-Profile* TabStatsTracker::TabStripInterface::GetProfile() {
-  return tab_model()->GetProfile();
-}
-
-const Profile* TabStatsTracker::TabStripInterface::GetProfile() const {
-  return tab_model()->GetProfile();
-}
-
-bool TabStatsTracker::TabStripInterface::IsInNormalBrowser() const {
-  return true;
-}
-
-void TabStatsTracker::TabStripInterface::ActivateTabAtForTesting(size_t index) {
-  tab_model()->SetActiveIndex(index);
-}
-
-void TabStatsTracker::TabStripInterface::CloseTabAtForTesting(size_t index) {
-  tab_model()->CloseTabAt(index);
-}
-
-// static
-void TabStatsTracker::TabStripInterface::ForEach(
-    base::FunctionRef<void(const TabStripInterface&)> func) {
-  TabModelList::ForEachAll([&func](TabModel* tab_model) {
-    func(TabStripInterface(tab_model));
-    return true;
-  });
-}
-
-#else  // !BUILDFLAG(IS_ANDROID)
 
 size_t TabStatsTracker::TabStripInterface::GetTabCount() const {
   return browser_window_interface()->GetTabStripModel()->count();
@@ -265,13 +140,11 @@ size_t TabStatsTracker::TabStripInterface::GetPinnedTabCount() const {
       ->IndexOfFirstNonPinnedTab();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Returns the count of tabs within Split Views in this tab strip.
 size_t TabStatsTracker::TabStripInterface::GetSplitTabCount() const {
   return browser_window_interface()->GetTabStripModel()->ListSplits().size() *
          2;
 }
-#endif
 
 content::WebContents* TabStatsTracker::TabStripInterface::GetActiveWebContents()
     const {
@@ -316,111 +189,12 @@ void TabStatsTracker::TabStripInterface::ForEach(
       });
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // When initialized, TabWatcher gets the list of existing windows/tabs. There
 // shouldn't be any if it's initialized at startup but this will ensure that the
 // counts stay accurate if the initialization gets moved to after the creation
 // of the first tab.
 
-#if BUILDFLAG(IS_ANDROID)
-
-class TabStatsTracker::TabWatcher final : public TabModelListObserver,
-                                          public TabModelObserver,
-                                          public TabAndroid::Observer {
- public:
-  explicit TabWatcher(TabStatsTracker& tracker) : tracker_(tracker) {
-    TabModelList::AddGlobalObserver(this);
-    TabModelList::ForEachAll([this](TabModel* tab_model) {
-      OnTabModelAdded(tab_model);
-      for (int i = 0; i < tab_model->GetTabCount(); ++i) {
-        OnTabAdded(*tab_model, tab_model->GetTabAt(i));
-      }
-      tracker_->OnTabStripNewTabCount(tab_model->GetTabCount());
-      return true;
-    });
-  }
-
-  ~TabWatcher() final { TabModelList::RemoveGlobalObserver(this); }
-
-  // TabModelListObserver:
-
-  void OnTabModelAdded(TabModel* tab_model) final {
-    tracker_->OnTabStripAdded();
-    tab_model_observations_.AddObservation(tab_model);
-  }
-
-  void OnTabModelRemoved(TabModel* tab_model) final {
-    for (int i = 0; i < tab_model->GetTabCount(); ++i) {
-      if (TabAndroid* tab = tab_model->GetTabAt(i)) {
-        TabRemoved(tab);
-      }
-    }
-    tab_model_observations_.RemoveObservation(tab_model);
-    tracker_->OnTabStripRemoved();
-  }
-
-  // TabModelObserver:
-
-  void DidAddTab(TabAndroid* tab, TabModel::TabLaunchType type) final {
-    const TabModel& tab_model =
-        CHECK_DEREF(TabModelList::GetTabModelForTabAndroid(tab));
-    OnTabAdded(tab_model, tab);
-    tracker_->OnTabStripNewTabCount(tab_model.GetTabCount());
-  }
-
-  void TabRemoved(TabAndroid* tab) final {
-    // The tab was removed from the model, either because it closed or moved to
-    // a different model. Either way stop watching for the WebContents.
-    if (tab_android_observations_.IsObservingSource(tab)) {
-      tab_android_observations_.RemoveObservation(tab);
-    }
-  }
-
-  void DidRemoveTabForClosure(TabAndroid* tab) final {
-    // The tab was removed from the model, either because it closed or moved to
-    // a different model. Either way stop watching for the WebContents.
-    if (tab_android_observations_.IsObservingSource(tab)) {
-      tab_android_observations_.RemoveObservation(tab);
-    }
-  }
-
-  // TabAndroid::Observer:
-
-  void OnInitWebContents(TabAndroid* tab) final {
-    CHECK(tab->web_contents());
-    tracker_->OnInitialOrInsertedTab(tab->web_contents());
-    tab_android_observations_.RemoveObservation(tab);
-  }
-
- private:
-  void OnTabAdded(const TabModel& tab_model, TabAndroid* tab) {
-    if (!tab) {
-      return;
-    }
-    if (content::WebContents* web_contents = tab->web_contents()) {
-      tracker_->OnInitialOrInsertedTab(web_contents);
-    } else if (tab_model.GetTabModelType() !=
-                   TabModel::TabModelType::kHeadless &&
-               !tab_android_observations_.IsObservingSource(tab)) {
-      // The WebContents hasn't been attached to the tab yet. Start tracking it
-      // when TabAndroid::Observer::OnInitWebContents is called. Headless tab
-      // models never instantiate a WebContents, so skip observing their tabs.
-      // Note OnTabAdded can be called while the tab is already being observed,
-      // if it's called from the TabModel constructor while an async DidAddTab
-      // notification is in flight.
-      tab_android_observations_.AddObservation(tab);
-    }
-  }
-
-  raw_ref<TabStatsTracker> tracker_;
-  base::ScopedMultiSourceObservation<TabModel, TabModelObserver>
-      tab_model_observations_{this};
-  base::ScopedMultiSourceObservation<TabAndroid, TabAndroid::Observer>
-      tab_android_observations_{this};
-};
-
-#else  // !BUILDFLAG(IS_ANDROID)
 
 class TabStatsTracker::TabWatcher final : public BrowserCollectionObserver,
                                           public TabStripModelObserver {
@@ -478,7 +252,6 @@ class TabStatsTracker::TabWatcher final : public BrowserCollectionObserver,
       browser_collection_observation_{this};
 };
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 const TabStatsDataStore::TabsStats& TabStatsTracker::tab_stats() const {
   return tab_stats_data_store_->tab_stats();
@@ -513,20 +286,16 @@ TabStatsTracker::TabStatsTracker(PrefService* pref_service)
                          base::BindRepeating(&TabStatsTracker::OnHeartbeatEvent,
                                              base::Unretained(this)));
 
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(crbug.com/412634171): Enable this when discarding is supported on
   // Android.
   resource_coordinator::GetTabLifecycleUnitSource()->AddLifecycleObserver(this);
-#endif
 }
 
 TabStatsTracker::~TabStatsTracker() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   base::PowerMonitor::GetInstance()->RemovePowerSuspendObserver(this);
-#if !BUILDFLAG(IS_ANDROID)
   resource_coordinator::GetTabLifecycleUnitSource()->RemoveLifecycleObserver(
       this);
-#endif
 }
 
 // static
@@ -770,7 +539,6 @@ void TabStatsTracker::OnResume() {
       tab_stats_data_store_->tab_stats().total_tab_count);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(crbug.com/412634171): Enable this when discarding is supported on
 // Android.
 void TabStatsTracker::OnLifecycleUnitStateChanged(
@@ -784,7 +552,6 @@ void TabStatsTracker::OnLifecycleUnitStateChanged(
         new_state == ::mojom::LifecycleUnitState::DISCARDED);
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void TabStatsTracker::OnTabStripAdded() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
@@ -908,7 +675,6 @@ void TabStatsTracker::UmaStatsReportingDelegate::ReportDailyMetrics(
       kDailyReloadsFrozenWithGrowingMemoryHistogramName,
       tab_stats.tab_reload_counts[frozen_with_growing_memory_index]);
 
-#if !BUILDFLAG(IS_ANDROID)
   std::set<const Profile*> profiles;
   TabStripInterface::ForEach([&profiles](const TabStripInterface& tab_strip) {
     profiles.insert(tab_strip.GetProfile());
@@ -931,7 +697,6 @@ void TabStatsTracker::UmaStatsReportingDelegate::ReportDailyMetrics(
     base::UmaHistogramBoolean(kTabSearchIsPinnedHistogramName,
                               is_tab_search_pinned);
   }
-#endif
 }
 
 void TabStatsTracker::UmaStatsReportingDelegate::ReportHeartbeatMetrics(
@@ -947,28 +712,16 @@ void TabStatsTracker::UmaStatsReportingDelegate::ReportHeartbeatMetrics(
   UmaHistogramCounts10000WithBatteryStateVariant(kWindowCountHistogramName,
                                                  tab_stats.window_count);
 
-#if BUILDFLAG(IS_ANDROID)
-  const ActiveAndroidTabAndWindowCounts active_counts =
-      CalculateActiveAndroidTabAndWindowCounts();
-  if (active_counts.window_count > 0) {
-    base::UmaHistogramCounts10000(kTabCount2HistogramName,
-                                  active_counts.tab_count);
-    base::UmaHistogramCounts10000(kWindowCount2HistogramName,
-                                  active_counts.window_count);
-  }
-#else
   base::UmaHistogramCounts10000(kTabCount2HistogramName,
                                 tab_stats.total_tab_count);
   base::UmaHistogramCounts10000(kWindowCount2HistogramName,
                                 tab_stats.window_count);
-#endif
 
   if (base::FeatureList::IsEnabled(features::kTabDuplicateMetrics)) {
     ReportTabDuplicateMetrics(true);
     ReportTabDuplicateMetrics(false);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   ReportSplitTabMetrics();
 
   TabStripInterface::ForEach([&](const TabStripInterface& tab_strip) {
@@ -1022,7 +775,6 @@ void TabStatsTracker::UmaStatsReportingDelegate::ReportHeartbeatMetrics(
     UMA_HISTOGRAM_CUSTOM_COUNTS(kWindowWidthHistogramName, window_size.width(),
                                 100, 10000, 50);
   });
-#endif
 }
 
 void TabStatsTracker::UmaStatsReportingDelegate::ReportTabDuplicateMetrics(
@@ -1100,7 +852,6 @@ void TabStatsTracker::UmaStatsReportingDelegate::ReportTabDuplicateMetrics(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void TabStatsTracker::UmaStatsReportingDelegate::ReportSplitTabMetrics() {
   int split_tabs = 0;
   TabStripInterface::ForEach([&](const TabStripInterface& tab_strip) {
@@ -1114,7 +865,6 @@ void TabStatsTracker::UmaStatsReportingDelegate::ReportSplitTabMetrics() {
   base::UmaHistogramCounts10000(
       base::StrCat({kTabCountHistogramName, ".SplitTabs"}), split_tabs);
 }
-#endif
 
 bool TabStatsTracker::UmaStatsReportingDelegate::
     IsChromeBackgroundedWithoutWindows() {

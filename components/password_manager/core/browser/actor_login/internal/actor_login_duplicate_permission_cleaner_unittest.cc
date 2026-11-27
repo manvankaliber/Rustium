@@ -83,11 +83,6 @@ class ActorLoginDuplicatePermissionCleanerTest : public testing::Test {
 
   void SetupAffilliations(const std::string& signon_realm,
                           const std::string& affiliated_realm) {
-#if BUILDFLAG(IS_ANDROID)
-    static_cast<password_manager::FakePasswordStoreBackend*>(
-        store()->GetBackendForTesting())
-        ->SetAffiliatedAndGroupedRealms(signon_realm, {affiliated_realm});
-#else
     std::string facet_uri = affiliated_realm;
     if (!facet_uri.empty() && facet_uri.back() == '/') {
       facet_uri.pop_back();
@@ -97,7 +92,6 @@ class ActorLoginDuplicatePermissionCleanerTest : public testing::Test {
             affiliations::AffiliatedFacets{affiliations::Facet(
                 affiliations::FacetURI::FromCanonicalSpec(facet_uri))},
             true));
-#endif
   }
 
   base::test::TaskEnvironment& task_environmenft() { return task_environment_; }

@@ -174,7 +174,6 @@ FakeServerSyncInvalidationSender::GetFakeGCMDriverByToken(
     const std::string& fcm_registration_token) const {
   for (instance_id::FakeGCMDriverForInstanceID* fake_gcm_driver :
        fake_gcm_drivers_) {
-#if !BUILDFLAG(IS_ANDROID)
     // On Android platform FCM registration token is returned from Java
     // implementation, so HasTokenForAppId() does not contain these tokens.
     // Since Android does not support several profiles, for the simplicity just
@@ -183,7 +182,6 @@ FakeServerSyncInvalidationSender::GetFakeGCMDriverByToken(
                                            fcm_registration_token)) {
       continue;
     }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
     // AppHandler may not be registered while SyncSetup() is not called yet, the
     // server should keep invalidations to deliver them later.

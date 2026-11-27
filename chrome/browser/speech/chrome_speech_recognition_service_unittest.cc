@@ -59,7 +59,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 namespace speech {
 
@@ -1169,5 +1168,3 @@ TEST_F(SpeechRecognitionClientBrowserInterfaceTest,
 #endif  // !BUILDFLAG(IS_LINUX) || defined(ARCH_CPU_X86_FAMILY)
 
 }  // namespace speech
-
-#endif  // !BUILDFLAG(IS_CHROMEOS)

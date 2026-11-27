@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "net/cookies/cookie_access_result.h"
+#include "net/cookies/cookie_family_native.h"
 
 #include "net/cookies/cookie_constants.h"
 
@@ -34,5 +35,10 @@ CookieAccessResult& CookieAccessResult::operator=(
 CookieAccessResult::CookieAccessResult(CookieAccessResult&&) = default;
 
 CookieAccessResult::~CookieAccessResult() = default;
+
+bool operator==(const CookieAccessResult& left,const CookieAccessResult& right) {
+  CookieFamilyRequest request{};request.access=cookie_family::Snapshot(left);request.other_access=cookie_family::Snapshot(right);
+  return cookie_family::Run(44,request).scalar;
+}
 
 }  // namespace net

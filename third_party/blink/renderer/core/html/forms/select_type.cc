@@ -745,11 +745,7 @@ bool MenuListSelectType::PickerIsPopover() const {
     // In appearance:auto/none mode, we use the native <select multiple> popup
     // if available (only on Android right now). In appearance:base mode, we
     // keep using the popover.
-#if BUILDFLAG(IS_ANDROID)
-    return false;
-#else
     return true;
-#endif
   }
   return false;
 }

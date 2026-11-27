@@ -34,15 +34,9 @@ namespace {
 // we expect them to be configured by default. If you override this
 // configuration, this test will fail, but the code should still be safe to use.
 TEST(FlagsConfigTest, Test) {
-#if defined(__ANDROID__)
-  EXPECT_EQ(ABSL_FLAGS_STRIP_NAMES, 1);
-  EXPECT_EQ(ABSL_FLAGS_STRIP_HELP, 1);
-#elif defined(__myriad2__)
+#if defined(__myriad2__)
   EXPECT_EQ(ABSL_FLAGS_STRIP_NAMES, 0);
   EXPECT_EQ(ABSL_FLAGS_STRIP_HELP, 0);
-#elif defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
-  EXPECT_EQ(ABSL_FLAGS_STRIP_NAMES, 1);
-  EXPECT_EQ(ABSL_FLAGS_STRIP_HELP, 1);
 #elif defined(TARGET_OS_EMBEDDED) && TARGET_OS_EMBEDDED
   EXPECT_EQ(ABSL_FLAGS_STRIP_NAMES, 1);
   EXPECT_EQ(ABSL_FLAGS_STRIP_HELP, 1);

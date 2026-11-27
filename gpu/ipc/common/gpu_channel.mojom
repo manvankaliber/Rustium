@@ -13,8 +13,8 @@ import "gpu/ipc/common/gpu_info.mojom";
 import "gpu/ipc/common/mailbox.mojom";
 import "gpu/ipc/common/shared_image_capabilities.mojom";
 import "gpu/ipc/common/shared_image_metadata.mojom";
-import "gpu/ipc/common/shared_image_pool_id.mojom";
 import "gpu/ipc/common/shared_image_pool_client_interface.mojom";
+import "gpu/ipc/common/shared_image_pool_id.mojom";
 import "gpu/ipc/common/surface_handle.mojom";
 import "gpu/ipc/common/sync_token.mojom";
 import "gpu/ipc/common/vulkan_ycbcr_info.mojom";
@@ -39,8 +39,7 @@ enum SchedulingPriority {
   kLow,
 };
 
-struct RasterCreationAttribs {
-};
+struct RasterCreationAttribs {};
 
 struct GLESCreationAttribs {
   gl.mojom.GpuPreference gpu_preference = kLowPower;
@@ -102,75 +101,87 @@ interface GpuChannel {
 
   // Returns a globally unique token which can be used by other interfaces to
   // securely identify this GpuChannel endpoint within the GPU process.
-  [Sync] GetChannelToken() => (mojo_base.mojom.UnguessableToken token);
+  [Sync]
+  GetChannelToken() => (mojo_base.mojom.UnguessableToken token);
 
   // Returns the GPU information of the GPU process.
-  [Sync, NoInterrupt] GetGPUInfo() => (
-         gpu.mojom.GpuInfo gpu_info,
-         gpu.mojom.GpuFeatureInfo gpu_feature_info,
-         gpu.mojom.SharedImageCapabilities shared_image_capabilities);
+  [Sync, NoInterrupt]
+  GetGPUInfo() => (gpu.mojom.GpuInfo gpu_info,
+                   gpu.mojom.GpuFeatureInfo gpu_feature_info,
+                   gpu.mojom.SharedImageCapabilities shared_image_capabilities);
 
   // A simple no-op message used as a fence to ensure all previously sent
   // messages have been received.
   //
   // NoInterrupt is safe on this message because it's handled immediately on the
   // GPU IO thread, which is never allowed to block.
-  [Sync, NoInterrupt] Flush() => ();
+  [Sync, NoInterrupt]
+  Flush() => ();
 
   // `version_buffer` is a handle to a shared memory region that only
   // contains a single 64 bit atomic integer used as a flushed message id.
   // The number is read from renderers and updated from the
   // gpu process on FlushDeferredRequests.
-  [Sync, NoInterrupt] GetSharedMemoryForFlushId() =>
-    (mojo_base.mojom.ReadOnlySharedMemoryRegion? version_buffer);
+  [Sync, NoInterrupt]
+  GetSharedMemoryForFlushId()
+      => (mojo_base.mojom.ReadOnlySharedMemoryRegion? version_buffer);
 
   // Tells the GPU process to create a new command buffer. A corresponding
   // CommandBufferStub is created.  If `params` provides a non-null
   // SurfaceHandle, |size| is ignored and it will render directly to the native
   // surface (only the browser process is allowed to create those). Otherwise it
   // will create an offscreen backbuffer of dimensions `size`.
-  [Sync, NoInterrupt] CreateCommandBuffer(
-      CreateCommandBufferParams params, int32 routing_id,
-      mojo_base.mojom.UnsafeSharedMemoryRegion shared_state,
-      pending_associated_receiver<CommandBuffer> receiver,
-      pending_associated_remote<CommandBufferClient> client)
-      => (ContextResult result, Capabilities capabilties,
+  [Sync, NoInterrupt]
+  CreateCommandBuffer(CreateCommandBufferParams params,
+                      int32 routing_id,
+                      mojo_base.mojom.UnsafeSharedMemoryRegion shared_state,
+                      pending_associated_receiver<CommandBuffer> receiver,
+                      pending_associated_remote<CommandBufferClient> client)
+      => (ContextResult result,
+          Capabilities capabilties,
           GLCapabilities gl_capabilities);
 
   // The CommandBufferProxy sends this to the CommandBufferStub in its
   // destructor, so that the stub deletes the actual CommandBufferService
   // object that it's hosting.
-  [Sync, NoInterrupt] DestroyCommandBuffer(int32 routing_id) => ();
+  [Sync, NoInterrupt]
+  DestroyCommandBuffer(int32 routing_id) => ();
 
   // Sends a batch of DeferredRequests to be executed by the service.
   // `flushed_deferred_message_id` is used to update the per-channel id of
   // messages confirmed to be flushed that's read on the client side through
   // shared memory obtained by GetSharedMemoryForFlushId().
-  FlushDeferredRequests(array<DeferredRequest> requests,
-      uint32 flushed_deferred_message_id);
+  FlushDeferredRequests(
+      array<DeferredRequest> requests, uint32 flushed_deferred_message_id);
 
   // Create a GpuMemoryBuffer on IO thread. Note that this needs to be a
   // blocking call on calling client's thread in order to return the
   // GpuMemoryBufferHandle before it's used to create a mailbox from it.
-  [Sync] CreateGpuMemoryBuffer(gfx.mojom.Size size,
-  viz.mojom.SharedImageFormat format, gfx.mojom.BufferUsage buffer_usage)
-  => (gfx.mojom.GpuMemoryBufferHandle buffer_handle);
+  [Sync]
+  CreateGpuMemoryBuffer(gfx.mojom.Size size,
+                        viz.mojom.SharedImageFormat format,
+                        gfx.mojom.BufferUsage buffer_usage)
+      => (gfx.mojom.GpuMemoryBufferHandle buffer_handle);
 
   // Create a GpuMemoryBuffer on IO thread and schedule creation of the
   // SharedImage from it to the main thread. Note that this needs to be a
   // blocking call on calling client's thread in order to return the
   // GpuMemoryBufferHandle before it's used to create client shared image.
-  [Sync] CreateSharedImageWithHandle(Mailbox mailbox, SharedImageInfo info,
-      gfx.mojom.BufferUsage buffer_usage, SharedImagePoolId? pool_id)
-  => (gfx.mojom.GpuMemoryBufferHandle buffer_handle);
+  [Sync]
+  CreateSharedImageWithHandle(Mailbox mailbox,
+                              SharedImageInfo info,
+                              gfx.mojom.BufferUsage buffer_usage,
+                              SharedImagePoolId? pool_id)
+      => (gfx.mojom.GpuMemoryBufferHandle buffer_handle);
 
   // Creates a DCOMPTexture and attaches to the provided `route_id`.
   // Note: this `route_id` must not conflict with the routing ids for command
   // buffers or shared image stub. Otherwise, unexpected behaviour can happen
   // if `Add/RemoveRoute()` is called with a pre-existing routing id.
-  [Sync, EnableIf=is_win] CreateDCOMPTexture(
-      int32 route_id,
-      pending_associated_receiver<DCOMPTexture> receiver) => (bool success);
+  [Sync, EnableIf=is_win]
+  CreateDCOMPTexture(
+      int32 route_id, pending_associated_receiver<DCOMPTexture> receiver)
+      => (bool success);
 
   // Instructs the command buffer to wait asynchronously until its State is
   // changed by the reader to have a current token value within the (inclusive)
@@ -182,8 +193,9 @@ interface GpuChannel {
   // out-of-order from other scheduled messages targeting the command buffer.
   // For now we use a GpuChannel message with a `routing_id` to target a
   // specific CommandBuffer.
-  [Sync, NoInterrupt] WaitForTokenInRange(
-      int32 routing_id, int32 start, int32 end) => (CommandBufferState state);
+  [Sync, NoInterrupt]
+  WaitForTokenInRange(int32 routing_id, int32 start, int32 end)
+      => (CommandBufferState state);
 
   // Instructs the command buffer to wait asynchronously until its State is
   // changed by the reader to have a current get offset within the (inclusive)
@@ -195,24 +207,19 @@ interface GpuChannel {
   // out-of-order from other scheduled messages targeting the command buffer.
   // For now we use a GpuChannel message with a `routing_id` to target a
   // specific CommandBuffer.
-  [Sync, NoInterrupt] WaitForGetOffsetInRange(
+  [Sync, NoInterrupt]
+  WaitForGetOffsetInRange(
       int32 routing_id, uint32 set_get_buffer_count, int32 start, int32 end)
       => (CommandBufferState state);
-
-  [EnableIf=is_fuchsia]
-  RegisterSysmemBufferCollection(
-      handle<platform> service_handle, handle<platform> sysmem_token,
-      viz.mojom.SharedImageFormat format, gfx.mojom.BufferUsage usage,
-      bool register_with_image_pipe);
 
   // Updates the contents of the GpuMemoryBuffer associated with the shared
   // image. Necessary on platforms like Windows where we use shared memory GMBs
   // for readback from D3D texture shared images. The copy, if successful, is
   // complete when the callback runs.
   [EnableIf=is_win]
-  CopyToGpuMemoryBufferAsync(
-      Mailbox mailbox, array<SyncToken> sync_token_dependencies,
-      uint64 release_count) => (bool success);
+  CopyToGpuMemoryBufferAsync(Mailbox mailbox,
+                             array<SyncToken> sync_token_dependencies,
+                             uint64 release_count) => (bool success);
 
   // Copies GMB pixel data from the native handle to the |shared_memory|.
   // Returns |true| asynchronously if the copy has succeeded.
@@ -220,9 +227,10 @@ interface GpuChannel {
   // above CopyToGpuMemoryBufferAsync in the sense that above method is only
   // used for shared memory GMBs whereas this method is used for native GMBs.
   [EnableIf=is_win|is_android]
-  CopyNativeGmbToSharedMemoryAsync(gfx.mojom.GpuMemoryBufferHandle
-      buffer_handle, mojo_base.mojom.UnsafeSharedMemoryRegion shared_memory)
-                     => (bool success);
+  CopyNativeGmbToSharedMemoryAsync(
+      gfx.mojom.GpuMemoryBufferHandle buffer_handle,
+      mojo_base.mojom.UnsafeSharedMemoryRegion shared_memory)
+      => (bool success);
 
   // Signals the completion of an asynchronous wait for `sync_tokens`.
   SignalSyncToken(array<SyncToken> sync_tokens) => ();
@@ -238,12 +246,12 @@ interface CommandBuffer {
 
   // Registers an existing shared memory transfer buffer with an `id` that can
   // be used to identify it within a command buffer.
-  RegisterTransferBuffer(int32 id,
-                         mojo_base.mojom.UnsafeSharedMemoryRegion buffer);
+  RegisterTransferBuffer(
+      int32 id, mojo_base.mojom.UnsafeSharedMemoryRegion buffer);
 
   // Sends a GPU fence handle and store it for the specified gpu fence ID.
-  CreateGpuFenceFromHandle(uint32 gpu_fence_id,
-                           gfx.mojom.GpuFenceHandle fence_handle);
+  CreateGpuFenceFromHandle(
+      uint32 gpu_fence_id, gfx.mojom.GpuFenceHandle fence_handle);
 
   // Requests retrieval of a GpuFenceHandle by ID.
   GetGpuFenceHandle(uint32 id) => (gfx.mojom.GpuFenceHandle? fence_handle);

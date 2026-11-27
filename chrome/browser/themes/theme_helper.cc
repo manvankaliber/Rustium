@@ -19,11 +19,9 @@
 
 // The image-backed half of ThemeHelper is compiled out on Android; the grit
 // resources and ResourceBundle it needs are desktop-only deps.
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/grit/theme_resources.h"                  // nogncheck
 #include "components/grit/components_scaled_resources.h"  // nogncheck
 #include "ui/base/resource/resource_bundle.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/themes/browser_theme_pack.h"
@@ -155,7 +153,6 @@ bool ThemeHelper::UseDarkModeColors(const CustomThemeSupplier* theme_supplier) {
              ui::NativeTheme::PreferredColorScheme::kDark;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 scoped_refptr<base::RefCountedMemory> ThemeHelper::GetRawData(
     int id,
     const CustomThemeSupplier* theme_supplier,
@@ -224,4 +221,3 @@ gfx::Image ThemeHelper::GetImageNamed(
 
   return image;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

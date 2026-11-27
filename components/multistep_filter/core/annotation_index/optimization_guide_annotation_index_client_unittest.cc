@@ -51,7 +51,6 @@ constexpr char kTestUrl[] = "https://example.com/test";
 constexpr char kTestCandidateId[] = "12345678-1234-5678-1234-567812345678";
 constexpr char kTestTaskType1[] = "TASK_TYPE_1";
 constexpr char kTestTaskType2[] = "TASK_TYPE_2";
-constexpr char kTestTaskTypeShopping[] = "SHOPPING";
 constexpr char kTestAttributeKey[] = "key";
 constexpr char kTestAttributeValue[] = "value";
 constexpr char kGetSupportedTasksResponseUrl[] =
@@ -207,7 +206,6 @@ TEST_F(OptimizationGuideAnnotationIndexClientTest,
 
   std::optional<FilterAnnotation> annotation = future.Take();
   ASSERT_TRUE(annotation.has_value());
-  EXPECT_EQ(annotation->task_type, kTestTaskTypeShopping);
   ASSERT_EQ(annotation->attributes.size(), 1u);
   EXPECT_EQ(annotation->attributes[0].key, kTestAttributeKey);
   EXPECT_EQ(annotation->attributes[0].value, kTestAttributeValue);

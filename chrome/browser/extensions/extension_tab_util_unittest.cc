@@ -31,9 +31,6 @@
 #include "extensions/common/url_pattern_set.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/webui/os_feedback_ui/url_constants.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -429,18 +426,6 @@ TEST_F(ChromeExtensionNavigationTest, PrepareURLForNavigationOnFeedback) {
   ASSERT_TRUE(non_extension_url.has_value());
   EXPECT_EQ(GURL(kFeedbackURL), *non_extension_url);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Repeat the test for the chromeos-specific URL.
-  url = ExtensionTabUtil::PrepareURLForNavigation(
-      ash::kChromeUIOSFeedbackUrl, extension.get(), browser_context());
-  EXPECT_THAT(url, base::test::ErrorIs(
-                       ExtensionTabUtil::kCannotNavigateToInternalPage));
-
-  non_extension_url = ExtensionTabUtil::PrepareURLForNavigation(
-      ash::kChromeUIOSFeedbackUrl, /*extension=*/nullptr, browser_context());
-  ASSERT_TRUE(non_extension_url.has_value());
-  EXPECT_EQ(GURL(ash::kChromeUIOSFeedbackUrl), *non_extension_url);
-#endif
 }
 
 // Verifies that ExtensionTabUtil::OpenOptionsPageFromWebContents returns false

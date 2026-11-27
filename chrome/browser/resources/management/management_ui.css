@@ -55,40 +55,6 @@ main {
   margin-inline-start: -10px;
 }
 
-<if expr="is_chromeos">
-.eol-section {
-  border: 1px solid var(--google-grey-300);
-  border-radius: var(--cr-card-border-radius);
-  flex-direction: row;
-  justify-content: start;
-  margin-inline-end: 20px;
-  margin-inline-start: 20px;
-  padding: 16px var(--cr-section-padding);
-}
-
-.eol-section .eol-warning-icon {
-  --google-yellow-50-rgb: 254, 247, 224;  /* #fef7e0 */
-  --google-yellow-50: rgb(var(--google-yellow-50-rgb));
-  align-items: center;
-  background: var(--google-yellow-50);
-  border-radius: 50%;
-  display: flex;
-  height: 40px;
-  justify-content: center;
-  margin-inline-end: 20px;
-  width: 40px;
-}
-
-.eol-section cr-icon {
-  --iron-icon-fill-color: #E8710A;
-  height: var(--cr-icon-size);
-  width: var(--cr-icon-size);
-}
-
-.eol-section .eol-admin-title {
-  font-weight: 500;
-}
-</if>
 
 .overview-section div + div {
   margin-top: 16px;

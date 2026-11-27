@@ -36,8 +36,6 @@
 
 #if BUILDFLAG(IS_MAC)
 #include <Availability.h>
-#elif BUILDFLAG(IS_ANDROID)
-#include <android/api-level.h>
 #endif
 
 namespace crashpad {
@@ -149,16 +147,10 @@ std::string MinidumpMiscInfoDebugBuildString() {
   // they will be truncated and a message will be logged.
 #if BUILDFLAG(IS_MAC)
   static constexpr char kOS[] = "mac";
-#elif BUILDFLAG(IS_IOS)
-  static constexpr char kOS[] = "ios";
-#elif BUILDFLAG(IS_ANDROID)
-  static constexpr char kOS[] = "android";
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   static constexpr char kOS[] = "linux";
 #elif BUILDFLAG(IS_WIN)
   static constexpr char kOS[] = "win";
-#elif BUILDFLAG(IS_FUCHSIA)
-  static constexpr char kOS[] = "fuchsia";
 #else
 #error define kOS for this operating system
 #endif
@@ -181,19 +173,14 @@ std::string MinidumpMiscInfoDebugBuildString() {
 #error define kCPU for this CPU
 #endif
 
-  std::string debug_build_string = base::StringPrintf("%s.%s,%s,%s",
-                                                      PACKAGE_TARNAME,
-                                                      kCPU,
-                                                      PACKAGE_VERSION,
-                                                      kOS);
+  std::string debug_build_string = base::StringPrintf(
+      "%s.%s,%s,%s", PACKAGE_TARNAME, kCPU, PACKAGE_VERSION, kOS);
 
 #if BUILDFLAG(IS_MAC)
   debug_build_string += base::StringPrintf(
       ",%d,%d",
       AvailabilityVersionToMacOSVersionNumber(__MAC_OS_X_VERSION_MIN_REQUIRED),
       AvailabilityVersionToMacOSVersionNumber(__MAC_OS_X_VERSION_MAX_ALLOWED));
-#elif BUILDFLAG(IS_ANDROID)
-  debug_build_string += base::StringPrintf(",%d", __ANDROID_API__);
 #endif
 
   return debug_build_string;
@@ -202,11 +189,9 @@ std::string MinidumpMiscInfoDebugBuildString() {
 }  // namespace internal
 
 MinidumpMiscInfoWriter::MinidumpMiscInfoWriter()
-    : MinidumpStreamWriter(), misc_info_(), has_xstate_data_(false) {
-}
+    : MinidumpStreamWriter(), misc_info_(), has_xstate_data_(false) {}
 
-MinidumpMiscInfoWriter::~MinidumpMiscInfoWriter() {
-}
+MinidumpMiscInfoWriter::~MinidumpMiscInfoWriter() {}
 
 void MinidumpMiscInfoWriter::InitializeFromSnapshot(
     const ProcessSnapshot* process_snapshot) {

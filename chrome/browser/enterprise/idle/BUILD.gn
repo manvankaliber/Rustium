@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/chromeos/args.gni")
 import("//build/config/ui.gni")
 
 source_set("unit_tests") {
@@ -11,7 +10,7 @@ source_set("unit_tests") {
   sources = []
   deps = []
 
-  if (is_linux || is_mac || is_win || is_android) {
+  if (is_linux || is_mac || is_win) {
     sources += [
       "action_runner_unittest.cc",
       "action_unittest.cc",
@@ -25,7 +24,7 @@ source_set("unit_tests") {
   }
 }
 
-if (!is_android && !is_chromeos_device && (is_win || is_mac || is_linux)) {
+if (is_win || is_mac || is_linux) {
   source_set("interactive_ui_tests") {
     testonly = true
     defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]

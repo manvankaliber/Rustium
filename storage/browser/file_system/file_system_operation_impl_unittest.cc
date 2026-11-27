@@ -1059,11 +1059,13 @@ TEST_F(FileSystemOperationImplTest, TestRemoveSuccessRecursive) {
   //
   // Verify deleting parent_dir.
   FileSystemURL parent_dir(CreateDirectory("dir"));
-  for (int i = 0; i < 8; ++i)
+  for (int i = 0; i < 8; ++i) {
     CreateFile(base::StringPrintf("dir/file-%d", i));
+  }
   FileSystemURL child_dir(CreateDirectory("dir/child_dir"));
-  for (int i = 0; i < 8; ++i)
+  for (int i = 0; i < 8; ++i) {
     CreateFile(base::StringPrintf("dir/child_dir/file-%d", i));
+  }
 
   EXPECT_EQ(base::File::FILE_OK, Remove(parent_dir, true /* recursive */));
   EXPECT_FALSE(DirectoryExists("parent_dir"));
@@ -1152,7 +1154,6 @@ TEST_F(FileSystemOperationImplTest, TestTruncateFailureByQuota) {
 // which breaks this test that relies on it. Since PPAPI is being deprecated,
 // this test is excluded from the Fuchsia build.
 // See https://crbug.com/1077456 for details.
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST_F(FileSystemOperationImplTest, TestTouchFile) {
   FileSystemURL file(CreateFile("file"));
   base::FilePath platform_path = PlatformPath("file");
@@ -1180,7 +1181,6 @@ TEST_F(FileSystemOperationImplTest, TestTouchFile) {
   EXPECT_EQ(new_modified_time.ToTimeT(), info.last_modified.ToTimeT());
   EXPECT_EQ(new_accessed_time.ToTimeT(), info.last_accessed.ToTimeT());
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(FileSystemOperationImplTest, TestCreateSnapshotFile) {
   FileSystemURL dir(CreateDirectory("dir"));

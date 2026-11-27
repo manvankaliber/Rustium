@@ -63,10 +63,8 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 #if BUILDFLAG(IS_OZONE)
 #include "ui/ozone/public/ozone_platform.h"
@@ -708,7 +706,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionWindowsTest,
 
 // On Android this fails when Run() calls BaseWindow::CanResize() returns false
 // due to default Android Browser Tests not having free-form windows.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ExtensionWindowsTest,
                        UpdatingWindowBoundsSucceedsForValidBounds) {
   scoped_refptr<const Extension> extension(ExtensionBuilder("Test").Build());
@@ -916,73 +913,7 @@ IN_PROC_BROWSER_TEST_F(
     EXPECT_FALSE(weak_browser);
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(ExtensionWindowsTest,
-                       UpdateWindowStateFailsWhenNotResizable) {
-  scoped_refptr<const Extension> extension(ExtensionBuilder("Test").Build());
-  std::vector<BrowserWindowInterface*> windows =
-      GetAllBrowserWindowInterfaces();
-  ASSERT_FALSE(windows.empty());
-  int window_id = ExtensionTabUtil::GetWindowId(windows[0]);
-
-  auto function = base::MakeRefCounted<WindowsUpdateFunction>();
-  function->set_extension(extension.get());
-
-  // Attempting to maximize on Android triggers the CanResize() check. Since
-  // the standard test environment is not in desktop windowing mode (and may
-  // run on older SDKs), this is expected to fail. We verify that an error is
-  // returned without checking the exact string.
-  std::string error = utils::RunFunctionAndReturnError(
-      function.get(),
-      base::StringPrintf("[%u, {\"state\": \"maximized\"}]", window_id),
-      profile());
-  EXPECT_FALSE(error.empty());
-}
-
-// TODO(crbug.com/491868694) Remove once overlapping tests are enabled on
-// Android.
-IN_PROC_BROWSER_TEST_F(ExtensionWindowsTest,
-                       UpdateWindowStateSucceedsWhenNoResizeNeeded) {
-  scoped_refptr<const Extension> extension(ExtensionBuilder("Test").Build());
-  std::vector<BrowserWindowInterface*> windows =
-      GetAllBrowserWindowInterfaces();
-  ASSERT_FALSE(windows.empty());
-  int window_id = ExtensionTabUtil::GetWindowId(windows[0]);
-
-  auto function = base::MakeRefCounted<WindowsUpdateFunction>();
-  function->set_extension(extension.get());
-
-  // A simple update that does not require resizing bypasses the CanResize()
-  // check, succeeding without an error code.
-  EXPECT_TRUE(utils::RunFunction(
-      function.get(),
-      base::StringPrintf("[%u, {\"drawAttention\": true}]", window_id),
-      profile(), api_test_utils::FunctionMode::kNone));
-}
-
-IN_PROC_BROWSER_TEST_F(ExtensionWindowsTest,
-                       UpdateWindowStateFullscreenFailsOnAndroid) {
-  scoped_refptr<const Extension> extension(ExtensionBuilder("Test").Build());
-  std::vector<BrowserWindowInterface*> windows =
-      GetAllBrowserWindowInterfaces();
-  ASSERT_FALSE(windows.empty());
-  int window_id = ExtensionTabUtil::GetWindowId(windows[0]);
-
-  auto function = base::MakeRefCounted<WindowsUpdateFunction>();
-  function->set_extension(extension.get());
-
-  // Attempting to enter fullscreen on Android should explicitly fail with
-  // the kUnableToEnterFullScreenAndroid error message.
-  std::string error = utils::RunFunctionAndReturnError(
-      function.get(),
-      base::StringPrintf("[%u, {\"state\": \"fullscreen\"}]", window_id),
-      profile());
-
-  EXPECT_EQ(tabs_constants::kUnableToEnterFullScreenAndroid, error);
-}
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 

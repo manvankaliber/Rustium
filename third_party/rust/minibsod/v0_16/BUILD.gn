@@ -34,7 +34,7 @@ cargo_crate("lib") {
     "//third_party/rust/exceptional/v0_16:lib",
     "//third_party/rust/libc/v0_2:lib",
   ]
-  if (is_ios || is_mac) {
+  if (is_mac) {
     deps += [ "//third_party/rust/mach2/v0_6:lib" ]
   }
 

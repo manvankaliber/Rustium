@@ -190,9 +190,6 @@ VerticalTabStripRegionView::VerticalTabStripRegionView(
               LayoutConstant::kVerticalTabStripCollapsedVerticalPadding),
           region_horizontal_padding, 0, region_horizontal_padding));
 
-  gemini_button_ =
-      content_area_view_->AddChildView(std::make_unique<views::View>());
-
   // Views that go into the content area above
   // --------------
 

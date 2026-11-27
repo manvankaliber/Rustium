@@ -43,22 +43,6 @@ std::string_view GetPromoActionHistogramSuffix(PromoAction promo_action) {
   }
 }
 
-#if BUILDFLAG(IS_IOS)
-std::string_view ReauthFlowEventToHistogramSuffix(ReauthFlowEvent event) {
-  switch (event) {
-    case ReauthFlowEvent::kStarted:
-      return ".Started";
-    case ReauthFlowEvent::kCompleted:
-      return ".Completed";
-    case ReauthFlowEvent::kError:
-      return ".Error";
-    case ReauthFlowEvent::kCancelled:
-      return ".Cancelled";
-    case ReauthFlowEvent::kInterrupted:
-      return ".Interrupted";
-  }
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 // Returns the histogram suffix of the Signin.SigninFunnel histogram for
 // `access_point`, or an empty string if the funnel is not supported for
@@ -307,12 +291,6 @@ void LogSigninPendingOffered(AccessPoint access_point) {
   base::UmaHistogramEnumeration("Signin.SigninPending.Offered", access_point);
 }
 
-#if BUILDFLAG(IS_IOS)
-void LogSigninWithAccountType(SigninAccountType account_type) {
-  base::UmaHistogramEnumeration("Signin.AccountType.SigninConsent",
-                                account_type);
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 void LogSyncOptInStarted(AccessPoint access_point) {
   base::UmaHistogramEnumeration("Signin.SyncOptIn.Started", access_point);
@@ -451,38 +429,6 @@ void RecordRefreshTokenRevokedFromSource(
   UMA_HISTOGRAM_ENUMERATION("Signin.RefreshTokenRevoked.Source", source);
 }
 
-#if BUILDFLAG(IS_IOS)
-void RecordSignoutConfirmationFromDataLossAlert(
-    SignoutDataLossAlertReason reason,
-    bool signout_confirmed) {
-  const char* histogram;
-  switch (reason) {
-    case SignoutDataLossAlertReason::kSignoutWithUnsyncedData:
-      histogram = "Sync.SignoutWithUnsyncedData";
-      break;
-    case SignoutDataLossAlertReason::kSignoutWithClearDataForManagedUser:
-      histogram = "Signin.SignoutAndClearDataFromManagedAccount";
-      break;
-  }
-  base::UmaHistogramBoolean(histogram, signout_confirmed);
-}
-
-void RecordReauthFlowEventInSigninFlow(signin_metrics::AccessPoint access_point,
-                                       ReauthFlowEvent event) {
-  base::UmaHistogramEnumeration(
-      base::StrCat({"Signin.Reauth.InSigninFlow",
-                    ReauthFlowEventToHistogramSuffix(event)}),
-      access_point);
-}
-
-void RecordReauthFlowEventInExplicitFlow(ReauthAccessPoint access_point,
-                                         ReauthFlowEvent event) {
-  base::UmaHistogramEnumeration(
-      base::StrCat({"Signin.Reauth.InExplicitFlow",
-                    ReauthFlowEventToHistogramSuffix(event)}),
-      access_point);
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 void RecordOpenTabCountOnSignin(signin::ConsentLevel consent_level,
                                 size_t tabs_count) {
@@ -1014,120 +960,6 @@ void RecordSigninImpressionUserActionForAccessPoint(AccessPoint access_point) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-void RecordConsistencyPromoUserAction(AccountConsistencyPromoAction action,
-                                      AccessPoint access_point) {
-  base::UmaHistogramEnumeration("Signin.AccountConsistencyPromoAction", action);
-
-  // Log to the appropriate histogram given the action.
-  std::string histogram;
-  switch (action) {
-    case AccountConsistencyPromoAction::SUPPRESSED_NO_ACCOUNTS:
-      histogram = "Signin.AccountConsistencyPromoAction.SuppressedNoAccounts";
-      break;
-    case AccountConsistencyPromoAction::DISMISSED_BACK:
-      histogram = "Signin.AccountConsistencyPromoAction.DismissedBack";
-      break;
-    case AccountConsistencyPromoAction::DISMISSED_BUTTON:
-      histogram = "Signin.AccountConsistencyPromoAction.DismissedButton";
-      break;
-    case AccountConsistencyPromoAction::DISMISSED_SCRIM:
-      histogram = "Signin.AccountConsistencyPromoAction.DismissedScrim";
-      break;
-    case AccountConsistencyPromoAction::DISMISSED_SWIPE_DOWN:
-      histogram = "Signin.AccountConsistencyPromoAction.DismissedSwipeDown";
-      break;
-    case AccountConsistencyPromoAction::DISMISSED_OTHER:
-      histogram = "Signin.AccountConsistencyPromoAction.DismissedOther";
-      break;
-    case AccountConsistencyPromoAction::ADD_ACCOUNT_STARTED:
-      histogram = "Signin.AccountConsistencyPromoAction.AddAccountStarted";
-      break;
-    case AccountConsistencyPromoAction::SIGNED_IN_WITH_DEFAULT_ACCOUNT:
-      histogram =
-          "Signin.AccountConsistencyPromoAction.SignedInWithDefaultAccount";
-      break;
-    case AccountConsistencyPromoAction::SIGNED_IN_WITH_NON_DEFAULT_ACCOUNT:
-      histogram =
-          "Signin.AccountConsistencyPromoAction.SignedInWithNonDefaultAccount";
-      break;
-    case AccountConsistencyPromoAction::SIGNED_IN_WITH_NO_DEVICE_ACCOUNT:
-      histogram =
-          "Signin.AccountConsistencyPromoAction.SignedInWithNoDeviceAccount";
-      break;
-    case AccountConsistencyPromoAction::SHOWN:
-      histogram = "Signin.AccountConsistencyPromoAction.Shown";
-      break;
-    case AccountConsistencyPromoAction::SHOWN_WITH_NO_DEVICE_ACCOUNT:
-      histogram =
-          "Signin.AccountConsistencyPromoAction.ShownWithNoDeviceAccount";
-      break;
-    case AccountConsistencyPromoAction::SUPPRESSED_SIGNIN_NOT_ALLOWED:
-      histogram =
-          "Signin.AccountConsistencyPromoAction.SuppressedSigninNotAllowed";
-      break;
-    case AccountConsistencyPromoAction::SIGNED_IN_WITH_ADDED_ACCOUNT:
-      histogram =
-          "Signin.AccountConsistencyPromoAction.SignedInWithAddedAccount";
-      break;
-    case AccountConsistencyPromoAction::AUTH_ERROR_SHOWN:
-      histogram = "Signin.AccountConsistencyPromoAction.AuthErrorShown";
-      break;
-    case AccountConsistencyPromoAction::GENERIC_ERROR_SHOWN:
-      histogram = "Signin.AccountConsistencyPromoAction.GenericErrorShown";
-      break;
-    case AccountConsistencyPromoAction::ADD_ACCOUNT_COMPLETED:
-      histogram = "Signin.AccountConsistencyPromoAction.AddAccountCompleted";
-      break;
-    case AccountConsistencyPromoAction::
-        ADD_ACCOUNT_COMPLETED_WITH_NO_DEVICE_ACCOUNT:
-      histogram =
-          "Signin.AccountConsistencyPromoAction."
-          "AddAccountCompletedWithNoDeviceAccount";
-      break;
-    case AccountConsistencyPromoAction::SUPPRESSED_CONSECUTIVE_DISMISSALS:
-      histogram =
-          "Signin.AccountConsistencyPromoAction."
-          "SuppressedConsecutiveDismissals";
-      break;
-    case AccountConsistencyPromoAction::TIMEOUT_ERROR_SHOWN:
-      histogram = "Signin.AccountConsistencyPromoAction.TimeoutErrorShown";
-      break;
-    case AccountConsistencyPromoAction::SUPPRESSED_ALREADY_SIGNED_IN:
-      histogram =
-          "Signin.AccountConsistencyPromoAction.SuppressedAlreadySignedIn";
-      break;
-    case AccountConsistencyPromoAction::IOS_AUTH_FLOW_CANCELLED_OR_FAILED:
-      histogram = "Signin.AccountConsistencyPromoAction.SignInFailed";
-      break;
-    case AccountConsistencyPromoAction::
-        ADD_ACCOUNT_STARTED_WITH_NO_DEVICE_ACCOUNT:
-      histogram =
-          "Signin.AccountConsistencyPromoAction."
-          "AddAccountStartedWithNoDeviceAccount";
-      break;
-    case AccountConsistencyPromoAction::CONFIRM_MANAGEMENT_SHOWN:
-      histogram = "Signin.AccountConsistencyPromoAction.ConfirmManagementShown";
-      break;
-    case AccountConsistencyPromoAction::CONFIRM_MANAGEMENT_ACCEPTED:
-      histogram =
-          "Signin.AccountConsistencyPromoAction.ConfirmManagementAccepted";
-      break;
-    case AccountConsistencyPromoAction::SIGNIN_STARTED_WITH_MANAGED_ACCOUNT:
-      histogram =
-          "Signin.AccountConsistencyPromoAction."
-          "SigninStartedWithManagedAccount";
-      break;
-    case AccountConsistencyPromoAction::SIGNIN_STARTED_WITH_NON_MANAGED_ACCOUNT:
-      histogram =
-          "Signin.AccountConsistencyPromoAction."
-          "SigninStartedWithNonManagedAccount";
-      break;
-  }
-
-  base::UmaHistogramEnumeration(histogram, access_point);
-}
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 void LogSigninFunnelEvent(AccessPoint access_point, SigninFunnelEvent event) {
   std::string_view access_point_name =

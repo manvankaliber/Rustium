@@ -85,10 +85,7 @@ pub struct BsodInfo {
 }
 
 /// Write the content of all important registers
-#[cfg(all(
-    any(target_os = "linux", target_os = "android"),
-    target_arch = "x86_64"
-))]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 pub fn dump_registers<W: Write>(
     writer: &mut BufWriter<W>,
     ucontext: &ucontext_t,
@@ -123,7 +120,7 @@ pub fn dump_registers<W: Write>(
 }
 
 /// Write the content of all important registers
-#[cfg(all(any(target_os = "linux", target_os = "android"), target_arch = "x86"))]
+#[cfg(all(target_os = "linux", target_arch = "x86"))]
 pub fn dump_registers<W: Write>(
     writer: &mut BufWriter<W>,
     ucontext: &ucontext_t,
@@ -149,10 +146,7 @@ pub fn dump_registers<W: Write>(
 }
 
 /// Write the content of all important registers
-#[cfg(all(
-    any(target_os = "linux", target_os = "android"),
-    target_arch = "aarch64"
-))]
+#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
 pub fn dump_registers<W: Write>(
     writer: &mut BufWriter<W>,
     ucontext: &ucontext_t,
@@ -606,18 +600,7 @@ pub fn dump_registers<W: Write>(
 }
 
 #[expect(clippy::unnecessary_wraps)]
-#[cfg(not(any(
-    target_vendor = "apple",
-    target_os = "linux",
-    target_os = "android",
-    target_os = "freebsd",
-    target_os = "dragonfly",
-    target_os = "netbsd",
-    target_os = "openbsd",
-    windows,
-    target_os = "haiku",
-    any(target_os = "solaris", target_os = "illumos"),
-)))]
+#[cfg(not(any(target_vendor = "apple", target_os = "linux", target_os = "freebsd", target_os = "dragonfly", target_os = "netbsd", target_os = "openbsd", windows, target_os = "haiku", any(target_os = "solaris", target_os = "illumos"))))]
 fn dump_registers<W: Write>(
     writer: &mut BufWriter<W>,
     _ucontext: &ucontext_t,
@@ -631,10 +614,7 @@ fn dump_registers<W: Write>(
     Ok(())
 }
 
-#[cfg(all(
-    any(target_os = "linux", target_os = "android"),
-    target_arch = "x86_64"
-))]
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
 fn write_crash<W: Write>(
     writer: &mut BufWriter<W>,
     signal: Signal,
@@ -651,7 +631,7 @@ fn write_crash<W: Write>(
     Ok(())
 }
 
-#[cfg(all(any(target_os = "linux", target_os = "android"), target_arch = "x86"))]
+#[cfg(all(target_os = "linux", target_arch = "x86"))]
 fn write_crash<W: Write>(
     writer: &mut BufWriter<W>,
     signal: Signal,
@@ -668,10 +648,7 @@ fn write_crash<W: Write>(
     Ok(())
 }
 
-#[cfg(all(
-    any(target_os = "linux", target_os = "android"),
-    target_arch = "aarch64"
-))]
+#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
 fn write_crash<W: Write>(
     writer: &mut BufWriter<W>,
     signal: Signal,
@@ -878,18 +855,7 @@ fn write_crash<W: Write>(
     Ok(())
 }
 
-#[cfg(not(any(
-    target_vendor = "apple",
-    target_os = "linux",
-    target_os = "android",
-    target_os = "freebsd",
-    target_os = "dragonfly",
-    target_os = "openbsd",
-    target_os = "netbsd",
-    windows,
-    target_os = "haiku",
-    any(target_os = "solaris", target_os = "illumos"),
-)))]
+#[cfg(not(any(target_vendor = "apple", target_os = "linux", target_os = "freebsd", target_os = "dragonfly", target_os = "openbsd", target_os = "netbsd", windows, target_os = "haiku", any(target_os = "solaris", target_os = "illumos"))))]
 fn write_crash<W: Write>(
     writer: &mut BufWriter<W>,
     signal: Signal,
@@ -928,7 +894,7 @@ fn write_crash<W: Write>(
     Ok(())
 }
 
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg(target_os = "linux")]
 fn write_minibsod<W: Write>(writer: &mut BufWriter<W>) -> Result<(), std::io::Error> {
     match std::fs::read_to_string("/proc/self/maps") {
         Ok(maps) => writer.write_all(maps.as_bytes())?,
@@ -1143,15 +1109,7 @@ fn write_minibsod<W: Write>(writer: &mut BufWriter<W>) -> Result<(), std::io::Er
     Ok(())
 }
 
-#[cfg(not(any(
-    target_os = "freebsd",
-    target_os = "openbsd",
-    target_os = "netbsd",
-    target_os = "haiku",
-    target_vendor = "apple",
-    any(target_os = "linux", target_os = "android"),
-    any(target_os = "solaris", target_os = "illumos"),
-)))]
+#[cfg(not(any(target_os = "freebsd", target_os = "openbsd", target_os = "netbsd", target_os = "haiku", target_vendor = "apple", target_os = "linux", any(target_os = "solaris", target_os = "illumos"))))]
 fn write_minibsod<W: Write>(writer: &mut BufWriter<W>) -> Result<(), std::io::Error> {
     // TODO for other platforms
     writeln!(writer, "{:━^100}", " / ")?;

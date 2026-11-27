@@ -22,13 +22,6 @@
 #include "ui/base/interaction/element_tracker.h"
 #include "ui/base/interaction/expect_call_in_scope.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "base/command_line.h"
-#include "chrome/common/chrome_switches.h"
-#include "chrome/test/base/testing_profile.h"
-#include "components/user_manager/user_names.h"
-#endif
 
 DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kInstrumentedId);
 
@@ -98,7 +91,6 @@ IN_PROC_BROWSER_TEST_F(UserEducationHandlerBrowsertest, NoCrashInIncognito) {
       RunCrashChecks()));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(UserEducationHandlerBrowsertest, NoCrashInGuest) {
   auto* const guest = CreateGuestBrowser();
@@ -108,33 +100,3 @@ IN_PROC_BROWSER_TEST_F(UserEducationHandlerBrowsertest, NoCrashInGuest) {
                           GURL(chrome::kChromeUIUserEducationInternalsURL)),
       RunCrashChecks()));
 }
-
-#else
-
-class UserEducationHandlerBrowsertestChromeOS
-    : public UserEducationHandlerBrowsertest {
- public:
-  UserEducationHandlerBrowsertestChromeOS() = default;
-  ~UserEducationHandlerBrowsertestChromeOS() override = default;
-
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    UserEducationHandlerBrowsertest::SetUpCommandLine(command_line);
-    command_line->AppendSwitch(ash::switches::kGuestSession);
-    command_line->AppendSwitchASCII(ash::switches::kLoginUser,
-                                    user_manager::kGuestUserName);
-    command_line->AppendSwitchASCII(ash::switches::kLoginProfile,
-                                    TestingProfile::kTestUserProfileDir);
-    command_line->AppendSwitch(switches::kIncognito);
-  }
-};
-
-IN_PROC_BROWSER_TEST_F(UserEducationHandlerBrowsertestChromeOS,
-                       NoCrashInGuest) {
-  RunTestSequence(InAnyContext(
-      InstrumentTab(kInstrumentedId),
-      NavigateWebContents(kInstrumentedId,
-                          GURL(chrome::kChromeUIUserEducationInternalsURL)),
-      RunCrashChecks()));
-}
-
-#endif

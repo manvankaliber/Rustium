@@ -73,11 +73,9 @@ source_set("browser_tests") {
     "//ui/events:test_support",
   ]
 
-  if (!is_android) {
-    deps += [
-      "//net:test_support",
-      "//ui/views",
-      "//ui/views/controls/webview",
-    ]
-  }
+  deps += [
+    "//net:test_support",
+    "//ui/views",
+    "//ui/views/controls/webview",
+  ]
 }

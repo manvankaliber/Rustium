@@ -90,7 +90,6 @@ constexpr int kCloseIconSize = 16;
 
 // The custom horizontal spacing between labels in the same row for AtMemory
 // results suggestions.
-constexpr int kAtMemoryLabelHorizontalSpacing = 4;
 
 // Popup items that use a leading icon instead of a trailing one.
 // TODO(crbug.com/40100455): Rename to `kSuggestionTypesUsingLeadingIcons`.
@@ -116,10 +115,6 @@ constexpr int kAutofillPopupPasswordMaxWidth = 108;
 // Max width for the Autofill suggestion text.
 constexpr int kAutofillSuggestionMaxWidth = 192;
 
-// Max lines for the AtMemory suggestion text.
-constexpr int kAtMemorySuggestionMaxLines = 2;
-// Max width for the AtMemory suggestion text.
-constexpr int kAtMemorySuggestionWidth = 236;
 
 // Max lines for the Wallet Direct Offer suggestion text.
 constexpr int kWalletDirectOfferSuggestionMaxLines = 2;
@@ -202,10 +197,8 @@ void FormatLabel(views::Label& label,
                  const Suggestion::Text& text,
                  FillingProduct main_filling_product,
                  std::optional<int> maximum_width_single_line = std::nullopt) {
-  const int max_width = maximum_width_single_line.value_or(
-      main_filling_product == FillingProduct::kAtMemory
-          ? kAtMemorySuggestionWidth
-          : kAutofillSuggestionMaxWidth);
+  const int max_width =
+      maximum_width_single_line.value_or(kAutofillSuggestionMaxWidth);
   switch (main_filling_product) {
     case FillingProduct::kAddress:
     case FillingProduct::kAutocomplete:
@@ -290,13 +283,9 @@ std::vector<std::unique_ptr<views::View>> CreateSubtextViews(
     const Suggestion& suggestion,
     FillingProduct main_filling_product) {
   std::vector<std::unique_ptr<views::View>> result;
-  // TODO(crbug.com/550237412): Maybe this can be applied to all the
-  // suggestion types.
   const int between_child_spacing =
-      suggestion.type == SuggestionType::kAtMemorySearchResult
-          ? kAtMemoryLabelHorizontalSpacing
-          : ChromeLayoutProvider::Get()->GetDistanceMetric(
-                DISTANCE_RELATED_LABEL_HORIZONTAL_LIST);
+      ChromeLayoutProvider::Get()->GetDistanceMetric(
+          DISTANCE_RELATED_LABEL_HORIZONTAL_LIST);
 
   for (const std::vector<Suggestion::Text>& label_row : suggestion.labels) {
     if (std::ranges::all_of(label_row, &std::u16string::empty,
@@ -310,14 +299,9 @@ std::vector<std::unique_ptr<views::View>> CreateSubtextViews(
             .SetOrientation(views::BoxLayout::Orientation::kHorizontal)
             .SetBetweenChildSpacing(between_child_spacing)
             .Build();
-    int used_width = 0;
     for (const Suggestion::Text& label_text : label_row) {
       // If a column is empty, do not include any further columns.
       if (label_text.value.empty()) {
-        break;
-      }
-      if (suggestion.type == SuggestionType::kAtMemorySearchResult &&
-          used_width >= kAtMemorySuggestionWidth) {
         break;
       }
       auto* label =
@@ -335,16 +319,9 @@ std::vector<std::unique_ptr<views::View>> CreateSubtextViews(
       if (suggestion.type == SuggestionType::kGmailOneTimePasswordEntry) {
         label->SetElideBehavior(gfx::ELIDE_EMAIL);
       }
-      if (suggestion.type == SuggestionType::kAtMemorySearchResult) {
-        const int remaining_width = kAtMemorySuggestionWidth - used_width;
-        FormatLabel(*label, label_text, main_filling_product, remaining_width);
-        used_width += label->GetPreferredSize().width() + between_child_spacing;
-      } else {
-        // To make sure the popup width will not exceed its maximum value,
-        // divide the maximum label width by the number of labels.
-        FormatLabel(*label, label_text, main_filling_product,
-                    kAutofillSuggestionMaxWidth / label_row.size());
-      }
+      // Keep the total label width within the popup maximum.
+      FormatLabel(*label, label_text, main_filling_product,
+                  kAutofillSuggestionMaxWidth / label_row.size());
     }
     result.push_back(std::move(label_row_container_view));
   }
@@ -430,186 +407,6 @@ std::unique_ptr<PopupRowContentView> CreateFooterPopupRowContentView(
   // Force a refresh to ensure all the labels' styles are correct.
   view->UpdateStyle(/*selected=*/false);
 
-  return view;
-}
-
-void OnCitationClicked(base::WeakPtr<AutofillPopupController> controller,
-                       const GURL& url) {
-  if (!controller || !url.is_valid()) {
-    return;
-  }
-  if (content::WebContents* web_contents = controller->GetWebContents()) {
-    content::OpenURLParams params(
-        url, content::Referrer(),
-        ui::mojom::WindowOpenDisposition::kNewForegroundTab,
-        ui::PAGE_TRANSITION_LINK,
-        /*is_renderer_initiated=*/false);
-    params.user_gesture = true;
-    web_contents->OpenURL(params, /*navigation_handle_callback=*/{});
-  }
-}
-
-using StyledRange = std::pair<gfx::Range, views::StyledLabel::RangeStyleInfo>;
-
-StyledRange CreateStyledRange(gfx::Range range) {
-  return {range, views::StyledLabel::RangeStyleInfo()};
-}
-
-// Returns sub-ranges for `text` in `range`, isolating leading and trailing
-// whitespace (e.g. "Photos\u00A0" or " + 2 other sources") into separate
-// ranges.
-//
-// In RTL layout, `views::StyledLabel` orders child views right-to-left, while
-// each individual `views::Label` renders LTR text internally. Without isolating
-// adjacent whitespace into its own child view, a trailing space in
-// "Photos\u00A0" or a leading space in " + 2 other sources" sticks to the wrong
-// edge of the text run instead of sitting between the badge and adjacent text:
-//
-//   Without whitespace isolation (RTL):
-//     | + 2 other sources|[1]|Photos\u00A0|
-//
-//   With whitespace isolation (RTL):
-//     |+ 2 other sources| |[1]|\u00A0|Photos|
-std::vector<gfx::Range> SplitLeadingAndTrailingWhitespace(
-    std::u16string_view text,
-    gfx::Range range) {
-  size_t content_start = range.start();
-  while (content_start < range.end() &&
-         base::IsUnicodeWhitespace(text[content_start])) {
-    ++content_start;
-  }
-  size_t content_end = range.end();
-  while (content_end > content_start &&
-         base::IsUnicodeWhitespace(text[content_end - 1])) {
-    --content_end;
-  }
-  std::vector<gfx::Range> ranges;
-  for (const gfx::Range sub_range : {gfx::Range(range.start(), content_start),
-                                     gfx::Range(content_start, content_end),
-                                     gfx::Range(content_end, range.end())}) {
-    if (!sub_range.is_empty()) {
-      ranges.push_back(sub_range);
-    }
-  }
-  return ranges;
-}
-
-// Splits a plain-text `range` in `text` around `kLabelSeparator` (" · ") and
-// isolates adjacent whitespace so that `views::StyledLabel` creates a separate
-// child `View` for each logical token:
-//
-//   "From Gemini · Gmail\u00A0[1] · Photos\u00A0[1] + 2 other sources"
-//    |<----- plain text ---->|link|<-plain text->|link|<--- plain text --->|
-//
-//   LTR child view order (left -> right):
-//     |From Gemini| · |Gmail|\u00A0|[1]| · |Photos|\u00A0|[1]| |+ 2 other...|
-//
-//   RTL child view order (right -> left):
-//     |+ 2 other...| |[1]|\u00A0|Photos| · |[1]|\u00A0|Gmail| · |From Gemini|
-//
-// Without splitting around separators, "From Gemini · Gmail\u00A0" would form a
-// single child view, placing `[1]` to the left of the entire plain-text block
-// in RTL rather than next to "Gmail".
-std::vector<gfx::Range> SplitTextAroundSeparators(std::u16string_view text,
-                                                  gfx::Range range) {
-  std::vector<gfx::Range> ranges;
-  size_t current = range.start();
-  while (current < range.end()) {
-    const size_t sep_pos =
-        text.substr(0, range.end()).find(kLabelSeparator, current);
-    if (sep_pos == std::u16string_view::npos) {
-      base::Extend(ranges, SplitLeadingAndTrailingWhitespace(
-                               text, gfx::Range(current, range.end())));
-      break;
-    }
-    base::Extend(ranges, SplitLeadingAndTrailingWhitespace(
-                             text, gfx::Range(current, sep_pos)));
-    const size_t sep_end = sep_pos + kLabelSeparator.length();
-    ranges.emplace_back(sep_pos, sep_end);
-    current = sep_end;
-  }
-  return ranges;
-}
-
-// Builds style ranges for citation badges and interleaves plain-text ranges.
-// Note: Assumes payload citations ranges are sorted in non-decreasing order.
-std::vector<StyledRange> CreateStyleCitationBadges(
-    const Suggestion& suggestion,
-    base::WeakPtr<AutofillPopupController> controller) {
-  std::vector<StyledRange> citation_ranges;
-  size_t last_end = 0;
-  for (const Suggestion::PersonalContextSourceCitation& citation :
-       suggestion.GetPayload<Suggestion::AutofillAiPayload>().citations) {
-    if (citation.range.start() < citation.range.end() &&
-        citation.range.start() >= last_end &&
-        citation.range.end() <= suggestion.main_text.value.length()) {
-      base::Extend(citation_ranges,
-                   SplitTextAroundSeparators(
-                       suggestion.main_text.value,
-                       gfx::Range(last_end, citation.range.start())),
-                   &CreateStyledRange);
-      views::StyledLabel::RangeStyleInfo style_info =
-          views::StyledLabel::RangeStyleInfo::CreateForLink(base::BindRepeating(
-              &OnCitationClicked, controller, citation.url));
-      style_info.accessible_name = citation.accessible_name;
-      citation_ranges.emplace_back(citation.range, std::move(style_info));
-      last_end = citation.range.end();
-    }
-  }
-  base::Extend(citation_ranges,
-               SplitTextAroundSeparators(
-                   suggestion.main_text.value,
-                   gfx::Range(last_end, suggestion.main_text.value.length())),
-               &CreateStyledRange);
-
-  return citation_ranges;
-}
-
-std::unique_ptr<views::StyledLabel>
-CreateAutofillAiSourceAttributionStyledLabel(
-    const Suggestion& suggestion,
-    base::WeakPtr<AutofillPopupController> controller) {
-  std::unique_ptr<views::StyledLabel> styled_label =
-      std::make_unique<views::StyledLabel>();
-  styled_label->SetTextContext(views::style::CONTEXT_DIALOG_BODY_TEXT);
-  styled_label->SetText(suggestion.main_text.value);
-  styled_label->SetDefaultTextStyle(kMainTextStyleLight);
-  styled_label->SetDefaultEnabledColorId(ui::kColorLabelForegroundSecondary);
-  styled_label->SetAutoColorReadabilityEnabled(false);
-  for (auto& [range, style] :
-       CreateStyleCitationBadges(suggestion, controller)) {
-    styled_label->AddStyleRange(range, std::move(style));
-  }
-  return styled_label;
-}
-
-std::unique_ptr<PopupRowContentView>
-CreateAutofillAiSourceAttributionPopupRowContentView(
-    const Suggestion& suggestion,
-    base::WeakPtr<AutofillPopupController> controller) {
-  CHECK(std::holds_alternative<Suggestion::AutofillAiPayload>(
-      suggestion.payload));
-
-  std::unique_ptr<PopupRowContentView> view =
-      std::make_unique<PopupRowContentView>();
-  if (std::unique_ptr<views::ImageView> icon =
-          popup_cell_utils::GetIconImageView(suggestion)) {
-    view->AddChildView(std::move(icon));
-    popup_cell_utils::AddSpacerWithSize(*view,
-                                        PopupBaseView::ArrowHorizontalMargin(),
-                                        /*resize=*/false);
-  }
-  view->SetMinimumCrossAxisSize(
-      views::MenuConfig::instance().touchable_menu_height);
-  view->SetInsideBorderInsets(
-      gfx::Insets(view->GetInsideBorderInsets())
-          .set_top_bottom(
-              kAutofillMultilineSuggestionAdditionalVerticalMargin,
-              kAutofillMultilineSuggestionAdditionalVerticalMargin));
-
-  views::StyledLabel* attribution_label = view->AddChildView(
-      CreateAutofillAiSourceAttributionStyledLabel(suggestion, controller));
-  view->SetFlexForView(attribution_label, 1);
   return view;
 }
 
@@ -874,47 +671,6 @@ std::unique_ptr<PopupRowWithButtonView> CreateAutocompleteRowWithDeleteButton(
       PopupRowWithButtonView::ButtonSelectBehavior::kUnselectSuggestion);
 }
 
-std::unique_ptr<PopupRowContentView>
-CreateAtMemorySearchResultPopupRowContentView(
-    const Suggestion& suggestion,
-    std::optional<user_education::DisplayNewBadge> show_new_badge) {
-  std::unique_ptr<PopupRowContentView> view =
-      std::make_unique<PopupRowContentView>();
-  std::unique_ptr<views::Label> main_text_label =
-      CreateMainTextLabel(suggestion, show_new_badge);
-
-  main_text_label->SetMultiLine(true);
-  main_text_label->SetMaxLines(kAtMemorySuggestionMaxLines);
-  main_text_label->SetHorizontalAlignment(gfx::ALIGN_TO_HEAD);
-  main_text_label->SetMaximumWidth(kAtMemorySuggestionWidth);
-
-  // Checks if the text of a label fits in one line. Assumes that non-empty
-  // text has been set on `label` before calling this lambda.
-  const auto fits_in_one_line = [](const views::Label& label) -> bool {
-    CHECK(!label.GetText().empty());
-    const int line_height = label.GetLineHeight();
-    CHECK(line_height > 0);
-    return label.GetHeightForWidth(kAtMemorySuggestionWidth) == line_height;
-  };
-  const bool main_label_fits_in_one_line = fits_in_one_line(*main_text_label);
-
-  popup_cell_utils::AddSuggestionContentToView(
-      suggestion, std::move(main_text_label), CreateMinorTextLabels(suggestion),
-      /*description_label=*/nullptr,
-      CreateSubtextViews(*view, suggestion, FillingProduct::kAtMemory),
-      popup_cell_utils::GetIconImageView(suggestion), *view);
-
-  if (!main_label_fits_in_one_line) {
-    view->SetInsideBorderInsets(
-        gfx::Insets(view->GetInsideBorderInsets())
-            .set_top_bottom(
-                kAutofillMultilineSuggestionAdditionalVerticalMargin,
-                kAutofillMultilineSuggestionAdditionalVerticalMargin));
-  }
-
-  return view;
-}
-
 std::unique_ptr<PopupRowContentView> CreateWalletDirectOfferRowContentView(
     const Suggestion& suggestion,
     std::optional<user_education::DisplayNewBadge> show_new_badge,
@@ -1058,16 +814,21 @@ std::unique_ptr<PopupRowView> CreatePopupRowView(
 
   switch (type) {
     // These `type` should never be displayed in a `PopupRowView`.
+    case SuggestionType::kAutofillAiSourceAttribution:
+    case SuggestionType::kAutocompleteAtMemoryButton:
+    case SuggestionType::kAtMemoryFetching:
+    case SuggestionType::kAtMemoryGenericError:
+    case SuggestionType::kAtMemoryInactivityNudge:
+    case SuggestionType::kAtMemoryNoConnection:
+    case SuggestionType::kAtMemoryOpenGemini:
+    case SuggestionType::kAtMemorySearchAffordance:
+    case SuggestionType::kAtMemorySearchResult:
+    case SuggestionType::kAtMemorySourceAttribution:
     case SuggestionType::kAtMemoryAiDisclosure:
     case SuggestionType::kAtMemoryShortcutSettingsPromo:
     case SuggestionType::kInsecureContextPaymentDisabledMessage:
     case SuggestionType::kSeparator:
       NOTREACHED();
-    case SuggestionType::kAutofillAiSourceAttribution:
-      return std::make_unique<PopupRowView>(
-          a11y_selection_delegate, selection_delegate, controller, line_number,
-          CreateAutofillAiSourceAttributionPopupRowContentView(suggestion,
-                                                               controller));
     case SuggestionType::kWebauthnPasskeyQrCode:
       return std::make_unique<PopupRowView>(
           a11y_selection_delegate, selection_delegate, controller, line_number,
@@ -1117,26 +878,6 @@ std::unique_ptr<PopupRowView> CreatePopupRowView(
       // BNPL suggestion.
       [[fallthrough]];
     }
-    case SuggestionType::kAtMemorySearchResult: {
-      return std::make_unique<PopupRowView>(
-          a11y_selection_delegate, selection_delegate, controller, line_number,
-          CreateAtMemorySearchResultPopupRowContentView(suggestion,
-                                                        show_new_badge));
-    }
-    // AtMemory suggestions do not apply filter match bolding to the main text.
-    case SuggestionType::kAtMemoryGenericError:
-    case SuggestionType::kAtMemoryFetching:
-    case SuggestionType::kAtMemoryInactivityNudge:
-    case SuggestionType::kAtMemoryNoConnection:
-    case SuggestionType::kAtMemoryOpenGemini:
-    case SuggestionType::kAtMemorySearchAffordance:
-    case SuggestionType::kAtMemorySourceAttribution: {
-      return std::make_unique<PopupRowView>(
-          a11y_selection_delegate, selection_delegate, controller, line_number,
-          CreatePopupRowContentView(suggestion, show_new_badge,
-                                    FillingProduct::kAtMemory,
-                                    /*filter_match=*/std::nullopt));
-    }
     case SuggestionType::kMerchantPromoCodeEntry: {
       return std::make_unique<PopupRowView>(
           a11y_selection_delegate, selection_delegate, controller, line_number,
@@ -1148,7 +889,6 @@ std::unique_ptr<PopupRowView> CreatePopupRowView(
     case SuggestionType::kAddressFieldByFieldFilling:
     case SuggestionType::kAllLoyaltyCardsEntry:
     case SuggestionType::kAllSavedPasswordsEntry:
-    case SuggestionType::kAutocompleteAtMemoryButton:
     case SuggestionType::kAutocompleteEntry:
     case SuggestionType::kAutofillAiOtherOrders:
     case SuggestionType::kAutofillAiOtherShipments:

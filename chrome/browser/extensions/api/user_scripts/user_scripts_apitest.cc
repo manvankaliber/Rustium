@@ -149,8 +149,7 @@ IN_PROC_BROWSER_TEST_F(UserScriptsAPITest, GetUserScripts) {
 
 // TODO(crbug.com/40935741, crbug.com/335421977): Flaky on Linux debug and on
 // "Linux ChromiumOS MSan Tests".
-#if (BUILDFLAG(IS_LINUX) && !defined(NDEBUG)) || \
-    (BUILDFLAG(IS_CHROMEOS) && defined(MEMORY_SANITIZER))
+#if BUILDFLAG(IS_LINUX) && !defined(NDEBUG)
 #define MAYBE_RegisterUserScripts DISABLED_RegisterUserScripts
 #else
 #define MAYBE_RegisterUserScripts RegisterUserScripts
@@ -255,11 +254,7 @@ IN_PROC_BROWSER_TEST_F(UserScriptsAPITest,
 }
 
 // TODO(crbug.com/335421977): Flaky on "Linux ChromiumOS MSan Tests".
-#if BUILDFLAG(IS_CHROMEOS) && defined(MEMORY_SANITIZER)
-#define MAYBE_ConfigureWorld DISABLED_ConfigureWorld
-#else
 #define MAYBE_ConfigureWorld ConfigureWorld
-#endif
 IN_PROC_BROWSER_TEST_F(UserScriptsAPITest, MAYBE_ConfigureWorld) {
   ASSERT_TRUE(RunUserScriptsExtensionTest("user_scripts/configure_world"))
       << message_;
@@ -484,13 +479,8 @@ IN_PROC_BROWSER_TEST_F(UserScriptsAPITestWithoutAPIAllowed,
 // Tests that registered user scripts are properly ignored when loading
 // stored dynamic scripts if the API is not allowed.
 // TODO(crbug.com/441364550): Flaky on desktop Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PRE_UserScriptsDisabledOnStartupIfAPINotAllowed \
-  DISABLED_PRE_UserScriptsDisabledOnStartupIfAPINotAllowed
-#else
 #define MAYBE_PRE_UserScriptsDisabledOnStartupIfAPINotAllowed \
   PRE_UserScriptsDisabledOnStartupIfAPINotAllowed
-#endif
 IN_PROC_BROWSER_TEST_F(UserScriptsAPITestWithoutAPIAllowed,
                        MAYBE_PRE_UserScriptsDisabledOnStartupIfAPINotAllowed) {
   // Load an extension and register user scripts and a dynamic content script.
@@ -524,13 +514,8 @@ IN_PROC_BROWSER_TEST_F(UserScriptsAPITestWithoutAPIAllowed,
 }
 
 // TODO(crbug.com/441364550): Flaky on desktop Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_UserScriptsDisabledOnStartupIfAPINotAllowed \
-  DISABLED_UserScriptsDisabledOnStartupIfAPINotAllowed
-#else
 #define MAYBE_UserScriptsDisabledOnStartupIfAPINotAllowed \
   UserScriptsDisabledOnStartupIfAPINotAllowed
-#endif
 IN_PROC_BROWSER_TEST_F(UserScriptsAPITestWithoutAPIAllowed,
                        MAYBE_UserScriptsDisabledOnStartupIfAPINotAllowed) {
   // Wait until the extension loads so we can get it's ID.

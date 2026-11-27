@@ -121,6 +121,7 @@ class NET_EXPORT_PRIVATE ConnectJobFactory {
       ConnectJob::Delegate* delegate) const;
 
  private:
+  friend struct connect_job_factoryRustBridge;
   virtual std::unique_ptr<ConnectJob> CreateConnectJob(
       Endpoint endpoint,
       const ProxyChain& proxy_chain,

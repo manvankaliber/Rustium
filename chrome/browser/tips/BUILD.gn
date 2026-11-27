@@ -15,8 +15,4 @@ static_library("tips") {
     "//chrome/browser/tips/core",
     "//components/keyed_service/core",
   ]
-
-  if (is_android) {
-    deps += [ "//chrome/browser/tips/features" ]
-  }
 }

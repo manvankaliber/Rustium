@@ -53,9 +53,6 @@
 #include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
 #if BUILDFLAG(IS_WIN) && BUILDFLAG(USE_BROWSER_SPELLCHECKER)
 #include "base/task/task_traits.h"
@@ -126,13 +123,6 @@ SpellcheckService::SpellcheckService(content::BrowserContext* context)
     InitializePlatformLanguageMacWithLanguage(
         spellcheck_platform::GetSpellCheckerLanguage());
   }
-#elif BUILDFLAG(IS_ANDROID)
-  // Ensure that the renderer always knows the platform spellchecking
-  // language. This language is used for initialization of the text iterator.
-  // If the iterator is not initialized, then the context menu does not show
-  // spellcheck suggestions.
-  dictionaries_pref.SetValue(std::vector<std::string>(
-      1, spellcheck_platform::GetSpellCheckerLanguage()));
 #else
   // Migrate preferences from single-language to multi-language schema.
   StringPrefMember single_dictionary_pref;
@@ -149,7 +139,7 @@ SpellcheckService::SpellcheckService(content::BrowserContext* context)
   }
 
   single_dictionary_pref.SetValue("");
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#endif
 
 #if BUILDFLAG(IS_WIN) && BUILDFLAG(USE_BROWSER_SPELLCHECKER)
   if (!spellcheck::UseBrowserSpellChecker()) {
@@ -996,7 +986,6 @@ void SpellcheckService::OnUseSpellingServiceChanged() {
 
 void SpellcheckService::OnAcceptLanguagesChanged() {
   // Accept-Languages and spell check are decoupled on CrOS.
-#if !BUILDFLAG(IS_CHROMEOS)
   std::vector<std::string> accept_languages = GetNormalizedAcceptLanguages();
 
   StringListPrefMember dictionaries_pref;
@@ -1018,7 +1007,6 @@ void SpellcheckService::OnAcceptLanguagesChanged() {
     RecordChromeLocalesStats();
   }
 #endif  // BUILDFLAG(IS_WIN)
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 std::vector<std::string> SpellcheckService::GetNormalizedAcceptLanguages(

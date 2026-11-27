@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "patches": [
+    {
+      "name": "V8 desktop configuration",
+      "repository": "v8",
+      "patch": "v8-desktop-configuration.patch"
+    },
+    {
+      "name": "Perfetto desktop configuration",
+      "repository": "third_party/perfetto",
+      "patch": "perfetto-desktop-configuration.patch"
+    },
+    {
+      "name": "NASM desktop configuration",
+      "repository": "third_party/nasm",
+      "patch": "nasm-desktop-configuration.patch"
+    },
+    {
+      "name": "Open Screen desktop configuration",
+      "repository": "third_party/openscreen/src",
+      "patch": "openscreen-desktop-configuration.patch"
+    },
+    {
+      "name": "DevTools desktop configuration",
+      "repository": "third_party/devtools-frontend/src",
+      "patch": "devtools-desktop-configuration.patch"
+    }
+  ]
+}

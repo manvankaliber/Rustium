@@ -24,7 +24,7 @@ def parse(filename):
     {
         'component': 'component>name',
         'team': 'team@email.here',
-        'os': 'Linux|Windows|Mac|Android|Chrome|Fuchsia'
+        'os': 'Linux|Windows|Mac|Android|Chrome'
     }
   """
   team_regex = re.compile('\s*#\s*TEAM\s*:\s*(\S+)')
@@ -167,7 +167,7 @@ def scrape_owners(root, include_subdirs):
       '/path/to/dir': {
           'component': 'component>name',
           'team': 'team@email.here',
-          'os': 'Linux|Windows|Mac|Android|Chrome|Fuchsia'
+          'os': 'Linux|Windows|Mac|Android|Chrome'
       },
       '/path/to/dir/inside/dir': {
           'component': ...

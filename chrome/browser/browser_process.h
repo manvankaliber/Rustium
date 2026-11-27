@@ -52,10 +52,8 @@ class StatusTray;
 class SystemNetworkContextManager;
 class WebRtcLogUploader;
 
-#if !BUILDFLAG(IS_ANDROID)
 class HidSystemTrayIcon;
 class UsbSystemTrayIcon;
-#endif
 
 namespace embedder_support {
 class OriginTrialsSettingsStorage;
@@ -88,11 +86,9 @@ namespace variations {
 class VariationsService;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 namespace activity_reporter {
 class ActivityReporter;
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace component_updater {
 class ComponentUpdateService;
@@ -291,25 +287,18 @@ class BrowserProcess {
   virtual void StartAutoupdateTimer() = 0;
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Activity reporting is never built into ChromeOS.
   virtual activity_reporter::ActivityReporter* activity_reporter() = 0;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   virtual component_updater::ComponentUpdateService* component_updater() = 0;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  virtual MediaFileSystemRegistry* media_file_system_registry() = 0;
-#endif
 
   virtual WebRtcLogUploader* webrtc_log_uploader() = 0;
 
   virtual network_time::NetworkTimeTracker* network_time_tracker() = 0;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Avoid using this. Prefer using GCMProfileServiceFactory.
   virtual gcm::GCMDriver* gcm_driver() = 0;
-#endif
 
   // Returns the tab manager. On non-supported platforms, this returns null.
   // TODO(sebmarchand): Update callers to
@@ -323,7 +312,6 @@ class BrowserProcess {
   // through the policy engine.
   virtual SerialPolicyAllowedPorts* serial_policy_allowed_ports() = 0;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Returns the object which maintains Human Interface Device (HID) system tray
   // icon.
   virtual HidSystemTrayIcon* hid_system_tray_icon() = 0;
@@ -338,7 +326,6 @@ class BrowserProcess {
 
   virtual speech::SpeechRecognitionSmallExpertModelInstaller*
   speech_recognition_small_expert_model_installer() = 0;
-#endif
 
   // Obtain the browser instance of OSCryptAsync, which should be used for data
   // encryption.

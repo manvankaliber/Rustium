@@ -135,7 +135,7 @@ class PopupBaseView::Widget : public views::Widget {
     // and setups is not consistent). This is not required for regular
     // Autofill popup use, but it makes certain attacks (those based on the
     // popup being obscured) less practical.
-    if constexpr (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)) {
+    if constexpr (false || BUILDFLAG(IS_LINUX)) {
       // On ChromeOS and Linux, `Activatable::kYes` and `kSecuritySurface` are
       // incompatible because `kSecuritySurface` windows force accelerated
       // desktop-level widgets (subsurfaces) which do not support reliable
@@ -440,7 +440,7 @@ void PopupBaseView::NotifyAXSelection(views::View& selected_view) {
        "PopupSeparatorView", "PopupWarningView", "PopupBaseView",
        "PasswordGenerationPopupViewViews::GeneratedPasswordBox", "PopupRowView",
        "PopupRowWithButtonView", "PopupRowContentView", "MdTextButton",
-       "PopupBnplFootnoteView", "PopupFooterWithLinkView", "PopupNoticeView",
+       "PopupBnplFootnoteView", "PopupNoticeView",
        "LinkFragment"});
   DCHECK(kDerivedClasses.contains(selected_view.GetClassName()))
       << "If you add a new derived class from AutofillPopupRowView, add it "

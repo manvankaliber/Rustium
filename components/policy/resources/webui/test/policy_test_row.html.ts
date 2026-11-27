@@ -95,13 +95,6 @@ export function getHtml(this: PolicyTestRowElement) {
         title="POLICY_SOURCE_CLOUD">
           $i18n{sourceCloud}
         </option>
-        <if expr="is_chromeos">
-        <option id="sourceActiveDirectory"
-            value="${PolicySource.SOURCE_ACTIVE_DIRECTORY_VAL}"
-            title="POLICY_SOURCE_ACTIVE_DIRECTORY">
-          $i18n{sourceActiveDirectory}
-        </option>
-        </if>
         <option id="sourcePlatform" value="${PolicySource.SOURCE_PLATFORM_VAL}"
             title="POLICY_SOURCE_PLATFORM">
           $i18n{sourcePlatform}
@@ -110,19 +103,6 @@ export function getHtml(this: PolicyTestRowElement) {
             title="POLICY_SOURCE_MERGED">
           $i18n{sourceMerged}
         </option>
-        <if expr="is_chromeos">
-        <option id="sourceCloudFromAsh"
-            value="${PolicySource.SOURCE_CLOUD_FROM_ASH_VAL}"
-            title="POLICY_SOURCE_CLOUD_FROM_ASH">
-          $i18n{sourceCloudFromAsh}
-        </option>
-        <option id="sourceRestrictedManagedGuestSessionOverride"
-            value="${
-              PolicySource.SOURCE_RESTRICTED_MANAGED_GUEST_SESSION_OVERRIDE_VAL}"
-            title="POLICY_SOURCE_RESTRICTED_MANAGED_GUEST_SESSION_OVERRIDE">
-          $i18n{sourceRestrictedManagedGuestSessionOverride}
-        </option>
-        </if>
       </select>
     </div>
     <div role="cell">

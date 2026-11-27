@@ -58,6 +58,7 @@
 #include "components/lens/lens_url_utils.h"
 #include "components/omnibox/common/composebox_features.h"
 #include "components/omnibox/common/input_state.h"
+#include "components/omnibox/common/omnibox_features.h"
 #include "components/sessions/content/session_tab_helper.h"
 #include "components/sessions/core/session_id.h"
 #include "components/tabs/public/tab_handle_factory.h"
@@ -73,14 +74,6 @@
 #include "ui/base/page_transition_types.h"
 #include "ui/gfx/skia_util.h"
 #include "ui/shell_dialogs/select_file_dialog.h"
-
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
-#include "components/omnibox/common/omnibox_features.h"
-#else
-#include "base/android/content_uri_utils.h"
-#endif
 
 namespace {
 
@@ -98,12 +91,6 @@ inline constexpr char kReopenedViaPinnedToolbarButton[] = "1";
 inline constexpr char kReopenedViaEphemeralToolbarButton[] = "2";
 
 std::string ExtractMimeType(const base::FilePath& path) {
-#if BUILDFLAG(IS_ANDROID)
-  if (path.IsContentUri()) {
-    return base::GetContentUriMimeType(path);
-  }
-#endif
-
   std::string mime_type;
   const base::FilePath::StringType extension = path.Extension();
   if (!extension.empty()) {
@@ -149,8 +136,6 @@ class ContextualTasksOmniboxClient : public ContextualOmniboxClient {
     return metrics::OmniboxEventProto::CO_BROWSING_COMPOSEBOX;
   }
 
-  std::optional<lens::proto::LensOverlaySuggestInputs>
-  GetLensOverlaySuggestInputs() const override;
 
   void OnAutocompleteAccept(
       const GURL& destination_url,
@@ -170,14 +155,6 @@ class ContextualTasksOmniboxClient : public ContextualOmniboxClient {
   raw_ptr<ContextualSearchboxHandler> contextual_searchbox_handler_;
 };
 
-std::optional<lens::proto::LensOverlaySuggestInputs>
-ContextualTasksOmniboxClient::GetLensOverlaySuggestInputs() const {
-  if (!contextual_tasks::GetIsContextualTasksSuggestionsEnabled()) {
-    return std::nullopt;
-  }
-
-  return ContextualOmniboxClient::GetLensOverlaySuggestInputs();
-}
 
 void ContextualTasksOmniboxClient::OnAutocompleteAccept(
     const GURL& destination_url,
@@ -200,19 +177,6 @@ void ContextualTasksOmniboxClient::OnAutocompleteAccept(
       query_text, /*is_voice_search=*/false, additional_params);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
-lens::LensOverlayDismissalSource ToLensOverlayDismissalSource(
-    composebox::mojom::LensOverlayDismissalSource dismissal_source) {
-  switch (dismissal_source) {
-    case composebox::mojom::LensOverlayDismissalSource::
-        kContextualTasksImageUploadsDisabled:
-      return lens::LensOverlayDismissalSource::
-          kContextualTasksImageUploadsDisabled;
-  }
-  NOTREACHED() << "Unknown dismissal source: "
-               << static_cast<int>(dismissal_source);
-}
-#endif
 
 }  // namespace
 
@@ -303,18 +267,9 @@ void ContextualTasksComposeboxHandler::OnContextUploadStatusChanged(
     const std::optional<contextual_search::ContextUploadErrorType>&
         error_type) {
   // Lens is not enabled on Android.
-#if !BUILDFLAG(IS_ANDROID)
   // If the file token corresponds to the token uploaded via Lens when the
   // overlay is opened, then there is no need to do anything about the file
   // upload status.
-  if (auto* controller = GetLensSearchController()) {
-    if (controller->query_router() &&
-        controller->query_router()->overlay_tab_context_file_token() ==
-            context_token) {
-      return;
-    }
-  }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   ContextualSearchboxHandler::OnContextUploadStatusChanged(
       context_token, mime_type, context_upload_status, error_type);
@@ -375,10 +330,6 @@ void ContextualTasksComposeboxHandler::OnContextUploadStatusChanged(
   }
 }
 
-void ContextualTasksComposeboxHandler::StartPlatformVoiceRecognition() {
-  web_ui_interface_->StartPlatformVoiceRecognition();
-}
-
 void ContextualTasksComposeboxHandler::SetActiveToolMode(
     omnibox::ToolMode tool,
     bool is_set_by_server) {
@@ -437,19 +388,10 @@ void ContextualTasksComposeboxHandler::CreateAndSendQueryMessage(
       "ContextualTasks.Composebox.UserAction.QuerySubmitted"));
   auto* session_handle = GetContextualSessionHandle();
 
-  // Retrieve the overlay token before closing the overlay, as the controller
-  // might be destroyed or reset during closure.
-#if !BUILDFLAG(IS_ANDROID)
-  std::optional<base::UnguessableToken> overlay_token = GetLensOverlayToken();
+  std::optional<base::UnguessableToken> overlay_token;
   bool has_visual_selection = overlay_token.has_value();
 
   // Every time a query is submitted, close the Lens overlay if it's open.
-  CloseLensOverlay(
-      lens::LensOverlayDismissalSource::kContextualTasksQuerySubmitted);
-#else
-  std::optional<base::UnguessableToken> overlay_token;
-  bool has_visual_selection = false;
-#endif
   std::optional<base::Uuid> task_id = web_ui_interface_->GetTaskId();
   auto* contextual_tasks_service = GetContextualTasksService();
 
@@ -618,12 +560,10 @@ bool ContextualTasksComposeboxHandler::HasUnsubmittedQuery() {
       !ContextualSearchboxHandler::GetSelectedTabIds().empty()) {
     return true;
   }
-#if !BUILDFLAG(IS_ANDROID)
   // Has visual selection.
   if (visual_selection_token_.has_value()) {
     return true;
   }
-#endif
   // Check if there are any uploaded tabs in the session handle.
   return !GetUploadedContextTokens().empty();
 }
@@ -861,20 +801,9 @@ void ContextualTasksComposeboxHandler::CacheSubmittedTabsFromSessionHandle() {
       !IsContextualSearchTabSharingEligible()) {
     return;
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (visual_selection_token_.has_value()) {
     return;
   }
-  if (auto* controller = GetLensSearchController()) {
-    if (controller->lens_overlay_controller()->HasRegionSelection() &&
-        controller->query_router() &&
-        controller->query_router()
-            ->overlay_tab_context_file_token()
-            .has_value()) {
-      return;
-    }
-  }
-#endif
   auto* session_handle = GetContextualSessionHandle();
   if (!session_handle) {
     return;
@@ -1292,90 +1221,23 @@ void ContextualTasksComposeboxHandler::ClearFiles(
   // Clear all files from the UI.
   ComposeboxHandler::ClearFiles(should_block_auto_suggested_tabs);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (visual_selection_token_.has_value()) {
-    if (auto* controller = GetLensSearchController()) {
-      if (controller->lens_overlay_controller()) {
-        controller->lens_overlay_controller()->ClearRegionSelection();
-      }
-    }
   }
   visual_selection_token_.reset();
   visual_selection_overlay_token_.reset();
-#endif
   UpdateHasUnsubmittedQuery();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualTasksComposeboxHandler::HandleLensButtonClick() {
   base::RecordAction(base::UserMetricsAction(
       "ContextualTasks.Composebox.UserAction.LensButtonClicked"));
   base::UmaHistogramBoolean(
       "ContextualTasks.Composebox.UserAction.LensButtonClicked", true);
 
-  if (auto* controller = GetLensSearchController()) {
-    if (controller->IsShowingUI()) {
-      if (controller->invocation_source() ==
-          lens::LensOverlayInvocationSource::kContextualTasksComposebox) {
-        controller->CloseLensAsync(
-            lens::LensOverlayDismissalSource::
-                kContextualTasksComposeboxLensButtonClick);
-        return;
-      } else {
-        // If the overlay is showing from a different invocation source, clear
-        // the selection and start fresh for a follow-up.
-        if (controller->lens_overlay_controller()) {
-          controller->lens_overlay_controller()->ClearAllSelections();
-        }
-        // Set the invocation source to contextual tasks so that any follow-up
-        // queries are associated with the contextual tasks session via the
-        // query flow router and thumbnails are added appropriately to the
-        // composebox. This will work as if the overlay was opened from the
-        // contextual tasks composebox in the first place.
-        controller->SetInvocationSource(
-            lens::LensOverlayInvocationSource::kContextualTasksComposebox);
-      }
-    }
-    controller->SetThumbnailCreatedCallback(base::BindRepeating(
-        &ContextualTasksComposeboxHandler::OnLensThumbnailCreated,
-        weak_factory_.GetWeakPtr()));
-    controller->OpenLensOverlay(
-        lens::LensOverlayInvocationSource::kContextualTasksComposebox);
-  }
 }
 
 void ContextualTasksComposeboxHandler::OnLensThumbnailCreated(
-    const std::string& thumbnail_data) {
-  searchbox::mojom::SelectedFileInfoPtr file_info =
-      searchbox::mojom::SelectedFileInfo::New();
-  file_info->file_name = "Visual Selection";
-  file_info->mime_type = "image/png";
-  file_info->image_data_url = thumbnail_data;
-  file_info->is_deletable = true;
-
-  // Clear any existing visual selection context.
-  if (visual_selection_token_) {
-    OnContextUploadStatusChanged(
-        *visual_selection_token_, lens::MimeType::kImage,
-        contextual_search::ContextUploadStatus::kUploadReplaced, std::nullopt);
-  }
-
-  // Lens will handle the creation of the interaction request needed for this
-  // context. Add the visual selection to the composebox UI. The overlay token
-  // is needed to ensure that the visual selection is associated with the
-  // correct viewport upload.
-  auto* controller = GetLensSearchController();
-  CHECK(controller);
-  CHECK(controller->query_router());
-  CHECK(
-      controller->query_router()->overlay_tab_context_file_token().has_value());
-  base::UnguessableToken overlay_token =
-      controller->query_router()->overlay_tab_context_file_token().value();
-  AddFileContextFromBrowser(
-      std::move(file_info),
-      base::BindOnce(&ContextualTasksComposeboxHandler::OnVisualSelectionAdded,
-                     weak_factory_.GetWeakPtr(), overlay_token));
-}
+    const std::string& thumbnail_data) {}
 
 // Only runs for non-delayed context. DeleteContext here runs
 // ComposeboxHandler::DeleteContext.
@@ -1410,7 +1272,6 @@ void ContextualTasksComposeboxHandler::OnVisualSelectionAdded(
   }
   UpdateHasUnsubmittedQuery();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void ContextualTasksComposeboxHandler::DeleteContext(
     const base::UnguessableToken& file_token,
@@ -1444,7 +1305,6 @@ void ContextualTasksComposeboxHandler::DeleteContext(
     MarkContextUploadFinished(file_token);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Clear the visual selection token if it matches the deleted token.
   if (visual_selection_token_ && *visual_selection_token_ == file_token) {
     visual_selection_token_ = std::nullopt;
@@ -1452,13 +1312,8 @@ void ContextualTasksComposeboxHandler::DeleteContext(
     // If the user explicitly deleted the context (not from automatic chip),
     // close the Lens Overlay.
     if (!from_automatic_chip) {
-      if (auto* controller = GetLensSearchController()) {
-        controller->CloseLensAsync(
-            lens::LensOverlayDismissalSource::kContextualTasksContextCleared);
-      }
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   if (was_delayed) {
     // Delayed tabs are never uploaded, and this deletion was initiated by the
     // WebUI, so there is no upload status to report back to the page. Doing so
@@ -1499,14 +1354,6 @@ bool ContextualTasksComposeboxHandler::HasAutoSuggestedTab() {
 void ContextualTasksComposeboxHandler::UpdateSuggestedTabContext(
     const contextual_tasks::SuggestedTabInfo* suggested_tab) {
   std::optional<std::string> invocation_source;
-#if !BUILDFLAG(IS_ANDROID)
-  if (auto* controller = GetLensSearchController()) {
-    if (controller->invocation_source().has_value()) {
-      invocation_source = lens::InvocationSourceToString(
-          controller->invocation_source().value());
-    }
-  }
-#endif
 
   if (!IsContextualSearchTabSharingEligible()) {
     SearchboxHandler::page_->UpdateAutoSuggestedTabContext(nullptr,
@@ -1546,61 +1393,9 @@ void ContextualTasksComposeboxHandler::UpdateSuggestedTabContext(
       std::move(filtered_suggestion), invocation_source);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
-void ContextualTasksComposeboxHandler::CloseLensOverlay(
-    lens::LensOverlayDismissalSource dismissal_source) {
-  if (auto* controller = GetLensSearchController()) {
-    controller->CloseLensSync(dismissal_source);
-  }
-}
 
-void ContextualTasksComposeboxHandler::CloseLensOverlayFromWebUI(
-    composebox::mojom::LensOverlayDismissalSource dismissal_source) {
-  if (auto* controller = GetLensSearchController()) {
-    controller->CloseLensAsync(ToLensOverlayDismissalSource(dismissal_source));
-  }
-}
 
-LensSearchController*
-ContextualTasksComposeboxHandler::GetLensSearchController() const {
-  auto* browser = web_ui_interface_->GetBrowser();
-  if (!browser) {
-    return nullptr;
-  }
 
-  if (auto* controller = LensSearchController::FromTabWebContents(
-          TabListInterface::From(browser)->GetActiveTab()->GetContents());
-      controller) {
-    return controller;
-  }
-  return nullptr;
-}
-
-std::optional<base::UnguessableToken>
-ContextualTasksComposeboxHandler::GetLensOverlayToken() {
-  // If there is a visual selection token in the composebox, then the overlay
-  // token should be returned to ensure the AIM request is correctly
-  // constructed with the overlay context.
-  if (visual_selection_token_.has_value()) {
-    visual_selection_token_.reset();
-    return visual_selection_overlay_token_;
-  }
-
-  if (auto* controller = GetLensSearchController()) {
-    // If there is no region selection, then do not return the overlay token.
-    // This is needed to prevent the token from being used in the client to aim
-    // request when a new overlay was opened and no region was selected.
-    if (!controller->lens_overlay_controller()->HasRegionSelection()) {
-      return std::nullopt;
-    }
-
-    if (auto* router = controller->query_router()) {
-      return router->overlay_tab_context_file_token();
-    }
-  }
-  return std::nullopt;
-}
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 std::optional<int64_t>
 ContextualTasksComposeboxHandler::GetActiveTabContextId() {
@@ -1695,10 +1490,8 @@ void ContextualTasksComposeboxHandler::DeactivateSmartTabSharing() {
   if (input_state_model_) {
     input_state_model_->SetSmartTabSharingActive(false);
   }
-#if !BUILDFLAG(IS_ANDROID)
   last_sent_smart_tab_sharing_active_ = false;
   if (SearchboxHandler::page_) {
     SearchboxHandler::page_->UpdateSmartTabSharingActive(false);
   }
-#endif
 }

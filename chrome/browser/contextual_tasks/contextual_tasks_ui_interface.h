@@ -92,18 +92,12 @@ class ContextualTasksUIInterface : public TaskInfoDelegate,
                                  const GURL& url) = 0;
 
   // Notifies the UI that the Lens overlay state has changed.
-  virtual void OnLensOverlayStateChanged(
-      bool is_showing,
-      std::optional<lens::LensOverlayInvocationSource> invocation_source) = 0;
 
   // Returns whether the Lens overlay is currently showing.
-  virtual bool IsLensOverlayShowing() const = 0;
 
   // Starts the platform's native voice recognition system.
-  virtual void StartPlatformVoiceRecognition() = 0;
 
   // Called when the platform voice recognition completes with a result.
-  virtual void OnVoiceTranscribed(const std::string& query) = 0;
 
   // Notifies the UI of the page context eligibility.
   virtual void OnPageContextEligibilityChecked(

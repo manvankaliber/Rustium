@@ -78,14 +78,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/apk_info.h"
-#include "base/android/content_uri_utils.h"
-#include "base/strings/string_util.h"
-#include "chrome/browser/glic/host/guest_util.h"  // nogncheck
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#else
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"  // nogncheck crbug.com/40147906
@@ -101,12 +93,6 @@
 #include "extensions/browser/extension_registry.h"  // nogncheck
 #include "extensions/common/extension.h"
 #endif  // BUILDFLAG(ENABLE_PLATFORM_APPS)
-#endif  // BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/file_manager/fileapi_util.h"
-#include "chrome/browser/ash/fusebox/fusebox_server.h"
-#include "content/public/browser/storage_partition.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 #include "chrome/browser/safe_browsing/download_protection/download_protection_service.h"
@@ -126,40 +112,6 @@
 
 namespace {
 
-#if BUILDFLAG(IS_CHROMEOS)
-base::FilePath GetExternalPath(Profile* profile,
-                               storage::FileSystemContext* file_system_context,
-                               storage::ExternalMountPoints* mount_points,
-                               const base::FilePath& virtual_path) {
-  std::string ignored_mount_name;
-  storage::FileSystemMountOption ignored_mount_option;
-  base::FilePath physical_path;
-  if (!mount_points || !mount_points->CrackVirtualPath(
-                           virtual_path, &ignored_mount_name, nullptr, nullptr,
-                           &physical_path, &ignored_mount_option)) {
-    return base::FilePath();
-  }
-
-  base::FilePath resolved_path = physical_path;
-  if (file_system_context && profile) {
-    GURL external_gurl;
-    if (file_manager::util::ConvertAbsoluteFilePathToFileSystemUrl(
-            profile, physical_path, file_manager::util::GetFileManagerURL(),
-            &external_gurl)) {
-      storage::FileSystemURL external_cracked_url =
-          file_system_context->CrackURLInFirstPartyContext(external_gurl);
-      if (external_cracked_url.is_valid()) {
-        base::FilePath fusebox_path =
-            fusebox::Server::SubstituteFuseboxFilePath(external_cracked_url);
-        if (!fusebox_path.empty()) {
-          resolved_path = std::move(fusebox_path);
-        }
-      }
-    }
-  }
-  return resolved_path;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using FileRequestData =
     FileSystemAccessPermissionRequestManager::FileRequestData;
@@ -475,7 +427,7 @@ using BlockType = ChromeFileSystemAccessPermissionContext::BlockType;
 // initiated this blocklist check.
 //
 // TODO(crbug.com/375490221): Improve the ChromeOS blocklist logic.
-constexpr bool kUseProfilePathForDirHome = BUILDFLAG(IS_CHROMEOS);
+constexpr bool kUseProfilePathForDirHome = false;
 
 std::unique_ptr<ChromeFileSystemAccessPermissionContext::BlockPathRules>
 GenerateBlockPaths(bool should_normalize_file_path) {
@@ -640,7 +592,7 @@ GenerateBlockPaths(bool should_normalize_file_path) {
           FILE_PATH_LITERAL("Library/Mobile Documents/com~apple~CloudDocs"),
           BlockType::kDontBlockChildren),
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
       // On Linux also block access to devices via /dev.
       BlockPath::CreateAbsolute(FILE_PATH_LITERAL("/dev"),
                                 BlockType::kBlockAllChildren),
@@ -688,10 +640,6 @@ GenerateBlockPaths(bool should_normalize_file_path) {
       // Also block base::DIR_CACHE to cover $XDG_CACHE_HOME overrides on Linux
       // and ChromeOS, and the app cache directory on Android.
       BlockPath::CreateRelative(base::DIR_CACHE, BlockType::kBlockAllChildren),
-#endif
-#if BUILDFLAG(IS_ANDROID)
-      BlockPath::CreateRelative(base::DIR_ANDROID_APP_DATA,
-                                BlockType::kBlockAllChildren),
 #endif
       // TODO(crbug.com/40095723): Refine this list, for example add
       // XDG_CONFIG_HOME when it is not set ~/.config?
@@ -2031,10 +1979,6 @@ ChromeFileSystemAccessPermissionContext::
   content_settings_ = base::WrapRefCounted(
       HostContentSettingsMapFactory::GetForProfile(profile_));
 
-#if BUILDFLAG(IS_ANDROID)
-  one_time_permissions_tracker_.Observe(
-      OneTimePermissionsTrackerFactory::GetForBrowserContext(context));
-#else
   auto* provider = web_app::WebAppProvider::GetForWebApps(
       Profile::FromBrowserContext(profile_));
   if (provider) {
@@ -2059,7 +2003,6 @@ ChromeFileSystemAccessPermissionContext::
       }
     }
   }
-#endif
 }
 
 ChromeFileSystemAccessPermissionContext::
@@ -2636,18 +2579,6 @@ void ChromeFileSystemAccessPermissionContext::CheckPathsAgainstEnterprisePolicy(
       enterprise_connectors::ContentAnalysisRequest::FILE_PICKER_DIALOG;
   data.initiating_frame_id = frame_id;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  storage::FileSystemContext* file_system_context = nullptr;
-  if (rfh) {
-    content::SiteInstance* site_instance = rfh->GetSiteInstance();
-    if (site_instance && browser_profile) {
-      file_system_context = browser_profile->GetStoragePartition(site_instance)
-                                ->GetFileSystemContext();
-    }
-  }
-  storage::ExternalMountPoints* mount_points =
-      storage::ExternalMountPoints::GetSystemInstance();
-#endif
 
   // Resolve virtual paths for kExternal files to their physical paths
   // so they can be scanned, but keep the original entries (with virtual paths)
@@ -2655,15 +2586,6 @@ void ChromeFileSystemAccessPermissionContext::CheckPathsAgainstEnterprisePolicy(
   data.paths.reserve(entries.size());
   for (const auto& entry : entries) {
     base::FilePath path_to_scan = entry.path;
-#if BUILDFLAG(IS_CHROMEOS)
-    if (entry.type == content::PathType::kExternal) {
-      base::FilePath resolved_path = GetExternalPath(
-          browser_profile, file_system_context, mount_points, entry.path);
-      if (!resolved_path.empty()) {
-        path_to_scan = std::move(resolved_path);
-      }
-    }
-#endif  // BUILDFLAG(IS_CHROMEOS)
     data.paths.push_back(std::move(path_to_scan));
   }
 
@@ -2735,17 +2657,6 @@ void ChromeFileSystemAccessPermissionContext::CheckPathAgainstBlocklist(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // The only check for content-URIs is that they are not from an internal
-  // FileProvider.
-  if (path_info.path.IsContentUri()) {
-    base::ContentUriOwner owner = base::ResolveContentUriOwner(path_info.path);
-    std::move(callback).Run(
-        owner == base::ContentUriOwner::kExportedFromCurrentApp ||
-        owner == base::ContentUriOwner::kNonExportedFromCurrentApp);
-    return;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Unlike the DIR_USER_DATA check, this handles the --user-data-dir override.
   // We check for the user data dir in two different ways: directly, via the
@@ -2853,16 +2764,6 @@ ChromeFileSystemAccessPermissionContext::CanShowFilePicker(
   // contexts. Note that on desktop, <webview> is explicitly allowed to use FSA
   // in the block above to avoid breaking existing usage.
   if (rfh->GetSiteInstance()->GetSecurityPrincipal().IsGuest()) {
-#if BUILDFLAG(IS_ANDROID)
-    // Allow Glic guest contexts to use File System Access API file pickers.
-    content::WebContents* web_contents =
-        content::WebContents::FromRenderFrameHost(rfh);
-    if (glic::IsGlicGuest(web_contents) &&
-        glic::GetGuestOrigin(rfh->GetBrowserContext())
-            .IsSameOriginWith(rfh->GetLastCommittedOrigin())) {
-      return base::ok();
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
     return base::unexpected(kDefaultNotAllowedMessage);
   }
 
@@ -3504,10 +3405,8 @@ void ChromeFileSystemAccessPermissionContext::OnAllTabsInBackgroundTimerExpired(
     const OneTimePermissionsTrackerObserver::BackgroundExpiryType&
         expiry_type) {
   if (
-#if !BUILDFLAG(IS_ANDROID)
       !base::FeatureList::IsEnabled(
           features::kFileSystemAccessPersistentPermissions) ||
-#endif
       expiry_type != BackgroundExpiryType::kLongTimeout) {
     return;
   }
@@ -3529,7 +3428,6 @@ void ChromeFileSystemAccessPermissionContext::OnShutdown() {
   one_time_permissions_tracker_.Reset();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ChromeFileSystemAccessPermissionContext::OnWebAppInstalled(
     const webapps::AppId& app_id) {
   if (!base::FeatureList::IsEnabled(
@@ -3629,7 +3527,6 @@ void ChromeFileSystemAccessPermissionContext::
     OnWebAppInstallManagerDestroyed() {
   install_manager_observation_.Reset();
 }
-#endif
 
 void ChromeFileSystemAccessPermissionContext::NavigatedAwayFromOrigin(
     const url::Origin& origin) {
@@ -3670,31 +3567,6 @@ void ChromeFileSystemAccessPermissionContext::MaybeCleanupPermissions(
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   // Iterate over all top-level frames by iterating over all tabs in all browser
   // windows. This also counts PWAs in windows without tab strips.
-#if BUILDFLAG(IS_ANDROID)
-  bool found_origin = false;
-  TabModelList::ForEach(
-      Profile::FromBrowserContext(profile()), [&](TabModel* tabs) {
-        int tab_count = tabs->GetTabCount();
-        for (int i = 0; i < tab_count; ++i) {
-          content::WebContents* web_contents = tabs->GetWebContentsAt(i);
-          if (!web_contents) {
-            continue;
-          }
-          url::Origin tab_origin = url::Origin::Create(
-              permissions::PermissionUtil::GetLastCommittedOriginAsURL(
-                  web_contents->GetPrimaryMainFrame()));
-          // Found a tab for this origin, so early exit and don't revoke grants.
-          if (tab_origin == origin) {
-            found_origin = true;
-            return false;
-          }
-        }
-        return true;
-      });
-  if (found_origin) {
-    return;
-  }
-#else
   bool found_origin = false;
   ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
       [this, &origin,
@@ -3723,7 +3595,6 @@ void ChromeFileSystemAccessPermissionContext::MaybeCleanupPermissions(
   if (found_origin) {
     return;
   }
-#endif
 
   CleanupPermissions(origin);
 }
@@ -3895,11 +3766,6 @@ bool ChromeFileSystemAccessPermissionContext::
         HandleType handle_type,
         AccessTrigger access_trigger,
         GrantType grant_type) {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/40101963): Enable when android persisted permissions are
-  // implemented.
-  return false;
-#else
   if (!base::FeatureList::IsEnabled(
           features::kFileSystemAccessPersistentPermissions)) {
     return false;
@@ -3949,7 +3815,6 @@ bool ChromeFileSystemAccessPermissionContext::
   }
 
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::vector<FileRequestData> ChromeFileSystemAccessPermissionContext::
@@ -4116,11 +3981,6 @@ bool ChromeFileSystemAccessPermissionContext::OriginHasExtendedPermission(
     const url::Origin& origin) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/40101963): Enable when android persisted permissions are
-  // implemented.
-  return false;
-#else
   if (!base::FeatureList::IsEnabled(
           features::kFileSystemAccessPersistentPermissions)) {
     return false;
@@ -4163,7 +4023,6 @@ bool ChromeFileSystemAccessPermissionContext::OriginHasExtendedPermission(
                                             ? WebAppInstallStatus::kInstalled
                                             : WebAppInstallStatus::kUninstalled;
   return app_has_os_integration;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeFileSystemAccessPermissionContext::SetOriginExtendedPermissionByUser(
@@ -4326,7 +4185,6 @@ void ChromeFileSystemAccessPermissionContext::ScheduleUsageIconUpdate() {
 void ChromeFileSystemAccessPermissionContext::DoUsageIconUpdate() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   usage_icon_update_scheduled_ = false;
-#if !BUILDFLAG(IS_ANDROID)
   ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
       [this](BrowserWindowInterface* browser_window_interface) {
         if (browser_window_interface->GetProfile() != profile()) {
@@ -4344,7 +4202,6 @@ void ChromeFileSystemAccessPermissionContext::DoUsageIconUpdate() {
             FileSystemAccessPageActionController::From(tab_interface));
         return true;
       });
-#endif
 }
 
 base::WeakPtr<ChromeFileSystemAccessPermissionContext>
@@ -4352,13 +4209,11 @@ ChromeFileSystemAccessPermissionContext::GetWeakPtr() {
   return weak_factory_.GetWeakPtr();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ChromeFileSystemAccessPermissionContext::UpdatePageAction(
     FileSystemAccessPageActionController* controller) {
   CHECK(controller);
   controller->UpdateVisibility();
 }
-#endif
 
 bool ChromeFileSystemAccessPermissionContext::
     IsPathInDowngradedReadPathsForTesting(const url::Origin& origin,

@@ -49,10 +49,7 @@ _WINDOWS_DRIVER_TAGS = frozenset(
   ]
 )
 _DRIVER_TAGS_BY_OS = {
-  'android': _ANDROID_DRIVER_TAGS,
   'linux': _LINUX_DRIVER_TAGS,
-  'chromeos': _CROS_DRIVER_TAGS,
-  # Mac does not report driver versions.
   'win': _WINDOWS_DRIVER_TAGS,
 }
 
@@ -65,7 +62,6 @@ REMOTE_BROWSER_TYPES = [
   'android-chromium',
   'android-webview-instrumentation',
   'cros-chrome',
-  'fuchsia-chrome',
   'web-engine-shell',
   'cast-streaming-shell',
 ]

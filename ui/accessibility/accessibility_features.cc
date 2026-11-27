@@ -9,23 +9,13 @@
 #include "build/build_config.h"
 #include "ui/accessibility/ax_features.mojom-features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
 namespace features {
 
 BASE_FEATURE(kAccessibilityPdfOcrForSelectToSpeak,
              "kAccessibilityPdfOcrForSelectToSpeak",
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif  // BUILDFLAG(IS_CHROMEOS)
 );
 bool IsAccessibilityPdfOcrForSelectToSpeakEnabled() {
   return base::FeatureList::IsEnabled(
@@ -184,92 +174,7 @@ bool IsAccessibilityGroupLocationChangeByCommonAncestorEnabled() {
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool IsDictationOfflineAvailable() {
-  return base::FeatureList::IsEnabled(
-      ash::features::kOnDeviceSpeechRecognition);
-}
 
-BASE_FEATURE(kExperimentalAccessibilityDictationContextChecking,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-bool IsExperimentalAccessibilityDictationContextCheckingEnabled() {
-  return base::FeatureList::IsEnabled(
-      ::features::kExperimentalAccessibilityDictationContextChecking);
-}
-
-BASE_FEATURE(kAccessibilityShakeToLocate, base::FEATURE_ENABLED_BY_DEFAULT);
-bool IsAccessibilityShakeToLocateEnabled() {
-  return base::FeatureList::IsEnabled(::features::kAccessibilityShakeToLocate);
-}
-
-BASE_FEATURE(kAccessibilityManifestV3ChromeVox,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-bool IsAccessibilityManifestV3EnabledForChromeVox() {
-  return base::FeatureList::IsEnabled(
-      ::features::kAccessibilityManifestV3ChromeVox);
-}
-
-BASE_FEATURE(kAccessibilityManifestV3GoogleTts,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-bool IsAccessibilityManifestV3EnabledForGoogleTts() {
-  return base::FeatureList::IsEnabled(
-      ::features::kAccessibilityManifestV3GoogleTts);
-}
-
-BASE_FEATURE(kAccessibilityChromeVoxJapaneseBraille,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-bool IsAccessibilityChromeVoxJapaneseBrailleEnabled() {
-  return base::FeatureList::IsEnabled(
-      ::features::kAccessibilityChromeVoxJapaneseBraille);
-}
-
-BASE_FEATURE(kAccessibilityGoogleTtsAutomaticReconnect,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-bool IsAccessibilityGoogleTtsAutomaticReconnectEnabled() {
-  return base::FeatureList::IsEnabled(
-      ::features::kAccessibilityGoogleTtsAutomaticReconnect);
-}
-
-BASE_FEATURE(kAccessibilityHoverText, base::FEATURE_DISABLED_BY_DEFAULT);
-bool IsAccessibilityHoverTextEnabled() {
-  return base::FeatureList::IsEnabled(::features::kAccessibilityHoverText);
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_ANDROID)
-
-BASE_FEATURE(kAccessibilityInlineLineSeparators,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-bool IsAccessibilityInlineLineSeparatorsEnabled() {
-  return base::FeatureList::IsEnabled(
-      ::features::kAccessibilityInlineLineSeparators);
-}
-
-BASE_FEATURE(kAccessibilityMagnificationFollowsFocusKeyboardAttached,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-BASE_FEATURE(kAccessibilityMagnificationFollowsFocusNoKeyboard,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-BASE_FEATURE(kAccessibilityAndroidMath, base::FEATURE_DISABLED_BY_DEFAULT);
-bool IsAccessibilityAndroidMathEnabled() {
-  return base::FeatureList::IsEnabled(::features::kAccessibilityAndroidMath);
-}
-
-BASE_FEATURE(kAccessibilityAndroidBackgroundThread,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-bool IsAccessibilityAndroidBackgroundThreadEnabled() {
-  // The background thread owns an embedded window, which needs
-  // `SurfaceControlViewHost` from Android R. Check the feature last, so that
-  // only devices that can use it join a field trial.
-  return base::android::android_info::sdk_int() >=
-             base::android::android_info::SDK_VERSION_R &&
-         base::FeatureList::IsEnabled(
-             ::features::kAccessibilityAndroidBackgroundThread);
-}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 bool IsReadAloudNativeEnabled() {
   return base::FeatureList::IsEnabled(ax::mojom::features::kReadAloudNative);
@@ -286,18 +191,15 @@ bool IsReadAloudServerSynthesizerEnabled() {
          base::FeatureList::IsEnabled(ax::mojom::features::kReadAloudNative);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kAXTreeFixing, base::FEATURE_DISABLED_BY_DEFAULT);
 bool IsAXTreeFixingEnabled() {
   return base::FeatureList::IsEnabled(::features::kAXTreeFixing);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 BASE_FEATURE(kPageColorsSettings, base::FEATURE_DISABLED_BY_DEFAULT);
 bool IsPageColorsSettingsEnabled() {
   return base::FeatureList::IsEnabled(::features::kPageColorsSettings);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 bool IsScreenAIMainContentExtractionEnabled() {
   return base::FeatureList::IsEnabled(
@@ -431,7 +333,6 @@ bool IsScreenAITestModeEnabled() {
   return base::FeatureList::IsEnabled(::features::kScreenAITestMode);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_MAC)
 // Enables the switchover to the newer NSAccessibility property-based API.

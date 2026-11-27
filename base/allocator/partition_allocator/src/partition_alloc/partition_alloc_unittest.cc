@@ -90,9 +90,7 @@
 #endif
 
 // Headers for the AmountOfPhysicalMemory() function.
-#if PA_BUILDFLAG(IS_FUCHSIA)
-#include <zircon/syscalls.h>
-#elif PA_BUILDFLAG(IS_WIN)
+#if PA_BUILDFLAG(IS_WIN)
 #include <windows.h>
 #elif PA_BUILDFLAG(IS_APPLE)
 #include <sys/sysctl.h>
@@ -100,28 +98,29 @@
 #include <unistd.h>
 #endif
 
-#if PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_ANDROID) || \
-    PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
 #include "partition_alloc/partition_alloc_base/debug/proc_maps_linux.h"  // nogncheck
-#endif  // PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_ANDROID) ||
+#endif
         // PA_BUILDFLAG(IS_CHROMEOS)
 
 // In the MTE world, the upper bits of a pointer can be decorated with a tag,
 // thus allowing many versions of the same pointer to exist. These macros take
 // that into account when comparing.
-#define PA_EXPECT_PTR_EQ(ptr1, ptr2) \
-  { EXPECT_EQ(UntagPtr(ptr1), UntagPtr(ptr2)); }
-#define PA_EXPECT_PTR_NE(ptr1, ptr2) \
-  { EXPECT_NE(UntagPtr(ptr1), UntagPtr(ptr2)); }
+#define PA_EXPECT_PTR_EQ(ptr1, ptr2)           \
+  {                                            \
+    EXPECT_EQ(UntagPtr(ptr1), UntagPtr(ptr2)); \
+  }
+#define PA_EXPECT_PTR_NE(ptr1, ptr2)           \
+  {                                            \
+    EXPECT_NE(UntagPtr(ptr1), UntagPtr(ptr2)); \
+  }
 
 namespace {
 
 // Best effort to get the amount of physical memory available to the system.
 // Returns 0 on failure.
 uint64_t AmountOfPhysicalMemory() {
-#if PA_BUILDFLAG(IS_FUCHSIA)
-  return zx_system_get_physmem();
-#elif PA_BUILDFLAG(IS_WIN)
+#if PA_BUILDFLAG(IS_WIN)
   MEMORYSTATUSEX mem_status = {.dwLength = sizeof(mem_status)};
   if (GlobalMemoryStatusEx(&mem_status)) {
     return mem_status.ullTotalPhys;
@@ -808,7 +807,7 @@ void FreeFullSlotSpan(PartitionRoot* root, const SlotSpan* slot_span) {
   EXPECT_TRUE(slot_span->is_empty());
 }
 
-#if PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
 bool CheckPageInCore(void* ptr, bool in_core) {
   unsigned char ret = 0;
   EXPECT_EQ(0, mincore(ptr, SystemPageSize(), &ret));
@@ -819,7 +818,7 @@ bool CheckPageInCore(void* ptr, bool in_core) {
   EXPECT_TRUE(CheckPageInCore(ptr, in_core))
 #else
 #define CHECK_PAGE_IN_CORE(ptr, in_core) (void)(0)
-#endif  // PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#endif
 
 class MockPartitionStatsDumper : public PartitionStatsDumper {
  public:
@@ -2996,11 +2995,7 @@ TEST_P(PartitionAllocTest, LostFreeSlotSpansBug) {
 //
 // Disable these test on Windows, since they run slower, so tend to timeout and
 // cause flake.
-#if !PA_BUILDFLAG(IS_WIN) &&                                         \
-        (!PA_BUILDFLAG(PA_ARCH_CPU_64_BITS) ||                       \
-         (PA_BUILDFLAG(IS_POSIX) &&                                  \
-          !(PA_BUILDFLAG(IS_APPLE) || PA_BUILDFLAG(IS_ANDROID)))) || \
-    PA_BUILDFLAG(IS_FUCHSIA)
+#if !PA_BUILDFLAG(IS_WIN) && (!PA_BUILDFLAG(PA_ARCH_CPU_64_BITS) || PA_BUILDFLAG(IS_POSIX) && !PA_BUILDFLAG(IS_APPLE))
 #define MAYBE_RepeatedAllocReturnNullDirect RepeatedAllocReturnNullDirect
 #define MAYBE_RepeatedReallocReturnNullDirect RepeatedReallocReturnNullDirect
 #else
@@ -4529,8 +4524,10 @@ TEST_P(PartitionAllocTest, IntendedLeakWithoutTypeIdHint) {
   uint64_t value_after_intended_leaked = *reinterpret_cast<uint64_t*>(ptr);
   EXPECT_EQ(value_after_intended_leaked & internal::kIntendedLeakQuarantineMask,
             internal::kIntendedLeakQuarantineMarker);
-  EXPECT_EQ((value_after_intended_leaked & ~internal::kIntendedLeakQuarantineMask) >> 8u,
-            internal::kIntendedLeakUnknownTypeId);
+  EXPECT_EQ(
+      (value_after_intended_leaked & ~internal::kIntendedLeakQuarantineMask) >>
+          8u,
+      internal::kIntendedLeakUnknownTypeId);
 
   root->Free(ptr_to_keep_slot_span);
 }
@@ -4611,8 +4608,7 @@ TEST_P(PartitionAllocTest, ZapOnFree) {
   branch.Purge();
 }
 
-#if PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_ANDROID) || \
-    PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
 
 TEST_P(PartitionAllocTest, InaccessibleRegionAfterSlotSpans) {
   // There is inaccessible space only when this setting is not enabled,
@@ -4744,7 +4740,7 @@ TEST_P(PartitionAllocTest, FewerMemoryRegions) {
   root->Free(ptr);
 }
 
-#endif  // PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_ANDROID) ||
+#endif
         // PA_BUILDFLAG(IS_CHROMEOS)
 
 TEST_P(PartitionAllocTest, ZeroFreedMemory) {

@@ -66,12 +66,6 @@ bool RealtimeEventUploadHelper::IsEligibleForUpload(bool per_profile) const {
 }
 std::optional<std::string> RealtimeEventUploadHelper::GetDMToken(
     bool per_profile) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, we must always use the profile DM token because
-  // BrowserDMTokenStorage does not exist, and policy::GetDMToken(nullptr)
-  // unconditionally returns an empty token.
-  return reporting::GetUserDmToken(profile_);
-#else
   if (per_profile) {
     return reporting::GetUserDmToken(profile_);
   }
@@ -83,7 +77,6 @@ std::optional<std::string> RealtimeEventUploadHelper::GetDMToken(
   }
 
   return std::nullopt;
-#endif
 }
 
 enterprise_connectors::RealtimeReportingClientBase*

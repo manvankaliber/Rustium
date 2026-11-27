@@ -436,7 +436,6 @@ TEST_F(PageLiveStateDecoratorTest, OnIsPinnedTabChanged) {
 }
 
 // DevTools not supported on Android.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(PageLiveStateDecoratorTest, OnIsDevToolsOpenChanged) {
   EXPECT_FALSE(PageLiveStateDecorator::IsDevToolsOpen(web_contents()));
   auto setter = [](content::WebContents* contents, bool value) {
@@ -450,7 +449,6 @@ TEST_F(PageLiveStateDecoratorTest, OnIsDevToolsOpenChanged) {
       TestPageLiveStateObserver::ObserverFunction::kOnIsDevToolsOpenChanged);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(PageLiveStateDecoratorTest, WithheldFromView) {
   EXPECT_FALSE(PageLiveStateDecorator::IsWithheldFromView(web_contents()));

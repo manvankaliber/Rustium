@@ -32,28 +32,6 @@ class ParseIdsTest(fake_filesystem_unittest.TestCase):
     ids = check_grd_for_unused_strings.parse_used_ids(path)
     self.assertEqual({'IDS_FOO', 'IDS_FOO_BASE'}, ids)
 
-  def test_parse_java(self):
-    path = pathlib.Path('/Test.java')
-    content = 'R.string.foo_bar R.string.baz R . string\n  .zzz'
-    self.fs.create_file(path, contents=content)
-    ids = check_grd_for_unused_strings.parse_used_ids(path)
-    self.assertEqual({'IDS_FOO_BAR', 'IDS_BAZ', 'IDS_ZZZ'}, ids)
-
-  def test_parse_android_manifest(self):
-    path = pathlib.Path('/AndroidManifest.xml')
-    content = """
-        <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-          <application android:label="@string/app_name">
-            <activity android:name=".MainActivity"
-                      android:label="@string/main_title">
-            </activity>
-          </application>
-        </manifest>
-        """
-    self.fs.create_file(path, contents=content)
-    ids = check_grd_for_unused_strings.parse_used_ids(path)
-    self.assertEqual({'IDS_APP_NAME', 'IDS_MAIN_TITLE'}, ids)
-
   def test_parse_grd(self):
     for suffix in ['.grd', '.grdp']:
       path = pathlib.Path(f'/test{suffix}')

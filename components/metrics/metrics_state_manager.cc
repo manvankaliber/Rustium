@@ -237,17 +237,6 @@ MetricsStateManager::MetricsStateManager(
   if (enabled_state_provider_->IsConsentGiven()) {
     ForceClientIdCreation();
   } else {
-#if BUILDFLAG(IS_ANDROID)
-    // If on start up we determine that the client has not given their consent
-    // to report their metrics, the new sampling trial should be used to
-    // determine whether the client is sampled in or out (if the user ever
-    // enables metrics reporting). This covers users that are going through
-    // the first run, as well as users that have metrics reporting disabled.
-    //
-    // See crbug/1306481 and the comment above |kUsePostFREFixSamplingTrial| in
-    // components/metrics/metrics_pref_names.cc for more details.
-    local_state_->SetBoolean(metrics::prefs::kUsePostFREFixSamplingTrial, true);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   // Generate and store a provisional client ID if necessary. This ID will be
@@ -384,9 +373,9 @@ void MetricsStateManager::ForceClientIdCreation() {
     if (!client_id_from_prefs.empty() && client_id_from_prefs == client_id_) {
       base::UmaHistogramEnumeration("UMA.ClientIdSource",
                                     ClientIdSource::kClientIdMatches);
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
       MaybeRepairClientInfoBackup();
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#endif
       return;
     }
     client_id_.swap(client_id_from_prefs);
@@ -395,9 +384,9 @@ void MetricsStateManager::ForceClientIdCreation() {
   if (!client_id_.empty()) {
     base::UmaHistogramEnumeration("UMA.ClientIdSource",
                                   ClientIdSource::kClientIdFromLocalState);
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
     MaybeRepairClientInfoBackup();
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#endif
     return;
   }
 
@@ -460,10 +449,10 @@ void MetricsStateManager::ForceClientIdCreation() {
                          base::Time::Now().ToTimeT());
 
   BackUpCurrentClientInfo();
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
   base::UmaHistogramEnumeration("UMA.ClientIdBackupFixMethod",
                                 ClientIdBackupFixMethod::kBackupNewlyCreated);
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#endif
 }
 
 const ClonedInstallDetector& MetricsStateManager::GetClonedInstallDetector()
@@ -532,9 +521,6 @@ void MetricsStateManager::RegisterPrefs(PrefRegistrySimple* registry) {
   registry->RegisterStringPref(prefs::kMetricsClientID, std::string());
   registry->RegisterInt64Pref(prefs::kMetricsReportingEnabledTimestamp, 0);
   registry->RegisterInt64Pref(prefs::kInstallDate, 0);
-#if BUILDFLAG(IS_ANDROID)
-  registry->RegisterBooleanPref(prefs::kUsePostFREFixSamplingTrial, false);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   EntropyState::RegisterPrefs(registry);
   ClonedInstallDetector::RegisterPrefs(registry);
@@ -570,7 +556,7 @@ std::unique_ptr<ClientInfo> MetricsStateManager::LoadClientInfo() {
   return client_info;
 }
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
 void MetricsStateManager::MaybeRepairClientInfoBackup() {
   if (client_info_backup_checked_ || metrics_ids_were_reset_) {
     return;
@@ -599,7 +585,7 @@ void MetricsStateManager::MaybeRepairClientInfoBackup() {
                                   ClientIdBackupFixMethod::kClearBackup);
   }
 }
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#endif
 
 std::string_view MetricsStateManager::GetLimitedEntropyRandomizationSource() {
   // No limited entropy randomization source will be generated if limited

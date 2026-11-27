@@ -19,13 +19,9 @@
 #include "content/public/test/browser_task_environment.h"
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/enterprise/reporting/reporting_delegate_factory_android.h"
-#else
 #include "chrome/browser/enterprise/reporting/extension_request/extension_request_report_generator.h"
 #include "chrome/browser/enterprise/reporting/reporting_delegate_factory_desktop.h"
 #include "components/enterprise/common/proto/synced/extensions_workflow_events.pb.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using ::testing::_;
 using ::testing::ByMove;
@@ -35,11 +31,7 @@ using ::testing::WithArgs;
 
 namespace enterprise_reporting {
 
-#if BUILDFLAG(IS_ANDROID)
-using ReportingDelegateFactoryDelegate = ReportingDelegateFactoryAndroid;
-#else
 using ReportingDelegateFactoryDelegate = ReportingDelegateFactoryDesktop;
-#endif  // BUILDFLAG(IS_ANDROID)
 using RealTimeReportControllerDelegate = RealTimeReportControllerDelegate;
 
 namespace {
@@ -81,7 +73,6 @@ class RealTimeReportControllerTest : public ::testing::Test {
   ReportingDelegateFactoryDelegate delegate_factory_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(RealTimeReportControllerTest, ExtensionRequest) {
   std::vector<std::unique_ptr<google::protobuf::MessageLite>> reports;
@@ -120,7 +111,6 @@ TEST_F(RealTimeReportControllerTest, ExtensionRequest) {
       ->TriggerExtensionRequest(profile);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(RealTimeReportControllerTest, LegacyTech) {
   std::vector<std::unique_ptr<google::protobuf::MessageLite>> reports;

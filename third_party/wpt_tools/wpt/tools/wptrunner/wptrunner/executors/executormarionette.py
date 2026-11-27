@@ -1270,13 +1270,6 @@ class MarionetteRefTestExecutor(RefTestExecutor):
         return screenshot
 
 
-class MarionetteRefTestExecutorAndroid(MarionetteRefTestExecutor):
-    # Android doesn't support window resize, so we can't use the external reftest implementation.
-    # That is only used for testdriver so we have a version that will skip those tests specifically
-    # for Android.
-    supports_testdriver = False
-
-
 class InternalRefTestImplementation(RefTestImplementation):
     def __init__(self, executor):
         self.timeout_multiplier = executor.timeout_multiplier
@@ -1495,6 +1488,6 @@ class MarionettePytestExecutor(PytestExecutor):
         args = self.capabilities["moz:firefoxOptions"].setdefault("args", [])
         args.extend(["--profile", self.browser.profile])
 
-        for option in ["androidPackage", "androidDeviceSerial", "env"]:
+        for option in ["env"]:
             if hasattr(browser, option):
                 self.capabilities["moz:firefoxOptions"][option] = getattr(browser, option)

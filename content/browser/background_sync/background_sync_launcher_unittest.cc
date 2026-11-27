@@ -23,9 +23,6 @@
 #include "content/public/test/test_browser_context.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "base/run_loop.h"
-#endif
 
 namespace content {
 
@@ -92,28 +89,6 @@ class BackgroundSyncLauncherTest : public testing::Test {
         sync_type, &test_browser_context_);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void FireBackgroundSyncEventsForAllPartitions() {
-    num_invocations_fire_background_sync_events_ = 0;
-
-    auto done_closure = base::BindLambdaForTesting(
-        [&]() { num_invocations_fire_background_sync_events_++; });
-
-    test_browser_context_.ForEachLoadedStoragePartition(
-        [&](StoragePartition* storage_partition) {
-          BackgroundSyncContext* sync_context =
-              storage_partition->GetBackgroundSyncContext();
-          sync_context->FireBackgroundSyncEvents(
-              blink::mojom::BackgroundSyncType::ONE_SHOT, done_closure);
-        });
-
-    task_environment_.RunUntilIdle();
-  }
-
-  int NumInvocationsOfFireBackgroundSyncEvents() {
-    return num_invocations_fire_background_sync_events_;
-  }
-#endif
 
  protected:
   void DidFireBackgroundSyncEvents() {
@@ -186,14 +161,5 @@ TEST_F(BackgroundSyncLauncherTest, SoonestWakeupDeltaIsPickedForTheRightTask) {
             500);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(BackgroundSyncLauncherTest, FireBackgroundSyncEvents) {
-  std::vector<GURL> urls = {GURL(kUrl_1), GURL(kUrl_2)};
-  SetUpBrowserContext(urls, blink::mojom::BackgroundSyncType::ONE_SHOT);
-
-  ASSERT_NO_FATAL_FAILURE(FireBackgroundSyncEventsForAllPartitions());
-  EXPECT_EQ(NumInvocationsOfFireBackgroundSyncEvents(), 2);
-}
-#endif
 
 }  // namespace content

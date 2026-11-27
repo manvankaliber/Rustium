@@ -14,11 +14,6 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/widget/widget_observer.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/aura/client/aura_constants.h"
-#include "ui/aura/window.h"
-#include "ui/wm/core/window_animations.h"
-#endif
 
 namespace {
 
@@ -271,25 +266,6 @@ TEST_F(
   EXPECT_EQ(1, fade_animator()->GetFadeInCallsCountForTesting());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Verifies that only the show/hide animations are disabled so that other
-// window animations (e.g. the PiP snap animation after a drag) still run.
-TEST_F(PictureInPictureWidgetFadeAnimatorTest,
-       AnimateShowWindow_DisablesOnlyVisibilityAnimations) {
-  aura::Window* window = widget()->GetNativeWindow();
-  ASSERT_FALSE(window->GetProperty(aura::client::kAnimationsDisabledKey));
-
-  fade_animator()->AnimateShowWindow(
-      widget(),
-      PictureInPictureWidgetFadeAnimator::WidgetShowType::kShowInactive);
-
-  EXPECT_FALSE(window->GetProperty(aura::client::kAnimationsDisabledKey));
-  EXPECT_FALSE(
-      wm::HasWindowVisibilityAnimationTransition(window, wm::ANIMATE_SHOW));
-  EXPECT_FALSE(
-      wm::HasWindowVisibilityAnimationTransition(window, wm::ANIMATE_HIDE));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 

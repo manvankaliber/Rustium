@@ -381,9 +381,6 @@ class DatabaseConnectionCorruptionTest : public DatabaseConnectionTest {
 
     auto verify_recovery = [&](bool recovery_expected) {
       StatusOr<IndexedDBValue> recovered_value = read_value();
-#if BUILDFLAG(IS_FUCHSIA)
-      recovery_expected = false;
-#endif
       if (recovery_expected) {
         ASSERT_OK_AND_ASSIGN(base::DictValue contents_after_recovery,
                              SnapshotDatabase(*db));
@@ -666,13 +663,8 @@ TEST_F(DatabaseConnectionOpenCorruptionTest, DirectoryAtDatabasePath) {
   const base::FilePath db_path = GetDatabasePath(u"db");
   ASSERT_TRUE(base::CreateDirectory(db_path));
 
-#if BUILDFLAG(IS_FUCHSIA)
-  EXPECT_TRUE(backing_store()->CreateOrOpenDatabase(u"db").has_value());
-  EXPECT_FALSE(base::DirectoryExists(db_path));
-#else
   EXPECT_FALSE(backing_store()->CreateOrOpenDatabase(u"db").has_value());
   EXPECT_TRUE(base::DirectoryExists(db_path));
-#endif
 }
 
 TEST_F(DatabaseConnectionOpenCorruptionTest, DropMetaTable) {
@@ -694,13 +686,8 @@ TEST_F(DatabaseConnectionOpenCorruptionTest, RecoverableHeader) {
   base::HistogramTester histograms;
   std::unique_ptr<BackingStore::Database> db = OpenDb(u"db");
   EXPECT_EQ(db->GetDataLossInfo().status, blink::mojom::IDBDataLoss::None);
-#if BUILDFLAG(IS_FUCHSIA)
-  // Recovery isn't supported, so the DB is deleted and recreated empty.
-  EXPECT_FALSE(db->GetMetadata().object_stores.contains(kObjectStoreId));
-#else
   // Recovery preserves the data.
   EXPECT_TRUE(db->GetMetadata().object_stores.contains(kObjectStoreId));
-#endif
   DropDbAndDestructDatabaseConnection(std::move(db));
 
   // The first open hits a SQL error, then the retry recovers (non-Fuchsia) or
@@ -750,14 +737,9 @@ TEST_F(DatabaseConnectionOpenCorruptionTest, EnumerateAll) {
   // Name-mismatch is surfaced under its corrupt stored name (enumeration has no
   // name to validate against). On non-Fuchsia, the recoverable DB is also
   // surfaced since recovery restores it. Everything else is dropped.
-#if BUILDFLAG(IS_FUCHSIA)
-  EXPECT_THAT(names_and_versions,
-              testing::UnorderedElementsAre(testing::Pair(u"corrupt name", 1)));
-#else
   EXPECT_THAT(names_and_versions, testing::UnorderedElementsAre(
                                       testing::Pair(u"corrupt name", 1),
                                       testing::Pair(u"recoverable db", 1)));
-#endif
 
   // The dropped databases are deleted from disk.
   EXPECT_TRUE(base::PathExists(GetDatabasePath(u"name mismatch db")));
@@ -770,11 +752,7 @@ TEST_F(DatabaseConnectionOpenCorruptionTest, EnumerateAll) {
   EXPECT_FALSE(base::PathExists(GetDatabasePath(u"bad data format db")));
   EXPECT_FALSE(base::PathExists(GetDatabasePath(u"zeroed db")));
   EXPECT_FALSE(base::PathExists(GetDatabasePath(u"zygotic db")));
-#if BUILDFLAG(IS_FUCHSIA)
-  EXPECT_FALSE(base::PathExists(GetDatabasePath(u"recoverable db")));
-#else
   EXPECT_TRUE(base::PathExists(GetDatabasePath(u"recoverable db")));
-#endif
 
   histograms.ExpectTotalCount(
       "IndexedDB.SQLite.OpenToReadMetadataResult.OnDisk", 11);

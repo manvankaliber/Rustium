@@ -16,9 +16,6 @@
 #include "net/base/net_errors.h"
 #include "net/base/sys_addrinfo.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/android/network_library.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace net {
 
@@ -69,11 +66,6 @@ AddressInfo::AddressInfoAndResult AddressInfo::Get(
 #if BUILDFLAG(IS_WIN)
     if (os_error != WSAHOST_NOT_FOUND && os_error != WSANO_DATA)
       err = ERR_NAME_RESOLUTION_FAILED;
-#elif BUILDFLAG(IS_ANDROID)
-    // Workaround for Android's getaddrinfo leaving ai==nullptr without an
-    // error.
-    // http://crbug.com/134142
-    err = ERR_NAME_NOT_RESOLVED;
 #elif BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_FREEBSD)
     if (os_error != EAI_NONAME && os_error != EAI_NODATA)
       err = ERR_NAME_RESOLUTION_FAILED;
@@ -186,17 +178,14 @@ std::unique_ptr<addrinfo, FreeAddrInfoFunc> AddrInfoGetter::getaddrinfo(
 
   if (network != handles::kInvalidNetworkHandle) {
     // Currently, only Android supports lookups for a specific network.
-#if BUILDFLAG(IS_ANDROID)
-    *out_os_error = android::GetAddrInfoForNetwork(network, host.c_str(),
-                                                   nullptr, hints, &ai);
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
     *out_os_error = WSAEOPNOTSUPP;
     return rv;
 #else
     errno = ENOSYS;
     *out_os_error = EAI_SYSTEM;
     return rv;
-#endif  // BUILDFLAG(IS_ANDROID)
+#endif
   } else {
     *out_os_error = ::getaddrinfo(host.c_str(), nullptr, hints, &ai);
   }

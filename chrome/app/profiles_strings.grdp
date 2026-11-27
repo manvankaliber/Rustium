@@ -565,22 +565,18 @@
    <message name="IDS_SIGN_IN_LOGIN_NAME_PROHIBITED" desc="The error message shown when the user tries to sign in using a name that is not allowed by the admin policy">
     Your organization doesn't allow you to sign in with this account
   </message>
-  <if expr="is_android">
-    <message name="IDS_SYNC_USER_NAME_IN_USE_ERROR" desc="Mobile: An error message shown when a user tries to sign in to sync using a user name that's already in use by another profile.">
-      This account is already being used on this device.
-    </message>
-  </if>
-  <if expr="not is_android">
+
+
     <message name="IDS_SYNC_USER_NAME_IN_USE_ERROR" desc="An error message shown when a user tries to sign in to sync using a user name that's already in use by another profile.">
       This account is already being used on this computer.
     </message>
     <message name="IDS_SYNC_USER_NAME_IN_USE_BY_ERROR" desc="An error message shown when a user tries to sign in to sync using a user name that's already in use by another profile. This error message includes the avatar name of the existing duplicate profile and only appears in the signin error tab modal dialog.">
       This account is already being used on this computer by <ph name="AVATAR_NAME">$1<ex>Jane</ex></ph>.
     </message>
-  </if>
+
 
   <!-- Android does not support multiple profiles and supervised users -->
-  <if expr="not is_android">
+
     <!-- User manager web UI -->
     <if expr="use_titlecase">
       <message name="IDS_SCREEN_LOCK_SIGN_OUT">
@@ -592,23 +588,10 @@
         Sign out
       </message>
     </if>
-    <if expr="is_chromeos">
-      <message name="IDS_PIN_KEYBOARD_HINT_TEXT_PIN" desc="Text to display in the pin field for user pod when no pin has been entered.">
-        PIN
-      </message>
-      <message name="IDS_PIN_KEYBOARD_HINT_TEXT_PIN_PASSWORD" desc="Text to display in the pin field for user pod when no pin has been entered, and passwords are allowed.">
-        PIN or password
-      </message>
-      <message name="IDS_PIN_KEYBOARD_DELETE_ACCESSIBLE_NAME" desc="Text to be spoken when the focus is set to the delete button of the PIN keyboard.">
-        Delete
-      </message>
-      <message name="IDS_LOGIN_ERROR_AUTHENTICATING" desc="Couldn't sign in because password is invalid">
-        Sorry, your password could not be verified. Please try again.
-      </message>
-    </if>
-  </if>
 
-  <if expr="not is_android">
+
+
+
 
     <!-- Feature Showcase - Google Password Manager -->
     <message name="IDS_FEATURE_SHOWCASE_PASSWORD_MANAGER_NO_THANKS" desc="Label for the 'No thanks' button to not pin the Password Manager to toolbar.">
@@ -751,9 +734,9 @@
       other {{ITEM_COUNT} items are saved only to this device. To use them on your other devices, <ph name="BEGIN_LINK">&lt;a href="'#'" id="openBatchUploadLink"&gt;</ph>save them in your Google Account<ph name="END_LINK">&lt;/a&gt;</ph>.}
       }
     </message>
-  </if>
 
-  <if expr="not is_chromeos and not is_android">
+
+
     <!-- Profile Customization Web UI -->
     <message name="IDS_PROFILE_CUSTOMIZATION_DONE_BUTTON_LABEL" desc="Text for the Done button on the profile customization bubble">
       Done
@@ -1407,7 +1390,7 @@
     <message name="IDS_PROFILE_MENU_PROMO_DESCRIPTION_WITH_BATCH_UPLOAD_BOOKMARK_CLEANUP" desc="The description of the identity section in the Profile Menu for users that can see the Batch Upload promo in the Avatar button with the emphasis on Bookmarks cleanup, when having local data. This describes the action presented right below it in the button.">
       To clean up any duplicate bookmarks, save them in your Google Account
     </message>
-  </if>
+
     <!-- Sign in on your phone (QR code) strings  -->
     <if expr="not use_titlecase">
       <message name="IDS_AVATAR_BUTTON_SIGNIN_ON_PHONE" desc="Text on the avatar pill expanding while the QR code bubble is showing, which will let the user sign in on their phone.">

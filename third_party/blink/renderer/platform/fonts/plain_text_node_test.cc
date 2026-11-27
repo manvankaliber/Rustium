@@ -51,9 +51,6 @@ class PlainTextNodeTest : public testing::Test {
 
   void SetUp() override {
     skia::InitializeFontRendering();
-#if BUILDFLAG(IS_ANDROID)
-    feature_list_.InitAndDisableFeature(features::kGMSCoreEmoji);
-#endif
   }
 
  private:

@@ -906,7 +906,6 @@ TEST_F(CullRectUpdaterTest, ViewScrollNeedsCullRectUpdate) {
 
 // The test doesn't apply on Android or iOS where the LayoutObject of <select>
 // doesn't scroll.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(CullRectUpdaterTest, SelectDoesntExpandCullRect) {
   SetBodyInnerHTML(R"HTML(
     <select id="select" style="height: 50px; font-size: 20px" size="3">
@@ -923,7 +922,6 @@ TEST_F(CullRectUpdaterTest, SelectDoesntExpandCullRect) {
   gfx::Rect contents_cull_rect = GetContentsCullRect(*layer).Rect();
   EXPECT_LE(contents_cull_rect.height(), 50);
 }
-#endif
 
 TEST_F(CullRectUpdaterTest, InputDoesntExpandCullRect) {
   SetBodyInnerHTML(R"HTML(

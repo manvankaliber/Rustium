@@ -241,10 +241,6 @@ class ScreenlockMonitorTestSource : public ScreenlockMonitorSource {
 class VideoCaptureManagerTest : public testing::Test {
  public:
   VideoCaptureManagerTest() {
-#if BUILDFLAG(IS_ANDROID)
-    scoped_feature_list_.InitAndDisableFeature(
-        media::kAndroidEnableBackgroundMediaCapturing);
-#endif
   }
 
   VideoCaptureManagerTest(const VideoCaptureManagerTest&) = delete;
@@ -382,11 +378,6 @@ class VideoCaptureManagerTest : public testing::Test {
     base::RunLoop().RunUntilIdle();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void ApplicationStateChange(base::android::ApplicationState state) {
-    vcm_->OnApplicationStateChange(state);
-  }
-#endif
 
   BrowserTaskEnvironment task_environment_;
   raw_ptr<ScreenlockMonitorTestSource> screenlock_monitor_source_;
@@ -964,40 +955,6 @@ TEST_F(VideoCaptureManagerTest, InvalidateBuffersOnMultipleClientsDisconnect) {
   vcm_->UnregisterListener(listener_.get());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Try to open, start, pause and resume a device.
-TEST_F(VideoCaptureManagerTest, PauseAndResumeDevice) {
-  InSequence s;
-  EXPECT_CALL(*listener_,
-              Opened(blink::mojom::MediaStreamType::DEVICE_VIDEO_CAPTURE, _));
-  EXPECT_CALL(*frame_observer_, OnStarted(_));
-  EXPECT_CALL(*listener_,
-              Closed(blink::mojom::MediaStreamType::DEVICE_VIDEO_CAPTURE, _));
-
-  base::UnguessableToken video_session_id = vcm_->Open(devices_.front());
-  VideoCaptureControllerID client_id = StartClient(video_session_id, true);
-
-  // Release/ResumeDevices according to ApplicationStatus. Should cause no
-  // problem in any order. Check https://crbug.com/615557 for more details.
-  ApplicationStateChange(
-      base::android::APPLICATION_STATE_HAS_RUNNING_ACTIVITIES);
-  ApplicationStateChange(
-      base::android::APPLICATION_STATE_HAS_STOPPED_ACTIVITIES);
-  ApplicationStateChange(
-      base::android::APPLICATION_STATE_HAS_STOPPED_ACTIVITIES);
-  ApplicationStateChange(
-      base::android::APPLICATION_STATE_HAS_RUNNING_ACTIVITIES);
-  ApplicationStateChange(
-      base::android::APPLICATION_STATE_HAS_RUNNING_ACTIVITIES);
-
-  StopClient(client_id);
-  vcm_->Close(video_session_id);
-
-  // Wait to check callbacks before removing the listener.
-  base::RunLoop().RunUntilIdle();
-  vcm_->UnregisterListener(listener_.get());
-}
-#else
 TEST_F(VideoCaptureManagerTest, PauseAndResumeDeviceOnScreenLock) {
   vcm_->set_idle_close_timeout_for_testing(base::TimeDelta());
 
@@ -1224,7 +1181,6 @@ TEST_F(VideoCaptureManagerTest, ScreenLockAllowsAuthorizedOriginDeviceStart) {
   SetBrowserClientForTesting(old_browser_client);
   vcm_->UnregisterListener(listener_.get());
 }
-#endif
 
 // Try to open, start a device capture device, and confirm it's not affected by
 // the ScreenLocked event.
@@ -1255,7 +1211,7 @@ TEST_F(VideoCaptureManagerTest, DeviceCaptureDeviceNotClosedOnScreenlock) {
   vcm_->UnregisterListener(listener_.get());
 }
 
-#if BUILDFLAG(ENABLE_SCREEN_CAPTURE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_SCREEN_CAPTURE)
 // Try to open, start a desktop capture device, and confirm it's closed on
 // ScreenLocked event on desktop platforms.
 TEST_F(VideoCaptureManagerTest, DesktopCaptureDeviceClosedOnScreenlock) {
@@ -1293,7 +1249,7 @@ TEST_F(VideoCaptureManagerTest, DesktopCaptureDeviceClosedOnScreenlock) {
   base::RunLoop().RunUntilIdle();
   vcm_->UnregisterListener(listener_.get());
 }
-#endif  // ENABLE_SCREEN_CAPTURE && !BUILDFLAG(IS_ANDROID)
+#endif
 
 // TODO(mcasas): Add a test to check consolidation of the supported formats
 // provided by the device when http://crbug.com/323913 is closed.

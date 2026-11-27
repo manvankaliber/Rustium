@@ -63,15 +63,6 @@ class FeedbackUploaderChrome final : public FeedbackUploader {
 
   void AccessTokenAvailable(GoogleServiceAuthError error, std::string token);
 
-#if BUILDFLAG(PLATFORM_CFM)
-  class ActiveAccountAccessTokenFetcher;
-
-  void ActiveAccountAccessTokenAvailable(
-      base::expected<std::string, GoogleServiceAuthError> access_token);
-
-  std::unique_ptr<ActiveAccountAccessTokenFetcher>
-      active_account_token_fetcher_;
-#endif  // BUILDFLAG(PLATFORM_CFM)
 
   std::unique_ptr<signin::PrimaryAccountAccessTokenFetcher>
       primary_account_token_fetcher_;

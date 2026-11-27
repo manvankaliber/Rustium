@@ -13,10 +13,6 @@
 #include "mojo/public/cpp/bindings/associated_receiver.h"
 #include "mojo/public/cpp/bindings/associated_remote.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "mojo/public/cpp/bindings/receiver.h"
-#include "third_party/blink/public/mojom/facilitated_payments/payment_link_handler.mojom.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class GURL;
 
@@ -36,9 +32,6 @@ class SecurityChecker;
 // `FacilitatedPaymentsAgent` throughout its entire lifetime.
 class ContentFacilitatedPaymentsDriver
     : public FacilitatedPaymentsDriver,
-#if BUILDFLAG(IS_ANDROID)
-      public mojom::PaymentLinkHandler,
-#endif  // BUILDFLAG(IS_ANDROID)
       public mojom::FacilitatedPaymentsDriver {
  public:
   ContentFacilitatedPaymentsDriver(
@@ -52,13 +45,6 @@ class ContentFacilitatedPaymentsDriver
       const ContentFacilitatedPaymentsDriver&) = delete;
   ~ContentFacilitatedPaymentsDriver() override;
 
-#if BUILDFLAG(IS_ANDROID)
-  // mojom::PaymentLinkHandler:
-  void HandlePaymentLink(const GURL& url) override;
-
-  void SetPaymentLinkHandlerReceiver(
-      mojo::PendingReceiver<mojom::PaymentLinkHandler> pending_receiver);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // mojom::FacilitatedPaymentsDriver:
   // Receives page signals from `FacilitatedPaymentsAgent` in the renderer
@@ -92,9 +78,6 @@ class ContentFacilitatedPaymentsDriver
   // Factory owning this driver.
   raw_ptr<ContentFacilitatedPaymentsDriverFactory> factory_ = nullptr;
 
-#if BUILDFLAG(IS_ANDROID)
-  mojo::Receiver<mojom::PaymentLinkHandler> receiver_{this};
-#endif  // BUILDFLAG(IS_ANDROID)
   mojo::AssociatedReceiver<mojom::FacilitatedPaymentsDriver> driver_receiver_{
       this};
   mojo::AssociatedRemote<mojom::FacilitatedPaymentsAgent> agent_;

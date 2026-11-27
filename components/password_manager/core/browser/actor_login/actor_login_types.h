@@ -135,8 +135,6 @@ enum class ActorLoginError {
 };
 
 // Translates `ActorLoginError` to `actor::mojom::ActionResultCode`.
-actor::mojom::ActionResultCode LoginErrorToActorResult(
-    ActorLoginError login_error);
 
 using CredentialsOrError =
     base::expected<std::vector<Credential>, ActorLoginError>;
@@ -196,8 +194,6 @@ enum class LoginStatusResult {
 };
 
 // Translates `LoginStatusResult` to `actor::mojom::ActionResultCode`.
-actor::mojom::ActionResultCode LoginResultToActorResult(
-    LoginStatusResult login_result);
 
 using FrameFillingStartedCallback =
     base::OnceCallback<void(base::span<const int> global_frame_ids)>;

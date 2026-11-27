@@ -845,7 +845,6 @@ bool SaveCardBubbleControllerImpl::ShouldReshowOnTabVisible() const {
          current_bubble_type_ == PaymentsBubbleType::kUploadComplete;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::optional<actions::ActionId>
 SaveCardBubbleControllerImpl::GetActionIdForPageAction() {
   return kActionShowPaymentsBubbleOrPage;
@@ -855,7 +854,6 @@ std::optional<std::u16string>
 SaveCardBubbleControllerImpl::GetPageActionTooltipText() {
   return GetSavePaymentIconTooltipText();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void SaveCardBubbleControllerImpl::DoShowBubble() {
   if (!IsWebContentsActive()) {

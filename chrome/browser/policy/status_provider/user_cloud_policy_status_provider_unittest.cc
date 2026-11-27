@@ -26,9 +26,6 @@
 #include "content/public/test/browser_task_environment.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#endif
 
 namespace policy {
 
@@ -45,14 +42,10 @@ class UserCloudPolicyStatusProviderTest : public testing::Test {
   }
 
   content::BrowserTaskEnvironment task_environment_;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::system::ScopedFakeStatisticsProvider fake_statistics_provider_;
-#endif
   TestingProfileManager profile_manager_{TestingBrowserProcess::GetGlobal()};
   raw_ptr<TestingProfile> profile_ = nullptr;
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(UserCloudPolicyStatusProviderTest, GetStatusMojoUnmanaged) {
   auto store = std::make_unique<MockCloudPolicyStore>(
       dm_protocol::GetChromeUserPolicyType());
@@ -64,7 +57,6 @@ TEST_F(UserCloudPolicyStatusProviderTest, GetStatusMojoUnmanaged) {
   EXPECT_FALSE(status->error);
   EXPECT_TRUE(status->status.empty());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(UserCloudPolicyStatusProviderTest,
        GetStatusMojoManagedNoEnrollmentToken) {

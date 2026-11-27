@@ -57,14 +57,14 @@
 #include "ui/gfx/switches.h"
 #endif
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 #include <signal.h>
 
 #include "content/app/locale_posix.h"
 #include "content/common/shared_file_util.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #include "base/files/scoped_file.h"
 #endif
 
@@ -83,7 +83,7 @@ namespace content {
 
 namespace {
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 
 // Setup signal-handling state: resanitize most signals, ignore SIGPIPE.
 void SetupSignalHandlers() {
@@ -111,7 +111,7 @@ void SetupSignalHandlers() {
     CHECK_EQ(0, sigaction(signal_to_reset, &sigact, nullptr));
 }
 
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 bool IsSubprocess() {
   auto type = base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
@@ -199,9 +199,7 @@ NO_STACK_PROTECTOR int RunContentProcess(
   // may re-run Main() without restarting the browser process. This flag
   // prevents initializing things more than once.
   static bool is_initialized = false;
-#if !BUILDFLAG(IS_ANDROID)
   DCHECK(!is_initialized);
-#endif
   if (is_initialized) {
     content_main_runner->ReInitializeParams(std::move(params));
   } else {
@@ -212,7 +210,7 @@ NO_STACK_PROTECTOR int RunContentProcess(
     base::EnableTerminationOnOutOfMemory();
     logging::RegisterAbslAbortHook();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     // The various desktop environments set this environment variable that
     // allows the dbus client library to connect directly to the bus. When this
     // variable is not set (test environments like xvfb-run), the dbus client
@@ -230,7 +228,6 @@ NO_STACK_PROTECTOR int RunContentProcess(
     base::win::RegisterInvalidParamHandler();
 #endif  // BUILDFLAG(IS_WIN)
 
-#if !BUILDFLAG(IS_ANDROID)
     // On Android, the command line is initialized when library is loaded.
     int argc = 0;
     const char** argv = nullptr;
@@ -250,11 +247,10 @@ NO_STACK_PROTECTOR int RunContentProcess(
     base::EnableTerminationOnHeapCorruption();
 
     base::SetProcessTitleFromCommandLine(argv);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // On Android setlocale() is not supported, and we don't override the signal
 // handlers so we can get a stack trace when crashing.
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
     InitializeCLibraryLocale();
 
     SetupSignalHandlers();
@@ -276,22 +272,8 @@ NO_STACK_PROTECTOR int RunContentProcess(
     InitializeMac();
 #endif
 
-#if BUILDFLAG(IS_IOS)
-    base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-    command_line->AppendSwitch(switches::kEnableViewport);
-    command_line->AppendSwitch(embedder_support::kUseMobileUserAgent);
 
-#if BUILDFLAG(IS_IOS_TVOS)
-    // Set tvOS to single-process mode by default.
-    command_line->AppendSwitch(switches::kSingleProcess);
-
-    // Enable spatial navigation; we interpret remote control swipes as arrow
-    // keys.
-    command_line->AppendSwitch(switches::kEnableSpatialNavigation);
-#endif
-#endif
-
-#if (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)) && !defined(COMPONENT_BUILD)
+#if BUILDFLAG(IS_LINUX) && !defined(COMPONENT_BUILD)
     base::subtle::EnableFDOwnershipEnforcement(true);
 #endif
 
@@ -326,9 +308,7 @@ NO_STACK_PROTECTOR int RunContentProcess(
     CommonSubprocessInit();
   exit_code = content_main_runner->Run();
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   content_main_runner->Shutdown();
-#endif
 
   return exit_code;
 }

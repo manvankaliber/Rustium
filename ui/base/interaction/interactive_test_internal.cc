@@ -32,15 +32,11 @@
 
 #if BUILDFLAG(IS_MAC)
 #include "ui/base/interaction/interaction_test_util_mac.h"
-#elif BUILDFLAG(IS_ANDROID)
-#include "ui/android/window_android.h"
 #elif USE_AURA
 #include "ui/aura/window.h"
 #endif
 
-#if !BUILDFLAG(IS_IOS)
 #include "ui/native_window_tracker/native_window_tracker.h"
-#endif
 
 namespace ui::test::internal {
 
@@ -85,9 +81,6 @@ class InteractiveTestPrivateFrameworkImpl
       const TrackedElement* el) const override {
 #if BUILDFLAG(IS_MAC)
     return InteractionTestUtilMac::GetNativeWindowFor(el);
-#elif BUILDFLAG(IS_ANDROID)
-    const auto view = el->GetNativeView();
-    return view ? view->GetWindowAndroid() : gfx::NativeWindow();
 #elif USE_AURA
     const auto view = el->GetNativeView();
     return view ? view->GetToplevelWindow() : gfx::NativeWindow();
@@ -118,12 +111,7 @@ class InteractiveTestPrivate::NativeWindowReference {
   NativeWindowReference& operator=(NativeWindowReference&& other) = default;
 
   bool IsValid() const {
-#if BUILDFLAG(IS_IOS)
-    // iOS uses a weak reference already.
-    return static_cast<bool>(window_);
-#else
     return window_ && tracker_ && !tracker_->WasNativeWindowDestroyed();
-#endif
   }
 
   gfx::NativeWindow GetWindow() const {
@@ -135,16 +123,12 @@ class InteractiveTestPrivate::NativeWindowReference {
       return;
     }
     window_ = window;
-#if !BUILDFLAG(IS_IOS)
     tracker_ = window ? ui::NativeWindowTracker::Create(window) : nullptr;
-#endif
   }
 
  private:
   gfx::NativeWindow window_ = gfx::NativeWindow();
-#if !BUILDFLAG(IS_IOS)
   std::unique_ptr<ui::NativeWindowTracker> tracker_;
-#endif
 };
 
 StateObserverElement::StateObserverElement(ElementIdentifier id,

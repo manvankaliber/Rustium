@@ -680,10 +680,6 @@ constexpr base::FeatureParam<size_t> kOmniboxNumSrpZpsRelatedSearches{
 // <- Power Tools
 // ---------------------------------------------------------
 // Diagnostics -->
-#if BUILDFLAG(IS_ANDROID)
-inline constexpr base::FeatureParam<bool> kAndroidDiagInputConnection{
-    &omnibox::kDiagnostics, "omnibox_diag_input_connection", false};
-#endif
 // <- Diagnostics
 // ---------------------------------------------------------
 // Mobile Parity update -->
@@ -691,14 +687,6 @@ inline constexpr base::FeatureParam<bool> kMobileParityEnableFeedForGoogleOnly{
     &omnibox::kOmniboxMobileParityUpdate, "enable_feed_for_google_only", true};
 // <-- Mobile Parity update
 
-#if BUILDFLAG(IS_ANDROID)
-// Fusebox -->
-inline constexpr base::FeatureParam<bool>
-    kOmniboxMultimodalPrioritizeSuggestionsForFirstDocument{
-        &omnibox::kOmniboxMultimodalInput,
-        "prioritize_suggestions_for_first_document", false};
-// <-- Fusebox
-#endif
 
 // New params should be inserted above this comment. They should be ordered
 // consistently with `omnibox_features.h`. They should be formatted as:

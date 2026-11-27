@@ -176,8 +176,6 @@ bool SetFileModificationTime(const base::FilePath& path,
 #endif  // BUILDFLAG(IS_APPLE)
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
-
 bool CanCreateSymbolicLinks() {
 #if BUILDFLAG(IS_POSIX)
   return true;
@@ -211,8 +209,6 @@ bool CreateSymbolicLink(const base::FilePath& target_path,
   return true;
 #endif  // BUILDFLAG(IS_POSIX)
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 }  // namespace test
 }  // namespace crashpad

@@ -1189,9 +1189,7 @@ class LayerTreeHostPresentationDuringAnimation
 };
 
 // Disabled on ChromeOS due to test flakiness. See https://crbug.com/1246422
-#if !BUILDFLAG(IS_CHROMEOS)
 MULTI_THREAD_TEST_F(LayerTreeHostPresentationDuringAnimation);
-#endif
 
 // Verifies that when the main thread removes a scroll animation and sets a new
 // scroll position, the active tree takes on exactly this new scroll position
@@ -1722,9 +1720,7 @@ class LayerTreeHostAnimationTestRemoveKeyframeModel
 };
 
 // Disabled on ChromeOS due to test flakiness. See https://crbug.com/1246422
-#if !BUILDFLAG(IS_CHROMEOS)
 SINGLE_THREAD_TEST_F(LayerTreeHostAnimationTestRemoveKeyframeModel);
-#endif
 
 MULTI_THREAD_TEST_F(LayerTreeHostAnimationTestRemoveKeyframeModel);
 
@@ -1836,8 +1832,7 @@ class LayerTreeHostAnimationTestIsAnimating
 
 // TODO(https://issues.chromium.org/41490442): Flaky on Linux/ASAN/debug.
 // TODO(crbug.com/364634743): Flaky on Android.
-#if BUILDFLAG(IS_LINUX) || defined(ADDRESS_SANITIZER) || !defined(NDEBUG) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || defined(ADDRESS_SANITIZER) || !defined(NDEBUG)
 SINGLE_THREAD_TEST_F(LayerTreeHostAnimationTestIsAnimating);
 #else
 SINGLE_AND_MULTI_THREAD_TEST_F(LayerTreeHostAnimationTestIsAnimating);

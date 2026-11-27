@@ -12,32 +12,14 @@
 #include "extensions/test/test_extension_dir.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "chrome/browser/tab_list/tab_list_interface.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-
-// Must come after all headers that specialize FromJniType() / ToJniType().
-#include "chrome/test/test_support_jni_headers/OmniboxTestUtils_jni.h"
-#else
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 namespace extensions {
 
 namespace {
 
 void SendToOmniboxAndSubmit(BrowserWindowInterface* browser, const GURL& url) {
-#if BUILDFLAG(IS_ANDROID)
-  JNIEnv* env = base::android::AttachCurrentThread();
-  TabListInterface* tab_list = TabListInterface::From(browser);
-  CHECK(tab_list);
-  TabModel* tab_model = static_cast<TabModel*>(tab_list);
-  chrome::android::Java_OmniboxTestUtils_loadUrlFromOmnibox(
-      env, tab_model->GetJavaObject(), url.spec());
-#else
   ui_test_utils::SendToOmniboxAndSubmit(browser, url.spec());
-#endif
 }
 
 }  // namespace

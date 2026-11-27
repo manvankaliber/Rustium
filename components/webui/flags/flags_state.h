@@ -21,9 +21,6 @@
 #include "base/memory/raw_span.h"
 #include "base/values.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/cached_flags/android/jni_delegate.h"
-#endif
 
 namespace flags_ui {
 
@@ -47,7 +44,6 @@ enum {
   kOsAndroid = 1 << 4,
   kOsCrOSOwnerOnly = 1 << 5,
   kOsIos = 1 << 6,
-  kOsFuchsia = 1 << 7,
   kOsWebView = 1 << 8,
 
   kDeprecated = 1 << 9,
@@ -294,16 +290,6 @@ class FlagsState {
   // May be null.
   raw_ptr<Delegate> delegate_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Delegate used by internal code to make JNI calls.
-  std::unique_ptr<cached_flags::JniDelegate> jni_delegate_;
-
- public:
-  void SetJniDelegateForTesting(
-      std::unique_ptr<cached_flags::JniDelegate> delegate) {
-    jni_delegate_ = std::move(delegate);
-  }
-#endif
 };
 
 }  // namespace flags_ui

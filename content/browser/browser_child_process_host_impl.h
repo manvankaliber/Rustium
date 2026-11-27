@@ -39,9 +39,9 @@
 #include "base/win/object_watcher.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "content/browser/child_thread_type_switcher_linux.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 namespace base {
 class CommandLine;
@@ -131,14 +131,8 @@ class CONTENT_EXPORT BrowserChildProcessHostImpl
       std::unique_ptr<base::CommandLine> cmd_line,
       std::unique_ptr<ChildProcessLauncherFileData> file_data);
 
-#if !BUILDFLAG(IS_ANDROID)
   void SetProcessPriority(base::Process::Priority priority);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID)
-  void EnableWarmUpConnection();
-  void DumpProcessStack();
-#endif
 
   BrowserChildProcessHostDelegate* delegate() const { return delegate_; }
 
@@ -177,9 +171,6 @@ class CONTENT_EXPORT BrowserChildProcessHostImpl
   // ChildProcessLauncher::Client implementation.
   void OnProcessLaunched() override;
   void OnProcessLaunchFailed(int error_code) override;
-#if BUILDFLAG(IS_ANDROID)
-  bool CanUseWarmUpConnection() override;
-#endif
 
   // memory_instrumentation::mojom::CoordinatorConnector implementation:
   void RegisterCoordinatorClient(
@@ -269,24 +260,19 @@ class CONTENT_EXPORT BrowserChildProcessHostImpl
   // Whether the child process exited abnormally (killed or crashed).
   bool exited_abnormally_ = false;
 
-#if BUILDFLAG(IS_ANDROID)
-  // whether the child process can use pre-warmed up connection for better
-  // performance.
-  bool can_use_warm_up_connection_ = false;
-#endif
 
   // Keeps this process registered with the tracing subsystem.
   std::unique_ptr<TracingServiceController::ClientRegistration>
       tracing_registration_;
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   // For child process to connect to the system tracing service.
   std::unique_ptr<tracing::SystemTracingService> system_tracing_service_;
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   ChildThreadTypeSwitcher child_thread_type_switcher_;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   std::optional<base::MemoryPressureListenerRegistration>
       memory_pressure_listener_registration_;

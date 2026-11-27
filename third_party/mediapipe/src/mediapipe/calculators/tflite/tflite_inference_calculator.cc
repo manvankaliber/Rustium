@@ -38,11 +38,6 @@
 #include "tensorflow/lite/kernels/register.h"  // from @litert
 #include "tensorflow/lite/model.h"             // from @litert
 
-#if defined(MEDIAPIPE_ANDROID)
-#include "mediapipe/util/android/file/base/file.h"
-#include "mediapipe/util/android/file/base/filesystem.h"
-#include "mediapipe/util/android/file/base/helpers.h"
-#endif  // ANDROID
 
 #if MEDIAPIPE_TFLITE_GL_INFERENCE
 #include "mediapipe/gpu/gl_calculator_helper.h"
@@ -72,9 +67,6 @@
 #if !defined(MEDIAPIPE_EDGE_TPU)
 #include "tensorflow/lite/delegates/xnnpack/xnnpack_delegate.h"  // from @litert
 #endif                                                  // !EDGETPU
-#if defined(MEDIAPIPE_ANDROID)
-#include "tensorflow/lite/delegates/nnapi/nnapi_delegate.h"  // from @litert
-#endif                                              // ANDROID
 
 namespace {
 // Commonly used to compute the number of blocks to launch in a kernel.
@@ -146,15 +138,14 @@ struct GPUData {
 namespace {
 
 int GetXnnpackDefaultNumThreads() {
-#if defined(MEDIAPIPE_ANDROID) || defined(MEDIAPIPE_IOS) || \
-    defined(__EMSCRIPTEN_PTHREADS__)
+#if defined(__EMSCRIPTEN_PTHREADS__)
   constexpr int kMinNumThreadsByDefault = 1;
   constexpr int kMaxNumThreadsByDefault = 4;
   return std::clamp(NumCPUCores() / 2, kMinNumThreadsByDefault,
                     kMaxNumThreadsByDefault);
 #else
   return 1;
-#endif  // MEDIAPIPE_ANDROID || MEDIAPIPE_IOS || __EMSCRIPTEN_PTHREADS__
+#endif
 }
 
 // Returns number of threads to configure XNNPACK delegate with.
@@ -403,11 +394,6 @@ absl::Status TfLiteInferenceCalculator::Open(CalculatorContext* cc) {
                         options.delegate().gpu().has_cached_kernel_path();
 
   if (use_kernel_caching_) {
-#if MEDIAPIPE_TFLITE_GL_INFERENCE && defined(MEDIAPIPE_ANDROID)
-    cached_kernel_filename_ = options.delegate().gpu().cached_kernel_path() +
-                              mediapipe::File::Basename(options.model_path()) +
-                              ".ker";
-#endif  // MEDIAPIPE_TFLITE_GL_INFERENCE && MEDIAPIPE_ANDROID
   }
 
   if (use_advanced_gpu_api_ && !gpu_input_) {
@@ -489,16 +475,6 @@ absl::Status TfLiteInferenceCalculator::Process(CalculatorContext* cc) {
 }
 
 absl::Status TfLiteInferenceCalculator::WriteKernelsToFile() {
-#if MEDIAPIPE_TFLITE_GL_INFERENCE && defined(MEDIAPIPE_ANDROID)
-  if (use_kernel_caching_) {
-    // Save kernel file.
-    ABSL_ASSIGN_OR_RETURN(std::vector<uint8_t> kernel_cache,
-                          tflite_gpu_runner_->GetSerializedBinaryCache());
-    std::string cache_str(kernel_cache.begin(), kernel_cache.end());
-    ABSL_RETURN_IF_ERROR(
-        mediapipe::file::SetContents(cached_kernel_filename_, cache_str));
-  }
-#endif  // MEDIAPIPE_TFLITE_GL_INFERENCE && MEDIAPIPE_ANDROID
   return absl::OkStatus();
 }
 
@@ -719,18 +695,6 @@ absl::Status TfLiteInferenceCalculator::ProcessOutputsGpu(
 }
 
 absl::Status TfLiteInferenceCalculator::ReadKernelsFromFile() {
-#if MEDIAPIPE_TFLITE_GL_INFERENCE && defined(MEDIAPIPE_ANDROID)
-  if (use_kernel_caching_) {
-    // Load pre-compiled kernel file.
-    if (mediapipe::File::Exists(cached_kernel_filename_)) {
-      std::string cache_str;
-      ABSL_RETURN_IF_ERROR(
-          mediapipe::file::GetContents(cached_kernel_filename_, &cache_str));
-      std::vector<uint8_t> cache_vec(cache_str.begin(), cache_str.end());
-      tflite_gpu_runner_->SetSerializedBinaryCache(std::move(cache_vec));
-    }
-  }
-#endif  // MEDIAPIPE_TFLITE_GL_INFERENCE && MEDIAPIPE_ANDROID
   return absl::OkStatus();
 }
 
@@ -918,28 +882,6 @@ absl::Status TfLiteInferenceCalculator::LoadDelegate(CalculatorContext* cc) {
   }
 
   if (!gpu_inference_) {
-#if defined(MEDIAPIPE_ANDROID)
-    const bool nnapi_requested = calculator_opts.has_delegate()
-                                     ? calculator_opts.delegate().has_nnapi()
-                                     : calculator_opts.use_nnapi();
-    if (nnapi_requested) {
-      // Attempt to use NNAPI.
-      // If not supported, the default CPU delegate will be created and used.
-      interpreter_->SetAllowFp16PrecisionForFp32(1);
-      tflite::StatefulNnApiDelegate::Options options;
-      const auto& nnapi = calculator_opts.delegate().nnapi();
-      // Set up cache_dir and model_token for NNAPI compilation cache.
-      if (nnapi.has_cache_dir() && nnapi.has_model_token()) {
-        options.cache_dir = nnapi.cache_dir().c_str();
-        options.model_token = nnapi.model_token().c_str();
-      }
-      delegate_ = TfLiteDelegatePtr(new tflite::StatefulNnApiDelegate(options),
-                                    [](TfLiteDelegate*) {});
-      RET_CHECK_EQ(interpreter_->ModifyGraphWithDelegate(delegate_.get()),
-                   kTfLiteOk);
-      return absl::OkStatus();
-    }
-#endif  // MEDIAPIPE_ANDROID
 
 #if defined(__EMSCRIPTEN__)
     const bool use_xnnpack = true;

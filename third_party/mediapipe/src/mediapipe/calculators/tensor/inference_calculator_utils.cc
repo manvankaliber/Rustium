@@ -217,15 +217,14 @@ absl::Status CopyTfLiteTensorToTensor<char>(const TfLiteTensor& tflite_tensor,
 }  // namespace
 
 int GetCpuDefaultNumThreads() {
-#if defined(MEDIAPIPE_ANDROID) || defined(MEDIAPIPE_IOS) || \
-    defined(__EMSCRIPTEN_PTHREADS__)
+#if defined(__EMSCRIPTEN_PTHREADS__)
   constexpr int kMinNumThreadsByDefault = 1;
   constexpr int kMaxNumThreadsByDefault = 4;
   return std::clamp(NumCPUCores() / 2, kMinNumThreadsByDefault,
                     kMaxNumThreadsByDefault);
 #else
   return 1;
-#endif  // MEDIAPIPE_ANDROID || MEDIAPIPE_IOS || __EMSCRIPTEN_PTHREADS__
+#endif
 }
 
 int GetXnnpackDefaultNumThreads() {

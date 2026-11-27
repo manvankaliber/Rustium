@@ -4,7 +4,7 @@
 # found in the LICENSE file.
 
 from cpp_bundle_generator import CppBundleGenerator
-from model import Model
+from model import Model, Platforms
 
 import json_schema
 import os
@@ -42,18 +42,19 @@ class CppBundleGeneratorTest(unittest.TestCase):
       'test/function_platform_all.json'
     )
     self.assertEqual(
-      'BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_DESKTOP_ANDROID) '
-      '|| BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)',
+      'BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)',
       _getPlatformIfdefs(cpp_bundle_generator, model),
     )
 
-  def testIfDefsForChromeOS(self):
+  def testRetiredPlatformsDoNotEnableRegistration(self):
     cpp_bundle_generator, model = _createCppBundleGenerator(
       'test/function_platform_chromeos.json'
     )
-    self.assertEqual(
-      'BUILDFLAG(IS_CHROMEOS)', _getPlatformIfdefs(cpp_bundle_generator, model)
-    )
+    function = list(list(model.namespaces.values())[0].functions.values())[0]
+    for platform in (Platforms.CHROMEOS, Platforms.DESKTOP_ANDROID):
+      with self.subTest(platform=platform.name):
+        function.platforms = [platform]
+        self.assertEqual('0', _getPlatformIfdefs(cpp_bundle_generator, model))
 
 
 if __name__ == '__main__':

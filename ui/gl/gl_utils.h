@@ -19,9 +19,6 @@
 #include <dxgi1_6.h>
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/files/scoped_file.h"
-#endif
 
 namespace gl {
 class GLApi;
@@ -31,12 +28,6 @@ class GLDisplay;
 GL_EXPORT void Crash();
 GL_EXPORT void Hang();
 
-#if BUILDFLAG(IS_ANDROID)
-GL_EXPORT base::ScopedFD MergeFDs(base::ScopedFD a, base::ScopedFD b);
-
-// Disable ANGLE and force to use native or other GL implementation.
-GL_EXPORT void DisableANGLE();
-#endif
 
 GL_EXPORT bool UsePassthroughCommandDecoder(
     const base::CommandLine* command_line);

@@ -258,7 +258,7 @@ void GpuChannelHost::CopyToGpuMemoryBufferAsync(
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 void GpuChannelHost::CopyNativeGmbToSharedMemoryAsync(
     gfx::GpuMemoryBufferHandle buffer_handle,
     base::UnsafeSharedMemoryRegion memory_region,
@@ -272,7 +272,7 @@ void GpuChannelHost::CopyNativeGmbToSharedMemoryAsync(
   GetGpuChannel().CopyNativeGmbToSharedMemoryAsync(
       std::move(buffer_handle), std::move(memory_region), std::move(callback));
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
 void GpuChannelHost::SignalSyncToken(std::vector<SyncToken> sync_tokens,
                                      base::OnceClosure callback) {

@@ -49,12 +49,8 @@ class TopChromeWebUIProfileImpl : public Profile {
   PrefService* GetPrefs() override;
   const PrefService* GetPrefs() const override;
   policy::SchemaRegistryService* GetPolicySchemaRegistryService() override;
-#if BUILDFLAG(IS_CHROMEOS)
-  policy::UserCloudPolicyManagerAsh* GetUserCloudPolicyManagerAsh() override;
-#else
   policy::UserCloudPolicyManager* GetUserCloudPolicyManager() override;
   policy::ProfileCloudPolicyManager* GetProfileCloudPolicyManager() override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   policy::CloudPolicyManager* GetCloudPolicyManager() override;
   bool IsSameOrParent(Profile* profile) override;
   base::Time GetStartTime() const override;
@@ -66,11 +62,6 @@ class TopChromeWebUIProfileImpl : public Profile {
   void set_last_selected_directory(const base::FilePath& path) override;
   bool WasCreatedByVersionOrLater(const std::string& version) override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void ChangeAppLocale(const std::string& locale, AppLocaleChangedVia) override;
-  void OnLogin() override;
-  void InitChromeOSPreferences() override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   bool IsNewProfile() const override;
   GURL GetHomePage() override;

@@ -38,17 +38,11 @@ std::string_view ToString(permissions::RequestType request_type) {
 
   static constexpr auto map =
       base::MakeFixedFlatMap<RequestType, std::string_view>({
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kAmbientLogin, "AmbientLogin"},
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kArSession, "ArSession"},
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kCameraPanTiltZoom, "CameraPanTiltZoom"},
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kCameraStream, "CameraStream"},
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kCapturedSurfaceControl, "CapturedSurfaceControl"},
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kClipboard, "Clipboard"},
           {RequestType::kDiskQuota, "DiskQuota"},
           {RequestType::kFileSystemAccess, "FileSystemAccess"},
@@ -56,37 +50,20 @@ std::string_view ToString(permissions::RequestType request_type) {
           {RequestType::kHandTracking, "HandTracking"},
           {RequestType::kIdentityProvider, "IdentityProvider"},
           {RequestType::kIdleDetection, "IdleDetection"},
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kLocalFonts, "LocalFonts"},
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kMicStream, "MicStream"},
           {RequestType::kMidiSysex, "MidiSysex"},
           {RequestType::kMultipleDownloads, "MultipleDownloads"},
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-          {RequestType::kNfcDevice, "NfcDevice"},
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
           {RequestType::kNotifications, "Notifications"},
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kKeyboardLock, "KeyboardLock"},
           {RequestType::kPointerLock, "PointerLock"},
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
           {RequestType::kProtectedMediaIdentifier, "ProtectedMediaIdentifier"},
 #endif
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kRegisterProtocolHandler, "RegisterProtocolHandler"},
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
-#if BUILDFLAG(ENABLE_SMART_CARD)
-          {RequestType::kSmartCard, "SmartCard"},
-#endif
           {RequestType::kStorageAccess, "StorageAccess"},
           {RequestType::kVrSession, "VrSession"},
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
           {RequestType::kWebAppInstallation, "WebAppInstallation"},
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
-#if BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(USE_CUPS)
-          {RequestType::kWebPrinting, "WebPrinting"},
-#endif
           {RequestType::kWindowManagement, "WindowManagement"},
       });
 

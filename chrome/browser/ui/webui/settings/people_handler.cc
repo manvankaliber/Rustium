@@ -79,15 +79,9 @@
 #include "ui/base/webui/web_ui_util.h"
 #include "ui/gfx/image/image.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "chromeos/constants/pref_names.h"
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/sync/sync_passphrase_dialog.h"
 #include "chrome/browser/ui/webui/profile_helper.h"
-#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 #include "chrome/browser/signin/account_consistency_mode_manager.h"
@@ -240,7 +234,6 @@ base::DictValue GetAccountValue(signin::IdentityManager* identity_manager,
   return dict;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 bool IsChangePrimaryAccountAllowed(Profile* profile, const std::string& email) {
   signin::IdentityManager* identity_manager =
       IdentityManagerFactory::GetForProfile(profile);
@@ -265,7 +258,6 @@ signin_metrics::AccessPoint GetAccessPoint(
       return signin_metrics::AccessPoint::kSettingsYourSavedInfo;
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 ChromeSigninSettingModification ChromeSigninUserChoiceToModification(
@@ -358,23 +350,10 @@ void PeopleHandler::RegisterMessages() {
       "SyncTrustedVaultBannerStateDispatch",
       base::BindRepeating(&PeopleHandler::HandleTrustedVaultBannerStateDispatch,
                           base::Unretained(this)));
-#if BUILDFLAG(IS_CHROMEOS)
-  web_ui()->RegisterMessageCallback(
-      "AttemptUserExit",
-      base::BindRepeating(&PeopleHandler::HandleAttemptUserExit,
-                          base::Unretained(this)));
-  web_ui()->RegisterMessageCallback(
-      "TurnOnSync", base::BindRepeating(&PeopleHandler::HandleTurnOnSync,
-                                        base::Unretained(this)));
-  web_ui()->RegisterMessageCallback(
-      "TurnOffSync", base::BindRepeating(&PeopleHandler::HandleTurnOffSync,
-                                         base::Unretained(this)));
-#else
   web_ui()->RegisterMessageCallback(
       "SyncSetupStartSignIn",
       base::BindRepeating(&PeopleHandler::HandleStartSignin,
                           base::Unretained(this)));
-#endif
 
   web_ui()->RegisterMessageCallback(
       "SyncShowSyncPassphraseDialog",
@@ -482,7 +461,6 @@ void PeopleHandler::OnJavascriptDisallowed() {
   profile_attributes_observation_.Reset();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void PeopleHandler::DisplayGaiaLogin(signin_metrics::AccessPoint access_point) {
   // Advanced options are no longer being configured if the login screen is
   // visible. If the user exits the signin wizard after this without
@@ -525,7 +503,6 @@ void PeopleHandler::DisplayGaiaLoginInNewTabOrWindow(
   signin_ui_util::EnableHistorySyncFromSingleAccountPromo(
       profile_, CoreAccountInfo(), access_point);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void PeopleHandler::OnDidClosePage(const base::ListValue& args) {
   // Don't mark setup as complete if "didAbort" is true, or if authentication
@@ -785,13 +762,6 @@ void PeopleHandler::HandleShowSyncSetupUI(const base::ListValue& args) {
     sync_blocker_ = service->GetSetupInProgressHandle();
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Mark Sync as requested by the user, in case it was reset via dashboard.
-  if (service && (service->HasSyncConsent() ||
-                  !syncer::IsReplaceSyncPromosWithSignInPromosEnabled())) {
-    service->GetUserSettings()->ClearSyncFeatureDisabledViaDashboard();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Observe the web contents for a before unload event.
   Observe(web_ui()->GetWebContents());
@@ -805,24 +775,7 @@ void PeopleHandler::HandleShowSyncSetupUI(const base::ListValue& args) {
   web_ui()->GetWebContents()->Focus();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// On ChromeOS, we need to sign out the user session to fix an auth error, so
-// the user goes through the real signin flow to generate a new auth token.
-void PeopleHandler::HandleAttemptUserExit(const base::ListValue& args) {
-  DVLOG(1) << "Signing out the user to fix a sync error.";
-  chrome::AttemptUserExit();
-}
 
-void PeopleHandler::HandleTurnOnSync(const base::ListValue& args) {
-  NOTREACHED() << "It is not possible to toggle Sync on Ash";
-}
-
-void PeopleHandler::HandleTurnOffSync(const base::ListValue& args) {
-  NOTREACHED() << "It is not possible to toggle Sync on Ash";
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if !BUILDFLAG(IS_CHROMEOS)
 void PeopleHandler::HandleStartSignin(const base::ListValue& args) {
   AllowJavascript();
   CHECK_EQ(1U, args.size());
@@ -837,7 +790,6 @@ void PeopleHandler::HandleStartSignin(const base::ListValue& args) {
         base::NotFatalUntil::M162);
   DisplayGaiaLogin(access_point);
 }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 
@@ -1037,7 +989,6 @@ void PeopleHandler::CloseSyncSetup() {
   // cannot build (RevokeSyncConsent() doesn't exist). However, the code is
   // unreachable on Ash because IsInitialSyncFeatureSetupComplete() in the
   // condition below always returns true.
-#if !BUILDFLAG(IS_CHROMEOS)
   syncer::SyncService* sync_service = GetSyncService();
 
   // Don't log a cancel event if the sync setup dialog is being
@@ -1063,7 +1014,6 @@ void PeopleHandler::CloseSyncSetup() {
       return;
     }
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Alert the sync service anytime the sync setup dialog is closed. This can
   // happen due to the user clicking the OK or Cancel button, or due to the
@@ -1263,13 +1213,6 @@ base::DictValue PeopleHandler::GetSyncStatusDictionary() const {
                   signin_ui_util::GetAuthenticatedUsername(profile_));
   sync_status.Set("hasUnrecoverableError",
                   service && service->HasUnrecoverableError());
-#if BUILDFLAG(IS_CHROMEOS)
-  if (ash::features::IsFloatingSsoAllowed()) {
-    sync_status.Set(
-        "syncCookiesSupported",
-        profile_->GetPrefs()->GetBoolean(chromeos::prefs::kFloatingSsoEnabled));
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   return sync_status;
 }
 
@@ -1376,11 +1319,6 @@ void PeopleHandler::MarkFirstSetupComplete() {
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Sync is usually already requested at this point, but it might not be if
-  // Sync was reset from the dashboard while this page was open.
-  service->GetUserSettings()->ClearSyncFeatureDisabledViaDashboard();
-#else   // BUILDFLAG(IS_CHROMEOS)
   // If the first-time setup is already complete, there's nothing else to do.
   if (service->GetUserSettings()->IsInitialSyncFeatureSetupComplete()) {
     return;
@@ -1393,15 +1331,12 @@ void PeopleHandler::MarkFirstSetupComplete() {
   // syncing.
   service->GetUserSettings()->SetInitialSyncFeatureSetupComplete();
   FireWebUIListener("sync-settings-saved");
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void PeopleHandler::MaybeMarkSyncConfiguring() {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (IsProfileAuthNeededOrHasErrors()) {
     return;
   }
-#endif
   syncer::SyncService* service = GetSyncService();
   // The sync service may be nullptr if it has been just disabled by policy.
   if (service && service->IsEngineInitialized()) {

@@ -21,8 +21,7 @@ namespace contextual_tasks {
 // static
 ContextualTasksContextService*
 ContextualTasksContextServiceFactory::GetForProfile(Profile* profile) {
-  return static_cast<ContextualTasksContextService*>(
-      GetInstance()->GetServiceForBrowserContext(profile, true));
+  return nullptr;
 }
 
 // static
@@ -52,36 +51,7 @@ ContextualTasksContextServiceFactory::~ContextualTasksContextServiceFactory() =
 std::unique_ptr<KeyedService>
 ContextualTasksContextServiceFactory::BuildServiceInstanceForBrowserContext(
     content::BrowserContext* context) const {
-  if (!base::FeatureList::IsEnabled(kContextualTasksContext)) {
-    return nullptr;
-  }
-
-  Profile* profile = Profile::FromBrowserContext(context);
-
-  page_content_annotations::PageEmbeddingsService* page_embeddings_service =
-      page_content_annotations::PageEmbeddingsServiceFactory::GetForProfile(
-          profile);
-  if (!page_embeddings_service) {
-    return nullptr;
-  }
-  auto* passage_embeddings_service_controller =
-      passage_embeddings::GetChromePassageEmbeddingsServiceController();
-  if (!passage_embeddings_service_controller) {
-    return nullptr;
-  }
-
-  auto* optimization_guide_keyed_service =
-      OptimizationGuideKeyedServiceFactory::GetForProfile(profile);
-  if (!optimization_guide_keyed_service) {
-    return nullptr;
-  }
-
-  return std::make_unique<ContextualTasksContextService>(
-      profile, page_embeddings_service, passage_embeddings_service_controller,
-      passage_embeddings_service_controller->GetEmbedder(),
-      optimization_guide_keyed_service,
-      page_content_annotations::PageContentExtractionServiceFactory::
-          GetForProfile(profile));
+  return nullptr;
 }
 
 }  // namespace contextual_tasks

@@ -143,18 +143,6 @@ TEST_F(ProfileContextDelegateTest, GetExpectedCommonName_DefaultIdentifier) {
   EXPECT_EQ(kTestProfileId, CreateDelegate().GetExpectedCommonName());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(ProfileContextDelegateTest,
-       GetExpectedCommonName_ComputerNameFallbackToProfileIdOnChromeOS) {
-  profile_->GetPrefs()->SetDict(
-      prefs::kManagedClientCertificateForUserConfigPrefs,
-      base::DictValue().Set(kCommonNameSourceKey,
-                            kCommonNameSourceComputerName));
-  auto delegate = CreateDelegate();
-  delegate.SetComputerNameForTesting("custom-workstation");
-  EXPECT_EQ(kTestProfileId, delegate.GetExpectedCommonName());
-}
-#else
 TEST_F(ProfileContextDelegateTest, GetExpectedCommonName_ComputerName) {
   profile_->GetPrefs()->SetDict(
       prefs::kManagedClientCertificateForUserConfigPrefs,
@@ -164,7 +152,6 @@ TEST_F(ProfileContextDelegateTest, GetExpectedCommonName_ComputerName) {
   delegate.SetComputerNameForTesting("custom-workstation");
   EXPECT_EQ("custom-workstation", delegate.GetExpectedCommonName());
 }
-#endif
 
 TEST_F(ProfileContextDelegateTest,
        GetExpectedCommonName_ComputerNameEmptyFallbackToProfileId) {
@@ -205,7 +192,6 @@ TEST_F(ProfileContextDelegateTest,
       CertificateValidationResult::kValid, 1);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ProfileContextDelegateTest,
        ShouldCertificateBeRenewed_MatchingDeviceName) {
   constexpr char kTestDeviceName[] = "custom-workstation";
@@ -225,7 +211,6 @@ TEST_F(ProfileContextDelegateTest,
       "Enterprise.ClientCertificate.Profile.CertificateValidation.Result",
       CertificateValidationResult::kValid, 1);
 }
-#endif
 
 TEST_F(
     ProfileContextDelegateTest,

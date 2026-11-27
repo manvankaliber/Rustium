@@ -97,16 +97,12 @@
 #include "url/url_constants.h"
 
 namespace {
-#if !BUILDFLAG(IS_CHROMEOS)
 constexpr char kSkipPixelTestsReason[] = "Should only run in pixel_tests.";
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }  // anonymous namespace
 
 namespace tab_groups {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kFirstTab);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 class FaviconFetchObserver : public ui::test::ObservationStateObserver<
                                  bool,
@@ -1174,7 +1170,6 @@ IN_PROC_BROWSER_TEST_P(SavedTabGroupInteractiveTest,
       EnsureNotPresent(STGEverythingMenu::kTabGroup));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // TODO(crbug.com/438799035): This test is flaky on chromeos when waiting for
 // the favicon to load. Figure out why amd re-enable.
 IN_PROC_BROWSER_TEST_P(SavedTabGroupInteractiveTest,
@@ -1193,9 +1188,7 @@ IN_PROC_BROWSER_TEST_P(SavedTabGroupInteractiveTest,
       // Validate if the menu item view loaded a favicon from the database
       WaitForShow(STGTabsMenuModel::kTab), WaitForTabMenuItemToLoadFavicon());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class TabGroupShortcutsInteractiveTest
     : public SavedTabGroupInteractiveTestBase {
  public:
@@ -1446,7 +1439,6 @@ IN_PROC_BROWSER_TEST_F(TabGroupShortcutsInteractiveTest,
       SendAccelerator(kBrowserViewElementId, focus_prev_accelerator),
       WaitForIndexToBecomeActiveTab(3));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 INSTANTIATE_TEST_SUITE_P(SavedTabGroupBar,
                          SavedTabGroupInteractiveTest,

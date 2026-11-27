@@ -48,7 +48,6 @@ enum class VideoDecoderType : int {
   kMojo = 5,        // MojoVideoDecoder
   kDecrypting = 6,  // DecryptingVideoDecoder
   kDav1d = 7,       // Dav1dVideoDecoder
-  kFuchsia = 8,     // FuchsiaVideoDecoder
   kMediaCodec = 9,  // MediaCodecVideoDecoder (Android)
   // kGav1 = 10,    // Gav1VideoDecoder. (DEPRECATED)
   kD3D11 = 11,   // D3D11VideoDecoder

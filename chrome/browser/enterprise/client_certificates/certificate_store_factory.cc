@@ -20,10 +20,6 @@
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/storage_partition.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/kcer/kcer_factory_ash.h"
-#include "chrome/browser/enterprise/client_certificates/ash/kcer_certificate_store.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace client_certificates {
 
@@ -48,9 +44,6 @@ CertificateStoreFactory::CertificateStoreFactory()
                     .WithIsolatedMode(ProfileSelection::kRedirectedToOriginal)
                     .Build()
               : ProfileSelections::BuildForRegularProfile()) {
-#if BUILDFLAG(IS_CHROMEOS)
-  DependsOn(kcer::KcerFactoryAsh::GetInstance());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 CertificateStoreFactory::~CertificateStoreFactory() = default;
@@ -63,9 +56,6 @@ CertificateStoreFactory::BuildServiceInstanceForBrowserContext(
     return nullptr;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  return KcerCertificateStore::CreateForProfile(profile);
-#else
   if (features::IsManagedUserClientCertificateInPrefsEnabled()) {
     return std::make_unique<PrefsCertificateStore>(profile->GetPrefs(),
                                                    CreatePrivateKeyFactory());
@@ -80,7 +70,6 @@ CertificateStoreFactory::BuildServiceInstanceForBrowserContext(
       profile->GetPath(),
       profile->GetDefaultStoragePartition()->GetProtoDatabaseProvider(),
       CreatePrivateKeyFactory());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 }  // namespace client_certificates

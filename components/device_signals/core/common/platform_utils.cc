@@ -78,8 +78,7 @@ std::vector<std::string> GetMacAddresses() {
   if (test_addresses.has_value()) {
     mac_addresses = test_addresses.value();
   } else {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     mac_addresses = internal::GetMacAddressesImpl();
 #endif
   }

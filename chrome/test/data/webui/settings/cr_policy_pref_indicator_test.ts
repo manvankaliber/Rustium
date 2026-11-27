@@ -38,18 +38,6 @@ suite('CrPolicyPrefIndicator', function() {
     const icon = indicator.$.tooltipIcon;
     assertTrue(icon.hidden);
 
-    // <if expr="is_chromeos">
-    // Check indicator behavior for a preference controlled by the device owner.
-    indicator.pref = Object.assign({}, indicator.pref, {
-      controlledBy: chrome.settingsPrivate.ControlledBy.OWNER,
-      controlledByName: 'owner_name',
-      enforcement: chrome.settingsPrivate.Enforcement.ENFORCED,
-    });
-    await microtasksFinished();
-    assertFalse(icon.hidden);
-    assertEquals('cr:person-filled', icon.iconClass);
-    assertEquals('owner: owner_name', icon.tooltipText);
-    // </if>
 
     // Check indicator behavior for a preference with a recommended value that
     // is different from the current value of the preference.
@@ -69,17 +57,6 @@ suite('CrPolicyPrefIndicator', function() {
     await microtasksFinished();
     assertEquals('matches', icon.tooltipText);
 
-    // <if expr="is_chromeos">
-    // Check indicator behavior for a preference that is enforced for a
-    // supervised user.
-    indicator.pref = Object.assign({}, indicator.pref, {
-      enforcement: chrome.settingsPrivate.Enforcement.PARENT_SUPERVISED,
-    });
-    await microtasksFinished();
-    assertFalse(icon.hidden);
-    assertEquals('cr20:family-link', icon.iconClass);
-    assertEquals(CrPolicyStrings.controlledSettingParent, icon.tooltipText);
-    // </if>
 
     // Check indicator behavior for a preference that is enforced by device
     // policy.

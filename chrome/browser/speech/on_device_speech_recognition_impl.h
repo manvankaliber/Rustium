@@ -13,14 +13,12 @@
 #include "media/mojo/mojom/speech_recognizer.mojom.h"
 #include "mojo/public/cpp/bindings/receiver.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include <list>
 
 #include "base/containers/flat_map.h"
 #include "components/optimization_guide/core/model_execution/model_broker_client.h"  // nogncheck crbug.com/40147906
 #include "components/optimization_guide/core/model_execution/remote_model_executor.h"  // nogncheck crbug.com/40147906
 #include "components/soda/soda_installer.h"  // nogncheck crbug.com/40147906
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace content {
 class RenderFrameHost;
@@ -34,9 +32,7 @@ namespace speech {
 
 class OnDeviceSpeechRecognitionImpl
     : public content::DocumentUserData<OnDeviceSpeechRecognitionImpl>,
-#if !BUILDFLAG(IS_ANDROID)
       public speech::SodaInstaller::Observer,
-#endif  // !BUILDFLAG(IS_ANDROID)
       public media::mojom::OnDeviceSpeechRecognition {
  public:
   OnDeviceSpeechRecognitionImpl(const OnDeviceSpeechRecognitionImpl&) = delete;
@@ -58,14 +54,12 @@ class OnDeviceSpeechRecognitionImpl
       media::mojom::SpeechRecognitionQuality quality,
       OnDeviceSpeechRecognitionImpl::InstallCallback callback) override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // SodaInstaller::Observer:
   void OnSodaInstalled(speech::LanguageCode language_code) override;
   void OnSodaInstallError(speech::LanguageCode language_code,
                           speech::SodaInstaller::ErrorCode error_code) override;
   void OnSodaProgress(speech::LanguageCode language_code,
                       int combined_progress) override {}
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  private:
   friend class content::DocumentUserData<OnDeviceSpeechRecognitionImpl>;
@@ -76,7 +70,6 @@ class OnDeviceSpeechRecognitionImpl
   // on-device speech recognition.
   bool CanRenderFrameHostUseOnDeviceSpeechRecognition();
 
-#if !BUILDFLAG(IS_ANDROID)
   void ProcessLanguageInstallationUpdate(std::string_view language,
                                          bool installation_success);
   base::Value GetOnDeviceLanguagesDownloadedValue();
@@ -111,7 +104,6 @@ class OnDeviceSpeechRecognitionImpl
       language_installation_callbacks_;
 
   std::unique_ptr<optimization_guide::ModelBrokerClient> model_broker_client_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   mojo::Receiver<media::mojom::OnDeviceSpeechRecognition> receiver_{this};
 

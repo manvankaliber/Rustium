@@ -1692,7 +1692,6 @@ TEST_F(AnchorElementInteractionViewportHeuristicsTest,
       WebFeature::kSpeculationRulesModerateViewportHeuristicsControl));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(AnchorElementInteractionViewportHeuristicsTest,
        DesktopWithDevToolsMobileEmulationFiresHeuristic) {
   ScopedSyntheticMouseHoverOverInactivePageForTest
@@ -1782,7 +1781,6 @@ TEST_F(AnchorElementInteractionViewportHeuristicsTest,
   EXPECT_THAT(hosts_[0]->calls_, testing::IsEmpty());
   WebView().DisableDeviceEmulation();
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Regression test for https://crbug.com/458237344.
 TEST_F(AnchorElementInteractionViewportHeuristicsTest,

@@ -34,11 +34,8 @@
 
 #include "base/features.h"
 #include "base/win/winbase_shim.h"
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #include <sys/mman.h>
-#if BUILDFLAG(IS_ANDROID)
-#include <sys/prctl.h>
-#endif
 #endif
 
 #define PMA "PMA-DBG"
@@ -1072,19 +1069,12 @@ LocalPersistentMemoryAllocator::AllocateLocalMemory(size_t size,
   if (address) {
     return Memory(address, MEM_VIRTUAL);
   }
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   // MAP_ANON is deprecated on Linux but MAP_ANONYMOUS is not universal on Mac.
   // MAP_SHARED is not available on Linux <2.4 but required on Mac.
   address = ::mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_ANON | MAP_SHARED,
                    -1, 0);
   if (address != MAP_FAILED) {
-#if BUILDFLAG(IS_ANDROID)
-    // Allow the anonymous memory region allocated by mmap(MAP_ANON) to be
-    // identified in /proc/$PID/smaps.  This helps improve visibility into
-    // Chrome's memory usage on Android.
-    const std::string arena_name = base::StrCat({"persistent:", name});
-    prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, address, size, arena_name.c_str());
-#endif
     return Memory(address, MEM_VIRTUAL);
   }
 #else
@@ -1114,7 +1104,7 @@ void LocalPersistentMemoryAllocator::DeallocateLocalMemory(void* memory,
 #if BUILDFLAG(IS_WIN)
   BOOL success = ::VirtualFree(memory, 0, MEM_RELEASE);
   DCHECK(success);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   int result = ::munmap(memory, size);
   DCHECK_EQ(0, result);
 #else
@@ -1248,8 +1238,6 @@ void FilePersistentMemoryAllocator::FlushPartial(size_t length, bool sync) {
       base::FeatureList::IsEnabled(features::kFlushFileBuffersOnSyncFlush)) {
     ::FlushFileBuffers(mapped_file_->file().GetPlatformFile());
   }
-#elif BUILDFLAG(IS_FUCHSIA)
-  // Fuchsia's POSIX compatibility layer does not implement msync().
 #elif BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_POSIX)
   // MS_INVALIDATE is omitted because it forces cached mapped pages to be
   // dropped, triggering unnecessary page faults and re-reads on subsequent

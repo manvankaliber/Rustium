@@ -2,9 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/chromeos/args.gni")
-
-assert(is_win || is_mac || is_linux || is_chromeos || is_android)
+assert(is_win || is_mac || is_linux)
 
 source_set("find_bar") {
   sources = [
@@ -22,14 +20,12 @@ source_set("find_bar") {
     "//ui/base/unowned_user_data",
   ]
 
-  if (!is_android) {
-    sources += [ "find_bar_controller.h" ]
+  sources += [ "find_bar_controller.h" ]
 
-    public_deps += [
-      "//chrome/browser/ui/views/page_action",
-      "//content/public/browser",
-    ]
-  }
+  public_deps += [
+    "//chrome/browser/ui/views/page_action",
+    "//content/public/browser",
+  ]
 }
 
 source_set("impl") {
@@ -43,19 +39,17 @@ source_set("impl") {
     "//content/public/browser",
   ]
 
-  if (!is_android) {
-    sources += [
-      "find_bar_controller.cc",
-      "find_bar_platform_helper.cc",
-      "find_bar_platform_helper.h",
-    ]
-    deps += [
-      "//chrome/browser/ui:browser_command_controller",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//ui/gfx/range",
-    ]
-  }
+  sources += [
+    "find_bar_controller.cc",
+    "find_bar_platform_helper.cc",
+    "find_bar_platform_helper.h",
+  ]
+  deps += [
+    "//chrome/browser/ui:browser_command_controller",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//ui/gfx/range",
+  ]
 
   if (is_mac) {
     sources += [ "find_bar_platform_helper_mac.mm" ]
@@ -75,58 +69,54 @@ source_set("unit_tests") {
   ]
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
+source_set("browser_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "find_bar_controller_browsertest.cc",
-      "find_bar_host_browsertest.cc",
-    ]
+  sources = [
+    "find_bar_controller_browsertest.cc",
+    "find_bar_host_browsertest.cc",
+  ]
 
-    deps = [
-      ":find_bar",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:chrome_pages",
-      "//chrome/browser/ui:ui_features",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/views:find_bar_views",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/views/toolbar:test_support",
-      "//chrome/test:test_support",
-      "//chrome/test/base:browser_test_waiters",
-    ]
+  deps = [
+    ":find_bar",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:chrome_pages",
+    "//chrome/browser/ui:ui_features",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/views:find_bar_views",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+    "//chrome/browser/ui/views/toolbar:test_support",
+    "//chrome/test:test_support",
+    "//chrome/test/base:browser_test_waiters",
+  ]
 
-    if (is_mac) {
-      sources += [ "find_bar_platform_helper_mac_browsertest.mm" ]
-    }
+  if (is_mac) {
+    sources += [ "find_bar_platform_helper_mac_browsertest.mm" ]
   }
 }
 
-if (!is_android && !is_chromeos_device) {
-  source_set("interactive_ui_tests") {
-    testonly = true
+source_set("interactive_ui_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [ "find_bar_host_interactive_uitest.cc" ]
+  sources = [ "find_bar_host_interactive_uitest.cc" ]
 
-    deps = [
-      ":find_bar",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:view_ids",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/test:test_support",
-      "//chrome/test/base:browser_test_waiters",
-    ]
+  deps = [
+    ":find_bar",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:view_ids",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/test:test_support",
+    "//chrome/test/base:browser_test_waiters",
+  ]
 
-    if (is_mac) {
-      sources += [ "find_bar_platform_helper_mac_interactive_uitest.mm" ]
-      deps += [ "//chrome/browser/ui:browser_tabstrip" ]
-    }
+  if (is_mac) {
+    sources += [ "find_bar_platform_helper_mac_interactive_uitest.mm" ]
+    deps += [ "//chrome/browser/ui:browser_tabstrip" ]
   }
 }

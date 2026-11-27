@@ -1684,7 +1684,7 @@ TEST(stringtest, safe_strtou64_base_length_delimited) {
 
 // feenableexcept() and fedisableexcept() are extensions supported by some libc
 // implementations.
-#if defined(__GLIBC__) || defined(__BIONIC__)
+#if defined(__GLIBC__)
 #define ABSL_HAVE_FEENABLEEXCEPT 1
 #define ABSL_HAVE_FEDISABLEEXCEPT 1
 #endif

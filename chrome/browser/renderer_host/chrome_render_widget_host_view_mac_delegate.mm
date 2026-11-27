@@ -7,9 +7,6 @@
 #include <cmath>
 
 #include "base/strings/sys_string_conversions.h"
-#include "chrome/browser/actor/ui/actor_overlay_ui.h"
-#include "chrome/browser/glic/host/guest_util.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/profiles/profile.h"
 #import "chrome/browser/renderer_host/chrome_render_widget_host_view_mac_history_swiper.h"
 #include "chrome/browser/renderer_host/chrome_render_widget_host_view_mac_history_swiping_control.h"
@@ -420,15 +417,9 @@
   // inactive, aligning with the expected behavior of native chrome dialogs.
   // TODO(crbug.com/399119513): Consider making this a single WebContents
   // scoped setting, allowing this behavior to be configured by feature code.
-  if (glic::GetGlicGuestWebContents(webContents) != nullptr) {
-    return AcceptMouseEvents::kWhenInActiveApp;
-  }
 
   // If the WebContents are from the ActorOverlayUI WebUIController, we should
   // accept mouse events when any part of the application is active.
-  if (actor::ui::ActorOverlayUI::IsActorOverlayWebContents(webContents)) {
-    return AcceptMouseEvents::kWhenInActiveApp;
-  }
 
   return AcceptMouseEvents::kWhenInActiveWindow;
 }

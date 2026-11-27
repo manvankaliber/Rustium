@@ -240,10 +240,7 @@ cc_library(
         ],
     }) + select({
         "//conditions:default": [],
-        "//mediapipe:android": [
-            "//mediapipe/util/android/file/base",
-            "@litert//tflite/delegates/nnapi:nnapi_delegate",
-        ],
+
     }) + select({
         "//mediapipe:emscripten": [],
         "//conditions:default": [
@@ -458,14 +455,12 @@ cc_library(
         "@com_google_absl//absl/types:span",
         "@litert//tflite:framework",
     ] + select({
-        "//mediapipe:android": [
-            "//mediapipe/util/android/file/base",
-        ],
+
         "//mediapipe:ios": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:emscripten": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:macos": [
             "//mediapipe/framework/port:file_helpers",

@@ -64,7 +64,6 @@ class DeviceInfoDeletedChecker : public StatusChangeChecker,
       observation_{this};
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class TwoClientDeviceInfoSyncTest
     : public SyncTest,
       public testing::WithParamInterface<SyncTest::SetupSyncMode> {
@@ -132,6 +131,5 @@ IN_PROC_BROWSER_TEST_P(TwoClientDeviceInfoSyncTest,
 }
 
 INSTANTIATE_TEST_SUITE_P(, TwoClientDeviceInfoSyncTest, GetSyncTestModes());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace

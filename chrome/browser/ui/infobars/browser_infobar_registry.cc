@@ -130,7 +130,6 @@ void RegisterInfoBars() {
     browser_infobar_manager->Register(std::move(spec));
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   if (IsInfoBarMigrated(
           InfoBarDelegate::ENABLE_LINK_CAPTURING_INFOBAR_DELEGATE)) {
     auto spec = InfoBarSpec::Builder(
@@ -148,7 +147,6 @@ void RegisterInfoBars() {
                     .Build();
     browser_infobar_manager->Register(std::move(spec));
   }
-#endif
 
   if (IsInfoBarMigrated(
           InfoBarDelegate::FILE_ACCESS_DISABLED_INFOBAR_DELEGATE)) {
@@ -640,7 +638,6 @@ void RegisterPreProfileInitInfoBars() {
     browser_infobar_manager->Register(std::move(spec));
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (IsInfoBarMigrated(InfoBarDelegate::BAD_FLAGS_INFOBAR_DELEGATE)) {
     auto spec =
         InfoBarSpec::Builder(InfoBarDelegate::BAD_FLAGS_INFOBAR_DELEGATE)
@@ -650,7 +647,6 @@ void RegisterPreProfileInitInfoBars() {
             .Build();
     browser_infobar_manager->Register(std::move(spec));
   }
-#endif
 }
 
 }  // namespace infobars

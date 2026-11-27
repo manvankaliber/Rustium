@@ -46,7 +46,6 @@ struct ParsingTestcase {
   const std::vector<UrlComponent> components;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 
 // Returns the width of a utf8 or utf16 string using default UI font, or the
 // provided |font_list|.
@@ -396,7 +395,6 @@ TEST(TextEliderTest, TestHostEliding) {
                                                  gfx::FontList(), 2));
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 struct OriginTestData {
   const char* const description;
@@ -699,25 +697,7 @@ TEST(TextEliderTest, FormatUrlForDisplayOmitSchemePathAndTrivialSubdomains) {
 
 TEST(TextEliderTest,
      FormatUrlForDisplayOmitSchemePathTrivialSubdomainsAndMobilePrefix) {
-#if BUILDFLAG(IS_IOS)
-  EXPECT_EQ(
-      u"google.com",
-      url_formatter::
-          FormatUrlForDisplayOmitSchemePathTrivialSubdomainsAndMobilePrefix(
-              GURL("http://m.google.com/example")));
-  EXPECT_EQ(
-      u"google.com",
-      url_formatter::
-          FormatUrlForDisplayOmitSchemePathTrivialSubdomainsAndMobilePrefix(
-              GURL("http://www.m.google.com/example")));
-  EXPECT_EQ(
-      u"google.com",
-      url_formatter::
-          FormatUrlForDisplayOmitSchemePathTrivialSubdomainsAndMobilePrefix(
-              GURL("http://m.www.google.com/example")));
-#else
   GTEST_SKIP();
-#endif
 }
 
 }  // namespace

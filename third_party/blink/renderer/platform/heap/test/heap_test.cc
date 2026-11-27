@@ -701,11 +701,7 @@ static constexpr size_t kLargeObjectSize = size_t{1} << 27;
 // This test often fails on Android (https://crbug.com/843032).
 // We run out of memory on Android devices because ReserveCapacityForSize
 // actually allocates a much larger backing than specified (in this case 400MB).
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_LargeHashMap DISABLED_LargeHashMap
-#else
 #define MAYBE_LargeHashMap LargeHashMap
-#endif
 TEST_F(HeapTest, MAYBE_LargeHashMap) {
   // Regression test: https://crbug.com/597953
   //

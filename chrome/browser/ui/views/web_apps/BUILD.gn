@@ -161,7 +161,7 @@ source_set("browser_tests") {
   if (is_win || is_linux) {
     sources += [ "web_app_integration_browsertest_win_linux.cc" ]
   }
-  if (is_win || is_linux || is_chromeos) {
+  if (is_win || is_linux) {
     sources += [ "web_app_integration_browsertest_win_linux_cros.cc" ]
   }
   if (is_mac) {
@@ -180,27 +180,6 @@ source_set("browser_tests") {
       "deprecated_apps_dialog_view_browsertest.cc",
       "force_installed_deprecated_apps_dialog_view_browsertest.cc",
       "web_app_integration_browsertest_mac_win_linux.cc",
-    ]
-  }
-
-  if (is_chromeos) {
-    sources += [
-      # Chrome OS can run interactive UI tests in the browser tests suite
-      # because each test runs in an isolated emulator with its own focus,
-      # events, etc.
-      "protocol_handler_picker_interactve_uitest.cc",
-      "web_app_ash_interactive_ui_test.cc",
-      "web_app_integration_browsertest_cros.cc",
-    ]
-    deps += [
-      ":protocol_handler_picker_dialog",
-      "//chrome/browser/ash/boca/on_task",
-      "//chrome/browser/ui/chromeos/locked_state",
-      "//chrome/browser/ui/views/frame:immersive_mode_controller_chromeos",
-      "//chrome/browser/ui/views/frame:top_container_view",
-      "//chrome/browser/ui/views/web_apps/frame_toolbar:web_app_frame_toolbar_view",
-      "//chrome/browser/ui/views/web_apps/frame_toolbar:web_app_toolbar_button_container",
-      "//chromeos/ui/frame:test_support",
     ]
   }
 }
@@ -226,7 +205,7 @@ source_set("interactive_ui_tests") {
   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
   sources = []
   deps = []
-  if (is_mac || is_linux || is_win || is_chromeos) {
+  if (is_mac || is_linux || is_win) {
     sources += [ "web_app_navigation_capturing_iph_interactive_uitest.cc" ]
     deps += [
       "//chrome/browser/apps/link_capturing:test_support",
@@ -234,9 +213,6 @@ source_set("interactive_ui_tests") {
       "//chrome/test/user_education",
       "//testing/gtest",
     ]
-    if (is_chromeos) {
-      deps += [ "//chrome/browser/ui:settings_window_manager_chromeos" ]
-    }
   }
 }
 
@@ -273,54 +249,6 @@ source_set("launch_dialogs") {
     "//ui/gfx",
     "//url",
   ]
-}
-
-if (is_chromeos) {
-  source_set("protocol_handler_picker_coordinator") {
-    public = [ "protocol_handler_picker_coordinator.h" ]
-    sources = [ "protocol_handler_picker_coordinator.cc" ]
-    public_deps = [
-      ":protocol_handler_picker_dialog",
-      "//base",
-      "//components/services/app_service",
-      "//components/tabs:public",
-      "//ui/base/unowned_user_data",
-      "//ui/views",
-      "//url",
-    ]
-    deps = [
-      "//chrome/browser/apps/app_service",
-      "//chrome/browser/profiles:profile",
-      "//chrome/browser/ui:url_identity",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/tabs:tabs_public",
-      "//content/public/browser",
-      "//ui/base",
-    ]
-  }
-
-  source_set("protocol_handler_picker_dialog") {
-    public = [ "protocol_handler_picker_dialog.h" ]
-    sources = [ "protocol_handler_picker_dialog.cc" ]
-    public_deps = [
-      "//base",
-      "//content/public/browser",
-      "//ui/base",
-      "//ui/base/metadata",
-      "//ui/views",
-      "//url",
-    ]
-    deps = [
-      "//chrome/app:generated_resources",
-      "//chrome/browser/ui/views:layout_provider",
-      "//components/strings:components_strings",
-      "//components/vector_icons",
-      "//ui/chromeos/styles:cros_tokens_color_mappings",
-      "//ui/gfx",
-      "//ui/strings:ui_strings",
-    ]
-  }
 }
 
 source_set("web_app_icon_name_and_origin_view") {
@@ -639,9 +567,6 @@ source_set("create_shortcut_confirmation_view_impl") {
     "//ui/gfx",
     "//ui/views",
   ]
-  if (is_chromeos) {
-    deps += [ "//chromeos/constants" ]
-  }
 }
 
 source_set("web_app_uninstall_dialog_view_impl") {
@@ -892,11 +817,7 @@ source_set("test_support") {
     deps += [ "//chrome/browser/apps/app_shim" ]
   }
 
-  if (is_chromeos) {
-    deps += [ "//chrome/browser/ui/views/apps/app_dialog" ]
-  } else {
-    public_deps += [ "//chrome/browser/ui/webui/app_home" ]
-  }
+  public_deps += [ "//chrome/browser/ui/webui/app_home" ]
 
   if (is_win || is_mac || is_linux) {
     deps += [ "//chrome/browser/ui/webui/app_settings" ]

@@ -27,12 +27,6 @@ AutofillInternalsUI::AutofillInternalsUI(content::WebUI* web_ui)
       "autofillAmbientAutofillSuppressionEnabled",
       base::Value(base::FeatureList::IsEnabled(
           autofill::features::kAutofillAmbientAutofillSuppression)));
-  on_load_argument.Set(
-      "autofillGmailOtpEnabled",
-      base::Value(base::FeatureList::IsEnabled(
-                      autofill::features::kAutofillShowGmailOtpSuggestions) ||
-                  base::FeatureList::IsEnabled(
-                      features::kGlicActorAutofillOneTimePassword)));
   on_load_argument.Set("showDomNodeIDsEnabled",
                        base::Value(base::FeatureList::IsEnabled(
                            autofill::features::debug::kShowDomNodeIDs)));

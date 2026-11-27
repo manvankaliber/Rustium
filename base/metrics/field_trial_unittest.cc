@@ -1155,16 +1155,14 @@ TEST_F(FieldTrialListTest, DumpAndFetchFromSharedMemory) {
 
 #if BUILDFLAG(USE_BLINK)
 
-#if !BUILDFLAG(IS_IOS)
 constexpr shared_memory::SharedMemorySwitch::DescriptorKey kFDKey = 42;
-#endif
 
 BASE_FEATURE(kTestFeatureA, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kTestFeatureB, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kTestFeatureC, base::FEATURE_ENABLED_BY_DEFAULT);
 
 MULTIPROCESS_TEST_MAIN(CreateTrialsInChildProcess) {
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
   // Since the fd value will be mapped from the global descriptors singleton,
   // set it there. We use the same value both for the key and the actual fd for
   // simplicity.
@@ -1189,7 +1187,6 @@ MULTIPROCESS_TEST_MAIN(CreateTrialsInChildProcess) {
   return 0;
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(FieldTrialListTest, PassFieldTrialSharedMemoryOnCommandLine) {
   // Setup some field trial state.
   test::ScopedFeatureList scoped_feature_list1;
@@ -1233,7 +1230,6 @@ TEST_F(FieldTrialListTest, PassFieldTrialSharedMemoryOnCommandLine) {
       process, TestTimeouts::action_timeout(), &exit_code));
   EXPECT_EQ(0, exit_code);
 }
-#endif
 
 // Verify that the field trial shared memory handle is really read-only, and
 // does not allow writable mappings.

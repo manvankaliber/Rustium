@@ -211,221 +211,6 @@ class PermissionMessageCombinationsUnittest : public testing::Test {
   SimpleFeature::ScopedThreadUnsafeAllowlistForTest allowlisted_extension_id_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Test that the USB, Bluetooth and Serial permissions do not coalesce on their
-// own, but do coalesce when more than 1 is present.
-// NOTE: Chrome Apps APIs are being removed from WML builds.
-TEST_F(PermissionMessageCombinationsUnittest, USBSerialBluetoothCoalescing) {
-  // Test that the USB permission does not coalesce on its own.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'usbDevices': [{ 'vendorId': 123, 'productId': 456 }] }"
-      "  ]"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access USB devices from an unknown vendor"));
-
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'usbDevices': [{ 'vendorId': 123, 'productId': 456 }] }"
-      "  ]"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access USB devices from an unknown vendor"));
-
-  // Test that the serial permission does not coalesce on its own.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    'serial'"
-      "  ]"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions("Access your serial devices"));
-
-  // Test that the bluetooth permission does not coalesce on its own.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'bluetooth': {}"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access information about Bluetooth devices paired with your system and "
-      "discover nearby Bluetooth devices."));
-
-  // Test that the bluetooth permission does not coalesce on its own, even
-  // when it specifies additional permissions.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'bluetooth': {"
-      "    'uuids': ['1105', '1106']"
-      "  }"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access information about Bluetooth devices paired with your system and "
-      "discover nearby Bluetooth devices."));
-
-  // Test that bluetooth with socket produces the devices warning.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'bluetooth': {"
-      "    'socket': true"
-      "  }"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access information about Bluetooth devices paired with your system and "
-      "discover nearby Bluetooth devices.",
-      "Send messages to and receive messages from Bluetooth devices using "
-      "sockets."));
-
-  // Test that bluetooth with low_energy produces the devices warning.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'bluetooth': {"
-      "    'low_energy': true"
-      "  }"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access information about Bluetooth devices paired with your system and "
-      "discover nearby Bluetooth devices.",
-      "Send messages to and receive messages from Bluetooth devices using Low "
-      "Energy."));
-
-  // Test that bluetooth with peripheral produces the devices warning.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'bluetooth': {"
-      "    'peripheral': true"
-      "  }"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access information about Bluetooth devices paired with your system and "
-      "discover nearby Bluetooth devices.",
-      "Allow nearby Bluetooth devices to discover and connect to this "
-      "device."));
-
-  // Test that bluetooth with multiple sub-capabilities produces only one
-  // devices warning.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'bluetooth': {"
-      "    'socket': true,"
-      "    'low_energy': true,"
-      "    'peripheral': true"
-      "  }"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access information about Bluetooth devices paired with your system and "
-      "discover nearby Bluetooth devices.",
-      "Send messages to and receive messages from Bluetooth devices using "
-      "sockets."));
-
-  // Test that the USB and Serial permissions coalesce.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'usbDevices': [{ 'vendorId': 123, 'productId': 456 }] },"
-      "    'serial'"
-      "  ]"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access USB devices from an unknown vendor",
-      "Access your serial devices"));
-
-  // Test that the USB, Serial and Bluetooth permissions coalesce.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'usbDevices': [{ 'vendorId': 123, 'productId': 456 }] },"
-      "    'serial'"
-      "  ],"
-      "  'bluetooth': {}"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access USB devices from an unknown vendor",
-      "Access your Bluetooth and Serial devices"));
-
-  // Test that the USB, Serial and Bluetooth permissions coalesce even when
-  // Bluetooth specifies multiple additional permissions.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'usbDevices': [{ 'vendorId': 123, 'productId': 456 }] },"
-      "    'serial'"
-      "  ],"
-      "  'bluetooth': {"
-      "    'uuids': ['1105', '1106'],"
-      "    'socket': true,"
-      "    'low_energy': true"
-      "  }"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access USB devices from an unknown vendor",
-      "Access your Bluetooth and Serial devices",
-      "Send messages to and receive messages from Bluetooth devices using "
-      "sockets."));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Test that the History permission takes precedence over the Tabs permission,
 // and that the Sessions permission modifies the Tabs permission message.
@@ -488,7 +273,6 @@ TEST_F(PermissionMessageCombinationsUnittest, TabsHistorySessionsCoalescing) {
       "Read and change your browsing history on all your signed-in devices"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Test that the fileSystem permission produces no messages by itself, unless it
 // has both the 'write' and 'directory' additional permissions, in which case it
 // displays a message.
@@ -536,7 +320,6 @@ TEST_F(PermissionMessageCombinationsUnittest, FileSystemReadWriteCoalescing) {
   ASSERT_TRUE(CheckManifestProducesPermissions(
       "Write to files and folders that you open in the application"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Check that host permission messages are generated correctly when URLs are
 // entered as permissions.
@@ -803,94 +586,10 @@ TEST_F(PermissionMessageCombinationsUnittest,
       "Exchange data with any device on the local network or internet"));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Check that permission messages are generated correctly for
-// MediaGalleriesPermission (an API permission with custom messages).
-TEST_F(PermissionMessageCombinationsUnittest,
-       MediaGalleriesPermissionMessages) {
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'mediaGalleries': ['read'] }"
-      "  ]"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions());
-
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'mediaGalleries': ['read', 'allAutoDetected'] }"
-      "  ]"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Access photos, music, and other media from your computer"));
-
-  // TODO(sashab): Add a test for the
-  // IDS_EXTENSION_PROMPT_WARNING_MEDIA_GALLERIES_READ_WRITE message (generated
-  // with the 'read' and 'copyTo' permissions, but not the 'delete' permission),
-  // if it's possible to get this message. Otherwise, remove it from the code.
-
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'mediaGalleries': ['read', 'delete', 'allAutoDetected'] }"
-      "  ]"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Read and delete photos, music, and other media from your computer"));
-
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'mediaGalleries':"
-      "      [ 'read', 'delete', 'copyTo', 'allAutoDetected' ] }"
-      "  ]"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions(
-      "Read, change and delete photos, music, and other media from your "
-      "computer"));
-
-  // Without the allAutoDetected permission, there should be no install-time
-  // permission messages.
-  CreateAndInstall(
-      "{"
-      "  'app': {"
-      "    'background': {"
-      "      'scripts': ['background.js']"
-      "    }"
-      "  },"
-      "  'permissions': ["
-      "    { 'mediaGalleries': ['read', 'delete', 'copyTo'] }"
-      "  ]"
-      "}");
-  ASSERT_TRUE(CheckManifestProducesPermissions());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // TODO(sashab): Add tests for SettingsOverrideAPIPermission (an API permission
 // with custom messages).
 
-#if !BUILDFLAG(IS_ANDROID)
 // Check that permission messages are generated correctly for SocketPermission
 // (an API permission with custom messages).
 // NOTE: Android does not support the sockets API.
@@ -1011,7 +710,6 @@ TEST_F(PermissionMessageCombinationsUnittest, SocketPermissionMessages) {
   ASSERT_TRUE(CheckManifestProducesPermissions(
       "Exchange data with any device on the local network or internet"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Check that permission messages are generated correctly for
 // USBDevicePermission (an API permission with custom messages).
@@ -1087,7 +785,6 @@ TEST_F(PermissionMessageCombinationsUnittest, USBDevicePermissionMessages) {
   // TODO(sashab): Add a test with a valid product/vendor USB device.
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Test that hosted apps are not given any messages for host permissions.
 // NOTE: Android does not support packaged apps.
 TEST_F(PermissionMessageCombinationsUnittest,
@@ -1121,7 +818,6 @@ TEST_F(PermissionMessageCombinationsUnittest,
       "}");
   ASSERT_TRUE(CheckManifestProducesPermissions("Read data you copy and paste"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Test various apps with lots of permissions, including those with no
 // permission messages, or those that only apply to apps or extensions even when
@@ -1204,7 +900,6 @@ TEST_F(PermissionMessageCombinationsUnittest, PermissionMessageCombos) {
       std::vector<std::string>(),
       "Read and change your data on a number of websites", submessages));
 
-#if !BUILDFLAG(IS_ANDROID)
   // Create an App instead, ensuring that the host permission messages are not
   // added.
   // NOTE: Android does not support Chrome Apps or accessibilityFeatures.
@@ -1242,7 +937,6 @@ TEST_F(PermissionMessageCombinationsUnittest, PermissionMessageCombos) {
   ASSERT_TRUE(CheckManifestProducesPermissions(
       "Read data you copy and paste", "Store data in your Google Drive account",
       "Read and change your accessibility settings"));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 // Tests that the deprecated 'plugins' manifest key produces no permission.

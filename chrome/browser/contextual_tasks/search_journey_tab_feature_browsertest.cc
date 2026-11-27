@@ -646,10 +646,6 @@ class SearchJourneyCueBrowserTest : public SearchJourneyRestoreBrowserTest {
   // Blocks loud cues, as after the user dismisses a cue, so only quiet
   // (omnibox chip) cues can show.
   void BlockLoudCues() {
-    contextual_cueing::ContextualCueingServiceFactory::GetForProfile(
-        GetProfile())
-        ->OnCueDismissed(contextual_cueing::CueTargetType::kGlic,
-                         /*record_ucb_stats=*/false);
   }
 
   // Starts a journey, returns to the source tab, and only then registers

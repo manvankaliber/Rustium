@@ -7,7 +7,6 @@ import '/strings.m.js';
 import {assert} from 'chrome://resources/js/assert.js';
 import {addWebUiListener, sendWithPromise} from 'chrome://resources/js/cr.js';
 import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
-import {isChromeOS} from 'chrome://resources/js/platform.js';
 import {getRequiredElement} from 'chrome://resources/js/util.js';
 import {render} from 'chrome://resources/lit/v3_0/lit.rollup.js';
 
@@ -96,14 +95,6 @@ function returnComponentsData(componentsData: ComponentsData) {
       handleUninstall(btn);
       e.preventDefault();
     };
-  }
-
-  // Disable some controls for Guest mode in ChromeOS.
-  if (isChromeOS && loadTimeData.getBoolean('isGuest')) {
-    document.body.querySelectorAll<HTMLButtonElement>('[guest-disabled]')
-        .forEach(function(element) {
-          element.disabled = true;
-        });
   }
 
   bodyContainer.style.visibility = 'visible';

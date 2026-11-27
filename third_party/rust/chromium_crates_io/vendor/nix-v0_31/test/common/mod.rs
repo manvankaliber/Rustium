@@ -13,7 +13,7 @@ macro_rules! skip {
 }
 
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         #[macro_export] macro_rules! require_capability {
             ($name:expr, $capname:ident) => {
                 use ::caps::{Capability, CapSet, has_cap};
@@ -41,12 +41,8 @@ macro_rules! require_mount {
         use sysctl::{CtlValue, Sysctl};
 
         let ctl = ::sysctl::Ctl::new("vfs.usermount").unwrap();
-        if !Uid::current().is_root() && CtlValue::Int(0) == ctl.value().unwrap()
-        {
-            skip!(
-                "{} requires the ability to mount file systems. Skipping test.",
-                $name
-            );
+        if !Uid::current().is_root() && CtlValue::Int(0) == ctl.value().unwrap() {
+            skip!("{} requires the ability to mount file systems. Skipping test.", $name);
         }
     };
 }
@@ -64,7 +60,7 @@ macro_rules! skip_if_jailed {
     };
 }
 
-#[cfg(not(any(target_os = "redox", target_os = "fuchsia")))]
+#[cfg(not(target_os = "redox"))]
 #[macro_export]
 macro_rules! skip_if_not_root {
     ($name:expr) => {
@@ -77,7 +73,7 @@ macro_rules! skip_if_not_root {
 }
 
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         #[macro_export] macro_rules! skip_if_seccomp {
             ($name:expr) => {
                 if let Ok(s) = std::fs::read_to_string("/proc/self/status") {
@@ -101,7 +97,7 @@ cfg_if! {
 }
 
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         #[macro_export] macro_rules! require_kernel_version {
             ($name:expr, $version_requirement:expr) => {
                 use semver::{Version, VersionReq};

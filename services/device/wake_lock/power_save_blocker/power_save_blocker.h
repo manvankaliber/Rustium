@@ -16,9 +16,6 @@
 #include "build/config/linux/dbus/buildflags.h"
 #include "services/device/public/mojom/wake_lock.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/android/view_android.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_DBUS)
 namespace dbus {
@@ -47,17 +44,6 @@ class PowerSaveBlocker {
 
   virtual ~PowerSaveBlocker();
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, the mojom::WakeLockType::kPreventDisplaySleep type of
-  // PowerSaveBlocker should associated with a View, so the blocker can be
-  // removed by the platform. Note that |view_android| is guaranteed to be
-  // valid only for the lifetime of this call; hence it should not be cached
-  // internally.
-  void InitDisplaySleepBlocker(ui::ViewAndroid* view_android);
-
-  // Does nothing unless the embedder holds the WAKE_LOCK permission.
-  void InitWithoutContext();
-#endif
 
 #if BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_DBUS)
   // Makes PowerSaveBlockers created afterwards use `bus` instead of the shared

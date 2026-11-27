@@ -2715,7 +2715,6 @@ TEST_F(UkmPageLoadMetricsObserverTest, IsNewBookmark) {
 }
 
 // Android does not have NTP Custom Links.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(UkmPageLoadMetricsObserverTest, IsNTPCustomLink) {
   GURL url(kTestUrl1);
 
@@ -2745,7 +2744,6 @@ TEST_F(UkmPageLoadMetricsObserverTest, IsNTPCustomLink) {
   tester()->test_ukm_recorder().ExpectEntryMetric(
       entry, PageLoad::kIsNTPCustomLinkName, 1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(UkmPageLoadMetricsObserverTest, DurationSinceLastVisitSeconds) {
   // TODO(tommycli): Should we move this test to either HistoryClustersService
@@ -3115,7 +3113,6 @@ TEST_F(UkmPageLoadMetricsObserverTest, TestWasDiscarded) {
       entry, PageLoad::kWasDiscardedName, 1);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Power saver mode only exists on desktop.
 TEST_F(UkmPageLoadMetricsObserverTest, TestRefreshRateThrottled) {
   TestingPrefServiceSimple local_state;
@@ -3143,7 +3140,6 @@ TEST_F(UkmPageLoadMetricsObserverTest, TestRefreshRateThrottled) {
 
   uptm_environment.TearDown();
 }
-#endif
 
 // The following tests are ensure that Page Load metrics are recorded in a
 // trace. Currently enabled only for platforms where USE_PERFETTO_CLIENT_LIBRARY

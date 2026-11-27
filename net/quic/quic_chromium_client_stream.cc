@@ -4,6 +4,7 @@
 
 #include "net/quic/quic_chromium_client_stream.h"
 
+#include <array>
 #include <string_view>
 #include <utility>
 
@@ -22,6 +23,7 @@
 #include "net/base/url_util.h"
 #include "net/http/http_status_code.h"
 #include "net/log/net_log_event_type.h"
+#include "net/quic/http3_client_stream_rust_ffi.h"
 #include "net/quic/quic_chromium_client_session.h"
 #include "net/quic/quic_http_utils.h"
 #include "net/spdy/spdy_log_util.h"
@@ -31,6 +33,11 @@
 #include "net/third_party/quiche/src/quiche/quic/core/quic_write_blocked_list.h"
 
 namespace net {
+static_assert(ERR_IO_PENDING == -1 && ERR_UNEXPECTED == -9 &&
+                  ERR_CONNECTION_CLOSED == -100 &&
+                  ERR_INVALID_RESPONSE == -320 &&
+                  ERR_QUIC_PROTOCOL_ERROR == -356,
+              "Rust policy error ABI");
 namespace {
 // Sets a boolean to a value, and restores it to the previous value once
 // the saver goes out of scope.
@@ -63,156 +70,317 @@ QuicChromiumClientStream::Handle::max_stream_limit_pending_delay() const {
 }
 
 QuicChromiumClientStream::Handle::~Handle() {
-  UnregisterHttp3DatagramVisitor();
-  if (stream_) {
-    stream_->ClearHandle();
-    // TODO(rch): If stream_ is still valid, it should probably be Reset()
-    // so that it does not leak.
-    // stream_->Reset(quic::QUIC_STREAM_CANCELLED);
-  }
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        UnregisterHttp3DatagramVisitor();
+        return 0;
+      }
+      case 1: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 2: {
+        stream_->ClearHandle();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(0, services);
 }
 
 void QuicChromiumClientStream::Handle::OnEarlyHintsAvailable() {
-  if (first_early_hints_time_.is_null())
-    first_early_hints_time_ = base::TimeTicks::Now();
-
-  if (!read_headers_callback_)
-    return;  // Wait for ReadInitialHeaders to be called.
-
-  DCHECK(read_headers_buffer_);
-  int rv = stream_->DeliverEarlyHints(read_headers_buffer_);
-  DCHECK_NE(ERR_IO_PENDING, rv);
-
-  ResetAndRun(std::move(read_headers_callback_), rv);
+  int rv = 0;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(first_early_hints_time_.is_null());
+      }
+      case 1: {
+        first_early_hints_time_ = base::TimeTicks::Now();
+        return 0;
+      }
+      case 2: {
+        return static_cast<int64_t>(!read_headers_callback_.is_null());
+      }
+      case 3: {
+        DCHECK(read_headers_buffer_);
+        return 0;
+      }
+      case 4: {
+        rv = stream_->DeliverEarlyHints(read_headers_buffer_);
+        DCHECK_NE(ERR_IO_PENDING, rv);
+        return 0;
+      }
+      case 5: {
+        ResetAndRun(std::move(read_headers_callback_), rv);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(1, services);
 }
 
 void QuicChromiumClientStream::Handle::OnInitialHeadersAvailable() {
-  if (headers_received_start_time_.is_null())
-    headers_received_start_time_ = base::TimeTicks::Now();
-
-  if (!read_headers_callback_)
-    return;  // Wait for ReadInitialHeaders to be called.
-
-  int rv = stream_->DeliverInitialHeaders(read_headers_buffer_);
-  DCHECK_NE(ERR_IO_PENDING, rv);
-
-  ResetAndRun(std::move(read_headers_callback_), rv);
+  int rv = 0;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(headers_received_start_time_.is_null());
+      }
+      case 1: {
+        headers_received_start_time_ = base::TimeTicks::Now();
+        return 0;
+      }
+      case 2: {
+        return static_cast<int64_t>(!read_headers_callback_.is_null());
+      }
+      case 3: {
+        rv = stream_->DeliverInitialHeaders(read_headers_buffer_);
+        DCHECK_NE(ERR_IO_PENDING, rv);
+        return 0;
+      }
+      case 4: {
+        ResetAndRun(std::move(read_headers_callback_), rv);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(2, services);
 }
 
 void QuicChromiumClientStream::Handle::OnTrailingHeadersAvailable() {
-  if (!read_headers_callback_)
-    return;  // Wait for ReadInitialHeaders to be called.
-
   int rv = ERR_QUIC_PROTOCOL_ERROR;
-  if (!stream_->DeliverTrailingHeaders(read_headers_buffer_, &rv))
-    rv = ERR_QUIC_PROTOCOL_ERROR;
-
-  base::UmaHistogramBoolean(
-      "Net.QuicChromiumClientStream.TrailingHeadersProcessSuccess", rv >= 0);
-  ResetAndRun(std::move(read_headers_callback_), rv);
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(!read_headers_callback_.is_null());
+      }
+      case 1: {
+        return static_cast<int64_t>(
+            stream_->DeliverTrailingHeaders(read_headers_buffer_, &rv));
+      }
+      case 2: {
+        rv = ERR_QUIC_PROTOCOL_ERROR;
+        return 0;
+      }
+      case 3: {
+        base::UmaHistogramBoolean(
+            "Net.QuicChromiumClientStream.TrailingHeadersProcessSuccess",
+            rv >= 0);
+        return 0;
+      }
+      case 4: {
+        ResetAndRun(std::move(read_headers_callback_), rv);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(3, services);
 }
 
 void QuicChromiumClientStream::Handle::OnDataAvailable() {
-  if (!read_body_callback_)
-    return;  // Wait for ReadBody to be called.
-
-  DCHECK(read_body_buffer_);
-  DCHECK_GT(read_body_buffer_len_, 0);
-
-  int rv = stream_->Read(read_body_buffer_.get(), read_body_buffer_len_);
-  if (rv == ERR_IO_PENDING)
-    return;  // Spurrious, likely because of trailers?
-
-  read_body_buffer_ = nullptr;
-  read_body_buffer_len_ = 0;
-  ResetAndRun(std::move(read_body_callback_), rv);
+  int rv = 0;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(!read_body_callback_.is_null());
+      }
+      case 1: {
+        DCHECK(read_body_buffer_);
+        DCHECK_GT(read_body_buffer_len_, 0);
+        return 0;
+      }
+      case 2: {
+        return static_cast<int64_t>(
+            rv = stream_->Read(read_body_buffer_.get(), read_body_buffer_len_));
+      }
+      case 3: {
+        read_body_buffer_ = nullptr;
+        read_body_buffer_len_ = 0;
+        return 0;
+      }
+      case 4: {
+        ResetAndRun(std::move(read_body_callback_), rv);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(4, services);
 }
 
 void QuicChromiumClientStream::Handle::OnCanWrite() {
-  if (!write_callback_)
-    return;
-
-  ResetAndRun(std::move(write_callback_), OK);
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(!write_callback_.is_null());
+      }
+      case 1: {
+        ResetAndRun(std::move(write_callback_), OK);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(5, services);
 }
 
 void QuicChromiumClientStream::Handle::OnClose() {
-  if (net_error_ == ERR_UNEXPECTED) {
-    if (stream_error() == quic::QUIC_STREAM_NO_ERROR &&
-        connection_error() == quic::QUIC_NO_ERROR && fin_sent() &&
-        fin_received()) {
-      net_error_ = ERR_CONNECTION_CLOSED;
-    } else {
-      net_error_ = ERR_QUIC_PROTOCOL_ERROR;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(net_error_);
+      }
+      case 1: {
+        return static_cast<int64_t>(stream_error() ==
+                                    quic::QUIC_STREAM_NO_ERROR);
+      }
+      case 2: {
+        return static_cast<int64_t>(connection_error() == quic::QUIC_NO_ERROR);
+      }
+      case 3: {
+        return static_cast<int64_t>(fin_sent());
+      }
+      case 4: {
+        return static_cast<int64_t>(fin_received());
+      }
+      case 5: {
+        net_error_ = static_cast<int>(arg);
+        return 0;
+      }
+      case 6: {
+        base::UmaHistogramSparse(
+            "Net.QuicChromiumClientStream.HandleOnCloseNetError", -net_error_);
+        base::UmaHistogramSparse(
+            "Net.QuicChromiumClientStream.HandleOnCloseStreamError",
+            stream_error());
+        base::UmaHistogramSparse(
+            "Net.QuicChromiumClientStream.HandleOnCloseConnectionError",
+            connection_error());
+        return 0;
+      }
+      case 7: {
+        OnError(net_error_);
+        return 0;
+      }
+      default:
+        CHECK(false);
     }
-  }
-  base::UmaHistogramSparse("Net.QuicChromiumClientStream.HandleOnCloseNetError",
-                           -net_error_);
-  base::UmaHistogramSparse(
-      "Net.QuicChromiumClientStream.HandleOnCloseStreamError", stream_error());
-  base::UmaHistogramSparse(
-      "Net.QuicChromiumClientStream.HandleOnCloseConnectionError",
-      connection_error());
-  OnError(net_error_);
+  };
+  RunHttp3StreamPolicy(6, services);
 }
 
 void QuicChromiumClientStream::Handle::OnError(int error) {
-  net_error_ = error;
-  UnregisterHttp3DatagramVisitor();
-  if (stream_)
-    SaveState();
-  stream_ = nullptr;
-
-  // Post a task to invoke the callbacks to ensure that there is no reentrancy.
-  // A ScopedPacketFlusher might cause an error which closes the stream under
-  // the call stack of the owner of the handle.
-  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-      FROM_HERE,
-      base::BindOnce(&QuicChromiumClientStream::Handle::InvokeCallbacksOnClose,
-                     weak_factory_.GetWeakPtr(), error));
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        net_error_ = error;
+        return 0;
+      }
+      case 1: {
+        UnregisterHttp3DatagramVisitor();
+        return 0;
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 3: {
+        SaveState();
+        return 0;
+      }
+      case 4: {
+        stream_ = nullptr;
+        return 0;
+      }
+      case 5: {
+        base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
+            FROM_HERE,
+            base::BindOnce(
+                &QuicChromiumClientStream::Handle::InvokeCallbacksOnClose,
+                weak_factory_.GetWeakPtr(), error));
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(7, services);
 }
 
 void QuicChromiumClientStream::Handle::InvokeCallbacksOnClose(int error) {
-  // Invoking a callback may cause |this| to be deleted. If this happens, no
-  // more callbacks should be invoked. Guard against this by holding a WeakPtr
-  // to |this| and ensuring it's still valid.
-
-  // Free read buffer, if present. Reads are synchronous and pull-based, so
-  // there is no ongoing asynchronous read that could write to the buffer.
-  read_body_buffer_ = nullptr;
-  read_body_buffer_len_ = 0;
-
-  auto guard(weak_factory_.GetWeakPtr());
-  for (auto* callback :
-       {&read_headers_callback_, &read_body_callback_, &write_callback_}) {
-    if (*callback)
-      ResetAndRun(std::move(*callback), error);
-    if (!guard.get())
-      return;
-  }
+  auto guard = weak_factory_.GetWeakPtr();
+  std::array callbacks = {&read_headers_callback_, &read_body_callback_,
+                          &write_callback_};
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        read_body_buffer_ = nullptr;
+        read_body_buffer_len_ = 0;
+        return 0;
+      }
+      case 1: {
+        return static_cast<int64_t>(
+            !callbacks[static_cast<size_t>(arg)]->is_null());
+      }
+      case 2: {
+        ResetAndRun(std::move(*callbacks[static_cast<size_t>(arg)]), error);
+        return 0;
+      }
+      case 3: {
+        return static_cast<int64_t>(guard.get() != nullptr);
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(8, services);
 }
 
 int QuicChromiumClientStream::Handle::ReadInitialHeaders(
     quiche::HttpHeaderBlock* header_block,
     CompletionOnceCallback callback) {
   ScopedBoolSaver saver(&may_invoke_callbacks_, false);
-  if (!stream_)
-    return net_error_;
-
-  // Check Early Hints first.
-  int rv = stream_->DeliverEarlyHints(header_block);
-  if (rv != ERR_IO_PENDING) {
-    return rv;
-  }
-
-  rv = stream_->DeliverInitialHeaders(header_block);
-  if (rv != ERR_IO_PENDING) {
-    return rv;
-  }
-
-  read_headers_buffer_ = header_block;
-  DCHECK(!read_headers_callback_);
-  SetCallback(std::move(callback), &read_headers_callback_);
-  return ERR_IO_PENDING;
+  int rv = 0;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(net_error_);
+      }
+      case 2: {
+        return static_cast<int64_t>(
+            rv = stream_->DeliverEarlyHints(header_block));
+      }
+      case 3: {
+        return static_cast<int64_t>(
+            rv = stream_->DeliverInitialHeaders(header_block));
+      }
+      case 4: {
+        read_headers_buffer_ = header_block;
+        DCHECK(!read_headers_callback_);
+        return 0;
+      }
+      case 5: {
+        SetCallback(std::move(callback), &read_headers_callback_);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(9, services));
 }
 
 int QuicChromiumClientStream::Handle::ReadBody(
@@ -220,43 +388,77 @@ int QuicChromiumClientStream::Handle::ReadBody(
     int buffer_len,
     CompletionOnceCallback callback) {
   ScopedBoolSaver saver(&may_invoke_callbacks_, false);
-  if (IsDoneReading())
-    return OK;
-
-  if (!stream_)
-    return net_error_;
-
-  if (stream_->read_side_closed()) {
-    return OK;
-  }
-
-  int rv = stream_->Read(buffer, buffer_len);
-  if (rv != ERR_IO_PENDING)
-    return rv;
-
-  DCHECK(buffer);
-  DCHECK_GT(buffer_len, 0);
-
-  SetCallback(std::move(callback), &read_body_callback_);
-  read_body_buffer_ = buffer;
-  read_body_buffer_len_ = buffer_len;
-  return ERR_IO_PENDING;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(IsDoneReading());
+      }
+      case 1: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 2: {
+        return static_cast<int64_t>(net_error_);
+      }
+      case 3: {
+        return static_cast<int64_t>(stream_->read_side_closed());
+      }
+      case 4: {
+        return static_cast<int64_t>(stream_->Read(buffer, buffer_len));
+      }
+      case 5: {
+        DCHECK(buffer);
+        DCHECK_GT(buffer_len, 0);
+        return 0;
+      }
+      case 6: {
+        SetCallback(std::move(callback), &read_body_callback_);
+        return 0;
+      }
+      case 7: {
+        read_body_buffer_ = buffer;
+        read_body_buffer_len_ = buffer_len;
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(10, services));
 }
 
 int QuicChromiumClientStream::Handle::ReadTrailingHeaders(
     quiche::HttpHeaderBlock* header_block,
     CompletionOnceCallback callback) {
   ScopedBoolSaver saver(&may_invoke_callbacks_, false);
-  if (!stream_)
-    return net_error_;
-
   int frame_len = 0;
-  if (stream_->DeliverTrailingHeaders(header_block, &frame_len))
-    return frame_len;
-
-  read_headers_buffer_ = header_block;
-  SetCallback(std::move(callback), &read_headers_callback_);
-  return ERR_IO_PENDING;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(net_error_);
+      }
+      case 2: {
+        return static_cast<int64_t>(
+            stream_->DeliverTrailingHeaders(header_block, &frame_len));
+      }
+      case 3: {
+        return static_cast<int64_t>(frame_len);
+      }
+      case 4: {
+        read_headers_buffer_ = header_block;
+        return 0;
+      }
+      case 5: {
+        SetCallback(std::move(callback), &read_headers_callback_);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(11, services));
 }
 
 int QuicChromiumClientStream::Handle::WriteHeaders(
@@ -264,10 +466,20 @@ int QuicChromiumClientStream::Handle::WriteHeaders(
     bool fin,
     quiche::QuicheReferenceCountedPointer<quic::QuicAckListenerInterface>
         ack_notifier_delegate) {
-  if (!stream_)
-    return 0;
-  return HandleIOComplete(stream_->WriteHeaders(std::move(header_block), fin,
-                                                ack_notifier_delegate));
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(HandleIOComplete(stream_->WriteHeaders(
+            std::move(header_block), fin, ack_notifier_delegate)));
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(12, services));
 }
 
 int QuicChromiumClientStream::Handle::WriteStreamData(
@@ -275,15 +487,29 @@ int QuicChromiumClientStream::Handle::WriteStreamData(
     bool fin,
     CompletionOnceCallback callback) {
   ScopedBoolSaver saver(&may_invoke_callbacks_, false);
-  if (!stream_)
-    return net_error_;
-
-  if (stream_->WriteStreamData(data, fin)) {
-    return HandleIOComplete(OK);
-  }
-
-  SetCallback(std::move(callback), &write_callback_);
-  return ERR_IO_PENDING;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(net_error_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->WriteStreamData(data, fin));
+      }
+      case 3: {
+        return static_cast<int64_t>(HandleIOComplete(OK));
+      }
+      case 4: {
+        SetCallback(std::move(callback), &write_callback_);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(13, services));
 }
 
 int QuicChromiumClientStream::Handle::WritevStreamData(
@@ -292,196 +518,510 @@ int QuicChromiumClientStream::Handle::WritevStreamData(
     bool fin,
     CompletionOnceCallback callback) {
   ScopedBoolSaver saver(&may_invoke_callbacks_, false);
-  if (!stream_)
-    return net_error_;
-
-  if (stream_->WritevStreamData(buffers, lengths, fin))
-    return HandleIOComplete(OK);
-
-  SetCallback(std::move(callback), &write_callback_);
-  return ERR_IO_PENDING;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(net_error_);
+      }
+      case 2: {
+        return static_cast<int64_t>(
+            stream_->WritevStreamData(buffers, lengths, fin));
+      }
+      case 3: {
+        return static_cast<int64_t>(HandleIOComplete(OK));
+      }
+      case 4: {
+        SetCallback(std::move(callback), &write_callback_);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(14, services));
 }
 
 int QuicChromiumClientStream::Handle::WriteConnectUdpPayload(
     std::string_view packet) {
   ScopedBoolSaver saver(&may_invoke_callbacks_, false);
-  if (!stream_) {
-    return net_error_;
-  }
-
-  base::UmaHistogramBoolean(kHttp3DatagramDroppedHistogram,
-                            !stream_->SupportsH3Datagram());
-  if (!stream_->SupportsH3Datagram()) {
-    DLOG(WARNING)
-        << "Dropping datagram because the session has either not received "
-           "settings frame with H3_DATAGRAM yet or received settings that "
-           "indicate datagrams are not supported (i.e., H3_DATAGRAM=0).";
-    return OK;
-  }
-  // Set Context ID to zero as per RFC 9298
-  // (https://datatracker.ietf.org/doc/html/rfc9298#name-http-datagram-payload-forma)
-  // and copy packet data.
-  std::string http_payload = base::StrCat({std::string(1, '\0'), packet});
-
-  // Attempt to send the HTTP payload as a datagram over the stream.
-  quic::DatagramStatus message_status =
-      stream_->SendHttp3Datagram(http_payload);
-
-  // If the attempt was successful or blocked (e.g., due to buffer
-  // constraints), proceed to handle the I/O completion with an OK status.
-  if (message_status == quic::DatagramStatus::DATAGRAM_STATUS_SUCCESS ||
-      message_status == quic::DatagramStatus::DATAGRAM_STATUS_BLOCKED) {
-    return HandleIOComplete(OK);
-  }
-  // If the attempt failed due to a unsupported feature, internal error, or
-  // unexpected condition (encryption not established or message too large),
-  // reset the stream and close the connection.
-  else {
-    // These two errors should not be possible here.
-    DCHECK(message_status !=
-           quic::DatagramStatus::DATAGRAM_STATUS_ENCRYPTION_NOT_ESTABLISHED);
-    DCHECK(message_status != quic::DatagramStatus::DATAGRAM_STATUS_TOO_LARGE);
-    DLOG(ERROR) << "Failed to send Http3 Datagram on " << stream_->id();
-    stream_->Reset(quic::QUIC_STREAM_CANCELLED);
-    return ERR_CONNECTION_CLOSED;
-  }
+  std::string http_payload;
+  quic::DatagramStatus message_status;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(net_error_);
+      }
+      case 2: {
+        base::UmaHistogramBoolean(kHttp3DatagramDroppedHistogram,
+                                  !stream_->SupportsH3Datagram());
+        return 0;
+      }
+      case 3: {
+        return static_cast<int64_t>(stream_->SupportsH3Datagram());
+      }
+      case 4: {
+        DLOG(WARNING)
+            << "Dropping datagram because the session has either not received "
+               "settings frame with H3_DATAGRAM yet or received settings that "
+               "indicate datagrams are not supported (i.e., H3_DATAGRAM=0).";
+        return 0;
+      }
+      case 5: {
+        http_payload = base::StrCat({std::string(1, '\0'), packet});
+        return 0;
+      }
+      case 6: {
+        message_status = stream_->SendHttp3Datagram(http_payload);
+        return 0;
+      }
+      case 7: {
+        return static_cast<int64_t>(
+            message_status == quic::DatagramStatus::DATAGRAM_STATUS_SUCCESS);
+      }
+      case 8: {
+        return static_cast<int64_t>(
+            message_status == quic::DatagramStatus::DATAGRAM_STATUS_BLOCKED);
+      }
+      case 9: {
+        return static_cast<int64_t>(HandleIOComplete(OK));
+      }
+      case 10: {
+        DCHECK(
+            message_status !=
+            quic::DatagramStatus::DATAGRAM_STATUS_ENCRYPTION_NOT_ESTABLISHED);
+        DCHECK(message_status !=
+               quic::DatagramStatus::DATAGRAM_STATUS_TOO_LARGE);
+        DLOG(ERROR) << "Failed to send Http3 Datagram on " << stream_->id();
+        return 0;
+      }
+      case 11: {
+        stream_->Reset(quic::QUIC_STREAM_CANCELLED);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(15, services));
 }
 
 int QuicChromiumClientStream::Handle::Read(IOBuffer* buf, int buf_len) {
-  if (!stream_)
-    return net_error_;
-  return stream_->Read(buf, buf_len);
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(net_error_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->Read(buf, buf_len));
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(16, services));
 }
 
 void QuicChromiumClientStream::Handle::OnFinRead() {
-  read_headers_callback_.Reset();
-  if (stream_)
-    stream_->OnFinRead();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        read_headers_callback_.Reset();
+        return 0;
+      }
+      case 1: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 2: {
+        stream_->OnFinRead();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(17, services);
 }
 
 void QuicChromiumClientStream::Handle::
     DisableConnectionMigrationToCellularNetwork() {
-  if (stream_)
-    stream_->DisableConnectionMigrationToCellularNetwork();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        stream_->DisableConnectionMigrationToCellularNetwork();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(18, services);
 }
 
 void QuicChromiumClientStream::Handle::SetPriority(
     const quic::QuicStreamPriority& priority) {
-  if (stream_) {
-    stream_->SetPriority(priority);
-  }
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        stream_->SetPriority(priority);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(19, services);
 }
 
 void QuicChromiumClientStream::Handle::Reset(
     quic::QuicRstStreamErrorCode error_code) {
-  UnregisterHttp3DatagramVisitor();
-  if (stream_)
-    stream_->Reset(error_code);
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        UnregisterHttp3DatagramVisitor();
+        return 0;
+      }
+      case 1: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 2: {
+        stream_->Reset(error_code);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(20, services);
 }
 
 void QuicChromiumClientStream::Handle::RegisterHttp3DatagramVisitor(
     Http3DatagramVisitor* visitor) {
-  if (stream_) {
-    stream_->RegisterHttp3DatagramVisitor(visitor);
-    datagram_visitor_registered_ = true;
-  }
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        stream_->RegisterHttp3DatagramVisitor(visitor);
+        datagram_visitor_registered_ = true;
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(21, services);
 }
 
 void QuicChromiumClientStream::Handle::UnregisterHttp3DatagramVisitor() {
-  if (stream_ && datagram_visitor_registered_) {
-    stream_->UnregisterHttp3DatagramVisitor();
-    datagram_visitor_registered_ = false;
-  }
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(datagram_visitor_registered_);
+      }
+      case 2: {
+        stream_->UnregisterHttp3DatagramVisitor();
+        return 0;
+      }
+      case 3: {
+        datagram_visitor_registered_ = false;
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(22, services);
 }
 
 quic::QuicStreamId QuicChromiumClientStream::Handle::id() const {
-  if (!stream_)
-    return id_;
-  return stream_->id();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(id_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->id());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<quic::QuicStreamId>(RunHttp3StreamPolicy(23, services));
 }
 
 quic::QuicErrorCode QuicChromiumClientStream::Handle::connection_error() const {
-  if (!stream_)
-    return connection_error_;
-  return stream_->connection_error();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(connection_error_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->connection_error());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<quic::QuicErrorCode>(RunHttp3StreamPolicy(24, services));
 }
 
 quic::QuicRstStreamErrorCode QuicChromiumClientStream::Handle::stream_error()
     const {
-  if (!stream_)
-    return stream_error_;
-  return stream_->stream_error();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(stream_error_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->stream_error());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<quic::QuicRstStreamErrorCode>(
+      RunHttp3StreamPolicy(25, services));
 }
 
 uint64_t QuicChromiumClientStream::Handle::connection_wire_error() const {
-  if (!stream_) {
-    return connection_wire_error_;
-  }
-  // TODO(crbug.com/40715622): Don't access session. Instead, modify
-  // quic::QuicStream::OnConnectionClosed() to take the wire error code.
-  CHECK(stream_->session());
-  return stream_->session()->wire_error();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(connection_wire_error_);
+      }
+      case 2: {
+        CHECK(stream_->session());
+        return 0;
+      }
+      case 3: {
+        return static_cast<int64_t>(stream_->session()->wire_error());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<uint64_t>(RunHttp3StreamPolicy(26, services));
 }
 
 uint64_t QuicChromiumClientStream::Handle::ietf_application_error() const {
-  if (!stream_) {
-    return ietf_application_error_;
-  }
-  return stream_->ietf_application_error();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(ietf_application_error_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->ietf_application_error());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<uint64_t>(RunHttp3StreamPolicy(27, services));
 }
 
 bool QuicChromiumClientStream::Handle::fin_sent() const {
-  if (!stream_)
-    return fin_sent_;
-  return stream_->fin_sent();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(fin_sent_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->fin_sent());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<bool>(RunHttp3StreamPolicy(28, services));
 }
 
 bool QuicChromiumClientStream::Handle::fin_received() const {
-  if (!stream_)
-    return fin_received_;
-  return stream_->fin_received();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(fin_received_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->fin_received());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<bool>(RunHttp3StreamPolicy(29, services));
 }
 
 uint64_t QuicChromiumClientStream::Handle::stream_bytes_read() const {
-  if (!stream_)
-    return stream_bytes_read_;
-  return stream_->stream_bytes_read();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(stream_bytes_read_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->stream_bytes_read());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<uint64_t>(RunHttp3StreamPolicy(30, services));
 }
 
 uint64_t QuicChromiumClientStream::Handle::stream_bytes_written() const {
-  if (!stream_)
-    return stream_bytes_written_;
-  return stream_->stream_bytes_written();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(stream_bytes_written_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->stream_bytes_written());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<uint64_t>(RunHttp3StreamPolicy(31, services));
 }
 
 size_t QuicChromiumClientStream::Handle::NumBytesConsumed() const {
-  if (!stream_)
-    return num_bytes_consumed_;
-  return stream_->sequencer()->NumBytesConsumed();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(num_bytes_consumed_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->sequencer()->NumBytesConsumed());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<size_t>(RunHttp3StreamPolicy(32, services));
 }
 
 bool QuicChromiumClientStream::Handle::HasBytesToRead() const {
-  if (!stream_)
-    return false;
-  return stream_->HasBytesToRead();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(false);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->HasBytesToRead());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<bool>(RunHttp3StreamPolicy(33, services));
 }
 
 bool QuicChromiumClientStream::Handle::IsDoneReading() const {
-  if (!stream_)
-    return is_done_reading_;
-  return stream_->IsDoneReading();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(is_done_reading_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->IsDoneReading());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<bool>(RunHttp3StreamPolicy(34, services));
 }
 
 bool QuicChromiumClientStream::Handle::IsFirstStream() const {
-  if (!stream_)
-    return is_first_stream_;
-  return stream_->IsFirstStream();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(is_first_stream_);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->IsFirstStream());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<bool>(RunHttp3StreamPolicy(35, services));
 }
 
 bool QuicChromiumClientStream::Handle::can_migrate_to_cellular_network() {
-  if (!stream_)
-    return false;
-  return stream_->CanMigrateToCellularNetwork();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(false);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_->CanMigrateToCellularNetwork());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<bool>(RunHttp3StreamPolicy(36, services));
 }
 
 const NetLogWithSource& QuicChromiumClientStream::Handle::net_log() const {
@@ -512,7 +1052,7 @@ void QuicChromiumClientStream::Handle::SetCallback(
     CompletionOnceCallback* callback) {
   // TODO(rch): Convert this to a DCHECK once we ensure the API is stable and
   // bug free.
-  CHECK(!may_invoke_callbacks_);
+  CHECK(http3_client_stream_callback_gate(may_invoke_callbacks_, false));
   *callback = std::move(new_callback);
 }
 
@@ -521,22 +1061,40 @@ void QuicChromiumClientStream::Handle::ResetAndRun(
     int rv) {
   // TODO(rch): Convert this to a DCHECK once we ensure the API is stable and
   // bug free.
-  CHECK(may_invoke_callbacks_);
+  CHECK(http3_client_stream_callback_gate(may_invoke_callbacks_, true));
   std::move(callback).Run(rv);
 }
 
 int QuicChromiumClientStream::Handle::HandleIOComplete(int rv) {
-  // If |stream_| is still valid the stream has not been closed. If the stream
-  // has not been closed, then just return |rv|.
-  if (rv < 0 || stream_)
-    return rv;
-
-  if (stream_error_ == quic::QUIC_STREAM_NO_ERROR &&
-      connection_error_ == quic::QUIC_NO_ERROR && fin_sent_ && fin_received_) {
-    return rv;
-  }
-
-  return net_error_;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(rv);
+      }
+      case 1: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 2: {
+        return static_cast<int64_t>(stream_error_ ==
+                                    quic::QUIC_STREAM_NO_ERROR);
+      }
+      case 3: {
+        return static_cast<int64_t>(connection_error_ == quic::QUIC_NO_ERROR);
+      }
+      case 4: {
+        return static_cast<int64_t>(fin_sent_);
+      }
+      case 5: {
+        return static_cast<int64_t>(fin_received_);
+      }
+      case 6: {
+        return static_cast<int64_t>(net_error_);
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(38, services));
 }
 
 void QuicChromiumClientStream::Handle::SetRequestIdempotency(
@@ -550,10 +1108,24 @@ Idempotency QuicChromiumClientStream::Handle::GetRequestIdempotency() const {
 
 quic::QuicPacketLength
 QuicChromiumClientStream::Handle::GetGuaranteedLargestMessagePayload() const {
-  if (!stream_) {
-    return 0;
-  }
-  return stream_->GetGuaranteedLargestMessagePayload();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(stream_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(0);
+      }
+      case 2: {
+        return static_cast<int64_t>(
+            stream_->GetGuaranteedLargestMessagePayload());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<quic::QuicPacketLength>(
+      RunHttp3StreamPolicy(37, services));
 }
 
 QuicChromiumClientStream::QuicChromiumClientStream(
@@ -572,127 +1144,254 @@ QuicChromiumClientStream::QuicChromiumClientStream(
       max_stream_limit_pending_delay_(max_stream_limit_pending_delay) {}
 
 QuicChromiumClientStream::~QuicChromiumClientStream() {
-  if (handle_)
-    handle_->OnClose();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 1: {
+        handle_->OnClose();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(39, services);
 }
 
 void QuicChromiumClientStream::OnInitialHeadersComplete(
     bool fin,
     size_t frame_len,
     const quic::QuicHeaderList& header_list) {
-  DCHECK(!initial_headers_arrived_);
-  quic::QuicSpdyStream::OnInitialHeadersComplete(fin, frame_len, header_list);
-
-  if (header_decoding_delay().has_value()) {
-    const int64_t delay_in_milliseconds =
-        header_decoding_delay()->ToMilliseconds();
-    base::UmaHistogramTimes("Net.QuicChromiumClientStream.HeaderDecodingDelay",
-                            base::Milliseconds(delay_in_milliseconds));
-    if (IsGoogleHost(server_id_.host())) {
-      base::UmaHistogramTimes(
-          "Net.QuicChromiumClientStream.HeaderDecodingDelayGoogle",
-          base::Milliseconds(delay_in_milliseconds));
-    }
-  }
-
   quiche::HttpHeaderBlock header_block;
   int64_t length = -1;
-  if (!quic::SpdyUtils::CopyAndValidateHeaders(header_list, &length,
-                                               &header_block)) {
-    DLOG(ERROR) << "Failed to parse header list: " << header_list.DebugString();
-    ConsumeHeaderList();
-    Reset(quic::QUIC_BAD_APPLICATION_PAYLOAD);
-    return;
-  }
-
-  // Handle informational response. If the response is an Early Hints response,
-  // deliver the response to the owner of the handle. Otherwise ignore the
-  // response.
-  int response_code;
-  if (!ParseHeaderStatusCode(header_block, &response_code)) {
-    DLOG(ERROR) << "Received invalid response code: '"
-                << header_block[":status"].as_string() << "' on stream "
-                << id();
-    Reset(quic::QUIC_BAD_APPLICATION_PAYLOAD);
-    return;
-  }
-
-  if (response_code == HTTP_SWITCHING_PROTOCOLS) {
-    DLOG(ERROR) << "Received forbidden 101 response code on stream " << id();
-    Reset(quic::QUIC_BAD_APPLICATION_PAYLOAD);
-    return;
-  }
-
-  if (response_code >= 100 && response_code < 200) {
-    set_headers_decompressed(false);
-    ConsumeHeaderList();
-    if (response_code == HTTP_EARLY_HINTS) {
-      early_hints_.emplace_back(std::move(header_block), frame_len);
-      if (handle_)
+  int response_code = 0;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        DCHECK(!initial_headers_arrived_);
+        return 0;
+      }
+      case 1: {
+        quic::QuicSpdyStream::OnInitialHeadersComplete(fin, frame_len,
+                                                       header_list);
+        return 0;
+      }
+      case 2: {
+        return static_cast<int64_t>(header_decoding_delay().has_value());
+      }
+      case 3: {
+        base::UmaHistogramTimes(
+            "Net.QuicChromiumClientStream.HeaderDecodingDelay",
+            base::Milliseconds(header_decoding_delay()->ToMilliseconds()));
+        return 0;
+      }
+      case 4: {
+        return static_cast<int64_t>(IsGoogleHost(server_id_.host()));
+      }
+      case 5: {
+        base::UmaHistogramTimes(
+            "Net.QuicChromiumClientStream.HeaderDecodingDelayGoogle",
+            base::Milliseconds(header_decoding_delay()->ToMilliseconds()));
+        return 0;
+      }
+      case 6: {
+        return static_cast<int64_t>(quic::SpdyUtils::CopyAndValidateHeaders(
+            header_list, &length, &header_block));
+      }
+      case 7: {
+        DLOG(ERROR) << "Failed to parse header list: "
+                    << header_list.DebugString();
+        return 0;
+      }
+      case 8: {
+        ConsumeHeaderList();
+        return 0;
+      }
+      case 9: {
+        Reset(quic::QUIC_BAD_APPLICATION_PAYLOAD);
+        return 0;
+      }
+      case 10: {
+        return static_cast<int64_t>(
+            ParseHeaderStatusCode(header_block, &response_code));
+      }
+      case 11: {
+        DLOG(ERROR) << "Received invalid response code: '"
+                    << header_block[":status"].as_string() << "' on stream "
+                    << id();
+        return 0;
+      }
+      case 12: {
+        Reset(quic::QUIC_BAD_APPLICATION_PAYLOAD);
+        return 0;
+      }
+      case 13: {
+        return static_cast<int64_t>(response_code);
+      }
+      case 14: {
+        DLOG(ERROR) << "Received forbidden 101 response code on stream "
+                    << id();
+        return 0;
+      }
+      case 15: {
+        Reset(quic::QUIC_BAD_APPLICATION_PAYLOAD);
+        return 0;
+      }
+      case 16: {
+        set_headers_decompressed(false);
+        return 0;
+      }
+      case 17: {
+        ConsumeHeaderList();
+        return 0;
+      }
+      case 18: {
+        early_hints_.emplace_back(std::move(header_block), frame_len);
+        return 0;
+      }
+      case 19: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 20: {
         handle_->OnEarlyHintsAvailable();
-    } else {
-      DVLOG(1) << "Ignore informational response " << response_code
-               << " on stream" << id();
+        return 0;
+      }
+      case 21: {
+        DVLOG(1) << "Ignore informational response " << response_code
+                 << " on stream" << id();
+        return 0;
+      }
+      case 22: {
+        ConsumeHeaderList();
+        return 0;
+      }
+      case 23: {
+        initial_headers_arrived_ = true;
+        initial_headers_ = std::move(header_block);
+        initial_headers_frame_len_ = frame_len;
+        return 0;
+      }
+      case 24: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 25: {
+        NotifyHandleOfInitialHeadersAvailableLater();
+        return 0;
+      }
+      default:
+        CHECK(false);
     }
-    return;
-  }
-
-  ConsumeHeaderList();
-
-  // Buffer the headers and deliver them when the handle arrives.
-  initial_headers_arrived_ = true;
-  initial_headers_ = std::move(header_block);
-  initial_headers_frame_len_ = frame_len;
-
-  if (handle_) {
-    // The handle will be notified of the headers via a posted task.
-    NotifyHandleOfInitialHeadersAvailableLater();
-  }
+  };
+  RunHttp3StreamPolicy(40, services);
 }
 
 void QuicChromiumClientStream::OnTrailingHeadersComplete(
     bool fin,
     size_t frame_len,
     const quic::QuicHeaderList& header_list) {
-  quic::QuicSpdyStream::OnTrailingHeadersComplete(fin, frame_len, header_list);
-  trailing_headers_frame_len_ = frame_len;
-  if (handle_) {
-    // The handle will be notified of the headers via a posted task.
-    NotifyHandleOfTrailingHeadersAvailableLater();
-  }
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        quic::QuicSpdyStream::OnTrailingHeadersComplete(fin, frame_len,
+                                                        header_list);
+        return 0;
+      }
+      case 1: {
+        trailing_headers_frame_len_ = frame_len;
+        return 0;
+      }
+      case 2: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 3: {
+        NotifyHandleOfTrailingHeadersAvailableLater();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(41, services);
 }
 
 void QuicChromiumClientStream::OnBodyAvailable() {
-  if (!FinishedReadingHeaders() || !headers_delivered_) {
-    // Buffer the data in the sequencer until the headers have been read.
-    return;
-  }
-
-  if (!HasBytesToRead() && !FinishedReadingTrailers()) {
-    // If there is no data to read, wait until either FIN is received or
-    // trailers are delivered.
-    return;
-  }
-
-  // The handle will read the data via a posted task, and
-  // will be able to, potentially, read all data which has queued up.
-  if (handle_)
-    NotifyHandleOfDataAvailableLater();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(FinishedReadingHeaders());
+      }
+      case 1: {
+        return static_cast<int64_t>(headers_delivered_);
+      }
+      case 2: {
+        return static_cast<int64_t>(HasBytesToRead());
+      }
+      case 3: {
+        return static_cast<int64_t>(FinishedReadingTrailers());
+      }
+      case 4: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 5: {
+        NotifyHandleOfDataAvailableLater();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(42, services);
 }
 
 void QuicChromiumClientStream::OnClose() {
-  if (handle_) {
-    handle_->OnClose();
-    handle_ = nullptr;
-  }
-  quic::QuicStream::OnClose();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 1: {
+        handle_->OnClose();
+        return 0;
+      }
+      case 2: {
+        handle_ = nullptr;
+        return 0;
+      }
+      case 3: {
+        quic::QuicStream::OnClose();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(43, services);
 }
 
 void QuicChromiumClientStream::OnCanWrite() {
-  quic::QuicStream::OnCanWrite();
-
-  if (!HasBufferedData() && handle_)
-    handle_->OnCanWrite();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        quic::QuicStream::OnCanWrite();
+        return 0;
+      }
+      case 1: {
+        return static_cast<int64_t>(HasBufferedData());
+      }
+      case 2: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 3: {
+        handle_->OnCanWrite();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(44, services);
 }
 
 size_t QuicChromiumClientStream::WriteHeaders(
@@ -700,61 +1399,132 @@ size_t QuicChromiumClientStream::WriteHeaders(
     bool fin,
     quiche::QuicheReferenceCountedPointer<quic::QuicAckListenerInterface>
         ack_listener) {
-  if (!session()->OneRttKeysAvailable()) {
-    auto entry = header_block.find(":method");
-    CHECK(entry != header_block.end());
-    DCHECK(
-        entry->second != "POST" ||
-        (handle_ != nullptr && handle_->GetRequestIdempotency() == IDEMPOTENT));
-  }
-  net_log_.AddEvent(
-      NetLogEventType::QUIC_CHROMIUM_CLIENT_STREAM_SEND_REQUEST_HEADERS,
-      [&](NetLogCaptureMode capture_mode) {
-        return QuicRequestNetLogParams(id(), &header_block, priority(),
-                                       capture_mode);
-      });
-  size_t len = quic::QuicSpdyStream::WriteHeaders(std::move(header_block), fin,
-                                                  std::move(ack_listener));
-  initial_headers_sent_ = true;
-  return len;
+  size_t len = 0;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(session()->OneRttKeysAvailable());
+      }
+      case 1: {
+        CHECK(header_block.find(":method") != header_block.end());
+        return 0;
+      }
+      case 2: {
+        return static_cast<int64_t>(header_block.find(":method")->second ==
+                                    "POST");
+      }
+      case 3: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 4: {
+        return static_cast<int64_t>(handle_->GetRequestIdempotency() ==
+                                    IDEMPOTENT);
+      }
+      case 5: {
+        DCHECK(header_block.find(":method")->second != "POST" ||
+               (handle_ != nullptr &&
+                handle_->GetRequestIdempotency() == IDEMPOTENT));
+        return 0;
+      }
+      case 6: {
+        net_log_.AddEvent(
+            NetLogEventType::QUIC_CHROMIUM_CLIENT_STREAM_SEND_REQUEST_HEADERS,
+            [&](NetLogCaptureMode capture_mode) {
+              return QuicRequestNetLogParams(id(), &header_block, priority(),
+                                             capture_mode);
+            });
+        return 0;
+      }
+      case 7: {
+        return static_cast<int64_t>(
+            len = quic::QuicSpdyStream::WriteHeaders(
+                std::move(header_block), fin, std::move(ack_listener)));
+      }
+      case 8: {
+        initial_headers_sent_ = true;
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<size_t>(RunHttp3StreamPolicy(45, services));
 }
 
 bool QuicChromiumClientStream::WriteStreamData(std::string_view data,
                                                bool fin) {
-  // Writes the data, or buffers it.
-  WriteOrBufferBody(data, fin);
-  return !HasBufferedData();  // Was all data written?
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        WriteOrBufferBody(data, fin);
+        return 0;
+      }
+      case 1: {
+        return static_cast<int64_t>(HasBufferedData());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<bool>(RunHttp3StreamPolicy(46, services));
 }
 
 bool QuicChromiumClientStream::WritevStreamData(
     const std::vector<scoped_refptr<IOBuffer>>& buffers,
     const std::vector<int>& lengths,
     bool fin) {
-  // Writes the data, or buffers it.
-  for (size_t i = 0; i < buffers.size(); ++i) {
-    bool is_fin = fin && (i == buffers.size() - 1);
-    std::string_view string_data(buffers[i]->data(), lengths[i]);
-    WriteOrBufferBody(string_data, is_fin);
-  }
-  return !HasBufferedData();  // Was all data written?
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(buffers.size());
+      }
+      case 1: {
+        return static_cast<int64_t>(fin);
+      }
+      case 2: {
+        const size_t i = static_cast<size_t>(arg >> 1);
+        WriteOrBufferBody(std::string_view(buffers[i]->data(), lengths[i]),
+                          (arg & 1) != 0);
+        return 0;
+      }
+      case 3: {
+        return static_cast<int64_t>(HasBufferedData());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<bool>(RunHttp3StreamPolicy(47, services));
 }
 
 std::unique_ptr<QuicChromiumClientStream::Handle>
 QuicChromiumClientStream::CreateHandle() {
-  DCHECK(!handle_);
-  // We only create a handle for outgoing streams, which should have a
-  // max_stream_limit_pending_delay set.
-  CHECK(max_stream_limit_pending_delay_.has_value());
-
-  auto handle = base::WrapUnique(new QuicChromiumClientStream::Handle(
-      this, *max_stream_limit_pending_delay_));
-  handle_ = handle.get();
-
-  // Should this perhaps be via PostTask to make reasoning simpler?
-  if (initial_headers_arrived_) {
-    handle_->OnInitialHeadersAvailable();
-  }
-
+  std::unique_ptr<Handle> handle;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        DCHECK(!handle_);
+        CHECK(max_stream_limit_pending_delay_.has_value());
+        return 0;
+      }
+      case 1: {
+        handle = base::WrapUnique(
+            new Handle(this, *max_stream_limit_pending_delay_));
+        handle_ = handle.get();
+        return 0;
+      }
+      case 2: {
+        return static_cast<int64_t>(initial_headers_arrived_);
+      }
+      case 3: {
+        handle_->OnInitialHeadersAvailable();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(48, services);
   return handle;
 }
 
@@ -763,10 +1533,39 @@ void QuicChromiumClientStream::ClearHandle() {
 }
 
 void QuicChromiumClientStream::OnError(int error) {
-  if (handle_) {
-    auto handle = std::exchange(handle_, nullptr);
-    handle->OnError(error);
-  }
+  Handle* handle = nullptr;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 1: {
+        handle = std::exchange(handle_, nullptr);
+        return 0;
+      }
+      case 2: {
+        handle->OnError(error);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(49, services);
+}
+
+bool QuicChromiumClientStream::Handle::SupportsH3Datagram() const {
+  auto services = [&](uint32_t operation, int64_t) -> int64_t {
+    switch (operation) {
+      case 0:
+        return stream_ != nullptr;
+      case 1:
+        return stream_->SupportsH3Datagram();
+      default:
+        CHECK(false);
+    }
+  };
+  return RunHttp3StreamPolicy(58, services) != 0;
 }
 
 bool QuicChromiumClientStream::SupportsH3Datagram() const {
@@ -774,22 +1573,38 @@ bool QuicChromiumClientStream::SupportsH3Datagram() const {
 }
 
 int QuicChromiumClientStream::Read(IOBuffer* buf, int buf_len) {
-  DCHECK_GT(buf_len, 0);
-  DCHECK(buf->data());
-
-  if (IsDoneReading())
-    return 0;  // EOF
-
-  if (!HasBytesToRead())
-    return ERR_IO_PENDING;
-
   iovec iov;
-  iov.iov_base = buf->data();
-  iov.iov_len = buf_len;
-  size_t bytes_read = Readv(&iov, 1);
-  // Since HasBytesToRead is true, Readv() must of read some data.
-  DCHECK_NE(0u, bytes_read);
-  return bytes_read;
+  size_t bytes_read = 0;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        DCHECK_GT(buf_len, 0);
+        DCHECK(buf->data());
+        return 0;
+      }
+      case 1: {
+        return static_cast<int64_t>(IsDoneReading());
+      }
+      case 2: {
+        return static_cast<int64_t>(HasBytesToRead());
+      }
+      case 3: {
+        iov.iov_base = buf->data();
+        iov.iov_len = buf_len;
+        return 0;
+      }
+      case 4: {
+        return static_cast<int64_t>(bytes_read = Readv(&iov, 1));
+      }
+      case 5: {
+        DCHECK_NE(0u, bytes_read);
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(50, services));
 }
 
 void QuicChromiumClientStream::NotifyHandleOfInitialHeadersAvailableLater() {
@@ -802,11 +1617,23 @@ void QuicChromiumClientStream::NotifyHandleOfInitialHeadersAvailableLater() {
 }
 
 void QuicChromiumClientStream::NotifyHandleOfInitialHeadersAvailable() {
-  if (!handle_)
-    return;
-
-  if (!headers_delivered_)
-    handle_->OnInitialHeadersAvailable();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(headers_delivered_);
+      }
+      case 2: {
+        handle_->OnInitialHeadersAvailable();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(51, services);
 }
 
 void QuicChromiumClientStream::NotifyHandleOfTrailingHeadersAvailableLater() {
@@ -819,91 +1646,138 @@ void QuicChromiumClientStream::NotifyHandleOfTrailingHeadersAvailableLater() {
 }
 
 void QuicChromiumClientStream::NotifyHandleOfTrailingHeadersAvailable() {
-  if (!handle_)
-    return;
-
-  // If trailers aren't decompressed it means that trailers are invalid
-  // (e.g., contain ":status" field). Don't notify to the handle if trailers
-  // aren't decompressed since the stream will be closed and
-  // `headers_delivered_` won't become true.
-  if (!trailers_decompressed())
-    return;
-
-  // Notify only after the handle reads initial headers.
-  if (!headers_delivered_)
-    return;
-
-  // Post an async task to notify handle of the FIN flag.
-  NotifyHandleOfDataAvailableLater();
-  handle_->OnTrailingHeadersAvailable();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(trailers_decompressed());
+      }
+      case 2: {
+        return static_cast<int64_t>(headers_delivered_);
+      }
+      case 3: {
+        NotifyHandleOfDataAvailableLater();
+        return 0;
+      }
+      case 4: {
+        handle_->OnTrailingHeadersAvailable();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(52, services);
 }
 
 int QuicChromiumClientStream::DeliverEarlyHints(
     quiche::HttpHeaderBlock* headers) {
-  if (early_hints_.empty()) {
-    return ERR_IO_PENDING;
-  }
-
-  DCHECK(!headers_delivered_);
-
-  EarlyHints& hints = early_hints_.front();
-  *headers = std::move(hints.headers);
-  size_t frame_len = hints.frame_len;
-  early_hints_.pop_front();
-
-  net_log_.AddEvent(
-      NetLogEventType::
-          QUIC_CHROMIUM_CLIENT_STREAM_READ_EARLY_HINTS_RESPONSE_HEADERS,
-      [&](NetLogCaptureMode capture_mode) {
-        return QuicResponseNetLogParams(id(), fin_received(), headers,
-                                        capture_mode);
-      });
-
-  return frame_len;
+  size_t frame_len = 0;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(early_hints_.empty());
+      }
+      case 1: {
+        DCHECK(!headers_delivered_);
+        return 0;
+      }
+      case 2: {
+        *headers = std::move(early_hints_.front().headers);
+        frame_len = early_hints_.front().frame_len;
+        early_hints_.pop_front();
+        return 0;
+      }
+      case 3: {
+        net_log_.AddEvent(
+            NetLogEventType::
+                QUIC_CHROMIUM_CLIENT_STREAM_READ_EARLY_HINTS_RESPONSE_HEADERS,
+            [&](NetLogCaptureMode capture_mode) {
+              return QuicResponseNetLogParams(id(), fin_received(), headers,
+                                              capture_mode);
+            });
+        return 0;
+      }
+      case 4: {
+        return static_cast<int64_t>(frame_len);
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(53, services));
 }
 
 int QuicChromiumClientStream::DeliverInitialHeaders(
     quiche::HttpHeaderBlock* headers) {
-  if (!initial_headers_arrived_) {
-    return ERR_IO_PENDING;
-  }
-
-  headers_delivered_ = true;
-
-  if (initial_headers_.empty()) {
-    return ERR_INVALID_RESPONSE;
-  }
-
-  net_log_.AddEvent(
-      NetLogEventType::QUIC_CHROMIUM_CLIENT_STREAM_READ_RESPONSE_HEADERS,
-      [&](NetLogCaptureMode capture_mode) {
-        return QuicResponseNetLogParams(id(), fin_received(), &initial_headers_,
-                                        capture_mode);
-      });
-
-  *headers = std::move(initial_headers_);
-  return initial_headers_frame_len_;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(initial_headers_arrived_);
+      }
+      case 1: {
+        headers_delivered_ = true;
+        return 0;
+      }
+      case 2: {
+        return static_cast<int64_t>(initial_headers_.empty());
+      }
+      case 3: {
+        net_log_.AddEvent(
+            NetLogEventType::QUIC_CHROMIUM_CLIENT_STREAM_READ_RESPONSE_HEADERS,
+            [&](NetLogCaptureMode capture_mode) {
+              return QuicResponseNetLogParams(id(), fin_received(),
+                                              &initial_headers_, capture_mode);
+            });
+        return 0;
+      }
+      case 4: {
+        *headers = std::move(initial_headers_);
+        return 0;
+      }
+      case 5: {
+        return static_cast<int64_t>(initial_headers_frame_len_);
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<int>(RunHttp3StreamPolicy(54, services));
 }
 
 bool QuicChromiumClientStream::DeliverTrailingHeaders(
     quiche::HttpHeaderBlock* headers,
     int* frame_len) {
-  if (trailing_headers_frame_len_ == 0) {
-    return false;
-  }
-
-  net_log_.AddEvent(
-      NetLogEventType::QUIC_CHROMIUM_CLIENT_STREAM_READ_RESPONSE_TRAILERS,
-      [&](NetLogCaptureMode capture_mode) {
-        return QuicResponseNetLogParams(id(), fin_received(),
-                                        &received_trailers(), capture_mode);
-      });
-
-  *headers = received_trailers().Clone();
-  *frame_len = trailing_headers_frame_len_;
-
-  MarkTrailersConsumed();
-  return true;
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(trailing_headers_frame_len_);
+      }
+      case 1: {
+        net_log_.AddEvent(
+            NetLogEventType::QUIC_CHROMIUM_CLIENT_STREAM_READ_RESPONSE_TRAILERS,
+            [&](NetLogCaptureMode capture_mode) {
+              return QuicResponseNetLogParams(
+                  id(), fin_received(), &received_trailers(), capture_mode);
+            });
+        return 0;
+      }
+      case 2: {
+        *headers = received_trailers().Clone();
+        *frame_len = trailing_headers_frame_len_;
+        return 0;
+      }
+      case 3: {
+        MarkTrailersConsumed();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<bool>(RunHttp3StreamPolicy(55, services));
 }
 
 void QuicChromiumClientStream::NotifyHandleOfDataAvailableLater() {
@@ -915,8 +1789,20 @@ void QuicChromiumClientStream::NotifyHandleOfDataAvailableLater() {
 }
 
 void QuicChromiumClientStream::NotifyHandleOfDataAvailable() {
-  if (handle_)
-    handle_->OnDataAvailable();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(handle_ != nullptr);
+      }
+      case 1: {
+        handle_->OnDataAvailable();
+        return 0;
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  RunHttp3StreamPolicy(56, services);
 }
 
 void QuicChromiumClientStream::DisableConnectionMigrationToCellularNetwork() {
@@ -925,15 +1811,27 @@ void QuicChromiumClientStream::DisableConnectionMigrationToCellularNetwork() {
 
 quic::QuicPacketLength
 QuicChromiumClientStream::GetGuaranteedLargestMessagePayload() const {
-  if (!session()) {
-    return 0;
-  }
-  return session()->GetGuaranteedLargestDatagramPayload();
+  auto services = [&](uint32_t operation, int64_t arg) -> int64_t {
+    switch (operation) {
+      case 0: {
+        return static_cast<int64_t>(session() != nullptr);
+      }
+      case 1: {
+        return static_cast<int64_t>(
+            session()->GetGuaranteedLargestDatagramPayload());
+      }
+      default:
+        CHECK(false);
+    }
+  };
+  return static_cast<quic::QuicPacketLength>(
+      RunHttp3StreamPolicy(57, services));
 }
 
 bool QuicChromiumClientStream::IsFirstStream() {
-  return id() == quic::QuicUtils::GetFirstBidirectionalStreamId(
-                     quic_version_, quic::Perspective::IS_CLIENT);
+  return http3_client_stream_is_first(
+      id(), quic::QuicUtils::GetFirstBidirectionalStreamId(
+                quic_version_, quic::Perspective::IS_CLIENT));
 }
 
 }  // namespace net

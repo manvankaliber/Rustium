@@ -33,12 +33,6 @@
 #include "third_party/abseil-cpp/absl/functional/overload.h"
 #include "third_party/search_engines_data/resources/definitions/prepopulated_engines.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-
-// Must come after all headers that specialize FromJniType() / ToJniType().
-#include "components/regional_capabilities/android/jni_headers/RegionalCapabilitiesService_jni.h"
-#endif
 
 using ::country_codes::CountryId;
 using ::TemplateURLPrepopulateData::PrepopulatedEngine;
@@ -220,10 +214,6 @@ std::pair<CountryId, LoadedCountrySource> SelectCountryId(
 // the program checks.
 Program CountryIdToProgram(const CountryId& country_id) {
   static constexpr Program kCountryDerivedPrograms[] = {
-#if BUILDFLAG(IS_IOS)
-      // Only iOS can derive Taiyaki scope directly from the country.
-      Program::kTaiyaki,
-#endif
 
       Program::kWaffle,
       Program::kScone,
@@ -389,9 +379,6 @@ RegionalCapabilitiesService::RegionalCapabilitiesService(
 }
 
 RegionalCapabilitiesService::~RegionalCapabilitiesService() {
-#if BUILDFLAG(IS_ANDROID)
-  DestroyJavaObject();
-#endif
 }
 
 std::vector<raw_ptr<const PrepopulatedEngine>>
@@ -542,7 +529,6 @@ bool RegionalCapabilitiesService::
       .selection_from_settings_counts_as_choice_screen_choice;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::optional<RegionalCapabilitiesService::ChoiceScreenDesign>
 RegionalCapabilitiesService::GetChoiceScreenDesign() {
   switch (GetActiveProgramSettings().program) {
@@ -550,26 +536,7 @@ RegionalCapabilitiesService::GetChoiceScreenDesign() {
     case Program::kScone:
       return std::nullopt;
     case Program::kTaiyaki:
-#if BUILDFLAG(IS_IOS)
-      return RegionalCapabilitiesService::ChoiceScreenDesign{
-          .title_string_id = IDS_SEARCH_ENGINE_CHOICE_PAGE_TITLE,
-          .subtitle_1_string_id =
-              IDS_SEARCH_ENGINE_CHOICE_PAGE_SUBTITLE_WITH_DEFINITION1,
-          .subtitle_1_learn_more_suffix_string_id =
-              IDS_SEARCH_ENGINE_CHOICE_PAGE_SUBTITLE_INFO_LINK,
-          .subtitle_1_learn_more_a11y_string_id =
-              IDS_SEARCH_ENGINE_CHOICE_PAGE_SUBTITLE_INFO_LINK_A11Y_LABEL,
-          .subtitle_2_string_id =
-              IDS_SEARCH_ENGINE_CHOICE_PAGE_SUBTITLE_WITH_DEFINITION2,
-          .learn_more_third_paragraph_string_id =
-              base::FeatureList::IsEnabled(
-                  switches::kSearchEngineChoiceScreenSnackbar)
-                  ? IDS_SEARCH_ENGINE_CHOICE_INFO_DIALOG_BODY_THIRD_PARAGRAPH_INSTRUCTIVE
-                  : IDS_SEARCH_ENGINE_CHOICE_INFO_DIALOG_BODY_THIRD_PARAGRAPH,
-      };
-#else
       NOTREACHED();
-#endif
     case Program::kWaffle:
       return RegionalCapabilitiesService::ChoiceScreenDesign{
           .title_string_id = IDS_SEARCH_ENGINE_CHOICE_PAGE_TITLE,
@@ -584,18 +551,7 @@ RegionalCapabilitiesService::GetChoiceScreenDesign() {
   }
   NOTREACHED();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_IOS)
-bool RegionalCapabilitiesService::ShouldShowChoiceConfirmationSnackbar() {
-  if (!switches::IsSearchEngineChoiceScreenSnackbarEnabled()) {
-    return false;
-  }
-  const auto& eligibility_config = GetChoiceScreenEligibilityConfig();
-  return eligibility_config.has_value() &&
-         eligibility_config->highlight_current_default;
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 const std::optional<ChoiceScreenEligibilityConfig>&
 RegionalCapabilitiesService::GetChoiceScreenEligibilityConfig() {
@@ -698,23 +654,6 @@ void RegionalCapabilitiesService::EnsureRegionalScopeCacheInitialized() {
 
   Program program;
 
-#if BUILDFLAG(IS_ANDROID)
-  program = client_->GetDeviceProgram();
-
-  if (IsInProgramRegion(program, country_id_cache_.value())) {
-    RecordAndroidProgramResolution(AndroidProgramResolution::kSuccess);
-  } else {
-    // Interim program inconsistencies originate from asynchronous nature of
-    // their resolution. For the time being, use a reasonable default.
-    program = Program::kDefault;
-    RecordAndroidProgramResolution(
-        AndroidProgramResolution::kDefaultForOutOfProgramCountry);
-  }
-
-  // The dynamic profile country is always enabled on Android.
-  static_assert(switches::IsDynamicProfileCountryEnabled());
-  dynamic_country_program_cache_ = program;
-#else
   program = CountryIdToProgram(country_id_cache_.value());
 
   if (switches::IsDynamicProfileCountryEnabled()) {
@@ -729,7 +668,6 @@ void RegionalCapabilitiesService::EnsureRegionalScopeCacheInitialized() {
                         /*prefer_current_country=*/true)
             .first);
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   program_settings_cache_ = GetSettingsForProgram(program);
 
@@ -817,37 +755,6 @@ void RegionalCapabilitiesService::TrySetPersistedCountryId(
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-base::android::ScopedJavaLocalRef<jobject>
-RegionalCapabilitiesService::GetJavaObject() {
-  if (!java_ref_) {
-    java_ref_.Reset(Java_RegionalCapabilitiesService_Constructor(
-        jni_zero::AttachCurrentThread(), reinterpret_cast<intptr_t>(this)));
-  }
-  return base::android::ScopedJavaLocalRef<jobject>(java_ref_);
-}
-
-void RegionalCapabilitiesService::DestroyJavaObject() {
-  if (java_ref_) {
-    Java_RegionalCapabilitiesService_destroy(jni_zero::AttachCurrentThread(),
-                                             java_ref_);
-    java_ref_.Reset();
-  }
-}
-
-bool RegionalCapabilitiesService::MayShowLinkedGoogleServicesSetting(
-    JNIEnv* env) {
-  return MayShowLinkedGoogleServicesSetting();
-}
-
-bool RegionalCapabilitiesService::IsInSearchEngineChoiceScreenRegion(
-    JNIEnv* env) {
-  return IsInSearchEngineChoiceScreenRegion();
-}
-bool RegionalCapabilitiesService::IsInEeaCountry(JNIEnv* env) {
-  return IsInEeaCountry();
-}
-#endif
 
 Program CountryIdToProgramForTesting(
     const country_codes::CountryId& country_id) {
@@ -855,7 +762,3 @@ Program CountryIdToProgramForTesting(
 }
 
 }  // namespace regional_capabilities
-
-#if BUILDFLAG(IS_ANDROID)
-DEFINE_JNI(RegionalCapabilitiesService)
-#endif

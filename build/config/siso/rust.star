@@ -10,7 +10,6 @@ load("@builtin//runtime.star", "runtime")
 load("@builtin//struct.star", "module")
 load("./ar.star", "ar")
 load("./config.star", "config")
-load("./fuchsia.star", "fuchsia")
 load("./gn_logs.star", "gn_logs")
 load("./platform.star", "platform")
 load("./win_sdk.star", "win_sdk")
@@ -46,8 +45,6 @@ def __filegroups(ctx):
             ],
         },
     }
-    if fuchsia.enabled(ctx):
-        fg.update(fuchsia.filegroups(ctx))
     return fg
 
 def __rust_link_handler(ctx, cmd):
@@ -61,14 +58,7 @@ def __rust_link_handler(ctx, cmd):
     if args[0] == "/bin/sh":
         args = args[2].split(" ")
     for i, arg in enumerate(args):
-        if arg.startswith("--sysroot=../../third_party/fuchsia-sdk/sdk"):
-            sysroot = ctx.fs.canonpath(arg.removeprefix("--sysroot="))
-            libpath = path.join(path.dir(sysroot), "lib")
-            inputs.extend([
-                sysroot + ":link",
-                libpath + ":link",
-            ])
-        elif arg.startswith("--sysroot=../../third_party/android_toolchain/ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot"):
+        if arg.startswith("--sysroot=../../third_party/android_toolchain/ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot"):
             use_android_toolchain = True
             inputs.append("third_party/android_toolchain/ndk/toolchains/llvm/prebuilt/linux-x86_64/sysroot:headers")
         if arg == "-isysroot":

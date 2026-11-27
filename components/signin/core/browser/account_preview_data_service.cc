@@ -37,9 +37,6 @@ void AccountPreviewDataService::RegisterProfilePrefs(
       base::Time());
   registry->RegisterTimePref(
       prefs::kAccountPreviewSwitchingHeuristicLastRecordedPref, base::Time());
-#if BUILDFLAG(IS_ANDROID)
-  registry->RegisterDictionaryPref(prefs::kAccountPreviewExternalAppAccount);
-#endif
 }
 
 }  // namespace signin

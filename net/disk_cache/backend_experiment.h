@@ -14,8 +14,8 @@ namespace disk_cache {
 // True if the current platform already uses Simple disk cache backend by
 // default.
 constexpr bool IsSimpleBackendEnabledByDefaultPlatform() {
-  return BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) ||
-         BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC);
+  return false || BUILDFLAG(IS_LINUX) ||
+         false || BUILDFLAG(IS_MAC);
 }
 
 // True if assigned to any of disk cache backend experiment groups.

@@ -244,7 +244,6 @@ source_set("wayland") {
     "//build/config/linux/libdrm",
     "//components/crash/core/common:crash_key",
     "//components/device_event_log",
-    "//components/exo/wayland/protocol:overlay_prioritizer_protocol",
     "//components/viz/common/resources:shared_image_format",
     "//mojo/public/cpp/bindings",
     "//mojo/public/cpp/system",
@@ -503,7 +502,6 @@ source_set("test_support") {
   ]
 
   public_deps = [
-    "//components/exo/wayland/protocol:overlay_prioritizer_protocol",
     "//skia",
     "//testing/gmock",
     "//third_party/wayland:wayland_client",

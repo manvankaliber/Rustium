@@ -30,13 +30,11 @@ import {RouteObserverMixinLit, Router} from '../router.js';
 import {getCss} from './sync_account_control.css.js';
 import {getHtml} from './sync_account_control.html.js';
 
-// <if expr="not is_chromeos">
 export interface SettingsSyncAccountControlElement {
   $: {
     signIn: CrButtonElement,
   };
 }
-// </if>
 
 // Helper enum to determine which promo type the app should display. Used in the
 // CSS styling, where the string literals are used for attributes matching.
@@ -118,7 +116,6 @@ export class SettingsSyncAccountControlElement extends
 
       signinAllowedOnNextStartupPref_: {type: Object},
 
-      // <if expr="not is_chromeos">
       subLabel_: {type: String},
 
       /**
@@ -128,7 +125,6 @@ export class SettingsSyncAccountControlElement extends
       syncing_: {type: Boolean},
       shouldShowSigninPausedButtons_: {type: Boolean},
       shouldShowSignInPromo_: {type: Boolean},
-      // </if>
     };
   }
 
@@ -141,13 +137,8 @@ export class SettingsSyncAccountControlElement extends
   accessor promoLabelWithNoAccount: string = '';
   accessor promoSecondaryLabelWithAccount: string = '';
   accessor promoSecondaryLabelWithNoAccount: string = '';
-  // <if expr="not is_chromeos">
   private accessor syncing_: boolean = false;
   protected accessor storedAccounts_: StoredAccount[] = [];
-  // </if>
-  // <if expr="is_chromeos">
-  private accessor storedAccounts_: StoredAccount[] = [];
-  // </if>
   protected accessor profileAvatarURL_: string = '';
   protected accessor shownAccount_: StoredAccount|null = null;
   accessor embeddedInSubpage: boolean = false;
@@ -155,21 +146,14 @@ export class SettingsSyncAccountControlElement extends
   accessor accessPoint: ChromeSigninAccessPoint =
       ChromeSigninAccessPoint.SETTINGS;
   protected accessor shouldShowAvatarRow_: boolean = false;
-  // <if expr="not is_chromeos">
   protected accessor subLabel_: string = '';
   protected accessor showSetupButtons_: boolean = false;
-  // </if>
-  // <if expr="is_chromeos">
-  private accessor showSetupButtons_: boolean = false;
-  // </if>
   private accessor signinAllowedOnNextStartupPref_:
       chrome.settingsPrivate.PrefObject<boolean>|undefined;
-  // <if expr="not is_chromeos">
   protected accessor shouldShowSigninPausedButtons_: boolean = false;
   private signinPausedImpressionRecorded_: boolean = false;
   private accessor shouldShowSignInPromo_: boolean = false;
   private signinOfferedImpressionRecorded_: boolean = false;
-  // </if>
   private syncBrowserProxy_: SyncBrowserProxy =
       SyncBrowserProxyImpl.getInstance();
   protected accessor promoType_: PromoType = PromoType.SIGNIN;
@@ -191,12 +175,6 @@ export class SettingsSyncAccountControlElement extends
     this.addWebUiListener(
         'profile-avatar-changed', this.handleUpdateAvatar_.bind(this));
 
-    // <if expr="is_chromeos">
-    this.promoType_ =
-        loadTimeData.getBoolean('replaceSyncPromosWithSignInPromos') ?
-        PromoType.SIGNIN :
-        PromoType.SYNC;
-    // </if>
   }
 
   override willUpdate(changedProperties: PropertyValues<this>) {
@@ -215,7 +193,6 @@ export class SettingsSyncAccountControlElement extends
       this.shouldShowAvatarRow_ = this.computeShouldShowAvatarRow_();
     }
 
-    // <if expr="not is_chromeos">
     if (changedProperties.has('syncStatus')) {
       const isSyncing = this.isSyncing_();
       if (this.syncing_ !== isSyncing) {
@@ -245,7 +222,6 @@ export class SettingsSyncAccountControlElement extends
         changedPrivateProperties.has('shownAccount_')) {
       this.subLabel_ = this.computeSubLabel_();
     }
-    // </if>
 
     if (changedProperties.has('syncStatus')) {
       this.showSetupButtons_ = this.computeShowSetupButtons_();
@@ -258,21 +234,16 @@ export class SettingsSyncAccountControlElement extends
     const changedPrivateProperties =
         changedProperties as Map<PropertyKey, unknown>;
 
-    // <if expr="not is_chromeos">
     if (changedPrivateProperties.has('shouldShowAvatarRow_')) {
       this.onShouldShowAvatarRowChange_();
     }
-    // </if>
   }
 
   override currentRouteChanged(_newRoute: Route, _oldRoute?: Route): void {
-    // <if expr="not is_chromeos">
     this.maybeRecordSigninPendingOffered_();
     this.maybeRecordSignInOffered_();
-    // </if>
   }
 
-  // <if expr="not is_chromeos">
   /**
    * Records Signin_Impression_FromSettings user action.
    */
@@ -302,7 +273,6 @@ export class SettingsSyncAccountControlElement extends
         this.promoSecondaryLabelWithAccount,
         this.promoSecondaryLabelWithNoAccount);
   }
-  // </if>
 
   protected getAccountLabel_(): string {
     if (!this.shownAccount_) {
@@ -399,7 +369,6 @@ export class SettingsSyncAccountControlElement extends
     return image || 'chrome://theme/IDR_PROFILE_AVATAR_PLACEHOLDER_LARGE';
   }
 
-  // <if expr="not is_chromeos">
   /**
    * @return The CSS class of the sync icon.
    */
@@ -433,7 +402,6 @@ export class SettingsSyncAccountControlElement extends
         return 'cr:sync';
     }
   }
-  // </if>
 
   protected getAvatarRowTitle_(): string {
     if (this.syncStatus.signedInState === SignedInState.WEB_ONLY_SIGNED_IN) {
@@ -469,7 +437,6 @@ export class SettingsSyncAccountControlElement extends
     return loadTimeData.getString('syncNotWorking');
   }
 
-  // <if expr="not is_chromeos">
   /**
    * Determines if the signout button should be hidden.
    */
@@ -555,19 +522,12 @@ export class SettingsSyncAccountControlElement extends
     }
     return loadTimeData.getString('turnOffSync');
   }
-  // </if>
 
   protected shouldShowErrorActionButton_(): boolean {
     if (this.showSetupButtons_) {
       return false;
     }
 
-    // <if expr="is_chromeos">
-    return this.syncStatus.statusAction === StatusAction.ENTER_PASSPHRASE ||
-        this.syncStatus.statusAction ===
-        StatusAction.SHOW_BOOKMARKS_LIMIT_HELP_ARTICLE;
-    // </if>
-    // <if expr="not is_chromeos">
     if (this.embeddedInSubpage &&
         this.syncStatus.statusAction === StatusAction.ENTER_PASSPHRASE) {
       // In the sync subpage the passphrase button is not required.
@@ -580,10 +540,8 @@ export class SettingsSyncAccountControlElement extends
 
     return this.isSyncing_() && !!this.syncStatus.hasError &&
         this.syncStatus.statusAction !== StatusAction.NO_ACTION;
-    // </if>
   }
 
-  // <if expr="not is_chromeos">
   protected shouldShowAccountAwareSigninButton_(): boolean {
     // Only show the button when user is in sync paused state
     return this.syncStatus.signedInState === SignedInState.WEB_ONLY_SIGNED_IN;
@@ -609,7 +567,6 @@ export class SettingsSyncAccountControlElement extends
             this.syncStatus.signedInState, 'Invalid SignedInState');
     }
   }
-  // </if>
 
   private handleStoredAccounts_(accounts: StoredAccount[]) {
     this.storedAccounts_ = accounts;
@@ -631,12 +588,9 @@ export class SettingsSyncAccountControlElement extends
   }
 
   protected onErrorButtonClick_() {
-    // <if expr="not is_chromeos">
     const router = Router.getInstance();
     const routes = router.getRoutes();
-    // </if>
     switch (this.syncStatus.statusAction) {
-      // <if expr="not is_chromeos">
       case StatusAction.REAUTHENTICATE:
         this.syncBrowserProxy_.startSignIn(this.accessPoint);
         break;
@@ -646,27 +600,18 @@ export class SettingsSyncAccountControlElement extends
       case StatusAction.RETRIEVE_TRUSTED_VAULT_KEYS:
         this.syncBrowserProxy_.startKeyRetrieval();
         break;
-      // </if>
       case StatusAction.ENTER_PASSPHRASE:
         this.syncBrowserProxy_.showSyncPassphraseDialog();
         break;
       case StatusAction.SHOW_BOOKMARKS_LIMIT_HELP_ARTICLE:
         this.syncBrowserProxy_.showBookmarkLimitExceededHelp();
         break;
-      // <if expr="not is_chromeos">
       case StatusAction.CONFIRM_SYNC_SETTINGS:
-      // </if>
       default:
-        // <if expr="is_chromeos">
-        assertNotReached();
-        // </if>
-        // <if expr="not is_chromeos">
         router.navigateTo(routes.SYNC);
-        // </if>
     }
   }
 
-  // <if expr="not is_chromeos">
   protected onSigninClick_() {
     this.syncBrowserProxy_.startSignIn(this.accessPoint);
     // Need to close here since one menu item also triggers this function.
@@ -737,7 +682,6 @@ export class SettingsSyncAccountControlElement extends
     this.shownAccount_ = this.storedAccounts_[index];
     this.shadowRoot.querySelector('cr-action-menu')!.close();
   }
-  // </if>
 
   private onShownAccountShouldChange_() {
     if (this.storedAccounts_ === undefined || this.syncStatus === undefined) {
@@ -756,7 +700,6 @@ export class SettingsSyncAccountControlElement extends
       const firstStoredAccount =
           (this.storedAccounts_.length > 0) ? this.storedAccounts_[0] : null;
 
-      // <if expr="not is_chromeos">
       // Sign-in impressions should be recorded in the following cases:
       // 1. When the promo is first shown, i.e. when |shownAccount_| is
       //   initialized;
@@ -766,15 +709,12 @@ export class SettingsSyncAccountControlElement extends
       const shouldRecordImpression = (this.shownAccount_ === undefined) ||
           (!this.shownAccount_ && firstStoredAccount) ||
           (this.shownAccount_ && !firstStoredAccount);
-      // </if>
 
       this.shownAccount_ = firstStoredAccount;
 
-      // <if expr="not is_chromeos">
       if (shouldRecordImpression) {
         this.recordImpressionUserActions_();
       }
-      // </if>
     }
   }
 
@@ -782,7 +722,6 @@ export class SettingsSyncAccountControlElement extends
     return !!this.syncStatus && !!this.syncStatus.firstSetupInProgress;
   }
 
-  // <if expr="not is_chromeos">
   protected onSetupCancelClick_() {
     this.fire('sync-setup-done', false);
   }
@@ -858,7 +797,6 @@ export class SettingsSyncAccountControlElement extends
     this.syncBrowserProxy_.recordSigninPendingOffered();
     this.signinPausedImpressionRecorded_ = true;
   }
-  // </if>
 
   protected isSyncing_(): boolean {
     return this.syncStatus.signedInState === SignedInState.SYNCING;

@@ -33,9 +33,6 @@
 #include "components/leveldb_proto/public/proto_database_provider.h"
 #include "components/leveldb_proto/public/shared_proto_database_client_list.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/notifications/scheduler/internal/clients/finds_client.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace notifications {
 namespace {
@@ -69,11 +66,6 @@ std::unique_ptr<KeyedService> CreateNotificationScheduleService(
   client_registrar->RegisterClient(
       SchedulerClientType::kTips,
       std::make_unique<TipsClient>(std::move(tips_agent), pref_service));
-#if BUILDFLAG(IS_ANDROID)
-  client_registrar->RegisterClient(
-      SchedulerClientType::kChromeFinds,
-      std::make_unique<FindsClient>(std::move(finds_agent), pref_service));
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Build icon store.
   base::FilePath icon_store_dir = storage_dir.Append(kIconDBName);

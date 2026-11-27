@@ -30,13 +30,7 @@
 #include "content/public/browser/web_contents.h"
 #include "services/network/public/cpp/features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/customtabs/client_data_header_web_contents_observer.h"
-#include "chrome/browser/android/tab_android.h"
-#include "chrome/browser/safe_browsing/android/suspicious_site_controller_android.h"
-#else
 #include "chrome/browser/safe_browsing/suspicious_site_warnings/suspicious_site_ui.h"  // nogncheck
-#endif
 
 namespace safe_browsing {
 namespace {
@@ -69,14 +63,6 @@ void CreateSafeBrowsingUserInteractionObserver(
     ui_manager->StartDisplayingBlockingPage(resource);
     return;
   }
-#if BUILDFLAG(IS_ANDROID)
-  // Don't delay the interstitial for Chrome Custom Tabs.
-  auto* tab_android = TabAndroid::FromWebContents(web_contents);
-  if (tab_android && tab_android->IsCustomTab()) {
-    ui_manager->StartDisplayingBlockingPage(resource);
-    return;
-  }
-#endif
   SafeBrowsingUserInteractionObserver::CreateForWebContents(
       web_contents, resource, ui_manager);
 }
@@ -183,12 +169,7 @@ void UrlCheckerDelegateImpl::ShowSuspiciousSiteWarning(
               return;
             }
             if (content::WebContents* contents = web_contents_getter.Run()) {
-#if BUILDFLAG(IS_ANDROID)
-              safe_browsing::SuspiciousSiteControllerAndroid::
-                  ShowForWebContents(contents, resource);
-#else
               safe_browsing::ShowSuspiciousSiteWarning(contents, resource);
-#endif
             }
           },
           base::WrapRefCounted(this), resource, web_contents_getter));

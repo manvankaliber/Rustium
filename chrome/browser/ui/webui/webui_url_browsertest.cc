@@ -61,25 +61,6 @@ IN_PROC_BROWSER_TEST_F(WebUIUrlBrowserTest, UrlsInTestList) {
 }
 
 static const char* const kConsoleErrorUrls[] = {
-#if BUILDFLAG(IS_CHROMEOS)
-    "chrome-untrusted://os-feedback",
-    // TODO(b/300875336): Navigating to chrome://cloud-upload causes an
-    // assertion failure because there are no dialog args.
-    "chrome://cloud-upload",
-    "chrome://crostini-installer",
-    // TODO(https://crbug.com/487113801): Fix file manager flaky console
-    // errors on load.
-    "chrome://file-manager",
-    "chrome://office-fallback",
-    "chrome://os-feedback",
-    "chrome://parent-access",
-    "chrome://personalization",
-    "chrome://smb-credentials-dialog",
-#if !defined(NDEBUG)
-    // TODO(crbug.com/511254271): Flaky console errors on ChromeOS debug.
-    "chrome://prefs-internals",
-#endif
-#else
     "chrome://signin-email-confirmation",
 #if BUILDFLAG(IS_LINUX)
     // TODO(crbug.com/512775747): Fix crash error when navigating to
@@ -89,7 +70,6 @@ static const char* const kConsoleErrorUrls[] = {
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
     // TODO(crbug.com/551624158): Fix console errors on Linux and Windows.
     "chrome://organizer-panel.top-chrome",
-#endif
 #endif
 };
 
@@ -131,11 +111,7 @@ class WebUIUrlNoConsoleErrorsTest : public WebUIAllUrlsBrowserTest {
 // The failing URLs are
 // - new_tab_page
 // - newtab
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_NoConsoleErrors DISABLED_NoConsoleErrors
-#else
 #define MAYBE_NoConsoleErrors NoConsoleErrors
-#endif
 IN_PROC_BROWSER_TEST_P(WebUIUrlNoConsoleErrorsTest, MAYBE_NoConsoleErrors) {
   CheckNoConsoleErrors(GetParam());
   WaitBeforeNavigation();

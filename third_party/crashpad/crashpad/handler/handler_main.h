@@ -56,15 +56,6 @@ int HandlerMain(int argc,
 #endif  // BUILDFLAG(IS_APPLE)
 );
 
-#if BUILDFLAG(IS_ANDROID)
-//! \brief The `main()` entry point for Android libraries.
-//!
-//! This symbol is the entry point for crashpad when it is dynamically loaded
-//! using /system/bin/linker.
-//!
-//! \sa CrashpadClient::StartHandlerWithLinkerAtCrash()
-extern "C" int CrashpadHandlerMain(int argc, char* argv[]);
-#endif
 
 }  // namespace crashpad
 

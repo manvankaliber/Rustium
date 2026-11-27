@@ -37,14 +37,7 @@
 #include "mojo/public/cpp/platform/platform_channel.h"
 #include "services/tracing/public/cpp/trace_startup.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/android/launcher_thread.h"
-#endif
 
-#if BUILDFLAG(IS_IOS)
-#include "base/apple/mach_port_rendezvous_ios.h"
-#include "base/files/scoped_temp_dir.h"
-#endif
 
 namespace content {
 namespace internal {
@@ -189,10 +182,6 @@ ChildProcessLauncherHelper::Process::Process(Process&& other)
       ,
       zygote(other.zygote)
 #endif
-#if BUILDFLAG(IS_FUCHSIA)
-      ,
-      sandbox_policy(std::move(other.sandbox_policy))
-#endif
 {
 }
 
@@ -206,11 +195,6 @@ ChildProcessLauncherHelper::ChildProcessLauncherHelper(
     std::unique_ptr<SandboxedProcessLauncherDelegate> delegate,
     const base::WeakPtr<ChildProcessLauncher>& child_process_launcher,
     bool terminate_on_shutdown,
-#if BUILDFLAG(IS_ANDROID)
-    bool can_use_warm_up_connection,
-    bool is_spare_renderer,
-    bool is_for_outermost_main_frame,
-#endif
     mojo::OutgoingInvitation mojo_invitation,
     const mojo::ProcessErrorCallback& process_error_callback,
     std::unique_ptr<ChildProcessLauncherFileData> file_data,
@@ -229,11 +213,6 @@ ChildProcessLauncherHelper::ChildProcessLauncherHelper(
       mojo_invitation_(std::move(mojo_invitation)),
       process_error_callback_(process_error_callback),
       file_data_(std::move(file_data)),
-#if BUILDFLAG(IS_ANDROID)
-      can_use_warm_up_connection_(can_use_warm_up_connection),
-      is_spare_renderer_(is_spare_renderer),
-      is_for_outermost_main_frame_(is_for_outermost_main_frame),
-#endif
       histogram_memory_region_(std::move(histogram_memory_region)),
       tracing_config_memory_region_(std::move(tracing_config_memory_region)),
       tracing_output_memory_region_(std::move(tracing_output_memory_region)),
@@ -248,16 +227,6 @@ ChildProcessLauncherHelper::ChildProcessLauncherHelper(
 }
 
 ChildProcessLauncherHelper::~ChildProcessLauncherHelper() {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (base::FeatureList::IsEnabled(features::kSchedQoSOnResourcedForChrome) &&
-      process_id_.has_value()) {
-    base::Process::Open(process_id_.value()).ForgetPriority();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_IOS)
-  GetProcessLauncherTaskRunner()->DeleteSoon(FROM_HERE,
-                                             std::move(scoped_temp_dir_));
-#endif
 }
 
 void ChildProcessLauncherHelper::StartLaunchOnClientThread() {
@@ -279,14 +248,10 @@ void ChildProcessLauncherHelper::LaunchOnLauncherThread() {
   UMA_HISTOGRAM_TIMES("MPArch.ChildProcessLauncher.PreLaunchDelay",
                       base::TimeTicks::Now() - init_start_time_);
 
-#if BUILDFLAG(IS_FUCHSIA)
-  mojo_channel_.emplace();
-#else   // BUILDFLAG(IS_FUCHSIA)
   mojo_named_channel_ = CreateNamedPlatformChannelOnLauncherThread();
   if (!mojo_named_channel_) {
     mojo_channel_.emplace();
   }
-#endif  //  BUILDFLAG(IS_FUCHSIA)
 
   begin_launch_time_ = base::TimeTicks::Now();
   if (GetProcessType() == switches::kRendererProcess &&
@@ -356,10 +321,6 @@ void ChildProcessLauncherHelper::LaunchOnLauncherThread() {
   if (BeforeLaunchOnLauncherThread(*files_to_register, options_ptr)) {
     process = LaunchProcessOnLauncherThread(
         options_ptr, std::move(files_to_register),
-#if BUILDFLAG(IS_ANDROID)
-        can_use_warm_up_connection_, is_spare_renderer_,
-        is_for_outermost_main_frame_,
-#endif
         &is_synchronous_launch, &launch_result);
     AfterLaunchOnLauncherThread(process, options_ptr);
   }
@@ -386,8 +347,9 @@ void ChildProcessLauncherHelper::PostLaunchOnLauncherThread(
 #else
   const bool launch_elevated = false;
 #endif
-  if (mojo_channel_)
+  if (mojo_channel_) {
     mojo_channel_->RemoteProcessLaunchAttempted();
+  }
 
   if (process.process.IsValid()) {
     RecordHistogramsOnLauncherThread(base::TimeTicks::Now() -
@@ -412,14 +374,12 @@ void ChildProcessLauncherHelper::PostLaunchOnLauncherThread(
   }
 
   if (process.process.IsValid()) {
-#if !BUILDFLAG(IS_FUCHSIA)
     if (mojo_named_channel_) {
       CHECK(!mojo_channel_, base::NotFatalUntil::M160);
       mojo::OutgoingInvitation::Send(
           std::move(invitation), base::kNullProcessHandle,
           mojo_named_channel_->TakeServerEndpoint(), process_error_callback_);
     } else
-#endif
     // Set up Mojo IPC to the new process.
     {
       CHECK(mojo_channel_, base::NotFatalUntil::M160);
@@ -474,7 +434,6 @@ std::string ChildProcessLauncherHelper::GetProcessType() {
   return command_line()->GetSwitchValueASCII(switches::kProcessType);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
     base::Process::Priority priority) {
   CHECK(CurrentlyOnProcessLauncherTaskRunner(), base::NotFatalUntil::M160);
@@ -483,7 +442,6 @@ void ChildProcessLauncherHelper::SetProcessPriorityOnLauncherThread(
   }
   ApplyProcessPriorityOnLauncherThread(child_process_, priority);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void ChildProcessLauncherHelper::CloseProcessOnLauncherThread() {
   CHECK(CurrentlyOnProcessLauncherTaskRunner(), base::NotFatalUntil::M160);
@@ -528,19 +486,6 @@ void ChildProcessLauncherHelper::PassLoggingSwitches(
 
 // static
 base::SingleThreadTaskRunner* GetProcessLauncherTaskRunner() {
-#if BUILDFLAG(IS_ANDROID)
-  // Android specializes Launcher thread so it is accessible in java.
-  // Note Android never does clean shutdown, so shutdown use-after-free
-  // concerns are not a problem in practice.
-  // This process launcher thread will use the Java-side process-launching
-  // thread, instead of creating its own separate thread on C++ side. Note
-  // that means this thread will not be joined on shutdown, and may cause
-  // use-after-free if anything tries to access objects deleted by
-  // AtExitManager, such as non-leaky LazyInstance.
-  static base::NoDestructor<scoped_refptr<base::SingleThreadTaskRunner>>
-      launcher_task_runner(android::LauncherThread::GetTaskRunner());
-  return (*launcher_task_runner).get();
-#else   // BUILDFLAG(IS_ANDROID)
   // TODO(http://crbug.com/820200): Investigate whether we could use
   // SequencedTaskRunner on platforms other than Windows.
   static base::LazyThreadPoolSingleThreadTaskRunner launcher_task_runner =
@@ -549,7 +494,6 @@ base::SingleThreadTaskRunner* GetProcessLauncherTaskRunner() {
                            base::TaskShutdownBehavior::BLOCK_SHUTDOWN),
           base::SingleThreadTaskRunnerThreadMode::DEDICATED);
   return launcher_task_runner.Get().get();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 // static

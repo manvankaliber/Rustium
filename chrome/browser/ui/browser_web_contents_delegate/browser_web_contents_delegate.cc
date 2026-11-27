@@ -10,7 +10,6 @@
 #include "base/notimplemented.h"
 #include "base/trace_event/trace_event.h"
 #include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/actor/actor_util.h"
 #include "chrome/browser/background/background_contents.h"
 #include "chrome/browser/background/background_contents_service.h"
 #include "chrome/browser/background/background_contents_service_factory.h"
@@ -114,9 +113,6 @@
 #include "chrome/browser/ui/overscroll_pref_manager.h"
 #endif  // defined(USE_AURA)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/settings_window_manager_chromeos.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "ui/display/display.h"
@@ -209,9 +205,6 @@ bool CanOpenWindowOpenSplitTab(BrowserWindowInterface& browser,
     return false;
   }
   // Don't interrupt the user for a backgrounded actor task.
-  if (actor::IsRunningBackgroundActorTask(*source)) {
-    return false;
-  }
   // The opener must be the active tab in this window, and must not already be
   // in a split. A request from an already-split tab falls back, rather than
   // replacing content the user placed in the other side of the split.
@@ -512,15 +505,6 @@ bool BrowserWebContentsDelegate::CanDragEnter(
     content::WebContents* source,
     const content::DropData& data,
     blink::DragOperationsMask operations_allowed) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // Disallow drag-and-drop navigation for Settings windows which do not support
-  // external navigation.
-  if ((operations_allowed & blink::kDragOperationLink) &&
-      chrome::SettingsWindowManager::GetInstance()->IsSettingsBrowser(
-          &browser_.get())) {
-    return false;
-  }
-#endif
   return true;
 }
 
@@ -590,11 +574,7 @@ BrowserWebContentsDelegate::IsPrerender2Supported(
 
 bool BrowserWebContentsDelegate::ShouldShowStaleContentOnEviction(
     content::WebContents* source) {
-#if BUILDFLAG(IS_CHROMEOS)
-  return source == browser_->GetTabStripModel()->GetActiveWebContents();
-#else
   return false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 content::WebContents* BrowserWebContentsDelegate::OpenURLFromTab(
@@ -800,14 +780,6 @@ content::WebContents* BrowserWebContentsDelegate::AddNewContents(
 
   // If a backgrounded actor task triggered a new tab/popup, don't interrupt the
   // user.
-  if (source && actor::IsRunningBackgroundActorTask(*source)) {
-    if (disposition == ui::mojom::WindowOpenDisposition::kNewPopup) {
-      window_action = NavigateParams::WindowAction::kShowWindowInactive;
-    } else if (disposition ==
-               ui::mojom::WindowOpenDisposition::kNewForegroundTab) {
-      disposition = ui::mojom::WindowOpenDisposition::kNewBackgroundTab;
-    }
-  }
 
   return chrome::AddWebContents(&*browser_, source, std::move(new_contents),
                                 target_url, disposition, window_features,
@@ -1067,23 +1039,6 @@ bool BrowserWebContentsDelegate::IsWebContentsCreationOverridden(
     const GURL& opener_url,
     const std::string& frame_name,
     const GURL& target_url) {
-  if (actor::HasActorTaskPreventingNewWebContents(opener)) {
-    // If an ExecutionEngine is acting on the opener, prevent it from creating a
-    // new WebContents. We'll instead force the navigation to happen in the same
-    // tab. Note, we do this even if the task isn't active (e.g. paused) so that
-    // a user action on behalf of the actor has the same behavior since the
-    // resumed task will still be fixed to the tab.
-
-    // However, if the opener is sandboxed and restricted from top-level
-    // navigation, we cannot force a same-tab redirection as it would violate
-    // the sandbox. Instead, we decline to override creation, allowing the
-    // browser to safely open a new popup window (since kPopups is allowed).
-    if (opener &&
-        opener->IsSandboxed(network::mojom::WebSandboxFlags::kTopNavigation)) {
-      return false;
-    }
-    return true;
-  }
 
   return (window_container_type ==
               content::mojom::WindowContainerType::BACKGROUND &&
@@ -1103,22 +1058,6 @@ content::WebContents* BrowserWebContentsDelegate::CreateCustomWebContents(
     const blink::mojom::WindowFeatures& window_features,
     const content::StoragePartitionConfig& partition_config,
     content::SessionStorageNamespaceHandle* session_storage_namespace) {
-  if (auto* opener_contents = content::WebContents::FromRenderFrameHost(opener);
-      actor::HasActorTaskPreventingNewWebContents(opener)) {
-    // If an ExecutionEngine is acting on the opener, we force the navigation
-    // to happen in the same tab.
-    content::NavigationController::LoadURLParams params(target_url);
-    params.initiator_frame_token = opener->GetFrameToken();
-    params.initiator_process_id = opener->GetProcess()->GetID();
-    params.initiator_origin = opener->GetLastCommittedOrigin();
-    params.source_site_instance = source_site_instance;
-    params.transition_type = ui::PAGE_TRANSITION_LINK;
-    params.is_renderer_initiated = true;
-    opener_contents->GetController().LoadURLWithParams(params);
-    VLOG(1) << "Actor treated window open as same tab navigation. "
-            << target_url;
-    return nullptr;
-  }
 
   BackgroundContents* background_contents = CreateBackgroundContents(
       browser_->GetProfile(), source_site_instance, opener, opener_url,

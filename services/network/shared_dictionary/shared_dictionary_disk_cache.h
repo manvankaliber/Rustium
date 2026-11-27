@@ -36,9 +36,6 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) SharedDictionaryDiskCache {
 
   void Initialize(
       const base::FilePath& cache_directory_path,
-#if BUILDFLAG(IS_ANDROID)
-      disk_cache::ApplicationStatusListenerGetter app_status_listener_getter,
-#endif  // BUILDFLAG(IS_ANDROID)
       scoped_refptr<disk_cache::BackendFileOperationsFactory>
           file_operations_factory);
 
@@ -59,9 +56,6 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) SharedDictionaryDiskCache {
   // Virtual for testing
   virtual disk_cache::BackendResult CreateCacheBackend(
       const base::FilePath& cache_directory_path,
-#if BUILDFLAG(IS_ANDROID)
-      disk_cache::ApplicationStatusListenerGetter app_status_listener_getter,
-#endif  // BUILDFLAG(IS_ANDROID)
       scoped_refptr<disk_cache::BackendFileOperationsFactory>
           file_operations_factory,
       disk_cache::BackendResultCallback callback);

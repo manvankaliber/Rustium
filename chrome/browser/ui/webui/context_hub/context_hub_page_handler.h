@@ -64,7 +64,6 @@ class ContextHubPageHandler : public browser::context_hub::mojom::PageHandler,
     virtual void OpenTopic(
         browser::context_hub::mojom::TopicIdOrUrlPtr topic_id_or_url);
 
-#if !BUILDFLAG(IS_ANDROID)
     // Resolves `topic_id_or_url` into the Context Hub topic URL it refers to,
     // either directly, or by building a topic details URL from the topic id.
     // Returns an empty GURL if the argument is missing, or does not resolve to
@@ -72,7 +71,6 @@ class ContextHubPageHandler : public browser::context_hub::mojom::PageHandler,
     // handling an incoming mojo message.
     static GURL ResolveTopicUrl(
         const browser::context_hub::mojom::TopicIdOrUrlPtr& topic_id_or_url);
-#endif
   };
 
   ContextHubPageHandler(
@@ -151,14 +149,9 @@ class ContextHubPageHandler : public browser::context_hub::mojom::PageHandler,
       ReplaceTabGroupsCallback callback) override;
   void ClearTabGroupChatHistory(
       ClearTabGroupChatHistoryCallback callback) override;
-  void AskGeminiWithContext(const std::string& user_command,
-                            const std::vector<int64_t>& memory_bank_entry_ids,
-                            bool save_to_history,
-                            AskGeminiWithContextCallback callback) override;
-  void GetMemoryBankChatHistory(
-      GetMemoryBankChatHistoryCallback callback) override;
-  void ClearMemoryBankChatHistory(
-      ClearMemoryBankChatHistoryCallback callback) override;
+
+
+
   void ConfirmAllTabGroups(ConfirmAllTabGroupsCallback callback) override;
   void GetConfirmedTabGroups(GetConfirmedTabGroupsCallback callback) override;
   void RemoveConfirmedTabGroup(
@@ -182,7 +175,6 @@ class ContextHubPageHandler : public browser::context_hub::mojom::PageHandler,
       GetTopicPageFaviconColorCallback callback) override;
   void OpenTopic(
       browser::context_hub::mojom::TopicIdOrUrlPtr topic_id_or_url) override;
-  void OpenGlicPanel(const std::vector<std::string>& prompts) override;
   void SetTopicFeedback(browser::context_hub::mojom::TopicFeedbackPtr feedback,
                         SetTopicFeedbackCallback callback) override;
   void DeleteTopicFeedback(const std::string& topic_id,
@@ -195,8 +187,7 @@ class ContextHubPageHandler : public browser::context_hub::mojom::PageHandler,
   void GenerateTopicsFeedbackBundle(
       browser::context_hub::mojom::TopicsFeedbackExportOptionsPtr options,
       GenerateTopicsFeedbackBundleCallback callback) override;
-  void RunTodoTask(const std::string& prompt,
-                   RunTodoTaskCallback callback) override;
+
   void OpenContextHubPage(OpenContextHubPageCallback callback) override;
   void OpenWebUrl(const GURL& url, OpenWebUrlCallback callback) override;
   void CopyAttachmentsToClipboard(
@@ -229,11 +220,9 @@ class ContextHubPageHandler : public browser::context_hub::mojom::PageHandler,
       GetTopicPageFaviconColorCallback callback,
       const favicon_base::FaviconRawBitmapResult& result);
 
-#if !BUILDFLAG(IS_ANDROID)
   void OnCopyAttachmentsToClipboardWritten(
       CopyAttachmentsToClipboardCallback callback,
       std::vector<std::pair<std::string, base::FilePath>> written_files);
-#endif
 
   mojo::Remote<browser::context_hub::mojom::Page> page_;
   mojo::Receiver<browser::context_hub::mojom::PageHandler> receiver_;

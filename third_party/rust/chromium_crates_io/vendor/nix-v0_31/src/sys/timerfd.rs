@@ -37,7 +37,7 @@ use std::os::unix::io::{AsFd, AsRawFd, BorrowedFd, FromRawFd, OwnedFd, RawFd};
 
 /// A timerfd instance. This is also a file descriptor, you can feed it to
 /// other interfaces taking file descriptors as arguments,
-#[cfg_attr(linux_android, doc = "[`epoll`](crate::sys::epoll)")]
+#[cfg_attr(linux, doc = "[`epoll`](crate::sys::epoll)")]
 #[cfg_attr(target_os = "freebsd", doc = "[`kqueue`](crate::sys::event)")]
 /// for example.
 #[derive(Debug)]
@@ -81,10 +81,10 @@ libc_enum! {
         /// Like `CLOCK_MONOTONIC`, except that `CLOCK_BOOTTIME` includes the time
         /// that the system was suspended.
         CLOCK_BOOTTIME,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         /// Like `CLOCK_REALTIME`, but will wake the system if it is suspended.
         CLOCK_REALTIME_ALARM,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         /// Like `CLOCK_BOOTTIME`, but will wake the system if it is suspended.
         CLOCK_BOOTTIME_ALARM,
     }

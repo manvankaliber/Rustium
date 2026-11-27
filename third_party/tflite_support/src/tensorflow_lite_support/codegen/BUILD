@@ -51,22 +51,6 @@ cc_library(
     ],
 )
 
-cc_library(
-    name = "android_java_generator",
-    srcs = [
-        "android_java_generator.cc",
-    ],
-    hdrs = [
-        "android_java_generator.h",
-    ],
-    deps = [
-        ":code_generator",
-        ":metadata_helper",
-        ":utils",
-        "//tensorflow_lite_support/metadata:metadata_schema_cc",
-        "@org_tensorflow//tensorflow/lite/schema:schema_fbs",
-    ],
-)
 
 cc_test(
     name = "code_generator_test",

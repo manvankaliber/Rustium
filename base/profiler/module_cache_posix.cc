@@ -14,14 +14,6 @@
 #include "base/debug/elf_reader.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-extern "C" {
-// &__executable_start is the start address of the current module.
-extern const char __executable_start;
-// &__etext is the end addesss of the code segment in the current module.
-extern const char _etext;
-}
-#endif
 
 namespace base {
 
@@ -84,33 +76,7 @@ UNSAFE_BUFFER_USAGE size_t GetLastExecutableOffset(const void* module_addr) {
 // fully mapped into memory (see base/debug/elf_reader.h).
 UNSAFE_BUFFER_USAGE FilePath GetDebugBasenameForModule(const void* base_address,
                                                        std::string_view file) {
-#if BUILDFLAG(IS_ANDROID)
-  // Preferentially identify the library using its soname on Android. Libraries
-  // mapped directly from apks have the apk filename in |dl_info.dli_fname|, and
-  // this doesn't distinguish the particular library.
-  // SAFETY: Required from caller, see UNSAFE_BUFFER_USAGE above.
-  std::optional<std::string_view> library_name =
-      UNSAFE_BUFFERS(debug::ReadElfLibraryName(base_address));
-  if (library_name) {
-    return FilePath(*library_name);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // SetProcessTitleFromCommandLine() does not play well with dladdr(). In
-  // particular, after calling our setproctitle(), calling dladdr() with an
-  // address in the main binary will return the complete command line of the
-  // program, including all arguments, in dli_fname. If we get a complete
-  // command-line like "/opt/google/chrome/chrome --type=gpu-process
-  // --gpu-sandbox-failures-fatal=yes --enable-logging ...", strip off
-  // everything that looks like an argument. This is safe on ChromeOS, where we
-  // control the directory and file names and know that no chrome binary or
-  // system library will have a " --" in the path.
-  size_t pos = file.find(" --");
-  if (pos != std::string_view::npos) {
-    file = file.substr(0, pos);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   return FilePath(file).BaseName();
 }
@@ -155,28 +121,6 @@ std::unique_ptr<const ModuleCache::Module> ModuleCache::CreateModuleForAddress(
     uintptr_t address) {
   Dl_info info;
   if (!dladdr(reinterpret_cast<const void*>(address), &info)) {
-#if BUILDFLAG(IS_ANDROID)
-    // dladdr doesn't know about the Chrome module in Android targets using the
-    // crazy linker. Explicitly check against the module's extents in that case.
-    // This is checked after dladdr because if dladdr CAN find the Chrome
-    // module, it will return a better fallback basename in `info.dli_fname`.
-    if (address >= reinterpret_cast<uintptr_t>(&__executable_start) &&
-        address < reinterpret_cast<uintptr_t>(&_etext)) {
-      const void* const base_address =
-          reinterpret_cast<const void*>(&__executable_start);
-      // SAFETY: `__executable_start` is a linker-defined symbol at the start
-      // of the ELF image of the module containing this code, which has been
-      // loaded, and thus fully mapped into memory.
-      return std::make_unique<PosixModule>(
-          reinterpret_cast<uintptr_t>(&__executable_start),
-          UNSAFE_BUFFERS(GetUniqueBuildId(base_address)),
-          // Extract the soname from the module. It is expected to exist, but if
-          // it doesn't use an empty string.
-          UNSAFE_BUFFERS(
-              GetDebugBasenameForModule(base_address, /* file = */ "")),
-          UNSAFE_BUFFERS(GetLastExecutableOffset(base_address)));
-    }
-#endif
     return nullptr;
   }
 

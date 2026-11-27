@@ -130,8 +130,7 @@ struct BLINK_COMMON_EXPORT
     return data.enable_encrypted_media;
   }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   static const bool& use_overlay_scrollbar(
       const ::blink::RendererPreferences& data) {
     return data.use_overlay_scrollbar;
@@ -183,7 +182,7 @@ struct BLINK_COMMON_EXPORT
     return data.send_subresource_notification;
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   static const std::string& system_font_family_name(
       const ::blink::RendererPreferences& data) {
     return data.system_font_family_name;
@@ -257,12 +256,6 @@ struct BLINK_COMMON_EXPORT
     return data.caret_browsing_enabled;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  static const bool& uses_platform_autofill(
-      const ::blink::RendererPreferences& data) {
-    return data.uses_platform_autofill;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   static int32_t autofill_shortcut_key_code(
       const ::blink::RendererPreferences& data) {

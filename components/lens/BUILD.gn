@@ -76,13 +76,10 @@ static_library("lens") {
     "lens_bitmap_processing.h",
   ]
   deps += [ "//ui/gfx" ]
-  if (!is_ios) {
-    deps += [ "//skia" ]
-  }
 
-  if (!is_android) {
-    deps += [ "//third_party/zstd:compress" ]
-  }
+  deps += [ "//skia" ]
+
+  deps += [ "//third_party/zstd:compress" ]
 
   if (enable_pdf) {
     public_deps += [
@@ -187,13 +184,11 @@ source_set("unit_tests") {
     "//url",
   ]
 
-  if (!is_ios) {
-    sources += [ "lens_bitmap_processing_unittest.cc" ]
-    deps += [
-      "//skia",
-      "//ui/gfx",
-    ]
-  }
+  sources += [ "lens_bitmap_processing_unittest.cc" ]
+  deps += [
+    "//skia",
+    "//ui/gfx",
+  ]
 }
 
 source_set("enterprise_policy") {
@@ -205,12 +200,4 @@ source_set("enterprise_policy") {
     "//components/sync_preferences",
     "//components/unified_consent",
   ]
-}
-
-if (is_android) {
-  import("//build/config/android/rules.gni")
-
-  java_cpp_enum("lens_overlay_invocation_source_enum_javagen") {
-    sources = [ "lens_overlay_invocation_source.h" ]
-  }
 }

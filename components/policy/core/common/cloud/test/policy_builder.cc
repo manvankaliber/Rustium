@@ -546,7 +546,6 @@ TypedPolicyBuilder<em::ExtensionInstallPolicies>::TypedPolicyBuilder() {
 
 template class TypedPolicyBuilder<em::ExtensionInstallPolicies>;
 
-#if (!BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS_CORE)) && !BUILDFLAG(IS_IOS)
 template <>
 TypedPolicyBuilder<em::ExternalPolicyData>::TypedPolicyBuilder() {
   CreatePayload();
@@ -554,15 +553,6 @@ TypedPolicyBuilder<em::ExternalPolicyData>::TypedPolicyBuilder() {
 }
 
 template class TypedPolicyBuilder<em::ExternalPolicyData>;
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-StringPolicyBuilder::StringPolicyBuilder() = default;
-
-void StringPolicyBuilder::Build() {
-  policy_data().set_policy_value(payload_);
-  PolicyBuilder::Build();
-}
-#endif
 
 }  // namespace policy

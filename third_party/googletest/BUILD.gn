@@ -139,13 +139,6 @@ source_set("gtest") {
   } else {
     deps += [ "//base" ]
   }
-
-  if (is_fuchsia) {
-    deps += [
-      "//third_party/fuchsia-sdk/sdk/pkg/fdio",
-      "//third_party/fuchsia-sdk/sdk/pkg/zx",
-    ]
-  }
 }
 
 # Do NOT depend on this directly. Use //testing/gtest:gtest_main instead.

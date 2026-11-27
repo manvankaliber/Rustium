@@ -17,7 +17,6 @@
 #include "services/network/public/mojom/url_loader_factory.mojom.h"
 
 struct Capabilities;
-class DeviceManager;
 struct Session;
 class Status;
 
@@ -27,7 +26,7 @@ struct InitSessionParams {
   InitSessionParams(
       network::mojom::URLLoaderFactory* factory,
       const SyncWebSocketFactory& socket_factory,
-      DeviceManager* device_manager,
+
       const scoped_refptr<base::SingleThreadTaskRunner> cmd_task_runner,
       TerminateSessionCallback terminate_on_cmd);
   InitSessionParams(const InitSessionParams& other);
@@ -35,7 +34,6 @@ struct InitSessionParams {
 
   raw_ptr<network::mojom::URLLoaderFactory> url_loader_factory;
   SyncWebSocketFactory socket_factory;
-  raw_ptr<DeviceManager> device_manager;
   scoped_refptr<base::SingleThreadTaskRunner> cmd_task_runner;
   TerminateSessionCallback terminate_on_cmd;
 };

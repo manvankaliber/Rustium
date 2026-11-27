@@ -16,55 +16,6 @@ load("@mediapipe//mediapipe:platforms.bzl", "config_setting_and_platform")
 
 licenses(["notice"])  # Apache 2.0
 
-# Generic Android
-config_setting(
-    name = "android",
-    constraint_values = [
-        "@platforms//os:android",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-# Android x86 32-bit.
-config_setting_and_platform(
-    name = "android_x86",
-    constraint_values = [
-        "@platforms//os:android",
-        "@platforms//cpu:x86_32",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-# Android x86 64-bit.
-config_setting_and_platform(
-    name = "android_x86_64",
-    constraint_values = [
-        "@platforms//os:android",
-        "@platforms//cpu:x86_64",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-# Android ARMv7.
-config_setting_and_platform(
-    name = "android_arm",
-    constraint_values = [
-        "@platforms//os:android",
-        "@platforms//cpu:armv7",
-    ],
-    visibility = ["//visibility:public"],
-)
-
-# Android ARM64.
-config_setting_and_platform(
-    name = "android_arm64",
-    constraint_values = [
-        "@platforms//os:android",
-        "@platforms//cpu:arm64",
-    ],
-    visibility = ["//visibility:public"],
-)
-
 # Generic MacOS.
 config_setting(
     name = "macos",

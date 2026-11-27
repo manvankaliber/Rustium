@@ -83,8 +83,6 @@ class TabMenuModel : public ui::SimpleMenuModel {
   void BuildForWebApp(tabs::TabHandle context_tab);
   void BuildSendTabToSelfItem(tabs::TabHandle context_tab,
                               const std::vector<tabs::TabHandle>& tabs);
-  void AppendGlicItems(tabs::TabHandle context_tab,
-                       const std::vector<tabs::TabHandle>& tabs);
   void AppendAiModeItems(tabs::TabHandle context_tab,
                          const std::vector<tabs::TabHandle>& tabs,
                          bool show_share,
@@ -105,7 +103,6 @@ class TabMenuModel : public ui::SimpleMenuModel {
   std::unique_ptr<ui::SimpleMenuModel> swap_with_split_submenu_;
   std::unique_ptr<ui::SimpleMenuModel> arrange_split_view_submenu_;
   std::unique_ptr<ui::SimpleMenuModel> split_mute_submenu_;
-  std::unique_ptr<ui::SimpleMenuModel> glic_tab_sub_menu_model_;
   std::unique_ptr<ui::SimpleMenuModel> contextual_tasks_tab_sub_menu_model_;
   std::unique_ptr<ui::SimpleMenuModel> send_tab_to_self_submenu_;
 

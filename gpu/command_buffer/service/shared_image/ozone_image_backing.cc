@@ -137,9 +137,6 @@ gfx::GpuMemoryBufferHandle OzoneImageBacking::GetGpuMemoryBufferHandle() {
 gfx::GpuMemoryBufferHandle
 OzoneImageBacking::GetSinglePlaneGpuMemoryBufferHandle(uint32_t index) {
   gfx::NativePixmapHandle native_pixmap_handle = pixmap_->ExportHandle();
-#if BUILDFLAG(IS_FUCHSIA)
-  NOTREACHED() << "Cannot get single plane from GPU memory buffer";
-#else
   DCHECK(native_pixmap_handle.modifier == 0);
   auto& planes = native_pixmap_handle.planes;
   CHECK(!planes.empty());
@@ -147,7 +144,6 @@ OzoneImageBacking::GetSinglePlaneGpuMemoryBufferHandle(uint32_t index) {
   planes[0] = std::move(planes[index]);
   planes.resize(1);
   return gfx::GpuMemoryBufferHandle(std::move(native_pixmap_handle));
-#endif  // BUILDFLAG(IS_FUCHSIA)
 }
 
 std::unique_ptr<DawnImageRepresentation> OzoneImageBacking::ProduceDawn(
@@ -500,7 +496,7 @@ std::unique_ptr<VulkanImageRepresentation> OzoneImageBacking::ProduceVulkan(
     native_pixmap_handle.planes[1].offset = image_size.GetArea();
     native_pixmap_handle.planes[1].size = image_size.GetArea() / 2;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     base::CheckedNumeric<uint64_t> checked_required =
         native_pixmap_handle.planes[1].offset;
     checked_required += native_pixmap_handle.planes[1].size;
@@ -516,7 +512,7 @@ std::unique_ptr<VulkanImageRepresentation> OzoneImageBacking::ProduceVulkan(
                  << "] exceeds FD[0] size [" << dmabuf_size << "]";
       return nullptr;
     }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
   }
   auto vulkan_image = vulkan_impl.CreateImageFromGpuMemoryHandle(
       vulkan_device_queue,

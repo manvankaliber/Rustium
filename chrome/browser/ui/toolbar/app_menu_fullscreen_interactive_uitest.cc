@@ -45,9 +45,6 @@
 #include "ui/views/view_utils.h"
 #include "ui/views/widget/widget.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "ui/base/test/scoped_fake_nswindow_fullscreen.h"
@@ -219,7 +216,6 @@ IN_PROC_BROWSER_TEST_F(AppMenuFullscreenInteractiveTest, ToggleFullscreen) {
 
 // Check Full screen Notification
 // The original manual test doesn't work on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(AppMenuFullscreenInteractiveTest, Notification) {
   std::unique_ptr<ui_test_utils::FullscreenWaiter> waiter1;
 
@@ -232,7 +228,6 @@ IN_PROC_BROWSER_TEST_F(AppMenuFullscreenInteractiveTest, Notification) {
       CheckFullscreenForBrowser(waiter1, true),
       InAnyContext(WaitForShow(kExclusiveAccessBubbleViewElementId)));
 }
-#endif
 
 // Check Context menu in full screen mode
 IN_PROC_BROWSER_TEST_F(AppMenuFullscreenInteractiveTest, ContextMenu) {
@@ -289,12 +284,6 @@ class AppMenuFullscreenButtonInteractiveTest
     } else {
       disabled_features.push_back(features::kAppMenuGlowUp);
     }
-#if BUILDFLAG(IS_CHROMEOS)
-    // Rounded windows change the frame's minimum height when entering
-    // fullscreen, triggering synchronous Widget::OnSizeConstraintsChanged().
-    enabled_features.push_back(
-        chromeos::features::kFeatureManagementRoundedWindows);
-#endif
     scoped_feature_list_.InitWithFeatures(enabled_features, disabled_features);
   }
   ~AppMenuFullscreenButtonInteractiveTest() override = default;

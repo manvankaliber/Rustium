@@ -48,12 +48,6 @@ class CORE_EXPORT FindInPage final : public GarbageCollected<FindInPage>,
 
   int FindMatchMarkersVersion() const;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns the bounding box of the active find-in-page match marker or an
-  // empty rect if no such marker exists. The rect is returned in find-in-page
-  // coordinates.
-  gfx::RectF ActiveFindMatchRect();
-#endif
 
   void ReportFindInPageMatchCount(int request_id, int count, bool final_update);
 
@@ -69,15 +63,6 @@ class CORE_EXPORT FindInPage final : public GarbageCollected<FindInPage>,
   void StopFinding(mojom::StopFindAction action) final;
   void ClearActiveFindMatch() final;
   void SetClient(mojo::PendingRemote<mojom::blink::FindInPageClient>) final;
-#if BUILDFLAG(IS_ANDROID)
-  void GetNearestFindResult(const gfx::PointF&,
-                            GetNearestFindResultCallback) final;
-
-  void ActivateNearestFindResult(int request_id, const gfx::PointF&) final;
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  void FindMatchRects(int current_version, FindMatchRectsCallback) final;
-#endif
 
   TextFinder* GetTextFinder() const;
 

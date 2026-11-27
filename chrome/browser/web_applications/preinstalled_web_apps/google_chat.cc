@@ -4,7 +4,7 @@
 
 #include "chrome/browser/web_applications/preinstalled_web_apps/google_chat.h"
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/feature_list.h"
 #include "base/functional/bind.h"
 #include "chrome/browser/web_applications/external_install_options.h"
@@ -65,8 +65,8 @@ ExternalInstallOptions GetConfigForGoogleChat(bool is_standalone,
   options.user_type_allowlist = {"unmanaged", "managed", "child"};
   options.only_for_new_users = only_for_new_users;
   options.expected_app_id = use_dedicated_origin_chat
-                                ? ash::kGoogleChatAppId
-                                : ash::kOldGoogleChatAppId;
+                                ? webapps::kGoogleChatAppId
+                                : webapps::kOldGoogleChatAppId;
   options.only_use_app_info_factory = true;
   options.app_info_factory = base::BindRepeating(
       [](bool is_standalone, webapps::ManifestId manifest_id, GURL start_url,

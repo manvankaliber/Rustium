@@ -24,12 +24,7 @@ namespace internal {
 omnibox::FormattedString::ColorType ACMatchClassificationToColorType(
     int style) {
   if (style & ACMatchClassification::URL) {
-#if BUILDFLAG(IS_IOS)
-    // iOS shows URLs in the secondary text color, not blue.
-    return omnibox::FormattedString::COLOR_SUGGEST_HINT_TEXT;
-#else
     return omnibox::FormattedString::COLOR_SUGGEST_ACTION_HIGH;
-#endif
   }
   if (style & ACMatchClassification::DIM) {
     return omnibox::FormattedString::COLOR_SUGGEST_HINT_TEXT;

@@ -12,15 +12,6 @@ export function getHtml(this: SettingsBatteryPageElement) {
 <settings-section ?show-send-feedback-button="${this.showSendFeedbackButton_()}"
     @send-feedback="${this.onSendFeedback_}"
     page-title="$i18n{batteryPageTitle}">
-<if expr="is_chromeos">
-  ${this.isBatterySaverModeManagedByOs_ ? html`
-    <cr-link-row id="batterySaverOSSettingsLinkRow"
-        label="$i18n{batterySaverModeLabel}"
-        sub-label="$i18n{batterySaverModeLinkOsDescription}"
-        @click="${this.onOsPowerSettingsClick_}" external>
-    </cr-link-row>
-  ` : ''}
-</if>
   ${!this.isBatterySaverModeManagedByOs_ ? html`
     <settings-toggle-button id="toggleButton" @change="${this.onChange_}"
         pref-key="performance_tuning.battery_saver_mode.state"

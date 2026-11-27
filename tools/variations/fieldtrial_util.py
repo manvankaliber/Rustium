@@ -229,11 +229,8 @@ def main():
   print_shell_cmd = len(sys.argv) >= 4 and sys.argv[3] == 'shell_cmd'
 
   supported_platforms = [
-    'android',
     'android_desktop',
     'android_webview',
-    'chromeos',
-    'ios',
     'linux',
     'mac',
     'windows',

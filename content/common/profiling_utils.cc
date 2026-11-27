@@ -37,10 +37,6 @@ base::FilePath GetProfileFileDirectory() {
 
   // Android differs from the other platforms because it's not possible to
   // write in base::DIR_CURRENT and environment variables aren't well supported.
-#if BUILDFLAG(IS_ANDROID)
-  base::PathService::Get(base::DIR_TEMP, &path);
-  path = path.Append("pgo_profiles/");
-#else
 
   std::unique_ptr<base::Environment> env(base::Environment::Create());
   std::optional<std::string> prof_template = env->GetVar("LLVM_PROFILE_FILE");
@@ -51,7 +47,6 @@ base::FilePath GetProfileFileDirectory() {
     path = base::FilePath(*prof_template).DirName();
 #endif
   }
-#endif
 
   if (!path.empty()) {
     base::CreateDirectory(path);

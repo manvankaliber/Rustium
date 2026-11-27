@@ -13,7 +13,7 @@
 #include "base/threading/thread.h"
 #include "base/threading/thread_checker.h"
 #include "base/time/time.h"
-#include "media/gpu/chromeos/image_processor.h"
+#include "media/gpu/linux/image_processor.h"
 #include "media/gpu/test/video_frame_helpers.h"
 
 namespace base {

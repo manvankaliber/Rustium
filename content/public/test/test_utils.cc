@@ -51,17 +51,7 @@
 #include "third_party/blink/public/mojom/fetch/fetch_api_request.mojom.h"
 #include "url/url_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "cc/slim/layer_tree.h"
-#include "content/browser/renderer_host/compositor_impl_android.h"
-#include "ui/android/window_android.h"
-#include "ui/android/window_android_compositor.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_IOS)
-#include "content/browser/renderer_host/browser_compositor_ios.h"
-#include "content/browser/renderer_host/test_render_widget_host_view_ios_factory.h"
-#endif  // BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(IS_MAC)
 #include "content/browser/renderer_host/browser_compositor_view_mac.h"
@@ -625,8 +615,7 @@ ScopedContentBrowserClientSetting::~ScopedContentBrowserClientSetting() {
 }
 
 void WaitForBrowserCompositorFramePresented(WebContents* web_contents) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_IOS) && \
-    !defined(USE_AURA)
+#if !BUILDFLAG(IS_MAC) && !defined(USE_AURA)
   NOTREACHED();
 #else
   base::RunLoop run_loop;
@@ -636,18 +625,8 @@ void WaitForBrowserCompositorFramePresented(WebContents* web_contents) {
         std::move(cb).Run();
       },
       run_loop.QuitClosure());
-#if BUILDFLAG(IS_ANDROID)
-  ui::WindowAndroidCompositor* compositor =
-      web_contents->GetNativeView()->GetWindowAndroid()->GetCompositor();
-  compositor->PostRequestSuccessfulPresentationTimeForNextFrame(
-      std::move(callback));
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
   auto* browser_compositor = GetBrowserCompositorMacForTesting(
-      web_contents->GetRenderWidgetHostView());
-  browser_compositor->GetCompositor()
-      ->RequestSuccessfulPresentationTimeForNextFrame(std::move(callback));
-#elif BUILDFLAG(IS_IOS)
-  auto* browser_compositor = GetBrowserCompositorIOSForTesting(
       web_contents->GetRenderWidgetHostView());
   browser_compositor->GetCompositor()
       ->RequestSuccessfulPresentationTimeForNextFrame(std::move(callback));
@@ -663,23 +642,12 @@ void WaitForBrowserCompositorFramePresented(WebContents* web_contents) {
 }
 
 void ForceNewCompositorFrameFromBrowser(WebContents* web_contents) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_IOS) && \
-    !defined(USE_AURA)
+#if !BUILDFLAG(IS_MAC) && !defined(USE_AURA)
   NOTREACHED();
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  ui::WindowAndroid* window = web_contents->GetTopLevelNativeWindow();
-  ui::WindowAndroidCompositor* compositor = window->GetCompositor();
-  cc::slim::LayerTree* layer_tree =
-      static_cast<CompositorImpl*>(compositor)->GetLayerTreeForTesting();
-  layer_tree->SetNeedsRedrawForTesting();
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
   auto* browser_compositor = GetBrowserCompositorMacForTesting(
-      web_contents->GetRenderWidgetHostView());
-  browser_compositor->GetCompositor()->ScheduleFullRedraw();
-#elif BUILDFLAG(IS_IOS)
-  auto* browser_compositor = GetBrowserCompositorIOSForTesting(
       web_contents->GetRenderWidgetHostView());
   browser_compositor->GetCompositor()->ScheduleFullRedraw();
 #elif defined(USE_AURA)

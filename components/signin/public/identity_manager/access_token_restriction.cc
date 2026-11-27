@@ -8,10 +8,7 @@
 #include "build/build_config.h"
 #include "components/signin/public/base/signin_switches.h"
 #include "google_apis/gaia/gaia_constants.h"
-
-#if !BUILDFLAG(IS_FUCHSIA)
 #include "pdf/buildflags.h"  // nogncheck
-#endif                       // !BUILDFLAG(IS_FUCHSIA)
 
 namespace signin {
 
@@ -24,13 +21,11 @@ bool IsUnrestrictedOAuth2Scopes(const std::string& scope) {
     return base::FeatureList::IsEnabled(switches::kEnableAccountPreviewData);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Check kill switch for Device Management Service OAuth scope.
   if (scope == GaiaConstants::kDeviceManagementServiceOAuth) {
     return !base::FeatureList::IsEnabled(
         switches::kRestrictDeviceManagementServiceOAuthScope);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   static constexpr auto kScopes = base::MakeFixedFlatSet<std::string_view>({
       GaiaConstants::kGoogleUserInfoEmail,
@@ -40,17 +35,10 @@ bool IsUnrestrictedOAuth2Scopes(const std::string& scope) {
       // sign in.
       GaiaConstants::kSecureConnectOAuth2Scope,
 
-#if !BUILDFLAG(IS_FUCHSIA)
 #if BUILDFLAG(ENABLE_PDF_SAVE_TO_DRIVE)
       GaiaConstants::kDriveOAuth2Scope,
 #endif  // BUILDFLAG(ENABLE_PDF_SAVE_TO_DRIVE)
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
-#if BUILDFLAG(IS_ANDROID)
-      // Required by cloud policy.
-      // On Android, cloud policies are fetched before sign in is completed.
-      GaiaConstants::kDeviceManagementServiceOAuth,
-#endif  // BUILDFLAG(IS_ANDROID)
   });
 
   return kScopes.contains(scope);

@@ -5,10 +5,6 @@
 #include "chrome/browser/task_manager/providers/render_process_host_task_provider.h"
 
 #include "base/process/process.h"
-#include "chrome/browser/glic/host/guest_util.h"
-#include "chrome/browser/glic/public/glic_enabling.h"  // nogncheck
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
 #include "chrome/browser/task_manager/providers/child_process_task.h"
 #include "chrome/common/buildflags.h"
 #include "content/public/browser/browser_thread.h"
@@ -68,9 +64,6 @@ void RenderProcessHostTaskProvider::CreateTask(
   // TODO(cburn): plumb out something from RPH so the title can be set here.
   // Create the task and notify the observer.
   auto subtype = ChildProcessTask::ProcessSubtype::kUnknownRenderProcess;
-  if (glic::IsProcessHostForGlic(host)) {
-    subtype = ChildProcessTask::ProcessSubtype::kGlicRenderProcess;
-  }
   std::unique_ptr<ChildProcessTask>& task =
       tasks_by_rph_id_[render_process_host_id];
   task = std::make_unique<ChildProcessTask>(*host, subtype);

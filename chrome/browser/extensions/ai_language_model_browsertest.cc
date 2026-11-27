@@ -24,7 +24,7 @@
 
 // The AI Prompt API is not yet available on Android. Track status here:
 // https://developer.chrome.com/docs/ai/prompt-api
-static_assert(!BUILDFLAG(IS_ANDROID));
+static_assert(!false);
 
 namespace extensions {
 
@@ -71,13 +71,8 @@ std::string DescribeTestVariant(const testing::TestParamInfo<Variant> info) {
 }  // namespace
 
 // TODO(crbug.com/419321441): Support Built-In AI APIs on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ExtensionAILanguageModelBrowserTest \
-  DISABLED_ExtensionAILanguageModelBrowserTest
-#else
 #define MAYBE_ExtensionAILanguageModelBrowserTest \
   ExtensionAILanguageModelBrowserTest
-#endif  // BUILDFLAG(IS_CHROMEOS)
 class MAYBE_ExtensionAILanguageModelBrowserTest
     : public ExtensionBrowserTest,
       public testing::WithParamInterface<Variant> {

@@ -28,9 +28,7 @@
 #include "services/network/public/cpp/simple_url_loader.h"
 #include "services/network/public/mojom/url_response_head.mojom.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "components/safe_browsing/content/browser/web_ui/web_ui_content_info_singleton.h"
-#endif
 
 namespace enterprise_connectors {
 
@@ -425,10 +423,8 @@ void ResumableUploadRequest::SendMetadataRequest() {
   resource_request->url = base_url_;
   resource_request->method = "POST";
   SetMetadataRequestHeaders(resource_request.get());
-#if !BUILDFLAG(IS_IOS)
   safe_browsing::WebUIContentInfoSingleton::GetInstance()
       ->AddHeadersToDeepScanRequests(request_token_, resource_request->headers);
-#endif
 
   url_loader_ = network::SimpleURLLoader::Create(std::move(resource_request),
                                                  traffic_annotation_);

@@ -808,7 +808,6 @@ class PermissionControllerImplWithDelegateTest
   raw_ptr<TestPermissionManager> permission_manager_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(PermissionControllerImplWithDelegateTest, PermissionPolicyTest) {
   const char* kOrigin1 = "https://example.com";
   const char* kOrigin2 = "https://example-child.com";
@@ -869,7 +868,6 @@ TEST_F(PermissionControllerImplWithDelegateTest, PermissionPolicyTest) {
             permission_controller->GetPermissionStatusForCurrentDocument(
                 geolocation_permission_descriptor, child_without_policy));
 }
-#endif
 
 TEST_P(PermissionControllerImplTestWithApproxLocation,
        SubscribeToContentSettingsTypeChangeProgression) {

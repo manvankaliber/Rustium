@@ -29,41 +29,9 @@
 #include "media/base/media_switches.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <fuchsia/media/cpp/fidl_test_base.h>
-
-#include "base/fuchsia/scoped_service_binding.h"
-#include "base/fuchsia/test_component_context_for_process.h"
-#include "media/fuchsia/audio/fake_audio_capturer.h"
-#endif  // BUILDFLAG(IS_FUCHSIA)
-
 namespace media {
 
 using Error = AudioInputStream::AudioInputCallback::Error;
-
-#if BUILDFLAG(IS_FUCHSIA)
-class FakeAudio : public fuchsia::media::testing::Audio_TestBase {
- public:
-  FakeAudio()
-      : audio_binding_(test_component_context_.additional_services(), this) {}
-
-  // fuchsia::media::testing::Audio_TestBase
-  void CreateAudioCapturer(
-      fidl::InterfaceRequest<fuchsia::media::AudioCapturer> request,
-      bool is_loopback) override {
-    capturer_.push_back(
-        std::make_unique<FakeAudioCapturer>(std::move(request)));
-  }
-  void NotImplemented_(const std::string& name) override {
-    FAIL() << "Unexpected call to: " << name;
-  }
-
- private:
-  base::TestComponentContextForProcess test_component_context_;
-  base::ScopedServiceBinding<fuchsia::media::Audio> audio_binding_;
-  std::vector<std::unique_ptr<FakeAudioCapturer>> capturer_;
-};
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 // This class allows to find out if the callbacks are occurring as
 // expected and if any error has been reported.
@@ -114,10 +82,6 @@ class AudioInputTest : public testing::TestWithParam<bool> {
         audio_manager_(AudioManager::CreateForTesting(
             std::make_unique<TestAudioThread>())),
         audio_input_stream_(nullptr) {
-#if BUILDFLAG(IS_ANDROID)
-    // The only parameter is used to enable/disable AAudio.
-    features_.InitWithFeatureState(features::kUseAAudioInput, GetParam());
-#endif
     base::RunLoop().RunUntilIdle();
   }
 
@@ -128,17 +92,7 @@ class AudioInputTest : public testing::TestWithParam<bool> {
 
  protected:
   bool InputDevicesAvailable() {
-#if BUILDFLAG(IS_FUCHSIA)
-    if (AudioDeviceInfoAccessorForTests(audio_manager_.get())
-            .HasAudioInputDevices()) {
-      return true;
-    }
-    // If the device has no audio input device, fake it.
-    if (!fake_audio_) {
-      fake_audio_ = std::make_unique<FakeAudio>();
-    }
-    return true;
-#elif BUILDFLAG(IS_MAC) && defined(ARCH_CPU_ARM64)
+#if BUILDFLAG(IS_MAC) && defined(ARCH_CPU_ARM64)
     // TODO(crbug.com/40719640): macOS on ARM64 says it has devices, but won't
     // let any of them be opened or listed.
     return false;
@@ -277,14 +231,8 @@ class AudioInputTest : public testing::TestWithParam<bool> {
   void OnLogMessage(const std::string& message) {}
 
   base::TestMessageLoop message_loop_;
-#if BUILDFLAG(IS_FUCHSIA)
-  std::unique_ptr<FakeAudio> fake_audio_;
-#endif  // BUILDFLAG(IS_FUCHSIA)
   std::unique_ptr<AudioManager> audio_manager_;
   raw_ptr<AudioInputStream> audio_input_stream_;
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList features_;
-#endif
 };
 
 // Test create and close of an AudioInputStream without recording audio.
@@ -296,11 +244,7 @@ TEST_P(AudioInputTest, CreateAndClose) {
 
 // Test create, open and close of an AudioInputStream without recording audio.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_OpenAndClose DISABLED_OpenAndClose
-#else
 #define MAYBE_OpenAndClose OpenAndClose
-#endif
 TEST_P(AudioInputTest, MAYBE_OpenAndClose) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   MakeAudioInputStreamOnAudioThread();
@@ -309,11 +253,7 @@ TEST_P(AudioInputTest, MAYBE_OpenAndClose) {
 
 // Test create, open, stop and close of an AudioInputStream without recording.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_OpenStopAndClose DISABLED_OpenStopAndClose
-#else
 #define MAYBE_OpenStopAndClose OpenStopAndClose
-#endif
 TEST_P(AudioInputTest, MAYBE_OpenStopAndClose) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   MakeAudioInputStreamOnAudioThread();
@@ -323,11 +263,7 @@ TEST_P(AudioInputTest, MAYBE_OpenStopAndClose) {
 // Test a normal recording sequence using an AudioInputStream.
 // Very simple test which starts capturing and verifies that recording starts.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_Record DISABLED_Record
-#else
 #define MAYBE_Record Record
-#endif
 TEST_P(AudioInputTest, MAYBE_Record) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   RunRecordingTest(/*echo_cancellation=*/std::nullopt);
@@ -336,12 +272,7 @@ TEST_P(AudioInputTest, MAYBE_Record) {
 // Test a normal recording sequence using an AudioInputStream.
 // Very simple test which starts capturing and verifies that recording starts.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_Record_EchoCancellationDisabled \
-  DISABLED_Record_EchoCancellationDisabled
-#else
 #define MAYBE_Record_EchoCancellationDisabled Record_EchoCancellationDisabled
-#endif
 TEST_P(AudioInputTest, MAYBE_Record_EchoCancellationDisabled) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   RunRecordingTest(/*echo_cancellation=*/false);
@@ -350,12 +281,7 @@ TEST_P(AudioInputTest, MAYBE_Record_EchoCancellationDisabled) {
 // Test a normal recording sequence using an AudioInputStream.
 // Very simple test which starts capturing and verifies that recording starts.
 // TODO(crbug.com/40262701): This test is failing on ios-blink-rel-fyi bot.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_Record_EchoCancellationEnabled \
-  DISABLED_Record_EchoCancellationEnabled
-#else
 #define MAYBE_Record_EchoCancellationEnabled Record_EchoCancellationEnabled
-#endif
 TEST_P(AudioInputTest, MAYBE_Record_EchoCancellationEnabled) {
   ABORT_AUDIO_TEST_IF_NOT(InputDevicesAvailable());
   RunRecordingTest(/*echo_cancellation=*/true);
@@ -365,9 +291,5 @@ TEST_P(AudioInputTest, MAYBE_Record_EchoCancellationEnabled) {
 // allow the use of AAudio.
 INSTANTIATE_TEST_SUITE_P(Base, AudioInputTest, testing::Values(false));
 
-#if BUILDFLAG(IS_ANDROID)
-// Run tests with AAudio enabled.
-INSTANTIATE_TEST_SUITE_P(AAudio, AudioInputTest, testing::Values(true));
-#endif
 
 }  // namespace media

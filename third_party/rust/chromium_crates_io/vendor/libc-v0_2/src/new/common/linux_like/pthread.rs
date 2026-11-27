@@ -13,7 +13,7 @@ extern "C" {
     #[cfg(target_os = "linux")]
     pub fn pthread_getname_np(thread: crate::pthread_t, name: *mut c_char, len: size_t) -> c_int;
 
-    #[cfg(any(target_os = "android", all(target_os = "linux", target_env = "gnu")))]
+    #[cfg(all(target_os = "linux", target_env = "gnu"))]
     pub fn pthread_gettid_np(thread: crate::pthread_t) -> crate::pid_t;
 
     #[cfg(any(target_os = "linux", target_os = "l4re"))]
@@ -23,6 +23,6 @@ extern "C" {
         cpuset: *const crate::cpu_set_t,
     ) -> c_int;
 
-    #[cfg(any(target_os = "android", target_os = "linux"))]
+    #[cfg(target_os = "linux")]
     pub fn pthread_setname_np(thread: crate::pthread_t, name: *const c_char) -> c_int;
 }

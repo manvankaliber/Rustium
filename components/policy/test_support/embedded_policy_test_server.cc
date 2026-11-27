@@ -12,24 +12,18 @@
 #include "components/policy/core/common/cloud/cloud_policy_constants.h"
 #include "components/policy/test_support/remote_commands_state.h"
 #include "components/policy/test_support/request_handler_for_check_user_account.h"
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 #include "components/policy/proto/chrome_extension_policy.pb.h"
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 #include "components/policy/test_support/client_storage.h"
 #include "components/policy/test_support/policy_storage.h"
 #include "components/policy/test_support/request_handler_for_api_authorization.h"
 #include "components/policy/test_support/request_handler_for_auto_enrollment.h"
 #include "components/policy/test_support/request_handler_for_browser_public_key_upload.h"
-#include "components/policy/test_support/request_handler_for_check_android_management.h"
 #include "components/policy/test_support/request_handler_for_client_cert_provisioning.h"
 #include "components/policy/test_support/request_handler_for_determine_promotion_eligibility.h"
 #include "components/policy/test_support/request_handler_for_device_attribute_update_permission.h"
 #include "components/policy/test_support/request_handler_for_device_initial_enrollment_state.h"
 #include "components/policy/test_support/request_handler_for_device_state_retrieval.h"
 #include "components/policy/test_support/request_handler_for_policy.h"
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/policy/test_support/request_handler_for_psm_auto_enrollment.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 #include "components/policy/test_support/remote_commands_state.h"
 #include "components/policy/test_support/request_handler_for_register_browser.h"
 #include "components/policy/test_support/request_handler_for_register_cert_based.h"
@@ -118,8 +112,6 @@ EmbeddedPolicyTestServer::EmbeddedPolicyTestServer()
   RegisterHandler(std::make_unique<SimpleRequestHandler>(
       this, dm_protocol::kValueRequestUploadCertificate,
       std::move(cert_upload_response)));
-  RegisterHandler(
-      std::make_unique<RequestHandlerForCheckAndroidManagement>(this));
   RegisterHandler(std::make_unique<RequestHandlerForCheckUserAccount>(this));
   em::DeviceManagementResponse chrome_desktop_report_response;
   chrome_desktop_report_response.mutable_chrome_desktop_report_response();
@@ -151,9 +143,6 @@ EmbeddedPolicyTestServer::EmbeddedPolicyTestServer()
       this, dm_protocol::kValueRequestFmRegistrationTokenUpload,
       em::DeviceManagementResponse()));
   RegisterHandler(std::make_unique<RequestHandlerForPolicy>(this));
-#if BUILDFLAG(IS_CHROMEOS)
-  RegisterHandler(std::make_unique<RequestHandlerForPsmAutoEnrollment>(this));
-#endif  // BUILDFLAG(IS_CHROMEOS)
   RegisterHandler(std::make_unique<RequestHandlerForRegisterBrowser>(this));
   RegisterHandler(std::make_unique<RequestHandlerForRegisterPolicyAgent>(this));
   RegisterHandler(std::make_unique<RequestHandlerForRegisterCertBased>(this));
@@ -201,7 +190,6 @@ void EmbeddedPolicyTestServer::ConfigureRequestError(
       std::pair<std::string, net::HttpStatusCode>(request_type, error_code));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void EmbeddedPolicyTestServer::UpdateExternalPolicy(
     const std::string& type,
     const std::string& entity_id,
@@ -222,7 +210,6 @@ void EmbeddedPolicyTestServer::UpdateExternalPolicy(
   policy_storage()->SetPolicyPayload(type, entity_id,
                                      external_policy_data.SerializeAsString());
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 std::unique_ptr<HttpResponse> EmbeddedPolicyTestServer::HandleRequest(
     const HttpRequest& request) {

@@ -159,13 +159,7 @@ TEST_F(SamplingHeapProfilerTest, IntervalRandomizationSanity) {
   EXPECT_NEAR(1000, mean_samples, 100);  // 10% tolerance.
 }
 
-#if BUILDFLAG(IS_IOS)
-// iOS devices generally have ~4GB of RAM with no swap and therefore need a
-// lower allocation limit here.
-const int kNumberOfAllocations = 1000;
-#else
 const int kNumberOfAllocations = 10000;
-#endif
 
 NOINLINE void Allocate1() {
   void* p = malloc(400);
@@ -430,11 +424,7 @@ TEST_F(SamplingHeapProfilerTest, HookedAllocatorMuted) {
 }
 
 // Counting resident bytes is not implemented on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_GetSamplesWithResidency DISABLED_GetSamplesWithResidency
-#else
 #define MAYBE_GetSamplesWithResidency GetSamplesWithResidency
-#endif
 TEST_F(SamplingHeapProfilerTest, MAYBE_GetSamplesWithResidency) {
   base::test::ScopedFeatureList scoped_feature_list;
   scoped_feature_list.InitAndEnableFeature(

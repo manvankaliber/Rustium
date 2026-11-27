@@ -142,7 +142,6 @@ class ForceSigninUIError {
   static ForceSigninUIError ReauthWrongAccount(const std::string& email);
   static ForceSigninUIError ReauthTimeout();
   static ForceSigninUIError SigninPatternNotMatching(const std::string& email);
-  static ForceSigninUIError ReauthNotSupportedByGlicFlow();
 
   // Returns the error messages for the given `error`.
   // `type_` must not be `ForceSigninUIError::kNone`.

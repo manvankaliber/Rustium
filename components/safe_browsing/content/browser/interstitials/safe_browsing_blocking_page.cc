@@ -184,12 +184,10 @@ void SafeBrowsingBlockingPage::OnInterstitialClosing() {
     }
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (trust_safety_sentiment_service_trigger_) {
     std::move(trust_safety_sentiment_service_trigger_)
         .Run(proceeded(), threat_type_);
   }
-#endif
 
   BaseBlockingPage::OnInterstitialClosing();
 }
@@ -261,11 +259,7 @@ void SafeBrowsingBlockingPage::FinishThreatDetails(const base::TimeDelta& delay,
       std::move(interstitial_interactions_));
   bool is_hats_candidate = false;
   const base::Feature& hats_feature =
-#if BUILDFLAG(IS_ANDROID)
-      kRedWarningSurveyAndroid;
-#else
       kRedWarningSurvey;
-#endif
   if (!is_proceed_anyway_disabled_ && is_safe_browsing_surveys_enabled_ &&
       base::FeatureList::IsEnabled(hats_feature)) {
     is_hats_candidate = SafeBrowsingHatsDelegate::IsSurveyCandidate(
@@ -273,24 +267,6 @@ void SafeBrowsingBlockingPage::FinishThreatDetails(const base::TimeDelta& delay,
         kRedWarningSurveyDidProceedFilter.Get());
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, dispatch the HaTS survey report synchronously when the
-  // interstitial closes instead of waiting for TriggerManager's asynchronous
-  // ThreatDetails collection. When the user proceeds, ThreatDetails collection
-  // is delayed by threat_details_proceed_delay() (3s), during which post-
-  // interstitial navigations, redirects, or tab destruction can abort the
-  // survey before it launches.
-  content::WebContents* wc = web_contents();
-  bool is_tab_closed = wc ? wc->IsBeingDestroyed() : false;
-  if (is_hats_candidate && wc) {
-    std::unique_ptr<ClientSafeBrowsingReportRequest> survey_report =
-        CreateFallbackReport(unsafe_resources()[0], did_proceed, num_visits,
-                             &local_interactions);
-    ui_manager()->AttachThreatDetailsAndLaunchSurvey(
-        wc->GetBrowserContext(), std::move(survey_report), is_tab_closed);
-    is_hats_candidate = false;
-  }
-#endif
 
   auto report_sent_result = trigger_manager_->FinishCollectingThreatDetails(
       TriggerType::SECURITY_INTERSTITIAL, GetWebContentsKey(web_contents()),

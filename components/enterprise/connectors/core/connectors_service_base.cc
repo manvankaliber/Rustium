@@ -147,7 +147,6 @@ std::optional<AnalysisSettings> ConnectorsServiceBase::GetAnalysisSettings(
       connector);
 }
 
-#if !BUILDFLAG(IS_IOS)
 std::optional<AnalysisSettings>
 ConnectorsServiceBase::GetNetworkRequestAnalysisSettings(
     const GURL& tab_url,
@@ -162,7 +161,6 @@ ConnectorsServiceBase::GetNetworkRequestAnalysisSettings(
           GetUrlToMatch(tab_url), request_url),
       AnalysisConnector::NETWORK_REQUEST);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 std::optional<AnalysisSettings>
 ConnectorsServiceBase::GetCommonAnalysisSettings(
@@ -201,7 +199,6 @@ ConnectorsServiceBase::GetCommonAnalysisSettings(
   return settings;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::optional<std::string> ConnectorsServiceBase::GetProfileDmToken() const {
   policy::CloudPolicyManager* policy_manager =
       GetManagedUserCloudPolicyManager();
@@ -214,7 +211,6 @@ std::optional<std::string> ConnectorsServiceBase::GetProfileDmToken() const {
 
   return std::nullopt;
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 policy::PolicyScope ConnectorsServiceBase::GetPolicyScope(
     const char* scope_pref) const {

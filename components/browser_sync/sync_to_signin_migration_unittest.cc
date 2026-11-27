@@ -36,14 +36,10 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/signin/public/base/signin_switches.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace browser_sync {
 namespace {
 
-#if !BUILDFLAG(IS_IOS)
 
 // Parameter controlling whether to use the synchronous or asynchronous
 // version of MaybeMigrateSyncingUserToSignedIn(...) function.
@@ -130,18 +126,7 @@ class SyncToSigninMigrationTestBase {
     sync_prefs_->SetSelectedTypesForSyncingUser(
         settings->IsSyncEverythingEnabled(),
         settings->GetRegisteredSelectableTypes(), settings->GetSelectedTypes());
-#if BUILDFLAG(IS_CHROMEOS)
-    sync_prefs_->SetSelectedOsTypes(settings->IsSyncAllOsTypesEnabled(),
-                                    settings->GetRegisteredSelectableOsTypes(),
-                                    settings->GetSelectedOsTypes());
-    if (settings->IsSyncFeatureDisabledViaDashboard()) {
-      sync_prefs_->SetSyncFeatureDisabledViaDashboard();
-    } else {
-      sync_prefs_->ClearSyncFeatureDisabledViaDashboard();
-    }
-#else
     sync_prefs_->SetInitialSyncFeatureSetupComplete();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     if (include_status_recorder) {
       // Populate migration-specific Sync status prefs.
@@ -216,9 +201,7 @@ TEST_P(SyncToSigninMigrationTest, SyncActive) {
             gaia_id.ToString());
   // But not syncing anymore.
   EXPECT_FALSE(pref_service_.GetBoolean(prefs::kGoogleServicesConsentedToSync));
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_FALSE(sync_prefs_->IsInitialSyncFeatureSetupComplete());
-#endif
   // The fact that the user was migrated should be recorded in prefs.
   EXPECT_EQ(pref_service_.GetString(
                 prefs::kGoogleServicesSyncingGaiaIdMigratedToSignedIn),
@@ -564,51 +547,6 @@ TEST_P(SyncToSigninMigrationTest, SyncDisabledByPolicy) {
           .empty());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_P(SyncToSigninMigrationTest, SyncActive_KeepsOsTypes) {
-  // Sync is active, with a custom selection of OS data types.
-  ASSERT_EQ(sync_service_.GetTransportState(),
-            syncer::SyncService::TransportState::ACTIVE);
-  ASSERT_TRUE(sync_service_.HasSyncConsent());
-  sync_service_.GetUserSettings()->SetSelectedOsTypes(
-      /*sync_all_os_types=*/false,
-      {syncer::UserSelectableOsType::kOsWifiConfigurations});
-  RecordStateToPrefs();
-
-  MaybeMigrateSyncingUserToSignedInWrapper(
-      IsBlockingAllowed(), fake_profile_dir_.GetPath(), &pref_service_);
-
-  // The user should have been migrated, with the OS data types unchanged.
-  EXPECT_FALSE(pref_service_.GetBoolean(prefs::kGoogleServicesConsentedToSync));
-  EXPECT_FALSE(sync_prefs_->IsSyncAllOsTypesEnabled());
-  EXPECT_EQ(sync_prefs_->GetSelectedOsTypes(),
-            syncer::UserSelectableOsTypeSet(
-                {syncer::UserSelectableOsType::kOsWifiConfigurations}));
-}
-
-TEST_P(SyncToSigninMigrationTest, SyncDisabledViaDashboard_DisablesOsTypes) {
-  // The user is signed in and opted in to Sync, but Sync-the-feature was reset
-  // via the dashboard (with all browser and OS data types enabled by default).
-  sync_service_.MimicDashboardClear();
-  ASSERT_FALSE(sync_service_.IsSyncFeatureEnabled());
-  ASSERT_TRUE(sync_service_.HasSyncConsent());
-  const GaiaId gaia_id = sync_service_.GetAccountInfo().gaia;
-  RecordStateToPrefs();
-  ASSERT_TRUE(sync_prefs_->IsSyncFeatureDisabledViaDashboard());
-  ASSERT_TRUE(sync_prefs_->IsSyncAllOsTypesEnabled());
-
-  MaybeMigrateSyncingUserToSignedInWrapper(
-      IsBlockingAllowed(), fake_profile_dir_.GetPath(), &pref_service_);
-
-  // The user should have been migrated, with all OS data types turned off while
-  // browser data types remain enabled and `disabled_via_dashboard` stays set.
-  EXPECT_FALSE(pref_service_.GetBoolean(prefs::kGoogleServicesConsentedToSync));
-  EXPECT_TRUE(sync_prefs_->IsSyncFeatureDisabledViaDashboard());
-  EXPECT_FALSE(sync_prefs_->IsSyncAllOsTypesEnabled());
-  EXPECT_TRUE(sync_prefs_->GetSelectedOsTypes().empty());
-  EXPECT_FALSE(sync_prefs_->GetSelectedTypesForAccount(gaia_id).empty());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_P(SyncToSigninMigrationTest, SyncPaused_MinDelayNotPassed) {
   // Sync-the-feature is enabled, but in the "paused" state due to a persistent
@@ -828,9 +766,7 @@ TEST_P(SyncToSigninMigrationTest, UndoFeaturePreventsMigration) {
 #if BUILDFLAG(ENABLE_EXTENSIONS)
       syncer::EXTENSIONS,
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
       syncer::THEMES,
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   }));
 
   // Save the above state to prefs.
@@ -857,104 +793,6 @@ TEST_P(SyncToSigninMigrationTest, UndoFeaturePreventsMigration) {
       /*SyncToSigninMigrationDecision::kUndoNotNecessary*/ 7, 1);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_P(SyncToSigninMigrationTest,
-       UndoChromeOsUseConsentLevelSigninPreventsMigration) {
-  base::test::ScopedFeatureList undo_feature(
-      switches::kUndoChromeOsUseConsentLevelSignin);
-
-  // Everything is active.
-  ASSERT_EQ(sync_service_.GetTransportState(),
-            syncer::SyncService::TransportState::ACTIVE);
-  ASSERT_TRUE(sync_service_.HasSyncConsent());
-
-  // Save the above state to prefs.
-  RecordStateToPrefs();
-
-  // Take a copy of all current pref values, to verify that the migration
-  // doesn't modify any of them.
-  const base::DictValue all_prefs =
-      pref_service_.user_prefs_store()->GetValues();
-
-  base::HistogramTester histograms;
-
-  // Trigger the migration.
-  MaybeMigrateSyncingUserToSignedInWrapper(
-      IsBlockingAllowed(), fake_profile_dir_.GetPath(), &pref_service_);
-
-  // Even though the user would be eligible,
-  // `kUndoChromeOsUseConsentLevelSignin` should prevent the migration from
-  // happening to avoid an infinite migration/revert loop with Ash.
-  EXPECT_EQ(pref_service_.user_prefs_store()->GetValues(), all_prefs);
-
-  histograms.ExpectUniqueSample(
-      "Sync.SyncToSigninMigrationDecision",
-      /*SyncToSigninMigrationDecision::kDontMigrateChromeOsUndoSigninEnabled*/
-      10, 1);
-}
-
-TEST_P(SyncToSigninMigrationTest,
-       UndoChromeOsUseConsentLevelSigninUndoesPreviousMigration) {
-  ASSERT_EQ(sync_service_.GetTransportState(),
-            syncer::SyncService::TransportState::ACTIVE);
-  ASSERT_TRUE(sync_service_.HasSyncConsent());
-  const GaiaId gaia_id = sync_service_.GetAccountInfo().gaia;
-  const std::string email = sync_service_.GetAccountInfo().email;
-  RecordStateToPrefs();
-
-  // First, migrate the user to the signed-in non-syncing state.
-  MaybeMigrateSyncingUserToSignedInWrapper(
-      IsBlockingAllowed(), fake_profile_dir_.GetPath(), &pref_service_);
-  ASSERT_FALSE(pref_service_.GetBoolean(prefs::kGoogleServicesConsentedToSync));
-  ASSERT_EQ(pref_service_.GetString(
-                prefs::kGoogleServicesSyncingGaiaIdMigratedToSignedIn),
-            gaia_id.ToString());
-
-  // Enable `kUndoChromeOsUseConsentLevelSignin` on a subsequent startup.
-  base::test::ScopedFeatureList undo_feature(
-      switches::kUndoChromeOsUseConsentLevelSignin);
-
-  // Session 1: The previous migration should be cleanly undone.
-  {
-    base::HistogramTester histograms;
-    MaybeMigrateSyncingUserToSignedInWrapper(
-        IsBlockingAllowed(), fake_profile_dir_.GetPath(), &pref_service_);
-
-    histograms.ExpectUniqueSample(
-        "Sync.SyncToSigninMigrationDecision",
-        /*SyncToSigninMigrationDecision::kUndoMigration*/ 6, 1);
-    EXPECT_TRUE(
-        pref_service_.GetBoolean(prefs::kGoogleServicesConsentedToSync));
-    EXPECT_EQ(pref_service_.GetString(prefs::kGoogleServicesLastSyncingGaiaId),
-              gaia_id.ToString());
-    EXPECT_EQ(
-        pref_service_.GetString(prefs::kGoogleServicesLastSyncingUsername),
-        email);
-    EXPECT_TRUE(
-        pref_service_
-            .GetString(prefs::kGoogleServicesSyncingGaiaIdMigratedToSignedIn)
-            .empty());
-    EXPECT_FALSE(pref_service_.GetUserPrefValue(
-        prefs::kGoogleServicesSyncingUserMigrationType));
-  }
-
-  // Session 2+: Now that the migration was undone, subsequent startups should
-  // skip re-migrating the user.
-  {
-    const base::DictValue all_prefs =
-        pref_service_.user_prefs_store()->GetValues();
-    base::HistogramTester histograms;
-    MaybeMigrateSyncingUserToSignedInWrapper(
-        IsBlockingAllowed(), fake_profile_dir_.GetPath(), &pref_service_);
-
-    EXPECT_EQ(pref_service_.user_prefs_store()->GetValues(), all_prefs);
-    histograms.ExpectUniqueSample(
-        "Sync.SyncToSigninMigrationDecision",
-        /*SyncToSigninMigrationDecision::kDontMigrateChromeOsUndoSigninEnabled*/
-        10, 1);
-  }
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 INSTANTIATE_TEST_SUITE_P(
     ,
@@ -1027,9 +865,7 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncAndAllDataTypesActive) {
 #if BUILDFLAG(ENABLE_EXTENSIONS)
       syncer::EXTENSIONS,
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
       syncer::THEMES,
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   }));
 
   // Save the above state to prefs.
@@ -1072,15 +908,9 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncAndAllDataTypesActive) {
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".BOOKMARK",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
-#if BUILDFLAG(IS_ANDROID)
-  // PASSWORDS is migrated by other layers on Android.
-  histograms.ExpectTotalCount(
-      "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD", 0);
-#else
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
-#endif
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".READING_LIST",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
@@ -1089,11 +919,9 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncAndAllDataTypesActive) {
       "Sync.SyncToSigninMigrationDecision." + infix + ".EXTENSION",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".THEME",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 }
 
 TEST_P(SyncToSigninMigrationMetricsTest, SyncActiveButNotDataTypes) {
@@ -1145,17 +973,11 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncActiveButNotDataTypes) {
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".BOOKMARK",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
-#if BUILDFLAG(IS_ANDROID)
-  // PASSWORDS is migrated by other layers on Android.
-  histograms.ExpectTotalCount(
-      "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD", 0);
-#else
   // Passwords was not active, even though it was enabled.
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD",
       /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
       1);
-#endif  // BUILDFLAG(IS_ANDROID)
   // ReadingList was disabled by the user.
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".READING_LIST",
@@ -1174,9 +996,7 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncStatusPrefsUnset) {
 #if BUILDFLAG(ENABLE_EXTENSIONS)
       syncer::EXTENSIONS,
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
       syncer::THEMES,
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   }));
 
   // Save the Sync configuration (enabled data types etc) to prefs, but not the
@@ -1223,12 +1043,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncStatusPrefsUnset) {
         "Sync.SyncToSigninMigrationDecision.Migration.BOOKMARK",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#if !BUILDFLAG(IS_ANDROID)
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision.Migration.PASSWORD",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#endif
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision.Migration.READING_LIST",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
@@ -1239,12 +1057,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncStatusPrefsUnset) {
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision.Migration.THEME",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   } else {
     // The overall migration didn't run.
     histograms.ExpectTotalCount(
@@ -1316,9 +1132,7 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncTransport) {
 #if BUILDFLAG(ENABLE_EXTENSIONS)
       syncer::EXTENSIONS,
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
       syncer::THEMES,
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   }));
 
   // Save the above state to prefs.
@@ -1386,16 +1200,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncPaused_MinDelayNotPassed) {
         "Sync.SyncToSigninMigrationDecision." + infix + ".BOOKMARK",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#if BUILDFLAG(IS_ANDROID)
-    // PASSWORDS is migrated by other layers on Android.
-    histograms.ExpectTotalCount(
-        "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD", 0);
-#else
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#endif  // BUILDFLAG(IS_ANDROID)
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision." + infix + ".READING_LIST",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
@@ -1406,12 +1214,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncPaused_MinDelayNotPassed) {
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision." + infix + ".THEME",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   } else if (IsMigrationEnabled()) {
     // The migration should not run because not enough time passed since the
     // auth error was detected. There's still a chance the user will resolve it.
@@ -1444,16 +1250,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncPaused_MinDelayNotPassed) {
         "Sync.SyncToSigninMigrationDecision." + infix + ".BOOKMARK",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#if BUILDFLAG(IS_ANDROID)
-    // PASSWORDS is migrated by other layers on Android.
-    histograms.ExpectTotalCount(
-        "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD", 0);
-#else
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#endif  // BUILDFLAG(IS_ANDROID)
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision." + infix + ".READING_LIST",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
@@ -1464,12 +1264,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncPaused_MinDelayNotPassed) {
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision." + infix + ".THEME",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   }
 }
 
@@ -1526,16 +1324,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncPaused_MinDelayPassed) {
       "Sync.SyncToSigninMigrationDecision." + infix + ".BOOKMARK",
       /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
       1);
-#if BUILDFLAG(IS_ANDROID)
-  // PASSWORDS is migrated by other layers on Android.
-  histograms.ExpectTotalCount(
-      "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD", 0);
-#else
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD",
       /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
       1);
-#endif  // BUILDFLAG(IS_ANDROID)
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".READING_LIST",
       /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
@@ -1546,12 +1338,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncPaused_MinDelayPassed) {
       /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
       1);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".THEME",
       /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
       1);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 }
 
 TEST_P(SyncToSigninMigrationMetricsTest, SyncPaused_AuthErrorResolved) {
@@ -1594,15 +1384,9 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncPaused_AuthErrorResolved) {
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".BOOKMARK",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
-#if BUILDFLAG(IS_ANDROID)
-  // PASSWORDS is migrated by other layers on Android.
-  histograms.ExpectTotalCount(
-      "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD", 0);
-#else
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".PASSWORD",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
-#endif  // BUILDFLAG(IS_ANDROID)
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".READING_LIST",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
@@ -1611,11 +1395,9 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncPaused_AuthErrorResolved) {
       "Sync.SyncToSigninMigrationDecision." + infix + ".EXTENSION",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   histograms.ExpectUniqueSample(
       "Sync.SyncToSigninMigrationDecision." + infix + ".THEME",
       /*SyncToSigninMigrationDataTypeDecision::kMigrate*/ 0, 1);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 }
 
 TEST_P(SyncToSigninMigrationMetricsTest, SyncInitializing) {
@@ -1666,12 +1448,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncInitializing) {
         "Sync.SyncToSigninMigrationDecision.Migration.BOOKMARK",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#if !BUILDFLAG(IS_ANDROID)
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision.Migration.PASSWORD",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#endif
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision.Migration.READING_LIST",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
@@ -1682,12 +1462,10 @@ TEST_P(SyncToSigninMigrationMetricsTest, SyncInitializing) {
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     histograms.ExpectUniqueSample(
         "Sync.SyncToSigninMigrationDecision.Migration.THEME",
         /*SyncToSigninMigrationDataTypeDecision::kDontMigrateTypeNotActive*/ 2,
         1);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   } else {
     // The overall migration didn't run.
     histograms.ExpectTotalCount(
@@ -1899,9 +1677,7 @@ class SyncToSigninMigrationDataTypesTest
 #if BUILDFLAG(ENABLE_EXTENSIONS)
         syncer::EXTENSIONS,
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
         syncer::THEMES,
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     }));
 
     // Save the above state to prefs.
@@ -2195,28 +1971,6 @@ TEST_P(SyncToSigninMigrationDataTypesTest,
       -base::File::FILE_ERROR_NOT_FOUND, 1);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_P(SyncToSigninMigrationDataTypesTest, MovePasswords_NoMoveOnAndroid) {
-  base::WriteFile(GetPasswordsLocalStorePath(), "local passwords");
-  base::WriteFile(GetPasswordsAccountStorePath(), "account passwords");
-  base::HistogramTester histogram_tester;
-
-  MaybeMigrateSyncingUserToSignedInWrapper(
-      IsBlockingAllowed(), fake_profile_dir_.GetPath(), &pref_service_);
-
-  // The files should be unchanged.
-  std::string local_contents;
-  std::string account_contents;
-  ASSERT_TRUE(
-      base::ReadFileToString(GetPasswordsLocalStorePath(), &local_contents));
-  ASSERT_TRUE(base::ReadFileToString(GetPasswordsAccountStorePath(),
-                                     &account_contents));
-  EXPECT_EQ(local_contents, "local passwords");
-  EXPECT_EQ(account_contents, "account passwords");
-  histogram_tester.ExpectTotalCount(
-      "Sync.SyncToSigninMigrationOutcome.PasswordsFileMove", 0);
-}
-#else
 TEST_P(SyncToSigninMigrationDataTypesTest, MovePasswords_BothExist) {
   // Both password stores exist on disk. The account store is empty, since it
   // was unused pre-migration. This is the typical pre-migration state.
@@ -2369,7 +2123,6 @@ TEST_P(SyncToSigninMigrationDataTypesTest, MarkStatsTableToBeCleanedUp) {
       "Sync.SyncToSigninMigration.StatsTableCleanupStep",
       syncer::SyncToSigninMigrationStatsTableCleanupStep::kCleanupRequested, 1);
 }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 TEST_P(SyncToSigninMigrationDataTypesTest, MarkExtensionsToBeMigrated) {
@@ -2390,7 +2143,6 @@ TEST_P(SyncToSigninMigrationDataTypesTest, MarkExtensionsToBeMigrated) {
 }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_P(SyncToSigninMigrationDataTypesTest, MarkThemeToBeMigrated) {
   ASSERT_FALSE(pref_service_.GetBoolean(
       syncer::prefs::internal::kMigrateThemeFromLocalToAccount));
@@ -2407,7 +2159,6 @@ TEST_P(SyncToSigninMigrationDataTypesTest, MarkThemeToBeMigrated) {
       "Sync.SyncToSigninMigration.ThemeMigrationStep",
       syncer::SyncToSigninMigrationThemeStep::kMigrationRequested, 1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 INSTANTIATE_TEST_SUITE_P(
     ,
@@ -2449,9 +2200,7 @@ class SyncToSigninMigrationUndoTest
 #if BUILDFLAG(ENABLE_EXTENSIONS)
         syncer::EXTENSIONS,
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
         syncer::THEMES,
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     }));
 
     // Save the above state to prefs.
@@ -2481,9 +2230,7 @@ TEST_P(SyncToSigninMigrationUndoTest, UndoesMigration) {
       pref_service_.GetString(prefs::kGoogleServicesLastSyncingGaiaId).empty());
   ASSERT_TRUE(pref_service_.GetString(prefs::kGoogleServicesLastSyncingUsername)
                   .empty());
-#if !BUILDFLAG(IS_CHROMEOS)
   ASSERT_FALSE(sync_prefs_->IsInitialSyncFeatureSetupComplete());
-#endif
   // Marked as "migrated":
   ASSERT_EQ(pref_service_.GetString(
                 prefs::kGoogleServicesSyncingGaiaIdMigratedToSignedIn),
@@ -2617,7 +2364,6 @@ INSTANTIATE_TEST_SUITE_P(
       });
     });
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class SyncSetupIncompleteMigrationTest : public SyncToSigninMigrationTestBase,
                                          public testing::Test {
  public:
@@ -2872,9 +2618,7 @@ TEST_F(SyncSetupIncompleteMigrationTest, ShouldNotMigrateIfFlagDisabled) {
         syncer::prefs::internal::kSyncInitialSyncFeatureSetupComplete));
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 }  // namespace
 }  // namespace browser_sync

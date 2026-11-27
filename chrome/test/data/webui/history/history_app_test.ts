@@ -12,12 +12,10 @@ import {assertDeepEquals, assertEquals, assertFalse, assertNotEquals, assertTrue
 import {eventToPromise, isChildVisible, microtasksFinished} from 'chrome://webui-test/test_util.js';
 import {COLORS_CSS_SELECTOR} from 'chrome://resources/cr_components/color_change_listener/colors_css_updater.js';
 import {TimePeriodOptionId} from 'chrome://resources/cr_components/history/history.mojom-webui.js';
-// <if expr="not is_chromeos">
 import {AccessPoint} from 'chrome://resources/cr_components/history/history.mojom-webui.js';
 import {webUIListenerCallback} from 'chrome://resources/js/cr.js';
 import {HistorySignInState, SyncState} from 'chrome://history/history.js';
 
-// </if>
 
 import {TestHistoryBrowserProxy} from './test_browser_proxy.js';
 import {createHistoryInfo} from './test_util.js';
@@ -61,15 +59,12 @@ suite('HistoryAppTest', function() {
         element.getScrollTargetForTesting());
   });
 
-  // <if expr="not is_android">
   test('AndroidStylesNotApplied', () => {
     assertFalse(
         getComputedStyle(element).fontFamily.includes('Google Sans Text'));
   });
-  // </if>
 });
 
-// <if expr="not is_chromeos">
 // history sync promo is not shown for ChromeOS.
 suite('HistoryAppUnoPhase2FollowUpTest', () => {
   let element: HistoryAppElement;
@@ -280,7 +275,6 @@ suite('HistoryAppUnoPhase2FollowUpTest', () => {
     assertFalse(isChildVisible(historySyncPromo, '#verify-its-you-button'));
   });
 });
-// </if>
 
 suite('HistoryFilterChipsVisibility', function() {
   let element: HistoryAppElement;
@@ -602,62 +596,10 @@ suite('WebuiRefresh2026', function() {
   });
 
   // Android links colors.css whether or not the refresh is enabled.
-  // <if expr="not is_android">
   test('Disabled', async () => {
     loadTimeData.overrideValues({webuiRefresh2026: ''});
     await createPage();
 
     assertEquals(null, document.body.querySelector(COLORS_CSS_SELECTOR));
   });
-  // </if>
 });
-
-// <if expr="is_android">
-suite('HistoryAppTestAndroid', function() {
-  setup(() => {
-    document.body.innerHTML = window.trustedTypes!.emptyHTML;
-
-    loadTimeData.overrideValues({
-      webuiRefresh2026: 'webui-refresh-2026',
-    });
-
-    BrowserProxyImpl.setInstance(new TestHistoryBrowserProxy());
-
-    window.history.replaceState({}, '', '/');
-    CrRouter.resetForTesting();
-  });
-
-  test('ColorsCssLinkedOnce', async () => {
-    loadTimeData.overrideValues({webuiRefresh2026: ''});
-    // Count the page's insertions. ColorChangeUpdater can replace the link
-    // with one that has a version parameter, so those are not counted.
-    let added = 0;
-    const count = (records: MutationRecord[]) => {
-      for (const record of records) {
-        for (const node of record.addedNodes) {
-          if (node instanceof Element && node.matches(COLORS_CSS_SELECTOR) &&
-              !new URL(node.getAttribute('href')!, location.href)
-                   .searchParams.has('version')) {
-            added++;
-          }
-        }
-      }
-    };
-    const observer = new MutationObserver(count);
-    observer.observe(document.body, {childList: true});
-    document.body.appendChild(document.createElement('history-app'));
-    await microtasksFinished();
-    count(observer.takeRecords());
-    observer.disconnect();
-
-    assertEquals(1, added);
-  });
-
-  test('FontFamily', async () => {
-    const app = document.createElement('history-app');
-    document.body.appendChild(app);
-    await microtasksFinished();
-    assertTrue(getComputedStyle(app).fontFamily.includes('Google Sans Text'));
-  });
-});
-// </if>

@@ -43,8 +43,8 @@ const TOO_LONG_DESC: &str = "address is too long";
 ///
 /// Creating an abstract address (fails if the OS doesn't support them):
 ///
-#[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-#[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+#[cfg_attr(target_os="linux", doc="```")]
+#[cfg_attr(not(target_os="linux"), doc="```no_run")]
 /// use uds::UnixSocketAddr;
 ///
 /// let addr = UnixSocketAddr::new("@abstract").unwrap();
@@ -228,8 +228,8 @@ impl UnixSocketAddr {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use uds::{UnixSocketAddr, UnixDatagramExt};
     /// # use std::os::unix::net::UnixDatagram;
     /// let addr = UnixSocketAddr::new_unspecified();
@@ -324,9 +324,9 @@ impl UnixSocketAddr {
     /// Returns whether the operating system is known to support
     /// abstract unix domain socket addresses.
     ///
-    /// Is `true` for Linux & Android, and `false` for all other OSes.
+    /// Is `true` for Linux, and `false` for all other OSes.
     pub const fn has_abstract_addresses() -> bool {
-        cfg!(any(target_os="linux", target_os="android"))
+        cfg!(target_os="linux")
     }
 
     /// Creates an abstract unix domain socket address.
@@ -347,7 +347,7 @@ impl UnixSocketAddr {
     /// get the limit.
     ///
     /// It will also fail on operating systems that don't support abstract
-    /// addresses. (ie. anything other than Linux and Android)
+    /// addresses. (ie. anything other than Linux)
     pub fn from_abstract<N: AsRef<[u8]>+?Sized>(name: &N) -> Result<Self, io::Error> {
         fn from_abstract_inner(name: &[u8]) -> Result<UnixSocketAddr, io::Error> {
             let mut addr = UnixSocketAddr::new_unspecified();
@@ -369,7 +369,7 @@ impl UnixSocketAddr {
 
     /// Tries to convert a `std::os::unix::net::SocketAddr` into an `UnixSocketAddr`.
     ///
-    /// This can fail (produce `None`) on Linux and Android
+    /// This can fail (produce `None`) on Linux
     /// if the `std` `SocketAddr` represents an abstract address,
     /// as it provides no method for viewing abstract addresses.
     /// (other than parsing its `Debug` output, anyway.)
@@ -545,8 +545,8 @@ impl UnixSocketAddr {
     ///
     /// On Linux:
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use uds::UnixSocketAddr;
     /// let addr = UnixSocketAddr::from_raw_bytes(b"\0a").unwrap();
     /// assert_eq!(addr.as_abstract(), Some(&b"a"[..]));
@@ -555,8 +555,8 @@ impl UnixSocketAddr {
     ///
     /// Elsewhere:
     ///
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```")]
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```no_run")]
+    #[cfg_attr(not(target_os="linux"), doc="```")]
+    #[cfg_attr(target_os="linux", doc="```no_run")]
     /// # use uds::UnixSocketAddr;
     /// let addr = UnixSocketAddr::from_raw_bytes(b"\0a").unwrap();
     /// assert!(addr.is_unnamed());
@@ -607,8 +607,8 @@ impl UnixSocketAddr {
     ///
     /// Abstract address:
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use uds::UnixSocketAddr;
     /// let addr = UnixSocketAddr::new("@someone@").unwrap();
     /// assert_eq!(addr.as_raw_bytes(), b"\0someone@");

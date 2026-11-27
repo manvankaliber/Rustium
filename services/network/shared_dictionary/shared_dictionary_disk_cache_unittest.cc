@@ -38,9 +38,6 @@ class SharedDictionaryDiskCacheTest : public testing::Test {
   std::unique_ptr<SharedDictionaryDiskCache> CreateDiskCache() {
     auto disk_cache = std::make_unique<SharedDictionaryDiskCache>();
     disk_cache->Initialize(directory_path_,
-#if BUILDFLAG(IS_ANDROID)
-                           disk_cache::ApplicationStatusListenerGetter(),
-#endif  // BUILDFLAG(IS_ANDROID)
                            /*file_operations_factory=*/nullptr);
     return disk_cache;
   }
@@ -275,7 +272,6 @@ TEST_F(SharedDictionaryDiskCacheTest, CreateWriteOpenReadDeleteReopen) {
   EXPECT_EQ(net::ERR_FAILED, reopen_result.net_error());
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // CorruptDiskCache() doesn't work on Fuchsia. So disabling the following tests
 // on Fuchsia.
 TEST_F(SharedDictionaryDiskCacheTest, CreateEntryCorruptedFailure) {
@@ -388,7 +384,5 @@ TEST_F(SharedDictionaryDiskCacheTest, DeletedWhileRuningDidCreateBackend) {
                         base::BindOnce([](int) { ASSERT_TRUE(false); }));
   FlushCacheTasks();
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 }  // namespace network

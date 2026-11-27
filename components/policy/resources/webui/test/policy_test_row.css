@@ -62,11 +62,6 @@ select:focus {
   }
 }
 
-<if expr="is_android or is_ios">
-#namespace-cell-heading {
-  display: none;
-}
-</if>
 
 /* Card view for narrow screen / mobile */
 @media only screen and (max-width: 710px) {

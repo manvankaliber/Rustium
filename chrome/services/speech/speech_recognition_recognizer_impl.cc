@@ -286,14 +286,6 @@ void SpeechRecognitionRecognizerImpl::Create(
     base::WeakPtr<SpeechRecognitionServiceImpl> speech_recognition_service) {
 // On Chrome OS, CrosSpeechRecognitionRecognizerImpl will create its own
 // CrosSodaClient.
-#if BUILDFLAG(IS_CHROMEOS)
-  mojo::MakeSelfOwnedReceiver(
-      std::make_unique<SpeechRecognitionRecognizerImpl>(
-          std::move(remote), std::move(options), binary_path, config_paths,
-          primary_language_name, mask_offensive_words,
-          speech_recognition_service),
-      std::move(receiver));
-#else
   auto receiver_ref = mojo::MakeSelfOwnedReceiver(
       std::make_unique<SpeechRecognitionRecognizerImpl>(
           std::move(remote), std::move(options), binary_path, config_paths,
@@ -303,7 +295,6 @@ void SpeechRecognitionRecognizerImpl::Create(
   SpeechRecognitionRecognizerImpl* recognizer =
       static_cast<SpeechRecognitionRecognizerImpl*>(receiver_ref->impl());
   recognizer->CreateSodaClient(binary_path);
-#endif
 }
 
 bool SpeechRecognitionRecognizerImpl::IsMultichannelSupported() {

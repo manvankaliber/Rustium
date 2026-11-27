@@ -13,7 +13,6 @@
 #include "components/autofill/core/browser/data_model/payments/autofill_offer_data.h"
 #include "components/autofill/core/browser/payments/offer_notification_options.h"
 #include "components/autofill/core/browser/payments/payments_autofill_client.h"
-#include "components/commerce/core/test_utils.h"
 #include "components/strings/grit/components_strings.h"
 #include "content/public/test/browser_test.h"
 #include "ui/base/l10n/l10n_util.h"

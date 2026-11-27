@@ -297,9 +297,6 @@ AddressSpace IPAddressSpaceForSpecialScheme(const GURL& url,
   const char* special_content_schemes[] = {
       kChromeDevToolsScheme,
       kChromeUIScheme,
-#if BUILDFLAG(IS_CHROMEOS)
-      kExternalFileScheme,
-#endif
   };
 
   for (auto* scheme : special_content_schemes) {

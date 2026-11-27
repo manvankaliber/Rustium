@@ -151,20 +151,10 @@ constexpr const char kPrefIncognitoEnabled[] = "incognito";
 // Isolated Mode.
 constexpr const char kPrefIsolatedModeEnabled[] = "isolated_mode";
 
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/573504328): Add kPrefIsolatedModeEnabledPending and update
-// SetIsIncognitoEnabledDelayed / HasIncognitoEnabledPendingUpdate /
-// ApplyPendingUpdates to support Isolated Mode on ChromeOS.
-constexpr const char kPrefIncognitoEnabledPending[] = "incognito-pending";
-#endif
 
 // A preference to control whether an extension is allowed to inject script in
 // pages with file URLs.
 constexpr const char kPrefAllowFileAccess[] = "newAllowFileAccess";
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr const char kPrefAllowFileAccessPending[] =
-    "newAllowFileAccess-pending";
-#endif
 // TODO(jstritar): As part of fixing http://crbug.com/91577, we revoked all
 // extension file access by renaming the pref. We should eventually clean up
 // the old flag and possibly go back to that name.
@@ -1406,27 +1396,6 @@ bool ExtensionPrefs::IsIncognitoEnabled(const ExtensionId& extension_id) const {
   return ReadPrefAsBooleanAndReturn(extension_id, kPrefIncognitoEnabled);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ExtensionPrefs::SetIsIncognitoEnabledDelayed(
-    const ExtensionId& extension_id,
-    bool enabled) {
-  std::optional<base::Value> value = base::Value(enabled);
-  if (IsIncognitoEnabled(extension_id) == enabled) {
-    // Using std::nullopt results in the key removal.
-    UpdateExtensionPref(extension_id, kPrefIncognitoEnabledPending,
-                        /*value=*/std::nullopt);
-  } else {
-    UpdateExtensionPref(extension_id, kPrefIncognitoEnabledPending,
-                        std::move(value));
-  }
-}
-
-bool ExtensionPrefs::HasIncognitoEnabledPendingUpdate(
-    const ExtensionId& extension_id) const {
-  const base::DictValue* extension = GetExtensionPref(extension_id);
-  return extension && extension->Find(kPrefIncognitoEnabledPending);
-}
-#endif
 
 void ExtensionPrefs::SetIsIncognitoEnabled(const ExtensionId& extension_id,
                                            bool enabled) {
@@ -1475,26 +1444,6 @@ void ExtensionPrefs::SetAllowFileAccess(const ExtensionId& extension_id,
   UpdateExtensionPref(extension_id, kPrefAllowFileAccess, base::Value(allow));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ExtensionPrefs::SetAllowFileAccessDelayed(const ExtensionId& extension_id,
-                                               bool allow) {
-  std::optional<base::Value> value = base::Value(allow);
-  if (AllowFileAccess(extension_id) == allow) {
-    // Using std::nullopt results in the key removal.
-    UpdateExtensionPref(extension_id, kPrefAllowFileAccessPending,
-                        /*value=*/std::nullopt);
-  } else {
-    UpdateExtensionPref(extension_id, kPrefAllowFileAccessPending,
-                        std::move(value));
-  }
-}
-
-bool ExtensionPrefs::HasAllowFileAccessPendingUpdate(
-    const ExtensionId& extension_id) const {
-  const base::DictValue* extension = GetExtensionPref(extension_id);
-  return extension && extension->Find(kPrefAllowFileAccessPending);
-}
-#endif
 
 bool ExtensionPrefs::HasAllowFileAccessSetting(
     const ExtensionId& extension_id) const {
@@ -2279,9 +2228,6 @@ ExtensionPrefs::ExtensionPrefs(
 
   CleanUpEmptyFilteredEventLists();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ApplyPendingUpdates();
-#endif
 }
 
 AppSorting* ExtensionPrefs::app_sorting() const {
@@ -2615,49 +2561,10 @@ void ExtensionPrefs::FinishExtensionInfoPrefs(
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ExtensionPrefs::ApplyPendingUpdates() {
-  const InstallRecords extensions_info = GetInstalledExtensionsInfo();
-
-  for (const auto& info : extensions_info) {
-    ScopedExtensionPrefUpdate update(prefs_, info.extension_id);
-    std::unique_ptr<prefs::DictionaryValueUpdate> ext_dict = update.Get();
-    if (ext_dict->HasKey(kPrefAllowFileAccessPending)) {
-      bool allow_file_access;
-      // Get the stored value of the setting.
-      ext_dict->GetBoolean(kPrefAllowFileAccessPending, &allow_file_access);
-      // Apply the setting value as the new value.
-      ext_dict->SetBoolean(kPrefAllowFileAccess, allow_file_access);
-      // Remove the stored value.
-      ext_dict->Remove(kPrefAllowFileAccessPending);
-    }
-
-    if (ext_dict->HasKey(kPrefIncognitoEnabledPending)) {
-      bool incognito_enabled;
-      // Get the stored value of the setting.
-      ext_dict->GetBoolean(kPrefIncognitoEnabledPending, &incognito_enabled);
-      // Apply the setting value as the new value.
-      ext_dict->SetBoolean(kPrefIncognitoEnabled, incognito_enabled);
-      // Remove the stored value.
-      ext_dict->Remove(kPrefIncognitoEnabledPending);
-    }
-  }
-}
-#endif
 
 void ExtensionPrefs::MigrateDeprecatedDisableReasons() {
   const InstallRecords extensions_info = GetInstalledExtensionsInfo();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Perform a post-Lacros cleanup by clearing the old Ash keeplist enforcement.
-  // TODO(crbug.com/380780352): Delete this after the stepping stone and then
-  // remove DEPRECATED_DISABLE_NOT_ASH_KEEPLISTED from the disable_reason enum.
-  for (const auto& info : extensions_info) {
-    const ExtensionId& extension_id = info.extension_id;
-    RemoveDisableReason(extension_id,
-                        disable_reason::DEPRECATED_DISABLE_NOT_ASH_KEEPLISTED);
-  }
-#endif
 
   for (const auto& info : extensions_info) {
     const ExtensionId& extension_id = info.extension_id;

@@ -147,12 +147,6 @@ class ContextualTasksPanelThreadObserverBrowserTest
   // `UpdateContextualSearchWebContentsHelperForTask()` does for the panel.
   void SetTaskSession(content::WebContents* contents,
                       std::optional<base::Uuid> task_id) {
-    std::unique_ptr<contextual_search::ContextualSearchSessionHandle> session =
-        ContextualSearchServiceFactory::GetForProfile(browser()->GetProfile())
-            ->CreateSession(
-                CreateQueryControllerConfigParams(),
-                contextual_search::ContextualSearchSource::kContextualTasks,
-                lens::LensOverlayInvocationSource::kContextualTasksComposebox);
     ContextualSearchWebContentsHelper::GetOrCreateForWebContents(contents)
         ->SetTaskSession(task_id, std::move(session),
                          /*input_state_model=*/nullptr);

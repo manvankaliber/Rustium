@@ -354,7 +354,6 @@ IN_PROC_BROWSER_TEST_F(PinnedToolbarActionsContainerBrowserTest,
   EXPECT_TRUE(accessor.IsHighlighted());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(PinnedToolbarActionsContainerBrowserTest,
                        QRCodeUpdatesWithSharingHubPrefChanges) {
   PinnedActionTestAccessor accessor(browser(), kActionQrCodeGenerator);
@@ -374,7 +373,6 @@ IN_PROC_BROWSER_TEST_F(PinnedToolbarActionsContainerBrowserTest,
   PinnedActionTestAccessor::WaitForAnimation(browser());
   EXPECT_EQ(accessor.GetVisible(), false);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(PinnedToolbarActionsContainerBrowserTest,
                        QRCodeUpdatesWithPolicyPrefChanges) {

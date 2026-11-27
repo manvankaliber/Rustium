@@ -14,7 +14,6 @@
 #include <string_view>
 #include <utility>
 
-#include "base/android/android_info.h"
 #include "base/base64.h"
 #include "base/base64url.h"
 #include "base/byte_size.h"
@@ -516,15 +515,17 @@ void BlockingNetworkDelegate::RunCallback(int response,
 int BlockingNetworkDelegate::OnBeforeURLRequest(URLRequest* request,
                                                 CompletionOnceCallback callback,
                                                 GURL* new_url) {
-  if (redirect_url_ == request->url())
+  if (redirect_url_ == request->url()) {
     return OK;  // We've already seen this request and redirected elsewhere.
+  }
 
   // TestNetworkDelegate always completes synchronously.
   CHECK_NE(ERR_IO_PENDING, TestNetworkDelegate::OnBeforeURLRequest(
                                request, base::NullCallback(), new_url));
 
-  if (!redirect_url_.is_empty())
+  if (!redirect_url_.is_empty()) {
     *new_url = redirect_url_;
+  }
 
   return MaybeBlockStage(ON_BEFORE_URL_REQUEST, std::move(callback));
 }
@@ -631,7 +632,6 @@ class OCSPErrorTestDelegate : public TestDelegate {
   SSLInfo ssl_info_;
 };
 
-#if !BUILDFLAG(IS_IOS)
 // Compute the root cert's SPKI hash on the fly, to avoid hardcoding it within
 // tests.
 std::array<uint8_t, crypto::hash::kSha256Size> GetTestRootCertSPKIHash() {
@@ -644,7 +644,6 @@ std::array<uint8_t, crypto::hash::kSha256Size> GetTestRootCertSPKIHash() {
       &root_spki));
   return crypto::hash::Sha256(root_spki);
 }
-#endif
 
 }  // namespace
 
@@ -2020,10 +2019,12 @@ TEST_F(URLRequestTest, DelayedCookieCallbackAsync) {
       // the cookies don't end up getting set.
       expected_set_cookie_count += 2;
 
-      if (first_cookie_line == "CookieBlockedOnCanGetCookie=1")
+      if (first_cookie_line == "CookieBlockedOnCanGetCookie=1") {
         ++expected_blocked_cookie_count;
-      if (second_cookie_line == "CookieBlockedOnCanGetCookie=1")
+      }
+      if (second_cookie_line == "CookieBlockedOnCanGetCookie=1") {
         ++expected_blocked_cookie_count;
+      }
 
       EXPECT_EQ(expected_set_cookie_count,
                 async_filter_network_delegate.set_cookie_called_count());
@@ -3859,8 +3860,7 @@ class URLRequestTestHTTP : public URLRequestTest {
         origin2_(url::Origin::Create(GURL("https://bar.test/"))),
         isolation_info1_(IsolationInfo::CreateForInternalRequest(origin1_)),
         isolation_info2_(IsolationInfo::CreateForInternalRequest(origin2_)),
-        test_server_(base::FilePath(kTestFilePath)) {
-  }
+        test_server_(base::FilePath(kTestFilePath)) {}
 
  protected:
   // ProtocolHandler for the scheme that's unsafe to redirect to.
@@ -3939,8 +3939,9 @@ class URLRequestTestHTTP : public URLRequestTest {
         EXPECT_NE(kData, d.data_received());
       }
     }
-    if (HasFailure())
+    if (HasFailure()) {
       LOG(WARNING) << "Request method was: " << request_method;
+    }
   }
 
   // Requests |redirect_url|, which must return a HTTP 3xx redirect. It's also
@@ -3993,8 +3994,9 @@ class URLRequestTestHTTP : public URLRequestTest {
       std::ranges::fill(span, '-');
       if (idx % 100 == 0) {
         span[kStrideSize - 1] = marker;
-        if (++marker > 'z')
+        if (++marker > 'z') {
           marker = 'a';
+        }
       }
     }
 
@@ -5135,8 +5137,9 @@ class AsyncDelegateLogger : public base::RefCounted<AsyncDelegateLogger> {
     url_request_->LogUnblocked();
     LoadStateWithParam load_state = url_request_->GetLoadState();
     EXPECT_EQ(expected_third_load_state_, load_state.state);
-    if (expected_second_load_state_ == LOAD_STATE_WAITING_FOR_DELEGATE)
+    if (expected_second_load_state_ == LOAD_STATE_WAITING_FOR_DELEGATE) {
       EXPECT_EQ(std::u16string(), load_state.param);
+    }
     std::move(callback_).Run();
   }
 
@@ -5230,12 +5233,13 @@ class AsyncLoggingUrlRequestDelegate : public TestDelegate {
 
   explicit AsyncLoggingUrlRequestDelegate(CancelStage cancel_stage)
       : cancel_stage_(cancel_stage) {
-    if (cancel_stage == CANCEL_ON_RECEIVED_REDIRECT)
+    if (cancel_stage == CANCEL_ON_RECEIVED_REDIRECT) {
       set_cancel_in_received_redirect(true);
-    else if (cancel_stage == CANCEL_ON_RESPONSE_STARTED)
+    } else if (cancel_stage == CANCEL_ON_RESPONSE_STARTED) {
       set_cancel_in_response_started(true);
-    else if (cancel_stage == CANCEL_ON_READ_COMPLETED)
+    } else if (cancel_stage == CANCEL_ON_READ_COMPLETED) {
       set_cancel_in_received_data(true);
+    }
   }
 
   AsyncLoggingUrlRequestDelegate(const AsyncLoggingUrlRequestDelegate&) =
@@ -5281,8 +5285,9 @@ class AsyncLoggingUrlRequestDelegate : public TestDelegate {
     bool defer_redirect = false;
     TestDelegate::OnReceivedRedirect(request, redirect_info, &defer_redirect);
     // FollowDeferredRedirect should not be called after cancellation.
-    if (cancel_stage_ == CANCEL_ON_RECEIVED_REDIRECT)
+    if (cancel_stage_ == CANCEL_ON_RECEIVED_REDIRECT) {
       return;
+    }
     if (!defer_redirect) {
       request->FollowDeferredRedirect(std::nullopt /* removed_headers */,
                                       std::nullopt /* modified_headers */);
@@ -6109,7 +6114,6 @@ TEST_F(URLRequestTestHTTP, ResponseHeadersTest) {
 
 // TODO(svaldez): iOS tests are flaky with EmbeddedTestServer and transport
 // security state. (see http://crbug.com/550977).
-#if !BUILDFLAG(IS_IOS)
 TEST_F(URLRequestTestHTTP, ProcessSTS) {
   EmbeddedTestServer https_test_server(net::EmbeddedTestServer::TYPE_HTTPS);
   std::string test_server_hostname = "a.test";
@@ -6307,7 +6311,6 @@ TEST_F(URLRequestTestHTTP, ProcessSTSOnce) {
   EXPECT_FALSE(sts_state.include_subdomains);
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(ENABLE_REPORTING)
 
@@ -7672,8 +7675,7 @@ TEST_F(URLRequestTest, ReportCookieActivity) {
         req->maybe_stored_cookies()[3].access_result.status.IsInclude());
     EXPECT_EQ("partitioned_cookie",
               req->maybe_stored_cookies()[3].cookie->Name());
-    EXPECT_EQ("expired_cookie",
-              req->maybe_stored_cookies()[4].cookie->Name());
+    EXPECT_EQ("expired_cookie", req->maybe_stored_cookies()[4].cookie->Name());
     EXPECT_TRUE(
         req->maybe_stored_cookies()[4].access_result.status.IsInclude());
 
@@ -9144,10 +9146,11 @@ class URLRequestTestReferrerPolicy : public URLRequestTest {
     EXPECT_EQ(200, req->response_headers()->response_code());
 
     EXPECT_EQ(expected.spec(), req->referrer());
-    if (expected.is_empty())
+    if (expected.is_empty()) {
       EXPECT_EQ("None", d.data_received());
-    else
+    } else {
       EXPECT_EQ(expected.spec(), d.data_received());
+    }
   }
 
   EmbeddedTestServer* origin_server() const { return origin_server_.get(); }
@@ -9555,7 +9558,6 @@ TEST_F(HTTPSRequestTest, SSLNetErrorReportedToDelegate) {
 
 // TODO(svaldez): iOS tests are flaky with EmbeddedTestServer and transport
 // security state. (see http://crbug.com/550977).
-#if !BUILDFLAG(IS_IOS)
 // This tests that a load of a domain with preloaded HSTS and HPKP with a
 // certificate error sets the |certificate_errors_are_fatal| flag correctly.
 // This flag will cause the interstitial to be fatal.
@@ -10460,7 +10462,6 @@ TEST_F(HTTPSSessionTest, DontResumeSessionsForInvalidCertificates) {
   }
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 // Interceptor to check that secure DNS has been disabled. Secure DNS should be
 // disabled for any network fetch triggered during certificate verification as
@@ -10580,7 +10581,6 @@ class HTTPSCertNetFetchingTest : public HTTPSRequestTest {
   raw_ptr<CertVerifierWithUpdatableProc> updatable_cert_verifier_;
 };
 
-#if !BUILDFLAG(IS_IOS)
 
 // The test EV policy OID used for generated certs.
 static const char kEVTestCertPolicy[] = "1.3.6.1.4.1.11129.2.4.1";
@@ -10616,7 +10616,7 @@ class HTTPSOCSPTest : public HTTPSCertNetFetchingTest {
 };
 
 static bool UsingBuiltinCertVerifier() {
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
+#if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
   return true;
 #else
   return false;
@@ -10647,32 +10647,21 @@ static bool SystemUsesChromiumEVMetadata() {
 }
 
 static bool SystemSupportsOCSP() {
-#if BUILDFLAG(IS_ANDROID)
-  // Unsupported, see http://crbug.com/117478.
-  return false;
-#else
   return true;
-#endif
 }
 
 static bool SystemSupportsOCSPStapling() {
-  if (UsingBuiltinCertVerifier())
+  if (UsingBuiltinCertVerifier()) {
     return true;
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
+  }
   return true;
-#endif
 }
 
 static bool SystemSupportsCRLSets() {
-  if (UsingBuiltinCertVerifier())
+  if (UsingBuiltinCertVerifier()) {
     return true;
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
+  }
   return true;
-#endif
 }
 
 TEST_F(HTTPSEVTest, EVCheckNoOCSP) {
@@ -10981,7 +10970,6 @@ TEST_F(HTTPSOCSPTest, OldStapledButValidAIA) {
   EXPECT_TRUE(cert_status & CERT_STATUS_REV_CHECKING_ENABLED);
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 class HTTPSAIATest : public HTTPSCertNetFetchingTest {};
 
@@ -11015,7 +11003,6 @@ TEST_F(HTTPSAIATest, AIAFetching) {
   EXPECT_EQ(0u, r->ssl_info().unverified_cert->intermediate_buffers().size());
 }
 
-#if !BUILDFLAG(IS_IOS)
 
 class HTTPSHardFailTest : public HTTPSOCSPTest {
  protected:
@@ -11635,7 +11622,6 @@ TEST_F(HTTPSLocalCRLSetTest, InterceptionBlockedAllowOverrideOnHSTS) {
                 CERT_STATUS_KNOWN_INTERCEPTION_BLOCKED);
   }
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(URLRequestTest, NetworkAccessedSetOnHostResolutionFailure) {
   auto context_builder = CreateTestURLRequestContextBuilder();
@@ -11986,47 +11972,6 @@ TEST_F(URLRequestTest, UpgradeIfInsecureFlagNotSet) {
 }
 
 // Test that URLRequests get properly tagged.
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(URLRequestTestHTTP, TestTagging) {
-  if (!CanGetTaggedBytes()) {
-    DVLOG(0) << "Skipping test - GetTaggedBytes unsupported.";
-    return;
-  }
-
-  ASSERT_TRUE(http_test_server()->Start());
-
-  // The tag under which the system reports untagged traffic.
-  static const int32_t UNTAGGED_TAG = 0;
-
-  uint64_t old_traffic = GetTaggedBytes(UNTAGGED_TAG);
-
-  // Untagged traffic should be tagged with tag UNTAGGED_TAG.
-  TestDelegate delegate;
-  std::unique_ptr<URLRequest> req(default_context().CreateRequest(
-      http_test_server()->GetURL("/"), DEFAULT_PRIORITY, &delegate,
-      TRAFFIC_ANNOTATION_FOR_TESTS, net::handles::kInvalidNetworkHandle));
-  EXPECT_EQ(SocketTag(), req->socket_tag());
-  req->Start();
-  delegate.RunUntilComplete();
-
-  EXPECT_GT(GetTaggedBytes(UNTAGGED_TAG), old_traffic);
-
-  int32_t tag_val1 = 0x12345678;
-  SocketTag tag1(SocketTag::UNSET_UID, tag_val1);
-  old_traffic = GetTaggedBytes(tag_val1);
-
-  // Test specific tag value.
-  req = default_context().CreateRequest(
-      http_test_server()->GetURL("/"), DEFAULT_PRIORITY, &delegate,
-      TRAFFIC_ANNOTATION_FOR_TESTS, net::handles::kInvalidNetworkHandle);
-  req->set_socket_tag(tag1);
-  EXPECT_EQ(tag1, req->socket_tag());
-  req->Start();
-  delegate.RunUntilComplete();
-
-  EXPECT_GT(GetTaggedBytes(tag_val1), old_traffic);
-}
-#endif
 
 namespace {
 
@@ -12077,8 +12022,9 @@ class ZeroRTTResponse : public test_server::BasicHttpResponse {
     set_content_type("text/plain");
     AddCustomHeader("Cache-Control", "no-cache");
     if (zero_rtt_) {
-      if (send_too_early_)
+      if (send_too_early_) {
         set_code(HTTP_TOO_EARLY);
+      }
       set_content("1");
     } else {
       set_content("0");
@@ -12427,8 +12373,9 @@ std::unique_ptr<test_server::HttpResponse> HandleTooEarly(
   if (request.GetURL().GetPath() != "/tooearly") {
     return nullptr;
   }
-  if (request.ssl_info->early_data_received)
+  if (request.ssl_info->early_data_received) {
     *sent_425 = true;
+  }
   return std::make_unique<ZeroRTTResponse>(
       request.ssl_info->early_data_received, true);
 }

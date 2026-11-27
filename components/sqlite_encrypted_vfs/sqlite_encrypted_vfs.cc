@@ -318,12 +318,7 @@ SqliteEncryptedVfs* SqliteEncryptedVfs::GetInstance() {
 
     // Locate the underlying base VFS to wrap. On Fuchsia, SQLite uses
     // "unix-none" as its base VFS.
-    static constexpr const char* kBaseVfsName =
-#if BUILDFLAG(IS_FUCHSIA)
-        "unix-none";
-#else
-        nullptr;
-#endif
+    static constexpr const char* kBaseVfsName = nullptr;
     sqlite3_vfs* wrapped_vfs = sqlite3_vfs_find(kBaseVfsName);
     CHECK(wrapped_vfs);
 

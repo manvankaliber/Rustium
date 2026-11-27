@@ -10,7 +10,6 @@
 
 #include "base/memory/raw_ptr.h"
 #include "base/test/bind.h"
-#include "chrome/browser/glic/host/guest_util.h"
 #include "chrome/test/base/testing_browser_process.h"
 #include "chrome/test/base/testing_profile.h"
 #include "chrome/test/base/testing_profile_manager.h"
@@ -497,9 +496,6 @@ TEST_F(DataProtectionClipboardUtilsTypesTest, CacheBasicPasteSource_Endpoints) {
     EXPECT_FALSE(cached.gemini_in_chrome);
 
     // 5. Gemini in Chrome (GlicWebUI).
-    glic::CreateGlicWebUiData(web_contents());
-    BasicPasteSource cached_glic = CacheBasicPasteSource(wc_endpoint);
-    EXPECT_TRUE(cached_glic.gemini_in_chrome);
   }
 }
 

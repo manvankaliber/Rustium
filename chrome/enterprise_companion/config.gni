@@ -4,4 +4,4 @@
 
 import("//build/config/cast.gni")
 
-enable_enterprise_companion = (is_mac || is_linux || is_win) && !is_castos
+enable_enterprise_companion = is_mac || is_linux || is_win

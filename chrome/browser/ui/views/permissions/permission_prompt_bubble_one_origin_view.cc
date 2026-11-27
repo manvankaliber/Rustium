@@ -156,13 +156,11 @@ PermissionPromptBubbleOneOriginView::~PermissionPromptBubbleOneOriginView() =
     default;
 
 void PermissionPromptBubbleOneOriginView::RunButtonCallback(int button_id) {
-#if !BUILDFLAG(IS_CHROMEOS)
   auto button = GetPermissionDialogButton(button_id);
   if (button == PermissionDialogButton::kAccept ||
       button == PermissionDialogButton::kAcceptOnce) {
     UpdateMediaDevicePreferenceRanking();
   }
-#endif
   PermissionPromptBubbleBaseView::RunButtonCallback(button_id);
 }
 
@@ -191,7 +189,6 @@ void PermissionPromptBubbleOneOriginView::AddRequestLine(
   label->SetHorizontalAlignment(gfx::ALIGN_LEFT);
   label->SetMultiLine(true);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   if (request->request_type() == permissions::RequestType::kMicStream) {
     mic_permission_label_ = label;
   } else if (request->request_type() ==
@@ -201,7 +198,6 @@ void PermissionPromptBubbleOneOriginView::AddRequestLine(
              permissions::RequestType::kCameraPanTiltZoom) {
     ptz_camera_permission_label_ = label;
   }
-#endif
 
   label->SetTextStyle(views::style::STYLE_BODY_3);
   label->SetEnabledColor(kColorPermissionPromptRequestText);
@@ -214,7 +210,6 @@ void PermissionPromptBubbleOneOriginView::AddRequestLine(
 }
 
 void PermissionPromptBubbleOneOriginView::MaybeAddMediaPreview(size_t index) {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (!camera_permission_label_ && !mic_permission_label_ &&
       !ptz_camera_permission_label_) {
     return;
@@ -234,10 +229,8 @@ void PermissionPromptBubbleOneOriginView::MaybeAddMediaPreview(size_t index) {
     // Initialize mic label with the current number of cached audio devices.
     OnAudioDevicesChanged(cached_device_info->GetAudioDeviceInfos());
   }
-#endif
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void PermissionPromptBubbleOneOriginView::OnAudioDevicesChanged(
     const std::optional<std::vector<media::AudioDeviceDescription>>&
         device_infos) {
@@ -280,4 +273,3 @@ void PermissionPromptBubbleOneOriginView::OnVideoDevicesChanged(
   camera_label->SetCustomTooltipText(
       base::UTF8ToUTF16(base::JoinString(real_device_names, "\n")));
 }
-#endif

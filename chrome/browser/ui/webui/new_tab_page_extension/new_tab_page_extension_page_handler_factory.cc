@@ -133,10 +133,6 @@ NewTabPageExtensionPageHandlerFactory::GetOrCreateContextualSessionHandle() {
     auto* contextual_search_service =
         ContextualSearchServiceFactory::GetForProfile(profile);
     if (contextual_search_service) {
-      shared_session_handle_ = contextual_search_service->CreateSession(
-          ntp_composebox::CreateQueryControllerConfigParams(),
-          contextual_search::ContextualSearchSource::kNewTabPage,
-          lens::LensOverlayInvocationSource::kNtpContextualQuery);
       shared_session_handle_->CheckSearchContentSharingSettings(
           profile->GetPrefs());
     }

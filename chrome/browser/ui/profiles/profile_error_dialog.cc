@@ -19,7 +19,7 @@
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 constexpr char kProfileErrorFeedbackCategory[] = "FEEDBACK_PROFILE_ERROR";
 
 bool g_is_showing_profile_error_dialog = false;
@@ -40,16 +40,13 @@ void OnProfileErrorDialogDismissed(const std::string& diagnostics,
                            std::string() /* description_placeholder_text */,
                            kProfileErrorFeedbackCategory, diagnostics);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
+#endif
 
 }  // namespace
 
 void ShowProfileErrorDialog(ProfileErrorType type,
                             int message_id,
                             const std::string& diagnostics) {
-#if BUILDFLAG(IS_ANDROID)
-  NOTIMPLEMENTED();
-#else  // BUILDFLAG(IS_ANDROID)
   base::UmaHistogramEnumeration("Profile.ProfileError2", type);
   if (base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kNoErrorDialogs)) {
@@ -75,5 +72,4 @@ void ShowProfileErrorDialog(ProfileErrorType type,
       l10n_util::GetStringUTF16(message_id));
 #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
 
-#endif  // BUILDFLAG(IS_ANDROID)
 }

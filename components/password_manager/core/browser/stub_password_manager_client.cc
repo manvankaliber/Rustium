@@ -173,7 +173,7 @@ StubPasswordManagerClient::GetPasswordFeatureManager() {
   return &password_feature_manager_;
 }
 
-#if BUILDFLAG(SAFE_BROWSING_AVAILABLE) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 safe_browsing::PasswordProtectionService*
 StubPasswordManagerClient::GetPasswordProtectionService() const {
   return nullptr;
@@ -198,15 +198,6 @@ StubPasswordManagerClient::GetMetricsRecorder() {
   return base::OptionalToPtr(metrics_recorder_);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-FirstCctPageLoadPasswordsUkmRecorder*
-StubPasswordManagerClient::GetFirstCctPageLoadUkmRecorder() {
-  return nullptr;
-}
-
-void StubPasswordManagerClient::PotentialSaveFormSubmitted() {}
-
-#endif
 
 signin::IdentityManager* StubPasswordManagerClient::GetIdentityManager() {
   return nullptr;
@@ -239,8 +230,7 @@ version_info::Channel StubPasswordManagerClient::GetChannel() const {
   return version_info::Channel::UNKNOWN;
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 void StubPasswordManagerClient::OpenPasswordDetailsBubble(
     const password_manager::PasswordForm& form) {}
 void StubPasswordManagerClient::MaybeShowSavePasswordPrimingPromo(
@@ -248,7 +238,6 @@ void StubPasswordManagerClient::MaybeShowSavePasswordPrimingPromo(
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) ||
         // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_IOS)
 std::unique_ptr<
     password_manager::PasswordCrossDomainConfirmationPopupController>
 StubPasswordManagerClient::ShowCrossDomainConfirmationPopup(
@@ -260,7 +249,6 @@ StubPasswordManagerClient::ShowCrossDomainConfirmationPopup(
     base::OnceClosure confirmation_callback) {
   return nullptr;
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 password_manager::UndoPasswordChangeController*
 StubPasswordManagerClient::GetUndoPasswordChangeController() {

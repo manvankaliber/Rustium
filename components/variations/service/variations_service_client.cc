@@ -17,9 +17,6 @@
 #include "components/variations/variations_switches.h"
 #include "ui/base/device_form_factor.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 namespace variations {
 
@@ -53,15 +50,7 @@ Study::FormFactor VariationsServiceClient::GetCurrentFormFactor() {
 // solution in DeviceFormFactor::GetDeviceFormFactor() after conducting an
 // audit of form factor usage or exposing ui_mode.
 // FormFactorMetricsProvider::GetFormFactor() also needs to be updated.
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_foldable()) {
-    return Study::FOLDABLE;
-  }
-#endif
 
-#if BUILDFLAG(PLATFORM_CFM)
-  return Study::MEET_DEVICE;
-#else
   switch (ui::GetDeviceFormFactor()) {
     case ui::DEVICE_FORM_FACTOR_PHONE:
       return Study::PHONE;
@@ -82,7 +71,6 @@ Study::FormFactor VariationsServiceClient::GetCurrentFormFactor() {
       return Study::TABLET;
   }
   NOTREACHED();
-#endif  // BUILDFLAG(PLATFORM_CFM)
 }
 
 base::FilePath VariationsServiceClient::GetVariationsSeedFileDir() {
@@ -115,11 +103,7 @@ bool VariationsServiceClient::EnableSignatureVerificationOnLoad() {
   // Since the variations seed is stored in this private per-app storage, we do
   // not need to perform signature verification once on every startup.
   // Android WebView overrides this method to return true.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return false;
-#else
   return true;
-#endif
 }
 
 metrics::MetricsService::RotateUmaLogResult

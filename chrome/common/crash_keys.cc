@@ -25,11 +25,6 @@
 #include "chrome/installer/util/isolation_support.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/crash/core/app/crash_switches.h"
-#include "gpu/command_buffer/service/gpu_switches.h"
-#include "ui/gl/gl_switches.h"
-#endif
 
 namespace crash_keys {
 namespace {
@@ -55,27 +50,6 @@ bool IsBoringSwitch(const std::string& flag) {
       "gpu-preferences",
 #if BUILDFLAG(IS_MAC)
       switches::kMetricsClientID,
-#elif BUILDFLAG(IS_CHROMEOS)
-      // --crash-loop-before is a "boring" switch because it is redundant;
-      // crash_reporter separately informs the crash server if it is doing
-      // crash-loop handling.
-      crash_reporter::switches::kCrashLoopBefore,
-      switches::kUseGL,
-      switches::kUserDataDir,
-      // Cros/CC flags are specified as raw strings to avoid dependency.
-      "child-wallpaper-large",
-      "child-wallpaper-small",
-      "default-wallpaper-large",
-      "default-wallpaper-small",
-      "guest-wallpaper-large",
-      "guest-wallpaper-small",
-      "enterprise-enable-forced-re-enrollment",
-      "enterprise-enable-forced-re-enrollment-on-flex",
-      "enterprise-enrollment-initial-modulus",
-      "enterprise-enrollment-modulus-limit",
-      "login-profile",
-      "login-user",
-      "use-cras",
 #endif
   });
 

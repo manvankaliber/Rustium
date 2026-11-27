@@ -61,45 +61,11 @@ TEST(PointerDeviceTest, PrimaryPointerAndHoverTypesFromPrecomputedBitmasks) {
             HOVER_TYPE_NONE);
   EXPECT_EQ(GetPrimaryHoverType(POINTER_TYPE_COARSE, HOVER_TYPE_NONE),
             HOVER_TYPE_NONE);
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_EQ(GetPrimaryPointerType(POINTER_TYPE_COARSE | POINTER_TYPE_FINE),
             POINTER_TYPE_FINE);
   EXPECT_EQ(GetPrimaryHoverType(POINTER_TYPE_COARSE, HOVER_TYPE_HOVER),
             HOVER_TYPE_HOVER);
-#endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Regression test for https://crbug.com/41445959.
-TEST(PointerDeviceTest, AndroidPrimaryHoverNoneWhenTouchscreenPresent) {
-  ScopedSetPointerAndHoverTypesForTesting scoper(
-      POINTER_TYPE_COARSE | POINTER_TYPE_FINE, HOVER_TYPE_HOVER);
-  EXPECT_EQ(GetPrimaryPointerType(), POINTER_TYPE_COARSE);
-  EXPECT_EQ(GetPrimaryHoverType(), HOVER_TYPE_NONE);
-  EXPECT_EQ(GetPrimaryPointerType(POINTER_TYPE_COARSE | POINTER_TYPE_FINE),
-            POINTER_TYPE_COARSE);
-  EXPECT_EQ(GetPrimaryHoverType(POINTER_TYPE_COARSE | POINTER_TYPE_FINE,
-                                HOVER_TYPE_HOVER),
-            HOVER_TYPE_NONE);
-}
-
-TEST(PointerDeviceTest, AndroidAnyHoverStillReportsHover) {
-  ScopedSetPointerAndHoverTypesForTesting scoper(
-      POINTER_TYPE_COARSE | POINTER_TYPE_FINE, HOVER_TYPE_HOVER);
-  auto [pointer_types, hover_types] = GetAvailablePointerAndHoverTypes();
-  EXPECT_TRUE(hover_types & HOVER_TYPE_HOVER);
-  EXPECT_EQ(GetPrimaryHoverType(pointer_types, hover_types), HOVER_TYPE_NONE);
-}
-
-TEST(PointerDeviceTest, AndroidTouchOnlyHoverNone) {
-  ScopedSetPointerAndHoverTypesForTesting scoper(POINTER_TYPE_COARSE,
-                                                 HOVER_TYPE_NONE);
-  EXPECT_EQ(GetPrimaryPointerType(), POINTER_TYPE_COARSE);
-  EXPECT_EQ(GetPrimaryHoverType(), HOVER_TYPE_NONE);
-  EXPECT_EQ(GetPrimaryPointerType(POINTER_TYPE_COARSE), POINTER_TYPE_COARSE);
-  EXPECT_EQ(GetPrimaryHoverType(POINTER_TYPE_COARSE, HOVER_TYPE_NONE),
-            HOVER_TYPE_NONE);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace ui

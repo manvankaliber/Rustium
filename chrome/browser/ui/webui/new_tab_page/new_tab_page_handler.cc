@@ -112,14 +112,12 @@
 #include "ui/gfx/image/image_skia_rep_default.h"
 #include "ui/native_theme/native_theme.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/user_education/browser_user_education_interface.h"
 #include "chrome/browser/ui/views/side_panel/customize_chrome/customize_chrome_utils.h"
 #include "components/user_education/webui/help_bubble_handler.h"  // nogncheck
 #include "ui/webui/tracked_element/tracked_element_handler.h"
 #include "ui/webui/tracked_element/tracked_element_web_ui.h"
-#endif
 
 namespace {
 
@@ -130,7 +128,6 @@ constexpr char kDismissInteraction[] = "dismiss";
 constexpr char kUseInteraction[] = "use";
 
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
 constexpr char kIgnoreInteraction[] = "ignore";
 constexpr auto kModuleInteractionNames =
     base::MakeFixedFlatSet<std::string_view>(
@@ -146,7 +143,6 @@ std::vector<std::string> GetSurveyEligibleModuleIds() {
       ",:;", base::WhitespaceHandling::TRIM_WHITESPACE,
       base::SplitResult::SPLIT_WANT_NONEMPTY);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Returns true if we should force dark foreground colors for the Google logo
 // and the One Google Bar. This is done to fix specific GWS themes where the
@@ -194,13 +190,9 @@ new_tab_page::mojom::ThemePtr MakeTheme(
   theme->is_gm3 =
       (theme_service->GetUserColor().has_value() || theme->is_baseline) &&
       !theme_service->UsingExtensionTheme();
-#if BUILDFLAG(IS_ANDROID)
-  const bool theme_has_custom_image = false;
-#else
   const bool theme_has_custom_image =
       theme_provider &&
       theme_provider->HasCustomImage(IDR_THEME_NTP_BACKGROUND);
-#endif
   SkColor text_color;
   if (custom_background.has_value()) {
     text_color = color_provider.GetColor(kColorNewTabPageTextUnthemed);
@@ -237,7 +229,6 @@ new_tab_page::mojom::ThemePtr MakeTheme(
   theme->is_dark =
       !color_utils::IsDark(color_provider.GetColor(kColorNewTabPageText));
   new_tab_page::mojom::BackgroundImagePtr background_image;
-#if !BUILDFLAG(IS_ANDROID)
   if (theme_has_custom_image) {
     background_image = new_tab_page::mojom::BackgroundImage::New();
     if (theme_service->UsingExtensionTheme()) {
@@ -291,7 +282,6 @@ new_tab_page::mojom::ThemePtr MakeTheme(
       background_image->position_y = "center";
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   if (!background_image && custom_background.has_value()) {
     background_image = new_tab_page::mojom::BackgroundImage::New();
     theme->is_custom_background = true;
@@ -384,7 +374,6 @@ new_tab_page::mojom::ImageDoodlePtr MakeImageDoodle(
 }
 
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
 base::DictValue MakeModuleInteractionTriggerIdDictionary() {
   const auto data = base::GetFieldTrialParamValueByFeature(
       features::kHappinessTrackingSurveysForDesktopNtpModules,
@@ -414,7 +403,6 @@ base::DictValue MakeModuleInteractionTriggerIdDictionary() {
 
   return std::move(*value_with_error).TakeDict();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -441,27 +429,19 @@ NewTabPageHandler::NewTabPageHandler(
       ntp_custom_background_service_(ntp_custom_background_service),
       logo_service_(logo_service),
 // TODO(b/502297163): Implement for Android.
-#if BUILDFLAG(IS_ANDROID)
-      theme_provider_(nullptr),
-#else
       theme_provider_(webui::GetThemeProviderDeprecated(web_contents)),
-#endif
       theme_service_(theme_service),
       sync_service_(sync_service),
       segmentation_platform_service_(segmentation_platform_service),
       profile_(profile),
       web_contents_(web_contents),
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
       feature_promo_helper_(std::make_unique<NewTabPageFeaturePromoHelper>()),
-#endif
       module_id_details_(module_id_details),
       microsoft_auth_service_(
           MicrosoftAuthServiceFactory::GetForProfile(profile)),
-#if !BUILDFLAG(IS_ANDROID)
       interaction_module_id_trigger_dict_(
           MakeModuleInteractionTriggerIdDictionary()),
-#endif
       browser_window_changed_subscription_(
           webui::RegisterBrowserWindowInterfaceChanged(
               web_contents_,
@@ -481,7 +461,6 @@ NewTabPageHandler::NewTabPageHandler(
   if (microsoft_auth_service_) {
     microsoft_auth_service_->AddObserver(this);
   }
-#if !BUILDFLAG(IS_ANDROID)
   CHECK(feature_promo_helper_);
   if (customize_chrome::IsWallpaperSearchEnabledForProfile(profile_)) {
     optimization_guide_keyed_service_ =
@@ -491,7 +470,6 @@ NewTabPageHandler::NewTabPageHandler(
           ->AddModelExecutionSettingsEnabledObserver(this);
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   OnBrowserWindowInterfaceChanged();
 
@@ -520,7 +498,6 @@ NewTabPageHandler::NewTabPageHandler(
       base::BindRepeating(&NewTabPageHandler::UpdateActionChipsVisibility,
                           base::Unretained(this)));
 
-#if !BUILDFLAG(IS_ANDROID)
   // `kSeedColorChangeCount` is registered by ThemeColorPickerHandler, which is
   // desktop-only, and the toast it drives points at the Chrome Web Store.
   pref_change_registrar_.Add(
@@ -538,7 +515,6 @@ NewTabPageHandler::NewTabPageHandler(
                     &NewTabPageHandler::TryShowRealboxContextualMenuIPH,
                     weak_ptr_factory_.GetWeakPtr()));
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   scheduled_restart::ScheduledRestartBubbleController::MaybeShowNTPNudge(
@@ -553,11 +529,9 @@ NewTabPageHandler::~NewTabPageHandler() {
     optimization_guide_keyed_service_ = nullptr;
   }
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   if (microsoft_auth_service_) {
     microsoft_auth_service_->RemoveObserver(this);
   }
-#endif
 }
 
 // static
@@ -579,9 +553,7 @@ void NewTabPageHandler::RegisterProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(prefs::kNtpCustomizeChromeExplicitlyClosed,
                                 false);
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   registry->RegisterBooleanPref(prefs::kNtpCustomizeChromeIPHAutoOpened, false);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void NewTabPageHandler::SetMostVisitedSettings(ntp_tiles::TileType type,
@@ -708,7 +680,6 @@ void NewTabPageHandler::OnModulesLoadedWithData(
   }
 
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   std::vector<std::string> survey_eligible_module_ids =
       GetSurveyEligibleModuleIds();
   if (std::any_of(module_ids.begin(), module_ids.end(),
@@ -749,7 +720,6 @@ void NewTabPageHandler::OnModulesLoadedWithData(
       break;
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void NewTabPageHandler::OnModuleUsed(const std::string& module_id) {
@@ -857,7 +827,6 @@ void NewTabPageHandler::UpdateActionChipsVisibility() {
 
 void NewTabPageHandler::UpdateFooterVisibility() {
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   if (!base::FeatureList::IsEnabled(ntp_features::kNtpFooter)) {
     return;
   }
@@ -880,7 +849,6 @@ void NewTabPageHandler::UpdateFooterVisibility() {
       new_tab_footer::NewTabFooterController::From(browser);
   CHECK(footer_controller);
   OnFooterVisibilityUpdated(footer_controller->GetFooterVisible(web_contents_));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void NewTabPageHandler::OnAppRendered(double time) {
@@ -1095,7 +1063,6 @@ void NewTabPageHandler::RecordRealboxContextMenuAnimationImpression(
 }
 
 void NewTabPageHandler::OnContextualSearchIPHEngaged() {
-#if !BUILDFLAG(IS_ANDROID)
   auto* browser = webui::GetBrowserWindowInterface(web_contents_);
   if (browser) {
     auto* user_education = BrowserUserEducationInterface::From(browser);
@@ -1105,7 +1072,6 @@ void NewTabPageHandler::OnContextualSearchIPHEngaged() {
           FeaturePromoFeatureUsedAction::kClosePromoIfPresent);
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void NewTabPageHandler::OnNativeThemeUpdated(ui::NativeTheme* observed_theme) {
@@ -1179,7 +1145,6 @@ void NewTabPageHandler::OnLogoAvailable(
 
 void NewTabPageHandler::OnBrowserWindowInterfaceChanged() {
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   if (!base::FeatureList::IsEnabled(ntp_features::kNtpFooter)) {
     return;
   }
@@ -1203,15 +1168,12 @@ void NewTabPageHandler::OnBrowserWindowInterfaceChanged() {
       new_tab_footer::NewTabFooterController::From(browser);
   CHECK(footer_controller);
   footer_controller_observation_.Observe(footer_controller);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void NewTabPageHandler::MaybeTriggerAutomaticCustomizeChromePromo() {
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   feature_promo_helper_->MaybeTriggerAutomaticCustomizeChromePromo(
       web_contents_);
-#endif
 }
 
 void NewTabPageHandler::LogEvent(NTPLoggingEventType event) {
@@ -1337,7 +1299,6 @@ void NewTabPageHandler::MaybeLaunchInteractionSurvey(
     const std::string& module_id,
     int delay_time_ms) {
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   const auto& module_trigger_id =
       GetSurveyTriggerIdForModuleAndInteraction(interaction, module_id);
   if (module_trigger_id.empty()) {
@@ -1351,16 +1312,13 @@ void NewTabPageHandler::MaybeLaunchInteractionSurvey(
       kHatsSurveyTriggerNtpModules, web_contents_, delay_time_ms, {}, {},
       HatsService::NavigationBehavior::ALLOW_ANY, base::DoNothing(),
       base::DoNothing(), module_trigger_id);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void NewTabPageHandler::MaybeShowWebstoreToast() {
   if (profile_->GetPrefs()->GetInteger(prefs::kSeedColorChangeCount) <= 3) {
     page_->ShowWebstoreToast();
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void NewTabPageHandler::RecordModuleInteraction(const std::string& module_id) {
   DisableModuleAutoRemoval(profile_, module_id);
@@ -1379,7 +1337,6 @@ void NewTabPageHandler::IncrementDictPrefKeyCount(const std::string& pref_name,
 }
 
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
 const std::string& NewTabPageHandler::GetSurveyTriggerIdForModuleAndInteraction(
     std::string_view interaction,
     const std::string& module_id) {
@@ -1398,7 +1355,6 @@ const std::string& NewTabPageHandler::GetSurveyTriggerIdForModuleAndInteraction(
 
   return kNoTriggerId;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void NewTabPageHandler::SetModuleHidden(const std::string& module_id,
                                         bool hidden) {
@@ -1449,7 +1405,6 @@ bool NewTabPageHandler::SyncMicrosoftModulesWithAuth() {
 }
 
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
 void NewTabPageHandler::TryShowRealboxContextualMenuIPH(
     ui::TrackedElement* element) {
   if (!element || !element->IsA<ui::TrackedElementWebUI>()) {
@@ -1480,7 +1435,6 @@ void NewTabPageHandler::TryShowRealboxContextualMenuIPH(
       feature_engagement::kIPHDesktopRealboxContextualSearchFeature,
       web_contents_.get());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void NewTabPageHandler::ConnectToParentDocument(
     mojo::PendingRemote<new_tab_page::mojom::MicrosoftAuthUntrustedDocument>

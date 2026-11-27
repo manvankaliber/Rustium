@@ -27,9 +27,6 @@
 #include "components/captive_portal/content/captive_portal_tab_helper.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_android.h"
-#endif
 
 content::NavigationController::LoadURLParams LoadURLParamsFromNavigateParams(
     NavigateParams* params) {
@@ -86,20 +83,11 @@ content::NavigationController::LoadURLParams LoadURLParamsFromNavigateParams(
         ChromeNavigationUIData::CreateForMainFrameNavigation(
             target_contents, params->is_using_https_as_default_scheme,
             force_no_https_upgrade);
-#if !BUILDFLAG(IS_ANDROID)
     // This field is not available on Android.
     navigation_ui_data->set_navigation_initiated_from_sync(
         params->navigation_initiated_from_sync);
-#endif
     load_url_params.navigation_ui_data = std::move(navigation_ui_data);
 
-#if BUILDFLAG(IS_ANDROID)
-    TabAndroid* tab_android = TabAndroid::FromWebContents(target_contents);
-    if (tab_android) {
-      load_url_params.override_user_agent =
-          tab_android->CalculateUserAgentOverrideOption(params->url);
-    }
-#endif
   }
 
   return load_url_params;

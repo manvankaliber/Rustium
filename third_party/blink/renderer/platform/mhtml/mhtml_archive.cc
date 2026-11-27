@@ -276,10 +276,6 @@ bool MHTMLArchive::CanLoadArchive(const KURL& url) {
   if (url.ProtocolIsInHttpFamily()) {
     return true;
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (url.ProtocolIs("content"))
-    return true;
-#endif
   return false;
 }
 

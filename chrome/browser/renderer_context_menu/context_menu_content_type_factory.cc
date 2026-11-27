@@ -16,12 +16,7 @@
 #include "content/public/common/url_constants.h"
 #include "extensions/buildflags/buildflags.h"
 
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/glic/host/guest_util.h"            // nogncheck
-#include "chrome/browser/glic/public/glic_keyed_service.h"  // nogncheck
-#include "chrome/browser/renderer_context_menu/context_menu_content_type_glic.h"
 #include "chrome/browser/renderer_context_menu/context_menu_content_type_read_anything.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/app_mode/app_mode_utils.h"
@@ -34,19 +29,10 @@
 #include "extensions/common/mojom/view_type.mojom.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/session_manager/core/session_manager.h"
-#endif
 
 namespace {
 
 bool IsUserSessionBlocked() {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (session_manager::SessionManager::Get() &&
-      session_manager::SessionManager::Get()->IsUserSessionBlocked()) {
-    return true;
-  }
-#endif
   return false;
 }
 
@@ -87,24 +73,14 @@ std::unique_ptr<ContextMenuContentType>
 ContextMenuContentTypeFactory::CreateInternal(
     content::RenderFrameHost* render_frame_host,
     const content::ContextMenuParams& params) {
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS)
   content::WebContents* web_contents =
       content::WebContents::FromRenderFrameHost(render_frame_host);
-#endif
-#if !BUILDFLAG(IS_ANDROID)
   if (params.page_url.SchemeIs(content::kChromeUIUntrustedScheme) &&
       params.page_url.host() ==
           chrome::kChromeUIUntrustedReadAnythingSidePanelHost) {
     return std::make_unique<ContextMenuContentTypeReadAnything>(params);
   }
 
-  if (glic::GlicKeyedService::IsNoWebviewEnabled(
-          web_contents ? web_contents->GetBrowserContext() : nullptr)) {
-    if (glic::IsAnyGlicWebContents(web_contents)) {
-      return std::make_unique<ContextMenuContentTypeGlic>(params);
-    }
-  }
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   if (IsRunningInForcedAppMode()) {

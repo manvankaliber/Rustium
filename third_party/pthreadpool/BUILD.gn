@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/android/config.gni")
 import("//testing/test.gni")
 
 config("pthreadpool_config") {
@@ -89,9 +88,7 @@ source_set("pthreadpool_standalone") {
     "src/src/threadpool-utils.h",
   ]
 
-  if (!(is_android && use_order_profiling)) {
-    assert_no_deps = [ "//base" ]
-  }
+  assert_no_deps = [ "//base" ]
 
   configs -= [ "//build/config/compiler:chromium_code" ]
   configs += [ "//build/config/compiler:no_chromium_code" ]

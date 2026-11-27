@@ -457,45 +457,4 @@ suite('SettingsToggleButton', () => {
     assertEquals('Slotted content', assignedNodes[0]!.textContent!.trim());
   });
 
-  // <if expr="is_chromeos">
-  test('click on sub label link should not toggle the button', async () => {
-    let subLabelTextWithLink =
-        testElement.shadowRoot.querySelector('#sub-label-text-with-link');
-    assertFalse(!!subLabelTextWithLink);
-    testElement.subLabelWithLink = '<a href="#"></a>';
-    await microtasksFinished();
-
-    subLabelTextWithLink =
-        testElement.shadowRoot.querySelector('#sub-label-text-with-link');
-    assertTrue(!!subLabelTextWithLink);
-    const link = subLabelTextWithLink.querySelector('a');
-    assertTrue(!!link);
-
-    assertTrue(testElement.checked);
-
-    link.click();
-    assertTrue(testElement.checked);
-  });
-
-  test(
-      'click on sub label with link text should toggle the button',
-      async () => {
-        let subLabelTextWithLink =
-            testElement.shadowRoot.querySelector<HTMLElement>(
-                '#sub-label-text-with-link');
-        assertFalse(!!subLabelTextWithLink);
-        testElement.subLabelWithLink = '<a href="#"></a>';
-        await microtasksFinished();
-
-        subLabelTextWithLink =
-            testElement.shadowRoot.querySelector<HTMLElement>(
-                '#sub-label-text-with-link');
-        assertTrue(!!subLabelTextWithLink);
-
-        assertTrue(testElement.checked);
-
-        subLabelTextWithLink.click();
-        assertFalse(testElement.checked);
-      });
-  // </if>
 });

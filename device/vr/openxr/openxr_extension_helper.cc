@@ -165,10 +165,6 @@ OpenXrExtensionHelper::OpenXrExtensionHelper(
 
   // Spatial Anchors
   OPENXR_LOAD_FN(xrCreateSpatialAnchorEXT);
-  OPENXR_LOAD_FN(xrEnumerateSpatialAnchorAttachableComponentsANDROID);
-
-  // Spatial HitTest
-  OPENXR_LOAD_FN(xrCreateSpatialRaycastSnapshotANDROID);
 
   // Visibility Mask
   OPENXR_LOAD_FN(xrGetVisibilityMaskKHR);
@@ -177,33 +173,6 @@ OpenXrExtensionHelper::OpenXrExtensionHelper(
   OPENXR_LOAD_FN(xrConvertWin32PerformanceCounterToTimeKHR);
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  OPENXR_LOAD_FN(xrCreateTrackableTrackerANDROID);
-  OPENXR_LOAD_FN(xrDestroyTrackableTrackerANDROID);
-
-  OPENXR_LOAD_FN(xrRaycastANDROID);
-
-  OPENXR_LOAD_FN(xrCreateAnchorSpaceANDROID);
-
-  OPENXR_LOAD_FN(xrCreateLightEstimatorANDROID);
-  OPENXR_LOAD_FN(xrDestroyLightEstimatorANDROID);
-  OPENXR_LOAD_FN(xrGetLightEstimateANDROID);
-
-  OPENXR_LOAD_FN(xrCreateDepthSwapchainANDROID);
-  OPENXR_LOAD_FN(xrDestroyDepthSwapchainANDROID);
-  OPENXR_LOAD_FN(xrEnumerateDepthSwapchainImagesANDROID);
-  OPENXR_LOAD_FN(xrEnumerateDepthResolutionsANDROID);
-  OPENXR_LOAD_FN(xrAcquireDepthSwapchainImagesANDROID);
-
-  // Meshing
-  OPENXR_LOAD_FN(xrEnumerateSupportedSemanticLabelSetsANDROID);
-  OPENXR_LOAD_FN(xrCreateSceneMeshingTrackerANDROID);
-  OPENXR_LOAD_FN(xrDestroySceneMeshingTrackerANDROID);
-  OPENXR_LOAD_FN(xrCreateSceneMeshSnapshotANDROID);
-  OPENXR_LOAD_FN(xrDestroySceneMeshSnapshotANDROID);
-  OPENXR_LOAD_FN(xrGetAllSubmeshStatesANDROID);
-  OPENXR_LOAD_FN(xrGetSubmeshDataANDROID);
-#endif
 }
 
 bool OpenXrExtensionHelper::IsFeatureSupported(

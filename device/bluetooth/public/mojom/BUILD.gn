@@ -6,7 +6,7 @@ import("//mojo/public/tools/bindings/mojom.gni")
 
 mojom("mojom") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "gatt_characteristic_permissions.mojom",
     "gatt_characteristic_properties.mojom",
@@ -107,9 +107,6 @@ mojom("deprecated_experimental_interfaces") {
 
     # Bluetooth internals page
     "//chrome/browser/ui/webui/bluetooth_internals:*",
-
-    # Nearby Sharing feature
-    "//chromeos/ash/services/nearby/public/mojom:*",
 
     # For device unittests
     "//device:*",

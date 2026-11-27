@@ -145,14 +145,6 @@ class FindTabHelper : public content::WebContentsUserData<FindTabHelper>,
     last_search_case_sensitive_ = last_search_case_sensitive;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Selects and zooms to the find result nearest to the point (x, y)
-  // defined in find-in-page coordinates.
-  void ActivateNearestFindResult(float x, float y);
-
-  // Asks the renderer to send the rects of the current find matches.
-  void RequestFindMatchRects(int current_version);
-#endif
 
   void set_delegate(Delegate* delegate) { delegate_ = delegate; }
 

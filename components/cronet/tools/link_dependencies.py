@@ -8,9 +8,9 @@
 Run with a working directory, the name of a binary target, and the name of the
 static library that should be produced. For example:
 
-  $ link_dependencies.py out/Release-iphoneos \
+  $ link_dependencies.py out/Release \
                          crnet_consumer.app/crnet_consumer \
-                         out/Release-iphoneos/crnet_standalone.a
+                         out/Release/crnet_standalone.a
 """
 
 import argparse

@@ -12,11 +12,6 @@
 #include "base/memory/raw_ref.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/enterprise/browser_management/management_service_factory.h"
-#include "chromeos/constants/chromeos_features.h"
-#include "components/policy/core/common/management/management_service.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace web_app {
 
@@ -59,30 +54,9 @@ constexpr const raw_ref<const base::Feature> kPreinstalledAppInstallFeatures[] =
 
 }  // namespace
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Use `IsPreinstalledWorkspaceStandaloneTabbed` instead of checking
-// this flag directly to correctly exclude managed devices.
-BASE_FEATURE(kPreinstalledWorkspaceStandaloneTabbed,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool IsPreinstalledWorkspaceStandaloneTabbed(Profile& profile) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!base::FeatureList::IsEnabled(kPreinstalledWorkspaceStandaloneTabbed)) {
-    return false;
-  }
-  // Exclude managed devices.
-  if (policy::ManagementServiceFactory::GetForPlatform()->IsManaged()) {
-    return false;
-  }
-  // Exclude managed profiles.
-  if (policy::ManagementServiceFactory::GetForProfile(&profile)->IsManaged()) {
-    return false;
-  }
-  return true;
-#else
   return false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 bool IsPreinstalledAppInstallFeatureEnabled(std::string_view feature_name) {

@@ -31,7 +31,6 @@ SYSROOT_DIRS = {
     'debian_bullseye_arm64-sysroot',
     'debian_bullseye_armhf-sysroot',
     'debian_bullseye_i386-sysroot',
-    'fuchsia-sdk',
     'MacOSX.platform',
     'win_toolchain',
 }
@@ -81,7 +80,7 @@ def fix_graph(
     # This does not hold true for stddef.h because of __need_size_t
     add_dep(graph['stddef.h'].next, graph['__stddef_size_t.h'], check=False)
 
-    if compiler.os in [Os.Android, Os.Win, Os.Fuchsia]:
+    if compiler.os in [Os.Android, Os.Win, ]:
         # include_next behaves differently in module builds and non-module builds.
         # Because of this, module builds include libcxx's wchar.h instead of
         # the sysroot's wchar.h

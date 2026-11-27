@@ -151,7 +151,6 @@ TEST(MemoryConsumerTest, LateRegistrationInheritsMemoryLimit) {
   EXPECT_EQ(consumer2.memory_limit(), MemoryLimit::FromPercent(20));
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST(MemoryConsumerTest, RegistrationWithoutRegistryAllowedInTests) {
   MockMemoryConsumer consumer;
   // This would have crashed previously because the global registry is not
@@ -159,7 +158,6 @@ TEST(MemoryConsumerTest, RegistrationWithoutRegistryAllowedInTests) {
   MemoryConsumerRegistration registration("consumer", kTestTraits, &consumer);
   // Expecting no crash in test environment.
 }
-#endif
 
 class MockPassiveMemoryConsumer : public PassiveMemoryConsumer {
  public:

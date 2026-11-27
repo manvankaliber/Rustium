@@ -51,7 +51,6 @@ suite('UserEducationInternalsTest', function() {
     await microtasksFinished();
   });
 
-  // <if expr="not is_chromeos">
   test('ClearWhatsNewData', async function() {
     const clearButton =
         element.shadowRoot.querySelector<HTMLElement>('#clearWhatsNewData');
@@ -65,7 +64,6 @@ suite('UserEducationInternalsTest', function() {
     assertEquals(2, handler.getCallCount('getWhatsNewModules'));
     assertEquals(2, handler.getCallCount('getWhatsNewEditions'));
   });
-  // </if>
 
   test('ClearWhatsNewModuleDataFromCard', async function() {
     const {card, clearButton} = await expandAndGetClearButton('#TestModule');

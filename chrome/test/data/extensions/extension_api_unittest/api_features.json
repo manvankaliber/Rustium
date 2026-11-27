@@ -144,15 +144,6 @@
   },
   "parent3.noparent.child": {
   },
-  "kiosk_only": {
-    "channel": "stable",
-    "contexts": [
-      "content_script",
-      "privileged_extension",
-      "unprivileged_extension"
-    ],
-    "session_types": ["kiosk"]
-  },
   "non_kiosk": {
     "channel": "stable",
     "contexts": [
@@ -161,20 +152,6 @@
       "unprivileged_extension"
     ],
     "session_types": ["regular"]
-  },
-  "autolaunched_kiosk": {
-    "channel": "stable",
-    "contexts": ["privileged_extension"],
-    "session_types": ["kiosk.autolaunched"]
-  },
-  "multiple_session_types": {
-    "channel": "stable",
-    "contexts": [
-      "content_script",
-      "privileged_extension",
-      "unprivileged_extension"
-    ],
-    "session_types": ["kiosk", "regular"]
   },
   "alias_api": {
     "channel": "stable",

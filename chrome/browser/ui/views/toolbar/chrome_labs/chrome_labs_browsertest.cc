@@ -53,24 +53,13 @@
 #include "ui/views/test/combobox_test_api.h"
 #include "ui/views/test/widget_test.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/ownership/owner_settings_service_ash.h"
-#include "chrome/browser/ash/ownership/owner_settings_service_ash_factory.h"
-#include "chrome/browser/ash/settings/about_flags.h"
-#include "chromeos/ash/components/cryptohome/cryptohome_parameters.h"
-#include "chromeos/ash/components/dbus/session_manager/fake_session_manager_client.h"
-#include "components/user_manager/user_manager.h"
-#endif
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
 
-#if !BUILDFLAG(IS_CHROMEOS) || !BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "ui/views/bubble/bubble_dialog_delegate_view.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS) || !BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS) || !BUILDFLAG(GOOGLE_CHROME_BRANDING)
 
 namespace {
 const char kFirstTestFeatureId[] = "feature-1";
@@ -417,25 +406,6 @@ IN_PROC_BROWSER_TEST_F(ChromeLabsCoordinatorBrowserTest, NewBadgeTest) {
   EXPECT_FALSE(first_lab_item()->GetNewBadgeForTesting()->GetDisplayNewBadge());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-// OwnerFlagsStorage on build bots works the same way as the non-owner version
-// since we don't have the session manager daemon to write and sign the proto
-// blob. This test just opens and closes the bubble to make sure there are no
-// crashes.
-IN_PROC_BROWSER_TEST_F(ChromeLabsCoordinatorBrowserTest,
-                       ShowBubbleWhenUserIsOwner) {
-  chrome_labs_coordinator_->Show(
-      ChromeLabsCoordinator::ShowUserType::kChromeOsOwnerUserType);
-  views::test::WidgetDestroyedWaiter destroyed_waiter(
-      chrome_labs_coordinator_->GetChromeLabsBubbleView()->GetWidget());
-  chrome_labs_coordinator_->Hide();
-  destroyed_waiter.Wait();
-  chrome_labs_coordinator_->Show(
-      ChromeLabsCoordinator::ShowUserType::kChromeOsOwnerUserType);
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Tests ChromeLabsViewController interactions in a browser test environment.
 class ChromeLabsViewControllerBrowserTest : public InProcessBrowserTest {
@@ -477,14 +447,8 @@ class ChromeLabsViewControllerBrowserTest : public InProcessBrowserTest {
     browser()->GetProfile()->GetPrefs()->SetBoolean(
         chrome_labs_prefs::kBrowserLabsEnabledEnterprisePolicy, true);
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // On ash-chrome we expect the PrefService from the profile to be used.
-    flags_storage_ = std::make_unique<flags_ui::PrefServiceFlagsStorage>(
-        browser()->GetProfile()->GetPrefs());
-#else  // !BUILDFLAG(IS_CHROMEOS)
     flags_storage_ = std::make_unique<flags_ui::PrefServiceFlagsStorage>(
         g_browser_process->local_state());
-#endif
 
     PinnedToolbarActionsModel* const actions_model =
         PinnedToolbarActionsModel::Get(browser()->GetProfile());
@@ -614,7 +578,6 @@ class ChromeLabsFeatureBrowserTest
   ChromeLabsFeatureBrowserTest() = default;
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // This test checks that selecting an option through the combobox on a lab will
 // enable the corresponding option on the feature.
 IN_PROC_BROWSER_TEST_P(ChromeLabsFeatureBrowserTest, ChangeSelectedOption) {
@@ -671,90 +634,8 @@ IN_PROC_BROWSER_TEST_F(ChromeLabsViewControllerBrowserTest, ResetToDefault) {
   EXPECT_TRUE(IsDefault(feature_entry, GetFlagsStorage()));
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Ash versions of the above tests.
-#if BUILDFLAG(IS_CHROMEOS)
-
-namespace ash {
-
-class ChromeLabsAshFeatureBrowserTest : public ChromeLabsFeatureBrowserTest {
- public:
-  ChromeLabsAshFeatureBrowserTest() = default;
-
-  void SetUpOnMainThread() override {
-    ChromeLabsFeatureBrowserTest::SetUpOnMainThread();
-    FakeSessionManagerClient::Get()->set_supports_browser_restart(true);
-  }
-};
-
-IN_PROC_BROWSER_TEST_P(ChromeLabsAshFeatureBrowserTest, ChangeSelectedOption) {
-  int row = GetParam();
-  std::unique_ptr<ChromeLabsViewController> view_controller =
-      CreateViewController();
-
-  // FeatureEntry of type FEATURE_VALUE
-  ChromeLabsItemView* lab_item = first_lab_item();
-  views::Combobox* lab_item_combobox =
-      lab_item->GetLabStateComboboxForTesting();
-
-  views::test::ComboboxTestApi(lab_item_combobox).PerformActionAt(row);
-
-  const flags_ui::FeatureEntry* feature_entry = lab_item->GetFeatureEntry();
-
-  EXPECT_TRUE(IsSelected(row, feature_entry, GetFlagsStorage()));
-
-  // FeatureEntry of type FEATURE_WITH_PARAMS_VALUE
-  ChromeLabsItemView* lab_item_with_params = second_lab_item();
-  views::Combobox* lab_item_with_params_combobox =
-      lab_item_with_params->GetLabStateComboboxForTesting();
-  views::test::ComboboxTestApi(lab_item_with_params_combobox)
-      .PerformActionAt(row);
-
-  const flags_ui::FeatureEntry* feature_entry_with_params =
-      lab_item_with_params->GetFeatureEntry();
-  EXPECT_TRUE(IsSelected(row, feature_entry_with_params, GetFlagsStorage()));
-
-  // Make sure flags have been set since ChromeOS should apply flags through
-  // the session manager.
-  const user_manager::User* active_user =
-      user_manager::UserManager::Get()->GetActiveUser();
-  if (active_user) {
-    AccountId user_id = active_user->GetAccountId();
-    std::vector<std::string> raw_flags;
-    FakeSessionManagerClient* session_manager = FakeSessionManagerClient::Get();
-    view_controller->RestartToApplyFlagsForTesting();
-    const bool has_user_flags = session_manager->GetFlagsForUser(
-        cryptohome::CreateAccountIdentifierFromAccountId(user_id), &raw_flags);
-    EXPECT_TRUE(has_user_flags);
-  }
-}
-
-INSTANTIATE_TEST_SUITE_P(All,
-                         ChromeLabsAshFeatureBrowserTest,
-                         testing::Values(1, 2));
-
-IN_PROC_BROWSER_TEST_F(ChromeLabsViewControllerBrowserTest, ResetToDefault) {
-  std::unique_ptr<ChromeLabsViewController> view_controller =
-      CreateViewController();
-
-  ChromeLabsItemView* lab_item = first_lab_item();
-  views::Combobox* lab_item_combobox =
-      lab_item->GetLabStateComboboxForTesting();
-
-  // Selects an option and then attempts to reset the lab to Default by
-  // selecting 0.
-  const flags_ui::FeatureEntry* feature_entry = lab_item->GetFeatureEntry();
-  views::test::ComboboxTestApi(lab_item_combobox).PerformActionAt(1);
-
-  EXPECT_FALSE(IsDefault(feature_entry, GetFlagsStorage()));
-  views::test::ComboboxTestApi(lab_item_combobox).PerformActionAt(0);
-  EXPECT_TRUE(IsDefault(feature_entry, GetFlagsStorage()));
-}
-
-}  // namespace ash
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // This test checks that only the two features that are supported on the current
 // platform and do not have expired flags are added to the bubble.
@@ -821,13 +702,8 @@ IN_PROC_BROWSER_TEST_F(ChromeLabsViewControllerBrowserTest,
                        CleanUpNewBadgePrefsTest) {
   UpdateChromeLabsNewBadgePrefs(browser()->GetProfile());
   const base::DictValue& new_badge_prefs =
-#if BUILDFLAG(IS_CHROMEOS)
-      browser()->GetProfile()->GetPrefs()->GetDict(
-          chrome_labs_prefs::kChromeLabsNewBadgeDictAshChrome);
-#else
       g_browser_process->local_state()->GetDict(
           chrome_labs_prefs::kChromeLabsNewBadgeDict);
-#endif
 
   EXPECT_TRUE(new_badge_prefs.contains(kFirstTestFeatureId));
   EXPECT_TRUE(new_badge_prefs.contains(kTestFeatureWithVariationId));
@@ -847,5 +723,3 @@ IN_PROC_BROWSER_TEST_F(ChromeLabsViewControllerBrowserTest,
   EXPECT_FALSE(new_badge_prefs.contains(kFirstTestFeatureId));
   EXPECT_FALSE(new_badge_prefs.contains(kTestFeatureWithVariationId));
 }
-
-#endif  // !BUILDFLAG(IS_CHROMEOS) || !BUILDFLAG(GOOGLE_CHROME_BRANDING)

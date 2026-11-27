@@ -5,14 +5,10 @@
 import("//build/buildflag_header.gni")
 import("//build/config/cast.gni")
 import("//build/config/chrome_build.gni")
-import("//build/config/chromeos/args.gni")
+
 import("//build/config/features.gni")
 import("//build/util/process_version.gni")
 import("//build_overrides/build.gni")
-
-if (is_ios) {
-  import("//build/config/ios/ios_sdk.gni")
-}
 
 source_set("buildflag_header_h") {
   sources = [ "buildflag.h" ]
@@ -77,7 +73,6 @@ buildflag_header("chromeos_buildflags") {
   flags = [
     "IS_CHROMEOS_DEVICE=$is_chromeos_device",
     "IS_CHROMEOS_WITH_HW_DETAILS=$is_chromeos_with_hw_details",
-    "IS_REVEN=$is_reven",
   ]
 }
 
@@ -88,7 +83,7 @@ buildflag_header("robolectric_buildflags") {
 
 buildflag_header("ios_buildflags") {
   header = "ios_buildflags.h"
-  _is_ios_app_extension = is_ios && ios_is_app_extension
+  _is_ios_app_extension = false
   flags = [ "IS_IOS_APP_EXTENSION=$_is_ios_app_extension" ]
 }
 
@@ -129,19 +124,6 @@ if (build_with_chromium) {
   }
 }
 
-if (is_chromeos) {
-  process_version("version_metadata") {
-    sources = [ "//chrome/VERSION" ]
-
-    template_file = "metadata.json.in"
-    output = "$root_out_dir/metadata.json"
-    process_only = true
-  }
-}
-
 source_set("is_android_web_view") {
-  sources = [
-    "is_android_web_view.cc",
-    "is_android_web_view.h",
-  ]
+  sources = []
 }

@@ -162,7 +162,7 @@ message SyncEnums {
     OS_TYPE_ANDROID = 5;
     OS_TYPE_IOS = 6;
     OS_TYPE_CHROME_OS_LACROS = 7;
-    OS_TYPE_FUCHSIA = 8;
+    reserved 8;
   }
 
   // Types of device form factors.

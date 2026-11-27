@@ -50,7 +50,6 @@ bool URLBlocklistPolicyHandler::CheckPolicySettings(const PolicyMap& policies,
                                                     PolicyErrorMap* errors) {
   size_t disabled_schemes_entries = 0;
 
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   // It is safe to use `GetValueUnsafe()` because type checking is performed
   // before the value is used.
   // This policy is deprecated but still supported so check it first.
@@ -64,7 +63,6 @@ bool URLBlocklistPolicyHandler::CheckPolicySettings(const PolicyMap& policies,
       disabled_schemes_entries = disabled_schemes->GetList().size();
     }
   }
-#endif
 
   if (!policies.IsPolicySet(policy_name())) {
     return true;
@@ -122,7 +120,6 @@ void URLBlocklistPolicyHandler::ApplyPolicySettings(const PolicyMap& policies,
 
   std::optional<base::ListValue> merged_url_blocklist;
 
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   const base::Value* disabled_schemes_policy =
       policies.GetValue(key::kDisabledSchemes, base::Value::Type::LIST);
   // We start with the DisabledSchemes because we have size limit when
@@ -135,7 +132,6 @@ void URLBlocklistPolicyHandler::ApplyPolicySettings(const PolicyMap& policies,
       }
     }
   }
-#endif
 
   if (url_blocklist_policy) {
     if (!merged_url_blocklist) {

@@ -15,7 +15,6 @@ import {isVisible, microtasksFinished} from 'chrome://webui-test/test_util.js';
 import {assertStyle, createContextualTasksAppElement, fixtureUrl, simulateLoadCommit} from './contextual_tasks_test_utils.js';
 import {TestContextualTasksBrowserProxy} from './test_contextual_tasks_browser_proxy.js';
 
-// <if expr="not is_android or enable_webui_contextual_tasks_composebox">
 import {PageHandlerRemote as ComposeboxPageHandlerRemote} from 'chrome://resources/cr_components/composebox/composebox.mojom-webui.js';
 import {ComposeboxProxyImpl} from 'chrome://resources/cr_components/composebox/composebox_proxy.js';
 import {PageCallbackRouter as SearchboxPageCallbackRouter, PageHandlerRemote as SearchboxPageHandlerRemote} from 'chrome://resources/mojo/components/omnibox/browser/searchbox.mojom-webui.js';
@@ -31,7 +30,7 @@ async function removeThreadFrameToPreventRaceConditions() {
     await microtasksFinished();
   }
 }
-// </if> not is_android or enable_webui_contextual_tasks_composebox
+//  not is_android or enable_webui_contextual_tasks_composebox
 
 suite('ContextualTasksAppTest', function() {
   let initialUrl: string;
@@ -71,7 +70,6 @@ suite('ContextualTasksAppTest', function() {
     const proxy = new TestContextualTasksBrowserProxy('http://example.com');
     BrowserProxyImpl.setInstance(proxy);
 
-    // <if expr="not is_android or enable_webui_contextual_tasks_composebox">
     const mockComposeboxPageHandler =
         TestMock.fromClass(ComposeboxPageHandlerRemote);
     mockComposeboxPageHandler.setResultFor(
@@ -87,7 +85,6 @@ suite('ContextualTasksAppTest', function() {
     ComposeboxProxyImpl.setInstance(new ComposeboxProxyImpl(
         mockComposeboxPageHandler, mockSearchboxPageHandler,
         searchboxCallbackRouter));
-    // </if>
   });
 
   test('gets thread url', async () => {
@@ -455,7 +452,6 @@ suite('ContextualTasksAppTest', function() {
     await microtasksFinished();
     assertTrue(appElement.getDarkModeForTesting());
   });
-  // <if expr="not is_android or enable_webui_contextual_tasks_composebox">
   test('isAiPage reflected in dom', async () => {
     const {appElement, toolbarProxy} = await createContextualTasksAppElement(
         /*url=*/ fixtureUrl,
@@ -478,7 +474,7 @@ suite('ContextualTasksAppTest', function() {
 
     assertTrue(appElement.hasAttribute('is-ai-page_'));
   });
-  // </if> not is_android or enable_webui_contextual_tasks_composebox
+  //  not is_android or enable_webui_contextual_tasks_composebox
 
   // Disabled due to flakiness. See http://crbug.com/481936603.
   test.skip('copies source and aep params on new thread click', async () => {
@@ -606,7 +602,6 @@ suite('ContextualTasksAppTest', function() {
             true));
   });
 
-  // <if expr="not is_android or enable_webui_contextual_tasks_composebox">
   test('sends composebox height update', async () => {
     const {appElement} =
         await createContextualTasksAppElement(/*url=*/ fixtureUrl);
@@ -1014,7 +1009,7 @@ suite('ContextualTasksAppTest', function() {
     assertTrue(
         clipPath.includes('path'), 'clip-path should contain path');
   });
-  // </if> not is_android or enable_webui_contextual_tasks_composebox
+  //  not is_android or enable_webui_contextual_tasks_composebox
 
   test('sets isFrameLoading to false when content load finishes', async () => {
     const {appElement} = await createContextualTasksAppElement(
@@ -1160,7 +1155,6 @@ suite('ContextualTasksAppTest', function() {
             'isLoadError_ should be true if it was an error document');
       });
 
-  // <if expr="not is_android or enable_webui_contextual_tasks_composebox">
   test(
       'does not reset forced composebox bounds if navigation aborts',
       async () => {
@@ -1208,7 +1202,7 @@ suite('ContextualTasksAppTest', function() {
         // Bounds should still be present.
         assertDeepEquals(boundsBeforeNav, appElement.getForcedComposeboxBoundsForTesting()!);
       });
-  // </if> not is_android or enable_webui_contextual_tasks_composebox
+  //  not is_android or enable_webui_contextual_tasks_composebox
 
   test(
       'leaves isLoadError false if load abort does not contain error document',
@@ -1279,7 +1273,6 @@ suite('ContextualTasksAppTest', function() {
     assertEquals('another', url.searchParams.get('hl'));
   });
 
-  // <if expr="not is_android or enable_webui_contextual_tasks_composebox">
   test('composebox hidden when isAimEligible is false', async () => {
     loadTimeData.overrideValues({
       isAimEligible: false,
@@ -1335,9 +1328,8 @@ suite('ContextualTasksAppTest', function() {
 
     assertTrue(wrapper.hasAttribute('hidden'));
   });
-  // </if> not is_android or enable_webui_contextual_tasks_composebox
+  //  not is_android or enable_webui_contextual_tasks_composebox
 
-  // <if expr="not is_android or enable_webui_contextual_tasks_composebox">
   test('side panel zero state plays animations immediately', async () => {
     loadTimeData.overrideValues({isZeroState: true});
     const {appElement} = await createContextualTasksAppElement(
@@ -1423,9 +1415,8 @@ suite('ContextualTasksAppTest', function() {
     assertTrue(appElement.classList.contains('play-zero-state'));
     assertTrue(appElement.$.composebox.classList.contains('play-zero-state'));
   });
-  // </if> not is_android or enable_webui_contextual_tasks_composebox
+  //  not is_android or enable_webui_contextual_tasks_composebox
 
-  // <if expr="not is_android">
   test('askGTooltipDismissed calls browser proxy', async () => {
     const {appElement, proxy} =
         await createContextualTasksAppElement(/*url=*/ fixtureUrl);
@@ -1571,5 +1562,4 @@ suite('ContextualTasksAppTest', function() {
       assertTrue(onboardingTooltip.shouldShow);
     });
   });
-  // </if>
 });

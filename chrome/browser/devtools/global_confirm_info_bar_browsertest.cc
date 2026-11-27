@@ -18,13 +18,7 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#include "chrome/test/base/android/android_ui_test_utils.h"
-#else
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif
 
 namespace {
 
@@ -61,24 +55,6 @@ class GlobalConfirmInfoBarTest : public PlatformBrowserTest {
         chrome_test_utils::GetWebContentsAt(this, tab_index));
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Adds an additional tab.
-  void AddTab() {
-    android_ui_test_utils::OpenUrlInNewTab(
-        GetProfile(), chrome_test_utils::GetActiveWebContents(this),
-        GURL("chrome://blank/"));
-  }
-
-  // Returns the number of tabs in the current window.
-  int GetTabCount() {
-    for (const TabModel* model : TabModelList::models()) {
-      if (model->IsActiveModel()) {
-        return model->GetTabCount();
-      }
-    }
-    NOTREACHED() << "No active TabModel?";
-  }
-#else
   // Adds an additional tab.
   void AddTab() {
     ASSERT_FALSE(
@@ -87,7 +63,6 @@ class GlobalConfirmInfoBarTest : public PlatformBrowserTest {
 
   // Returns the number of tabs in the current window.
   int GetTabCount() { return browser()->tab_strip_model()->count(); }
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace

@@ -22,7 +22,6 @@
 
 namespace policy {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // HasMachineLevelPolicies() is not implemented on ChromeOS.
 TEST(ChromeBrowserPolicyConnectorTest, HasMachineLevelPolicies) {
   base::test::TaskEnvironment env;
@@ -39,7 +38,6 @@ TEST(ChromeBrowserPolicyConnectorTest, HasMachineLevelPolicies) {
   EXPECT_TRUE(connector.HasMachineLevelPolicies());
   BrowserPolicyConnectorBase::SetPolicyProviderForTesting(nullptr);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 namespace {

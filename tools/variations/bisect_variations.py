@@ -22,11 +22,6 @@ vpython3 bisect_variations.py --input-file="variations_cmd.txt"
 "variations_cmd.txt" is the command line switches data saved from
 chrome://version/?show-variations-cmd.
 
-Sample use for Android:
-vpython3 bisect_variations.py --input-file="variations_cmd.txt"
-    --output-dir=".\bisect-out" --url="https://www.youtube.com/"
-    --browser-path="out/Android/bin/chrome_apk"
-
 Run with --help to get a complete list of options this script runs with.
 """
 
@@ -176,7 +171,7 @@ def _LoadVariations(filename):
 
 
 def _BuildBrowserArgs(
-  user_data_dir, extra_browser_args, variations_args, is_apk
+  user_data_dir, extra_browser_args, variations_args
 ):
   """Builds commandline switches browser runs with.
 
@@ -186,7 +181,6 @@ def _BuildBrowserArgs(
           with.
       variations_args: A list of commandline switches that defines the
           variations cmd browser runs with.
-      is_apk: Whether we're running an APK.
 
   Returns:
       A list of commandline switches.
@@ -201,14 +195,11 @@ def _BuildBrowserArgs(
   browser_args.extend(extra_browser_args)
   browser_args.extend(variations_args)
 
-  if is_apk:
-    return ["--args={}".format(" ".join(browser_args))]
-
   return browser_args
 
 
 def _RunVariations(
-  browser_path, url, extra_browser_args, variations_args, is_apk
+  browser_path, url, extra_browser_args, variations_args
 ):
   """Launches browser with given variations.
 
@@ -219,14 +210,11 @@ def _RunVariations(
           with.
       variations_args: A list of commandline switches that defines the
           variations cmd browser runs with.
-      is_apk: Whether we're running an APK.
 
   Returns:
       A set of (returncode, stdout, stderr) from browser subprocess.
   """
   command = [os.path.abspath(browser_path)]
-  if is_apk:
-    command.append("run")
   if url:
     command.append(url)
   tempdir = tempfile.mkdtemp(prefix='bisect_variations_tmp')
@@ -235,7 +223,6 @@ def _RunVariations(
       user_data_dir=tempdir,
       extra_browser_args=extra_browser_args,
       variations_args=variations_args,
-      is_apk=is_apk,
     )
   )
   logging.debug(' '.join(command))
@@ -243,16 +230,8 @@ def _RunVariations(
   subproc = subprocess.Popen(
     command, bufsize=-1, stdout=subprocess.PIPE, stderr=subprocess.PIPE
   )
-  try:
-    stdout, stderr = subproc.communicate(timeout=None if not is_apk else 15)
-  except subprocess.TimeoutExpired:
-    # APK wrapper scripts do not exit (even if the browser's closed on-device),
-    # so hold on for a bit before prompting. After the prompt is dismissed,
-    # the next iteration of the APK run script will close the browser and
-    # reopen it with new command line args.
-    return 0, "", ""
-  if not is_apk:
-    shutil.rmtree(tempdir, True)
+  stdout, stderr = subproc.communicate(timeout=None)
+  shutil.rmtree(tempdir, True)
   return (subproc.returncode, stdout, stderr)
 
 
@@ -312,9 +291,6 @@ def Bisect(
   else:
     runs = [variations_file]
 
-  # All Android wrapper scripts end with _apk
-  is_apk = browser_path.endswith("_apk")
-
   # Verify that the issue not be reproduced without variations.
   while True:
     exit_status, stdout, stderr = _RunVariations(
@@ -322,7 +298,6 @@ def Bisect(
       url=url,
       extra_browser_args=extra_browser_args,
       variations_args=[],
-      is_apk=is_apk,
     )
     answer = _AskCanReproduce(exit_status, stdout, stderr)
     if answer == 'y':
@@ -351,7 +326,6 @@ def Bisect(
       url=url,
       extra_browser_args=extra_browser_args,
       variations_args=variations_args,
-      is_apk=is_apk,
     )
 
     answer = _AskCanReproduce(exit_status, stdout, stderr)

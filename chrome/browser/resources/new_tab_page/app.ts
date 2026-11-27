@@ -221,7 +221,7 @@ export class AppElement extends AppElementBase {
           {type: Boolean},
       voiceSearchCoherenceRealboxAutoEndpointEnabled_: {type: Boolean},
       voiceSearchCoherenceRealboxHelperTextEnabled_: {type: Boolean},
-      androidSpeechRecognition_: {type: Boolean},
+
 
       voiceSearchTranscript_: {type: String},
       voiceSearchReceivedSpeech_: {type: Boolean},
@@ -393,8 +393,7 @@ export class AppElement extends AppElementBase {
       loadTimeData.getBoolean('voiceSearchCoherenceRealboxHelperTextEnabled');
   // `true` only on Android, where voice search uses Android's speech recognizer
   // (see new_tab_page_ui.cc).
-  protected accessor androidSpeechRecognition_: boolean =
-      loadTimeData.getBoolean('androidSpeechRecognition');
+
 
   protected accessor voiceSearchTranscript_: string = '';
   protected accessor voiceSearchReceivedSpeech_: boolean = false;
@@ -1066,9 +1065,7 @@ export class AppElement extends AppElementBase {
       files: [],
       mode: ToolMode.kUnspecified,
       model: ModelMode.kUnspecified,
-      // <if expr="not is_android">
       smartTabSharingActive: false,
-      // </if>
     };
     await this.ensureComposeboxOpen_();
     const composebox =
@@ -1367,8 +1364,8 @@ export class AppElement extends AppElementBase {
 
   protected onVoiceSearchRecordingStopped_(e: CustomEvent<string>) {
     const query = e.detail;
-    const dialog = this.shadowRoot.querySelector<HTMLDialogElement>(
-        '#voiceSearchDialog');
+    const dialog =
+        this.shadowRoot.querySelector<HTMLDialogElement>('#voiceSearchDialog');
     if (dialog) {
       dialog.close();
     }
@@ -1453,8 +1450,7 @@ export class AppElement extends AppElementBase {
   }
 
   private onModulesLoadedChange_() {
-    if (this.modulesLoaded_ &&
-        loadTimeData.getBoolean('modulesEnabled')) {
+    if (this.modulesLoaded_ && loadTimeData.getBoolean('modulesEnabled')) {
       recordDuration(
           'NewTabPage.Modules.ShownTime', WindowProxy.getInstance().now());
     }

@@ -41,8 +41,9 @@ bool SafeIncrementAndAlign(size_t aligned_value,
 
 size_t GetRemainingSize(const base::MappedReadOnlyRegion& region,
                         size_t offset) {
-  if (offset > region.mapping.size())
+  if (offset > region.mapping.size()) {
     return 0;
+  }
   return region.mapping.size() - offset;
 }
 
@@ -261,7 +262,7 @@ Mailbox SharedImageInterfaceProxy::CreateSharedImage(
   // TODO(kylechar): Verify buffer_handle works for size+format.
   auto mailbox = Mailbox::Generate();
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   if (host_->client_type() == viz::mojom::GpuClientType::kRenderer) {
     // Only valid client from renderer on ChromeOS and Linux is VideoCapture,
     // that supposed to produce linear buffers.
@@ -358,7 +359,7 @@ void SharedImageInterfaceProxy::UpdateSharedImage(
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 void SharedImageInterfaceProxy::CopyNativeGmbToSharedMemoryAsync(
     gfx::GpuMemoryBufferHandle buffer_handle,
     base::UnsafeSharedMemoryRegion memory_region,
@@ -366,7 +367,7 @@ void SharedImageInterfaceProxy::CopyNativeGmbToSharedMemoryAsync(
   host_->CopyNativeGmbToSharedMemoryAsync(
       std::move(buffer_handle), std::move(memory_region), std::move(callback));
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
 void SharedImageInterfaceProxy::UpdateSharedImage(const SyncToken& sync_token,
                                                   const Mailbox& mailbox) {
@@ -378,16 +379,18 @@ void SharedImageInterfaceProxy::UpdateSharedImage(
     std::unique_ptr<gfx::GpuFence> acquire_fence,
     const Mailbox& mailbox) {
   // If there is a valid SyncToken, there should not be any GpuFence.
-  if (sync_token.HasData())
+  if (sync_token.HasData()) {
     DCHECK(!acquire_fence);
+  }
   std::vector<SyncToken> dependencies =
       GenerateDependenciesFromSyncToken(std::move(sync_token), host_);
   {
     base::AutoLock lock(lock_);
 
     gfx::GpuFenceHandle acquire_fence_handle;
-    if (acquire_fence)
+    if (acquire_fence) {
       acquire_fence_handle = acquire_fence->GetGpuFenceHandle().Clone();
+    }
     last_flush_id_ = host_->EnqueueDeferredMessage(
         mojom::DeferredRequestParams::NewSharedImageRequest(
             mojom::DeferredSharedImageRequest::NewUpdateSharedImage(
@@ -484,8 +487,9 @@ void SharedImageInterfaceProxy::VerifyFlush() {
 }
 
 void SharedImageInterfaceProxy::WaitSyncToken(const SyncToken& sync_token) {
-  if (!sync_token.HasData())
+  if (!sync_token.HasData()) {
     return;
+  }
 
   std::vector<SyncToken> dependencies =
       GenerateDependenciesFromSyncToken(std::move(sync_token), host_);
@@ -512,13 +516,15 @@ bool SharedImageInterfaceProxy::GetSHMForPixelData(
           pixel_data.size()) {
     size_t size_to_alloc = std::max(kUploadBufferSize, pixel_data.size());
     auto shm = base::ReadOnlySharedMemoryRegion::Create(size_to_alloc);
-    if (!shm.IsValid())
+    if (!shm.IsValid()) {
       return false;
+    }
 
     // Duplicate the buffer for sharing to the GPU process.
     base::ReadOnlySharedMemoryRegion readonly_shm = shm.region.Duplicate();
-    if (!readonly_shm.IsValid())
+    if (!readonly_shm.IsValid()) {
       return false;
+    }
 
     // Share the SHM to the GPU process. In order to ensure that any deferred
     // messages which rely on the previous SHM have a chance to execute before
@@ -563,20 +569,6 @@ bool SharedImageInterfaceProxy::GetSHMForPixelData(
 
   return true;
 }
-
-#if BUILDFLAG(IS_FUCHSIA)
-void SharedImageInterfaceProxy::RegisterSysmemBufferCollection(
-    zx::eventpair service_handle,
-    zx::channel sysmem_token,
-    const viz::SharedImageFormat& format,
-    gfx::BufferUsage usage,
-    bool register_with_image_pipe) {
-  host_->GetGpuChannel().RegisterSysmemBufferCollection(
-      mojo::PlatformHandle(std::move(service_handle)),
-      mojo::PlatformHandle(std::move(sysmem_token)), format, usage,
-      register_with_image_pipe);
-}
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 void SharedImageInterfaceProxy::AddReferenceToSharedImage(
     const SyncToken& sync_token,

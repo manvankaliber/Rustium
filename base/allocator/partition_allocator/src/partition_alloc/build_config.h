@@ -56,30 +56,16 @@
 // IWYU pragma: always_keep
 
 // A set of macros to use for platform detection.
-#if PA_BUILDFLAG(IS_ANDROID)
-// The IS_ANDROID PA_BUILDFLAG macro is defined in buildflags.h.
-//
-// PartitionAlloc's embedders (Chromium, Dawn, Pdfium, Skia) define different
-// macros for Android builds: "ANDROID" or "SK_BUILD_FOR_ANDROID".
-//
-// To avoid relying on these external definitions, PartitionAlloc uses its own
-// dedicated build flag.
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 // Only include TargetConditionals after testing ANDROID as some Android builds
 // on the Mac have this header available and it's not needed unless the target
 // is really an Apple platform.
 #include <TargetConditionals.h>
-#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
-#define PA_IS_IOS
-#else
 #define PA_IS_MAC
-#endif  // defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 #elif defined(__linux__)
-#if !PA_BUILDFLAG(IS_CHROMEOS)
 // Do not define PA_IS_LINUX on Chrome OS build.
 // The IS_CHROMEOS PA_BUILDFLAG macro is defined in buildflags.h.
 #define PA_IS_LINUX
-#endif  // !PA_BUILDFLAG(IS_CHROMEOS)
 // Include features.h for glibc/uclibc macros.
 #include <features.h>
 #if defined(__GLIBC__) && !defined(__UCLIBC__)
@@ -88,8 +74,6 @@
 #endif
 #elif defined(_WIN32)
 #define PA_IS_WIN
-#elif defined(__Fuchsia__)
-#define PA_IS_FUCHSIA
 #elif defined(__FreeBSD__)
 #define PA_IS_FREEBSD
 #elif defined(__NetBSD__)
@@ -117,11 +101,7 @@
 #define PA_IS_BSD
 #endif
 
-#if defined(PA_IS_AIX) || defined(PA_IS_ASMJS) || defined(PA_IS_FREEBSD) ||  \
-    defined(PA_IS_IOS) || defined(PA_IS_LINUX) || defined(PA_IS_CHROMEOS) || \
-    defined(PA_IS_MAC) || defined(PA_IS_NETBSD) || defined(PA_IS_OPENBSD) || \
-    defined(PA_IS_QNX) || defined(PA_IS_SOLARIS) ||                          \
-    PA_BUILDFLAG(IS_ANDROID) || PA_BUILDFLAG(IS_CHROMEOS)
+#if defined(PA_IS_AIX) || defined(PA_IS_ASMJS) || defined(PA_IS_FREEBSD) || defined(PA_IS_IOS) || defined(PA_IS_LINUX) || defined(PA_IS_CHROMEOS) || defined(PA_IS_MAC) || defined(PA_IS_NETBSD) || defined(PA_IS_OPENBSD) || defined(PA_IS_QNX) || defined(PA_IS_SOLARIS)
 #define PA_IS_POSIX
 #endif
 
@@ -419,12 +399,7 @@
 #endif
 #undef PA_IS_FREEBSD
 
-#if defined(PA_IS_FUCHSIA)
-#define PA_BUILDFLAG_INTERNAL_IS_FUCHSIA() (1)
-#else
 #define PA_BUILDFLAG_INTERNAL_IS_FUCHSIA() (0)
-#endif
-#undef PA_IS_FUCHSIA
 
 #if defined(PA_IS_IOS)
 #define PA_BUILDFLAG_INTERNAL_IS_IOS() (1)

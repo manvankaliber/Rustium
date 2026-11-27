@@ -55,7 +55,7 @@ MULTIPROCESS_TEST_MAIN(InitFromLaunchParameters) {
 //  - This doesn't apply on Apple platforms (which use Rendezvous Keys)
 //  - On Android the global descriptor table is managed by the launcher
 //    service, so we don't have to manually update the mapping here.
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
   base::GlobalDescriptors::GetInstance()->Set(
       kArbitraryDescriptorKey,
       kArbitraryDescriptorKey + base::GlobalDescriptors::kBaseDescriptor);
@@ -67,7 +67,7 @@ MULTIPROCESS_TEST_MAIN(InitFromLaunchParameters) {
   // only be done once and subsequent calls `UnsafeSharedMemoryRegionFrom()`
   // calls will not get a valid `shmem_region`. So we skip tracing init, to
   // avoid `ConnectProducer()` grabbing the shmem first.
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_WIN)
   base::FeatureList::InitInstance("", "");
   base::ThreadPoolInstance::CreateAndStartWithDefaultParams("StartupTraceTest");
   tracing::InitTracingPostFeatureList(/*enable_consumer=*/false,
@@ -76,7 +76,7 @@ MULTIPROCESS_TEST_MAIN(InitFromLaunchParameters) {
   // Simulate launching with the serialized parameters.
   EXPECT_TRUE(IsTracingInitialized());
   EXPECT_TRUE(base::TrackEvent::IsEnabled());
-#endif  // !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
   auto* command_line = base::CommandLine::ForCurrentProcess();
   base::UnsafeSharedMemoryRegion unsafe_shm;
@@ -110,11 +110,7 @@ INSTANTIATE_TEST_SUITE_P(All,
 
 // TODO(crbug.com/567738166): The child process crashes on Android before
 // running its test body, so this test has never passed there.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PassSharedMemoryRegion DISABLED_PassSharedMemoryRegion
-#else
 #define MAYBE_PassSharedMemoryRegion PassSharedMemoryRegion
-#endif
 TEST_P(TraceStartupSharedMemoryTest, MAYBE_PassSharedMemoryRegion) {
   base::CommandLine::ForCurrentProcess()->AppendSwitch(switches::kTraceStartup);
 
@@ -156,11 +152,9 @@ TEST_P(TraceStartupSharedMemoryTest, MAYBE_PassSharedMemoryRegion) {
   launch_options.fds_to_remap.emplace_back(
       shared_memory_switch.out_descriptor_to_share.get(),
       kArbitraryDescriptorKey);
-#if !BUILDFLAG(IS_ANDROID)
   for (auto& pair : launch_options.fds_to_remap) {
     pair.second += base::GlobalDescriptors::kBaseDescriptor;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 #endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
 
   base::WaitableEvent wait(base::WaitableEvent::ResetPolicy::AUTOMATIC,

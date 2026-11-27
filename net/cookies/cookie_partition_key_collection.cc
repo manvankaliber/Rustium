@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #include "net/cookies/cookie_partition_key_collection.h"
+#include "net/cookies/cookie_family_native.h"
 
 #include <optional>
 #include <vector>
@@ -17,6 +18,7 @@
 #include "net/cookies/cookie_partition_key.h"
 
 namespace net {
+namespace cf=cookie_family;
 
 CookiePartitionKeyCollection::CookiePartitionKeyCollection()
     : CookiePartitionKeyCollection(base::flat_set<CookiePartitionKey>()) {}
@@ -56,43 +58,33 @@ CookiePartitionKeyCollection::~CookiePartitionKeyCollection() = default;
 
 bool CookiePartitionKeyCollection::Contains(
     const CookiePartitionKey& key) const {
-  return ContainsAllKeys() || state_.value().contains(key);
+  CookieFamilyRequest request{};request.scalar[0]=state_.has_value();
+  cf::NativeContext native;native.collection=this;native.partition=&key;return cf::Run(52,request,&native).scalar;
 }
 
 CookiePartitionKeyCollection CookiePartitionKeyCollection::MatchesSite(
     const net::SchemefulSite& top_level_site) {
-  base::expected<net::CookiePartitionKey, std::string> same_site_key =
-      CookiePartitionKey::FromWire(
-          top_level_site, CookiePartitionKey::AncestorChainBit::kSameSite);
-  base::expected<net::CookiePartitionKey, std::string> cross_site_key =
-      CookiePartitionKey::FromWire(
-          top_level_site, CookiePartitionKey::AncestorChainBit::kCrossSite);
-
-  CHECK(cross_site_key.has_value());
-  CHECK(same_site_key.has_value());
-
-  return net::CookiePartitionKeyCollection(
-      {same_site_key.value(), cross_site_key.value()});
+  base::flat_set<CookiePartitionKey> keys;CookieFamilyRequest request{};
+  cf::NativeContext native;native.site=&top_level_site;native.key_output=&keys;cf::Run(53,request,&native);
+  return CookiePartitionKeyCollection(std::move(keys));
 }
 
 std::ostream& operator<<(std::ostream& os,
                          const CookiePartitionKeyCollection& keys) {
-  if (keys.ContainsAllKeys()) {
-    return os << "(all keys)";
-  }
+  cf::NativeContext native;native.collection=&keys;native.stream=&os;
+  CookieFamilyRequest request{};cf::Run(54,request,&native);return os;
+}
 
-  os << "{";
-  bool first = true;
-  for (const net::CookiePartitionKey& key : keys.PartitionKeys()) {
-    if (!first) {
-      os << ", ";
-    }
-
-    os << key;
-
-    first = false;
-  }
-  return os << "}";
+bool CookiePartitionKeyCollection::IsEmpty() const {
+  CookieFamilyRequest request{};request.scalar[0]=state_.has_value();
+  cf::NativeContext native;native.collection=this;return cf::Run(50,request,&native).scalar;
+}
+bool CookiePartitionKeyCollection::ContainsAllKeys() const {
+  CookieFamilyRequest request{};request.scalar[0]=state_.has_value();return cf::Run(51,request).scalar;
+}
+bool operator==(const CookiePartitionKeyCollection& left,const CookiePartitionKeyCollection& right) {
+  CookieFamilyRequest request{};request.scalar[0]=left.state_.has_value();request.scalar[1]=right.state_.has_value();
+  cf::NativeContext native;native.collection=&left;native.other_collection=&right;return cf::Run(55,request,&native).scalar;
 }
 
 }  // namespace net

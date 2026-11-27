@@ -25,9 +25,6 @@
 #include "util/linux/address_types.h"
 #include "util/numeric/int128.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <android/api-level.h>
-#endif
 
 // x86_64 has compilation errors if asm/ptrace.h is #included.
 #if defined(ARCH_CPU_RISCV64)
@@ -285,9 +282,6 @@ union FloatContext {
                 "Size mismatch");
 #elif defined(ARCH_CPU_ARMEL)
   static_assert(sizeof(f32_t::fpregs) == sizeof(user_fpregs), "Size mismatch");
-#if defined(__BIONIC__)
-  static_assert(sizeof(f32_t::vfp) == sizeof(user_vfp), "Size mismatch");
-#endif
 #elif defined(ARCH_CPU_ARM64)
   static_assert(sizeof(f64) == sizeof(user_fpsimd_struct), "Size mismatch");
 #elif defined(ARCH_CPU_MIPS_FAMILY)

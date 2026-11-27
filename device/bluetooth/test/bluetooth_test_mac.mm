@@ -27,11 +27,7 @@
 #import "device/bluetooth/test/mock_bluetooth_central_manager_mac.h"
 #import "device/bluetooth/test/test_bluetooth_adapter_observer.h"
 
-#if BUILDFLAG(IS_IOS)
-#import "device/bluetooth/bluetooth_adapter_ios.h"
-#else
 #import "device/bluetooth/bluetooth_adapter_mac.h"
-#endif
 
 using base::apple::ObjCCast;
 
@@ -119,13 +115,8 @@ void BluetoothTestMac::InitWithDefaultAdapter() {
 }
 
 void BluetoothTestMac::InitWithoutDefaultAdapter() {
-#if BUILDFLAG(IS_IOS)
-  auto adapter = BluetoothAdapterIOS::CreateAdapterForTest(
-      "", "", task_environment_.GetMainThreadTaskRunner());
-#else
   auto adapter = BluetoothAdapterMac::CreateAdapterForTest(
       "", "", task_environment_.GetMainThreadTaskRunner());
-#endif
   adapter_low_energy_ = adapter.get();
   adapter_ = std::move(adapter);
 
@@ -138,15 +129,9 @@ void BluetoothTestMac::InitWithoutDefaultAdapter() {
 }
 
 void BluetoothTestMac::InitWithFakeAdapter() {
-#if BUILDFLAG(IS_IOS)
-  auto adapter = BluetoothAdapterIOS::CreateAdapterForTest(
-      kTestAdapterName, kTestAdapterAddress,
-      task_environment_.GetMainThreadTaskRunner());
-#else
   auto adapter = BluetoothAdapterMac::CreateAdapterForTest(
       kTestAdapterName, kTestAdapterAddress,
       task_environment_.GetMainThreadTaskRunner());
-#endif
   adapter_low_energy_ = adapter.get();
   adapter_ = std::move(adapter);
 
@@ -156,14 +141,12 @@ void BluetoothTestMac::InitWithFakeAdapter() {
   [mock_central_manager_->get() setState:CBManagerStatePoweredOn];
   adapter_low_energy_->SetCentralManagerForTesting(
       (id)mock_central_manager_->get());
-#if BUILDFLAG(IS_MAC)
   static_cast<BluetoothAdapterMac*>(adapter_low_energy_)
       ->SetPowerStateFunctionForTesting(
           base::BindRepeating(&BluetoothTestMac::SetMockControllerPowerState,
                               base::Unretained(this)));
   static_cast<BluetoothAdapterMac*>(adapter_low_energy_)
       ->SetPresentForTesting(true);
-#endif
 }
 
 void BluetoothTestMac::ResetEventCounts() {
@@ -639,7 +622,6 @@ void BluetoothTestMac::SimulateGattDescriptorReadNSNumberMac(
   [GetCBMockDescriptor(descriptor) simulateReadWithValue:number error:nil];
 }
 
-#if BUILDFLAG(IS_MAC)
 void BluetoothTestMac::SetMockControllerPowerState(int powered) {
   // We are posting a task so that the state only gets updated in the next cycle
   // and pending callbacks are not executed immediately.
@@ -671,7 +653,6 @@ void BluetoothTestMac::SetMockControllerPowerState(int powered) {
               ->weak_ptr_factory_.GetWeakPtr(),
           powered));
 }
-#endif
 
 void BluetoothTest::AddServicesToDeviceMac(
     BluetoothDevice* device,

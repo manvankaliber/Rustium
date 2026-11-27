@@ -22,7 +22,6 @@ features:
   dynamic_refresh: false
   per_profile: false
 future_on:
-- fuchsia
 - android
 owners:
 - alexmos@chromium.org

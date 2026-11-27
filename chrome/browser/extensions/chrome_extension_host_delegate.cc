@@ -27,22 +27,8 @@
 #include "chrome/browser/apps/platform_apps/audio_focus_web_contents_observer.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/content_settings/page_specific_content_settings_delegate.h"
-#include "chrome/browser/content_settings/request_desktop_site_web_contents_observer_android.h"
-#include "chrome/browser/extensions/tab_helper.h"
-#include "chrome/browser/history/history_tab_helper.h"
-#include "chrome/browser/optimization_guide/optimization_guide_web_contents_observer.h"
-#include "chrome/browser/page_load_metrics/page_load_metrics_initialize.h"
-#include "chrome/browser/subresource_filter/chrome_content_subresource_filter_web_contents_helper_factory.h"
-#include "components/content_settings/browser/page_specific_content_settings.h"
-#include "components/optimization_guide/core/optimization_guide_features.h"
-#include "extensions/browser/view_type_utils.h"
-#include "extensions/common/mojom/view_type.mojom.h"
-#else
 #include "chrome/browser/ui/waap/initial_webui_window_metrics_manager.h"
 #include "chrome/browser/ui/waap/waap_utils.h"
-#endif
 
 // This file contains code shared between Android and non-Android platforms.
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
@@ -79,32 +65,6 @@ void ChromeExtensionHostDelegate::CreateTab(
   Profile* profile =
       Profile::FromBrowserContext(web_contents->GetBrowserContext());
   CHECK(profile);
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, tab creation is asynchronous, but `CreateNewWindow()`
-  // immediately starts navigation. Attach early helpers synchronously so
-  // observers like `RequestDesktopSiteWebContentsObserverAndroid` are present
-  // for the initial load. This matches
-  // `TabWebContentsDelegateAndroid::AddNewContents()`.
-  // TODO(crbug.com/499200457): Add instrumentation test.
-  CreateSubresourceFilterWebContentsHelper(web_contents.get());
-  content_settings::PageSpecificContentSettings::CreateForWebContents(
-      web_contents.get(), std::make_unique<PageSpecificContentSettingsDelegate>(
-                              web_contents.get()));
-  if (!profile->IsOffTheRecord()) {
-    HistoryTabHelper::GetOrCreateForWebContents(web_contents.get());
-  }
-  if (optimization_guide::features::IsOptimizationHintsEnabled()) {
-    OptimizationGuideWebContentsObserver::CreateForWebContents(
-        web_contents.get());
-  }
-  InitializePageLoadMetricsForWebContents(web_contents.get());
-  RequestDesktopSiteWebContentsObserverAndroid::CreateForWebContents(
-      web_contents.get());
-  if (GetViewType(web_contents.get()) == mojom::ViewType::kInvalid) {
-    SetViewType(web_contents.get(), mojom::ViewType::kTabContents);
-  }
-  TabHelper::CreateForWebContents(web_contents.get());
-#endif
   BrowserWindowInterface* browser =
       browser_window_util::GetLastActiveNormalBrowserWithProfile(
           *profile, /*include_incognito_or_parent=*/false);
@@ -126,15 +86,6 @@ void ChromeExtensionHostDelegate::CreateTab(
 
   BrowserWindowCreateParams params(BrowserWindowInterface::TYPE_NORMAL,
                                    *profile, user_gesture);
-#if BUILDFLAG(IS_ANDROID)
-  // Android creates windows asynchronously.
-  auto callback = base::BindOnce(
-      &ChromeExtensionHostDelegate::NavigateBrowser, weak_factory_.GetWeakPtr(),
-      /*browser_created=*/true, std::move(web_contents), target_url,
-      extension_id, disposition, window_features, user_gesture);
-  CreateBrowserWindow(std::move(params), std::move(callback));
-  return;
-#else
   // Other platforms create windows synchronously.
   const base::TimeTicks now = base::TimeTicks::Now();
   browser = CreateBrowserWindow(std::move(params));
@@ -146,7 +97,6 @@ void ChromeExtensionHostDelegate::CreateTab(
   NavigateBrowser(/*browser_created=*/true, std::move(web_contents), target_url,
                   extension_id, disposition, window_features, user_gesture,
                   browser);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void ChromeExtensionHostDelegate::NavigateBrowser(
@@ -159,25 +109,8 @@ void ChromeExtensionHostDelegate::NavigateBrowser(
     bool user_gesture,
     BrowserWindowInterface* browser) {
   CHECK(browser);
-#if BUILDFLAG(IS_ANDROID)
-  // Android does not support "navigating" to an existing web contents. Navigate
-  // by URL instead. Use transition "link" to match Win/Mac/Linux behavior.
-  // NOTE: This effectively reloads the URL, which is wrong. Unfortunately
-  // this is the best we can do until NavigateParams::contents_to_insert is
-  // supported. See browser_navigator_android.cc or http://crbug.com/441594986.
-  auto params =
-      std::make_unique<NavigateParams>(browser, /*contents_to_insert=*/nullptr);
-  if (disposition == ui::mojom::WindowOpenDisposition::kNewForegroundTab ||
-      disposition == ui::mojom::WindowOpenDisposition::kNewBackgroundTab) {
-    params->contents_to_insert = std::move(web_contents);
-  } else {
-    params->url = std::move(target_url);
-    params->transition = ui::PAGE_TRANSITION_LINK;
-  }
-#else
   auto params =
       std::make_unique<NavigateParams>(browser, std::move(web_contents));
-#endif
   // The extension_app_id parameter ends up as app_name in the Browser
   // which causes the Browser to return true for is_app().  This affects
   // among other things, whether the location bar gets displayed.
@@ -194,25 +127,6 @@ void ChromeExtensionHostDelegate::NavigateBrowser(
 
   auto raw_params = params.get();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Android uses asynchronous navigate in case it creates a new window.
-  // Asynchronous is OK because neither CreateTab() nor NavigateBrowser() need
-  // to synchronously return a value.
-  Navigate(raw_params,
-           base::BindOnce(
-               [](bool browser_created,
-                  base::WeakPtr<BrowserWindowInterface> original_browser,
-                  NavigateParams* p,
-                  base::WeakPtr<content::NavigationHandle> handle) {
-                 // Close the initial browser if Navigate created a new one.
-                 if (browser_created && original_browser &&
-                     original_browser.get() != p->browser) {
-                   original_browser->GetWindow()->Close();
-                 }
-               },
-               browser_created, browser->GetWeakPtr(),
-               base::Owned(params.release())));
-#else
   // Other platforms use synchronous navigate.
   Navigate(raw_params);
 
@@ -220,7 +134,6 @@ void ChromeExtensionHostDelegate::NavigateBrowser(
   if (browser_created && browser != raw_params->browser) {
     browser->GetWindow()->Close();
   }
-#endif
 }
 
 void ChromeExtensionHostDelegate::ProcessMediaAccessRequest(

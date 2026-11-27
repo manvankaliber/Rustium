@@ -431,7 +431,6 @@ INSTANTIATE_TEST_SUITE_P(
                     SynonymSearchCase{
                         u"adblock", kActionExtensionsSubmenuManageExtensions}));
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Profile-management and import actions are not shown in the app menu on
 // ChromeOS.
 INSTANTIATE_TEST_SUITE_P(
@@ -439,7 +438,6 @@ INSTANTIATE_TEST_SUITE_P(
     ActionAppMenuSynonymSearchBrowserTest,
     testing::Values(SynonymSearchCase{u"friend", kActionOpenGuestProfile},
                     SynonymSearchCase{u"firefox", kActionImportSettings}));
-#endif
 
 // Activating a zoom in/out search result zooms the active tab, keeps the menu
 // open, and updates that row's secondary title with the new zoom level.

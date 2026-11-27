@@ -140,12 +140,6 @@ BASE_DECLARE_FEATURE(kContextualTasksWindowTracking);
 // Enables upload chunking for Contextual Tasks.
 BASE_DECLARE_FEATURE(kContextualTasksUploadChunking);
 
-// Enables the in-panel WebUI voice search UI on large-screen Android (tablet
-// and desktop form factors), instead of delegating to the platform voice
-// recognition activity. Has no effect on Android phones, or off Android, which
-// always uses the WebUI voice search UI.
-BASE_DECLARE_FEATURE(kContextualTasksWebUiVoiceSearchDesktopAndroid);
-
 // Enables composebox embedded in AIM main frame, new auth, and
 // new side panel and ghost loader for contextual tasks.
 BASE_DECLARE_FEATURE(kContextualTasksRearchitecture);
@@ -207,13 +201,6 @@ BASE_DECLARE_FEATURE(kContextualTasksNonBlockingUrlNavigation);
 // Returns whether non-blocking AIM URL navigation is enabled.
 bool GetIsContextualTasksNonBlockingUrlNavigationEnabled();
 
-// Allows signed-out users to use side panel cobrowse in Desktop Android.
-BASE_DECLARE_FEATURE(kAllowSignedOutUserInDesktopAndroid);
-
-// Returns whether signed-out users are allowed to use side panel cobrowse in
-// Desktop Android.
-bool IsAllowSignedOutUserInDesktopAndroidEnabled();
-
 // When enabled, tracks cross-tab ABA search journeys (Tab A -> Search in Tab B
 // -> Return to Tab A) to trigger an in-product help promo for Contextual Tasks.
 BASE_DECLARE_FEATURE(kABASearchJourneys);
@@ -243,7 +230,6 @@ size_t GetABASearchJourneysMinWordsWithoutHint();
 BASE_DECLARE_FEATURE(kContextualTasksEnableSpatialModelToolbarLayout);
 
 BASE_DECLARE_FEATURE(kContextualSearchContextualCuesHandleEdu);
-BASE_DECLARE_FEATURE(kContextualSearchContextualCuesHandleShopping);
 
 enum class OverflowMenuItems {
   kAllItems,
@@ -262,8 +248,6 @@ bool GetIsContextualTasksLazyFetchClusterInfoEnabled();
 bool GetIsContextualTasksWindowTrackingEnabled();
 
 bool GetIsContextualTasksUploadChunkingEnabled();
-
-bool GetIsContextualTasksWebUiVoiceSearchDesktopAndroidEnabled();
 
 bool GetContextualTasksSpatialModelToolbarLayoutEnabled();
 
@@ -541,9 +525,6 @@ extern bool ShouldForceBasicModeIfOpeningThreadHistory();
 // Returns the base URL for the AI page.
 extern std::string GetContextualTasksAiPageUrl();
 
-// Returns the base URL for a Gemini thread.
-extern std::string GetContextualTasksGeminiBaseUrl();
-
 // Returns scheme component of the "display url" associated with the contextual
 // tasks page.
 extern std::string GetContextualTasksDisplayUrlScheme();
@@ -693,7 +674,8 @@ extern bool ShouldShowCloseSidePanelInPinnedButtonContextMenu();
 // and underline pill.
 extern const base::FeatureParam<bool>
     kContextualTasksPinnedButtonActiveIndicatorCircleHighlight;
-extern bool IsContextualTasksPinnedButtonActiveIndicatorCircleHighlightEnabled();
+extern bool
+IsContextualTasksPinnedButtonActiveIndicatorCircleHighlightEnabled();
 // Returns whether the pin button in the side panel header is enabled on SRP.
 extern bool IsContextualTasksPinButtonOnSrpEnabled();
 
@@ -799,8 +781,6 @@ extern const char kContextualTasksPinningStringVariantsName[];
 extern const char kContextualTasksPinningStringVariantsDescription[];
 extern const char kABASearchJourneysName[];
 extern const char kABASearchJourneysDescription[];
-extern const char kAllowSignedOutUserInDesktopAndroidName[];
-extern const char kAllowSignedOutUserInDesktopAndroidDescription[];
 
 }  // namespace flag_descriptions
 

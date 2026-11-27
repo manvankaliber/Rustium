@@ -27,9 +27,6 @@
 #include "chrome/browser/signin/signin_ui_delegate_impl_dice.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/signin/signin_ui_delegate_impl_android.h"
-#endif
 
 namespace {
 

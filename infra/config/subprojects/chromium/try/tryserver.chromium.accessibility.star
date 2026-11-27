@@ -34,24 +34,6 @@ consoles.list_view(
 )
 
 try_.builder(
-    name = "fuchsia-x64-accessibility-rel",
-    mirrors = ["ci/fuchsia-x64-accessibility-rel"],
-    gn_args = gn_args.config(
-        configs = [
-            "ci/fuchsia-x64-accessibility-rel",
-        ],
-    ),
-    cq_settings = try_.cq_settings(
-        location_filters = [
-            "third_party/blink/renderer/modules/accessibility/.+",
-            "content/renderer/accessibility/.+",
-            "content/browser/accessibility/.+",
-            "ui/accessibility/.+",
-        ],
-    ),
-)
-
-try_.builder(
     name = "linux-blink-web-tests-force-accessibility-rel",
     mirrors = ["ci/linux-blink-web-tests-force-accessibility-rel"],
     gn_args = gn_args.config(

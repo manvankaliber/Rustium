@@ -52,9 +52,6 @@
 #include "ui/views/view_utils.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/system_web_apps/system_web_app_manager.h"
-#endif
 
 namespace {
 
@@ -346,16 +343,12 @@ IN_PROC_BROWSER_TEST_F(FramebustBlockBrowserTest, DisallowRadioButtonSelected) {
                                             ContentSettingsType::POPUPS));
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ManageButtonClicked DISABLED_ManageButtonClicked
 #else
 #define MAYBE_ManageButtonClicked ManageButtonClicked
 #endif
 IN_PROC_BROWSER_TEST_F(FramebustBlockBrowserTest, MAYBE_ManageButtonClicked) {
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::SystemWebAppManager::GetForTest(browser()->GetProfile())
-      ->InstallSystemAppsForTesting();
-#endif
 
   const GURL url = embedded_test_server()->GetURL("/iframe.html");
   ASSERT_TRUE(ui_test_utils::NavigateToURL(browser(), url));

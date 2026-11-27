@@ -44,29 +44,3 @@
   flex-direction: column;
   gap: 16px;
 }
-
-#suggestionsFromGeminiCard {
-  background-color: var(--cr-card-background-color);
-  border-radius: var(--cr-card-border-radius);
-  box-shadow: var(--cr-card-shadow);
-  overflow: hidden;
-}
-
-#suggestionsFromGeminiCard hr {
-  border: none;
-  border-top: 1px solid var(--cr-separator-color);
-  margin: -1px var(--cr-section-padding) 0;
-}
-
-#suggestionsFromGeminiSubLabel {
-  align-items: center;
-  color: var(--cr-secondary-text-color);
-  column-gap: 8px;
-  display: flex;
-  font-size: 12px;
-  padding: 16px var(--cr-section-padding);
-}
-
-#suggestionsFromGeminiSubLabel cr-icon {
-  margin-inline-start: 2px;
-}

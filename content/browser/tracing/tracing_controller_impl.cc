@@ -68,10 +68,6 @@
 #include "third_party/perfetto/protos/perfetto/trace/trace_packet.pbzero.h"
 #include "v8/include/v8-version-string.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/statistics_provider.h"
-#include "content/browser/tracing/cros_tracing_agent.h"
-#endif
 
 #if defined(CAST_TRACING_AGENT)
 #include "content/browser/tracing/cast_tracing_agent.h"
@@ -86,10 +82,6 @@
 #include "base/win/windows_version.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include <sys/time.h>
-#include "content/browser/android/tracing_controller_android.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace content {
 
@@ -128,13 +120,6 @@ TracingControllerImpl::TracingControllerImpl(const TracingDelegate& delegate) {
   InitializeDataSources(delegate);
   g_tracing_controller = this;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Bind hwclass once the statistics are available.
-  ash::system::StatisticsProvider::GetInstance()
-      ->ScheduleOnMachineStatisticsLoaded(
-          base::BindOnce(&TracingControllerImpl::OnMachineStatisticsLoaded,
-                         weak_ptr_factory_.GetWeakPtr()));
-#endif
 
   tracing::PerfettoTracedProcess::Get().SetConsumerConnectionFactory(
       &GetTracingService, base::SingleThreadTaskRunner::GetCurrentDefault());
@@ -152,9 +137,7 @@ void TracingControllerImpl::InitializeDataSources(
       {base::BindRepeating(&TracingControllerImpl::GenerateMetadataPacket)},
       delegate.CreateChromeMetadataPacketRecorder());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  RegisterCrOSTracingDataSource();
-#elif defined(CAST_TRACING_AGENT)
+#if defined(CAST_TRACING_AGENT)
   RegisterCastTracingDataSource();
 #endif
 }
@@ -482,15 +465,5 @@ void TracingControllerImpl::OnReadBuffersComplete() {
     CompleteFlush();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void TracingControllerImpl::OnMachineStatisticsLoaded() {
-  if (const std::optional<std::string_view> hardware_class =
-          ash::system::StatisticsProvider::GetInstance()->GetMachineStatistic(
-              ash::system::kHardwareClassKey)) {
-    hardware_class_ = std::string(hardware_class.value());
-  }
-  are_statistics_loaded_ = true;
-}
-#endif
 
 }  // namespace content

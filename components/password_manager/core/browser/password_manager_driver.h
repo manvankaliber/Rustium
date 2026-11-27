@@ -142,10 +142,6 @@ class PasswordManagerDriver {
       bool is_password,
       const std::u16string& user_provided_credential) {}
 
-#if BUILDFLAG(IS_ANDROID)
-  // Triggers form submission on the last interacted web input element.
-  virtual void TriggerFormSubmission() {}
-#endif
 
   // Tells the renderer to preview the given `value` into the field identified
   // by the `field_id`.

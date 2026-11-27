@@ -19,24 +19,14 @@ namespace segmentation_platform::home_modules {
 namespace {
 
 std::vector<std::string> GetFixedModuleList() {
-#if BUILDFLAG(IS_IOS)
-  return {};
-#elif BUILDFLAG(IS_ANDROID)
-  return {kPriceChange, kSingleTab, kSafetyHub, kAuxiliarySearch};
-#else
   return {
       kPriceChange, kSingleTab, kSafetyHub, kAuxiliarySearch, kTabResumption
   };
-#endif
 }
 
-#if BUILDFLAG(IS_IOS)
-const char* kModuleRankerKey = kIosModuleRankerKey;
-#else
 constexpr auto* kModuleFeatureFlag =
     &features::kSegmentationPlatformAndroidHomeModuleRanker;
 const char* kModuleRankerKey = kAndroidHomeModuleRankerKey;
-#endif
 
 void RunFixedRankingResult(ClassificationResultCallback callback) {
   ClassificationResult result(PredictionStatus::kSucceeded);
@@ -54,12 +44,10 @@ void RankFetcherHelper::GetHomeModulesRank(
     const PredictionOptions& module_prediction_options,
     scoped_refptr<InputContext> input_context,
     ClassificationResultCallback callback) {
-#if !BUILDFLAG(IS_IOS)
   if (!base::FeatureList::IsEnabled(*kModuleFeatureFlag)) {
     RunFixedRankingResult(std::move(callback));
     return;
   }
-#endif
 
   segmentation_service->GetInputKeysForModel(
       kModuleRankerKey,
@@ -105,16 +93,6 @@ void RankFetcherHelper::OnGotEphemeralInputKeys(
   module_input_keys.merge(std::move(ephemeral_input_keys));
   for (const std::string& input : module_input_keys) {
     if (!input_context->metadata_args.contains(input)) {
-#if BUILDFLAG(IS_ANDROID)
-      // Set missing "freshness" inputs to -1, in case any module is disabled.
-      // This would lead to errors if required inputs were not passed in. Client
-      // code should make sure all inputs are set correctly.
-      if (input.find("freshness") != std::string::npos) {
-        DLOG(WARNING) << "home modules missing input " << input << " using -1.";
-        input_context->metadata_args.emplace(
-            input, processing::ProcessedValue::FromFloat(-1));
-      }
-#endif
     }
   }
 

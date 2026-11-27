@@ -10,14 +10,6 @@
 
 namespace page_info::merchant_trust_validation {
 
-commerce::MerchantTrustSignalsV2 GetSampleProto() {
-  commerce::MerchantTrustSignalsV2 proto;
-  proto.set_merchant_star_rating(4.5);
-  proto.set_merchant_count_rating(100);
-  proto.set_merchant_details_page_url("https://example.com");
-  proto.set_shopper_voice_summary("Great product");
-  return proto;
-}
 
 TEST(MerchantTrustValidation, NoResult) {
   EXPECT_EQ(ValidateProto(std::nullopt), MerchantTrustStatus::kNoResult);

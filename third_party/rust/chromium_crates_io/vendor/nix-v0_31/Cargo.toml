@@ -42,14 +42,12 @@ rustdoc-args = [
 ]
 targets = [
     "x86_64-unknown-linux-gnu",
-    "aarch64-linux-android",
     "x86_64-apple-darwin",
     "aarch64-apple-ios",
     "x86_64-unknown-freebsd",
     "x86_64-unknown-openbsd",
     "x86_64-unknown-netbsd",
     "x86_64-unknown-dragonfly",
-    "x86_64-unknown-fuchsia",
     "x86_64-unknown-redox",
     "x86_64-unknown-illumos",
 ]
@@ -150,7 +148,7 @@ version = "3.7.1"
 [build-dependencies.cfg_aliases]
 version = "0.2.1"
 
-[target.'cfg(any(target_os = "android", target_os = "linux"))'.dev-dependencies.caps]
+[target.'cfg(target_os = "linux")'.dev-dependencies.caps]
 version = "0.5.3"
 
 [target.'cfg(target_os = "freebsd")'.dev-dependencies.sysctl]

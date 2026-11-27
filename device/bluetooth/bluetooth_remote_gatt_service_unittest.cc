@@ -10,16 +10,12 @@
 #include "device/bluetooth/test/test_bluetooth_adapter_observer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "device/bluetooth/test/bluetooth_test_android.h"
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #include "device/bluetooth/test/bluetooth_test_mac.h"
 #elif BUILDFLAG(IS_WIN)
 #include "device/bluetooth/test/bluetooth_test_win.h"
-#elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#elif BUILDFLAG(IS_LINUX)
 #include "device/bluetooth/test/bluetooth_test_bluez.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include "device/bluetooth/test/bluetooth_test_fuchsia.h"
 #endif
 
 namespace device {
@@ -70,7 +66,7 @@ TEST_F(BluetoothRemoteGattServiceTest, MAYBE_IsDiscoveryComplete) {
   EXPECT_TRUE(service->IsDiscoveryComplete());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetIdentifier GetIdentifier
 #else
 #define MAYBE_GetIdentifier DISABLED_GetIdentifier
@@ -117,7 +113,7 @@ TEST_F(BluetoothRemoteGattServiceTest, MAYBE_GetIdentifier) {
   EXPECT_NE(service3->GetIdentifier(), service4->GetIdentifier());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetUUID GetUUID
 #else
 #define MAYBE_GetUUID DISABLED_GetUUID
@@ -148,7 +144,7 @@ TEST_F(BluetoothRemoteGattServiceTest, MAYBE_GetUUID) {
   EXPECT_EQ(uuid, device->GetGattServices()[1]->GetUUID());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetCharacteristics_FindNone GetCharacteristics_FindNone
 #else
 #define MAYBE_GetCharacteristics_FindNone DISABLED_GetCharacteristics_FindNone
@@ -175,7 +171,7 @@ TEST_F(BluetoothRemoteGattServiceTest, MAYBE_GetCharacteristics_FindNone) {
   EXPECT_EQ(0u, service->GetCharacteristics().size());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetCharacteristics_and_GetCharacteristic \
   GetCharacteristics_and_GetCharacteristic
 #else
@@ -236,7 +232,7 @@ TEST_F(BluetoothRemoteGattServiceTest,
             service->GetCharacteristic(char_id1));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_GetCharacteristicsByUUID GetCharacteristicsByUUID
 #else
 #define MAYBE_GetCharacteristicsByUUID DISABLED_GetCharacteristicsByUUID

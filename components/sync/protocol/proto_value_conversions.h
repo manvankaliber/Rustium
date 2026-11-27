@@ -297,7 +297,7 @@ base::Value SyncCycleCompletedEventInfoToValue(
 base::Value TabNavigationToValue(const sync_pb::TabNavigation& tab_navigation);
 
 base::Value ThemeAndroidSpecificsToValue(
-    const sync_pb::ThemeAndroidSpecifics& theme_android_specifics);
+    const sync_pb::ThemeAndroidSpecifics& theme_mobile_specifics);
 
 base::Value ThemeIosSpecificsToValue(
     const sync_pb::ThemeIosSpecifics& theme_ios_specifics);

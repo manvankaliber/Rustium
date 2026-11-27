@@ -34,7 +34,7 @@
 #include "chrome/browser/web_applications/proto/web_app_install_state.pb.h"
 #include "chrome/browser/web_applications/user_display_mode.h"
 #include "chrome/browser/web_applications/web_app.h"
-#include "chrome/browser/web_applications/web_app_chromeos_data.h"
+#include "chrome/browser/web_applications/legacy_platform_app_data.h"
 #include "chrome/browser/web_applications/web_app_command_scheduler.h"
 #include "chrome/browser/web_applications/web_app_constants.h"
 #include "chrome/browser/web_applications/web_app_database.h"
@@ -244,12 +244,12 @@ void WebAppSyncBridge::SetAppIsDisabled(AppLock& lock,
       return;
     }
 
-    std::optional<WebAppChromeOsData> cros_data = web_app->chromeos_data();
+    std::optional<LegacyPlatformAppData> cros_data = web_app->chromeos_data();
     CHECK(cros_data.has_value(), base::NotFatalUntil::M162);
 
     if (cros_data->is_disabled != is_disabled) {
       cros_data->is_disabled = is_disabled;
-      web_app->SetWebAppChromeOsData(std::move(cros_data));
+      web_app->SetLegacyPlatformAppData(std::move(cros_data));
       notify = true;
     }
   }

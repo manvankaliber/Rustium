@@ -31,7 +31,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/windows_types.h"
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -313,7 +313,7 @@ BASE_EXPORT bool ReadStreamToStringWithMaxSize(FILE* stream,
                                                size_t max_size,
                                                std::string* contents);
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 
 // Reads exactly as many bytes as `buffer` can hold from file descriptor `fd`
 // into `buffer`. This function is protected against EINTR and partial reads.
@@ -331,7 +331,7 @@ CreateAndOpenFdForTemporaryFileInDir(const FilePath& dir,
                                      FilePath::StringViewType name_prefix,
                                      FilePath* path);
 
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_POSIX)
 
@@ -397,14 +397,14 @@ BASE_EXPORT bool SetPosixFilePermissions(const FilePath& path, int mode);
 BASE_EXPORT bool ExecutableExistsInPath(Environment* env,
                                         const FilePath::StringType& executable);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_AIX)
 // Determine if files under a given |path| can be mapped and then mprotect'd
 // PROT_EXEC. This depends on the mount options used for |path|, which vary
 // among different Linux distributions and possibly local configuration. It also
 // depends on details of kernel--ChromeOS uses the noexec option for /dev/shm
 // but its kernel allows mprotect with PROT_EXEC anyway.
 BASE_EXPORT bool IsPathExecutable(const FilePath& path);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_AIX)
+#endif
 
 #endif  // BUILDFLAG(IS_POSIX)
 
@@ -663,7 +663,7 @@ BASE_EXPORT bool WriteFile(const FilePath& filename, span<const uint8_t> data);
 // have to do manual conversions from a char span to a uint8_t span.
 BASE_EXPORT bool WriteFile(const FilePath& filename, std::string_view data);
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 // Appends |data| to |fd|. Does not close |fd| when done.  Returns true iff all
 // of |data| were written to |fd|.
 BASE_EXPORT bool WriteFileDescriptor(int fd, span<const uint8_t> data);
@@ -748,7 +748,7 @@ BASE_EXPORT bool PreReadFile(
     bool sequential,
     int64_t max_bytes = std::numeric_limits<int64_t>::max());
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 
 // Creates a pipe. Returns true on success, otherwise false.
 // On success, |read_fd| will be set to the fd of the read side, and
@@ -774,7 +774,7 @@ BASE_EXPORT bool SetCloseOnExec(int fd);
 // Returns true if it was able to remove the close-on-exec flag, otherwise
 // false.
 BASE_EXPORT bool RemoveCloseOnExec(int fd);
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_MAC)
 // Test that |path| can only be changed by a given user and members of
@@ -807,7 +807,7 @@ BASE_EXPORT bool VerifyPathControlledByAdmin(const base::FilePath& path);
 // the directory |path|, in the number of FilePath::CharType, or -1 on failure.
 BASE_EXPORT int GetMaximumPathComponentLength(const base::FilePath& path);
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 // Get a temporary directory for shared memory files. The directory may depend
 // on whether the destination is intended for executable files, which in turn
 // depends on how /dev/shmem was mounted. As a result, you must supply whether
@@ -816,24 +816,6 @@ BASE_EXPORT int GetMaximumPathComponentLength(const base::FilePath& path);
 BASE_EXPORT bool GetShmemTempDir(bool executable, FilePath* path);
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-// Resolves this FilePath to a content URI if it represents a virtual
-// document path or is already a content URI. Returns std::nullopt otherwise.
-BASE_EXPORT std::optional<FilePath> ResolveToContentUri(const FilePath& path);
-
-// Resolves this FilePath to a virtual document path if it's a content URI
-// representing a document tree or is already a virtual document path. Returns
-// std::nullopt otherwise.
-BASE_EXPORT std::optional<FilePath> ResolveToVirtualDocumentPath(
-    const FilePath& path);
-
-// Copies a file from app-private storage into the public Downloads collection.
-// Returns the public content URI string on success, or std::nullopt on failure.
-BASE_EXPORT std::optional<std::string> CopyFileToDownloadsCollection(
-    const FilePath& file_path,
-    const std::string& mime_type);
-
-#endif
 
 // Returns whether the specified file name is a reserved name on Windows.
 // This includes names like "com2.zip" (which correspond to devices) and
@@ -865,7 +847,7 @@ BASE_EXPORT bool CopyAndDeleteDirectory(const FilePath& from_path,
 BASE_EXPORT bool IsUserDefaultAdmin();
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 // CopyFileContentsWithSendfile will use the sendfile(2) syscall to perform a
 // file copy without moving the data between kernel and userspace. This is much
 // more efficient than sequences of read(2)/write(2) calls. The |retry_slow|
@@ -877,7 +859,7 @@ BASE_EXPORT bool IsUserDefaultAdmin();
 BASE_EXPORT bool CopyFileContentsWithSendfile(File& infile,
                                               File& outfile,
                                               bool& retry_slow);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 }  // namespace internal

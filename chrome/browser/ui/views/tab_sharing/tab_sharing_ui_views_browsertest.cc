@@ -58,9 +58,6 @@
 #include "ui/views/view_tracker.h"
 #include "ui/views/widget/widget.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/chromeos/policy/dlp/dlp_content_tab_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #include "components/enterprise/buildflags/buildflags.h"
 
@@ -295,12 +292,6 @@ bool IsActive(BrowserWindowInterface* browser, int tab) {
 
 const std::u16string kShareThisTabInsteadMessage = u"Share this tab instead";
 
-#if BUILDFLAG(IS_CHROMEOS)
-const policy::DlpContentRestrictionSet kEmptyRestrictionSet;
-const policy::DlpContentRestrictionSet kScreenshareRestrictionSet(
-    policy::DlpContentRestriction::kScreenShare,
-    policy::DlpRulesManager::Level::kBlock);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -364,9 +355,7 @@ class TabSharingUIViewsBrowserTestBase : public InProcessBrowserTest {
     int capturing_tab;
     int captured_tab;
     size_t infobar_count = 1;
-#if !BUILDFLAG(IS_CHROMEOS)
     bool has_border = true;
-#endif
     int tab_with_disabled_button = kNullTabIndex;
     bool has_captured_surface_control_indicator = false;
   };
@@ -380,11 +369,7 @@ class TabSharingUIViewsBrowserTestBase : public InProcessBrowserTest {
     const int capturing_tab = expectations.capturing_tab;
     const int captured_tab = expectations.captured_tab;
     const size_t infobar_count = expectations.infobar_count;
-#if !BUILDFLAG(IS_CHROMEOS)
     const bool has_border = expectations.has_border;
-#else
-    const bool has_border = false;
-#endif
     const int tab_with_disabled_button = expectations.tab_with_disabled_button;
     const bool has_captured_surface_control_indicator =
         expectations.has_captured_surface_control_indicator;
@@ -484,11 +469,6 @@ class TabSharingUIViewsBrowserTestBase : public InProcessBrowserTest {
   }
 
  protected:
-#if BUILDFLAG(IS_CHROMEOS)
-  void ApplyDlpForAllUsers() {
-    TabSharingUIViews::ApplyDlpForAllUsersForTesting();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   MOCK_METHOD(void,
               OnSourceChange,
@@ -526,9 +506,7 @@ IN_PROC_BROWSER_TEST_P(TabSharingUIViewsBrowserTest, StartSharing) {
                           .capturing_tab = kNullTabIndex,
                           .captured_tab = kNullTabIndex,
                           .infobar_count = 0,
-#if !BUILDFLAG(IS_CHROMEOS)
                           .has_border = false
-#endif
   });
 
   // Create UI and start sharing the tab at index 1.
@@ -614,11 +592,9 @@ IN_PROC_BROWSER_TEST_P(TabSharingUIViewsBrowserTest,
   VerifyUi(UiExpectations{
       .browser = new_browser, .capturing_tab = 0, .captured_tab = 2});
 
-#if !BUILDFLAG(IS_CHROMEOS)
   views::ViewTracker contents_border_tracker(GetContentsBorder(new_browser, 2));
   CloseBrowserSynchronously(new_browser);
   EXPECT_EQ(contents_border_tracker.view(), nullptr);
-#endif
 }
 
 // TODO(b/564471336): Test is flaky on Mac.
@@ -646,9 +622,7 @@ IN_PROC_BROWSER_TEST_P(TabSharingUIViewsBrowserTest,
                           .capturing_tab = kNullTabIndex,
                           .captured_tab = kNullTabIndex,
                           .infobar_count = 1,
-#if !BUILDFLAG(IS_CHROMEOS)
                           .has_border = false
-#endif
   });
 
   // Close a tab different than the shared one and test that the UI has not
@@ -661,9 +635,7 @@ IN_PROC_BROWSER_TEST_P(TabSharingUIViewsBrowserTest,
                           .capturing_tab = kNullTabIndex,
                           .captured_tab = kNullTabIndex,
                           .infobar_count = 1,
-#if !BUILDFLAG(IS_CHROMEOS)
                           .has_border = false
-#endif
   });
 
   // Close the shared tab in the incognito browser and test that the UI is
@@ -678,9 +650,7 @@ IN_PROC_BROWSER_TEST_P(TabSharingUIViewsBrowserTest,
                           .capturing_tab = kNullTabIndex,
                           .captured_tab = kNullTabIndex,
                           .infobar_count = 0,
-#if !BUILDFLAG(IS_CHROMEOS)
                           .has_border = false
-#endif
   });
 }
 
@@ -819,75 +789,6 @@ IN_PROC_BROWSER_TEST_P(TabSharingUIViewsBrowserTest,
   ClickShareThisTabInsteadButton(browser(), kOtherTab);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-IN_PROC_BROWSER_TEST_P(TabSharingUIViewsBrowserTest,
-                       SharingWithDlpAndNavigation) {
-  // DLP setup
-  ApplyDlpForAllUsers();
-  policy::DlpContentTabHelper::ScopedIgnoreDlpRulesManager
-      ignore_dlp_rules_manager =
-          policy::DlpContentTabHelper::IgnoreDlpRulesManagerForTesting();
-
-  ASSERT_TRUE(embedded_test_server()->Start());
-  GURL kUrlRestricted =
-      embedded_test_server()->GetURL("restricted.com", "/title1.html");
-  GURL kUrlUnrestricted =
-      embedded_test_server()->GetURL("unrestricted.com", "/title1.html");
-
-  policy::DlpContentRestrictionSet::SetRestrictionsForURLForTesting(
-      kUrlRestricted, kScreenshareRestrictionSet);
-  policy::DlpContentRestrictionSet::SetRestrictionsForURLForTesting(
-      kUrlUnrestricted, kEmptyRestrictionSet);
-
-  // Start actual test
-  AddTabs(browser(), 2);
-  ASSERT_EQ(browser()->GetTabStripModel()->count(), 3);
-
-  // Create UI and start sharing the tab at index 1.
-  CreateUiAndStartSharing(browser(), /*capturing_tab=*/0, /*captured_tab=*/1);
-
-  // Test that infobars were created, and contents border and tab capture
-  // indicator are displayed on the shared tab.
-  VerifyUi(UiExpectations{.browser = browser(),
-                          .capturing_tab = 0,
-                          .captured_tab = 1,
-                          .infobar_count = 1,
-#if !BUILDFLAG(IS_CHROMEOS)
-                          .has_border = true,
-#endif
-                          .tab_with_disabled_button = kNullTabIndex});
-
-  constexpr int kRestrictedTab = 2;
-  content::WebContents* web_contents =
-      browser()->GetTabStripModel()->GetWebContentsAt(kRestrictedTab);
-  // Navigate to restricted URL.
-  ASSERT_TRUE(content::NavigateToURL(web_contents, kUrlRestricted));
-
-  // Test that button on tab 2 is now disabled.
-  VerifyUi(UiExpectations{.browser = browser(),
-                          .capturing_tab = 0,
-                          .captured_tab = 1,
-                          .infobar_count = 1,
-#if !BUILDFLAG(IS_CHROMEOS)
-                          .has_border = true,
-#endif
-                          .tab_with_disabled_button = kRestrictedTab});
-
-  // Navigate to unrestricted URL.
-  ASSERT_TRUE(content::NavigateToURL(web_contents, kUrlUnrestricted));
-
-  // Verify that button on tab 2 is re-enabled.
-  VerifyUi(UiExpectations{.browser = browser(),
-                          .capturing_tab = 0,
-                          .captured_tab = 1,
-                          .infobar_count = 1,
-#if !BUILDFLAG(IS_CHROMEOS)
-                          .has_border = true,
-#endif
-                          .tab_with_disabled_button = kNullTabIndex});
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class TabSharingMessageLinksBrowserTest
     : public TabSharingUIViewsBrowserTestBase,
@@ -1065,7 +966,6 @@ IN_PROC_BROWSER_TEST_P(MultipleTabSharingUIViewsBrowserTest, VerifyUi) {
         capture_indicator->IsBeingMirrored(GetWebContents(browser(), i)));
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   ContentsCaptureBorderView* contents_border = GetContentsBorder(browser());
   // The capturing tab, which is not itself being captured, does not have
   // the contents-border.
@@ -1077,7 +977,6 @@ IN_PROC_BROWSER_TEST_P(MultipleTabSharingUIViewsBrowserTest, VerifyUi) {
     ActivateTab(browser(), i);
     ASSERT_TRUE(contents_border->GetVisible());
   }
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(MultipleTabSharingUIViewsBrowserTest, StopSharing) {
@@ -1115,7 +1014,6 @@ IN_PROC_BROWSER_TEST_P(MultipleTabSharingUIViewsBrowserTest, CloseTabs) {
 }
 
 // TODO(crbug.com/40267838): Enable on CrOS.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(
     MultipleTabSharingUIViewsBrowserTest,
     NormalModeCapturerDoesNotProduceInfobarInGuestModeTabOpenedBeforeCapture) {
@@ -1252,7 +1150,6 @@ IN_PROC_BROWSER_TEST_P(MultipleTabSharingUIViewsBrowserTest,
   ASSERT_EQ(guest_browser->GetTabStripModel()->count(), 3);
   EXPECT_EQ(GetInfoBarManager(guest_browser, /*tab=*/2)->infobars().size(), 1u);
 }
-#endif
 
 class TabSharingUIViewsPreferCurrentTabBrowserTest
     : public InProcessBrowserTest,

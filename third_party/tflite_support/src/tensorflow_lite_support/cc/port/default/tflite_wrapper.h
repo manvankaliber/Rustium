@@ -72,7 +72,7 @@ struct InterpreterCreationResources {
 //   performant acceleration for the case where input size changes frequently.
 //
 // IMPORTANT: The only supported delegates are (as defined in [1]) NONE, GPU,
-// HEXAGON, NNAPI, EDGETPU (Google internal), and EDGETPU_CORAL. Specifying
+// XNNPACK, CORE_ML, EDGETPU (Google internal), and EDGETPU_CORAL. Specifying
 // another delegate type may cause an UnimplementedError to be thrown.
 //
 // Like TfLiteInterpreter, this class is thread-compatible. Use from multiple

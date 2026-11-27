@@ -2,13 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if (is_android) {
-  import("//build/config/android/config.gni")
-}
-if (is_ios) {
-  import("//build/config/ios/bundle_data_from_filelist.gni")
-}
-
 source_set("importer") {
   sources = [
     "import_results.cc",
@@ -47,11 +40,7 @@ source_set("importer_unit_tests") {
     "//testing/gtest",
   ]
 
-  if (is_ios) {
-    deps += [ "//components/password_manager/services/csv_password/ios:fake_password_parser_service" ]
-  } else {
-    deps += [ "//components/password_manager/services/csv_password:fake_password_parser_service" ]
-  }
+  deps += [ "//components/password_manager/services/csv_password:fake_password_parser_service" ]
 
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
   # enable the diagnostic by removing this line.
@@ -89,18 +78,9 @@ source_set("csv_unit_tests") {
     "//third_party/fuzztest",
     "//url",
   ]
-  if (is_ios) {
-    deps += [ ":csv_unit_tests_bundle_data" ]
-  }
+
   data = [
     "password_csv_reader_corpus/",
     "password_csv_reader_fuzzer.dict",
   ]
-}
-
-if (is_ios) {
-  bundle_data_from_filelist("csv_unit_tests_bundle_data") {
-    testonly = true
-    filelist_name = "csv_unit_tests_bundle_data.filelist"
-  }
 }

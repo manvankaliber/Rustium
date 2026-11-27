@@ -13,9 +13,7 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "ui/views/view.h"
-#endif
 
 namespace infobars {
 
@@ -190,12 +188,10 @@ TEST_F(InfoBarSpecTest, BuildSpecWithExtraButtonAndCustomView) {
       .SetCloseOnExtraButton(false)
       .SetAllowDuplicates(true);
 
-#if !BUILDFLAG(IS_ANDROID)
   builder.SetCustomViewCallback(base::BindRepeating(
       [](content::WebContents*) -> std::unique_ptr<views::View> {
         return std::make_unique<views::View>();
       }));
-#endif
 
   InfoBarSpec spec = builder.Build();
   EXPECT_EQ(spec.extra_button_label(), u"Extra");
@@ -206,10 +202,8 @@ TEST_F(InfoBarSpecTest, BuildSpecWithExtraButtonAndCustomView) {
   EXPECT_FALSE(spec.close_on_extra_button());
   EXPECT_TRUE(spec.allow_duplicates());
 
-#if !BUILDFLAG(IS_ANDROID)
   ASSERT_FALSE(spec.custom_view_callback().is_null());
   EXPECT_NE(spec.custom_view_callback().Run(nullptr), nullptr);
-#endif
 }
 
 }  // namespace infobars

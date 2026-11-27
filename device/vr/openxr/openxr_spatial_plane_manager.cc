@@ -29,35 +29,6 @@ mojom::XRPlaneOrientation ToMojomPlaneOrientation(
   }
 }
 
-std::vector<XrSpatialComponentTypeEXT> GetAttachableComponentTypes(
-    const OpenXrExtensionMethods& extension_methods,
-    XrInstance instance,
-    XrSystemId system) {
-  // This is an optional extension.
-  if (extension_methods.xrEnumerateSpatialAnchorAttachableComponentsANDROID ==
-      nullptr) {
-    return {};
-  }
-
-  uint32_t attachable_component_count;
-  if (XR_FAILED(
-          extension_methods.xrEnumerateSpatialAnchorAttachableComponentsANDROID(
-              instance, system, 0, &attachable_component_count, nullptr))) {
-    return {};
-  }
-
-  std::vector<XrSpatialComponentTypeEXT> attachable_components(
-      attachable_component_count);
-  if (XR_FAILED(
-          extension_methods.xrEnumerateSpatialAnchorAttachableComponentsANDROID(
-              instance, system,
-              static_cast<uint32_t>(attachable_components.size()),
-              &attachable_component_count, attachable_components.data()))) {
-    attachable_components.clear();
-  }
-
-  return attachable_components;
-}
 }  // namespace
 
 // static
@@ -118,37 +89,6 @@ OpenXrSpatialPlaneManager::OpenXrSpatialPlaneManager(
     }
   }
 
-  std::vector<XrSpatialComponentTypeEXT> attachable_components =
-      GetAttachableComponentTypes(extension_helper_->ExtensionMethods(),
-                                  instance, system);
-
-  // If any of our attachable components are in the supportable plane components
-  // list, we can attach anchors to planes.
-  auto first_attachable_component = std::find_if(
-      attachable_components.begin(), attachable_components.end(),
-      [&plane_tracking_components](XrSpatialComponentTypeEXT component) {
-        return std::ranges::contains(plane_tracking_components, component);
-      });
-
-  if (first_attachable_component != attachable_components.end()) {
-    // In order to properly support parenting, we have to ensure the component
-    // of ours that is attachable is enabled. First check if any of our planned
-    // to be enabled components are attachable.
-    bool attachable_component_enabled = std::any_of(
-        enabled_components_.begin(), enabled_components_.end(),
-        [&attachable_components](XrSpatialComponentTypeEXT component) {
-          return std::ranges::contains(attachable_components, component);
-        });
-
-    // If not, let's enable the first attachable component that we found, since
-    // any of them will do. It's only use will be to enable parenting, we don't
-    // actually need to query for it.
-    if (!attachable_component_enabled) {
-      enabled_components_.insert(*first_attachable_component);
-    }
-
-    can_parent_anchors_ = true;
-  }
 }
 
 OpenXrSpatialPlaneManager::~OpenXrSpatialPlaneManager() = default;

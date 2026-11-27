@@ -13,11 +13,6 @@
 using testing::ElementsAre;
 using testing::ElementsAreArray;
 
-#if defined(USE_MINIKIN_HYPHENATION) && BUILDFLAG(IS_FUCHSIA)
-// Fuchsia doesn't include |blink_platform_unittests_data|.
-#undef USE_MINIKIN_HYPHENATION
-#endif
-
 #if defined(USE_MINIKIN_HYPHENATION)
 #include "base/files/file_path.h"
 #include "third_party/blink/renderer/platform/text/hyphenation/hyphenation_minikin.h"
@@ -45,18 +40,16 @@ class HyphenationTest : public testing::Test {
     // accessible from the unit test, open the dictionary file directly for
     // testing.
     std::string filename = "hyph-" + locale.Ascii() + ".hyb";
-#if BUILDFLAG(IS_ANDROID)
-    base::FilePath path("/system/usr/hyphen-data");
-#else
     base::FilePath path = test::HyphenationDictionaryDir();
-#endif
     path = path.AppendASCII(filename);
     base::File file(path, base::File::FLAG_OPEN | base::File::FLAG_READ);
-    if (file.IsValid())
+    if (file.IsValid()) {
       return HyphenationMinikin::FromFileForTesting(locale, std::move(file));
+    }
 #else
-    if (const LayoutLocale* layout_locale = LayoutLocale::Get(locale))
+    if (const LayoutLocale* layout_locale = LayoutLocale::Get(locale)) {
       return layout_locale->GetHyphenation();
+    }
 #endif
     return nullptr;
   }
@@ -66,8 +59,9 @@ class HyphenationTest : public testing::Test {
       const Hyphenation& hyphenation) const {
     Vector<wtf_size_t> indexes;
     const wtf_size_t word_len = word.length();
-    for (wtf_size_t i = 0; i < word_len; ++i)
+    for (wtf_size_t i = 0; i < word_len; ++i) {
       indexes.push_back(hyphenation.FirstHyphenLocation(word, i));
+    }
     return indexes;
   }
 
@@ -75,8 +69,9 @@ class HyphenationTest : public testing::Test {
                                          const Hyphenation& hyphenation) const {
     Vector<wtf_size_t> indexes;
     const wtf_size_t word_len = word.length();
-    for (wtf_size_t i = 0; i < word_len; ++i)
+    for (wtf_size_t i = 0; i < word_len; ++i) {
       indexes.push_back(hyphenation.LastHyphenLocation(word, i));
+    }
     return indexes;
   }
 #endif
@@ -153,11 +148,6 @@ TEST_F(HyphenationTest, MapLocale) {
 TEST_F(HyphenationTest, HyphenLocations) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("en-us"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation)
-    return;
-#endif
   ASSERT_TRUE(hyphenation) << "Cannot find the hyphenation for en-us";
 
   // Get all hyphenation points by |HyphenLocations|.
@@ -174,8 +164,9 @@ TEST_F(HyphenationTest, HyphenLocations) {
   Vector<wtf_size_t, 8> actual;
   for (wtf_size_t offset = word.length();;) {
     offset = hyphenation->LastHyphenLocation(word, offset);
-    if (!offset)
+    if (!offset) {
       break;
+    }
     actual.push_back(offset);
   }
   EXPECT_THAT(actual, ElementsAreArray(locations));
@@ -184,8 +175,9 @@ TEST_F(HyphenationTest, HyphenLocations) {
   actual.clear();
   for (wtf_size_t offset = 0;;) {
     offset = hyphenation->FirstHyphenLocation(word, offset);
-    if (!offset)
+    if (!offset) {
       break;
+    }
     actual.push_back(offset);
   }
   locations.Reverse();
@@ -207,11 +199,6 @@ TEST_F(HyphenationTest, WordToHyphenate) {
 TEST_F(HyphenationTest, LeadingSpaces) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("en-us"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation)
-    return;
-#endif
   ASSERT_TRUE(hyphenation) << "Cannot find the hyphenation for en-us";
 
   String leading_space(" principle");
@@ -232,11 +219,6 @@ TEST_F(HyphenationTest, LeadingSpaces) {
 TEST_F(HyphenationTest, NonLetters) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("en-us"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation)
-    return;
-#endif
 
   String non_letters("**********");
   EXPECT_EQ(0u,
@@ -250,11 +232,6 @@ TEST_F(HyphenationTest, NonLetters) {
 TEST_F(HyphenationTest, English) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("en-us"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation)
-    return;
-#endif
   ASSERT_TRUE(hyphenation) << "Cannot find the hyphenation for en-us";
 
   Vector<wtf_size_t, 8> locations = hyphenation->HyphenLocations("hyphenation");
@@ -265,11 +242,6 @@ TEST_F(HyphenationTest, English) {
 TEST_F(HyphenationTest, German) {
   scoped_refptr<Hyphenation> hyphenation =
       GetHyphenation(AtomicString("de-1996"));
-#if BUILDFLAG(IS_ANDROID)
-  // Hyphenation is available only for Android M MR1 or later.
-  if (!hyphenation)
-    return;
-#endif
   ASSERT_TRUE(hyphenation) << "Cannot find the hyphenation for de-1996";
 
   Vector<wtf_size_t, 8> locations =
@@ -308,8 +280,9 @@ TEST_F(HyphenationTest, CapitalizedWords) {
 // https://w3c.github.io/csswg-drafts/css-text-4/#propdef-hyphenate-limit-chars
 TEST_F(HyphenationTest, SetLimits) {
   scoped_refptr<Hyphenation> en = GetHyphenation(AtomicString("en-us"));
-  if (!en)
+  if (!en) {
     return;
+  }
 
   en->SetLimits(0, 0, 0);
   EXPECT_THAT(en->MinPrefixLength(), Hyphenation::kDefaultMinPrefixLength);
@@ -351,8 +324,9 @@ TEST_F(HyphenationTest, SetLimits) {
 // Test the limitation with all the 3 public APIs.
 TEST_F(HyphenationTest, Limits) {
   scoped_refptr<Hyphenation> en = GetHyphenation(AtomicString("en-us"));
-  if (!en)
+  if (!en) {
     return;
+  }
 
   // "example" hyphenates to "ex-am-ple".
   EXPECT_THAT(en->HyphenLocations("example"), ElementsAre(4, 2));

@@ -103,11 +103,9 @@ class ContextualTasksPermissionController
   virtual void OnChipCollapseAnimationEnded(
       toolbar_ui_api::mojom::LhsChipIdentifier chip_identifier);
 
-#if !BUILDFLAG(IS_ANDROID)
   ContextualTasksLocationBar* GetLocationBarForTesting() {
     return location_bar_.get();
   }
-#endif
 
  protected:
   // Resolves the toolbar WebUI and hands it the current state. Does nothing if
@@ -115,7 +113,6 @@ class ContextualTasksPermissionController
   virtual void PushStateToWebUINow();
 
  private:
-#if !BUILDFLAG(IS_ANDROID)
   // Returns the chip `chip_identifier` refers to, or null if there is no
   // dashboard (i.e. no location bar).
   WebUIPermissionChip* GetChip(
@@ -131,7 +128,6 @@ class ContextualTasksPermissionController
       last_visible_request_chip_type_;
   std::optional<ContextualTasksPermissionChipType>
       last_visible_indicator_chip_type_;
-#endif
 
   // Whether a `PushStateToWebUINow()` task is already queued.
   bool state_push_pending_ = false;

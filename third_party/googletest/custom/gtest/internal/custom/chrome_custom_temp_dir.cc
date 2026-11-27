@@ -46,34 +46,8 @@ std::string ChromeCustomTempDir() {
     return temp_dir;
   }
 
-#if GTEST_OS_WINDOWS_MOBILE || GTEST_OS_WINDOWS
+#if (GTEST_OS_WINDOWS_MOBILE) || (GTEST_OS_WINDOWS)
   return "\\temp\\";
-#elif GTEST_OS_LINUX_ANDROID
-  // Android applications are expected to call the framework's
-  // Context.getExternalStorageDirectory() method through JNI to get the
-  // location of the world-writable SD Card directory. However, this requires a
-  // Context handle, which cannot be retrieved globally from native code. Doing
-  // so also precludes running the code as part of a regular standalone
-  // executable, which doesn't run in a Dalvik process (e.g. when running it
-  // through 'adb shell').
-  //
-  // Starting from Android O, the recommended generic temporary directory is
-  // '/data/local/tmp'. The recommended fallback is the current directory,
-  // which is usually accessible in app context.
-  if (::access("/data/local/tmp", R_OK | W_OK | X_OK) == 0)
-    return "/data/local/tmp/";
-  const char* current_dir = ::getcwd(nullptr, 0);
-  if (current_dir != nullptr &&
-      ::access(current_dir, R_OK | W_OK | X_OK) == 0) {
-    temp_dir = current_dir;
-    temp_dir.push_back(GTEST_PATH_SEP_[0]);
-    return temp_dir;
-  }
-  // Before Android O, /sdcard is usually available.
-  if (::access("/sdcard", R_OK | W_OK | X_OK) == 0)
-    return "/sdcard/";
-  // Generic POSIX fallback.
-  return "/tmp/";
 #elif GTEST_OS_IOS
   char name_template[PATH_MAX + 1];
 

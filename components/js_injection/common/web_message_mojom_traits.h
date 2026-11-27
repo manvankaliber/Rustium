@@ -55,12 +55,6 @@ struct UnionTraits<js_injection::mojom::JsWebMessageDataView,
         payload);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  static base::UnsafeSharedMemoryRegion& shared_array_buffer_value(
-      blink::WebMessagePayload& payload) {
-    return std::get<base::UnsafeSharedMemoryRegion>(payload);
-  }
-#endif
 
   static js_injection::mojom::JsWebMessageDataView::Tag GetTag(
       const blink::WebMessagePayload& payload);

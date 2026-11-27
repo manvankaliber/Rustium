@@ -4,8 +4,6 @@
 
 import("//ui/webui/webui_features.gni")
 
-assert(!is_android)
-
 source_set("customize_toolbar") {
   sources = [ "customize_toolbar_handler.cc" ]
   public = [ "customize_toolbar_handler.h" ]
@@ -66,9 +64,7 @@ source_set("browser_tests") {
   deps = [
     ":customize_toolbar",
     "//base/test:test_support",
-    "//chrome/browser/glic",
     "//chrome/browser/search_engines",
-    "//chrome/browser/ttc/core:features",
     "//chrome/browser/ui:browser_actions",
     "//chrome/browser/ui/actions",
     "//chrome/browser/ui/toolbar/pinned_toolbar",

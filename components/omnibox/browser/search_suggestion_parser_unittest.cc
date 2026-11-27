@@ -1327,17 +1327,10 @@ TEST(SearchSuggestionParserTest, ParseCalculatorSuggestion) {
 
   // Calculator suggestions should have specific values for the |suggestion|,
   // |match_contents|, and |annotation| fields.
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   ASSERT_EQ(u"2", results.suggest_results[1].suggestion());
   ASSERT_EQ(u"", results.suggest_results[1].annotation());
   ASSERT_FALSE(results.suggest_results[1].suggest_template_info().has_value());
   ASSERT_EQ(u"1 + 1 = 2", results.suggest_results[1].match_contents());
-#else
-  ASSERT_EQ(u"2", results.suggest_results[1].suggestion());
-  ASSERT_EQ(u"", results.suggest_results[1].annotation());
-  ASSERT_FALSE(results.suggest_results[1].suggest_template_info().has_value());
-  ASSERT_EQ(u"= 2", results.suggest_results[1].match_contents());
-#endif
 
   // Entity data should be correctly sourced as usual.
   ASSERT_EQ(u"1 + 1", results.suggest_results[2].suggestion());

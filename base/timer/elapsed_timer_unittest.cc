@@ -473,12 +473,7 @@ TEST_F(ElapsedNoSleepTimerSamplingMarginTest,
 
 // Disabled on Android x86: In the 32-bit x86 emulator clock read latency
 // occasionally exceeds kMaxAllowedSamplingError.
-#if BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_X86)
-#define MAYBE_ReturnsValidElapsedWithoutSleep \
-  DISABLED_ReturnsValidElapsedWithoutSleep
-#else
 #define MAYBE_ReturnsValidElapsedWithoutSleep ReturnsValidElapsedWithoutSleep
-#endif
 TEST(ElapsedNoSleepTimerRealClockTest, MAYBE_ReturnsValidElapsedWithoutSleep) {
   ElapsedNoSleepTimer timer;
   std::optional<TimeDelta> elapsed = timer.Elapsed();

@@ -145,57 +145,6 @@ class SigninHeaderHelperTest : public testing::Test {
   scoped_refptr<content_settings::CookieSettings> cookie_settings_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Tests that Mirror request is returned on Chrome OS for Public Sessions (no
-// account id).
-TEST_F(SigninHeaderHelperTest, TestMirrorRequestNoAccountIdChromeOS) {
-  account_consistency_ = AccountConsistencyMethod::kMirror;
-  CheckMirrorHeaderRequest(
-      GURL("https://docs.google.com"), GaiaId(),
-      /*is_child_account=*/Tribool::kUnknown,
-      "source=TestSource,mode=0,enable_account_consistency=true,"
-      "consistency_enabled_by_default=" +
-          consistency_enabled_by_default_value());
-  CheckMirrorCookieRequest(GURL("https://docs.google.com"), GaiaId(),
-                           "mode=0:enable_account_consistency=true:"
-                           "consistency_enabled_by_default=" +
-                               consistency_enabled_by_default_value());
-}
-#else  // BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_ANDROID)
-// Tests that eligible_for_consistency request is returned on Android
-// when reaching to Gaia origin and there's no primary account.
-TEST_F(SigninHeaderHelperTest, TestEligibleForConsistencyRequestGaiaOrigin) {
-  account_consistency_ = AccountConsistencyMethod::kMirror;
-  CheckMirrorHeaderRequest(GURL("https://accounts.google.com"), GaiaId(),
-                           /*is_child_account=*/Tribool::kUnknown,
-                           "source=TestSource,eligible_for_consistency=true");
-  CheckMirrorCookieRequest(GURL("https://accounts.google.com"), GaiaId(),
-                           "eligible_for_consistency=true");
-}
-
-// Tests that eligible_for_consistency request is NOT returned on Android
-// when reaching to NON-Gaia origin and there's no primary account
-TEST_F(SigninHeaderHelperTest,
-       TestNoEligibleForConsistencyRequestNonGaiaOrigin) {
-  account_consistency_ = AccountConsistencyMethod::kMirror;
-  CheckMirrorHeaderRequest(GURL("https://docs.google.com"), GaiaId(),
-                           /*is_child_account=*/Tribool::kUnknown, "");
-  CheckMirrorCookieRequest(GURL("https://docs.google.com"), GaiaId(), "");
-}
-
-// Tests that the full Mirror request is returned when the
-// force_account_consistency param is true.
-TEST_F(SigninHeaderHelperTest, TestForceAccountConsistencyMobile) {
-  account_consistency_ = AccountConsistencyMethod::kMirror;
-  force_account_consistency_ = true;
-  CheckMirrorHeaderRequest(
-      GURL("https://docs.google.com"), GaiaId(),
-      /*is_child_account=*/Tribool::kUnknown,
-      "source=TestSource,mode=0,enable_account_consistency=true,"
-      "consistency_enabled_by_default=false");
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Tests that no Mirror request is returned when the user is not signed in (no
 // account id), for non Chrome OS platforms.
@@ -205,7 +154,6 @@ TEST_F(SigninHeaderHelperTest, TestNoMirrorRequestNoAccountId) {
                            /*is_child_account=*/Tribool::kUnknown, "");
   CheckMirrorCookieRequest(GURL("https://docs.google.com"), GaiaId(), "");
 }
-#endif
 
 // Tests that no Mirror request is returned for youtubekids.com.
 //
@@ -220,7 +168,6 @@ TEST_F(SigninHeaderHelperTest, TestNoMirrorHeaderForYoutubekids) {
 }
 
 // Does not apply to iOS as users cannot set cookies settings in iOS.
-#if !BUILDFLAG(IS_IOS)
 // Tests that no Mirror request is returned when the cookies aren't allowed to
 // be set.
 TEST_F(SigninHeaderHelperTest, TestNoMirrorRequestCookieSettingBlocked) {
@@ -232,57 +179,9 @@ TEST_F(SigninHeaderHelperTest, TestNoMirrorRequestCookieSettingBlocked) {
   CheckMirrorCookieRequest(GURL("https://docs.google.com"),
                            GaiaId("0123456789"), "");
 }
-#endif
 
 // Mirror platforms only. Does not apply to iOS, as users cannot set cookie
 // settings in iOS.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-// Tests that when adding secondary accounts is disallowed, the Mirror request
-// is still returned if Gaia cookies are allowed but other Google cookies are
-// not. Otherwise, blocking google.com cookies would prevent the header from
-// being sent, and Gaia would offer to add another account. See
-// https://crbug.com/463848190.
-TEST_F(SigninHeaderHelperTest,
-       TestMirrorRequestGoogleCookiesBlockedAddAccountDisabled) {
-  account_consistency_ = AccountConsistencyMethod::kMirror;
-  settings_map_->SetContentSettingCustomScope(
-      ContentSettingsPattern::FromURLNoWildcard(
-          GaiaUrls::GetInstance()->secure_google_url()),
-      ContentSettingsPattern::Wildcard(), ContentSettingsType::COOKIES,
-      CONTENT_SETTING_BLOCK);
-
-  // No request by default, as google.com cookies are blocked.
-  CheckMirrorHeaderRequest(GURL("https://accounts.google.com"),
-                           GaiaId("0123456789"),
-                           /*is_child_account=*/Tribool::kUnknown, "");
-
-  // The request is returned when adding secondary accounts is disallowed, as
-  // Gaia cookies are allowed.
-  profile_mode_mask_ = PROFILE_MODE_ADD_ACCOUNT_DISABLED;
-  CheckMirrorHeaderRequest(GURL("https://accounts.google.com"),
-                           GaiaId("0123456789"),
-                           /*is_child_account=*/Tribool::kUnknown,
-                           "source=TestSource,mode=2,"
-                           "enable_account_consistency=true,"
-                           "consistency_enabled_by_default=false");
-}
-
-// Tests that no Mirror request is returned when Gaia cookies are blocked, even
-// if adding secondary accounts is disallowed.
-TEST_F(SigninHeaderHelperTest,
-       TestNoMirrorRequestGaiaCookiesBlockedAddAccountDisabled) {
-  account_consistency_ = AccountConsistencyMethod::kMirror;
-  profile_mode_mask_ = PROFILE_MODE_ADD_ACCOUNT_DISABLED;
-  settings_map_->SetContentSettingCustomScope(
-      ContentSettingsPattern::FromURLNoWildcard(
-          GaiaUrls::GetInstance()->gaia_url()),
-      ContentSettingsPattern::Wildcard(), ContentSettingsType::COOKIES,
-      CONTENT_SETTING_BLOCK);
-  CheckMirrorHeaderRequest(GURL("https://accounts.google.com"),
-                           GaiaId("0123456789"),
-                           /*is_child_account=*/Tribool::kUnknown, "");
-}
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 
 TEST_F(SigninHeaderHelperTest,
        BuildMirrorRequestCookieIfPossibleHandlesNullptrCookieSettings) {
@@ -290,16 +189,7 @@ TEST_F(SigninHeaderHelperTest,
       GURL("https://docs.google.com"), GaiaId("0123456789"),
       AccountConsistencyMethod::kMirror,
       /*cookie_settings=*/nullptr, PROFILE_MODE_DEFAULT);
-#if BUILDFLAG(IS_IOS)
-  // Users cannot disable cookies via settings on iOS so we always build a
-  // cookie.
-  EXPECT_EQ(
-      cookie,
-      "mode=0:enable_account_consistency=true:consistency_enabled_by_default=" +
-          consistency_enabled_by_default_value());
-#else
   EXPECT_TRUE(cookie.empty());
-#endif
 }
 
 TEST_F(SigninHeaderHelperTest, AppendOrRemoveMirrorRequestHeaderWithCallback) {
@@ -329,11 +219,7 @@ TEST_F(SigninHeaderHelperTest, AppendOrRemoveMirrorRequestHeaderWithCallback) {
       disallow_all, PROFILE_MODE_DEFAULT, kTestSource,
       force_account_consistency_);
   net::HttpRequestHeaders headers2 = request_adapter2.GetFinalHeaders();
-#if BUILDFLAG(IS_IOS)
-  EXPECT_TRUE(headers2.HasHeader(kChromeConnectedHeader));
-#else
   EXPECT_FALSE(headers2.HasHeader(kChromeConnectedHeader));
-#endif
 }
 
 // Tests that no Mirror request is returned when the target is a non-Google URL.
@@ -587,9 +473,6 @@ TEST_F(SigninHeaderHelperTest, TestBuildManageAccountsParams) {
       "action=ADDSESSION,email=%s,is_saml=true,"
       "is_same_tab=true,continue_url=%s",
       kEmail, kContinueURL);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  header += ",show_consistency_promo=true";
-#endif
 
   ManageAccountsParams params = BuildManageAccountsParams(header);
   EXPECT_EQ(GAIA_SERVICE_TYPE_ADDSESSION, params.service_type);
@@ -597,9 +480,6 @@ TEST_F(SigninHeaderHelperTest, TestBuildManageAccountsParams) {
   EXPECT_EQ(true, params.is_saml);
   EXPECT_EQ(true, params.is_same_tab);
   EXPECT_EQ(GURL(kContinueURL), params.continue_url);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(true, params.show_consistency_promo);
-#endif
 }
 
 }  // namespace signin

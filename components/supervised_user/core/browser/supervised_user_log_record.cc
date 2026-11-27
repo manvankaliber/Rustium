@@ -132,10 +132,6 @@ std::optional<ToggleState> GetPermissionsToggleState(
     std::optional<SupervisedUserLogRecord::Segment> supervision_status,
     const PrefService& pref_service,
     const HostContentSettingsMap& content_settings_map) {
-#if BUILDFLAG(IS_IOS)
-  // The permissions toggle is not supported on iOS.
-  return std::nullopt;
-#else
   if (IsUnsupervisedStatus(supervision_status)) {
     return std::nullopt;
   }
@@ -169,7 +165,6 @@ std::optional<ToggleState> GetPermissionsToggleState(
 
   return is_geolocation_blocked_by_default ? ToggleState::kDisabled
                                            : ToggleState::kEnabled;
-#endif  // BUILDFLAG(IS_IOS)
 }
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)

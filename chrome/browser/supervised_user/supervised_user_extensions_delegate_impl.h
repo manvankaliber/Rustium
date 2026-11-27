@@ -14,9 +14,6 @@
 #include "chrome/browser/supervised_user/supervised_user_extensions_metrics_recorder.h"
 #include "extensions/browser/supervised_user_extensions_delegate.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/supervised_user/chromeos/parent_access_extension_approvals_manager.h"
-#endif
 
 namespace content {
 class BrowserContext;
@@ -71,11 +68,6 @@ class SupervisedUserExtensionsDelegateImpl
   extensions::ExtensionInstallPromptClient::Observer* GetInstallPromptObserver()
       override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Inject test instance for testing.
-  void SetParentAccessExtensionApprovalsManagerForTesting(
-      std::unique_ptr<ParentAccessExtensionApprovalsManager> manager);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
  private:
   // Shows a ParentPermissionDialog for |extension| and calls
@@ -124,13 +116,6 @@ class SupervisedUserExtensionsDelegateImpl
 
   const raw_ptr<content::BrowserContext> context_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Manages the ChromeOS-specific approval flow.
-  // The extension approvals manager is destroyed when a new ParentAccessDialog
-  // is created or this delegate is destroyed.
-  std::unique_ptr<ParentAccessExtensionApprovalsManager>
-      extension_approvals_manager_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   SupervisedUserExtensionsManager extensions_manager_;
   SupervisedUserExtensionsMetricsRecorder metrics_recorder_;
 };

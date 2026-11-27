@@ -29,7 +29,7 @@ namespace content {
 // Test that the System AccentColor keyword is supported ONLY for installed
 // WebApps on the browser's initial ("Default") profile. Currently this test is
 // applied ONLY for Windows, ChromeOS and Mac.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 
 enum class AppType { WebApp, NoneWebApp };
 
@@ -167,6 +167,6 @@ IN_PROC_BROWSER_TEST_F(SystemAccentColorTest,
   // non-initial profiles.
   EXPECT_EQ("rgb(0, 117, 255)", GetBodyBackgroundColor());
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#endif
 
 }  // namespace content

@@ -10,7 +10,6 @@
 #include "base/no_destructor.h"
 #include "build/buildflag.h"
 #include "chrome/browser/favicon/favicon_service_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
@@ -29,14 +28,12 @@
 #include "components/sync/model/data_type_store_service.h"
 #include "content/public/browser/browser_context.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_panel_controller.h"
 #include "chrome/browser/tab_list/tab_list_interface.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"  // nogncheck crbug.com/40147906
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/url_constants.h"
-#endif
 
 namespace contextual_tasks {
 
@@ -44,7 +41,6 @@ namespace {
 
 size_t GetNumberOfActiveTasks(Profile* profile) {
   size_t number_of_active_tasks = 0;
-#if !BUILDFLAG(IS_ANDROID)
   ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
       [profile, &number_of_active_tasks](BrowserWindowInterface* browser) {
         if (browser->GetProfile() != profile) {
@@ -75,7 +71,6 @@ size_t GetNumberOfActiveTasks(Profile* profile) {
 
         return true;
       });
-#endif  // !BUILDFLAG(IS_ANDROID)
   return number_of_active_tasks;
 }
 
@@ -119,8 +114,7 @@ std::unique_ptr<KeyedService>
 ContextualTasksServiceFactory::BuildServiceInstanceForBrowserContext(
     content::BrowserContext* context) const {
   if (!contextual_tasks::IsContextualTasksUIEnabled() &&
-      !base::FeatureList::IsEnabled(syncer::kSyncAIThread) &&
-      !base::FeatureList::IsEnabled(syncer::kSyncGeminiThread)) {
+      !base::FeatureList::IsEnabled(syncer::kSyncAIThread)) {
     return nullptr;
   }
 
@@ -148,12 +142,7 @@ ContextualTasksServiceFactory::BuildServiceInstanceForBrowserContext(
       CreateCompositeContextDecorator(favicon_service, history_service,
                                       std::move(additional_decorators)),
       identity_manager, profile->GetPrefs(), supports_ephemeral_only,
-      base::BindRepeating(&GetNumberOfActiveTasks, profile),
-      base::BindRepeating(
-          [](Profile* profile) -> bool {
-            return glic::GlicEnabling::IsEnabledForProfile(profile);
-          },
-          profile));
+      base::BindRepeating(&GetNumberOfActiveTasks, profile));
 }
 
 }  // namespace contextual_tasks

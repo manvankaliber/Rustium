@@ -35,17 +35,9 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/text/bytes_formatting.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/sync/service/sync_user_settings.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 #include "ui/strings/grit/ui_strings.h"
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/browsing_data/counters/tabs_counter.h"
-#endif
 
 #if BUILDFLAG(ENABLE_HOSTED_APPS)
 #include "base/numerics/safe_conversions.h"
@@ -120,30 +112,14 @@ std::u16string GetChromeCounterTextFromResult(
     if (cache_size_bytes >= base::MiB(1)) {
       std::u16string formatted_size = FormatBytesMBOrHigher(cache_size_bytes);
       if (!is_upper_limit) {
-#if BUILDFLAG(IS_ANDROID)
-        return l10n_util::GetStringFUTF16(
-            IDS_ANDROID_DEL_CACHE_COUNTER_ADVANCED, formatted_size);
-#else
         return formatted_size;
-#endif
       }
 
-#if BUILDFLAG(IS_ANDROID)
-      return l10n_util::GetStringFUTF16(
-          IDS_ANDROID_DEL_CACHE_COUNTER_ADVANCED_UPPER_ESTIMATE,
-          formatted_size);
-#else
       return l10n_util::GetStringFUTF16(IDS_DEL_CACHE_COUNTER_UPPER_ESTIMATE,
                                         formatted_size);
-#endif
     }
 
-#if BUILDFLAG(IS_ANDROID)
-    return l10n_util::GetStringUTF16(
-        IDS_ANDROID_DEL_CACHE_COUNTER_ADVANCED_ALMOST_EMPTY);
-#else
     return l10n_util::GetStringUTF16(IDS_DEL_CACHE_COUNTER_ALMOST_EMPTY);
-#endif
   }
   if (pref_name == browsing_data::prefs::kDeleteCookies) {
     // Site data counter.
@@ -151,18 +127,6 @@ std::u16string GetChromeCounterTextFromResult(
         static_cast<const BrowsingDataCounter::FinishedResult*>(result)
             ->Value();
 
-#if BUILDFLAG(IS_ANDROID)
-    return l10n_util::GetPluralStringFUTF16(
-        IDS_ANDROID_DEL_COOKIES_COUNTER_ADVANCED, origins);
-#elif BUILDFLAG(IS_CHROMEOS)
-    // Determines whether or not to show the count with exception message.
-    int del_cookie_counter_msg_id =
-        ShouldShowCookieException(profile)
-            ? IDS_DEL_COOKIES_COUNTER_ADVANCED_WITH_SIGNED_IN_EXCEPTION
-            : IDS_DEL_COOKIES_COUNTER_ADVANCED;
-
-    return l10n_util::GetPluralStringFUTF16(del_cookie_counter_msg_id, origins);
-#else
     std::u16string cookies_counter_text = l10n_util::GetPluralStringFUTF16(
         IDS_DEL_COOKIES_COUNTER_ADVANCED, origins);
 
@@ -175,7 +139,6 @@ std::u16string GetChromeCounterTextFromResult(
            l10n_util::GetStringUTF16(IDS_DEL_GOOGLE_COOKIES_SIGNOUT_LINK));
     }
     return cookies_counter_text;
-#endif
   }
 
 #if BUILDFLAG(ENABLE_HOSTED_APPS)
@@ -249,26 +212,6 @@ std::u16string GetChromeCounterTextFromResult(
     }
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (pref_name == browsing_data::prefs::kCloseTabs) {
-    const TabsCounter::TabsResult* tabs_result =
-        static_cast<const TabsCounter::TabsResult*>(result);
-    BrowsingDataCounter::ResultInt tab_count = tabs_result->Value();
-    BrowsingDataCounter::ResultInt window_count = tabs_result->window_count();
-
-    if (window_count > 1) {
-      std::u16string tabs_counter_string =
-          l10n_util::GetPluralStringFUTF16(IDS_TABS_COUNT, tab_count);
-      std::u16string windows_counter_string =
-          l10n_util::GetPluralStringFUTF16(IDS_WINDOWS_COUNT, window_count);
-      return l10n_util::GetStringFUTF16(IDS_DEL_TABS_MULTIWINDOW_COUNTER,
-                                        tabs_counter_string,
-                                        windows_counter_string);
-    } else {
-      return l10n_util::GetPluralStringFUTF16(IDS_DEL_TABS_COUNTER, tab_count);
-    }
-  }
-#endif
 
   return browsing_data::GetCounterTextFromResult(result);
 }

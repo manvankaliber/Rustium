@@ -27,15 +27,9 @@
 #include "components/signin/public/base/signin_pref_names.h"
 #include "google_apis/google_api_keys.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/account_manager/account_manager_util.h"
-#endif
 
-#if BUILDFLAG(ENABLE_DICE_SUPPORT) && BUILDFLAG(ENABLE_MIRROR)
-#error "Dice and Mirror cannot be both enabled."
-#endif
 
-#if !BUILDFLAG(ENABLE_DICE_SUPPORT) && !BUILDFLAG(ENABLE_MIRROR)
+#if !BUILDFLAG(ENABLE_DICE_SUPPORT)
 #error "Either Dice or Mirror should be enabled."
 #endif
 
@@ -87,15 +81,8 @@ signin::AccountConsistencyMethod ComputeAccountConsistencyMethod(
   CHECK(AccountConsistencyModeManager::ShouldBuildServiceForProfile(profile),
         base::NotFatalUntil::M162);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!ash::IsAccountManagerAvailable(profile)) {
-    return AccountConsistencyMethod::kDisabled;
-  }
-#endif
 
-#if BUILDFLAG(ENABLE_MIRROR)
-  return AccountConsistencyMethod::kMirror;
-#elif BUILDFLAG(ENABLE_DICE_SUPPORT)
+#if BUILDFLAG(ENABLE_DICE_SUPPORT)
   if (!profile->GetPrefs()->GetBoolean(prefs::kSigninAllowed)) {
     VLOG(1) << "Desktop Identity Consistency disabled as sign-in to Chrome "
                "is not allowed";
@@ -202,16 +189,10 @@ bool AccountConsistencyModeManager::ShouldBuildServiceForProfile(
 
 AccountConsistencyMethod
 AccountConsistencyModeManager::GetAccountConsistencyMethod() {
-#if BUILDFLAG(IS_CHROMEOS)
-  // TODO(crbug.com/40583837): ChromeOS should use the cached value.
-  // Changing the value dynamically is not supported.
-  return ComputeAccountConsistencyMethod(profile_);
-#else
   // The account consistency method should not change during the lifetime of a
   // profile. We always return the cached value, but still check that it did not
   // change, in order to detect inconsistent states. See crbug.com/40583741
   CHECK(account_consistency_initialized_);
   CHECK_EQ(ComputeAccountConsistencyMethod(profile_), account_consistency_);
   return account_consistency_;
-#endif
 }

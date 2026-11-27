@@ -15,15 +15,9 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
   registry->RegisterListPref(kBrowsingDataLifetime);
   registry->RegisterBooleanPref(kClearBrowsingDataOnExitDeletionPending, false);
   registry->RegisterListPref(kClearBrowsingDataOnExitList);
-#if BUILDFLAG(IS_IOS)
-  registry->RegisterIntegerPref(
-      kDeleteTimePeriod,
-      static_cast<int>(browsing_data::TimePeriod::LAST_15_MINUTES));
-#else
   registry->RegisterIntegerPref(
       kDeleteTimePeriod,
       static_cast<int>(browsing_data::TimePeriod::LAST_HOUR));
-#endif  // BUILDFLAG(IS_IOS)
   registry->RegisterBooleanPref(kDeleteBrowsingHistory, true);
   registry->RegisterBooleanPref(kDeleteCache, true);
   registry->RegisterBooleanPref(kDeleteCookies, true);
@@ -32,21 +26,11 @@ void RegisterBrowserUserPrefs(user_prefs::PrefRegistrySyncable* registry) {
   registry->RegisterBooleanPref(kDeleteSiteSettings, false);
   registry->RegisterIntegerPref(kClearBrowsingDataHistoryNoticeShownTimes, 0);
 
-#if !BUILDFLAG(IS_IOS)
   registry->RegisterBooleanPref(kDeleteDownloadHistory, true);
   registry->RegisterBooleanPref(kDeleteHostedAppsData, false);
   registry->RegisterBooleanPref(kDeleteSkills, false);
-#else
-  registry->RegisterInt64Pref(prefs::kLastClearBrowsingDataTime, 0);
-#endif  // !BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_ANDROID)
-  registry->RegisterBooleanPref(kCloseTabs, false);
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_IOS)
-  registry->RegisterBooleanPref(kCloseTabs, true);
-#endif  // BUILDFLAG(IS_IOS)
 
   registry->RegisterBooleanPref(kQuickDeleteEverUsed, false);
 }

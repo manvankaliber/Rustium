@@ -42,15 +42,14 @@ if (ozone_platform_headless) {
 
 if (ozone_platform_drm) {
   ozone_platforms += [ "drm" ]
-  ozone_platform_deps += [ "platform/drm:gbm" ]
-  ozone_platform_test_deps += [ "platform/drm:gbm_unittests" ]
-  ozone_platform_integration_test_deps +=
-      [ "platform/drm:drm_integration_tests" ]
+  ozone_platform_deps += []
+  ozone_platform_test_deps += []
+  ozone_platform_integration_test_deps += []
 }
 
 if (ozone_platform_cast) {
   ozone_platforms += [ "cast" ]
-  ozone_platform_deps += [ "platform/cast" ]
+  ozone_platform_deps += []
 }
 
 if (ozone_platform_wayland) {
@@ -64,12 +63,6 @@ if (ozone_platform_x11) {
   ozone_platforms += [ "x11" ]
   ozone_platform_deps += [ "platform/x11" ]
   ozone_platform_ui_test_support_deps += [ "platform/x11:test_support" ]
-}
-
-if (ozone_platform_flatland) {
-  ozone_platforms += [ "flatland" ]
-  ozone_platform_deps += [ "platform/flatland" ]
-  ozone_platform_test_deps += [ "platform/flatland:flatland_unittests" ]
 }
 
 platform_list_cc_file = "$target_gen_dir/platform_list.cc"
@@ -155,20 +148,11 @@ component("ozone_base") {
     public_deps += [ "//gpu/vulkan" ]
   }
 
-  if (is_fuchsia) {
-    public_deps += [
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.images:fuchsia.images_hlcpp",
-    ]
-  }
-
   if (is_linux) {
     public_deps += [ "//ui/linux:linux_ui" ]
   }
 
   visibility += [
-    # Everyone should depend on //ui/ozone instead except a handful of
-    # things that would otherwise create a cycle.
-    "//ui/base/ime/ash/*",
     "//ui/events/ozone/*",
     "//ui/ozone/common/*",
     "//ui/ozone/platform/*",
@@ -399,7 +383,6 @@ static_library("test_support") {
   visibility = []
   visibility = [
     ":*",
-    "platform/flatland:flatland_unittests",
     "platform/headless:headless_unittests",
     "platform/wayland:test_support",
     "platform/wayland:wayland_unittests",
@@ -497,11 +480,6 @@ test("ozone_unittests") {
   assert_no_deps = [ "//ui/ozone" ]
 
   data_deps = [ "//testing/buildbot/filters:ozone_unittests_filters" ]
-
-  if (is_fuchsia) {
-    additional_manifest_fragments =
-        [ "//build/config/fuchsia/test/test_ui_stack.shard.test-cml" ]
-  }
 }
 
 # X11 backend has its own test suite only built when we are using the x11

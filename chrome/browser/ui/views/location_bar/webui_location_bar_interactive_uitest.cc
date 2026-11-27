@@ -1039,13 +1039,8 @@ IN_PROC_BROWSER_TEST_P(WebUILocationBarInteractiveUiTest, ShowHidePopup) {
 }
 
 // TODO(crbug.com/572093164): Consistently times out on ChromeOS MSan.
-#if BUILDFLAG(IS_CHROMEOS) && defined(MEMORY_SANITIZER)
-#define MAYBE_ShowHideAIPopup DISABLED_ShowHideAIPopup
-#define MAYBE_ShowHideAIPopup2 DISABLED_ShowHideAIPopup2
-#else
 #define MAYBE_ShowHideAIPopup ShowHideAIPopup
 #define MAYBE_ShowHideAIPopup2 ShowHideAIPopup2
-#endif
 
 // Show and hide the omnibox AI mode popup.
 IN_PROC_BROWSER_TEST_P(WebUILocationBarEagerPopupInteractiveUiTest,

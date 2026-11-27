@@ -13,7 +13,7 @@ source_set("system_cpu") {
 
   libs = []
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [
       "core_times.cc",
       "core_times.h",
@@ -32,13 +32,6 @@ source_set("system_cpu") {
       "cpu_probe_mac.h",
       "host_processor_info_scanner.cc",
       "host_processor_info_scanner.h",
-    ]
-  }
-
-  if (is_android) {
-    sources += [
-      "cpu_freq_android.cc",
-      "cpu_freq_android.h",
     ]
   }
 
@@ -64,16 +57,12 @@ source_set("unit_tests") {
     "//testing/gmock",
   ]
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     sources += [
       "core_times_unittest.cc",
       "cpu_probe_linux_unittest.cc",
       "procfs_stat_cpu_parser_unittest.cc",
     ]
-  }
-
-  if (is_android) {
-    sources += [ "cpu_freq_android_unittest.cc" ]
   }
 
   if (is_mac) {

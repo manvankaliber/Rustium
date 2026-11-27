@@ -18,8 +18,7 @@
 
 #include <grpc/support/port_platform.h>
 
-#if !defined(GPR_LINUX) && !defined(GPR_ANDROID) && !defined(GPR_FREEBSD) && \
-    !defined(GPR_APPLE) && !defined(GPR_WINDOWS)
+#if (!(defined(GPR_LINUX))) && (!(defined(GPR_FREEBSD))) && (!(defined(GPR_APPLE))) && (!(defined(GPR_WINDOWS)))
 
 #include <grpc/slice.h>
 #include <grpc/slice_buffer.h>

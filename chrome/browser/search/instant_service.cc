@@ -43,13 +43,11 @@
 #include "ui/gfx/color_palette.h"
 #include "ui/gfx/color_utils.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/theme_properties.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
 #include "chrome/browser/ui/webui/theme_source.h"
 #include "chrome/grit/theme_resources.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/browser/extension_registry.h"
@@ -75,7 +73,6 @@ InstantService::InstantService(Profile* profile)
         this, ntp_tiles::kMaxNumMostVisited);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Listen for theme installation.
   ThemeServiceFactory::GetForProfile(profile_)->AddObserver(this);
 
@@ -85,7 +82,6 @@ InstantService::InstantService(Profile* profile)
   // used and then the following can be removed.
   content::URLDataSource::Add(profile_,
                               std::make_unique<ThemeSource>(profile_));
-#endif
 
   // Set up the data sources that Instant uses on the NTP.
   content::URLDataSource::Add(
@@ -125,12 +121,10 @@ void InstantService::OnNewTabPageOpened() {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void InstantService::OnThemeChanged() {
   theme_ = nullptr;
   UpdateNtpTheme();
 }
-#endif
 
 void InstantService::DeleteMostVisitedItem(const GURL& url) {
   if (most_visited_sites_) {
@@ -173,9 +167,7 @@ void InstantService::Shutdown() {
     most_visited_sites_.reset();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   ThemeServiceFactory::GetForProfile(profile_)->RemoveObserver(this);
-#endif
 }
 
 void InstantService::RenderProcessHostDestroyed(
@@ -230,7 +222,6 @@ void InstantService::BuildNtpTheme() {
   // Get theme information from theme service.
   theme_ = std::make_unique<NtpTheme>();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Get if the current theme is the default theme.
   ThemeService* theme_service = ThemeServiceFactory::GetForProfile(profile_);
   theme_->using_default_theme = theme_service->UsingDefaultTheme();
@@ -293,9 +284,6 @@ void InstantService::BuildNtpTheme() {
     }
   }
 #endif
-#else
-  theme_->using_default_theme = true;
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 // static
@@ -321,10 +309,8 @@ void InstantService::SetNtpElementsNtpTheme() {
   // Always make sure `theme_` is built, since UpdateNtpTheme() notifies
   // observers right after this, even on platforms without a ThemeService.
   GetInitializedNtpTheme();
-#if !BUILDFLAG(IS_ANDROID)
   const ui::ThemeProvider& theme_provider =
       ThemeService::GetThemeProviderForProfile(profile_);
   theme_->logo_alternate = theme_provider.GetDisplayProperty(
                                ThemeProperties::NTP_LOGO_ALTERNATE) == 1;
-#endif
 }

@@ -72,7 +72,7 @@ message ImageSegmenterOptions {
 
   // Legacy method for specifying how to accelerate the model
   // inference using dedicated delegates. Supported delegate type includes:
-  // NONE, NNAPI, GPU, HEXAGON, XNNPACK, EDGETPU (Google internal),
+  // NONE, GPU, XNNPACK, EDGETPU (Google internal),
   // and EDGETPU_CORAL.
   //
   // IMPORTANT: in order to use a delegate, the appropriate delegate plugin

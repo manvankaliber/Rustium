@@ -73,19 +73,4 @@ suite('ManagedFootnoteTest', function() {
     assertNotEquals('none', getComputedStyle(footnote).display);
   });
 
-  // <if expr="is_chromeos">
-  test('Reads Attributes From loadTimeData device message', async function() {
-    const browserMessage = 'the quick brown fox jumps over the lazy dog';
-    const deviceMessage = 'the lazy dog jumps over the quick brown fox';
-    const footnote =
-        setupTestElement(true, browserMessage, deviceMessage, '', '');
-
-    assertNotEquals('none', getComputedStyle(footnote).display);
-    assertTrue(footnote.shadowRoot.textContent.includes(browserMessage));
-
-    footnote.showDeviceInfo = true;
-    await microtasksFinished();
-    assertTrue(footnote.shadowRoot.textContent.includes(deviceMessage));
-  });
-  // </if>
 });

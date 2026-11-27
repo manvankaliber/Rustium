@@ -993,7 +993,7 @@ class CertVerifierServiceFactoryBuiltinVerifierTest : public ::testing::Test {
 
  private:
   bool SystemUsesBuiltinVerifier() {
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
+#if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
     // On CHROME_ROOT_STORE_OPTIONAL platforms, the tests set
     // use_chrome_root_store=true, so the tests will also work on those
     // platforms.
@@ -1448,8 +1448,7 @@ TEST_F(CertVerifierServiceFactoryBuiltinVerifierTest,
 
   // Update the time tracker so the current time is within the certificate
   // validity range.
-  cv_service_factory_impl.UpdateNetworkTime(now, ticks_now,
-                                            now - base::Days(2),
+  cv_service_factory_impl.UpdateNetworkTime(now, ticks_now, now - base::Days(2),
                                             kNetworkTimeUncertainty);
 
   mojo::Remote<mojom::CertVerifierService> cv_service_remote;
@@ -1517,8 +1516,7 @@ TEST_F(CertVerifierServiceFactoryBuiltinVerifierTest,
 
   // Update the time tracker so the current time is within the certificate
   // validity range.
-  cv_service_factory_impl.UpdateNetworkTime(now, ticks_now,
-                                            now - base::Days(2),
+  cv_service_factory_impl.UpdateNetworkTime(now, ticks_now, now - base::Days(2),
                                             kNetworkTimeUncertainty);
 
   // Update should have been notified.

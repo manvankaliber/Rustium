@@ -53,12 +53,6 @@ void MemoryUsageMonitor::StartMonitoringIfNeeded() {
   if (timer_.IsRunning()) {
     return;
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (!is_visible_ &&
-      base::FeatureList::IsEnabled(features::kGateMemoryMetricsOnVisibility)) {
-    return;
-  }
-#endif
   timer_.Start(
       FROM_HERE, kPingInterval,
       BindRepeating(&MemoryUsageMonitor::TimerFired, Unretained(this)));
@@ -68,25 +62,6 @@ void MemoryUsageMonitor::StopMonitoring() {
   timer_.Stop();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void MemoryUsageMonitor::SetRendererVisible(bool visible) {
-  DCHECK(IsMainThread());
-  if (is_visible_ == visible) {
-    return;
-  }
-  is_visible_ = visible;
-  if (!base::FeatureList::IsEnabled(features::kGateMemoryMetricsOnVisibility)) {
-    return;
-  }
-  if (is_visible_) {
-    if (!observers_.empty()) {
-      StartMonitoringIfNeeded();
-    }
-  } else {
-    StopMonitoring();
-  }
-}
-#endif
 
 MemoryUsage MemoryUsageMonitor::GetCurrentMemoryUsage() {
   MemoryUsage usage;

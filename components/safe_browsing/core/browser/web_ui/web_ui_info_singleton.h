@@ -204,7 +204,7 @@ class WebUIInfoSingleton : public RealTimeUrlLookupServiceBase::WebUIDelegate,
   void ClearDeepScans();
 #endif  // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
   // Overwrites any existing override.
   void SetTailoredVerdictOverride(
       ClientDownloadResponse::TailoredVerdict new_value,
@@ -334,7 +334,7 @@ class WebUIInfoSingleton : public RealTimeUrlLookupServiceBase::WebUIDelegate,
   }
 #endif  // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
   // Gets the currently registered override data.
   const web_ui::TailoredVerdictOverrideData& tailored_verdict_override() const {
     return tailored_verdict_override_;
@@ -474,7 +474,7 @@ class WebUIInfoSingleton : public RealTimeUrlLookupServiceBase::WebUIDelegate,
   base::flat_map<std::string, web_ui::DeepScanDebugData> deep_scan_requests_;
 #endif  // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
   // Local override of download TailoredVerdict.
   web_ui::TailoredVerdictOverrideData tailored_verdict_override_;
 #endif  // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) &&

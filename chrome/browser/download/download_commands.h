@@ -11,9 +11,7 @@
 #include "build/build_config.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 class BrowserWindowInterface;
-#endif
 
 class DownloadUIModel;
 
@@ -68,8 +66,7 @@ class DownloadCommands {
   bool IsCommandVisible(Command command) const;
   void ExecuteCommand(Command command);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   bool IsDownloadPdf() const;
   bool CanOpenPdfInSystemViewer() const;
   BrowserWindowInterface* GetBrowser() const;

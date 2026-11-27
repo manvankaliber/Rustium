@@ -401,11 +401,7 @@ void MediaStreamDispatcherHost::CheckRequestAllScreensAllowed(
                                          std::move(result_callback));
   } else {
     MediaStreamRequestResult error_value;
-#if BUILDFLAG(IS_CHROMEOS)
-    error_value = MediaStreamRequestResult::CAPTURE_NOT_ALLOWED_BY_POLICY;
-#else
     error_value = MediaStreamRequestResult::MULTI_CAPTURE_NOT_SUPPORTED;
-#endif
     std::move(result_callback).Run(base::unexpected(error_value));
   }
 }
@@ -657,7 +653,6 @@ void MediaStreamDispatcherHost::KeepDeviceAliveForTransfer(
       render_frame_host_id_, requester_id_, session_id, transfer_id));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void MediaStreamDispatcherHost::FocusCapturedSurface(const std::string& label,
                                                      bool focus) {
   CHECK_CURRENTLY_ON(BrowserThread::IO, base::NotFatalUntil::M152);
@@ -719,7 +714,6 @@ void MediaStreamDispatcherHost::RequestCapturedSurfaceControlPermission(
   media_stream_manager_->RequestCapturedSurfaceControlPermission(
       render_frame_host_id_, session_id, std::move(callback));
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(ENABLE_SCREEN_CAPTURE)
 void MediaStreamDispatcherHost::ApplySubCaptureTarget(

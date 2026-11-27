@@ -44,13 +44,11 @@ bool IsBrowserWindowListenerObservationEnabled() {
   return base::FeatureList::IsEnabled(kBrowserWindowListenerObservation);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Splits the bookmark bar into three keyboard navigation areas. Tab stops only
 // at the first button of each area; Left/Right arrows move within the area. No
 // effect on macOS.
 BASE_FEATURE(kBookmarkBarAreaKeyboardNavigation,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kCtrlTabMru, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // Skip the UI update coalescing delay when the favicon arrives after a
@@ -265,9 +263,9 @@ BASE_FEATURE_PARAM(int,
                    0);
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 
-// Preloads a WebContents with a Top Chrome WebUI on BrowserView initialization,
-// so that it can be shown instantly at a later time when necessary.
-BASE_FEATURE(kPreloadTopChromeWebUI, base::FEATURE_ENABLED_BY_DEFAULT);
+// Open browser WebUIs on demand rather than keeping an unused renderer and
+// document alive while the browser is idle.
+BASE_FEATURE(kPreloadTopChromeWebUI, base::FEATURE_DISABLED_BY_DEFAULT);
 
 // An experiment to reduce the number of navigations when preloading WebUIs.
 BASE_FEATURE(kPreloadTopChromeWebUILessNavigations,
@@ -289,8 +287,6 @@ BASE_FEATURE(kPressAndHoldEscToExitBrowserFullscreen,
 BASE_FEATURE(kProcessIsolationSettings, base::FEATURE_DISABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_WIN)
 
-BASE_FEATURE(kLensOverlayVirtualFocusNavigation,
-             base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kOmniboxEverywhereVirtualFocusNavigation,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
@@ -334,9 +330,7 @@ BASE_FEATURE(kTabDuplicateMetrics, base::FEATURE_ENABLED_BY_DEFAULT);
 // Enables collapsing a tab group programmatically during a drag.
 BASE_FEATURE(kCollapseTabGroupDuringDrag, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kNewTabButtonContextMenu, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Enables preview images in tab-hover cards.
 // https://crbug.com/41439486
@@ -355,11 +349,9 @@ BASE_FEATURE(kTabModalUsesDesktopWidget, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kTearOffWebAppTabOpensWebAppWindow,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kThreeButtonPasswordSaveDialog, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kPasswordSaveUpdateDropdownMenuExperiment,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 // Enables the management notice in the NTP footer if the custom policies are
 // set. This acts as a kill switch for "EnterpriseCustomLabelForBrowser" and
@@ -390,8 +382,6 @@ BASE_FEATURE(kMacDeferInputContextUntilFirstPaint,
 BASE_FEATURE(kPageSpecificDataDialogRelatedInstalledAppsSection,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-BASE_FEATURE(kLensOverlayHomeworkPageActionFocusOptimization,
-             base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kPageActionAnchoredMessageEasyDismiss,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -430,11 +420,9 @@ BASE_FEATURE_PARAM(bool,
                    false);
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 
 BASE_FEATURE(kWebUIAvatarButton, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kWebUIMediaButton, base::FEATURE_DISABLED_BY_DEFAULT);
-BASE_FEATURE(kWebUIGlicButton, base::FEATURE_DISABLED_BY_DEFAULT);
 
 bool IsWebUIReloadButtonEnabled() {
   return base::FeatureList::IsEnabled(features::kInitialWebUI) &&
@@ -496,11 +484,6 @@ bool IsWebUIMediaButtonEnabled() {
           base::FeatureList::IsEnabled(features::kWebUIMediaButton));
 }
 
-bool IsWebUIGlicButtonEnabled() {
-  return base::FeatureList::IsEnabled(features::kInitialWebUI) &&
-         (base::FeatureList::IsEnabled(features::kWebUIToolbar) ||
-          base::FeatureList::IsEnabled(features::kWebUIGlicButton));
-}
 
 bool IsWebUIPerformanceInterventionButtonEnabled() {
   return base::FeatureList::IsEnabled(features::kInitialWebUI) &&
@@ -526,8 +509,7 @@ bool IsWebUIToolbarEnabled() {
           IsWebUIExtensionsContainerEnabled() || IsWebUIAvatarButtonEnabled() ||
           IsWebUIMediaButtonEnabled() || IsWebUIAppMenuButtonEnabled() ||
           IsWebUIBatterySaverButtonEnabled() ||
-          IsWebUIPerformanceInterventionButtonEnabled() ||
-          IsWebUIGlicButtonEnabled());
+          IsWebUIPerformanceInterventionButtonEnabled());
 }
 
 bool IsWebUIToolbarFullyEnabled() {
@@ -541,20 +523,9 @@ bool IsWebUIToolbarFullyEnabled() {
           IsWebUIExtensionsContainerEnabled() && IsWebUIAvatarButtonEnabled() &&
           IsWebUIMediaButtonEnabled() && IsWebUIAppMenuButtonEnabled() &&
           IsWebUIBatterySaverButtonEnabled() &&
-          IsWebUIPerformanceInterventionButtonEnabled() &&
-          IsWebUIGlicButtonEnabled());
+          IsWebUIPerformanceInterventionButtonEnabled());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kAndroidAnimatedProgressBarInBrowser,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-bool IsAndroidAnimatedProgressBarInBrowserEnabled() {
-  return base::FeatureList::IsEnabled(
-      features::kAndroidAnimatedProgressBarInBrowser);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Note: This feature is meant for prototyping and takes shortcuts that mean it
 // cannot be put into production in its current state. Do not enable.
@@ -622,7 +593,6 @@ BASE_FEATURE(kToolbarAppMenuLabelResizing, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kToolbarProfileChipResizing, base::FEATURE_ENABLED_BY_DEFAULT);
 
-BASE_FEATURE(kToolbarGlicButtonResizing, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kOSCryptAsyncAvailabilityInfoBar,
 #if BUILDFLAG(IS_MAC)

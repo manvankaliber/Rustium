@@ -149,7 +149,7 @@ TEST_F(HatsHandlerTest,
       {"Security Page User Action", "enhanced_protection_radio_button_clicked"},
       {"Safe Browsing Setting Before Trigger", "standard_protection"},
       {"Safe Browsing Setting After Trigger", "standard_protection"},
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
       {"Client Channel", "stable"},
 #else
       {"Client Channel", "unknown"},
@@ -176,13 +176,8 @@ TEST_F(HatsHandlerTest,
   task_environment()->RunUntilIdle();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_HandleSecurityPageHatsRequestPassesArgumentsToHatsServiceNotLaunchSurveyNoInteraction \
-  DISABLED_HandleSecurityPageHatsRequestPassesArgumentsToHatsServiceNotLaunchSurveyNoInteraction
-#else
 #define MAYBE_HandleSecurityPageHatsRequestPassesArgumentsToHatsServiceNotLaunchSurveyNoInteraction \
   HandleSecurityPageHatsRequestPassesArgumentsToHatsServiceNotLaunchSurveyNoInteraction
-#endif
 TEST_F(
     HatsHandlerTest,
     MAYBE_HandleSecurityPageHatsRequestPassesArgumentsToHatsServiceNotLaunchSurveyNoInteraction) {

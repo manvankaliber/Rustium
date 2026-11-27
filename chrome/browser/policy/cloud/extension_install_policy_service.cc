@@ -124,12 +124,10 @@ std::optional<bool> GetEarlyAllowedResult(
   // Allow if extension install cloud policy checks are disabled.
   bool policy_checks_enabled = profile->GetPrefs()->GetBoolean(
       extensions::pref_names::kExtensionInstallCloudPolicyChecksEnabled);
-#if !BUILDFLAG(IS_CHROMEOS)
   policy_checks_enabled =
       policy_checks_enabled ||
       g_browser_process->local_state()->GetBoolean(
           extensions::pref_names::kExtensionInstallCloudPolicyChecksEnabled);
-#endif
   if (!policy_checks_enabled) {
     base::UmaHistogramEnumeration(
         histogram_name,
@@ -284,14 +282,12 @@ ExtensionInstallPolicyServiceImpl::ExtensionInstallPolicyServiceImpl(
       base::BindRepeating(
           &ExtensionInstallPolicyServiceImpl::OnPolicyChecksEnabledChanged,
           base::Unretained(this)));
-#if !BUILDFLAG(IS_CHROMEOS)
   local_state_change_registrar_.Init(g_browser_process->local_state());
   local_state_change_registrar_.Add(
       extensions::pref_names::kExtensionInstallCloudPolicyChecksEnabled,
       base::BindRepeating(
           &ExtensionInstallPolicyServiceImpl::OnPolicyChecksEnabledChanged,
           base::Unretained(this)));
-#endif
   OnPolicyChecksEnabledChanged();
 
   for (const auto& info : GetPolicyManagerInfos()) {
@@ -489,21 +485,17 @@ void ExtensionInstallPolicyServiceImpl::OnCloudPolicyManagerReady(
     return;
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   if (ChromeBrowserCloudManagementController* controller =
           g_browser_process->browser_policy_connector()
               ->chrome_browser_cloud_management_controller()) {
     controller->MaybeStartExtensionInstallPolicyInvalidator();
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 void ExtensionInstallPolicyServiceImpl::Shutdown() {
   initialization_waiters_.clear();
   pref_change_registrar_.Reset();
-#if !BUILDFLAG(IS_CHROMEOS)
   local_state_change_registrar_.Reset();
-#endif
   if (auto* policy_service =
           profile_->GetProfilePolicyConnector()->policy_service()) {
     policy_service->RemoveObserver(POLICY_DOMAIN_EXTENSION_INSTALL, this);
@@ -528,7 +520,6 @@ ExtensionInstallPolicyServiceImpl::GetPolicyManagerInfos() const {
         {raw_ref<CloudPolicyManager>::from_ptr(user_cloud_policy_manager),
          dm_protocol::kChromeExtensionInstallUserCloudPolicyType});
   }
-#if !BUILDFLAG(IS_CHROMEOS)
   if (auto* machine_level_policy_manager =
           g_browser_process->browser_policy_connector()
               ->machine_level_user_cloud_policy_manager()) {
@@ -536,7 +527,6 @@ ExtensionInstallPolicyServiceImpl::GetPolicyManagerInfos() const {
         {raw_ref<CloudPolicyManager>::from_ptr(machine_level_policy_manager),
          dm_protocol::kChromeExtensionInstallMachineLevelCloudPolicyType});
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   return managers;
 }
 
@@ -559,13 +549,11 @@ bool ExtensionInstallPolicyServiceImpl::IsPolicyChecksEnabled(
     return profile_->GetPrefs()->GetBoolean(
         extensions::pref_names::kExtensionInstallCloudPolicyChecksEnabled);
   }
-#if !BUILDFLAG(IS_CHROMEOS)
   if (info.policy_type ==
       dm_protocol::kChromeExtensionInstallMachineLevelCloudPolicyType) {
     return g_browser_process->local_state()->GetBoolean(
         extensions::pref_names::kExtensionInstallCloudPolicyChecksEnabled);
   }
-#endif
   return false;
 }
 
@@ -693,13 +681,11 @@ void ExtensionInstallPolicyServiceImpl::OnPolicyChecksEnabledChanged() {
         }
       } else {
         core->client()->RemovePolicyTypeToFetch({info.policy_type, this});
-#if !BUILDFLAG(IS_CHROMEOS)
         if (info.manager->IsFirstPolicyLoadComplete(POLICY_DOMAIN_CHROME)) {
           if (auto* store = core->store()) {
             static_cast<DesktopCloudPolicyStore*>(store)->Clear();
           }
         }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
       }
     }
   }

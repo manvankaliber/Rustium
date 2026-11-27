@@ -40,11 +40,7 @@ constexpr size_t kMaxSharedFileCount = 10;
 constexpr uint32_t kMaxSharedFileBytes = 50U * 1024 * 1024;
 
 constexpr uint32_t kMaxTitleLength = 16U * 1024;
-#if BUILDFLAG(IS_ANDROID)
-constexpr uint32_t kMaxTextLength = 120U * 1024;
-#else
 constexpr uint32_t kMaxTextLength = 1U * 1024 * 1024;
-#endif
 constexpr uint32_t kMaxUrlLength = 16U * 1024;
 
 // Gets the human-friendly error message for a ShareError. |error| must not be
@@ -249,13 +245,11 @@ ScriptPromise<IDLUndefined> NavigatorShare::share(
 // when the share completes. This goes against the web share spec to work around
 // the platform-specific bug, it is explicitly skipping section §2.1.2 step 2 of
 // the Web Share spec. https://www.w3.org/TR/web-share/#share-method
-#if !BUILDFLAG(IS_ANDROID)
   if (!clients_.empty()) {
     exception_state.ThrowDOMException(DOMExceptionCode::kInvalidStateError,
                                       "An earlier share has not yet completed.");
     return EmptyPromise();
   }
-#endif
 
   if (!LocalFrame::HasTransientUserActivation(window->GetFrame())) {
     VLOG(1) << "Share without transient activation (user gesture)";

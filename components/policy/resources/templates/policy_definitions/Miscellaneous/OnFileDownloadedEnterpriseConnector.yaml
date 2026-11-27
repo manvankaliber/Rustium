@@ -152,8 +152,7 @@ schema:
         type: object
     type: object
   type: array
-future_on:
-- fuchsia
+future_on: []
 supported_on:
 - chrome.*:84-
 - chrome_os:84-

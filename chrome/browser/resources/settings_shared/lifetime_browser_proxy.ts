@@ -2,9 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// <if expr="not is_chromeos">
 import {sendWithPromise} from 'chrome://resources/js/cr.js';
-// </if>
 
 export interface LifetimeBrowserProxy {
   // Triggers a browser restart.
@@ -13,7 +11,6 @@ export interface LifetimeBrowserProxy {
   // Triggers a browser relaunch.
   relaunch(): void;
 
-  // <if expr="not is_chromeos">
   // Indicates whether a relaunch confirmation dialog needs to be shown or not.
   shouldShowRelaunchConfirmationDialog(alwaysShowDialog: boolean):
       Promise<boolean>;
@@ -23,18 +20,7 @@ export interface LifetimeBrowserProxy {
   // is no longer true.
   getRelaunchConfirmationDialogDescription(isVersionUpdate: boolean):
       Promise<string|null>;
-  // </if>
 
-  // <if expr="is_chromeos">
-  // First signs out current user and then performs a restart.
-  signOutAndRestart(): void;
-
-  /**
-   * Triggers a factory reset. The parameter indicates whether to install a
-   * TPM firmware update (if available) after the reset.
-   */
-  factoryReset(requestTpmFirmwareUpdate: boolean): void;
-  // </if>
 }
 
 export class LifetimeBrowserProxyImpl implements LifetimeBrowserProxy {
@@ -46,7 +32,6 @@ export class LifetimeBrowserProxyImpl implements LifetimeBrowserProxy {
     chrome.send('relaunch');
   }
 
-  // <if expr="not is_chromeos">
   shouldShowRelaunchConfirmationDialog(alwaysShowDialog: boolean) {
     return sendWithPromise<boolean>(
         'shouldShowRelaunchConfirmationDialog', alwaysShowDialog);
@@ -56,17 +41,7 @@ export class LifetimeBrowserProxyImpl implements LifetimeBrowserProxy {
     return sendWithPromise<string|null>(
         'getRelaunchConfirmationDialogDescription', isVersionUpdate);
   }
-  // </if>
 
-  // <if expr="is_chromeos">
-  signOutAndRestart() {
-    chrome.send('signOutAndRestart');
-  }
-
-  factoryReset(requestTpmFirmwareUpdate: boolean) {
-    chrome.send('factoryReset', [requestTpmFirmwareUpdate]);
-  }
-  // </if>
 
   static getInstance(): LifetimeBrowserProxy {
     return instance || (instance = new LifetimeBrowserProxyImpl());

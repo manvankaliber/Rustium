@@ -8,10 +8,6 @@ import("//extensions/buildflags/buildflags.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 assert(enable_extensions_core)
 
 # If enable_extensions is true then enable_guest_view must also be true.
@@ -630,13 +626,6 @@ static_library("common") {
     "//ui/gfx/ipc/geometry",
     "//url",
   ]
-
-  if (is_chromeos) {
-    sources += [
-      "manifest_handlers/input_components_handler.cc",
-      "manifest_handlers/input_components_handler.h",
-    ]
-  }
 }
 
 # NOTE: This is separate from ":common" because it depends on
@@ -654,13 +643,6 @@ source_set("core_api_provider") {
     "//extensions/common/api",
     "//extensions/common/api:extensions_features",
   ]
-}
-
-if (is_android) {
-  java_cpp_features("java_features_srcjar") {
-    sources = [ "extension_features.cc" ]
-    class_name = "org.chromium.extensions.common.ExtensionFeatures"
-  }
 }
 
 source_set("test_support") {
@@ -808,13 +790,6 @@ source_set("unit_tests") {
     "//ui/gfx",
     "//url",
   ]
-
-  if (is_chromeos) {
-    sources += [
-      "manifest_handlers/file_handler_manifest_unittest.cc",
-      "manifest_handlers/input_components_handler_unittest.cc",
-    ]
-  }
 
   if (enable_nocompile_tests) {
     deps += [ ":features_nocompile_tests" ]

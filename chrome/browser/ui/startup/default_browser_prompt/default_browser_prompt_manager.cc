@@ -22,14 +22,12 @@
 #include "chrome/common/pref_names.h"
 #include "components/prefs/pref_service.h"
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
 #include "ui/actions/actions.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "chrome/browser/win/taskbar_manager.h"
@@ -219,7 +217,6 @@ void DefaultBrowserPromptManager::CloseAllPrompts(CloseReason close_reason) {
 
 void DefaultBrowserPromptManager::SetAppMenuItemVisibility(bool show) {
   show_app_menu_item_ = show;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   if (auto* collection = GlobalBrowserCollection::GetInstance()) {
     collection->ForEach([this](BrowserWindowInterface* browser) {
       if (auto* browser_actions = BrowserActions::From(browser)) {
@@ -232,5 +229,4 @@ void DefaultBrowserPromptManager::SetAppMenuItemVisibility(bool show) {
       return true;
     });
   }
-#endif
 }

@@ -18,19 +18,13 @@
       <if expr="toolkit_views and not is_macosx">
         <structure type="chrome_scaled_image" name="IDR_ACCESSIBILITY_CAPTIONS_PREVIEW_BACKGROUND" file="common/captions-preview-bg.png" />
       </if>
-      <if expr="is_chromeos">
-        <structure type="chrome_scaled_image" name="IDR_BLUETOOTH_PAIRING_TICK" file="cros/bluetooth_pairing_tick.png" />
-        <structure type="chrome_scaled_image" name="IDR_ENABLE_DEBUGGING_SUCCESS" file="cros/enable_debugging_success.png" />
-      </if>
+
       <if expr="_google_chrome">
         <structure type="chrome_scaled_image" name="IDR_GOOGLE_G_GRADIENT_16_ALT" file="google_chrome/google_g_gradient_16_alt.png" />
         <structure type="chrome_scaled_image" name="IDR_GOOGLE_G_GRADIENT_20" file="google_chrome/google_g_gradient_20.png" />
       </if>
-      <if expr="is_chromeos">
-        <structure type="chrome_scaled_image" name="IDR_LOGO_AVATAR_CIRCLE_BLUE_COLOR" file="cros/logo_avatar_circle_blue_color.png" />
-        <structure type="chrome_scaled_image" name="IDR_LOGO_GOOGLE_COLOR_90" file="cros/logo_google_color_90.png" />
-      </if>
-      <if expr="not is_android">
+
+
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_0" file="common/profile_avatar_generic.png" />
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_1" file="common/profile_avatar_generic_aqua.png" />
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_2" file="common/profile_avatar_generic_blue.png" />
@@ -57,9 +51,9 @@
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_23" file="common/profile_avatar_margarita.png" />
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_24" file="common/profile_avatar_note.png" />
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_25" file="common/profile_avatar_sun_cloud.png" />
-      </if>
+
       <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_26" file="common/profile_avatar_placeholder.png" />
-      <if expr="not is_android and not is_chromeos">
+
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_27" file="common/modern_avatars/origami/avatar_cat.png" />
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_28" file="common/modern_avatars/origami/avatar_corgi.png" />
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_29" file="common/modern_avatars/origami/avatar_dragon.png" />
@@ -89,12 +83,10 @@
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_53" file="common/modern_avatars/abstract/avatar_onigiri.png" />
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_54" file="common/modern_avatars/abstract/avatar_pizza.png" />
         <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_55" file="common/modern_avatars/abstract/avatar_sandwich.png" />
-      </if>
+
       <structure type="chrome_scaled_image" name="IDR_PROFILE_AVATAR_PLACEHOLDER_LARGE" file="common/profile_avatar_placeholder_large.png" />
       <structure type="chrome_scaled_image" name="IDR_SETTINGS_FAVICON" file="common/favicon_settings.png" />
-      <if expr="is_chromeos">
-        <structure type="chrome_scaled_image" name="IDR_TAB_RECORDING_INDICATOR" file="cros/tab_recording_indicator.png" />
-      </if>
+
       <structure type="chrome_scaled_image" name="IDR_THEME_FRAME_INCOGNITO" file="notused.png" />
       <structure type="chrome_scaled_image" name="IDR_THEME_NTP_ATTRIBUTION" file="notused.png" />
       <structure type="chrome_scaled_image" name="IDR_THEME_NTP_BACKGROUND" file="notused.png" />

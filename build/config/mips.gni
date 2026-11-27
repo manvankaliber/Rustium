@@ -45,23 +45,10 @@ if (current_cpu == "mipsel" || v8_current_cpu == "mipsel" ||
   }
 } else if (current_cpu == "mips64el" || v8_current_cpu == "mips64el" ||
            current_cpu == "mips64" || v8_current_cpu == "mips64") {
-  # MIPS arch variant. Possible values are:
-  #   "r2"
-  #   "r6"
-  #   "loongson3"
-  if (current_os == "android" || target_os == "android") {
-    declare_args() {
-      mips_arch_variant = "r6"
+  declare_args() {
+    mips_arch_variant = "r2"
 
-      # MIPS SIMD Arch compilation flag.
-      mips_use_msa = true
-    }
-  } else {
-    declare_args() {
-      mips_arch_variant = "r2"
-
-      # MIPS SIMD Arch compilation flag.
-      mips_use_msa = false
-    }
+    # MIPS SIMD Arch compilation flag.
+    mips_use_msa = false
   }
 }

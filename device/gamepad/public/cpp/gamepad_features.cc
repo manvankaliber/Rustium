@@ -28,12 +28,6 @@ BASE_FEATURE(kGamepadRawInputChangeEvent, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kClaimDuplicateGamepadsProductIdentifier,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-// On Android, expose axes without a standard mapping as extra axes for
-// gamepads with unknown mappings, instead of dropping them or letting
-// multiple input axes alias the same canonical axis.
-BASE_FEATURE(kAndroidUnknownGamepadExtraAxes, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 // Ignores PlayStation 5 gamepads (DualSense, DualSense Edge) in
@@ -41,12 +35,12 @@ BASE_FEATURE(kAndroidUnknownGamepadExtraAxes, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kIgnorePS5GamepadsInWgi, base::FEATURE_ENABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Enabling this feature causes GamepadPlatformDataFetcherLinux to check device
 // IDs before opening the hidraw device node to avoid interfering with devices
 // that are not gamepads or do not require hidraw access.
 BASE_FEATURE(kAllowlistHidrawGamepads, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_APPLE)
 // Enable Xbox gamepad support in GameControllerDataFetcherMac

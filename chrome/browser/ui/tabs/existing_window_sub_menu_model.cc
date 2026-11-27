@@ -15,9 +15,6 @@
 #include "components/tabs/public/tab_interface.h"
 #include "ui/base/accelerators/accelerator.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/tabs/existing_window_sub_menu_model_chromeos.h"
-#endif
 
 namespace {
 
@@ -32,15 +29,9 @@ std::unique_ptr<ExistingWindowSubMenuModel> ExistingWindowSubMenuModel::Create(
     TabMenuModelDelegate* tab_menu_model_delegate,
     TabStripModel* model,
     tabs::TabHandle context_tab) {
-#if BUILDFLAG(IS_CHROMEOS)
-  return std::make_unique<chromeos::ExistingWindowSubMenuModelChromeOS>(
-      GetPassKey(), parent_delegate, tab_menu_model_delegate, model,
-      context_tab);
-#else
   return std::make_unique<ExistingWindowSubMenuModel>(
       GetPassKey(), parent_delegate, tab_menu_model_delegate, model,
       context_tab);
-#endif
 }
 
 std::unique_ptr<ExistingWindowSubMenuModel> ExistingWindowSubMenuModel::Create(

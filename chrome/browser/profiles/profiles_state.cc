@@ -36,19 +36,8 @@
 #include "content/public/browser/browsing_data_remover.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#else
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chromeos/ash/components/browser_context_helper/browser_context_types.h"
-#include "chromeos/ash/components/demo_mode/utils/demo_session_utils.h"
-#include "chromeos/ash/components/login/login_state/login_state.h"
-#include "chromeos/components/kiosk/kiosk_utils.h"
-#else
 #include <algorithm>
 #include <optional>
 #include <string_view>
@@ -56,24 +45,13 @@
 #include "chrome/browser/profiles/gaia_info_update_service.h"
 #include "chrome/browser/profiles/gaia_info_update_service_factory.h"
 #include "components/signin/public/base/signin_pref_names.h"
-#endif
 
 namespace profiles {
 
 bool IsMultipleProfilesEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-  return base::FeatureList::IsEnabled(chrome::android::kAndroidMultiprofile);
-#else
   return true;
-#endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool IsAndroidMultiprofileStartupDataEnabled() {
-  return base::FeatureList::IsEnabled(
-      features::kAndroidMultiprofileStartupData);
-}
-#endif
 
 base::FilePath GetDefaultProfileDir(const base::FilePath& user_data_dir) {
   base::FilePath default_profile_dir(user_data_dir);
@@ -90,17 +68,6 @@ base::FilePath GetLastUsedProfileBaseName(const PrefService& local_state) {
     return initial_profile;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // With AndroidMultiprofileStartupData, the startup profile is chosen from
-  // this value, so require a ProfileAttributesStorage entry. This also rejects
-  // deleted profiles and values that are not profile directory names, such as
-  // "..".
-  if (IsAndroidMultiprofileStartupDataEnabled() &&
-      !local_state.GetDict(prefs::kProfileAttributes)
-           .contains(base_name.AsUTF8Unsafe())) {
-    return initial_profile;
-  }
-#endif
 
   return base_name;
 }
@@ -123,10 +90,8 @@ void RegisterPrefs(PrefRegistrySimple* registry) {
       prefs::kBrowserProfilePickerAvailabilityOnStartup,
       static_cast<int>(ProfilePicker::AvailabilityOnStartup::kEnabled));
   registry->RegisterBooleanPref(prefs::kBrowserProfilePickerShown, false);
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   registry->RegisterBooleanPref(
       prefs::kEnterpriseProfileCreationKeepBrowsingData, false);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 }
 
 void SetLastUsedProfile(const base::FilePath& profile_dir) {
@@ -152,7 +117,6 @@ bool IsRegularUserProfile(Profile* profile) {
   return selections.ApplyProfileSelection(profile);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::u16string GetAvatarNameForProfile(const base::FilePath& profile_path) {
   if (profile_path == ProfileManager::GetGuestProfilePath()) {
     return l10n_util::GetStringUTF16(IDS_GUEST_PROFILE_NAME);
@@ -192,7 +156,6 @@ std::u16string GetAvatarNameForProfile(const base::FilePath& profile_path) {
   return email.empty() ? profile_name_to_display : email;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void UpdateProfileName(Profile* profile,
                        const std::u16string& new_profile_name) {
   ProfileAttributesEntry* entry =
@@ -217,7 +180,6 @@ void UpdateProfileName(Profile* profile,
                           base::UTF16ToUTF8(new_profile_name));
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 bool IsRegularOrGuestSession(const BrowserWindowInterface* browser) {
   const Profile* profile = browser->GetProfile();
@@ -227,8 +189,7 @@ bool IsRegularOrGuestSession(const BrowserWindowInterface* browser) {
 bool IsGuestModeRequested(const base::CommandLine& command_line,
                           PrefService* local_state,
                           bool show_warning) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   CHECK(local_state, base::NotFatalUntil::M162);
 
   // Check if guest mode enforcement commandline switch or policy are provided.
@@ -305,7 +266,6 @@ bool IsProfileLocked(const base::FilePath& profile_path) {
   return entry->IsSigninRequired();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void UpdateGaiaProfileInfoIfNeeded(Profile* profile) {
   CHECK(profile, base::NotFatalUntil::M162);
 
@@ -316,7 +276,6 @@ void UpdateGaiaProfileInfoIfNeeded(Profile* profile) {
     service->UpdatePrimaryAccount();
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void RemoveBrowsingDataForProfile(const base::FilePath& profile_path) {
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
@@ -340,22 +299,13 @@ void RemoveBrowsingDataForProfile(const base::FilePath& profile_path) {
 }
 
 bool IsDemoSession() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return ash::demo_mode::IsDeviceInDemoMode();
-#else
   return false;
-#endif
 }
 
 bool IsChromeAppKioskSession() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return chromeos::IsChromeAppKioskSession();
-#else
   return false;
-#endif
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::u16string GetDefaultNameForNewEnterpriseProfile(
     std::optional<std::string_view> hosted_domain) {
   std::u16string name;
@@ -390,8 +340,6 @@ std::u16string GetDefaultNameForNewSignedInProfileWithIncompleteInfo(
   CHECK(!account_info.email.empty());
   return base::UTF8ToUTF16(account_info.email);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace profiles

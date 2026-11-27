@@ -16,7 +16,6 @@ static constexpr double kPresetBrowserZoomFactorsArray[] = {
 const base::span<const double> kPresetBrowserZoomFactors(
     kPresetBrowserZoomFactorsArray);
 
-#if !BUILDFLAG(IS_ANDROID)
 // The minimum and maximum amount of page zoom that is possible, independent
 // of other factors such as device scale and page scale (pinch). Historically,
 // these values came from WebKitLegacy/mac/WebView/WebView.mm where they are
@@ -24,14 +23,6 @@ const base::span<const double> kPresetBrowserZoomFactors(
 // changed to use different limits.
 const double kMinimumBrowserZoomFactor = 0.25;
 const double kMaximumBrowserZoomFactor = 5.0;
-#else
-// On Android, the OS-level font size is considered when calculating zoom
-// factor. At the OS-level, we support a range of 85% - 200%, and at the
-// browser-level we support 50% - 300%. The max we support is therefore: 3.0 * 2
-// = 6.0, and the min is 0.5 * .85 = .425 (depending on settings).
-const double kMinimumBrowserZoomFactor = 0.425;
-const double kMaximumBrowserZoomFactor = 6.0;
-#endif
 
 // Change the zoom factor by 20% for each zoom level increase from the user.
 // Historically, this value came from WebKit in

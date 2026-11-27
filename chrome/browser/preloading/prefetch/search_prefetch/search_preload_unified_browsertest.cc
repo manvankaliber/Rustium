@@ -72,7 +72,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
@@ -81,7 +80,6 @@
 #include "chrome/browser/ui/omnibox/omnibox_view.h"
 #include "chrome/test/base/ui_test_utils.h"
 #include "components/omnibox/browser/autocomplete_controller.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace page_load_metrics {
 
@@ -462,7 +460,6 @@ class SearchPreloadUnifiedBrowserTest : public PlatformBrowserTest,
     return result;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Helper method to prepare autocomplete context and trigger
   // prerender/prefetch
   void PrepareAutocompleteContextAndTrigger(
@@ -480,11 +477,9 @@ class SearchPreloadUnifiedBrowserTest : public PlatformBrowserTest,
                                                       input);
     ui_test_utils::WaitForAutocompleteDone(browser());
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  private:
   void ResetPointerPosition() {
-#if !BUILDFLAG(IS_ANDROID)
     content::WebContents* contents = GetActiveWebContents();
     content::InputEventAckWaiter waiter(
         contents->GetPrimaryMainFrame()->GetRenderWidgetHost(),
@@ -493,10 +488,6 @@ class SearchPreloadUnifiedBrowserTest : public PlatformBrowserTest,
                        blink::WebMouseEvent::Button::kNoButton,
                        gfx::Point(0, 0));
     waiter.Wait();
-#else
-    // TODO(crbug.com/339718083): Simulate |WebGestureEvent| to make this
-    // function work for Android.
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
 
   AutocompleteMatch CreateSearchSuggestionMatch(
@@ -550,7 +541,7 @@ class SearchPreloadUnifiedBrowserTest : public PlatformBrowserTest,
 // Tests that the SearchSuggestionService can trigger prerendering after the
 // corresponding prefetch request succeeds.
 // TODO(crbug.com/40943413): enable the flaky test.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_PrerenderHintReceivedBeforeSucceed \
   DISABLED_PrerenderHintReceivedBeforeSucceed
 #else
@@ -687,13 +678,8 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
 // Tests that the SearchSuggestionService can trigger prerendering if it
 // receives prerender hints after the previous prefetch request succeeds.
 // TODO(crbug.com/578809890): Deflake and re-enable on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PrerenderHintReceivedAfterSucceed \
-  DISABLED_PrerenderHintReceivedAfterSucceed
-#else
 #define MAYBE_PrerenderHintReceivedAfterSucceed \
   PrerenderHintReceivedAfterSucceed
-#endif
 IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
                        MAYBE_PrerenderHintReceivedAfterSucceed) {
   base::HistogramTester histogram_tester;
@@ -952,13 +938,8 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
 // Tests that prerender fails as well if the prefetch response that prerender
 // uses fails.
 // TODO(crbug.com/351753962): Fix flakiness and re-enable.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NavigationFailsAfterPrefetchServedTheResponse \
-  DISABLED_NavigationFailsAfterPrefetchServedTheResponse
-#else
 #define MAYBE_NavigationFailsAfterPrefetchServedTheResponse \
   NavigationFailsAfterPrefetchServedTheResponse
-#endif
 IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
                        MAYBE_NavigationFailsAfterPrefetchServedTheResponse) {
   base::HistogramTester histogram_tester;
@@ -1521,7 +1502,6 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
 
 // TODO(https://cubug.com/1282624): This test should run on Android after we're
 // able to interact with Android UI.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest, TriggerAndActivate) {
   base::HistogramTester histogram_tester;
   const GURL kInitialUrl = embedded_test_server()->GetURL("/empty.html");
@@ -1641,7 +1621,6 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
 
   EXPECT_EQ(1, prerender_helper().GetRequestCount(expected_prefetch_url));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Tests prerender is not cancelled after SearchPrefetchService cancels prefetch
 // requests.
@@ -1823,11 +1802,7 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
 // Tests that prefetched response can be served to prerender client
 // successfully.
 // TODO(crbug.com/370067813): enable the flaky test.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_FetchPrerenderActivated DISABLED_FetchPrerenderActivated
-#else
 #define MAYBE_FetchPrerenderActivated FetchPrerenderActivated
-#endif
 IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
                        MAYBE_FetchPrerenderActivated) {
   base::HistogramTester histogram_tester;
@@ -1886,13 +1861,8 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
 // Tests that the SearchSuggestionService can trigger prerendering if it
 // receives prerender hints after the previous prefetch request succeeds.
 // TODO(crbug.com/442469525): Deflake and re-enable on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PrerenderHintReceivedAfterCompletion \
-  DISABLED_PrerenderHintReceivedAfterCompletion
-#else
 #define MAYBE_PrerenderHintReceivedAfterCompletion \
   PrerenderHintReceivedAfterCompletion
-#endif
 IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
                        MAYBE_PrerenderHintReceivedAfterCompletion) {
   base::HistogramTester histogram_tester;
@@ -2126,13 +2096,8 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
 // Edge case: when the prerendering navigation is still reading from the cache,
 // the loader would not be deleted until finishing reading.
 //  TODO(crbug.com/498955649): Flaky on Android device Pixel Tablet
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ServingToPrerenderingUntilCompletion \
-  DISABLED_ServingToPrerenderingUntilCompletion
-#else
 #define MAYBE_ServingToPrerenderingUntilCompletion \
   ServingToPrerenderingUntilCompletion
-#endif
 IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
                        MAYBE_ServingToPrerenderingUntilCompletion) {
   base::HistogramTester histogram_tester;
@@ -2410,13 +2375,11 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
 }
 
 // We cannot open the result in another tab on Android.
-#if !BUILDFLAG(IS_ANDROID)
 
 // Tests that even when prerendering is not failed, users can open the
 // prefetched result in another tab and activate the prefetched response
 // successfully.
-#if (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)) && \
-    defined(ADDRESS_SANITIZER)
+#if BUILDFLAG(IS_LINUX) && defined(ADDRESS_SANITIZER)
 #define MAYBE_OpenPrefetchedResponseInBackgroundedTab \
   DISABLED_OpenPrefetchedResponseInBackgroundedTab
 #else
@@ -2542,7 +2505,6 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
       histogram_tester,
       StreamingSearchPrefetchURLLoader::ForwardingResult::kCompleted, 1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class SearchPrefetchThrottleBrowserTest
     : public SearchPreloadUnifiedBrowserTest {
@@ -2649,13 +2611,8 @@ IN_PROC_BROWSER_TEST_F(SearchPrefetchActivationBeaconBrowserTest,
 
 // TODO(crbug.com/393195683): Same as the FetchPrerenderActivated test, the
 // user agent mismatch will cause the test to fail on Android desktop.
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-#define MAYBE_SearchPrefetchToPrerenderUpgradeActivationBeaconSent \
-  DISABLED_SearchPrefetchToPrerenderUpgradeActivationBeaconSent
-#else
 #define MAYBE_SearchPrefetchToPrerenderUpgradeActivationBeaconSent \
   SearchPrefetchToPrerenderUpgradeActivationBeaconSent
-#endif
 IN_PROC_BROWSER_TEST_F(
     SearchPrefetchActivationBeaconBrowserTest,
     MAYBE_SearchPrefetchToPrerenderUpgradeActivationBeaconSent) {
@@ -2744,13 +2701,8 @@ IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
 
 // TODO(crbug.com/517725655): Flaky on Android due to the wait mechanism,
 // investigate and re-enable this test.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SearchPrefetchServedNavigationHandleUserData \
-  DISABLED_SearchPrefetchServedNavigationHandleUserData
-#else
 #define MAYBE_SearchPrefetchServedNavigationHandleUserData \
   SearchPrefetchServedNavigationHandleUserData
-#endif
 // Tests that a navigation served by search prefetch marks
 // NavigationHandleUserData and records PreloadServingMetrics.
 IN_PROC_BROWSER_TEST_F(SearchPreloadUnifiedBrowserTest,
@@ -2864,13 +2816,8 @@ class SearchPreloadUnifiedMetricsDisabledBrowserTest
 
 // TODO(crbug.com/517725655): Flaky on Android due to the wait mechanism,
 // investigate and re-enable this test.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SearchPrefetchServedNavigationHandleUserDataFeatureDisabled \
-  DISABLED_SearchPrefetchServedNavigationHandleUserDataFeatureDisabled
-#else
 #define MAYBE_SearchPrefetchServedNavigationHandleUserDataFeatureDisabled \
   SearchPrefetchServedNavigationHandleUserDataFeatureDisabled
-#endif
 // Tests that a navigation served by search prefetch does not mark
 // NavigationHandleUserData or record PreloadServingMetrics as kPrefetch
 // when kSearchPrefetchPreloadServingMetrics is disabled.
@@ -2976,13 +2923,8 @@ IN_PROC_BROWSER_TEST_F(
 // TODO(crbug.com/393195683): User-agent override mismatch causes this test to
 // fail on Android desktop.
 // TODO(crbug.com/517725655): Flaky on Android due to the wait mechanism.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SearchPrerenderServedNavigationHandleUserData \
-  DISABLED_SearchPrerenderServedNavigationHandleUserData
-#else
 #define MAYBE_SearchPrerenderServedNavigationHandleUserData \
   SearchPrerenderServedNavigationHandleUserData
-#endif
 // Tests that a navigation served by search prerender marks
 // NavigationHandleUserData and records PreloadServingMetrics.
 // When both prefetch and prerender are triggered and served (the prefetch

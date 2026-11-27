@@ -44,757 +44,349 @@
 
 #include "net/cookies/parsed_cookie.h"
 
-#include <algorithm>
+#include <array>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <utility>
 
-#include "base/containers/fixed_flat_set.h"
-#include "base/numerics/checked_math.h"
-#include "base/strings/string_util.h"
-#include "net/base/features.h"
-#include "net/cookies/cookie_constants.h"
+#include "base/check.h"
 #include "net/cookies/cookie_inclusion_status.h"
-#include "net/http/http_util.h"
-
-namespace {
-
-constexpr std::string_view kPathTokenName = "path";
-constexpr std::string_view kDomainTokenName = "domain";
-constexpr std::string_view kExpiresTokenName = "expires";
-constexpr std::string_view kMaxAgeTokenName = "max-age";
-constexpr std::string_view kSecureTokenName = "secure";
-constexpr std::string_view kHttpOnlyTokenName = "httponly";
-constexpr std::string_view kSameSiteTokenName = "samesite";
-constexpr std::string_view kPriorityTokenName = "priority";
-constexpr std::string_view kPartitionedTokenName = "partitioned";
-
-constexpr char kTerminatorRawString[] = "\n\r\0";
-constexpr std::string_view kTerminator(kTerminatorRawString,
-                                       sizeof(kTerminatorRawString) - 1);
-constexpr std::string_view kWhitespace = " \t";
-constexpr char kValueSeparator = ';';
-constexpr std::string_view kTokenSeparator = ";=";
-
-// Returns true if |c| occurs in |chars|
-// TODO(erikwright): maybe make this take an iterator, could check for end also?
-inline bool CharIsA(const char c, std::string_view chars) {
-  return chars.find(c) != std::string_view::npos;
-}
-
-// Seek the iterator to the first occurrence of |character|.
-// Returns true if it hits the end, false otherwise.
-inline bool SeekToCharacter(std::string_view::iterator* it,
-                            const std::string_view::iterator& end,
-                            const char character) {
-  for (; *it != end && **it != character; ++(*it)) {
-  }
-  return *it == end;
-}
-
-// Seek the iterator to the first occurrence of a character in |chars|.
-// Returns true if it hit the end, false otherwise.
-inline bool SeekTo(std::string_view::iterator* it,
-                   const std::string_view::iterator& end,
-                   std::string_view chars) {
-  for (; *it != end && !CharIsA(**it, chars); ++(*it)) {
-  }
-  return *it == end;
-}
-// Seek the iterator to the first occurrence of a character not in |chars|.
-// Returns true if it hit the end, false otherwise.
-inline bool SeekPast(std::string_view::iterator* it,
-                     const std::string_view::iterator& end,
-                     std::string_view chars) {
-  for (; *it != end && CharIsA(**it, chars); ++(*it)) {
-  }
-  return *it == end;
-}
-inline bool SeekBackPast(std::string_view::iterator* it,
-                         const std::string_view::iterator& end,
-                         std::string_view chars) {
-  for (; *it != end && CharIsA(**it, chars); --(*it)) {
-  }
-  return *it == end;
-}
-
-// Returns the string piece within `value` that is a valid cookie value.
-std::string_view ValidStringPieceForValue(std::string_view value) {
-  std::string_view::iterator it = value.begin();
-  std::string_view::iterator end =
-      net::ParsedCookie::FindFirstTerminator(value);
-  std::string_view::iterator value_start;
-  std::string_view::iterator value_end;
-
-  net::ParsedCookie::ParseValue(&it, end, &value_start, &value_end);
-
-  return std::string_view(value_start, value_end);
-}
-
-// Returns the appropriate enum value (or nullopt) for a given cookie's initial
-// pair (i.e. its name and value). `had_token_value_separator` is whether there
-// was an "=" character between the name and value.
-std::optional<net::NamelessCookieLineParseType>
-GetNamelessParseTypeForInitialPair(std::string_view cookie_name,
-                                   std::string_view cookie_value,
-                                   bool had_token_value_separator) {
-  static constexpr auto kCookieAttributeNames =
-      base::MakeFixedFlatSet<std::string_view>({
-          kPathTokenName,
-          kDomainTokenName,
-          kExpiresTokenName,
-          kMaxAgeTokenName,
-          kSecureTokenName,
-          kHttpOnlyTokenName,
-          kSameSiteTokenName,
-          kPriorityTokenName,
-          kPartitionedTokenName,
-      });
-  static_assert(std::ranges::all_of(kCookieAttributeNames,
-                                    [](std::string_view str) constexpr {
-                                      return std::none_of(
-                                          str.begin(), str.end(),
-                                          base::IsAsciiUpper<char>);
-                                    }),
-                "Letters in cookie attribute names should be lowercase.");
-
-  if (!cookie_name.empty()) {
-    return std::nullopt;
-  }
-  if (had_token_value_separator) {
-    return cookie_value.contains('=')
-               ? net::NamelessCookieLineParseType::kNamelessWithAmbiguousValue
-               : net::NamelessCookieLineParseType::kEqualsPrecedingToken;
-  }
-  if (kCookieAttributeNames.contains(base::ToLowerASCII(cookie_value))) {
-    return net::NamelessCookieLineParseType::kBareTokenMatchingAttributeName;
-  }
-  return net::NamelessCookieLineParseType::kBareToken;
-}
-
-}  // namespace
+#include "net/cookies/parsed_cookie_rust_ffi.h"
 
 namespace net {
+namespace {
+constexpr std::array<std::string_view, 9> kAttributeNames = {
+    "path",     "domain",   "expires",  "max-age",    "secure",
+    "httponly", "samesite", "priority", "partitioned"};
 
-ParsedCookie::ParsedCookie(std::string_view cookie_line,
-                           CookieInclusionStatus* status_out) {
-  // Put a pointer on the stack so the rest of the function can assign to it if
-  // the default nullptr is passed in.
-  CookieInclusionStatus blank_status;
-  if (status_out == nullptr) {
-    status_out = &blank_status;
+void ApplyReason(size_t reason, CookieInclusionStatus* status) {
+  if (!status) {
+    return;
   }
-  *status_out = CookieInclusionStatus();
+  using Reason = CookieInclusionStatus::ExclusionReason;
+  switch (reason) {
+    case 0:
+      return;
+    case 1:
+      status->AddExclusionReason(Reason::EXCLUDE_NO_COOKIE_CONTENT);
+      return;
+    case 2:
+      status->AddExclusionReason(
+          Reason::EXCLUDE_NAME_VALUE_PAIR_EXCEEDS_MAX_SIZE);
+      return;
+    case 3:
+      status->AddExclusionReason(Reason::EXCLUDE_DISALLOWED_CHARACTER);
+      return;
+  }
+}
 
-  ParseTokenValuePairs(cookie_line, *status_out);
-  if (IsValid()) {
-    SetupAttributes();
-  } else {
-    // Status should indicate exclusion if the resulting ParsedCookie is
-    // invalid.
-    CHECK(!status_out->IsInclude());
+// Pointer formation only: Rust guarantees offsets inside the borrowed input.
+// Avoid even zero arithmetic on a null pointer for null-empty string_views.
+std::string_view::iterator At(std::string_view input, size_t offset) {
+  return offset == 0 ? input.begin() : UNSAFE_BUFFERS(input.begin() + offset);
+}
+std::string_view Remaining(std::string_view::iterator it,
+                           std::string_view::iterator end) {
+  return it == end ? std::string_view(std::to_address(it), 0)
+                   : std::string_view(it, end);
+}
+
+// Only iterator-object identity crosses the bridge, never iterator addresses.
+size_t IteratorAliases(std::string_view::iterator* it,
+                       const std::string_view::iterator& end,
+                       std::string_view::iterator* start,
+                       std::string_view::iterator* finish) {
+  return size_t(it == start) | (size_t(it == finish) << 1) |
+         (size_t(start == finish) << 2) | (size_t(&end == it) << 3) |
+         (size_t(&end == start) << 4) | (size_t(&end == finish) << 5);
+}
+
+// Canonical enums stay in C++. Fail compilation if their persisted values drift
+// from the private Rust bridge representation.
+static_assert(static_cast<int>(CookieSameSite::UNSPECIFIED) == -1);
+static_assert(static_cast<int>(CookieSameSite::NO_RESTRICTION) == 0);
+static_assert(static_cast<int>(CookieSameSite::LAX_MODE) == 1);
+static_assert(static_cast<int>(CookieSameSite::STRICT_MODE) == 2);
+static_assert(static_cast<int>(CookieSameSiteString::kUnspecified) == 0);
+static_assert(static_cast<int>(CookieSameSiteString::kEmptyString) == 1);
+static_assert(static_cast<int>(CookieSameSiteString::kUnrecognized) == 2);
+static_assert(static_cast<int>(CookieSameSiteString::kLax) == 3);
+static_assert(static_cast<int>(CookieSameSiteString::kStrict) == 4);
+static_assert(static_cast<int>(CookieSameSiteString::kNone) == 5);
+static_assert(static_cast<int>(CookieSameSiteString::kExtended) == 6);
+static_assert(COOKIE_PRIORITY_LOW == 0 && COOKIE_PRIORITY_MEDIUM == 1 &&
+              COOKIE_PRIORITY_HIGH == 2 && COOKIE_PRIORITY_DEFAULT == 1);
+static_assert(static_cast<int>(NamelessCookieLineParseType::kBareToken) == 0);
+static_assert(
+    static_cast<int>(
+        NamelessCookieLineParseType::kBareTokenMatchingAttributeName) == 1);
+static_assert(
+    static_cast<int>(NamelessCookieLineParseType::kEqualsPrecedingToken) == 2);
+static_assert(static_cast<int>(
+                  NamelessCookieLineParseType::kNamelessWithAmbiguousValue) ==
+              3);
+}  // namespace
+
+ParsedCookie::ParsedCookie(std::string_view input,
+                           CookieInclusionStatus* status_out) {
+  CookieInclusionStatus blank;
+  auto& status = status_out ? *status_out : blank;
+  status = CookieInclusionStatus();
+  size_t position = 0;
+  bool first = true;
+  for (;;) {
+    const auto pair =
+        rustium_cookie_next(input.data(), input.size(), position, first);
+    if (first) {
+      internal_htab_ = pair.internal_htab != 0;
+      if (pair.nameless != 4) {
+        nameless_parse_type_ =
+            static_cast<NamelessCookieLineParseType>(pair.nameless);
+      }
+    }
+    if (pair.action == 0) {
+      break;
+    }
+    if (pair.action == 3) {
+      ApplyReason(pair.reason, &status);
+      pairs_.clear();
+      // The original selects attributes only after the entire parse succeeds.
+      for (size_t* index : AttributeIndexes()) {
+        *index = 0;
+      }
+      break;
+    }
+    if (pair.action == 2) {
+      status.AddWarningReason(CookieInclusionStatus::WarningReason::
+                                  WARN_ATTRIBUTE_VALUE_EXCEEDS_MAX_SIZE);
+    } else {
+      pairs_.emplace_back(input.substr(pair.name_begin, pair.name_len),
+                          input.substr(pair.value_begin, pair.value_len));
+      if (!first) {
+        auto& name = pairs_.back().first;
+        rustium_cookie_lower(name.data(), name.size());
+        if (pair.attribute) {
+          *AttributeIndexes()[pair.attribute - 1] = pairs_.size() - 1;
+        }
+      }
+    }
+    position = pair.next;
+    first = false;
+  }
+  if (!IsValid()) {
+    CHECK(!status.IsInclude());
   }
 }
 
 ParsedCookie::~ParsedCookie() = default;
-
 bool ParsedCookie::IsValid() const {
   return !pairs_.empty();
 }
 
+std::array<size_t*, 9> ParsedCookie::AttributeIndexes() {
+  return {&path_index_,      &domain_index_,   &expires_index_,
+          &maxage_index_,    &secure_index_,   &httponly_index_,
+          &same_site_index_, &priority_index_, &partitioned_index_};
+}
+
 std::pair<CookieSameSite, CookieSameSiteString> ParsedCookie::SameSite() const {
-  if (same_site_index_ != 0) {
-    return StringToCookieSameSite(pairs_[same_site_index_].second);
-  }
-  return {CookieSameSite::UNSPECIFIED, CookieSameSiteString::kUnspecified};
+  std::string_view value =
+      same_site_index_ ? pairs_[same_site_index_].second : std::string_view();
+  const auto result = rustium_cookie_same_site(value.data(), value.size(),
+                                               same_site_index_ != 0);
+  return {static_cast<CookieSameSite>(result.value),
+          static_cast<CookieSameSiteString>(result.metric)};
 }
-
 CookiePriority ParsedCookie::Priority() const {
-  return (priority_index_ == 0)
-             ? COOKIE_PRIORITY_DEFAULT
-             : StringToCookiePriority(pairs_[priority_index_].second);
+  std::string_view value =
+      priority_index_ ? pairs_[priority_index_].second : std::string_view();
+  return static_cast<CookiePriority>(
+      rustium_cookie_query(5, value.data(), value.size()));
 }
 
-bool ParsedCookie::SetName(std::string_view name) {
-  const std::string_view value =
-      pairs_.empty() ? std::string_view() : pairs_[0].second;
-
-  // Ensure there are no invalid characters in `name`. This should be done
-  // before calling ParseTokenString because we want terminating characters
-  // ('\r', '\n', and '\0') and '=' in `name` to cause a rejection instead of
-  // truncation.
-  // TODO(crbug.com/40191620) Once we change logic more broadly to reject
-  // cookies containing these characters, we should be able to simplify this
-  // logic since IsValidCookieNameValuePair() also calls IsValidCookieName().
-  // Also, this check will currently fail if `name` has a tab character in the
-  // leading or trailing whitespace, which is inconsistent with what happens
-  // when parsing a cookie line in the constructor (but the old logic for
-  // SetName() behaved this way as well).
-  if (!IsValidCookieName(name)) {
+bool ParsedCookie::Mutate(size_t field, std::string_view input, bool enabled) {
+  const std::string_view name = IsValid() ? Name() : std::string_view();
+  const std::string_view value = IsValid() ? Value() : std::string_view();
+  const auto plan =
+      rustium_cookie_mutation(field, input.data(), input.size(), name.data(),
+                              name.size(), value.data(), value.size(), enabled);
+  if (plan.action == 0) {
     return false;
   }
-
-  // Use the same whitespace trimming code as the constructor.
-  const std::string_view parsed_name = ParseTokenString(name);
-
-  if (!IsValidCookieNameValuePair(parsed_name, value)) {
-    return false;
+  if (plan.action == 3) {
+    const auto indexes = AttributeIndexes();
+    const size_t removed = *indexes[field - 2];
+    if (removed) {
+      std::array<size_t, 9> updated;
+      for (size_t i = 0; i < updated.size(); ++i) {
+        updated[i] = *indexes[i];
+      }
+      rustium_cookie_clear(updated.data(), removed);
+      for (size_t i = 0; i < updated.size(); ++i) {
+        *indexes[i] = updated[i];
+      }
+      pairs_.erase(pairs_.begin() + removed);
+    }
+    return true;
   }
-
-  if (pairs_.empty())
-    pairs_.emplace_back("", "");
-  pairs_[0].first = parsed_name;
-
+  // Rust has released all input borrows. Existing-string assignment supports
+  // overlapping string_views, as in the original C++ implementation. Only an
+  // insertion needs a staged copy before vector growth can invalidate input.
+  const auto parsed = input.substr(plan.begin, plan.len);
+  if (plan.action == 1 || plan.action == 2) {
+    if (pairs_.empty()) {
+      std::string staged(parsed);
+      pairs_.emplace_back("", "");
+      if (plan.action == 1) {
+        pairs_[0].first = std::move(staged);
+      } else {
+        pairs_[0].second = std::move(staged);
+      }
+    } else if (plan.action == 1) {
+      pairs_[0].first.assign(parsed);
+    } else {
+      pairs_[0].second.assign(parsed);
+    }
+  } else {
+    size_t& index = *AttributeIndexes()[field - 2];
+    if (index) {
+      pairs_[index].second.assign(parsed);
+    } else {
+      std::string staged(parsed);
+      pairs_.emplace_back(kAttributeNames[field - 2], std::move(staged));
+      index = pairs_.size() - 1;
+    }
+  }
   return true;
 }
 
-bool ParsedCookie::SetValue(std::string_view value) {
-  const std::string_view name =
-      pairs_.empty() ? std::string_view() : pairs_[0].first;
-
-  // Ensure there are no invalid characters in `value`. This should be done
-  // before calling ParseValueString because we want terminating characters
-  // ('\r', '\n', and '\0') in `value` to cause a rejection instead of
-  // truncation.
-  // TODO(crbug.com/40191620) Once we change logic more broadly to reject
-  // cookies containing these characters, we should be able to simplify this
-  // logic since IsValidCookieNameValuePair() also calls IsValidCookieValue().
-  // Also, this check will currently fail if `value` has a tab character in
-  // the leading or trailing whitespace, which is inconsistent with what
-  // happens when parsing a cookie line in the constructor (but the old logic
-  // for SetValue() behaved this way as well).
-  if (!IsValidCookieValue(value)) {
-    return false;
-  }
-
-  // Use the same whitespace trimming code as the constructor.
-  std::string_view parsed_value = ParseValueString(value);
-
-  if (!IsValidCookieNameValuePair(name, parsed_value)) {
-    return false;
-  }
-  if (pairs_.empty())
-    pairs_.emplace_back("", "");
-  pairs_[0].second = parsed_value;
-
-  return true;
+bool ParsedCookie::SetName(std::string_view v) {
+  return Mutate(0, v);
 }
-
-bool ParsedCookie::SetPath(std::string_view path) {
-  return SetString(&path_index_, kPathTokenName, path);
+bool ParsedCookie::SetValue(std::string_view v) {
+  return Mutate(1, v);
 }
-
-bool ParsedCookie::SetDomain(std::string_view domain) {
-  return SetString(&domain_index_, kDomainTokenName, domain);
+bool ParsedCookie::SetPath(std::string_view v) {
+  return Mutate(2, v);
 }
-
-bool ParsedCookie::SetExpires(std::string_view expires) {
-  return SetString(&expires_index_, kExpiresTokenName, expires);
+bool ParsedCookie::SetDomain(std::string_view v) {
+  return Mutate(3, v);
 }
-
-bool ParsedCookie::SetMaxAge(std::string_view maxage) {
-  return SetString(&maxage_index_, kMaxAgeTokenName, maxage);
+bool ParsedCookie::SetExpires(std::string_view v) {
+  return Mutate(4, v);
 }
-
-bool ParsedCookie::SetIsSecure(bool is_secure) {
-  return SetBool(&secure_index_, kSecureTokenName, is_secure);
+bool ParsedCookie::SetMaxAge(std::string_view v) {
+  return Mutate(5, v);
 }
-
-bool ParsedCookie::SetIsHttpOnly(bool is_http_only) {
-  return SetBool(&httponly_index_, kHttpOnlyTokenName, is_http_only);
+bool ParsedCookie::SetIsSecure(bool v) {
+  return Mutate(6, {}, v);
 }
-
-bool ParsedCookie::SetSameSite(std::string_view same_site) {
-  return SetString(&same_site_index_, kSameSiteTokenName, same_site);
+bool ParsedCookie::SetIsHttpOnly(bool v) {
+  return Mutate(7, {}, v);
 }
-
-bool ParsedCookie::SetPriority(std::string_view priority) {
-  return SetString(&priority_index_, kPriorityTokenName, priority);
+bool ParsedCookie::SetSameSite(std::string_view v) {
+  return Mutate(8, v);
 }
-
-bool ParsedCookie::SetIsPartitioned(bool is_partitioned) {
-  return SetBool(&partitioned_index_, kPartitionedTokenName, is_partitioned);
+bool ParsedCookie::SetPriority(std::string_view v) {
+  return Mutate(9, v);
+}
+bool ParsedCookie::SetIsPartitioned(bool v) {
+  return Mutate(10, {}, v);
 }
 
 std::string ParsedCookie::ToCookieLine() const {
   std::string out;
-  for (auto it = pairs_.begin(); it != pairs_.end(); ++it) {
-    if (!out.empty())
+  bool first = true;
+  for (const auto& [name, value] : pairs_) {
+    const auto flags = rustium_cookie_serialization(name.data(), name.size(),
+                                                    first, out.empty());
+    if (flags & 2) {
       out.append("; ");
-    out.append(it->first);
-    // Determine whether to emit the pair's value component. We should always
-    // print it for the first pair(see crbug.com/977619). After the first pair,
-    // we need to consider whether the name component is a special token.
-    if (it == pairs_.begin() ||
-        (it->first != kSecureTokenName && it->first != kHttpOnlyTokenName &&
-         it->first != kPartitionedTokenName)) {
-      out.append("=");
-      out.append(it->second);
     }
+    out.append(name);
+    if (flags & 1) {
+      out.append("=");
+      out.append(value);
+    }
+    first = false;
   }
   return out;
 }
 
-// static
 std::string_view::iterator ParsedCookie::FindFirstTerminator(
     std::string_view s) {
-  std::string_view::iterator end = s.end();
-  size_t term_pos = s.find_first_of(kTerminator);
-  if (term_pos != std::string_view::npos) {
-    // We found a character we should treat as an end of string.
-    end = s.begin() + term_pos;
-  }
-  return end;
+  return At(s, rustium_cookie_query(0, s.data(), s.size()));
 }
-
-// static
 bool ParsedCookie::ParseToken(std::string_view::iterator* it,
                               const std::string_view::iterator& end,
-                              std::string_view::iterator* token_start,
-                              std::string_view::iterator* token_end) {
-  DCHECK(it && token_start && token_end);
-  std::string_view::iterator token_real_end;
-
-  // Seek past any whitespace before the "token" (the name).
-  // token_start should point at the first character in the token
-  if (SeekPast(it, end, kWhitespace))
-    return false;  // No token, whitespace or empty.
-  *token_start = *it;
-
-  // Seek over the token, to the token separator.
-  // token_real_end should point at the token separator, i.e. '='.
-  // If it == end after the seek, we probably have a token-value.
-  SeekTo(it, end, kTokenSeparator);
-  token_real_end = *it;
-
-  // Ignore any whitespace between the token and the token separator.
-  // token_end should point after the last interesting token character,
-  // pointing at either whitespace, or at '=' (and equal to token_real_end).
-  if (*it != *token_start) {  // We could have an empty token name.
-    --(*it);                  // Go back before the token separator.
-    // Skip over any whitespace to the first non-whitespace character.
-    SeekBackPast(it, *token_start, kWhitespace);
-    // Point after it.
-    ++(*it);
+                              std::string_view::iterator* start,
+                              std::string_view::iterator* finish) {
+  DCHECK(it && start && finish);
+  const auto input = Remaining(*it, end);
+  const auto scan =
+      rustium_cookie_scan(input.data(), input.size(), true, false,
+                          IteratorAliases(it, end, start, finish));
+  *it = At(input, scan.next);
+  if (!scan.found) {
+    return false;
   }
-  *token_end = *it;
-
-  // Seek us back to the end of the token.
-  *it = token_real_end;
+  *start = At(input, scan.begin);
+  *finish = At(input, scan.begin + scan.len);
   return true;
 }
-
-// static
 void ParsedCookie::ParseValue(std::string_view::iterator* it,
                               const std::string_view::iterator& end,
-                              std::string_view::iterator* value_start,
-                              std::string_view::iterator* value_end) {
-  DCHECK(it && value_start && value_end);
-
-  // Seek past any whitespace that might be in-between the token and value.
-  SeekPast(it, end, kWhitespace);
-  // value_start should point at the first character of the value.
-  *value_start = *it;
-
-  // Just look for ';' to terminate ('=' allowed).
-  // We can hit the end, maybe they didn't terminate.
-  SeekToCharacter(it, end, kValueSeparator);
-
-  // Will point at the ; separator or the end.
-  *value_end = *it;
-
-  // Ignore any unwanted whitespace after the value.
-  if (*value_end != *value_start) {  // Could have an empty value
-    --(*value_end);
-    // Skip over any whitespace to the first non-whitespace character.
-    SeekBackPast(value_end, *value_start, kWhitespace);
-    // Point after it.
-    ++(*value_end);
-  }
+                              std::string_view::iterator* start,
+                              std::string_view::iterator* finish) {
+  DCHECK(it && start && finish);
+  const auto input = Remaining(*it, end);
+  const auto scan =
+      rustium_cookie_scan(input.data(), input.size(), false, false,
+                          IteratorAliases(it, end, start, finish));
+  *it = At(input, scan.next);
+  *start = At(input, scan.begin);
+  *finish = At(input, scan.begin + scan.len);
 }
-
-// static
-std::string_view ParsedCookie::ParseTokenString(std::string_view token) {
-  std::string_view::iterator it = token.begin();
-  std::string_view::iterator end = FindFirstTerminator(token);
-
-  std::string_view::iterator token_start, token_end;
-  if (ParseToken(&it, end, &token_start, &token_end))
-    return std::string_view(token_start, token_end);
-  return std::string_view();
+std::string_view ParsedCookie::ParseTokenString(std::string_view s) {
+  const auto scan = rustium_cookie_scan(s.data(), s.size(), true, true, 0);
+  return scan.found ? s.substr(scan.begin, scan.len) : std::string_view();
 }
-
-// static
-std::string_view ParsedCookie::ParseValueString(std::string_view value) {
-  return ValidStringPieceForValue(value);
+std::string_view ParsedCookie::ParseValueString(std::string_view s) {
+  const auto scan = rustium_cookie_scan(s.data(), s.size(), false, true, 0);
+  return s.substr(scan.begin, scan.len);
 }
-
-// static
-bool ParsedCookie::ValueMatchesParsedValue(std::string_view value) {
-  // ValidStringPieceForValue() returns a valid substring of |value|.
-  // If |value| can be fully parsed the result will have the same length
-  // as |value|.
-  return ValidStringPieceForValue(value).length() == value.length();
+bool ParsedCookie::ValueMatchesParsedValue(std::string_view s) {
+  return rustium_cookie_query(4, s.data(), s.size());
 }
-
-// static
-bool ParsedCookie::IsValidCookieName(std::string_view name) {
-  // IsValidCookieName() returns whether a string matches the following
-  // grammar:
-  //
-  // cookie-name       = *cookie-name-octet
-  // cookie-name-octet = %x20-3A / %x3C / %x3E-7E / %x80-FF
-  //                       ; octets excluding CTLs, ";", and "="
-  //
-  // This can be used to determine whether cookie names and cookie attribute
-  // names contain any invalid characters.
-  //
-  // Note that RFC6265bis section 4.1.1 suggests a stricter grammar for
-  // parsing cookie names, but we choose to allow a wider range of characters
-  // than what's allowed by that grammar (while still conforming to the
-  // requirements of the parsing algorithm defined in section 5.2).
-  //
-  // For reference, see:
-  //  - https://crbug.com/238041
-  for (char i : name) {
-    if (HttpUtil::IsControlChar(i) || i == ';' || i == '=')
-      return false;
-  }
-  return true;
+bool ParsedCookie::IsValidCookieName(std::string_view s) {
+  return rustium_cookie_query(1, s.data(), s.size());
 }
-
-// static
-bool ParsedCookie::IsValidCookieValue(std::string_view value) {
-  // IsValidCookieValue() returns whether a string matches the following
-  // grammar:
-  //
-  // cookie-value       = *cookie-value-octet
-  // cookie-value-octet = %x20-3A / %x3C-7E / %x80-FF
-  //                       ; octets excluding CTLs and ";"
-  //
-  // This can be used to determine whether cookie values contain any invalid
-  // characters.
-  //
-  // Note that RFC6265bis section 4.1.1 suggests a stricter grammar for
-  // parsing cookie values, but we choose to allow a wider range of characters
-  // than what's allowed by that grammar (while still conforming to the
-  // requirements of the parsing algorithm defined in section 5.2).
-  //
-  // For reference, see:
-  //  - https://crbug.com/238041
-  for (char i : value) {
-    if (HttpUtil::IsControlChar(i) || i == ';')
-      return false;
-  }
-  return true;
+bool ParsedCookie::IsValidCookieValue(std::string_view s) {
+  return rustium_cookie_query(2, s.data(), s.size());
 }
-
-// static
-bool ParsedCookie::CookieAttributeValueHasValidCharSet(std::string_view value) {
-  // A cookie attribute value has the same character set restrictions as cookie
-  // values, so re-use the validation function for that.
-  return IsValidCookieValue(value);
+bool ParsedCookie::CookieAttributeValueHasValidCharSet(std::string_view s) {
+  return rustium_cookie_query(2, s.data(), s.size());
 }
-
-// static
-bool ParsedCookie::CookieAttributeValueHasValidSize(std::string_view value) {
-  return (value.size() <= kMaxCookieAttributeValueSize);
+bool ParsedCookie::CookieAttributeValueHasValidSize(std::string_view s) {
+  return rustium_cookie_query(3, s.data(), s.size());
 }
-
-// static
-bool ParsedCookie::IsValidCookieNameValuePair(
-    std::string_view name,
-    std::string_view value,
-    CookieInclusionStatus* status_out) {
-  // Ignore cookies with neither name nor value.
-  if (name.empty() && value.empty()) {
-    if (status_out != nullptr) {
-      status_out->AddExclusionReason(
-          CookieInclusionStatus::ExclusionReason::EXCLUDE_NO_COOKIE_CONTENT);
-    }
-    // TODO(crbug.com/40189703) Note - if the exclusion reasons change to no
-    // longer be the same, we'll need to not return right away and evaluate all
-    // of the checks.
-    return false;
-  }
-
-  // Enforce a length limit for name + value per RFC6265bis.
-  base::CheckedNumeric<size_t> name_value_pair_size = name.size();
-  name_value_pair_size += value.size();
-  if (!name_value_pair_size.IsValid() ||
-      (name_value_pair_size.ValueOrDie() > kMaxCookieNamePlusValueSize)) {
-    if (status_out != nullptr) {
-      status_out->AddExclusionReason(
-          CookieInclusionStatus::ExclusionReason::
-              EXCLUDE_NAME_VALUE_PAIR_EXCEEDS_MAX_SIZE);
-    }
-    return false;
-  }
-
-  // Ignore Set-Cookie directives containing control characters. See
-  // http://crbug.com/238041.
-  if (!IsValidCookieName(name) || !IsValidCookieValue(value)) {
-    if (status_out != nullptr) {
-      status_out->AddExclusionReason(
-          CookieInclusionStatus::ExclusionReason::EXCLUDE_DISALLOWED_CHARACTER);
-    }
-    return false;
-  }
-  return true;
+bool ParsedCookie::IsValidCookieNameValuePair(std::string_view name,
+                                              std::string_view value,
+                                              CookieInclusionStatus* status) {
+  const auto reason = rustium_cookie_valid_pair(name.data(), name.size(),
+                                                value.data(), value.size());
+  ApplyReason(reason, status);
+  return reason == 0;
 }
-
 bool ParsedCookie::ForEachAttribute(
     base::FunctionRef<bool(std::string_view, std::string_view)> functor) const {
-  // The first element in `pairs_` is the name and value, so skip that one.
-  for (const auto& [attribute, value] : base::span(pairs_).subspan(1u)) {
-    if (!functor(attribute, value)) {
+  // Callback invocation and C++ view lifetimes remain storage adapter seams.
+  for (size_t i = 1; i < pairs_.size(); ++i) {
+    if (!functor(pairs_[i].first, pairs_[i].second)) {
       return false;
     }
   }
-
   return true;
 }
-
-// Parse all token/value pairs and populate pairs_.
-void ParsedCookie::ParseTokenValuePairs(std::string_view cookie_line,
-                                        CookieInclusionStatus& status_out) {
-  pairs_.clear();
-
-  // Ok, here we go.  We should be expecting to be starting somewhere
-  // before the cookie line, not including any header name...
-  const std::string_view::iterator start = cookie_line.begin();
-  std::string_view::iterator it = start;
-
-  // TODO(erikwright): Make sure we're stripping \r\n in the network code.
-  // Then we can log any unexpected terminators.
-  const std::string_view::iterator end = FindFirstTerminator(cookie_line);
-
-  // Block cookies that were truncated by control characters.
-  if (end < cookie_line.end()) {
-    status_out.AddExclusionReason(
-        CookieInclusionStatus::ExclusionReason::EXCLUDE_DISALLOWED_CHARACTER);
-    return;
-  }
-
-  // Exit early for an empty cookie string.
-  if (it == end) {
-    status_out.AddExclusionReason(
-        CookieInclusionStatus::ExclusionReason::EXCLUDE_NO_COOKIE_CONTENT);
-    return;
-  }
-
-  for (size_t pair_num = 0; it != end; ++pair_num) {
-    std::pair<std::string, std::string> pair;
-
-    std::string_view::iterator token_start, token_end;
-    if (!ParseToken(&it, end, &token_start, &token_end)) {
-      // Allow first token to be treated as empty-key if unparsable
-      if (pair_num != 0)
-        break;
-
-      // If parsing failed, start the value parsing at the very beginning.
-      token_start = start;
-    }
-
-    bool had_token_value_separator = false;
-    if (it == end || *it != '=') {
-      // We have a token-value, we didn't have any token name.
-      if (pair_num == 0) {
-        // For the first time around, we want to treat single values
-        // as a value with an empty name. (Mozilla bug 169091).
-        // IE seems to also have this behavior, ex "AAA", and "AAA=10" will
-        // set 2 different cookies, and setting "BBB" will then replace "AAA".
-        pair.first = "";
-        // Rewind to the beginning of what we thought was the token name,
-        // and let it get parsed as a value.
-        it = token_start;
-      } else {
-        // Any not-first attribute we want to treat a value as a
-        // name with an empty value...  This is so something like
-        // "secure;" will get parsed as a Token name, and not a value.
-        pair.first = std::string(token_start, token_end);
-      }
-    } else {
-      // We have a TOKEN=VALUE.
-      pair.first = std::string(token_start, token_end);
-      ++it;  // Skip past the '='.
-      had_token_value_separator = true;
-    }
-
-    // OK, now try to parse a value.
-    std::string_view::iterator value_start, value_end;
-    ParseValue(&it, end, &value_start, &value_end);
-
-    // OK, we're finished with a Token/Value.
-    pair.second = std::string(value_start, value_end);
-
-    // For metrics, check if either the name or value contain an internal HTAB
-    // (0x9). That is, not leading or trailing.
-    if (pair_num == 0 &&
-        (pair.first.find_first_of("\t") != std::string::npos ||
-         pair.second.find_first_of("\t") != std::string::npos)) {
-      internal_htab_ = true;
-    }
-
-    bool ignore_pair = false;
-    if (pair_num == 0) {
-      if (!IsValidCookieNameValuePair(pair.first, pair.second, &status_out)) {
-        pairs_.clear();
-        break;
-      }
-    } else {
-      // From RFC2109: "Attributes (names) (attr) are case-insensitive."
-      pair.first = base::ToLowerASCII(pair.first);
-
-      // Attribute names have the same character set limitations as cookie
-      // names, but only a handful of values are allowed. We don't check that
-      // this attribute name is one of the allowed ones here, so just re-use
-      // the cookie name check.
-      if (!IsValidCookieName(pair.first)) {
-        status_out.AddExclusionReason(CookieInclusionStatus::ExclusionReason::
-                                          EXCLUDE_DISALLOWED_CHARACTER);
-        pairs_.clear();
-        break;
-      }
-
-      if (!CookieAttributeValueHasValidCharSet(pair.second)) {
-        // If the attribute value contains invalid characters, the whole
-        // cookie should be ignored.
-        status_out.AddExclusionReason(CookieInclusionStatus::ExclusionReason::
-                                          EXCLUDE_DISALLOWED_CHARACTER);
-        pairs_.clear();
-        break;
-      }
-
-      if (!CookieAttributeValueHasValidSize(pair.second)) {
-        // If the attribute value is too large, it should be ignored.
-        ignore_pair = true;
-        status_out.AddWarningReason(CookieInclusionStatus::WarningReason::
-                                        WARN_ATTRIBUTE_VALUE_EXCEEDS_MAX_SIZE);
-      }
-    }
-
-    if (!ignore_pair) {
-      pairs_.emplace_back(std::move(pair));
-
-      // Record enum for metrics on nameless cookies.
-      if (pair_num == 0) {
-        nameless_parse_type_ = GetNamelessParseTypeForInitialPair(
-            pairs_.back().first, pairs_.back().second,
-            had_token_value_separator);
-      }
-    }
-
-    // We've processed a token/value pair, we're either at the end of
-    // the string or a ValueSeparator like ';', which we want to skip.
-    if (it != end)
-      ++it;
-  }
-}
-
-void ParsedCookie::SetupAttributes() {
-  // We skip over the first token/value, the user supplied one.
-  for (size_t i = 1; i < pairs_.size(); ++i) {
-    if (pairs_[i].first == kPathTokenName) {
-      path_index_ = i;
-    } else if (pairs_[i].first == kDomainTokenName) {
-      domain_index_ = i;
-    } else if (pairs_[i].first == kExpiresTokenName) {
-      expires_index_ = i;
-    } else if (pairs_[i].first == kMaxAgeTokenName) {
-      maxage_index_ = i;
-    } else if (pairs_[i].first == kSecureTokenName) {
-      secure_index_ = i;
-    } else if (pairs_[i].first == kHttpOnlyTokenName) {
-      httponly_index_ = i;
-    } else if (pairs_[i].first == kSameSiteTokenName) {
-      same_site_index_ = i;
-    } else if (pairs_[i].first == kPriorityTokenName) {
-      priority_index_ = i;
-    } else if (pairs_[i].first == kPartitionedTokenName) {
-      partitioned_index_ = i;
-    } else {
-      /* some attribute we don't know or don't care about. */
-    }
-  }
-}
-
-bool ParsedCookie::SetString(size_t* index,
-                             std::string_view key,
-                             std::string_view untrusted_value) {
-  // This function should do equivalent input validation to the
-  // constructor. Otherwise, the Set* functions can put this ParsedCookie in a
-  // state where parsing the output of ToCookieLine() produces a different
-  // ParsedCookie.
-  //
-  // Without input validation, invoking pc.SetPath(" baz ") would result in
-  // pc.ToCookieLine() == "path= baz ". Parsing the "path= baz " string would
-  // produce a cookie with "path" attribute equal to "baz" (no spaces). We
-  // should not produce cookie lines that parse to different key/value pairs!
-
-  // Inputs containing invalid characters or attribute value strings that are
-  // too large should be ignored. Note that we check the attribute value size
-  // after removing leading and trailing whitespace.
-  if (!CookieAttributeValueHasValidCharSet(untrusted_value))
-    return false;
-
-  // Use the same whitespace trimming code as the constructor.
-  std::string_view parsed_value = ParseValueString(untrusted_value);
-
-  if (!CookieAttributeValueHasValidSize(parsed_value))
-    return false;
-
-  if (parsed_value.empty()) {
-    ClearAttributePair(*index);
-    return true;
-  } else {
-    return SetAttributePair(index, key, parsed_value);
-  }
-}
-
-bool ParsedCookie::SetBool(size_t* index, std::string_view key, bool value) {
-  if (!value) {
-    ClearAttributePair(*index);
-    return true;
-  } else {
-    return SetAttributePair(index, key, std::string());
-  }
-}
-
-bool ParsedCookie::SetAttributePair(size_t* index,
-                                    std::string_view key,
-                                    std::string_view value) {
-  if (!HttpUtil::IsToken(key))
-    return false;
-  if (!IsValid())
-    return false;
-  if (*index) {
-    pairs_[*index].second = value;
-  } else {
-    pairs_.emplace_back(key, value);
-    *index = pairs_.size() - 1;
-  }
-  return true;
-}
-
-void ParsedCookie::ClearAttributePair(size_t index) {
-  // The first pair (name/value of cookie at pairs_[0]) cannot be cleared.
-  // Cookie attributes that don't have a value at the moment, are
-  // represented with an index being equal to 0.
-  if (index == 0)
-    return;
-
-  size_t* indexes[] = {
-      &path_index_,      &domain_index_,   &expires_index_,
-      &maxage_index_,    &secure_index_,   &httponly_index_,
-      &same_site_index_, &priority_index_, &partitioned_index_};
-  for (size_t* attribute_index : indexes) {
-    if (*attribute_index == index)
-      *attribute_index = 0;
-    else if (*attribute_index > index)
-      --(*attribute_index);
-  }
-  pairs_.erase(pairs_.begin() + index);
-}
-
 }  // namespace net

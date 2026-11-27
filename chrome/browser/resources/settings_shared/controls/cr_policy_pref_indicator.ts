@@ -124,14 +124,6 @@ export class CrPolicyPrefIndicatorElement extends CrLitElement {
         return name.length > 0 ?
             CrPolicyStrings.controlledSettingExtension!.replace('$1', name) :
             CrPolicyStrings.controlledSettingExtensionWithoutName!;
-      // <if expr="is_chromeos">
-      case CrPolicyIndicatorType.PRIMARY_USER:
-        return CrPolicyStrings.controlledSettingShared!.replace('$1', name);
-      case CrPolicyIndicatorType.OWNER:
-        return name.length > 0 ?
-            CrPolicyStrings.controlledSettingWithOwner!.replace('$1', name) :
-            CrPolicyStrings.controlledSettingNoOwner!;
-      // </if>
       case CrPolicyIndicatorType.USER_POLICY:
       case CrPolicyIndicatorType.DEVICE_POLICY:
         return CrPolicyStrings.controlledSettingPolicy!;

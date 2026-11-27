@@ -87,17 +87,13 @@
 #include "services/network/public/mojom/network_service_test.mojom.h"
 #include "services/network/public/mojom/socket_broker.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/background_thread_pool_field_trial.h"
-#else
 #include "content/browser/network_sandbox.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "content/browser/network/network_service_process_tracker_win.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "content/browser/system_dns_resolution/system_dns_resolver.h"
 #include "services/network/public/mojom/system_dns_resolution.mojom-forward.h"
 #endif
@@ -119,13 +115,6 @@ constexpr char kKrb5CCEnvName[] = "KRB5CCNAME";
 constexpr char kKrb5ConfEnvName[] = "KRB5_CONFIG";
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-// File paths to the Kerberos credentials cache and configuration. The `FILE:`
-// prefix describes the type of credentials cache used. The `/home/chronos/user`
-// subpath corresponds to a bind mount of the active user.
-constexpr char kKrb5CCFilePath[] = "FILE:/home/chronos/user/kerberos/krb5cc";
-constexpr char kKrb5ConfFilePath[] = "/home/chronos/user/kerberos/krb5.conf";
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool g_force_create_network_service_directly = false;
 bool g_network_service_crashes_on_next_startup = false;
@@ -137,11 +126,7 @@ bool g_network_service_is_responding = false;
 // When enabled, sets the in-process network service thread to
 // base::ThreadType::kPresentation during startup.
 BASE_FEATURE(kNetworkServiceIncreasedPriorityDuringStartup,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else   // BUILDFLAG(IS_ANDROID)
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif  // BUILDFLAG(IS_ANDROID)
 );
 
 // When enabled, sets the in-process network service thread to
@@ -322,19 +307,6 @@ void CreateInProcessNetworkService(
     if (base::FeatureList::IsEnabled(net::features::kNetTaskScheduler)) {
       net::ConfigureSequenceManager(options);
     }
-#if BUILDFLAG(IS_ANDROID)
-    // Local testing shows that when priority inheritance (PI) locks are enabled
-    // on Android, the network service thread is frequently queued behind thread
-    // pool worker threads when contending for a PI lock, regressing startup
-    // time. This is because of the Linux kernel enforcing FIFO ordering on
-    // threads of same priority contending on a PI lock. Increase the network
-    // thread's priority when PI locks are enabled to compensate for the shift
-    // from an unfair to a fair lock.
-    if (base::android::BackgroundThreadPoolFieldTrial::
-            ShouldUsePriorityInheritanceLocks()) {
-      options.thread_type = base::ThreadType::kPresentation;
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
     GetNetworkServiceDedicatedThread().StartWithOptions(std::move(options));
     task_runner = GetNetworkServiceDedicatedThread().task_runner();
     task_runner->PostTask(
@@ -345,10 +317,6 @@ void CreateInProcessNetworkService(
               kNetworkServiceSuffix);
           base::LockMetricsRecorder::EnableRecordingOnCurrentThread(
               kNetworkServiceSuffix);
-#if BUILDFLAG(IS_ANDROID)
-          base::PlatformThreadPriorityMonitor::Get().RegisterCurrentThread(
-              kNetworkServiceSuffix);
-#endif  // BUILDFLAG(IS_ANDROID)
         }));
   } else {
     task_runner = GetIOThreadTaskRunner({});
@@ -365,7 +333,7 @@ void CreateInProcessNetworkService(
       }));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 // Runs a self-owned SystemDnsResolverMojoImpl. This is meant to run on a
 // high-priority thread pool.
 void RunSystemDnsResolverOnThreadPool(
@@ -374,7 +342,7 @@ void RunSystemDnsResolverOnThreadPool(
       std::make_unique<content::SystemDnsResolverMojoImpl>(),
       std::move(dns_receiver));
 }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
 
 network::mojom::NetworkServiceParamsPtr CreateNetworkServiceParams() {
   network::mojom::NetworkServiceParamsPtr network_service_params =
@@ -400,17 +368,7 @@ network::mojom::NetworkServiceParamsPtr CreateNetworkServiceParams() {
   }
 #endif  // BUILDFLAG(IS_LINUX)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, the network service is always out of process (unless
-  // --single-process is set on the command-line). In any case, we set Kerberos
-  // environment variables during the service initialization.
-  network_service_params->environment.push_back(
-      network::mojom::EnvironmentVariable::New(kKrb5CCEnvName,
-                                               kKrb5CCFilePath));
-  network_service_params->environment.push_back(
-      network::mojom::EnvironmentVariable::New(kKrb5ConfEnvName,
-                                               kKrb5ConfFilePath));
-#elif BUILDFLAG(IS_POSIX)
+#if BUILDFLAG(IS_POSIX)
   // Send Kerberos environment variables to the network service, if it's running
   // in another process.
   if (IsOutOfProcessNetworkService()) {
@@ -428,7 +386,7 @@ network::mojom::NetworkServiceParamsPtr CreateNetworkServiceParams() {
   }
 #endif  // BUILDFLAG(IS_POSIX)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   if (GetContentClient()
           ->browser()
           ->ShouldRunOutOfProcessSystemDnsResolution() &&
@@ -442,7 +400,7 @@ network::mojom::NetworkServiceParamsPtr CreateNetworkServiceParams() {
                                   dns_remote.InitWithNewPipeAndPassReceiver()));
     network_service_params->system_dns_resolver = std::move(dns_remote);
   }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
 
   return network_service_params;
 }
@@ -801,11 +759,6 @@ void RemoveNetworkServiceProcessObserver(
   g_observed_network_service->RemoveObserver(observer);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-net::NetworkChangeNotifier* GetNetworkChangeNotifier() {
-  return BrowserMainLoop::GetInstance()->network_change_notifier();
-}
-#endif
 
 void FlushNetworkServiceInstanceForTesting() {
   CHECK(BrowserThread::CurrentlyOn(BrowserThread::UI),
@@ -1063,40 +1016,6 @@ void CreateNetworkContextInNetworkService(
             .InitWithNewPipeAndPassReceiver());
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, if a cookie_manager pending receiver was passed then migration
-  // should not be attempted as the cookie file is already being accessed by the
-  // browser instance.
-  if (params->cookie_manager) {
-    if (params->file_paths) {
-      // No migration should ever be attempted under this configuration.
-      CHECK(!params->file_paths->unsandboxed_data_path,
-            base::NotFatalUntil::M160);
-    }
-    CreateNetworkContextInternal(
-        std::move(context), std::move(params),
-        SandboxGrantResult::kDidNotAttemptToGrantSandboxAccess);
-    return;
-  }
-
-  // Note: This logic is duplicated from MaybeGrantAccessToDataPath to this fast
-  // path. This should be kept in sync if there are any changes to the logic.
-  SandboxGrantResult grant_result = SandboxGrantResult::kNoMigrationRequested;
-  if (!params->file_paths) {
-    // No file paths (e.g. in-memory context) so nothing to do.
-    grant_result = SandboxGrantResult::kDidNotAttemptToGrantSandboxAccess;
-  } else {
-    // If no `unsandboxed_data_path` is supplied, it means this is network
-    // context has been created by Android Webview, which does not understand
-    // the concept of `unsandboxed_data_path`. In this case, `data_directory`
-    // should always be used, if present.
-    if (!params->file_paths->unsandboxed_data_path)
-      grant_result = SandboxGrantResult::kDidNotAttemptToGrantSandboxAccess;
-  }
-  // Create network context immediately without thread hops.
-  CreateNetworkContextInternal(std::move(context), std::move(params),
-                               grant_result);
-#else
   if (base::FeatureList::IsEnabled(
           network::features::kCreateNetworkContextNonBlocking)) {
     // This might recreate g_client if the network service needed to be
@@ -1115,7 +1034,6 @@ void CreateNetworkContextInNetworkService(
   GrantSandboxAccessOnThreadPool(
       std::move(params),
       base::BindOnce(&CreateNetworkContextInternal, std::move(context)));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 }  // namespace content

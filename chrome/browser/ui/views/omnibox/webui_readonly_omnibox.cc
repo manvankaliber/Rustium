@@ -15,7 +15,6 @@
 #include "chrome/browser/external_protocol/external_protocol_handler.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
-#include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_edit_model.h"
 #include "chrome/browser/ui/omnibox/omnibox_next_features.h"
@@ -306,14 +305,7 @@ void WebUIReadOnlyOmnibox::ApplyFocusRingToAimButton(bool focus_aim) {
 }
 
 bool WebUIReadOnlyOmnibox::AimButtonVisible() const {
-  if (!location_bar_) {
-    return false;
-  }
-  // The controller may be absent if it was torn down before the browser
-  // widget is destroyed, or if it was never created for this profile.
-  auto* controller =
-      omnibox::AiModePageActionController::From(location_bar_->GetBrowser());
-  return controller && controller->IsVisible();
+  return false;
 }
 
 void WebUIReadOnlyOmnibox::ApplyCaretVisibility() {

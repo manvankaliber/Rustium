@@ -55,13 +55,6 @@ class CONTENT_EXPORT RenderFrameMetadataProviderImpl
 
   const cc::RenderFrameMetadata& LastRenderFrameMetadata() override;
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Notifies the renderer of the changes in the notification frequency of the
-  // root scroll updates, which is needed for accessibility and
-  // GestureListenerManager on Android.
-  void UpdateRootScrollOffsetUpdateFrequency(
-      cc::mojom::RootScrollOffsetUpdateFrequency frequency);
-#endif
 
   // Notifies the renderer to begin sending a notification on all frame
   // submissions.
@@ -95,14 +88,6 @@ class CONTENT_EXPORT RenderFrameMetadataProviderImpl
       uint32_t frame_token,
       const cc::RenderFrameMetadata& metadata) override;
   void OnFrameSubmissionForTesting(uint32_t frame_token) override;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void OnRootScrollOffsetChanged(
-      const gfx::PointF& root_scroll_offset) override;
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  void ReportScrollJankStats(uint32_t total_frames,
-                             uint32_t janky_frames) override;
-#endif
 
   base::ObserverList<Observer> observers_;
 
@@ -119,10 +104,6 @@ class CONTENT_EXPORT RenderFrameMetadataProviderImpl
   mojo::Remote<cc::mojom::RenderFrameMetadataObserver>
       render_frame_metadata_observer_remote_;
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  std::optional<cc::mojom::RootScrollOffsetUpdateFrequency>
-      pending_root_scroll_offset_update_frequency_;
-#endif
   std::optional<bool> pending_report_all_frame_submission_for_testing_;
 
   base::WeakPtrFactory<RenderFrameMetadataProviderImpl> weak_factory_{this};

@@ -30,14 +30,10 @@
 #include "third_party/abseil-cpp/absl/container/flat_hash_map.h"
 #include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/application_status_listener.h"
-#endif
-
 namespace base {
 class Pickle;
 class PickleIterator;
-}
+}  // namespace base
 
 namespace disk_cache {
 
@@ -87,6 +83,8 @@ class NET_EXPORT_PRIVATE EntryMetadata {
   static const int kOnDiskSizeBytes = 16;
 
  private:
+  friend struct DiskSimpleIndexRustServices;
+  friend struct DiskSimpleIndexMetadataServices;
   friend class SimpleIndexFileTest;
   FRIEND_TEST_ALL_PREFIXES(SimpleIndexFileTest, ReadV8Format);
   FRIEND_TEST_ALL_PREFIXES(SimpleIndexFileTest, ReadV8FormatAppCache);
@@ -230,18 +228,12 @@ class NET_EXPORT_PRIVATE SimpleIndex final {
   base::Time GetLastUsedTime(uint64_t entry_hash);
   void SetLastUsedTimeForTest(uint64_t entry_hash, const base::Time last_used);
 
-#if BUILDFLAG(IS_ANDROID)
-  void set_app_status_listener_getter(
-      ApplicationStatusListenerGetter app_status_listener_getter) {
-    app_status_listener_getter_ = app_status_listener_getter;
-  }
-#endif
-
   // Return true if a pending disk write has been scheduled from
   // PostponeWritingToDisk().
   bool HasPendingWrite() const;
 
  private:
+  friend struct DiskSimpleIndexRustServices;
   friend class SimpleIndexTest;
   FRIEND_TEST_ALL_PREFIXES(SimpleIndexTest, IndexSizeCorrectOnMerge);
   FRIEND_TEST_ALL_PREFIXES(SimpleIndexTest, DiskWriteQueued);
@@ -256,21 +248,8 @@ class NET_EXPORT_PRIVATE SimpleIndex final {
 
   void PostponeWritingToDisk();
 
-  // Update the size of the entry pointed to by the given iterator.  Return
-  // true if the new size actually results in a change.
-  bool UpdateEntryIteratorSize(EntrySet::iterator* it,
-                               base::StrictNumeric<uint64_t> entry_size);
-
   // Must run on IO Thread.
   void MergeInitializingSet(std::unique_ptr<SimpleIndexLoadResult> load_result);
-
-#if BUILDFLAG(IS_ANDROID)
-  void OnApplicationStateChange(base::android::ApplicationState state);
-
-  std::unique_ptr<base::android::ApplicationStatusListener>
-      owned_app_status_listener_;
-  ApplicationStatusListenerGetter app_status_listener_getter_;
-#endif
 
   scoped_refptr<BackendCleanupTracker> cleanup_tracker_;
 

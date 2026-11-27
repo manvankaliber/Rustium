@@ -110,22 +110,6 @@ BLINK_COMMON_EXPORT bool VerifyReferencedFilesInPageState(
 BLINK_COMMON_EXPORT bool VerifyReferencedFilesInPageState(
     const ExplodedPageState& exploded);
 
-#if BUILDFLAG(IS_ANDROID)
-BLINK_COMMON_EXPORT bool DecodePageStateWithDeviceScaleFactorForTesting(
-    const std::string& encoded,
-    float device_scale_factor,
-    ExplodedPageState* exploded);
-
-// Converts results of EncodeResourceRequestBody (passed in as a pair of |data|
-// + |size|) back into a ResourceRequestBody.  Returns nullptr if the
-// decoding fails (e.g. if |data| is malformed).
-BLINK_COMMON_EXPORT scoped_refptr<network::ResourceRequestBody>
-DecodeResourceRequestBody(base::span<const uint8_t> data);
-
-// Encodes |resource_request_body| into |encoded|.
-BLINK_COMMON_EXPORT std::string EncodeResourceRequestBody(
-    const network::ResourceRequestBody& resource_request_body);
-#endif
 
 }  // namespace blink
 

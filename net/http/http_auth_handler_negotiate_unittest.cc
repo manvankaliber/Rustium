@@ -37,9 +37,7 @@
 #error "use_kerberos should be true to use Negotiate authentication scheme."
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "net/android/dummy_spnego_authenticator.h"
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "net/http/mock_sspi_library_win.h"
 #elif BUILDFLAG(USE_EXTERNAL_GSSAPI)
 #include "net/http/mock_gssapi_library_posix.h"
@@ -64,10 +62,6 @@ class HttpAuthHandlerNegotiateTest : public PlatformTest,
 #if BUILDFLAG(IS_WIN)
     auto auth_library = base::MakeRefCounted<MockAuthLibrary>(
         const_cast<wchar_t*>(NEGOSSP_NAME));
-#elif BUILDFLAG(IS_ANDROID)
-    // MockAuthLibrary is DummySpnegoAuthenticator here, which is not an
-    // AuthLibrary and is not refcounted.
-    auto auth_library = std::make_unique<MockAuthLibrary>();
 #else
     auto auth_library = base::MakeRefCounted<MockAuthLibrary>();
 #endif
@@ -83,19 +77,9 @@ class HttpAuthHandlerNegotiateTest : public PlatformTest,
     factory_ = std::make_unique<HttpAuthHandlerNegotiate::Factory>(
         HttpAuthMechanismFactory());
     factory_->set_http_auth_preferences(http_auth_preferences_.get());
-#if BUILDFLAG(IS_ANDROID)
-    auth_library_for_android_ = std::move(auth_library);
-    http_auth_preferences_->set_auth_android_negotiate_account_type(
-        "org.chromium.test.DummySpnegoAuthenticator");
-    MockAuthLibrary::EnsureTestAccountExists();
-#else
     factory_->set_library(std::move(auth_library));
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void TearDown() override { MockAuthLibrary::RemoveTestAccounts(); }
-#endif
 
   void SetupMocks(MockAuthLibrary* mock_library) {
 #if BUILDFLAG(IS_WIN)
@@ -269,8 +253,6 @@ class HttpAuthHandlerNegotiateTest : public PlatformTest,
 
 #if BUILDFLAG(IS_WIN)
   std::unique_ptr<SecPkgInfoW> security_package_;
-#elif BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<MockAuthLibrary> auth_library_for_android_;
 #endif
   std::unique_ptr<MockCachingHostResolver> resolver_;
   std::unique_ptr<MockAllowHttpAuthPreferences> http_auth_preferences_;
@@ -500,7 +482,7 @@ TEST_F(HttpAuthHandlerNegotiateTest, MissingGSSAPI) {
 #endif  // BUILDFLAG(USE_EXTERNAL_GSSAPI)
 
 // AllowGssapiLibraryLoad() is only supported on ChromeOS and Linux.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(HttpAuthHandlerNegotiateTest, AllowGssapiLibraryLoad) {
   // Disabling allow_gssapi_library_load should prevent handler creation.
   SetupMocks(AuthLibrary());
@@ -516,7 +498,7 @@ TEST_F(HttpAuthHandlerNegotiateTest, AllowGssapiLibraryLoad) {
   EXPECT_EQ(OK, rv);
   EXPECT_TRUE(auth_handler);
 }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
 
 #endif  // BUILDFLAG(IS_POSIX)
 
@@ -558,7 +540,7 @@ TEST_F(HttpAuthHandlerNegotiateTest, OverrideAuthSystem) {
 #if BUILDFLAG(IS_WIN)
   negotiate_factory->set_library(
       base::MakeRefCounted<MockAuthLibrary>(NEGOSSP_NAME));
-#elif !BUILDFLAG(IS_ANDROID)
+#else
   negotiate_factory->set_library(base::MakeRefCounted<MockAuthLibrary>());
 #endif
 

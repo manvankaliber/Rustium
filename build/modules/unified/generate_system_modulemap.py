@@ -20,6 +20,9 @@ from typing import Callable, List, Optional, Tuple
 
 import modulemap_config
 
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2]))
+import action_helpers
+
 _HEADER_RE = re.compile(r'(?:(private)\s+)?(?:(textual)\s+)?header\s+"([^"]+)"')
 _SIMPLE_HEADER_RE = re.compile(r'(\bheader\s+")([^"]+)(")')
 _REQUIRES_RE = re.compile(r'^\s*requires\s+(.*)')
@@ -652,21 +655,25 @@ def main(args, extra_args):
                 f'Available: {available}'
             )
 
-    args.output.write_text(
-        combine_modulemaps(
-            out=args.output,
-            modulemaps=args.modulemap,
-            headers=deps,
-            module_name=args.module_name,
-            extra_modules=[known_modules[module] for module in args.module],
-            modify_modules=modify_modules,
-            modified_modules=modified_modules,
-        )
+    content = combine_modulemaps(
+        out=args.output,
+        modulemaps=args.modulemap,
+        headers=deps,
+        module_name=args.module_name,
+        extra_modules=[known_modules[module] for module in args.module],
+        modify_modules=modify_modules,
+        modified_modules=modified_modules,
     )
 
     unused = modify_modules.keys() - modified_modules
     if unused:
         raise ValueError(f'Unable to find modules to modify: {unused}')
+
+    # Clang may still have the previous modulemap mapped while another target
+    # regenerates it. Avoid truncating that file, and leave it untouched when
+    # generation produces identical contents.
+    with action_helpers.atomic_output(args.output, mode='w') as output:
+        output.write(content)
 
 
 if __name__ == '__main__':

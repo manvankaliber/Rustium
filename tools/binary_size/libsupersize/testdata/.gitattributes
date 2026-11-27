@@ -1,0 +1,2 @@
+# Archive headers and offsets require the bytes recorded in Git.
+*.a -text

@@ -2,7 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/memory/raw_ptr.h"
 #include "net/socket/client_socket_pool.h"
+#include "net/socket/connection_jobs_upper_rust_ffi.h"
+#include "base/check.h"
 
 #include <memory>
 #include <string_view>
@@ -36,11 +39,275 @@
 #include "url/url_constants.h"
 
 namespace net {
+namespace {
+OnHostResolutionCallbackResult OnHostResolution(SpdySessionPool*,const SpdySessionKey&,bool,const HostPortPair&,const HostResolverEndpointsOrServiceEndpoints&,const base::flat_set<std::string>&);
+SocketPoolAdditionalCapacity CreateConnectionFamilyCapacity(size_t,const ProxyChain&);
+NetworkAnonymizationKey SelectConnectionFamilyKey(NetworkAnonymizationKey&);
+}
+
+// Typed storage/provider primitives only. Sequencing/branches live in safe Rust.
+struct ClientSocketPoolFamilyRustBridge final
+    : connection_jobs_upper_rust::Invocation {
+  using Class = ClientSocketPool;
+
+  explicit ClientSocketPoolFamilyRustBridge(Class* job)
+      : Invocation(job), mutable_owner(job), owner(job) { Register(&Clear);  }
+  explicit ClientSocketPoolFamilyRustBridge(const Class* job)
+      : Invocation(job), mutable_owner(nullptr), owner(job) { Register(&Clear);  }
+  ClientSocketPoolFamilyRustBridge()
+      : Invocation(this), mutable_owner(nullptr), owner(nullptr) { Register(&Clear); }
+  ~ClientSocketPoolFamilyRustBridge() {  Unregister(); }
+  Class& M() { CHECK(Live()); CHECK(mutable_owner); return *mutable_owner; }
+  const Class& R() const { CHECK(Live()); CHECK(owner); return *owner; }
+  int64_t Run(uint32_t operation, int64_t argument = 0) {
+    return connection_jobs_upper_rust::connection_jobs_rust_run(
+        8, operation, argument, this, Service);
+  }
+  raw_ptr<Class> mutable_owner;
+  raw_ptr<const Class> owner;
+
+
+  raw_ptr<const Class::GroupId> group_input=nullptr;
+  raw_ptr<const ProxyChain> proxy_input=nullptr;
+  raw_ptr<NetworkAnonymizationKey> nak_input=nullptr;
+  std::optional<NetworkAnonymizationKey> nak_output;
+  std::optional<SocketPoolAdditionalCapacity> capacity_output;
+  size_t capacity_input=0;
+  raw_ptr<std::string> text_output=nullptr;
+  std::string_view piece;
+  raw_ptr<base::DictValue> dict_output=nullptr;
+  raw_ptr<const NetLogWithSource> log_input=nullptr;
+  raw_ptr<scoped_refptr<Class::SocketParams>> params_input=nullptr;
+  raw_ptr<const std::optional<NetworkTrafficAnnotationTag>> annotation_input=nullptr;
+  RequestPriority priority_input=DEFAULT_PRIORITY;
+  raw_ptr<SocketTag> tag_input=nullptr;
+  raw_ptr<ConnectJob::Delegate> delegate_input=nullptr;
+  std::unique_ptr<ConnectJob> job_output;
+  OnHostResolutionCallback resolution_callback;
+  raw_ptr<SpdySessionPool> spdy_input=nullptr;
+  raw_ptr<const SpdySessionKey> key_input=nullptr;
+  bool websockets_input=false;
+  raw_ptr<const HostPortPair> host_input=nullptr;
+  raw_ptr<const HostResolverEndpointsOrServiceEndpoints> endpoints_input=nullptr;
+  raw_ptr<const base::flat_set<std::string>> aliases_input=nullptr;
+  base::TimeDelta duration_input;
+  ConnectJobFactory::AlpnMode alpn=ConnectJobFactory::AlpnMode::kHttpAll;
+  bool force_tunnel=false;
+
+  static void Clear(Invocation* value) {
+    auto& c = *static_cast<ClientSocketPoolFamilyRustBridge*>(value);
+    c.mutable_owner = nullptr;
+    c.owner = nullptr;
+    c.group_input = nullptr;
+    c.proxy_input = nullptr;
+    c.nak_input = nullptr;
+    c.text_output = nullptr;
+    c.dict_output = nullptr;
+    c.log_input = nullptr;
+    c.params_input = nullptr;
+    c.annotation_input = nullptr;
+    c.tag_input = nullptr;
+    c.delegate_input = nullptr;
+    c.spdy_input = nullptr;
+    c.key_input = nullptr;
+    c.host_input = nullptr;
+    c.endpoints_input = nullptr;
+    c.aliases_input = nullptr;
+  }
+
+  static bool Service(void* context, uint32_t module, uint32_t action, int64_t argument,
+                      int64_t* value) {
+    auto& c = *static_cast<ClientSocketPoolFamilyRustBridge*>(context);
+    *value = 0;
+    
+    if (!c.Live() || module != 8) { return false; }
+    if(action==UINT32_MAX){*value=1;return true;}
+    switch (action) {
+      case 0: {  // PRIVACY
+*value=static_cast<int>(c.group_input->privacy_mode());
+        break;
+      }
+      case 1: {  // SECURE_DNS
+*value=static_cast<int>(c.group_input->secure_dns_policy());
+        break;
+      }
+      case 2: {  // DISABLE_FETCH
+*value=c.group_input->disable_cert_network_fetches();
+        break;
+      }
+      case 3: {  // TARGET_NETWORK
+*value=c.group_input->target_network();
+        break;
+      }
+      case 4: {  // PARTITION
+*value=NetworkAnonymizationKey::IsPartitioningEnabled();
+        break;
+      }
+      case 5: {  // PIECE
+switch(argument){case 0:c.piece="";break;case 1:c.piece="pm/";break;
+case 2:c.piece="pmwocc/";break;case 3:c.piece="pmpsa/";break;
+case 4:c.piece="dsd/";break;case 5:c.piece="dns_bootstrap/";break;
+default:NOTREACHED();}
+        break;
+      }
+      case 6: {  // APPEND_PIECE
+c.text_output->append(c.piece);
+        break;
+      }
+      case 7: {  // APPEND_DISABLE
+c.text_output->append("disable_cert_network_fetches/");
+        break;
+      }
+      case 8: {  // APPEND_TARGET
+c.text_output->append(base::StrCat({"target_network=",base::ToString(c.group_input->target_network()),"/"}));
+        break;
+      }
+      case 9: {  // APPEND_DESTINATION
+c.text_output->append(c.group_input->destination().Serialize());
+        break;
+      }
+      case 10: {  // APPEND_NAK
+c.text_output->append(base::StrCat({" <",c.group_input->network_anonymization_key().ToDebugString(),">"}));
+        break;
+      }
+      case 11: {  // CLEAR_TEXT
+c.text_output->clear();
+        break;
+      }
+      case 12: {  // COPY_NAK
+c.nak_output.emplace(std::move(*c.nak_input));
+        break;
+      }
+      case 13: {  // EMPTY_NAK
+c.nak_output.emplace();
+        break;
+      }
+      case 14: {  // DIRECT_INPUT
+*value=c.proxy_input->is_direct();
+        break;
+      }
+      case 15: {  // RANDOM_PROXY
+*value=ClientSocketPoolManager::allow_size_randomization_for_proxy();
+        break;
+      }
+      case 16: {  // CREATE_CAPACITY
+c.capacity_output.emplace(SocketPoolAdditionalCapacity::Create(c.capacity_input));
+        break;
+      }
+      case 17: {  // EMPTY_CAPACITY
+c.capacity_output.emplace(SocketPoolAdditionalCapacity::CreateEmpty());
+        break;
+      }
+      case 18: {  // SECONDS_INPUT
+*value=c.duration_input.InSeconds();
+        break;
+      }
+      case 19: {  // CHECK_SECONDS
+DCHECK_GT(argument,0);
+        break;
+      }
+      case 20: {  // DICT_GROUP
+c.dict_output->Set("group_id",c.group_input->ToString());
+        break;
+      }
+      case 21: {  // LOG_REQUEST
+c.log_input->AddEvent(NetLogEventType::TCP_CLIENT_SOCKET_POOL_REQUESTED_SOCKET,[&c]{return Class::NetLogGroupIdParams(*c.group_input);});
+        break;
+      }
+      case 22: {  // USING_SSL
+*value=GURL::SchemeIsCryptographic(c.group_input->destination().scheme());
+        break;
+      }
+      case 23: {  // DIRECT_OWNER
+*value=c.R().GetProxyChain().is_direct();
+        break;
+      }
+      case 24: {  // INSTALL_RESOLUTION_CALLBACK
+c.resolution_callback=base::BindRepeating(&OnHostResolution,c.R().common_connect_job_params_->spdy_session_pool,
+SpdySessionKey(HostPortPair::FromSchemeHostPort(c.group_input->destination()),c.group_input->privacy_mode(),
+c.R().GetProxyChain(),SessionUsage::kDestination,*c.tag_input,c.group_input->network_anonymization_key(),
+c.group_input->secure_dns_policy(),c.group_input->disable_cert_network_fetches(),c.group_input->target_network()),c.R().is_for_websockets_);
+        break;
+      }
+      case 25: {  // WEBSOCKETS
+*value=c.R().is_for_websockets_;
+        break;
+      }
+      case 26: {  // CREATE_JOB
+c.job_output=c.R().connect_job_factory_->CreateConnectJob(c.group_input->destination(),c.R().GetProxyChain(),
+*c.annotation_input,(*c.params_input)->allowed_bad_certs(),c.alpn,c.force_tunnel,c.group_input->privacy_mode(),
+c.resolution_callback,c.priority_input,*c.tag_input,c.group_input->network_anonymization_key(),
+c.group_input->secure_dns_policy(),c.group_input->disable_cert_network_fetches(),c.R().common_connect_job_params_,
+c.group_input->target_network(),c.delegate_input);
+        break;
+      }
+      case 27: {  // HTTP11
+c.alpn=ConnectJobFactory::AlpnMode::kHttp11Only;
+        break;
+      }
+      case 28: {  // HTTP_ALL
+c.alpn=ConnectJobFactory::AlpnMode::kHttpAll;
+        break;
+      }
+      case 29: {  // TUNNEL
+c.force_tunnel=argument != 0;
+        break;
+      }
+      case 30: {  // EXPAND_ALLOCATE
+const auto next=c.R().additional_capacity_.NextExpandabilityBeforeAllocation(c.R().Expandability(),c.R().SocketsInUse(),c.R().SocketSoftCap());
+if(!c.Live())return false;c.M().expandability_=next;
+        break;
+      }
+      case 31: {  // EXPAND_RELEASE
+const auto next=c.R().additional_capacity_.NextExpandabilityAfterRelease(c.R().Expandability(),c.R().SocketsInUse(),c.R().SocketSoftCap());
+if(!c.Live())return false;c.M().expandability_=next;
+        break;
+      }
+      case 32: {  // HAS_OVERRIDE
+*value=c.R().socket_soft_cap_override_for_test_.has_value();
+        break;
+      }
+      case 33: {  // OVERRIDE_CAP
+*value=static_cast<int64_t>(*c.R().socket_soft_cap_override_for_test_);
+        break;
+      }
+      case 34: {  // BASE_CAP
+*value=static_cast<int64_t>(c.R().socket_soft_cap_);
+        break;
+      }
+      case 35: {  // HOST_CHECK
+DCHECK(*c.host_input==c.key_input->host_port_pair());
+        break;
+      }
+      case 36: {  // HOST_LEGACY
+*value=std::get_if<base::span<const HostResolverEndpointResult>>(c.endpoints_input.get())!=nullptr;
+        break;
+      }
+      case 37: {  // HOST_NOTIFY_LEGACY
+*value=static_cast<int>(c.spdy_input->OnHostResolutionComplete(*c.key_input,c.websockets_input,
+*std::get_if<base::span<const HostResolverEndpointResult>>(c.endpoints_input.get()),*c.aliases_input));
+        break;
+      }
+      case 38: {  // HOST_NOTIFY_SERVICE
+*value=static_cast<int>(c.spdy_input->OnHostResolutionComplete(*c.key_input,c.websockets_input,
+std::get<base::span<const ServiceEndpoint>>(*c.endpoints_input),*c.aliases_input));
+        break;
+      }
+      case 39: {  // BAD_STATE
+NOTREACHED();
+      }
+      default: return false;
+    }
+    // Only invocation-local liveness is read after any deleting callback.
+    return c.Live();
+  }
+};
+
 
 namespace {
 
 // The maximum duration, in seconds, to keep used idle persistent sockets alive.
-int64_t g_used_idle_socket_timeout_s = 300;  // 5 minutes
+// Idle timeout state is owned by the safe Rust family core.
 
 // Invoked by the transport socket pool after host resolution is complete
 // to allow the connection to be aborted, if a matching SPDY session can
@@ -55,24 +322,10 @@ OnHostResolutionCallbackResult OnHostResolution(
     const HostPortPair& host_port_pair,
     const HostResolverEndpointsOrServiceEndpoints& endpoint_results,
     const base::flat_set<std::string>& aliases) {
-  DCHECK(host_port_pair == spdy_session_key.host_port_pair());
 
-  auto host_resolver_endpoints =
-      std::get_if<base::span<const HostResolverEndpointResult>>(
-          &endpoint_results);
-
-  // It is OK to dereference spdy_session_pool, because the
-  // ClientSocketPoolManager will be destroyed in the same callback that
-  // destroys the SpdySessionPool.
-  if (host_resolver_endpoints) {
-    return spdy_session_pool->OnHostResolutionComplete(
-        spdy_session_key, is_for_websockets, *host_resolver_endpoints, aliases);
-  } else {
-    base::span<const ServiceEndpoint> service_endpoints =
-        std::get<base::span<const ServiceEndpoint>>(endpoint_results);
-    return spdy_session_pool->OnHostResolutionComplete(
-        spdy_session_key, is_for_websockets, service_endpoints, aliases);
-  }
+  ClientSocketPoolFamilyRustBridge c;c.spdy_input=spdy_session_pool;c.key_input=&spdy_session_key;
+  c.websockets_input=is_for_websockets;c.host_input=&host_port_pair;c.endpoints_input=&endpoint_results;
+  c.aliases_input=&aliases;return static_cast<OnHostResolutionCallbackResult>(c.Run(0));
 }
 
 }  // namespace
@@ -92,29 +345,13 @@ ClientSocketPool::SocketParams::CreateForHttpForTesting() {
 // static
 std::string_view ClientSocketPool::GroupId::GetPrivacyModeGroupIdPrefix(
     PrivacyMode privacy_mode) {
-  switch (privacy_mode) {
-    case PrivacyMode::PRIVACY_MODE_DISABLED:
-      return "";
-    case PrivacyMode::PRIVACY_MODE_ENABLED:
-      return "pm/";
-    case PrivacyMode::PRIVACY_MODE_ENABLED_WITHOUT_CLIENT_CERTS:
-      return "pmwocc/";
-    case PrivacyMode::PRIVACY_MODE_ENABLED_PARTITIONED_STATE_ALLOWED:
-      return "pmpsa/";
-  }
+  ClientSocketPoolFamilyRustBridge c;c.Run(1,privacy_mode);return c.piece;
 }
 
 // static
 std::string_view ClientSocketPool::GroupId::GetSecureDnsPolicyGroupIdPrefix(
     SecureDnsPolicy secure_dns_policy) {
-  switch (secure_dns_policy) {
-    case SecureDnsPolicy::kAllow:
-      return "";
-    case SecureDnsPolicy::kDisable:
-      return "dsd/";
-    case SecureDnsPolicy::kBootstrap:
-      return "dns_bootstrap/";
-  }
+  ClientSocketPoolFamilyRustBridge c;c.Run(2,static_cast<int>(secure_dns_policy));return c.piece;
 }
 
 ClientSocketPool::GroupId::GroupId()
@@ -130,9 +367,7 @@ ClientSocketPool::GroupId::GroupId(
     : destination_(std::move(destination)),
       privacy_mode_(privacy_mode),
       network_anonymization_key_(
-          NetworkAnonymizationKey::IsPartitioningEnabled()
-              ? std::move(network_anonymization_key)
-              : NetworkAnonymizationKey()),
+          SelectConnectionFamilyKey(network_anonymization_key)),
       secure_dns_policy_(secure_dns_policy),
       disable_cert_network_fetches_(disable_cert_network_fetches),
       target_network_(target_network) {
@@ -155,32 +390,19 @@ ClientSocketPool::GroupId& ClientSocketPool::GroupId::operator=(
     GroupId&& group_id) = default;
 
 std::string ClientSocketPool::GroupId::ToString() const {
-  return base::StrCat(
-      {disable_cert_network_fetches_ ? "disable_cert_network_fetches/" : "",
-       GetSecureDnsPolicyGroupIdPrefix(secure_dns_policy_),
-       GetPrivacyModeGroupIdPrefix(privacy_mode_),
-       target_network_ != handles::kInvalidNetworkHandle
-           ? base::StrCat(
-                 {"target_network=", base::ToString(target_network_), "/"})
-           : "",
-       destination_.Serialize(),
-       NetworkAnonymizationKey::IsPartitioningEnabled()
-           ? base::StrCat(
-                 {" <", network_anonymization_key_.ToDebugString(), ">"})
-           : ""});
+  std::string result;ClientSocketPoolFamilyRustBridge c;c.group_input=this;c.text_output=&result;c.Run(3);return result;
 }
 
-ClientSocketPool::~ClientSocketPool() = default;
+ClientSocketPool::~ClientSocketPool() { connection_jobs_upper_rust::Invocation::Invalidate(this); }
 
 // static
 base::TimeDelta ClientSocketPool::used_idle_socket_timeout() {
-  return base::Seconds(g_used_idle_socket_timeout_s);
+  ClientSocketPoolFamilyRustBridge c;return base::Seconds(c.Run(4));
 }
 
 // static
 void ClientSocketPool::set_used_idle_socket_timeout(base::TimeDelta timeout) {
-  DCHECK_GT(timeout.InSeconds(), 0);
-  g_used_idle_socket_timeout_s = timeout.InSeconds();
+  ClientSocketPoolFamilyRustBridge c;c.duration_input=timeout;c.Run(5);
 }
 
 ClientSocketPool::ClientSocketPool(
@@ -191,10 +413,7 @@ ClientSocketPool::ClientSocketPool(
     std::unique_ptr<ConnectJobFactory> connect_job_factory)
     : socket_soft_cap_(socket_soft_cap),
       additional_capacity_(
-          (proxy_chain.is_direct() ||
-           ClientSocketPoolManager::allow_size_randomization_for_proxy())
-              ? SocketPoolAdditionalCapacity::Create(socket_soft_cap)
-              : SocketPoolAdditionalCapacity::CreateEmpty()),
+          CreateConnectionFamilyCapacity(socket_soft_cap,proxy_chain)),
       proxy_chain_(proxy_chain),
       is_for_websockets_(is_for_websockets),
       common_connect_job_params_(common_connect_job_params),
@@ -203,13 +422,11 @@ ClientSocketPool::ClientSocketPool(
 void ClientSocketPool::NetLogTcpClientSocketPoolRequestedSocket(
     const NetLogWithSource& net_log,
     const GroupId& group_id) {
-  // TODO(eroman): Split out the host and port parameters.
-  net_log.AddEvent(NetLogEventType::TCP_CLIENT_SOCKET_POOL_REQUESTED_SOCKET,
-                   [&] { return NetLogGroupIdParams(group_id); });
+  ClientSocketPoolFamilyRustBridge c(this);c.log_input=&net_log;c.group_input=&group_id;c.Run(6);
 }
 
 base::DictValue ClientSocketPool::NetLogGroupIdParams(const GroupId& group_id) {
-  return base::DictValue().Set("group_id", group_id.ToString());
+  base::DictValue result;ClientSocketPoolFamilyRustBridge c;c.dict_output=&result;c.group_input=&group_id;c.Run(7);return result;
 }
 
 std::unique_ptr<ConnectJob> ClientSocketPool::CreateConnectJob(
@@ -219,59 +436,30 @@ std::unique_ptr<ConnectJob> ClientSocketPool::CreateConnectJob(
     RequestPriority request_priority,
     SocketTag socket_tag,
     ConnectJob::Delegate* delegate) {
-  bool using_ssl = GURL::SchemeIsCryptographic(group_id.destination().scheme());
 
-  // If applicable, set up a callback to handle checking for H2 IP pooling
-  // opportunities. We don't perform H2 IP pooling to or through proxy servers,
-  // so ignore those cases.
-  OnHostResolutionCallback resolution_callback;
-  if (using_ssl && GetProxyChain().is_direct()) {
-    resolution_callback = base::BindRepeating(
-        &OnHostResolution, common_connect_job_params_->spdy_session_pool,
-        // TODO(crbug.com/40181080): Pass along as SchemeHostPort.
-        SpdySessionKey(
-            HostPortPair::FromSchemeHostPort(group_id.destination()),
-            group_id.privacy_mode(), GetProxyChain(),
-            SessionUsage::kDestination, socket_tag,
-            group_id.network_anonymization_key(), group_id.secure_dns_policy(),
-            group_id.disable_cert_network_fetches(), group_id.target_network()),
-        is_for_websockets_);
-  }
-
-  // Force a CONNECT tunnel for websockets. If this is false, the connect job
-  // may still use a tunnel for other reasons.
-  bool force_tunnel = is_for_websockets_;
-
-  // Only offer HTTP/1.1 for WebSockets. Although RFC 8441 defines WebSockets
-  // over HTTP/2, a single WSS/HTTPS origin may support HTTP over HTTP/2
-  // without supporting WebSockets over HTTP/2. Offering HTTP/2 for a fresh
-  // connection would break such origins.
-  //
-  // However, still offer HTTP/1.1 rather than skipping ALPN entirely. While
-  // this will not change the application protocol (HTTP/1.1 is default), it
-  // provides hardening against cross-protocol attacks and allows for the False
-  // Start (RFC 7918) optimization.
-  ConnectJobFactory::AlpnMode alpn_mode =
-      is_for_websockets_ ? ConnectJobFactory::AlpnMode::kHttp11Only
-                         : ConnectJobFactory::AlpnMode::kHttpAll;
-
-  return connect_job_factory_->CreateConnectJob(
-      group_id.destination(), GetProxyChain(), proxy_annotation_tag,
-      socket_params->allowed_bad_certs(), alpn_mode, force_tunnel,
-      group_id.privacy_mode(), resolution_callback, request_priority,
-      socket_tag, group_id.network_anonymization_key(),
-      group_id.secure_dns_policy(), group_id.disable_cert_network_fetches(),
-      common_connect_job_params_, group_id.target_network(), delegate);
+  ClientSocketPoolFamilyRustBridge c(this);c.group_input=&group_id;c.params_input=&socket_params;
+  c.annotation_input=&proxy_annotation_tag;c.priority_input=request_priority;c.tag_input=&socket_tag;
+  c.delegate_input=delegate;c.Run(8);return std::move(c.job_output);
 }
 
 void ClientSocketPool::UpdateExpandabilityBeforeAllocation() {
-  expandability_ = additional_capacity_.NextExpandabilityBeforeAllocation(
-      Expandability(), SocketsInUse(), SocketSoftCap());
+  ClientSocketPoolFamilyRustBridge c(this);c.Run(9);
 }
 
 void ClientSocketPool::UpdateExpandabilityAfterRelease() {
-  expandability_ = additional_capacity_.NextExpandabilityAfterRelease(
-      Expandability(), SocketsInUse(), SocketSoftCap());
+  ClientSocketPoolFamilyRustBridge c(this);c.Run(10);
+}
+
+namespace {
+SocketPoolAdditionalCapacity CreateConnectionFamilyCapacity(size_t cap,const ProxyChain& proxy){
+ ClientSocketPoolFamilyRustBridge c;c.capacity_input=cap;c.proxy_input=&proxy;c.Run(11);return std::move(*c.capacity_output);
+}
+NetworkAnonymizationKey SelectConnectionFamilyKey(NetworkAnonymizationKey& key){
+ ClientSocketPoolFamilyRustBridge c;c.nak_input=&key;c.Run(12);return std::move(*c.nak_output);
+}
+}  // namespace
+size_t ClientSocketPool::SocketSoftCap() const {
+ ClientSocketPoolFamilyRustBridge c(this);return static_cast<size_t>(c.Run(13));
 }
 
 }  // namespace net

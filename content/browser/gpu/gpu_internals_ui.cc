@@ -96,7 +96,7 @@ std::string GPUDeviceToString(const gpu::GPUInfo::GPUDevice& gpu) {
   if (gpu.sub_sys_id)
     rt += base::StringPrintf(", SUBSYS=0x%08x", gpu.sub_sys_id);
 #endif
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
   if (gpu.revision)
     rt += base::StringPrintf(", REV=%u", gpu.revision);
 #endif
@@ -759,12 +759,6 @@ base::DictValue GpuMessageHandler::GetClientInfo() {
                          os_version.minor, os_version.build, os_version.patch,
                          kernel32_version.major, kernel32_version.minor,
                          kernel32_version.build, kernel32_version.patch));
-#elif BUILDFLAG(IS_ANDROID)
-  dict.Set("operating_system",
-           base::StringPrintf("%s %s %s", base::SysInfo::OperatingSystemName(),
-                              base::SysInfo::OperatingSystemVersion(),
-                              base::SysInfo::GetAndroidBuildID()));
-
 #else
   dict.Set("operating_system", base::SysInfo::OperatingSystemName() + " " +
                                    base::SysInfo::OperatingSystemVersion());

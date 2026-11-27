@@ -23,15 +23,12 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_ROBOLECTRIC)
 #include "ui/gfx/text_constants.h"  // nogncheck
 #include "ui/gfx/text_elider.h"     // nogncheck
 #include "ui/gfx/text_utils.h"      // nogncheck
-#endif
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_ROBOLECTRIC)
 const char16_t kDot = '.';
 
 // Build a path from the first |num_components| elements in |path_elements|.
@@ -102,7 +99,6 @@ std::u16string ElideComponentizedPath(
                         available_pixel_width, gfx::ELIDE_TAIL);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_ROBOLECTRIC)
 
 bool ShouldShowScheme(std::string_view scheme,
                       const url_formatter::SchemeDisplay scheme_display) {
@@ -135,7 +131,6 @@ std::u16string HostForDisplay(std::string_view host_in_puny) {
 
 namespace url_formatter {
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_ROBOLECTRIC)
 
 // TODO(pkasting): http://crbug.com/77883 This whole function gets
 // kerning/ligatures/etc. issues potentially wrong by assuming that the width of
@@ -346,7 +341,6 @@ std::u16string ElideHost(const GURL& url,
                         gfx::ELIDE_HEAD);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_ROBOLECTRIC)
 
 std::u16string FormatUrlForSecurityDisplay(const GURL& url,
                                            const SchemeDisplay scheme_display) {
@@ -430,20 +424,6 @@ std::u16string FormatUrlForDisplayOmitSchemePathAndTrivialSubdomains(
       base::UnescapeRule::SPACES, nullptr, nullptr, nullptr);
 }
 
-#if BUILDFLAG(IS_IOS)
-std::u16string
-FormatUrlForDisplayOmitSchemePathTrivialSubdomainsAndMobilePrefix(
-    const GURL& url) {
-  return url_formatter::FormatUrl(
-      url,
-      url_formatter::kFormatUrlOmitDefaults |
-          url_formatter::kFormatUrlTrimAfterHost |
-          url_formatter::kFormatUrlOmitHTTPS |
-          url_formatter::kFormatUrlOmitTrivialSubdomains |
-          url_formatter::kFormatUrlOmitMobilePrefix,
-      base::UnescapeRule::SPACES, nullptr, nullptr, nullptr);
-}
-#endif
 
 void SplitHost(const GURL& url,
                std::u16string* url_host,

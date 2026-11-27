@@ -14,9 +14,6 @@ export class TestFlagsBrowserProxy extends TestBrowserProxy implements
     'needsRestart': false,
     'showBetaChannelPromotion': false,
     'showDevChannelPromotion': false,
-    // <if expr="is_chromeos">
-    'showOwnerWarning': false,
-    // </if>
   };
 
   private exportData: FlagsExportData = {

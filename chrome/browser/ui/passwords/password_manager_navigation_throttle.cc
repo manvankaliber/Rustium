@@ -17,11 +17,7 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/password_manager/android/password_manager_launcher_android.h"
-#else
 #include "chrome/browser/password_manager/chrome_password_manager_client.h"
-#endif
 
 namespace {
 
@@ -81,12 +77,6 @@ PasswordManagerNavigationThrottle::WillStartRequest() {
     return NavigationThrottle::PROCEED;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  password_manager_launcher::ShowPasswordSettings(
-      web_contents,
-      password_manager::ManagePasswordsReferrer::kPasswordsGoogleWebsite,
-      /*manage_passkeys=*/false);
-#else
   ChromePasswordManagerClient* client =
       ChromePasswordManagerClient::FromWebContents(web_contents);
   if (!client) {
@@ -98,7 +88,6 @@ PasswordManagerNavigationThrottle::WillStartRequest() {
   }
   client->NavigateToManagePasswordsPage(
       password_manager::ManagePasswordsReferrer::kPasswordsGoogleWebsite);
-#endif
   // Schedule a task to close current tab since on Android Password Manager is
   // shown in the Native UI, and on desktop NavigateToManagePasswordsPage()
   // handles creation or redirection to Passwords Manager tab.

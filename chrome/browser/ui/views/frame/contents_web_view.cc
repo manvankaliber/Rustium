@@ -29,8 +29,7 @@
 #include "ui/wm/core/window_util.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/actor/actor_util.h"  // nogncheck
+#if BUILDFLAG(IS_LINUX)
 #endif
 
 DEFINE_CLASS_ELEMENT_IDENTIFIER_VALUE(ContentsWebView,
@@ -181,7 +180,7 @@ void ContentsWebView::SetWebContents(content::WebContents* web_contents) {
       .Then(&web_modal::WebContentsModalDialogManager::UpdateDialogHost);
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 void ContentsWebView::DidGetUserInteraction(const blink::WebInputEvent& event) {
   // If the user interacts with the web contents, ensure it is activated.
   // This handles cases where the native window does not receive a focus
@@ -195,9 +194,6 @@ void ContentsWebView::DidGetUserInteraction(const blink::WebInputEvent& event) {
   // This isn't perfect: there are some edge cases, such as short-lived tasks
   // (less than a few seconds), where user input is not blocked, so real clicks
   // skip this too.
-  if (actor::HaveActiveTaskForContents(web_contents())) {
-    return;
-  }
 
   // RequestFocus() ensures the container view receives focus,
   // which is sufficient to update the browser UI.

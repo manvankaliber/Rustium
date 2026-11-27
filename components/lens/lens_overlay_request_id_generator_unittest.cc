@@ -60,13 +60,11 @@ TEST_F(LensOverlayRequestIdGeneratorTest,
   ASSERT_EQ(first_id->image_sequence_id(), 1);
   ASSERT_EQ(first_id->long_context_id(), 1);
 
-#if !BUILDFLAG(IS_IOS)
   // Verify that the initial request id is only generated once.
   EXPECT_DEATH(request_id_generator.GetNextRequestId(
                    RequestIdUpdateMode::kInitialRequest,
                    lens::LensOverlayRequestId::MEDIA_TYPE_DEFAULT_IMAGE),
                "");
-#endif
 }
 
 TEST_F(LensOverlayRequestIdGeneratorTest,

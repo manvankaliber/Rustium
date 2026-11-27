@@ -71,14 +71,12 @@
 #include "ui/base/mojom/window_open_disposition.mojom-shared.h"
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/test/gmock_expected_support.h"
 #include "chrome/browser/ui/web_applications/test/isolated_web_app_test_utils.h"
 #include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_url_info.h"
 #include "chrome/browser/web_applications/isolated_web_apps/test/isolated_web_app_builder.h"
 #include "chrome/browser/web_applications/test/web_app_install_test_utils.h"
 #include "services/data_decoder/public/cpp/test_support/in_process_data_decoder.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/permissions/system/system_media_permission_cache_mac_test_helper.h"
@@ -652,7 +650,7 @@ TEST_F(ContentSettingBubbleModelTest, Geolocation) {
         FakeOwner::Create(*content_setting_bubble_model, 0);
     const auto& bubble_content = content_setting_bubble_model->bubble_content();
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     EXPECT_EQ(bubble_content.title,
               u"Location is turned off in system settings");
 #endif
@@ -676,7 +674,7 @@ TEST_F(ContentSettingBubbleModelTest, Geolocation) {
                 IsAllowed(ContentSettingsType::GEOLOCATION))
         .WillRepeatedly(Return(true));
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     EXPECT_EQ(bubble_content.title,
               u"Location is turned off in system settings");
 #endif
@@ -911,7 +909,6 @@ TEST_F(ContentSettingBubbleModelTest, FileURL) {
   ASSERT_NE(std::u16string::npos, title.find(base::UTF8ToUTF16(file_url)));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class ContentSettingBubbleModelIsolatedWebAppTest
     : public ContentSettingBubbleModelTest {
  public:
@@ -949,7 +946,6 @@ TEST_F(ContentSettingBubbleModelIsolatedWebAppTest, IsolatedWebAppUrl) {
       content_setting_bubble_model->bubble_content().radio_group.radio_items[0];
   ASSERT_NE(std::u16string::npos, title.find(base::UTF8ToUTF16(app_name)));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 // Content setting bubbles identify a chrome-extension:// page by the
@@ -1641,31 +1637,6 @@ TEST_F(ContentSettingBubbleModelTest,
                                    ContentSettingsType::STORAGE_ACCESS));
 }
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-TEST_F(ContentSettingBubbleModelTest, SmartCard) {
-  const GURL page_url("https://toplevel.example/");
-  NavigateAndCommit(page_url);
-  auto* content_settings = PageSpecificContentSettings::GetForFrame(
-      web_contents()->GetPrimaryMainFrame());
-  content_settings->OnDeviceUsed(ContentSettingsType::SMART_CARD_GUARD);
-
-  ContentSettingSimpleBubbleModel content_setting_bubble_model(
-      nullptr, page(), ContentSettingsType::SMART_CARD_GUARD);
-
-  const ContentSettingBubbleModel::BubbleContent& bubble_content =
-      content_setting_bubble_model.bubble_content();
-  EXPECT_EQ(bubble_content.title,
-            l10n_util::GetStringUTF16(IDS_ACCESSED_SMART_CARD_READER_TITLE));
-  EXPECT_TRUE(bubble_content.radio_group.radio_items.empty());
-  EXPECT_TRUE(bubble_content.list_items.empty());
-  EXPECT_TRUE(bubble_content.site_list.empty());
-  EXPECT_TRUE(bubble_content.custom_link.empty());
-  EXPECT_FALSE(bubble_content.custom_link_enabled);
-  EXPECT_EQ(bubble_content.manage_text, l10n_util::GetStringUTF16(IDS_MANAGE));
-  EXPECT_EQ(bubble_content.message,
-            l10n_util::GetStringUTF16(IDS_ACCESSED_SMART_CARD_READER_BODY));
-}
-#endif
 
 #if BUILDFLAG(IS_WIN)
 TEST_F(ContentSettingBubbleModelTest, ProtectedMediaIdentifier_Allowed) {

@@ -122,14 +122,5 @@ bool ShouldOfferTrustedVaultOptIn(const SyncService* service) {
   }
 }
 
-#if BUILDFLAG(IS_IOS)
-void MaybeRecordIdentityErrorShown(IdentityErrorDisplaySurface surface,
-                                   SyncService::UserActionableError error) {
-  if (error == SyncService::UserActionableError::kDeviceManagementError) {
-    base::UmaHistogramEnumeration(
-        "Signin.IdentityErrorDisplayed.DeviceManagementError", surface);
-  }
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 }  // namespace syncer

@@ -33,7 +33,7 @@ def test_load_simple_url(
     version = versions['product'].split('/')[1]
     add_tag('launched_version', version)
     # Window bounds cannot be changed on Android / WebView.
-    if test_options.platform not in ('android', 'webview', 'android_webview'):
+    if test_options.platform not in ('webview', 'android_webview'):
       driver.set_window_size(800, 600)
     driver.get(url)
     WebDriverWait(driver, 5).until(
@@ -61,7 +61,7 @@ def test_basic_rendering(
     seed_file=seed_locator.get_seed()
   ) as driver:
     # Window bounds cannot be changed on Android / WebView.
-    if test_options.platform not in ('android', 'webview', 'android_webview'):
+    if test_options.platform not in ('webview', 'android_webview'):
       driver.set_window_size(800, 600)
     driver.get(url)
     driver_factory.wait_for_screenshot()

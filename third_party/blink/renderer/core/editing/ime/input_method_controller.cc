@@ -2068,47 +2068,6 @@ std::vector<ui::ImeTextSpan> InputMethodController::GetImeTextSpans() const {
     }
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(
-          blink::features::kAndroidSpellcheckFullApiBlink)) {
-    const HeapVector<std::pair<Member<const Text>, Member<DocumentMarker>>>&
-        spelling_node_marker_pairs =
-            GetDocument().Markers().MarkersIntersectingRange(
-                ToEphemeralRangeInFlatTree(range),
-                DocumentMarker::MarkerTypes::Misspelling());
-
-    for (const std::pair<Member<const Text>, Member<DocumentMarker>>&
-             node_marker_pair : spelling_node_marker_pairs) {
-      SpellCheckMarker* marker =
-          To<SpellCheckMarker>(node_marker_pair.second.Get());
-      const Text* node = node_marker_pair.first;
-
-      // Spelling markers can only be grammar or spelling type. Hence if not
-      // grammar then default to spelling.
-      const ImeTextSpan::Type type =
-          (marker->GetType() == DocumentMarker::kGrammar)
-              ? ImeTextSpan::Type::kGrammarSuggestion
-              : ImeTextSpan::Type::kMisspellingSuggestion;
-      Vector<String> suggestions =
-          marker->Description().SplitSkippingEmpty('\n');
-
-      const EphemeralRange& marker_ephemeral_range =
-          EphemeralRange(Position(node, marker->StartOffset()),
-                         Position(node, marker->EndOffset()));
-      const PlainTextRange& marker_plain_text_range =
-          cached_text_input_info_.GetPlainTextRange(marker_ephemeral_range);
-
-      ime_text_spans.emplace_back(
-          ImeTextSpan(type, marker_plain_text_range.Start(),
-                      marker_plain_text_range.End(), Color::kTransparent,
-                      ImeTextSpanThickness::kNone,
-                      ImeTextSpanUnderlineStyle::kNone, Color::kTransparent,
-                      Color::kTransparent, Color::kTransparent, false, false,
-                      suggestions, marker->ShouldHideSuggestionMenu())
-              .ToUiImeTextSpan());
-    }
-  }
-#endif
   return ime_text_spans;
 }
 

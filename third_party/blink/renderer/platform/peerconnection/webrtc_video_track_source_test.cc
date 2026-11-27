@@ -803,47 +803,6 @@ TEST_P(WebRtcVideoTrackSourceTest, DoesntCrashOnLateCallbacks) {
   InvokeNextMapCallback();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(WebRtcVideoTrackSourceTest, PreemptiveReadbackOnAndroidSharedImage) {
-  auto mock_resources =
-      base::MakeRefCounted<testing::StrictMock<MockSharedResources>>();
-  mock_resources->SetFeedback(
-      media::VideoCaptureFeedback().RequireMapped(true));
-  scoped_refptr<WebRtcVideoTrackSource> track_source =
-      new webrtc::RefCountedObject<WebRtcVideoTrackSource>(
-          /*is_screencast=*/false,
-          /*needs_denoising=*/std::nullopt,
-          base::BindLambdaForTesting([](const media::VideoCaptureFeedback&) {}),
-          base::BindLambdaForTesting([] {}),
-          /*gpu_factories=*/nullptr, mock_resources);
-  MockVideoSink mock_sink;
-  track_source->AddOrUpdateSink(&mock_sink, webrtc::VideoSinkWants());
-
-  const gfx::Size kSize(640, 360);
-  const gfx::Rect kRect(0, 0, 640, 360);
-  auto source_frame =
-      CreateTestFrame(kSize, kRect, kSize, media::VideoFrame::STORAGE_OPAQUE,
-                      media::VideoPixelFormat::PIXEL_FORMAT_NV12,
-                      base::TimeDelta(), test_sii_.get());
-
-  auto readback_frame = CreateTestFrame(
-      kSize, kRect, kSize, media::VideoFrame::STORAGE_OWNED_MEMORY,
-      media::VideoPixelFormat::PIXEL_FORMAT_I420, base::TimeDelta(),
-      test_sii_.get());
-
-  EXPECT_CALL(*mock_resources, ConstructVideoFrameFromTexture(_))
-      .WillOnce(testing::Return(readback_frame));
-  EXPECT_CALL(mock_sink, OnFrame(_))
-      .WillOnce([&](const webrtc::VideoFrame& frame) {
-        auto* adapter = static_cast<WebRtcVideoFrameAdapterInterface*>(
-            frame.video_frame_buffer().get());
-        EXPECT_FALSE(adapter->getMediaVideoFrame()->HasSharedImage());
-      });
-
-  track_source->OnFrameCaptured(source_frame);
-  track_source->RemoveSink(&mock_sink);
-}
-#endif
 
 INSTANTIATE_TEST_SUITE_P(
     WebRtcVideoTrackSourceTest,

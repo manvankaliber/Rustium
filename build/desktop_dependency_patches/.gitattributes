@@ -1,0 +1,2 @@
+# Patch checksums and context lines require the exact recorded bytes.
+*.patch -text -whitespace

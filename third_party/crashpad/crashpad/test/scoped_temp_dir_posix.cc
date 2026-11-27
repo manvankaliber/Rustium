@@ -42,11 +42,7 @@ base::FilePath ScopedTempDir::CreateTemporaryDirectory() {
   if (tmpdir && tmpdir[0] != '\0') {
     dir.assign(tmpdir);
   } else {
-#if BUILDFLAG(IS_ANDROID)
-    dir.assign("/data/local/tmp");
-#else
     dir.assign("/tmp");
-#endif
   }
 
   if (dir[dir.size() - 1] != '/') {

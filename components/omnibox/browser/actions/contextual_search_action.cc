@@ -13,9 +13,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/ui_base_features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/omnibox/browser/actions/omnibox_action_factory_android.h"
-#endif
 
 #if defined(SUPPORT_PEDALS_VECTOR_ICONS)
 #include "build/branding_buildflags.h"                // nogncheck
@@ -159,16 +156,5 @@ const gfx::VectorIcon& ContextualSearchOpenLensAction::GetVectorIcon() const {
 }
 #endif  // defined(SUPPORT_PEDALS_VECTOR_ICONS)
 
-#if BUILDFLAG(IS_ANDROID)
-base::android::ScopedJavaLocalRef<jobject>
-ContextualSearchOpenLensAction::GetOrCreateJavaObject(JNIEnv* env) const {
-  if (!j_omnibox_action_) {
-    j_omnibox_action_.Reset(BuildOmniboxLensOverlayAction(
-        env, reinterpret_cast<intptr_t>(this), strings_.hint,
-        strings_.accessibility_hint));
-  }
-  return base::android::ScopedJavaLocalRef<jobject>(j_omnibox_action_);
-}
-#endif
 
 ContextualSearchOpenLensAction::~ContextualSearchOpenLensAction() = default;

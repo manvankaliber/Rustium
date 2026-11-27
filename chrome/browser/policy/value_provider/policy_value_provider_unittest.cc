@@ -49,7 +49,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/device_api/managed_configuration_api.h"
 #include "chrome/browser/device_api/managed_configuration_api_factory.h"
 #include "chrome/browser/policy/value_provider/web_app_managed_configuration_value_provider.h"
@@ -62,7 +61,6 @@
 #include "chrome/browser/web_applications/web_app_sync_bridge.h"
 #include "chrome/common/pref_names.h"
 #include "services/data_decoder/public/cpp/test_support/in_process_data_decoder.h"
-#endif
 
 using testing::_;
 using testing::Eq;
@@ -202,12 +200,10 @@ TEST_F(ChromePoliciesValueProviderTest, GetNames) {
   VerifyProviderNames(names, kChromePoliciesId, kChromePoliciesName,
                       {key::kShowHomeButton});
 
-#if !BUILDFLAG(IS_CHROMEOS)
   VerifyProviderNames(
       names, kPrecedencePoliciesId, kPrecedencePoliciesName,
       std::vector<std::string>(std::begin(metapolicy::kPrecedence),
                                std::end(metapolicy::kPrecedence)));
-#endif
 }
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
@@ -360,7 +356,6 @@ TEST_F(ExtensionPoliciesValueProviderTest, GetNames) {
 }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if !BUILDFLAG(IS_ANDROID)
 constexpr char kTestIwaAppName[] = "Test Isolated Web App";
 
 class TestPolicyValueProviderObserver : public PolicyValueProvider::Observer {
@@ -637,7 +632,6 @@ TEST_F(WebAppManagedConfigurationValueProviderTest,
 
   provider->RemoveObserver(&observer);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 

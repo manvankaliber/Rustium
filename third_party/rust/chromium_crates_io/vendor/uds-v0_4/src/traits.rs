@@ -44,7 +44,7 @@ pub trait UnixStreamExt: AsRawFd + FromRawFd {
     }
     /// Returns the SELinux security context of the process that created the other end of this stream.
     ///
-    /// Will return an error on other operating systems than Linux or Android,
+    /// Will return an error on other operating systems than Linux,
     /// and also if running under kubernetes.
     /// On success the number of bytes used is returned. (like `Read`)
     ///
@@ -145,8 +145,8 @@ pub trait UnixDatagramExt: AsRawFd + FromRawFd {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use std::os::unix::net::UnixDatagram;
     /// # use uds::{UnixDatagramExt, UnixSocketAddr};
     /// #
@@ -199,8 +199,8 @@ pub trait UnixDatagramExt: AsRawFd + FromRawFd {
     ///
     /// Send to an abstract address:
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use std::os::unix::net::UnixDatagram;
     /// # use uds::{UnixDatagramExt, UnixSocketAddr};
     /// #
@@ -390,8 +390,8 @@ pub trait UnixDatagramExt: AsRawFd + FromRawFd {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// use std::os::unix::net::UnixDatagram;
     /// use std::io::IoSliceMut;
     /// use uds::{UnixDatagramExt, UnixSocketAddr};
@@ -476,7 +476,7 @@ pub trait UnixDatagramExt: AsRawFd + FromRawFd {
     /// Returns the SELinux security context of the process that created a socket pair.
     ///
     /// Has the same limitations and gotchas as `initial_pair_credentials()`,
-    /// and will return an error on other OSes than Linux or Android
+    /// and will return an error on other OSes than Linux
     /// or if running under kubernetes.
     ///
     /// The default security context is the string `unconfined`.

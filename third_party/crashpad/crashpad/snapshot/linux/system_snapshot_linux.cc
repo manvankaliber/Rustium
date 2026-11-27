@@ -34,9 +34,6 @@
 #include "util/numeric/in_range_cast.h"
 #include "util/string/split_string.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <sys/system_properties.h>
-#endif
 
 namespace crashpad {
 namespace internal {
@@ -120,39 +117,6 @@ bool ReadFreqFile(const std::string& filename, uint64_t* hz) {
   return true;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-struct ReadPropertyData {
-  std::string* value;
-  bool read = false;
-};
-
-void ReadPropertyCallback(void* cookie,
-                          const char* name,
-                          const char* value,
-                          uint32_t serial) {
-  auto* data = static_cast<ReadPropertyData*>(cookie);
-  data->value->assign(value);
-  data->read = true;
-}
-
-bool ReadProperty(const char* property, std::string* value) {
-  const prop_info* prop = __system_property_find(property);
-  if (!prop) {
-    LOG(ERROR) << "Couldn't read property " << property;
-    return false;
-  }
-
-  ReadPropertyData data;
-  data.value = value;
-  __system_property_read_callback(prop, ReadPropertyCallback, &data);
-
-  if (!data.read) {
-    LOG(ERROR) << "Couldn't read property " << property;
-    return false;
-  }
-  return true;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -181,13 +145,6 @@ void SystemSnapshotLinux::Initialize(ProcessReaderLinux* process_reader,
   process_reader_ = process_reader;
   snapshot_time_ = snapshot_time;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::string build_string;
-  if (ReadProperty("ro.build.fingerprint", &build_string)) {
-    os_version_build_ = build_string;
-    os_version_full_ = build_string;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   utsname uts;
   if (uname(&uts) != 0) {
@@ -340,11 +297,7 @@ bool SystemSnapshotLinux::CPUX86SupportsDAZ() const {
 SystemSnapshot::OperatingSystem SystemSnapshotLinux::GetOperatingSystem()
     const {
   INITIALIZATION_STATE_DCHECK_VALID(initialized_);
-#if BUILDFLAG(IS_ANDROID)
-  return kOperatingSystemAndroid;
-#else
   return kOperatingSystemLinux;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool SystemSnapshotLinux::OSServer() const {
@@ -370,22 +323,7 @@ std::string SystemSnapshotLinux::OSVersionFull() const {
 
 std::string SystemSnapshotLinux::MachineDescription() const {
   INITIALIZATION_STATE_DCHECK_VALID(initialized_);
-#if BUILDFLAG(IS_ANDROID)
-  std::string description;
-  std::string prop;
-  if (ReadProperty("ro.product.model", &prop)) {
-    description += prop;
-  }
-  if (ReadProperty("ro.product.board", &prop)) {
-    if (!description.empty()) {
-      description.push_back(' ');
-    }
-    description += prop;
-  }
-  return description;
-#else
   return std::string();
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool SystemSnapshotLinux::NXEnabled() const {

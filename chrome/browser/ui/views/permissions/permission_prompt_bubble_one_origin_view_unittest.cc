@@ -18,7 +18,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "base/test/test_future.h"
 #include "chrome/test/base/testing_profile.h"
 #include "components/media_effects/test/fake_audio_service.h"
@@ -29,7 +28,6 @@
 #include "content/public/test/test_renderer_host.h"
 #include "content/public/test/web_contents_tester.h"
 #include "ui/views/controls/native/native_view_host.h"
-#endif
 
 using PermissionPromptBubbleOneOriginViewTest = ChromeViewsTestBase;
 
@@ -203,7 +201,6 @@ TEST_F(PermissionPromptBubbleOneOriginViewTest,
   EXPECT_PRED_FORMAT2(::testing::IsNotSubstring, "use your camera", title);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -543,5 +540,3 @@ TEST_F(PermissionPromptBubbleOneOriginViewTestMediaPreview,
   prompt.ResetMediaPreview();
   EXPECT_FALSE(prompt.GetMediaPreviewsForTesting());
 }
-
-#endif

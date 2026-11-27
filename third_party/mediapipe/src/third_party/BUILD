@@ -42,18 +42,7 @@ cc_library(
     name = "glog",
     visibility = ["//visibility:public"],
     deps = select({
-        "//mediapipe:android_x86": [
-            "@com_github_glog_glog_no_gflags//:glog",
-        ],
-        "//mediapipe:android_x86_64": [
-            "@com_github_glog_glog_no_gflags//:glog",
-        ],
-        "//mediapipe:android_arm": [
-            "@com_github_glog_glog_no_gflags//:glog",
-        ],
-        "//mediapipe:android_arm64": [
-            "@com_github_glog_glog_no_gflags//:glog",
-        ],
+
         "//mediapipe:ios": [
             "@com_github_glog_glog_no_gflags//:glog",
         ],
@@ -261,10 +250,7 @@ cmake(
 alias(
     name = "opencv_binary",
     actual = select({
-        "//mediapipe:android_x86": "@android_opencv//:libopencv_x86",
-        "//mediapipe:android_x86_64": "@android_opencv//:libopencv_x86_64",
-        "//mediapipe:android_arm": "@android_opencv//:libopencv_armeabi-v7a",
-        "//mediapipe:android_arm64": "@android_opencv//:libopencv_arm64-v8a",
+
         "//mediapipe:ios": "@ios_opencv//:opencv",
         "//mediapipe:macos": "@macos_opencv//:opencv",
         "//mediapipe:windows": "@windows_opencv//:opencv",
@@ -284,25 +270,10 @@ config_setting(
 )
 
 cc_library(
-    name = "android_jni_opencv_cc_lib",
-    srcs = select({
-        "//mediapipe:android_arm64": ["@android_opencv//:libopencv_java4_so_arm64-v8a"],
-        "//mediapipe:android_arm": ["@android_opencv//:libopencv_java4_so_armeabi-v7a"],
-        "//mediapipe:android_x86": ["@android_opencv//:libopencv_java4_so_x86"],
-        "//mediapipe:android_x86_64": ["@android_opencv//:libopencv_java4_so_x86_64"],
-        "//conditions:default": [],
-    }),
-    alwayslink = 1,
-)
-
-cc_library(
     name = "libffmpeg",
     visibility = ["//visibility:public"],
     deps = select({
-        "//mediapipe:android_x86": [],
-        "//mediapipe:android_x86_64": [],
-        "//mediapipe:android_arm": [],
-        "//mediapipe:android_arm64": [],
+
         "//mediapipe:ios": [],
         "//mediapipe:macos": [
             "@macos_ffmpeg//:libffmpeg",
@@ -341,19 +312,6 @@ java_library(
     exports = [
         "@maven//:com_google_auto_value_auto_value",
         "@maven//:com_google_auto_value_auto_value_annotations",
-    ],
-)
-
-# Lite-runtime `com.google.protobuf.Any` for the Android MediaPipe Tasks targets.
-#
-# This must stay on the protobuf lite runtime. The Tasks AARs ship against
-# `protobuf-javalite`, and compiling them against the full runtime.
-# `@com_google_protobuf//java/lite` already bundles the lite well-known types
-# (including `Any`), so this is just a lite-runtime re-export.
-java_library(
-    name = "any_java_proto",
-    exports = [
-        "@com_google_protobuf//java/lite",
     ],
 )
 

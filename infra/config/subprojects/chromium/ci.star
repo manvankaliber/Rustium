@@ -131,16 +131,12 @@ luci.gitiles_poller(
         "chromium.win",
         "chromium.mac",
         "chromium.linux",
-        "chromium.chromiumos",
-        "chromium.android",
-        "chromium.fuchsia",
         "chromium.angle",
         "chrome",
         "chromium.memory",
         "chromium.dawn",
         "chromium.gpu",
         "chromium.fyi",
-        "chromium.android.fyi",
         "chromium.cft",
         "chromium.clang",
         "chromium.fuzz",
@@ -173,76 +169,23 @@ register_gardener_rotation_consoles()
     category = "chrome",
     short_name = short_name,
 ) for name, short_name in (
-    ("linux-chromeos-chrome", "cro"),
     ("linux-chrome", "lnx"),
     ("mac-chrome", "mac"),
     ("win-chrome", "win"),
     ("win64-chrome", "win"),
 )]
 
-# Any builders that should not be monitored by the Chrome-Fuchsia Gardener
-# should be in the "fyi" group.
-consoles.console_view(
-    name = "sheriff.fuchsia",
-    title = "Fuchsia Sheriff Console",
-    ordering = {
-        None: ["ci", "fuchsia ci", "p/chrome", "hardware", "fyi"],
-    },
-)
-
-# The sheriff.fuchsia console includes some entries for builders from the chrome project
-[branches.console_view_entry(
-    console_view = "sheriff.fuchsia",
-    builder = "chrome:ci/{}".format(name),
-    category = category,
-    short_name = short_name,
-) for name, category, short_name in (
-    ("fuchsia-arm64-rel-ready", "p/chrome|arm64", "rel-ready"),
-    ("fuchsia-arm64-nest-sd", "p/chrome|official", "nest-arm"),
-    ("fuchsia-arm64-nest-sd-perf", "p/chrome|official", "nest-arm-perf"),
-    ("fuchsia-ava-astro", "hardware|ava", "ast"),
-    ("fuchsia-ava-nelson", "hardware|ava", "nsn"),
-    ("fuchsia-ava-sherlock", "hardware|ava", "sher"),
-    ("fuchsia-builder-perf-arm64", "p/chrome|arm64", "perf-arm"),
-    ("fuchsia-fyi-arm64-size", "p/chrome|arm64", "size"),
-    ("fuchsia-fyi-astro", "hardware", "ast"),
-    ("fuchsia-fyi-astro-qemu", "hardware", "emu-ast"),
-    ("fuchsia-fyi-nelson", "hardware", "nsn"),
-    ("fuchsia-fyi-sherlock", "hardware", "sher"),
-    ("fuchsia-fyi-sherlock-qemu", "hardware", "emu-sher"),
-    ("fuchsia-smoke-astro", "hardware|smoke", "ast"),
-    ("fuchsia-smoke-nelson", "hardware|smoke", "nsn"),
-    ("fuchsia-smoke-sherlock", "hardware|smoke", "sher"),
-    ("fuchsia-smoke-sherlock-roller", "hardware|smoke", "roll"),
-    ("fuchsia-perf-nsn", "hardware|perf", "nsn"),
-    ("fuchsia-perf-shk", "hardware|perf", "sher"),
-    ("fuchsia-webgl-astro", "hardware|webgl", "ast"),
-    ("fuchsia-webgl-astro-qemu", "hardware|webgl", "emu-ast"),
-    ("fuchsia-webgl-nelson", "hardware|webgl", "nsn"),
-    ("fuchsia-webgl-sherlock", "hardware|webgl", "sher"),
-    ("fuchsia-webgl-sherlock-qemu", "hardware|webgl", "emu-sher"),
-    ("fuchsia-x64", "p/chrome|official", "x64"),
-    ("fuchsia-x64-nest-sd", "p/chrome|official", "nest-x64"),
-)]
-
 exec("./ci/blink.infra.star")
 exec("./ci/checks.star")
 exec("./ci/chromium.star")
 exec("./ci/chromium.accessibility.star")
-exec("./ci/chromium.android.star")
-exec("./ci/chromium.android.fyi.star")
-exec("./ci/chromium.android.desktop.star")
-exec("./ci/chromium.android.desktop.fyi.star")
 exec("./ci/chromium.angle.star")
 exec("./ci/chromium.bedrock.star")
 exec("./ci/chromium.cft.star")
-exec("./ci/chromium.chromiumos.star")
 exec("./ci/chromium.clang.star")
 exec("./ci/chromium.coverage.star")
 exec("./ci/chromium.dawn.star")
 exec("./ci/chromium.enterprise_companion.star")
-exec("./ci/chromium.fuchsia.star")
-exec("./ci/chromium.fuchsia.fyi.star")
 exec("./ci/chromium.fuzz.star")
 exec("./ci/chromium.fyi.star")
 exec("./ci/chromium.gpu.star")

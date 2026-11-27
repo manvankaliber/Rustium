@@ -34,13 +34,7 @@ bool MemoryPressureListenerRegistry::
 
 bool MemoryPressureListenerRegistry::
     IsLowEndDeviceOrPartialLowEndModeEnabledIncludingCanvasFontCache() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  return is_low_end_device_ ||
-         base::SysInfo::IsLowEndDeviceOrPartialLowEndModeEnabled(
-             blink::features::kPartialLowEndModeExcludeCanvasFontCache);
-#else
   return IsLowEndDeviceOrPartialLowEndModeEnabled();
-#endif
 }
 
 // static

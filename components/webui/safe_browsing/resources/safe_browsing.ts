@@ -4,11 +4,6 @@
 
 import '/strings.m.js';
 import 'chrome://resources/cr_elements/cr_tab_box/cr_tab_box.js';
-// <if expr="is_ios">
-// TODO(crbug.com/41173939): Remove this once injected by web. -->
-import 'chrome://resources/js/ios/web_ui.js';
-
-// </if>
 
 import {assert} from 'chrome://resources/js/assert.js';
 import {addWebUiListener, sendWithPromise} from 'chrome://resources/js/cr.js';
@@ -275,11 +270,6 @@ function initialize() {
   const deepScanExportButton = $('deep-scan-export-btn');
   assert(deepScanExportButton);
   deepScanExportButton.addEventListener('click', exportDeepScanData);
-  // <if expr="is_android">
-  sendWithPromise<string>('getReferringAppInfo', []).then((info: string) => {
-    addReferringAppInfo(info);
-  });
-  // </if>
 
   const referrerChangeForm = $('get-referrer-chain-form');
   assert(referrerChangeForm);
@@ -782,19 +772,6 @@ function addReferrerChain(ev: Event) {
       });
 }
 
-// <if expr="is_android">
-function addReferringAppInfo(info: string|null) {
-  const referringAppInfo = $('referring-app-info');
-  assert(referringAppInfo);
-  // TrustedTypes is not supported on iOS
-  if (window.trustedTypes) {
-    referringAppInfo.innerHTML = window.trustedTypes.emptyHTML;
-  } else {
-    referringAppInfo.innerHTML = '';
-  }
-  referringAppInfo.textContent = info;
-}
-// </if>
 
 // Format the browser's response nicely.
 function displayTailoredVerdictOverride(response: TailoredVerdictResponse) {

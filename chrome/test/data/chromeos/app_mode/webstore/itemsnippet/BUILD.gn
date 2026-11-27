@@ -5,19 +5,7 @@
 import("//third_party/protobuf/proto_library.gni")
 
 protoc_convert("itemsnippet") {
-  sources = [
-    "abbjjkefakmllanciinhgjgjamdmlbdg.textproto",
-    "app_1.textproto",
-    "app_with_bad_required_platform_version.textproto",
-    "app_with_required_platform_version.textproto",
-    "enelnimkndkcejhjnpaofdlbbfmdnagi.textproto",
-    "epancfbahpnkphlhpeefecinmgclhjlj.textproto",
-    "gbcgichpbeeimejckkpgnaighpndpped.textproto",
-    "gcpjojfkologpegommokeppihdbcnahn.textproto",
-    "ggaeimfdpnmlhdhpcikgoblffmkckdmn.textproto",
-    "ggbflgnkafappblpkiflbgpmkfdpnhhe.textproto",
-    "iiigpodgfihagabpagjehoocpakbnclp.textproto",
-  ]
+  sources = []
   inputs = [ "//extensions/browser/cws_item_service.proto" ]
 
   # Output becomes:
@@ -27,7 +15,6 @@ protoc_convert("itemsnippet") {
     "--encode=extensions.FetchItemSnippetResponse",
     "-I",
     rebase_path("//", root_build_dir),
-    "extensions/browser/cws_item_service.proto",
   ]
 }
 

@@ -8,7 +8,6 @@
 
 #include "base/metrics/histogram_functions.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/ui/lens/lens_search_feature_flag_utils.h"
 #include "chrome/browser/ui/views/profiles/feature_showcase/feature_showcase_metrics.h"
 #include "components/lens/lens_overlay_metrics.h"
 
@@ -32,7 +31,6 @@ void GoogleLensHandler::EnableGoogleLens() {
   lens::RecordFirstRunPermissionNoticeUserAction(
       lens::LensPermissionUserAction::kAcceptButtonPressed);
 
-  lens::GrantLensOverlayNeededPermissions(profile_);
 }
 
 void GoogleLensHandler::SkipGoogleLens() {

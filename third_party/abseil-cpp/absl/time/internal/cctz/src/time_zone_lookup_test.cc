@@ -130,14 +130,7 @@ TEST(TimeZones, LoadZonesConcurrently) {
 
   // Allow a small number of failures to account for skew between
   // the contents of kTimeZoneNames and the zoneinfo data source.
-#if defined(__ANDROID__)
-  // Cater to the possibility of using an even older zoneinfo data
-  // source when running on Android, where it is difficult to override
-  // the bionic tzdata provided by the test environment.
-  const std::size_t max_failures = 20;
-#else
   const std::size_t max_failures = 3;
-#endif
   std::set<std::string> failures;
   for (const auto& thread_failure : thread_failures) {
     failures.insert(thread_failure.begin(), thread_failure.end());
@@ -498,7 +491,7 @@ TEST(MakeTime, SysSecondsLimits) {
 #endif
     const year_t min_tm_year = year_t{std::numeric_limits<int>::min()} + 1900;
     tp = convert(civil_second(min_tm_year, 1, 1, 0, 0, 0), cut);
-#if defined(__Fuchsia__) || defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__)
     // Some gmtime_r() impls fail on extreme negative values (fxbug.dev/78527).
 #else
     EXPECT_EQ("-2147481748-01-01T00:00:00+00:00",
@@ -515,7 +508,7 @@ TEST(MakeTime, LocalTimeLibC) {
   //  1) we know how to change the time zone used by localtime()/mktime(),
   //  2) cctz and localtime()/mktime() will use similar-enough tzdata, and
   //  3) we have some idea about how mktime() behaves during transitions.
-#if defined(__linux__) && defined(__GLIBC__) && !defined(__ANDROID__)
+#if defined(__linux__) && defined(__GLIBC__)
   const char* const ep = getenv("TZ");
   std::string tz_name = (ep != nullptr) ? ep : "";
   for (const char* const* np = kTimeZoneNames; *np != nullptr; ++np) {

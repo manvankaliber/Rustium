@@ -36,13 +36,8 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "third_party/blink/public/common/associated_interfaces/associated_interface_provider.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#else
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif  // defined (
 
 #if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
@@ -132,13 +127,8 @@ class ClientSideDetectionServiceBrowserTest : public PlatformBrowserTest {
     ASSERT_TRUE(
         base::PathService::Get(chrome::DIR_TEST_DATA, &additional_files_path));
 
-#if BUILDFLAG(IS_ANDROID)
-    additional_files_path = additional_files_path.AppendASCII("safe_browsing")
-                                .AppendASCII("visual_model_android.tflite");
-#else
     additional_files_path = additional_files_path.AppendASCII("safe_browsing")
                                 .AppendASCII("visual_model_desktop.tflite");
-#endif
     csd_service->SetModelAndVisualTfLiteForTesting(model_file_path,
                                                    additional_files_path);
     run_loop.Run();

@@ -51,7 +51,6 @@ class OmniboxComposeboxHandler : public ComposeboxHandler {
   void HandleFileUpload(bool is_image) override;
 
   // searchbox::mojom::PageHandler:
-  void OpenLensSearch() override;
 
  protected:
   // ComposeboxHandler:
@@ -66,8 +65,6 @@ class OmniboxComposeboxHandler : public ComposeboxHandler {
   void ObservePopupState(OmniboxController* main_omnibox_controller);
   void OnPopupStateChanged(OmniboxPopupState old_state,
                            OmniboxPopupState new_state);
-  void UpdateLensSearchEligibility(const AutocompleteInput& input,
-                                   AutocompleteProviderClient* client);
 
   base::CallbackListSubscription popup_state_subscription_;
   PrefChangeRegistrar pref_change_registrar_;

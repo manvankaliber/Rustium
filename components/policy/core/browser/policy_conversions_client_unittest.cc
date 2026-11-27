@@ -68,12 +68,6 @@ class StubPolicyConversionsClient : public PolicyConversionsClient {
   base::ListValue GetExtensionPolicies(PolicyDomain policy_domain) override {
     return base::ListValue();
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  base::ListValue GetDeviceLocalAccountPolicies() override {
-    return base::ListValue();
-  }
-  base::DictValue GetIdentityFields() override { return base::DictValue(); }
-#endif
   PolicyService* GetPolicyService() const override { return policy_service_; }
   SchemaRegistry* GetPolicySchemaRegistry() const override {
     return schema_registry_;
@@ -729,7 +723,6 @@ TEST_F(PolicyConversionsClientTest, GetPolicyValues_ConvertValues) {
       *policies.FindByDottedPath(base::StrCat({kMachinePolicy, ".value"})));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // The precedence order logic is shared with `GetPrecedenceOrder()`, so only
 // check that the mojo output matches it for a non-default order.
 TEST_F(PolicyConversionsClientTest, GetPrecedenceOrderMojo) {
@@ -755,7 +748,6 @@ TEST_F(PolicyConversionsClientTest, GetPrecedenceOrderMojo) {
     EXPECT_EQ(expected[i].GetString(), precedence_order[i]);
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(PolicyConversionsClientTest, ChromePolicyConversionsToMojoPolicyGroups) {
   PolicyMap policy_map;
@@ -765,11 +757,9 @@ TEST_F(PolicyConversionsClientTest, ChromePolicyConversionsToMojoPolicyGroups) {
   // Not in the schema, i.e. unknown.
   policy_map.Set(kPolicyName2, POLICY_LEVEL_MANDATORY, POLICY_SCOPE_USER,
                  POLICY_SOURCE_CLOUD, base::Value("value"), nullptr);
-#if !BUILDFLAG(IS_CHROMEOS)
   policy_map.Set(key::kCloudPolicyOverridesPlatformPolicy,
                  POLICY_LEVEL_MANDATORY, POLICY_SCOPE_MACHINE,
                  POLICY_SOURCE_PLATFORM, base::Value(true), nullptr);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   testing::NiceMock<MockPolicyService> policy_service;
   ON_CALL(policy_service, GetPolicies(testing::_))
       .WillByDefault(testing::ReturnRef(policy_map));
@@ -818,7 +808,6 @@ TEST_F(PolicyConversionsClientTest, ChromePolicyConversionsToMojoPolicyGroups) {
   EXPECT_EQ(l10n_util::GetStringUTF8(IDS_POLICY_UNKNOWN),
             chrome_group->policies.at(kPolicyName2)->error);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   ASSERT_EQ(2u, groups.size());
   const mojom::PolicyGroupPtr& precedence_group =
       groups.at(kPrecedencePoliciesId);
@@ -830,9 +819,6 @@ TEST_F(PolicyConversionsClientTest, ChromePolicyConversionsToMojoPolicyGroups) {
                                    ->value);
   ASSERT_TRUE(precedence_group->precedence_order.has_value());
   EXPECT_EQ(4u, precedence_group->precedence_order->size());
-#else
-  EXPECT_EQ(1u, groups.size());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 TEST_F(PolicyConversionsClientTest,

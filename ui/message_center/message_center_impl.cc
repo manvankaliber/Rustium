@@ -11,7 +11,6 @@
 #include <string>
 #include <utility>
 
-#include "ash/constants/ash_features.h"
 #include "base/command_line.h"
 #include "base/functional/bind.h"
 #include "base/observer_list.h"
@@ -28,56 +27,14 @@
 #include "ui/message_center/public/cpp/notification_types.h"
 #include "ui/message_center/public/cpp/notifier_id.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_constants.h"
-#include "ash/constants/ash_features.h"
-#include "base/metrics/histogram_functions.h"
-#endif  //  BUILDFLAG(IS_CHROMEOS)
 
 namespace message_center {
 namespace {
 
 bool IsNotificationsGroupingEnabled() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return true;
-#else
   return false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-ScopedNotificationLimitOverrider* g_limit_overrider_instance_ = nullptr;
-
-// Constants -------------------------------------------------------------------
-
-// Indicates the notification count limit.
-// NOTE: Used only when the notification limit feature is enabled.
-constexpr int kChromeOSNotificationLimit = 75;
-
-// Target notification count for the cleaning task triggered when the
-// notification count exceeds `kChromeOSNotificationLimit`. This value is
-// lower than `kChromeOSNotificationLimit` to reduce the frequency of hitting
-// the limit. Because of unremovable notifications, the actual count after
-// cleaning could exceed this target count.
-// NOTE: Used only when the notification limit feature is enabled.
-constexpr int kNotificationTargetCountAfterRemoval = 65;
-
-// Helpers ---------------------------------------------------------------------
-
-int GetNotificationLimit() {
-  return g_limit_overrider_instance_
-             ? g_limit_overrider_instance_->overriding_limit
-             : kChromeOSNotificationLimit;
-}
-
-int GetTargetCountAfterRemoval() {
-  return g_limit_overrider_instance_
-             ? g_limit_overrider_instance_->overriding_target_count
-             : kNotificationTargetCountAfterRemoval;
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -235,10 +192,6 @@ Notification* MessageCenterImpl::FindParentNotification(
   // notifications from web pages with valid origin urls. For system
   // notifications, currently we only group privacy indicators notification.
   bool is_privacy_indicators_notification = false;
-#if BUILDFLAG(IS_CHROMEOS)
-  is_privacy_indicators_notification =
-      notification->notifier_id().id == ash::kPrivacyIndicatorsNotifierId;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (!is_privacy_indicators_notification &&
       (notification->origin_url().is_empty() ||
@@ -368,9 +321,6 @@ void MessageCenterImpl::AddNotification(
       notification_list_->GetVisibleNotifications(blockers_);
   observer_list_.Notify(&MessageCenterObserver::OnNotificationAdded, id);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ScheduleCleaningTaskIfCountOverLimit();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void MessageCenterImpl::UpdateNotification(
@@ -614,34 +564,6 @@ void MessageCenterImpl::ClickOnNotificationUnlocked(
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void MessageCenterImpl::ScheduleCleaningTaskIfCountOverLimit() {
-  if (!ash::features::IsNotificationLimitEnabled() ||
-      notification_list_->size() <= GetNotificationLimit()) {
-    return;
-  }
-
-  if (!overlimit_handler_timer_.IsRunning()) {
-    overlimit_handler_timer_.Start(
-        FROM_HERE, base::TimeDelta(), /*receiver=*/this,
-        &MessageCenterImpl::RemoveNotificationsIfOverLimit);
-  }
-}
-
-void MessageCenterImpl::RemoveNotificationsIfOverLimit() {
-  CHECK(ash::features::IsNotificationLimitEnabled());
-
-  if (int notification_count = notification_list_->size();
-      notification_count > GetNotificationLimit()) {
-    for (const std::string& id :
-         notification_list_->GetTopKRemovableNotificationIds(
-             notification_count - GetTargetCountAfterRemoval())) {
-      RemoveNotification(id, /*by_user=*/false);
-    }
-  }
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void MessageCenterImpl::ClickOnSettingsButton(const std::string& id) {
   DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
@@ -812,19 +734,5 @@ void MessageCenterImpl::DisableTimersForTest() {
 
 // ScopedNotificationLimitOverrider --------------------------------------------
 
-#if BUILDFLAG(IS_CHROMEOS)
-ScopedNotificationLimitOverrider::ScopedNotificationLimitOverrider(
-    size_t limit,
-    size_t target_count)
-    : overriding_limit(limit), overriding_target_count(target_count) {
-  CHECK(!g_limit_overrider_instance_);
-  g_limit_overrider_instance_ = this;
-}
-
-ScopedNotificationLimitOverrider::~ScopedNotificationLimitOverrider() {
-  CHECK(g_limit_overrider_instance_);
-  g_limit_overrider_instance_ = nullptr;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace message_center

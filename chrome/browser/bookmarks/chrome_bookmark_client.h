@@ -42,7 +42,6 @@ class OfflinePageBookmarkObserver;
 #endif
 
 namespace power_bookmarks {
-class SuggestedSaveLocationProvider;
 }
 
 namespace signin {
@@ -115,9 +114,6 @@ class ChromeBookmarkClient : public power_bookmarks::BookmarkClientBase {
   const raw_ptr<BookmarkUndoService> bookmark_undo_service_;
 
   raw_ptr<bookmarks::BookmarkModel> model_ = nullptr;
-
-  std::unique_ptr<power_bookmarks::SuggestedSaveLocationProvider>
-      shopping_save_location_provider_;
 
   std::unique_ptr<signin::PersistentRepeatingTimer> repeating_timer_;
 

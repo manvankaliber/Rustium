@@ -39,10 +39,6 @@
 // Controls whether `dladdr(...)` is used to print the callstack. This is
 // only used on iOS Official build where `backtrace_symbols(...)` prints
 // misleading symbols (as the binary is stripped).
-#if BUILDFLAG(IS_IOS) && defined(OFFICIAL_BUILD)
-#define HAVE_DLADDR
-#include <dlfcn.h>
-#endif
 
 // Surprisingly, uClibc defines __GLIBC__ in some build configs, but
 // execinfo.h and backtrace(3) are really only present in glibc and in macOS
@@ -66,7 +62,7 @@
 #include <AvailabilityMacros.h>
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <sys/prctl.h>
 
 #include "base/debug/proc_maps_linux.h"
@@ -324,7 +320,7 @@ void PrintToStderr(const char* output) {
   std::ignore = HANDLE_EINTR(write(STDERR_FILENO, output, strlen(output)));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 void AlarmSignalHandler(int signal, siginfo_t* info, void* void_context) {
   // We have seen rare cases on AMD linux where the default signal handler
   // either does not run or a thread (Probably an AMD driver thread) prevents
@@ -343,7 +339,7 @@ void AlarmSignalHandler(int signal, siginfo_t* info, void* void_context) {
   // See: https://man7.org/linux/man-pages/man2/exit_group.2.html
   syscall(SYS_exit_group, EXIT_FAILURE);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
 void StackDumpSignalHandler(int signal, siginfo_t* info, void* void_context) {
@@ -444,8 +440,7 @@ void StackDumpSignalHandler(int signal, siginfo_t* info, void* void_context) {
     } else if (info->si_code == SEGV_ACCERR) {
       PrintToStderr(" SEGV_ACCERR ");
     }
-#if defined(ARCH_CPU_X86_64) && \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS))
+#if defined(ARCH_CPU_X86_64) && BUILDFLAG(IS_LINUX)
     else if (info->si_code == SI_KERNEL) {
       PrintToStderr(" SI_KERNEL");
     }
@@ -471,8 +466,7 @@ void StackDumpSignalHandler(int signal, siginfo_t* info, void* void_context) {
   }
 #endif  // BUILDFLAG(CFI_ENFORCEMENT_TRAP)
 
-#if defined(ARCH_CPU_X86_64) && \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS))
+#if defined(ARCH_CPU_X86_64) && BUILDFLAG(IS_LINUX)
   if (signal == SIGSEGV && info->si_code == SI_KERNEL) {
     PrintToStderr(
         " Possibly a General Protection Fault, can be due to a non-canonical "
@@ -483,7 +477,7 @@ void StackDumpSignalHandler(int signal, siginfo_t* info, void* void_context) {
 
   debug::StackTrace().Print();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #if ARCH_CPU_X86_FAMILY
   ucontext_t* context = reinterpret_cast<ucontext_t*>(void_context);
   auto gregs = base::span(context->uc_mcontext.gregs);
@@ -537,7 +531,7 @@ void StackDumpSignalHandler(int signal, siginfo_t* info, void* void_context) {
   }
   PrintToStderr("\n");
 #endif  // ARCH_CPU_X86_FAMILY
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   PrintToStderr("[end of stack trace]\n");
 
@@ -545,7 +539,7 @@ void StackDumpSignalHandler(int signal, siginfo_t* info, void* void_context) {
     _exit(EXIT_FAILURE);
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Set an alarm to trigger in case the default handler does not terminate
   // the process. See 'AlarmSignalHandler' for more details.
   struct sigaction action;
@@ -584,7 +578,7 @@ void StackDumpSignalHandler(int signal, siginfo_t* info, void* void_context) {
   if (errno != EPERM) {
     _exit(EXIT_FAILURE);
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
   // Explicitly re-raise the signal even if it might have re-raised itself on
@@ -1008,9 +1002,9 @@ bool EnableInProcessStackDumping() {
   success &= (sigaction(SIGBUS, &action, nullptr) == 0);
   success &= (sigaction(SIGSEGV, &action, nullptr) == 0);
 // On Linux, SIGSYS is reserved by the kernel for seccomp-bpf sandboxing.
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
   success &= (sigaction(SIGSYS, &action, nullptr) == 0);
-#endif  // !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
   return success;
 }

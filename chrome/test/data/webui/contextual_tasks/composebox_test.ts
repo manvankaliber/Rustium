@@ -21,9 +21,7 @@ import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
 import {SuggestInventory} from 'chrome://resources/mojo/components/omnibox/browser/fusebox_action.mojom-webui.js';
 /* clang-format off */
 import {PageCallbackRouter as SearchboxPageCallbackRouter, PageHandlerRemote as SearchboxPageHandlerRemote} from 'chrome://resources/mojo/components/omnibox/browser/searchbox.mojom-webui.js';
-// <if expr="not is_android">
 import {TabAttachmentSource} from 'chrome://resources/mojo/components/omnibox/browser/searchbox.mojom-webui.js';
-// </if>
 /* clang-format on */
 import type {AutocompleteResult, PageRemote as SearchboxPageRemote, SelectedFileInfo} from 'chrome://resources/mojo/components/omnibox/browser/searchbox.mojom-webui.js';
 import type {UnguessableToken} from 'chrome://resources/mojo/mojo/public/mojom/base/unguessable_token.mojom-webui.js';
@@ -174,10 +172,8 @@ suite('ContextualTasksComposeboxTest', () => {
     mockComposeboxPageHandler.setResultFor(
         'canShowNextboxAnimation', Promise.resolve({canShow: true}));
     mockSearchboxPageHandler = TestMock.fromClass(SearchboxPageHandlerRemote);
-    // <if expr="not is_android">
     mockComposeboxPageHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
-    // </if>
     mockSearchboxPageHandler.setResultFor(
         'getRecentTabs', Promise.resolve({tabs: []}));
     mockSearchboxPageHandler.setResultFor(
@@ -286,7 +282,6 @@ suite('ContextualTasksComposeboxTest', () => {
   });
 
   // TODO(crbug.com/523350742): Enable Tooltip tests on Android.
-  // <if expr="not is_android">
   test('TooltipVisibilityUpdatesOnResize', () => {
     mockTimer.install();
     const composeboxElement = contextualTasksApp.$.composebox;
@@ -405,7 +400,6 @@ suite('ContextualTasksComposeboxTest', () => {
     mockTimer.tick(1);
     assertEquals(1, contextualTasksApp.numberOfTimesTooltipShownForTesting);
   });
-  // </if>
 
 
   test('ToolChipVisibilityBasedOnInputState', async () => {
@@ -456,7 +450,8 @@ suite('ContextualTasksComposeboxTest', () => {
       'composebox remains visible during results-to-results navigation',
       async () => {
         contextualTasksApp.removeThreadFrameListenersForTesting();
-        // Setup: Start in a loaded results state (not initial load, not zero state).
+        // Setup: Start in a loaded results state (not initial load, not zero
+        // state).
         contextualTasksApp.setIsInitialFrameLoadForTesting(false);
         contextualTasksApp.setIsZeroStateForTesting(false);
         window.dispatchEvent(new MessageEvent('message', {
@@ -492,8 +487,7 @@ suite('ContextualTasksComposeboxTest', () => {
         await contextualTasksApp.updateComplete;
 
         // After check resolves (still results):
-        assertEquals(
-            'visible', window.getComputedStyle(composebox).visibility);
+        assertEquals('visible', window.getComputedStyle(composebox).visibility);
 
         // Simulate DOM load.
         window.dispatchEvent(new MessageEvent('message', {
@@ -502,15 +496,15 @@ suite('ContextualTasksComposeboxTest', () => {
         await contextualTasksApp.updateComplete;
         await microtasksFinished();
 
-        assertEquals(
-            'visible', window.getComputedStyle(composebox).visibility);
+        assertEquals('visible', window.getComputedStyle(composebox).visibility);
       });
 
   test(
       'composebox is hidden during subsequent navigation to zero-state until DOM loads',
       async () => {
         contextualTasksApp.removeThreadFrameListenersForTesting();
-        // Setup: Start in a loaded results state (not initial load, not zero state).
+        // Setup: Start in a loaded results state (not initial load, not zero
+        // state).
         contextualTasksApp.setIsInitialFrameLoadForTesting(false);
         contextualTasksApp.setIsZeroStateForTesting(false);
         window.dispatchEvent(new MessageEvent('message', {
@@ -558,8 +552,7 @@ suite('ContextualTasksComposeboxTest', () => {
         await contextualTasksApp.updateComplete;
 
         // Hidden after check resolves to zero-state.
-        assertEquals(
-            'hidden', window.getComputedStyle(composebox).visibility);
+        assertEquals('hidden', window.getComputedStyle(composebox).visibility);
 
         // Even when submit-enabled is set (e.g., from an attached tab chip),
         // the submit container must inherit visibility: hidden rather than
@@ -577,8 +570,7 @@ suite('ContextualTasksComposeboxTest', () => {
         await contextualTasksApp.updateComplete;
         await microtasksFinished();
 
-        assertEquals(
-            'visible', window.getComputedStyle(composebox).visibility);
+        assertEquals('visible', window.getComputedStyle(composebox).visibility);
         simulateUserInput(inputElement, 'test query');
         await innerComposebox.updateComplete;
         assertTrue(innerComposebox.hasAttribute('submit-enabled'));
@@ -1495,10 +1487,8 @@ suite('ContextualTasksComposeboxForkSmokeTest', () => {
     mockComposeboxPageHandler.setResultFor(
         'canShowNextboxAnimation', Promise.resolve({canShow: true}));
     mockSearchboxPageHandler = TestMock.fromClass(SearchboxPageHandlerRemote);
-    // <if expr="not is_android">
     mockComposeboxPageHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
-    // </if>
     mockSearchboxPageHandler.setResultFor(
         'getRecentTabs', Promise.resolve({tabs: []}));
     mockSearchboxPageHandler.setResultFor(
@@ -1606,10 +1596,8 @@ suite('ContextualTasksComposeboxForkBasicInputTest', () => {
     mockComposeboxPageHandler.setResultFor(
         'canShowNextboxAnimation', Promise.resolve({canShow: true}));
     mockSearchboxPageHandler = TestMock.fromClass(SearchboxPageHandlerRemote);
-    // <if expr="not is_android">
     mockComposeboxPageHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
-    // </if>
     mockSearchboxPageHandler.setResultFor(
         'getRecentTabs', Promise.resolve({tabs: []}));
     mockSearchboxPageHandler.setResultFor(
@@ -1903,10 +1891,8 @@ suite('ContextualTasksComposeboxForkDropdownTest', () => {
     mockComposeboxPageHandler.setResultFor(
         'canShowNextboxAnimation', Promise.resolve({canShow: true}));
     mockSearchboxPageHandler = TestMock.fromClass(SearchboxPageHandlerRemote);
-    // <if expr="not is_android">
     mockComposeboxPageHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
-    // </if>
     mockSearchboxPageHandler.setResultFor(
         'getRecentTabs', Promise.resolve({tabs: []}));
     mockSearchboxPageHandler.setResultFor(
@@ -2156,9 +2142,7 @@ suite('ContextualTasksComposeboxForkContextMenuTest', () => {
       ComposeboxPageHandlerRemote;
   let mockSearchboxPageHandler: TestMock<SearchboxPageHandlerRemote>&
       SearchboxPageHandlerRemote;
-  // <if expr="not is_android">
   let searchboxCallbackRouterRemote: SearchboxPageRemote;
-  // </if>
   let parts: CtComposeboxAppParts;
 
   // The inner element initializes `smartTabSharingVisible` based on
@@ -2213,10 +2197,8 @@ suite('ContextualTasksComposeboxForkContextMenuTest', () => {
     mockSearchboxPageHandler = TestMock.fromClass(SearchboxPageHandlerRemote);
     // Smart Tab Sharing is a desktop-only feature ([EnableIfNot=is_android]
     // in mojom).
-    // <if expr="not is_android">
     mockSearchboxPageHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
-    // </if>
     mockSearchboxPageHandler.setResultFor(
         'getRecentTabs', Promise.resolve({tabs: []}));
     mockSearchboxPageHandler.setResultFor(
@@ -2228,13 +2210,8 @@ suite('ContextualTasksComposeboxForkContextMenuTest', () => {
         'getInputState', Promise.resolve({state: new MockInputState()}));
     const searchboxCallbackRouter = new SearchboxPageCallbackRouter();
     // The remote is only needed by the desktop-only tests below.
-    // <if expr="is_android">
-    searchboxCallbackRouter.$.bindNewPipeAndPassRemote();
-    // </if>
-    // <if expr="not is_android">
     searchboxCallbackRouterRemote =
         searchboxCallbackRouter.$.bindNewPipeAndPassRemote();
-    // </if>
     ComposeboxProxyImpl.setInstance(new ComposeboxProxyImpl(
         mockComposeboxPageHandler, mockSearchboxPageHandler,
         searchboxCallbackRouter));
@@ -2355,7 +2332,6 @@ suite('ContextualTasksComposeboxForkContextMenuTest', () => {
 
   // Smart Tab Sharing tests are desktop-only ([EnableIfNot=is_android] in
   // mojom).
-  // <if expr="not is_android">
   test(
       'fetches Smart Tab Sharing active state on connect when visible',
       async () => {
@@ -2398,7 +2374,6 @@ suite('ContextualTasksComposeboxForkContextMenuTest', () => {
         1, mockSearchboxPageHandler.getCallCount('setSmartTabSharingActive'));
     assertEquals(true, activeArg);
   });
-  // </if>
 
   test('ContextMenuOpenedFiresMojo', async () => {
     await mountApp(/*smartTabSharingVisible=*/ false);
@@ -2414,7 +2389,6 @@ suite('ContextualTasksComposeboxForkContextMenuTest', () => {
   });
 
   // Smart Tab Sharing is desktop-only ([EnableIfNot=is_android] in mojom).
-  // <if expr="not is_android">
   test('clears shared tab context when sharing becomes active', async () => {
     await mountApp(/*smartTabSharingVisible=*/ false);
     const {innerComposebox} = parts;
@@ -2526,7 +2500,6 @@ suite('ContextualTasksComposeboxForkContextMenuTest', () => {
     await settleChain();
     assertCoinBordersMatchSurface('dark', entrypoint);
   });
-  // </if>
 });
 
 // =============================================================================
@@ -2604,10 +2577,8 @@ suite('ContextualTasksComposeboxResizeTest', () => {
     mockComposeboxPageHandler.setResultFor(
         'canShowNextboxAnimation', Promise.resolve({canShow: true}));
     mockSearchboxPageHandler = TestMock.fromClass(SearchboxPageHandlerRemote);
-    // <if expr="not is_android">
     mockComposeboxPageHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
-    // </if>
     mockSearchboxPageHandler.setResultFor(
         'getRecentTabs', Promise.resolve({tabs: []}));
     mockSearchboxPageHandler.setResultFor(
@@ -2738,10 +2709,8 @@ suite('ContextualTasksComposeboxForkGlowTest', () => {
         'canShowNextboxAnimation', Promise.resolve({canShow: true}));
     const mockSearchboxPageHandler =
         TestMock.fromClass(SearchboxPageHandlerRemote);
-    // <if expr="not is_android">
     mockComposeboxPageHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
-    // </if>
     mockSearchboxPageHandler.setResultFor(
         'getRecentTabs', Promise.resolve({tabs: []}));
     mockSearchboxPageHandler.setResultFor(
@@ -2841,10 +2810,8 @@ suite('ContextualTasksComposeboxForkErrorScrimTest', () => {
     mockComposeboxPageHandler.setResultFor(
         'canShowNextboxAnimation', Promise.resolve({canShow: true}));
     mockSearchboxPageHandler = TestMock.fromClass(SearchboxPageHandlerRemote);
-    // <if expr="not is_android">
     mockComposeboxPageHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
-    // </if>
     mockSearchboxPageHandler.setResultFor(
         'getRecentTabs', Promise.resolve({tabs: []}));
     mockSearchboxPageHandler.setResultFor(
@@ -3019,7 +2986,6 @@ function createVoiceResults(transcripts: string[]): SpeechRecognitionEvent {
             tabFaviconChipsToCoinsEnabled: false,
             voiceSearchCoherenceComposeboxesEnabled: coherenceEnabled,
             voiceSearchCoherenceCobrowsingComposeboxEnabled: coherenceEnabled,
-            isSystemVoiceSearchEnabled: false,
           });
 
           metrics = fakeMetricsPrivate();

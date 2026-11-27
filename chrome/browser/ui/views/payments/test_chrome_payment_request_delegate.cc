@@ -120,11 +120,7 @@ TestChromePaymentRequestDelegate::GetInvalidSslCertificateErrorMessage() {
   return ChromePaymentRequestDelegate::GetInvalidSslCertificateErrorMessage();
 }
 
-void TestChromePaymentRequestDelegate::GetTwaPackageName(
-    GetTwaPackageNameCallback callback) const {
-  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-      FROM_HERE, base::BindOnce(std::move(callback), twa_package_name_));
-}
+
 
 const base::WeakPtr<PaymentUIObserver>
 TestChromePaymentRequestDelegate::GetPaymentUIObserver() const {

@@ -27,9 +27,7 @@
 #include "ui/base/mojom/window_open_disposition.mojom-forward.h"
 #include "ui/base/mojom/window_show_state.mojom-forward.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/apps/link_capturing/intent_picker_info.h"
-#endif  //  !BUILDFLAG(IS_ANDROID)
 
 class LocationBarTesting;
 class GlobalBrowserCollection;
@@ -96,12 +94,6 @@ class TestBrowserWindow : public BrowserWindow,
   void SetContentsSize(const gfx::Size& size) override;
   bool IsMaximized() const override;
   bool IsMinimized() const override;
-#if BUILDFLAG(IS_ANDROID)
-  bool CanResize(ui::WindowResizePrecheckResult& result) const override {
-    result = ui::WindowResizePrecheckResult::kOk;
-    return true;
-  }
-#endif
   void Maximize() override {}
   void Minimize() override {}
   void Restore() override {}
@@ -144,7 +136,6 @@ class TestBrowserWindow : public BrowserWindow,
   BrowserView* AsBrowserView() override;
   void ShowUpdateChromeDialog() override {}
   void ShowBookmarkBubble(const GURL& url, bool already_bookmarked) override {}
-#if !BUILDFLAG(IS_ANDROID)
   void ShowIntentPickerBubble(
       std::vector<apps::IntentPickerAppInfo> app_info,
       bool show_stay_in_chrome,
@@ -152,10 +143,6 @@ class TestBrowserWindow : public BrowserWindow,
       apps::IntentPickerBubbleType bubble_type,
       const std::optional<url::Origin>& initiating_origin,
       IntentPickerResponse callback) override {}
-#endif  //  !define(OS_ANDROID)
-#if BUILDFLAG(IS_CHROMEOS)
-  void ToggleMultitaskMenu() override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ShowTranslateBubbleResult ShowTranslateBubble(
       content::WebContents* contents,
       translate::TranslateStep step,
@@ -177,8 +164,7 @@ class TestBrowserWindow : public BrowserWindow,
       content::WebContents* web_contents) override;
   void ShowAvatarBubbleFromAvatarButton(bool is_source_keyboard) override {}
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   void ShowHatsDialog(
       const std::string& site_id,
       const std::optional<std::string>& hats_histogram_name,

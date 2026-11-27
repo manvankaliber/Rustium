@@ -49,9 +49,6 @@
 #include "services/network/test/test_url_loader_factory.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/supervised_user/core/browser/android/android_parental_controls.h"
-#endif
 
 namespace supervised_user {
 
@@ -317,23 +314,12 @@ class ClassifyUrlNavigationThrottleAsyncCheckerTest
           test_url_loader_factory(), *profile()->GetPrefs());
     }
     if (GetTestCase().device_parental_controls_filter_enabled) {
-#if BUILDFLAG(IS_ANDROID)
-      TestingBrowserProcess::GetGlobal()
-          ->android_parental_controls()
-          .SetBrowserContentFiltersEnabledForTesting(true);
-#else
       NOTREACHED()
           << "Device parental controls filter is only supported on Android";
-#endif  // BUILDFLAG(IS_ANDROID)
     }
   }
 
   void TearDown() override {
-#if BUILDFLAG(IS_ANDROID)
-    TestingBrowserProcess::GetGlobal()
-        ->android_parental_controls()
-        .SetBrowserContentFiltersEnabledForTesting(false);
-#endif  // BUILDFLAG(IS_ANDROID)
     ClassifyUrlNavigationThrottleTestBase::TearDown();
   }
 };
@@ -488,15 +474,6 @@ const AsyncCheckerTestCase kAsyncCheckerTestCases[] = {
     {.name = "SupervisedByFamilyLink",
      .family_link_filter_enabled = true,
      .device_parental_controls_filter_enabled = false}
-#if BUILDFLAG(IS_ANDROID)
-    ,
-    {.name = "LocalSupervision",
-     .family_link_filter_enabled = false,
-     .device_parental_controls_filter_enabled = true},
-    {.name = "LocalAndFamilyLinkSupervision",
-     .family_link_filter_enabled = true,
-     .device_parental_controls_filter_enabled = true}
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 INSTANTIATE_TEST_SUITE_P(,

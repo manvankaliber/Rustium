@@ -7,7 +7,6 @@
 
 #include <optional>
 
-#include "components/commerce/core/proto/merchant_trust.pb.h"
 #include "components/page_info/core/page_info_types.h"
 
 namespace page_info::merchant_trust_validation {
@@ -31,8 +30,6 @@ enum class MerchantTrustStatus {
 };
 // LINT.ThenChange(//tools/metrics/histograms/metadata/security/enums.xml:MerchantTrustStatus)
 
-MerchantTrustStatus ValidateProto(
-    const std::optional<commerce::MerchantTrustSignalsV2>& merchant_proto);
 
 }  // namespace page_info::merchant_trust_validation
 

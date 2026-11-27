@@ -196,7 +196,6 @@ suite('AudioMenuElement', () => {
     }
   });
 
-  // <if expr="not is_chromeos">
   test('voice item title uses system label for non-Google voice', async () => {
     createAudioMenu();
     const systemVoice =
@@ -208,7 +207,6 @@ suite('AudioMenuElement', () => {
     assertEquals(
         loadTimeData.getString('systemVoiceLabel'), voiceGroup.items[0]!.title);
   });
-  // </if>
 
   test(
       'voice group contains voice and accent items with correct event names',

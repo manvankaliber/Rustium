@@ -139,8 +139,9 @@ class TCPServerSocketFactory : public DummyServerSocketFactory {
         new net::TCPServerSocket(nullptr, net::NetLogSource()));
     while (socket->ListenWithAddressAndPort("127.0.0.1", port_, 10) !=
            net::OK) {
-      if (++port_ > kDummyPort + 100)
+      if (++port_ > kDummyPort + 100) {
         return nullptr;
+      }
     }
     GetUIThreadTaskRunner({})->PostTask(FROM_HERE,
                                         std::move(create_socket_callback_));
@@ -173,14 +174,8 @@ class MockDevToolsManagerDelegate : public DevToolsManagerDelegate {
               AcceptDebugging,
               (base::OnceCallback<void(AcceptConnectionResult)> callback),
               (override));
-  MOCK_METHOD(void,
-              SetActiveWebSocketConnections,
-              (size_t count),
-              (override));
-  MOCK_METHOD(bool,
-              AllowInspectingTarget,
-              (DevToolsAgentHost*),
-              (override));
+  MOCK_METHOD(void, SetActiveWebSocketConnections, (size_t count), (override));
+  MOCK_METHOD(bool, AllowInspectingTarget, (DevToolsAgentHost*), (override));
   MOCK_METHOD(void,
               ClientAttached,
               (DevToolsAgentHostClientChannel*),
@@ -213,7 +208,7 @@ class BrowserClient : public ContentBrowserClient {
   }
 };
 
-}
+}  // namespace
 
 class DevToolsHttpHandlerTest : public testing::Test {
  public:
@@ -264,8 +259,9 @@ TEST_F(DevToolsHttpHandlerTest, TestServerSocketFailed) {
   // Our dummy socket factory will post a quit message once the server will
   // become ready.
   run_loop.Run();
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 5; i++) {
     RunAllPendingInMessageLoop(BrowserThread::UI);
+  }
   DevToolsAgentHost::StopRemoteDebuggingServer();
   // Make sure the handler actually stops.
   run_loop_2.Run();
@@ -477,9 +473,8 @@ class DevToolsHttpHandlerWithServerTest : public DevToolsHttpHandlerTest {
  public:
   DevToolsHttpHandlerWithServerTest() = default;
 
-  int StartServer(
-      DevToolsAgentHost::RemoteDebuggingServerMode mode =
-          DevToolsAgentHost::RemoteDebuggingServerMode::kDefault) {
+  int StartServer(DevToolsAgentHost::RemoteDebuggingServerMode mode =
+                      DevToolsAgentHost::RemoteDebuggingServerMode::kDefault) {
     std::unique_ptr<TCPServerSocketFactory> factory =
         std::make_unique<TCPServerSocketFactory>(run_loop_.QuitClosure(),
                                                  run_loop_2_.QuitClosure());
@@ -546,7 +541,7 @@ TEST_F(DevToolsHttpHandlerWithServerTest, JsonVersionIncludesFilePathStyle) {
   ASSERT_NE(file_path_style, nullptr);
 #if BUILDFLAG(IS_WIN)
   EXPECT_EQ("windows", *file_path_style);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   EXPECT_EQ("posix", *file_path_style);
 #else
 #error Unsupported native file path style
@@ -785,34 +780,38 @@ TEST_F(DevToolsHttpHandlerWithApprovalTest,
   StopServer();
 }
 
-
 TEST_F(DevToolsHttpHandlerWithServerTest, JsonActivateCloseRespectsAllowlist) {
-  scoped_refptr<DevToolsAgentHost> host = DevToolsAgentHost::CreateForDiscovery();
+  scoped_refptr<DevToolsAgentHost> host =
+      DevToolsAgentHost::CreateForDiscovery();
   int port = StartServer();
 
-  EXPECT_CALL(*MockDevToolsManagerDelegate::last_instance, AllowInspectingTarget(testing::_))
+  EXPECT_CALL(*MockDevToolsManagerDelegate::last_instance,
+              AllowInspectingTarget(testing::_))
       .WillRepeatedly(testing::Return(false));
 
-  auto request = RunRequestUntilCompletion(
-      base::StringPrintf("http://127.0.0.1:%d/json/activate/%s", port, host->GetId().c_str()));
+  auto request = RunRequestUntilCompletion(base::StringPrintf(
+      "http://127.0.0.1:%d/json/activate/%s", port, host->GetId().c_str()));
   EXPECT_EQ(403, request->response_info().headers->response_code());
 
-  request = RunRequestUntilCompletion(
-      base::StringPrintf("http://127.0.0.1:%d/json/close/%s", port, host->GetId().c_str()));
+  request = RunRequestUntilCompletion(base::StringPrintf(
+      "http://127.0.0.1:%d/json/close/%s", port, host->GetId().c_str()));
   EXPECT_EQ(403, request->response_info().headers->response_code());
 
   StopServer();
 }
 
 TEST_F(DevToolsHttpHandlerWithServerTest, WebSocketRespectsAllowlist) {
-  scoped_refptr<DevToolsAgentHost> host = DevToolsAgentHost::CreateForDiscovery();
+  scoped_refptr<DevToolsAgentHost> host =
+      DevToolsAgentHost::CreateForDiscovery();
   int port = StartServer();
 
-  EXPECT_CALL(*MockDevToolsManagerDelegate::last_instance, AllowInspectingTarget(testing::_))
+  EXPECT_CALL(*MockDevToolsManagerDelegate::last_instance,
+              AllowInspectingTarget(testing::_))
       .WillRepeatedly(testing::Return(false));
 
   auto request = RunRequestUntilCompletion(
-      base::StringPrintf("http://127.0.0.1:%d/devtools/page/%s", port, host->GetId().c_str()),
+      base::StringPrintf("http://127.0.0.1:%d/devtools/page/%s", port,
+                         host->GetId().c_str()),
       {{"connection", "upgrade"}, {"upgrade", "websocket"}});
 
   // Expect HTTP 403 Forbidden because AllowInspectingTarget returned false

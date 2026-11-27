@@ -1,6 +1,3 @@
-load("@build_bazel_rules_android//android:rules.bzl", "android_library")
-load("@org_tensorflow//tensorflow/lite:build_def.bzl", "tflite_jni_binary")
-load("@org_tensorflow//tensorflow/lite/java:aar_with_jni.bzl", "aar_with_jni")
 load("//third_party/bazel_rules/rules_cc/cc:cc_library.bzl", "cc_library")
 load("//third_party/bazel_rules/rules_cc/cc:cc_test.bzl", "cc_test")
 
@@ -19,27 +16,6 @@ cc_library(
     alwayslink = 1,  # For registration to always run.
 )
 
-cc_library(
-    name = "nnapi_plugin",
-    visibility = [
-        "//visibility:public",
-    ],
-    deps = [
-        "@org_tensorflow//tensorflow/lite/acceleration/configuration:nnapi_plugin",
-    ],
-    alwayslink = 1,  # For registration to always run.
-)
-
-cc_library(
-    name = "hexagon_plugin",
-    visibility = [
-        "//visibility:public",
-    ],
-    deps = [
-        "@org_tensorflow//tensorflow/lite/acceleration/configuration:hexagon_plugin",
-    ],
-    alwayslink = 1,  # For registration to always run.
-)
 
 cc_library(
     name = "xnnpack_plugin",
@@ -96,40 +72,4 @@ cc_test(
         "@org_tensorflow//tensorflow/lite/c:common",
         "@org_tensorflow//tensorflow/lite/kernels:builtin_ops",
     ],
-)
-
-# Targets for delegate plugin library Maven release.
-
-# GPU delegate plugin library.
-tflite_jni_binary(
-    name = "libgpu_delegate_plugin.so",
-    linkscript = "//tensorflow_lite_support/java:default_version_script.lds",
-    visibility = ["//visibility:private"],
-    deps = [
-        "@org_tensorflow//tensorflow/lite/acceleration/configuration/c:gpu_plugin",
-    ],
-)
-
-cc_library(
-    name = "gpu_delegate_plugin_native",
-    srcs = [
-        ":libgpu_delegate_plugin.so",
-    ],
-    visibility = ["//visibility:private"],
-)
-
-# Android target of Acceleration@Scale GPU plugin.
-# Use this target when GPU delegate is selected in the Task Library Java API.
-android_library(
-    name = "gpu_delegate_plugin_android",
-    visibility = [
-        "//visibility:public",
-    ],
-    exports = [":gpu_delegate_plugin_native"],
-)
-
-# AAR target of Acceleration@Scale GPU acceleration for OSS release.
-aar_with_jni(
-    name = "gpu-delegate-plugin",
-    android_library = ":gpu_delegate_plugin_android",
 )

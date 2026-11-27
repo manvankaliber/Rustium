@@ -30,9 +30,6 @@
 #include "partition_alloc/partition_alloc_public_constants.h"
 #include "partition_alloc/thread_isolation/thread_isolation.h"
 
-#if PA_BUILDFLAG(IS_IOS)
-#include <mach-o/dyld.h>
-#endif
 
 #if PA_BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -105,9 +102,7 @@ size_t PartitionAddressSpace::zero_segment_size_ = 0;
 #endif
 
 #if PA_CONFIG(DYNAMICALLY_SELECT_POOL_SIZE)
-#if !PA_BUILDFLAG(IS_IOS)
 #error Dynamic pool size is only supported on iOS.
-#endif
 bool PartitionAddressSpace::is_core_pool_size_reduced_ = false;
 
 bool PartitionAddressSpace::IsIOSTestProcess() {
@@ -186,15 +181,6 @@ void PartitionAddressSpace::Init() {
   }
 #endif
 
-#if PA_BUILDFLAG(IS_ANDROID)
-  // On Android, Adreno-GSL library fails to mmap if we snatch address
-  // 0x400000000. Find a different address instead.
-  if (setup_.regular_pool_base_address_ == 0x400000000) {
-    uintptr_t new_base_address = map_base_pages(glued_pool_sizes);
-    FreePages(setup_.regular_pool_base_address_, glued_pool_sizes);
-    setup_.regular_pool_base_address_ = new_base_address;
-  }
-#endif  // PA_BUILDFLAG(IS_ANDROID)
   if (!setup_.regular_pool_base_address_) {
     HandlePoolAllocFailure();
   }

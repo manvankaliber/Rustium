@@ -49,11 +49,7 @@ TranslateUIDelegate::TranslateUIDelegate(
   MaybeSetContentLanguages();
 
   // Also start listening for changes in the accept languages.
-#if BUILDFLAG(IS_CHROMEOS)
-  const std::string& pref_name = language::prefs::kPreferredLanguages;
-#else
   const std::string& pref_name = language::prefs::kAcceptLanguages;
-#endif
 
   PrefService* pref_service = translate_manager->translate_client()->GetPrefs();
   pref_change_registrar_.Init(pref_service);
@@ -351,69 +347,6 @@ bool TranslateUIDelegate::IsIncognito() const {
   return translate_driver && translate_driver->IsIncognito();
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-
-bool TranslateUIDelegate::ShouldAutoAlwaysTranslate() {
-  // Don't trigger if it's off the record or already set to always translate.
-  if (IsIncognito() || ShouldAlwaysTranslate())
-    return false;
-
-  const std::string& source_language =
-      translate_ui_languages_manager_->GetSourceLanguageCode();
-  // Don't trigger for unknown source language.
-  if (source_language == language_detection::kUnknownLanguageCode) {
-    return false;
-  }
-
-  bool always_translate =
-      (prefs_->GetTranslationAcceptedCount(source_language) >=
-           GetAutoAlwaysThreshold() &&
-       prefs_->GetTranslationAutoAlwaysCount(source_language) <
-           GetMaximumNumberOfAutoAlways());
-
-  if (always_translate) {
-    // Auto-always will be triggered. Need to increment the auto-always
-    // counter.
-    prefs_->IncrementTranslationAutoAlwaysCount(source_language);
-    // Reset translateAcceptedCount so that auto-always could be triggered
-    // again.
-    prefs_->ResetTranslationAcceptedCount(source_language);
-  }
-  return always_translate;
-}
-
-bool TranslateUIDelegate::ShouldAutoNeverTranslate() {
-  if (IsIncognito())
-    return false;
-
-  const std::string& source_language =
-      translate_ui_languages_manager_->GetSourceLanguageCode();
-  // Don't trigger if this language is already blocked.
-  if (!prefs_->CanTranslateLanguage(source_language))
-    return false;
-
-  int auto_never_count = prefs_->GetTranslationAutoNeverCount(source_language);
-
-  // At the beginning (auto_never_count == 0), deniedCount starts at 0 and is
-  // off-by-one (because this checking is done before increment). However,
-  // after auto-never is triggered once (auto_never_count > 0), deniedCount
-  // starts at 1. So there is no off-by-one by then.
-  int off_by_one = auto_never_count == 0 ? 1 : 0;
-
-  bool never_translate =
-      (prefs_->GetTranslationDeniedCount(source_language) + off_by_one >=
-           GetAutoNeverThreshold() &&
-       auto_never_count < GetMaximumNumberOfAutoNever());
-  if (never_translate) {
-    // Auto-never will be triggered. Need to increment the auto-never counter.
-    prefs_->IncrementTranslationAutoNeverCount(source_language);
-    // Reset translateDeniedCount so that auto-never could be triggered again.
-    prefs_->ResetTranslationDeniedCount(source_language);
-  }
-  return never_translate;
-}
-
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 std::string TranslateUIDelegate::GetPageHost() const {
   const TranslateDriver* translate_driver = GetTranslateDriver();

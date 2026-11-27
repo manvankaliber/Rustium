@@ -4,7 +4,6 @@
 
 import 'chrome://resources/cr_components/composebox/composebox_file_inputs.js';
 import 'chrome://resources/cr_components/composebox/contextual_entrypoint_and_menu.js';
-import 'chrome://resources/cr_components/searchbox/searchbox_compose_button.js';
 import 'chrome://resources/cr_components/searchbox/searchbox_dropdown.js';
 import 'chrome://resources/cr_components/searchbox/searchbox_input.js';
 
@@ -196,10 +195,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
       },
 
       /** Whether the Google Lens icon should be visible in the searchbox. */
-      searchboxLensSearchEnabled_: {
-        type: Boolean,
-        reflect: true,
-      },
+
 
       useWebkitSearchIcons_: {
         type: Boolean,
@@ -270,8 +266,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
       loadTimeData.getString('searchboxDefaultIcon');
   protected accessor searchboxVoiceSearchEnabled_: boolean =
       loadTimeData.getBoolean('searchboxVoiceSearch');
-  protected accessor searchboxLensSearchEnabled_: boolean =
-      loadTimeData.getBoolean('searchboxLensSearch');
+
   protected accessor ntpRealboxDynamicAiModeButtonEnabled_: boolean =
       loadTimeData.getBoolean('ntpRealboxDynamicAiModeButton');
   protected accessor ntpRealboxDynamicAiModeButtonPreventEarlyPaint_: boolean =
@@ -289,9 +284,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
   private pageHandler_: PageHandlerInterface;
   private autocompleteResultChangedListenerId_: number|null = null;
   private inputStateListenerId_: number|null = null;
-  // <if expr="not is_android">
   private smartTabSharingUpdateGeneration_: number = 0;
-  // </if>
 
   constructor() {
     performance.mark('searchbox-creation-start');
@@ -331,13 +324,11 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
       this.inputState_.activeModel = ModelMode.kUnspecified;
     }
 
-    // <if expr="not is_android">
     const stsGeneration = ++this.smartTabSharingUpdateGeneration_;
     const {active} = await this.pageHandler().getSmartTabSharingActive();
     if (stsGeneration === this.smartTabSharingUpdateGeneration_) {
       this.smartTabSharingActive = active;
     }
-    // </if>
   }
 
   override disconnectedCallback() {
@@ -562,14 +553,12 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
 
   protected onSmartTabSharingActiveChanged_(
       _e: CustomEvent<{active: boolean}>) {
-    // <if expr="not is_android">
     this.smartTabSharingUpdateGeneration_++;
     this.smartTabSharingActive = _e.detail.active;
     this.pageHandler().setSmartTabSharingActive(_e.detail.active);
     if (_e.detail.active) {
       this.openComposebox_();
     }
-    // </if>
   }
 
   /**
@@ -578,7 +567,6 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
    * cleared because the composebox component initiates the backend reset.
    */
   resetSmartTabSharing(_resetBackend: boolean = false) {
-    // <if expr="not is_android">
     this.smartTabSharingActive = false;
     if (_resetBackend) {
       const generation = ++this.smartTabSharingUpdateGeneration_;
@@ -588,7 +576,6 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
         }
       });
     }
-    // </if>
   }
 
   protected onShareTabsFlyoutOpenChanged_(e: CustomEvent<{open: boolean}>) {
@@ -848,9 +835,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
       model: model,
       enterAimMode: enterAimMode,
       error: error,
-      // <if expr="not is_android">
       smartTabSharingActive: this.smartTabSharingActive,
-      // </if>
     });
     this.setInputText('');
   }
@@ -892,10 +877,7 @@ export class NtpSearchboxElement extends NtpSearchboxElementBase implements
     this.onSearchboxInputTextUpdated(e);
   }
 
-  protected onLensSearchClick_() {
-    this.dropdownIsVisible = false;
-    this.dispatchEvent(new Event('open-lens-search'));
-  }
+
 
   protected onHasSecondarySideChanged_(e: CustomEvent<{value: boolean}>) {
     this.hasSecondarySide = e.detail.value;

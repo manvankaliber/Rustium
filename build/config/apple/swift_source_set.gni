@@ -177,10 +177,7 @@ if (enable_swift_cxx_interop) {
       # Any swift_source_set target with a direct deps on this modulemap will
       # inherit the config that sets the swift compiler flags to import the
       # group modulemap.
-      public_configs = [
-        ":${_modulemap_config}",
-        "//build/config/ios:swift_cxx_interop",
-      ]
+      public_configs = [ ":${_modulemap_config}" ]
     }
   }
 }  # if (enable_swift_cxx_interop)
@@ -274,7 +271,7 @@ template("swift_source_set") {
     if (!defined(public_configs)) {
       public_configs = []
     }
-    public_configs += [ "//build/config/ios:swift_cxx_interop_includes" ]
+    public_configs += []
   }
 }
 

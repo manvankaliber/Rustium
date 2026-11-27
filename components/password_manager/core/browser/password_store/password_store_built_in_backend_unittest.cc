@@ -163,8 +163,7 @@ class PasswordStoreBuiltInBackendBaseTest : public testing::Test {
         password_manager::prefs::kPasswordRemovalReasonForAccount, 0);
     pref_service_.registry()->RegisterIntegerPref(
         password_manager::prefs::kPasswordRemovalReasonForProfile, 0);
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     pref_service_.registry()->RegisterBooleanPref(
         prefs::kDeletingUndecryptablePasswordsEnabled, true);
 #endif
@@ -273,11 +272,6 @@ class PasswordStoreBuiltInBackendTest
 
 TEST_P(PasswordStoreBuiltInBackendTest,
        SyncServiceObservationUpdatesErrorState_NoErrorByDefault) {
-#if BUILDFLAG(IS_IOS)
-  if (!GetParam()) {
-    GTEST_SKIP() << "On iOS, sync service is observed only for account store";
-  }
-#endif
   testing::NiceMock<syncer::MockSyncService> mock_sync_service;
   base::MockCallback<PasswordStoreBackend::RemoteChangesReceived>
       mock_remote_changes_callback;
@@ -303,11 +297,6 @@ TEST_P(PasswordStoreBuiltInBackendTest,
 
 TEST_P(PasswordStoreBuiltInBackendTest,
        SyncServiceObservationUpdatesErrorState_SignInNeeded) {
-#if BUILDFLAG(IS_IOS)
-  if (!GetParam()) {
-    GTEST_SKIP() << "On iOS, sync service is observed only for account store";
-  }
-#endif
   testing::NiceMock<syncer::MockSyncService> mock_sync_service;
   base::MockCallback<PasswordStoreBackend::RemoteChangesReceived>
       mock_remote_changes_callback;
@@ -339,11 +328,6 @@ TEST_P(PasswordStoreBuiltInBackendTest,
 
 TEST_P(PasswordStoreBuiltInBackendTest,
        SyncServiceObservationUpdatesErrorState_NeedsPassphrase) {
-#if BUILDFLAG(IS_IOS)
-  if (!GetParam()) {
-    GTEST_SKIP() << "On iOS, sync service is observed only for account store";
-  }
-#endif
   testing::NiceMock<syncer::MockSyncService> mock_sync_service;
   base::MockCallback<PasswordStoreBackend::RemoteChangesReceived>
       mock_remote_changes_callback;
@@ -375,11 +359,6 @@ TEST_P(PasswordStoreBuiltInBackendTest,
 
 TEST_P(PasswordStoreBuiltInBackendTest,
        SyncServiceObservationUpdatesErrorState_NeedsTrustedVaultKey) {
-#if BUILDFLAG(IS_IOS)
-  if (!GetParam()) {
-    GTEST_SKIP() << "On iOS, sync service is observed only for account store";
-  }
-#endif
   testing::NiceMock<syncer::MockSyncService> mock_sync_service;
   base::MockCallback<PasswordStoreBackend::RemoteChangesReceived>
       mock_remote_changes_callback;
@@ -410,11 +389,6 @@ TEST_P(PasswordStoreBuiltInBackendTest,
 }
 
 TEST_P(PasswordStoreBuiltInBackendTest, ErrorClearingInvokesSyncCallback) {
-#if BUILDFLAG(IS_IOS)
-  if (!GetParam()) {
-    GTEST_SKIP() << "On iOS, sync service is observed only for account store";
-  }
-#endif
   testing::NiceMock<syncer::MockSyncService> mock_sync_service;
   base::MockCallback<PasswordStoreBackend::RemoteChangesReceived>
       mock_remote_changes_callback;
@@ -458,11 +432,6 @@ TEST_P(PasswordStoreBuiltInBackendTest, ErrorClearingInvokesSyncCallback) {
 
 TEST_P(PasswordStoreBuiltInBackendTest,
        UnchangedSyncStateAndErrorDoesNotInvokeCallback) {
-#if BUILDFLAG(IS_IOS)
-  if (!GetParam()) {
-    GTEST_SKIP() << "On iOS, sync service is observed only for account store";
-  }
-#endif
   testing::NiceMock<syncer::MockSyncService> mock_sync_service;
   base::MockCallback<PasswordStoreBackend::RemoteChangesReceived>
       mock_remote_changes_callback;
@@ -507,11 +476,6 @@ TEST_P(PasswordStoreBuiltInBackendTest,
 
 TEST_P(PasswordStoreBuiltInBackendTest,
        SyncActiveDataTypesChangeInvokesSyncCallback) {
-#if BUILDFLAG(IS_IOS)
-  if (!GetParam()) {
-    GTEST_SKIP() << "On iOS, sync service is observed only for account store";
-  }
-#endif
   testing::NiceMock<syncer::MockSyncService> mock_sync_service;
   base::MockCallback<PasswordStoreBackend::RemoteChangesReceived>
       mock_remote_changes_callback;
@@ -560,11 +524,6 @@ TEST_P(PasswordStoreBuiltInBackendTest,
 
 TEST_P(PasswordStoreBuiltInBackendTest,
        UnrelatedSyncErrorDoesNotInvokeCallback) {
-#if BUILDFLAG(IS_IOS)
-  if (!GetParam()) {
-    GTEST_SKIP() << "On iOS, sync service is observed only for account store";
-  }
-#endif
   testing::NiceMock<syncer::MockSyncService> mock_sync_service;
   base::MockCallback<PasswordStoreBackend::RemoteChangesReceived>
       mock_remote_changes_callback;
@@ -635,27 +594,6 @@ TEST_P(PasswordStoreBuiltInBackendTest,
   built_in_backend->OnSyncShutdown(&mock_sync_service);
 }
 
-#if BUILDFLAG(IS_IOS)
-TEST_P(PasswordStoreBuiltInBackendTest,
-       DoesNotObserveSyncServiceForProfileStoreOnIos) {
-  if (GetParam()) {
-    GTEST_SKIP() << "This test is only for the profile store";
-  }
-  testing::NiceMock<syncer::MockSyncService> mock_sync_service;
-  PasswordStoreBuiltInBackend* built_in_backend = CreateBackend();
-  PasswordStoreBackend* as_backend = built_in_backend;
-
-  EXPECT_CALL(mock_sync_service, AddObserver(built_in_backend)).Times(0);
-
-  as_backend->InitBackend(base::DoNothing(), base::DoNothing(),
-                          base::DoNothing());
-  as_backend->OnSyncServiceInitialized(&mock_sync_service);
-  RunUntilIdle();
-
-  built_in_backend->OnSyncShutdown(&mock_sync_service);
-}
-
-#endif
 
 TEST_P(PasswordStoreBuiltInBackendTest, NonASCIIData) {
   PasswordStoreBackend* backend = CreateBackend();

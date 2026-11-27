@@ -1847,10 +1847,6 @@ public class LiteTest {
           if (InvalidProtocolBufferException.class.getName().equals(element.getClassName())
               && "invalidTag".equals(element.getMethodName())) {
             found = true;
-          } else if (Android.isOnAndroidDevice()
-              && "decodeUnknownField".equals(element.getMethodName())) {
-            // Android is missing the first element of the stack trace - b/181147885
-            found = true;
           }
         }
       }
@@ -1889,9 +1885,6 @@ public class LiteTest {
         for (StackTraceElement element : exception.getStackTrace()) {
           if (InvalidProtocolBufferException.class.getName().equals(element.getClassName())
               && "invalidTag".equals(element.getMethodName())) {
-            found = true;
-          } else if (Android.isOnAndroidDevice() && "readTag".equals(element.getMethodName())) {
-            // Android is missing the first element of the stack trace - b/181147885
             found = true;
           }
         }

@@ -42,11 +42,9 @@ extern const char kSaasUsageReportLastTriggerTime[];
 
 extern const char kSecuritySignalsClientCertificatesSelectors[];
 
-#if !BUILDFLAG(IS_IOS)
 extern const char kLastUploadVersion[];
 
 extern const char kCloudLegacyTechReportAllowlist[];
-#endif  // !BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 extern const char kCloudExtensionRequestEnabled[];

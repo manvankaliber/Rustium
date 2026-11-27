@@ -47,11 +47,7 @@ namespace blink {
 // Like in ProcessedLocalAudioSource::GetBufferSize(), we should re-evaluate
 // whether Android needs special treatment here.
 const int kFallbackAudioLatencyMs =
-#if BUILDFLAG(IS_ANDROID)
-    20;
-#else
     10;
-#endif
 
 static_assert(kFallbackAudioLatencyMs >= 0,
               "Audio latency has to be non-negative.");

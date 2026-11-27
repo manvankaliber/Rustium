@@ -104,8 +104,7 @@ constexpr std::string_view kTriggerUafTopFrameWithSourceRegex =
 //
 // TODO(https://crbug.com/40948553): Symbolize CHECK failures on ChromeOS and
 // Linux ASan builds.
-#if BUILDFLAG(IS_CHROMEOS) || \
-    (BUILDFLAG(IS_LINUX) && defined(ADDRESS_SANITIZER))
+#if BUILDFLAG(IS_LINUX) && defined(ADDRESS_SANITIZER)
 constexpr bool kExpectSymbolizedCheckFailure = false;
 #else
 constexpr bool kExpectSymbolizedCheckFailure = true;

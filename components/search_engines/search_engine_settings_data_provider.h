@@ -10,11 +10,6 @@
 #include "components/search_engines/template_url.h"
 #include "components/search_engines/template_url_starter_pack_data.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <jni.h>
-
-#include "base/android/scoped_java_ref.h"
-#endif
 
 class TemplateURLService;
 
@@ -230,22 +225,6 @@ class SearchEngineSettingsDataProvider {
   void MaybeRecordSettingsPageLoadMetrics(
       const CategorizedTemplateUrls& displayed_engines);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Computes the set of disabled starter pack IDs specific to Android.
-  static template_url_starter_pack_data::StarterPackIdSet
-  GetDisabledStarterPackIdsForAndroid();
-
-  base::android::ScopedJavaLocalRef<jobject>
-  GetPrepopulatedAndRecentlyVisitedTemplateURLs(JNIEnv* env) const;
-
-  std::vector<const TemplateURL*> GetTemplateUrlsByCategory(
-      JNIEnv* env,
-      TemplateUrlCategory category) const;
-
-  void MaybeRecordSettingsPageLoadMetrics(
-      JNIEnv* env,
-      const base::android::JavaRef<jlongArray>& j_engine_ids);
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   const raw_ref<TemplateURLService> template_url_service_;

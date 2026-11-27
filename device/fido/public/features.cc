@@ -25,8 +25,7 @@ namespace device {
 // default-enabled for long enough, based on the removal milestone in their
 // comment.
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Not yet enabled by default.
 BASE_FEATURE(kPasskeyUnlockErrorUi, base::FEATURE_DISABLED_BY_DEFAULT);
 
@@ -94,11 +93,6 @@ BASE_FEATURE(kWebAuthnAmbientSignin,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
 // Deprecation flag. Disabled by default in M145. Remove in or after M148.
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kWebAuthnPublishPrelinkingInfo,
-             "WebAuthenticationPublishPrelinkingInfo",
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Disabled by default.
 BASE_FEATURE(kWebAuthnHelloSignal,

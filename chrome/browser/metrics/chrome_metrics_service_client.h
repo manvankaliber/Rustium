@@ -42,11 +42,6 @@
 #include "ui/base/user_activity/user_activity_detector.h"
 #include "ui/base/user_activity/user_activity_observer.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/metrics/cros_pre_choice_metrics_manager.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/user_manager.h"
-#endif
 
 class BrowserActivityWatcher;
 class Profile;
@@ -69,9 +64,6 @@ namespace metrics {
 class MetricsService;
 class MetricsStateManager;
 
-#if BUILDFLAG(IS_CHROMEOS)
-class PerUserStateManagerChromeOS;
-#endif
 }  // namespace metrics
 
 // ChromeMetricsServiceClient provides an implementation of MetricsServiceClient
@@ -86,9 +78,6 @@ class ChromeMetricsServiceClient
       public ProfileManagerObserver,
       public ProfileObserver,
       public ui::UserActivityObserver
-#if BUILDFLAG(IS_CHROMEOS)
-      , public user_manager::UserManager::UserSessionStateObserver
-#endif
 {
  public:
   ChromeMetricsServiceClient(const ChromeMetricsServiceClient&) = delete;
@@ -105,10 +94,6 @@ class ChromeMetricsServiceClient
   // Registers local state prefs used by this class.
   static void RegisterPrefs(PrefRegistrySimple* registry);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Registers profile prefs used by this class.
-  static void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // metrics::MetricsServiceClient:
   variations::SyntheticTrialRegistry* GetSyntheticTrialRegistry() override;
@@ -152,14 +137,6 @@ class ChromeMetricsServiceClient
   bool ShouldResetClientIdsOnClonedInstall() override;
   base::CallbackListSubscription AddOnClonedInstallDetectedCallback(
       base::OnceClosure callback) override;
-#if BUILDFLAG(IS_CHROMEOS)
-  bool IsUkmDebugDataAllowed() const override;
-  bool ShouldUploadMetricsForUserId(const uint64_t user_id) override;
-  void InitPerUserMetrics() override;
-  void UpdateCurrentUserMetricsChoice(bool user_choice) override;
-  std::optional<bool> GetCurrentUserMetricsChoice() const override;
-  std::optional<std::string> GetCurrentUserId() const override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   std::optional<regional_capabilities::CountryIdHolder>
   GetProfileCountryIdForPrivateMetricsReporting() override;
 
@@ -190,10 +167,6 @@ class ChromeMetricsServiceClient
   // ui::UserActivityObserver:
   void OnUserActivity(const ui::Event* event) override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // user_manager::UserManager::UserSessionStateObserver:
-  void ActiveUserChanged(user_manager::User* active_user) override;
-#endif
 
   // Determine what to do with a file based on filename. Visible for testing.
   using IsProcessRunningFunction = bool (*)(base::ProcessId);
@@ -256,10 +229,6 @@ class ChromeMetricsServiceClient
   // Called when a URL is opened from the Omnibox.
   void OnURLOpenedFromOmnibox(OmniboxLog* log);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Helper function for initialization of system profile provider.
-  virtual void AsyncInitSystemProfileProvider();
-#endif
 
   // Check if an extension is installed via the Web Store.
   static bool IsWebstoreExtension(std::string_view id);
@@ -337,35 +306,8 @@ class ChromeMetricsServiceClient
   // omnibox.
   base::CallbackListSubscription omnibox_url_opened_subscription_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<BrowserActivityWatcher> browser_activity_watcher_;
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // PerUserStateManagerChromeOS that |this| is a client of.
-  std::unique_ptr<metrics::PerUserStateManagerChromeOS> per_user_state_manager_;
-
-  // Subscription for receiving callbacks that user metrics choice has changed.
-  base::CallbackListSubscription per_user_choice_change_subscription_;
-
-  // Used to notify metrics service if user activity has been detected on the
-  // system.
-  base::ScopedObservation<ui::UserActivityDetector, ui::UserActivityObserver>
-      user_activity_observation_{this};
-
-  // Manages the choice of UMA before the user has been created. This object is
-  // only created during OOBE before the primary user has given intent to
-  // metrics choice.
-  std::unique_ptr<metrics::CrOSPreChoiceMetricsManager>
-      cros_pre_choice_metrics_manager_;
-
-  // Tracks the active user to detect user switches.
-  AccountId current_user_account_id_;
-
-  base::ScopedObservation<user_manager::UserManager,
-                          user_manager::UserManager::UserSessionStateObserver>
-      user_session_state_observation_{this};
-#endif
 
   base::ScopedMultiSourceObservation<content::RenderProcessHost,
                                      content::RenderProcessHostObserver>

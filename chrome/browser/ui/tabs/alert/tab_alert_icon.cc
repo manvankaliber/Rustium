@@ -5,7 +5,6 @@
 #include "chrome/browser/ui/tabs/alert/tab_alert_icon.h"
 
 #include "chrome/app/vector_icons/vector_icons.h"
-#include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "chrome/browser/ui/layout_constants.h"
 #include "chrome/common/chrome_features.h"
@@ -120,8 +119,7 @@ const gfx::VectorIcon& GetAlertIcon(TabAlert alert_state) {
     case TabAlert::kGlicAccessing:
     case TabAlert::kGlicSharing:
     case TabAlert::kAiModeSharing:
-      return glic::GlicVectorIconManager::GetVectorIcon(
-          IDR_GLIC_ACCESSING_ICON);
+      return kCursorSparkIcon;
     case TabAlert::kNone:
       NOTREACHED();
   }

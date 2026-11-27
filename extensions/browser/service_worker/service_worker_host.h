@@ -110,9 +110,6 @@ class ServiceWorkerHost :
           port_host) override;
   void OpenChannelToNativeApp(
       const std::string& native_app_name,
-#if BUILDFLAG(IS_ANDROID)
-      const MojomSigningCertificates& android_certificates,
-#endif
       const PortId& port_id,
       mojo::PendingAssociatedRemote<extensions::mojom::MessagePort> port,
       mojo::PendingAssociatedReceiver<extensions::mojom::MessagePortHost>

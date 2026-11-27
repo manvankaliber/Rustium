@@ -65,27 +65,13 @@ BASE_DECLARE_FEATURE(kMigrateAlwaysTranslateLanguagesFix);
 
 // Minimum number of times the user must accept a translation before we show
 // a shortcut to the "Always Translate" functionality.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// The "Always Translate" shortcut is always shown on iOS and Android.
-constexpr int kAlwaysTranslateShortcutMinimumAccepts = 1;
-#else
 constexpr int kAlwaysTranslateShortcutMinimumAccepts = 3;
-#endif
 
 // Minimum number of times the user must deny a translation before we show
 // a shortcut to the "Never Translate" functionality.
 // Android and iOS implementations do not offer a drop down (for space reasons),
 // so we are more aggressive about showing this shortcut.
-#if BUILDFLAG(IS_ANDROID)
-// On Android, this shows the "Never Translate" shortcut after two denials just
-// like on iOS. However, the last event is not counted so we must subtract one
-// to get the same behavior.
-constexpr int kNeverTranslateShortcutMinimumDenials = 1;
-#elif BUILDFLAG(IS_IOS)
-constexpr int kNeverTranslateShortcutMinimumDenials = 2;
-#else
 constexpr int kNeverTranslateShortcutMinimumDenials = 3;
-#endif
 
 // This class holds various info about a language, that are related to Translate
 // Preferences and Language Settings.
@@ -130,12 +116,6 @@ class TranslatePrefs {
   static constexpr char kPrefAlwaysTranslateListDeprecated[] =
       "translate_whitelists";
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  static constexpr char kPrefTranslateAutoAlwaysCount[] =
-      "translate_auto_always_count";
-  static constexpr char kPrefTranslateAutoNeverCount[] =
-      "translate_auto_never_count";
-#endif
 
   // This parameter specifies how the language should be moved within the list.
   enum RearrangeSpecifier {
@@ -292,26 +272,7 @@ class TranslatePrefs {
   void IncrementTranslationAcceptedCount(std::string_view language);
   void ResetTranslationAcceptedCount(std::string_view language);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // These methods are used to track how many times the auto-always translation
-  // has been triggered for a specific language.
-  int GetTranslationAutoAlwaysCount(std::string_view language) const;
-  void IncrementTranslationAutoAlwaysCount(std::string_view language);
-  void ResetTranslationAutoAlwaysCount(std::string_view language);
 
-  // These methods are used to track how many times the auto-never translation
-  // has been triggered for a specific language.
-  int GetTranslationAutoNeverCount(std::string_view language) const;
-  void IncrementTranslationAutoNeverCount(std::string_view language);
-  void ResetTranslationAutoNeverCount(std::string_view language);
-#endif
-
-#if BUILDFLAG(IS_ANDROID)
-  // These methods are used to determine whether the app language prompt was
-  // displayed to the user already. Once shown it can not be unset.
-  bool GetAppLanguagePromptShown() const;
-  void SetAppLanguagePromptShown();
-#endif
 
   // Gets the full (policy-forced and user selected) language list from language
   // settings.

@@ -835,12 +835,6 @@ void OnGetAssertionComplete(
     AuthenticationExtensionsClientOutputs* extension_outputs =
         ConvertTo<AuthenticationExtensionsClientOutputs*>(
             credential->extensions);
-#if BUILDFLAG(IS_ANDROID)
-    if (credential->extensions->echo_user_verification_methods) {
-      UseCounter::Count(resolver->GetExecutionContext(),
-                        WebFeature::kCredentialManagerGetSuccessWithUVM);
-    }
-#endif
     resolver->Resolve(MakeGarbageCollected<PublicKeyCredential>(
         credential->info->id,
         VectorToDOMArrayBuffer(std::move(credential->info->raw_id)),

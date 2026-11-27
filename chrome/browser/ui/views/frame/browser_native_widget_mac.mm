@@ -34,7 +34,6 @@
 #import "chrome/browser/ui/cocoa/touchbar/browser_window_touch_bar_controller.h"
 #include "chrome/browser/ui/immersive/immersive_mode_controller.h"
 #include "chrome/browser/ui/layout_constants.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_next_features.h"
 #include "chrome/browser/ui/tabs/split_tab_metrics.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
@@ -536,9 +535,6 @@ void BrowserNativeWidgetMac::ValidateUserInterfaceItem(
       result->new_toggle_state =
           prefs->GetBoolean(omnibox::kShowGoogleLensShortcut);
       // Disable this menu option if the LensOverlay feature is not enabled.
-      result->enable =
-          lens::features::IsOmniboxEntryPointEnabled() &&
-          lens::LensOverlayEntryPointController::From(browser)->IsEnabled();
       break;
     }
     case IDC_SHOW_AI_MODE_OMNIBOX_BUTTON: {

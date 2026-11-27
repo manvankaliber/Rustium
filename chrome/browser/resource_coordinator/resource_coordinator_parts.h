@@ -9,17 +9,11 @@
 #include "chrome/browser/resource_coordinator/tab_load_tracker.h"
 #include "chrome/browser/resource_coordinator/tab_memory_metrics_reporter.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_source.h"
 #include "chrome/browser/resource_coordinator/tab_manager.h"
-#endif
 
 namespace resource_coordinator {
 
-#if BUILDFLAG(IS_ANDROID)
-class TabManager;
-class TabLifecycleUnitSource;
-#endif
 
 // Contains the various parts of the resource coordinator. There should be only
 // one instance of this class created early during the initialization of the
@@ -42,19 +36,11 @@ class ResourceCoordinatorParts {
   TabLoadTracker* tab_load_tracker() { return &tab_load_tracker_; }
 
   TabManager* tab_manager() {
-#if BUILDFLAG(IS_ANDROID)
-    return nullptr;
-#else
     return &tab_manager_;
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   TabLifecycleUnitSource* tab_lifecycle_unit_source() {
-#if BUILDFLAG(IS_ANDROID)
-    return nullptr;
-#else
     return &tab_lifecycle_unit_source_;
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
  private:
@@ -65,7 +51,6 @@ class ResourceCoordinatorParts {
   // Created on demand the first time it's being accessed.
   std::unique_ptr<TabMemoryMetricsReporter> tab_memory_metrics_reporter_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Any change to this #ifdef must be reflected as well in
   // chrome/browser/resource_coordinator/tab_manager_browsertest.cc
   //
@@ -74,7 +59,6 @@ class ResourceCoordinatorParts {
   // owned by TabManager.
   TabManager tab_manager_;
   TabLifecycleUnitSource tab_lifecycle_unit_source_;
-#endif
 };
 
 }  // namespace resource_coordinator

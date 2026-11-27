@@ -127,10 +127,8 @@ class ShellPlatformDelegate {
                               scoped_refptr<FileSelectListener> listener,
                               const blink::mojom::FileChooserParams& params);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Returns the native window. Valid after calling CreatePlatformWindow().
   virtual gfx::NativeWindow GetNativeWindow(Shell* shell);
-#endif
 
 #if BUILDFLAG(IS_MAC)
   // Activate (make key) the native window, and focus the web contents.
@@ -144,22 +142,7 @@ class ShellPlatformDelegate {
                                    const input::NativeWebKeyboardEvent& event);
 #endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void ToggleFullscreenModeForTab(Shell* shell,
-                                  WebContents* web_contents,
-                                  bool enter_fullscreen);
 
-  bool IsFullscreenForTabOrPending(Shell* shell,
-                                   const WebContents* web_contents) const;
-#endif
-
-#if BUILDFLAG(IS_ANDROID)
-  // Forwarded from WebContentsDelegate.
-  void SetOverlayMode(Shell* shell, bool use_overlay_mode);
-
-  // Forwarded from WebContentsObserver.
-  void LoadProgressChanged(Shell* shell, double progress);
-#endif
 
  protected:
 #if defined(USE_AURA) && !defined(SHELL_USE_TOOLKIT_VIEWS)

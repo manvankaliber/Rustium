@@ -24,12 +24,8 @@ const char kComponentPlatform[] =
     "mac";
 #elif BUILDFLAG(IS_WIN)
     "win";
-#elif BUILDFLAG(IS_CHROMEOS)
-    "cros";
 #elif BUILDFLAG(IS_LINUX)
     "linux";
-#elif BUILDFLAG(IS_FUCHSIA)
-    "fuchsia";
 #else
 #error unsupported platform
 #endif

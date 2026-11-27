@@ -1580,7 +1580,6 @@ suite('ContextualTasksComposeboxForkAutoTabTest', () => {
 
   // The searchbox Smart Tab Sharing surface is gated out of the
   // is_android mojom types.
-  // <if expr="not is_android">
   suite('SmartTabSharing', () => {
     test('smart tab sharing callback clears manual and auto tabs', async () => {
       await mountApp();
@@ -1661,5 +1660,4 @@ suite('ContextualTasksComposeboxForkAutoTabTest', () => {
       assertFalse(innerComposebox.getHasAutomaticActiveTabChipToken());
     });
   });
-  // </if>
 });

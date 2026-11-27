@@ -20,11 +20,7 @@ namespace blink {
 class LocalDOMWindow;
 class NDEFReader;
 
-#if BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS)
-using NFCClientType = device::mojom::blink::RawNFCClient;
-#else
 using NFCClientType = device::mojom::blink::NFCClient;
-#endif
 
 // This is a proxy class used by NDEFReader(s) to connect
 // to implementation of device::mojom::blink::NFC interface.
@@ -63,14 +59,9 @@ class MODULES_EXPORT NFCProxy final : public GarbageCollected<NFCProxy>,
 
   // Implementation of device::mojom::blink::NFCClient and
   // device::mojom::blink::RawNFCClient.
-#if BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS)
-  void OnWatch(const Vector<uint32_t>&,
-               device::mojom::blink::NDEFRawMessagePtr) override;
-#else
   void OnWatch(const Vector<uint32_t>&,
                const String&,
                device::mojom::blink::NDEFMessagePtr) override;
-#endif
   void OnError(device::mojom::blink::NDEFErrorPtr) override;
 
   void OnReaderRegistered(NDEFReader*,

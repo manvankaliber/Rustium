@@ -177,7 +177,8 @@ void RunMoveCursorLeftRightTest(RenderText* render_text,
                                 VisualCursorDirection direction) {
   for (size_t i = 0; i < expected.size(); ++i) {
     SCOPED_TRACE(base::StringPrintf("Going %s; expected value index %d.",
-        direction == CURSOR_LEFT ? "left" : "right", static_cast<int>(i)));
+                                    direction == CURSOR_LEFT ? "left" : "right",
+                                    static_cast<int>(i)));
     EXPECT_EQ(expected[i], render_text->selection_model());
     render_text->MoveCursor(CHARACTER_BREAK, direction, SELECTION_NONE);
   }
@@ -206,10 +207,12 @@ DecoratedText::RangedAttribute CreateRangedAttribute(
   const Font& font = iter->first;
 
   int font_style = Font::NORMAL;
-  if (style_mask & ITALIC_MASK)
+  if (style_mask & ITALIC_MASK) {
     font_style |= Font::ITALIC;
-  if (style_mask & UNDERLINE_MASK)
+  }
+  if (style_mask & UNDERLINE_MASK) {
     font_style |= Font::UNDERLINE;
+  }
   if (style_mask & STRIKE_MASK) {
     font_style |= Font::STRIKE_THROUGH;
   }
@@ -270,12 +273,14 @@ std::u16string GetObscuredString(size_t length) {
 
 // Returns the combined character range from all text runs on |line|.
 Range LineCharRange(const internal::Line& line) {
-  if (line.segments.empty())
+  if (line.segments.empty()) {
     return Range();
+  }
   Range ltr(line.segments.front().char_range.start(),
             line.segments.back().char_range.end());
-  if (ltr.end() > ltr.start())
+  if (ltr.end() > ltr.start()) {
     return ltr;
+  }
 
   // For RTL, the order of segments is reversed, but the ranges are not.
   return Range(line.segments.back().char_range.start(),
@@ -415,9 +420,9 @@ class TestRectangleBuffer {
     ASSERT_LT(top, row_count_) << string_;
     ASSERT_LE(top + height, row_count_) << string_;
     ASSERT_LT(left, stride_) << string_;
-    ASSERT_LE(left + width, stride_) << string_ << ", left " << left
-                                     << ", width " << width << ", stride_ "
-                                     << stride_;
+    ASSERT_LE(left + width, stride_)
+        << string_ << ", left " << left << ", width " << width << ", stride_ "
+        << stride_;
     for (int y = top; y < top + height; ++y) {
       for (int x = left; x < left + width; ++x) {
         SkColor buffer_color = UNSAFE_TODO(buffer_[x + y * stride_]);
@@ -732,11 +737,13 @@ TEST_F(RenderTextTest, SetStyles) {
     render_text->SetText(cases[i]);
 
     // Ensure custom default styles can be applied after text has been set.
-    if (i == 1)
+    if (i == 1) {
       render_text->SetStyle(TEXT_STYLE_STRIKE, true);
-    if (i >= 1)
+    }
+    if (i >= 1) {
       EXPECT_TRUE(
           test_api()->styles()[TEXT_STYLE_STRIKE].EqualsValueForTesting(true));
+    }
   }
 }
 
@@ -1394,7 +1401,13 @@ TEST_F(RenderTextTest, ObscuredText) {
 
   // Cursoring is independent of underlying characters when text is obscured.
   const auto texts = std::to_array<const char16_t*>({
-      kWeak, kLtr, kLtrRtl, kLtrRtlLtr, kRtl, kRtlLtr, kRtlLtrRtl,
+      kWeak,
+      kLtr,
+      kLtrRtl,
+      kLtrRtlLtr,
+      kRtl,
+      kRtlLtr,
+      kRtlLtrRtl,
       u"hop on pop",  // Check LTR word boundaries.
       u"אב אג בג",    // Check RTL word boundaries.
   });
@@ -1815,7 +1828,7 @@ const RunListCase kScriptsRunListCases[] = {
     {"indic_fraction", u"\uA830\uA832\uA834\uA835", "[0->3]"},
     // Devanagari Danda codepoints have large set of script extensions.
     {"dev_danda", u"\u0964\u0965", "[0->1]"},
-    // Combining Diacritical Marks (inherited) should only merge with preceding.
+// Combining Diacritical Marks (inherited) should only merge with preceding.
 #if U_ICU_VERSION_MAJOR_NUM >= 76
     // ICU 76 changed the script extensions property. See crbug.com/378738904,
     // the comment #6 in particular.
@@ -2110,8 +2123,9 @@ TEST_P(RenderTextTestWithElideTextCase, ElideText) {
 
   // If specified, set the whitespace elision. Otherwise, keep the eliding
   // behavior default value.
-  if (param.whitespace_elision.has_value())
+  if (param.whitespace_elision.has_value()) {
     render_text->SetWhitespaceElision(param.whitespace_elision.value());
+  }
 
   // Set the display width to trigger the eliding.
   if (param.available_width_as_glyph_count.has_value()) {
@@ -2511,8 +2525,9 @@ TEST_F(RenderTextTest, MultilineElide) {
   RenderText* render_text = GetRenderText();
   std::u16string input_text;
   // Aim for 3 lines of text.
-  for (int i = 0; i < 20; ++i)
+  for (int i = 0; i < 20; ++i) {
     input_text.append(u"hello world ");
+  }
   render_text->SetText(input_text);
   // Apply a style that tweaks the layout to make sure elision is calculated
   // with these styles. This can expose a behavior in layout where text is
@@ -2563,8 +2578,9 @@ TEST_F(RenderTextTest, MultilineElide) {
 TEST_F(RenderTextTest, MultilineElideWrap) {
   RenderText* render_text = GetRenderText();
   std::u16string input_text;
-  for (int i = 0; i < 20; ++i)
+  for (int i = 0; i < 20; ++i) {
     input_text.append(u"hello world ");
+  }
   render_text->SetText(input_text);
   render_text->SetMultiline(true);
   render_text->SetMaxLines(3);
@@ -2594,8 +2610,9 @@ TEST_F(RenderTextTest, MultilineElideWrap) {
 TEST_F(RenderTextTest, DISABLED_MultilineElideWrapWithStyle) {
   RenderText* render_text = GetRenderText();
   std::u16string input_text;
-  for (int i = 0; i < 20; ++i)
+  for (int i = 0; i < 20; ++i) {
     input_text.append(u"hello world ");
+  }
   render_text->SetText(input_text);
   render_text->ApplyWeight(Font::Weight::BOLD, Range(1, 20));
   render_text->ApplyStyle(TEXT_STYLE_ITALIC, true, Range(1, 20));
@@ -2623,8 +2640,9 @@ TEST_F(RenderTextTest, DISABLED_MultilineElideWrapWithStyle) {
 TEST_F(RenderTextTest, MultilineElideWrapStress) {
   RenderText* render_text = GetRenderText();
   std::u16string input_text;
-  for (int i = 0; i < 20; ++i)
+  for (int i = 0; i < 20; ++i) {
     input_text.append(u"hello world ");
+  }
   render_text->SetText(input_text);
   render_text->SetMultiline(true);
   render_text->SetMaxLines(3);
@@ -2657,8 +2675,9 @@ TEST_F(RenderTextTest, MultilineElideWrapStress) {
 TEST_F(RenderTextTest, DISABLED_MultilineElideWrapStressWithStyle) {
   RenderText* render_text = GetRenderText();
   std::u16string input_text;
-  for (int i = 0; i < 20; ++i)
+  for (int i = 0; i < 20; ++i) {
     input_text.append(u"hello world ");
+  }
   render_text->SetText(input_text);
   render_text->ApplyWeight(Font::Weight::BOLD, Range(1, 20));
   render_text->SetMultiline(true);
@@ -2756,8 +2775,14 @@ TEST_F(RenderTextTest, MultilineElideLinebreak) {
 
 TEST_F(RenderTextTest, ElidedStyledTextRtl) {
   const auto kInputTexts = std::to_array<std::u16string>({
-      u"http://ar.wikipedia.com/فحص", u"testحص,", u"حص,test", u"…", u"…test",
-      u"test…", u"حص,test…", u"ٱ",
+      u"http://ar.wikipedia.com/فحص",
+      u"testحص,",
+      u"حص,test",
+      u"…",
+      u"…test",
+      u"test…",
+      u"حص,test…",
+      u"ٱ",
       u"\uFEFF",   // BOM: Byte Order Marker
       u"…\u200F",  // Right to left marker.
   });
@@ -3608,8 +3633,9 @@ TEST_F(RenderTextTest, MoveCursor_UpDown_Scroll) {
 
   const size_t kLineSize = 50;
   std::u16string text;
-  for (size_t i = 0; i < kLineSize - 1; ++i)
+  for (size_t i = 0; i < kLineSize - 1; ++i) {
     text += u"a\n";
+  }
 
   render_text->SetText(text);
   EXPECT_EQ(kLineSize, render_text->GetNumLines());
@@ -4178,13 +4204,13 @@ TEST_F(RenderTextTest, GraphemePositions) {
     SCOPED_TRACE(base::StringPrintf("Testing cases[%" PRIuS "]", i));
     render_text->SetText(cases[i].text);
 
-    size_t next = render_text->IndexOfAdjacentGrapheme(cases[i].index,
-                                                       CURSOR_FORWARD);
+    size_t next =
+        render_text->IndexOfAdjacentGrapheme(cases[i].index, CURSOR_FORWARD);
     EXPECT_EQ(cases[i].expected_next, next);
     EXPECT_TRUE(render_text->IsValidCursorIndex(next));
 
-    size_t previous = render_text->IndexOfAdjacentGrapheme(cases[i].index,
-                                                           CURSOR_BACKWARD);
+    size_t previous =
+        render_text->IndexOfAdjacentGrapheme(cases[i].index, CURSOR_BACKWARD);
     EXPECT_EQ(cases[i].expected_previous, previous);
     EXPECT_TRUE(render_text->IsValidCursorIndex(previous));
   }
@@ -4422,9 +4448,10 @@ TEST_F(RenderTextTest, FindCursorPosition_GraphemeBoundaries) {
     render_text->SetText(cases[i].text);
     std::set<size_t> obtained_cursor_positions;
     size_t cursor_y = GetCursorYForTesting();
-    for (int x = -5; x < 105; x++)
+    for (int x = -5; x < 105; x++) {
       obtained_cursor_positions.insert(
           render_text->FindCursorPosition(gfx::Point(x, cursor_y)).caret_pos());
+    }
     EXPECT_EQ(cases[i].expected_cursor_positions, obtained_cursor_positions);
   }
 }
@@ -4690,16 +4717,18 @@ void MoveLeftRightByWordVerifier(RenderText* render_text, const char16_t* str) {
     const int num_character_moves = (i == 0) ? 3 : 4;
 #endif
     render_text->SetSelection(start);
-    for (int j = 0; j < num_character_moves; ++j)
+    for (int j = 0; j < num_character_moves; ++j) {
       render_text->MoveCursor(CHARACTER_BREAK, CURSOR_RIGHT, SELECTION_NONE);
+    }
     EXPECT_EQ(end, render_text->selection_model());
 
     // Then, test moving by word from positions inside the word, such as from
     // "a|bc def" to "abc| def", and from "ab|c def" to "abc| def".
     for (int j = 1; j < num_character_moves; ++j) {
       render_text->SetSelection(start);
-      for (int k = 0; k < j; ++k)
+      for (int k = 0; k < j; ++k) {
         render_text->MoveCursor(CHARACTER_BREAK, CURSOR_RIGHT, SELECTION_NONE);
+      }
       render_text->MoveCursor(WORD_BREAK, CURSOR_RIGHT, SELECTION_NONE);
       EXPECT_EQ(end, render_text->selection_model());
     }
@@ -4714,14 +4743,16 @@ void MoveLeftRightByWordVerifier(RenderText* render_text, const char16_t* str) {
 
     const int num_character_moves = (i == 0) ? 3 : 4;
     render_text->SetSelection(start);
-    for (int j = 0; j < num_character_moves; ++j)
+    for (int j = 0; j < num_character_moves; ++j) {
       render_text->MoveCursor(CHARACTER_BREAK, CURSOR_LEFT, SELECTION_NONE);
+    }
     EXPECT_EQ(end, render_text->selection_model());
 
     for (int j = 1; j < num_character_moves; ++j) {
       render_text->SetSelection(start);
-      for (int k = 0; k < j; ++k)
+      for (int k = 0; k < j; ++k) {
         render_text->MoveCursor(CHARACTER_BREAK, CURSOR_LEFT, SELECTION_NONE);
+      }
       render_text->MoveCursor(WORD_BREAK, CURSOR_LEFT, SELECTION_NONE);
       EXPECT_EQ(end, render_text->selection_model());
     }
@@ -4852,7 +4883,6 @@ TEST_F(RenderTextTest, MoveLeftRightByWordInThaiText) {
 
 // TODO(crbug.com/40585744): Chinese and Japanese tokenization doesn't work on
 // mobile.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(RenderTextTest, MoveLeftRightByWordInChineseText) {
   RenderText* render_text = GetRenderText();
   // zh-Hans-CN: 我们去公园玩, broken to 我们|去|公园|玩.
@@ -4881,7 +4911,6 @@ TEST_F(RenderTextTest, MoveLeftRightByWordInChineseText) {
   render_text->MoveCursor(WORD_BREAK, CURSOR_LEFT, SELECTION_NONE);
   EXPECT_EQ(0U, render_text->cursor_position());
 }
-#endif
 
 // Test the correct behavior of undirected selections: selections where the
 // "end" of the selection that holds the cursor is only determined after the
@@ -4910,10 +4939,11 @@ TEST_F(RenderTextTest, DirectedSelections) {
   // Undirected, or backward when kSelectionIsAlwaysDirected.
   render_text->SelectRange({4, 2});
   EXPECT_EQ(u"23", GetSelectedText(render_text));
-  if (RenderText::kSelectionIsAlwaysDirected)
+  if (RenderText::kSelectionIsAlwaysDirected) {
     EXPECT_EQ(u"3", ResultAfter(CURSOR_RIGHT));  // Keep left.
-  else
+  } else {
     EXPECT_EQ(u"234", ResultAfter(CURSOR_RIGHT));  // Pick right.
+  }
   EXPECT_EQ(u"23", ResultAfter(CURSOR_LEFT));
 
   render_text->MoveCursor(CHARACTER_BREAK, CURSOR_LEFT, SELECTION_NONE);
@@ -4924,10 +4954,11 @@ TEST_F(RenderTextTest, DirectedSelections) {
   render_text->SelectRange({2, 4});
   EXPECT_EQ(u"23", GetSelectedText(render_text));  // Sanity check,
 
-  if (RenderText::kSelectionIsAlwaysDirected)
+  if (RenderText::kSelectionIsAlwaysDirected) {
     EXPECT_EQ(u"2", ResultAfter(CURSOR_LEFT));  // Keep right.
-  else
+  } else {
     EXPECT_EQ(u"123", ResultAfter(CURSOR_LEFT));  // Pick left.
+  }
   EXPECT_EQ(u"23", ResultAfter(CURSOR_RIGHT));
 
   render_text->MoveCursor(CHARACTER_BREAK, CURSOR_RIGHT, SELECTION_NONE);
@@ -4966,10 +4997,11 @@ TEST_F(RenderTextTest, DirectedSelections) {
   // Undirected, or backward (to the right) when kSelectionIsAlwaysDirected.
   render_text->SelectRange({4, 2});
   EXPECT_EQ(ToHebrew("23"), GetSelectedText(render_text));
-  if (RenderText::kSelectionIsAlwaysDirected)
+  if (RenderText::kSelectionIsAlwaysDirected) {
     EXPECT_EQ(ToHebrew("3"), ResultAfter(CURSOR_LEFT));  // Keep right.
-  else
+  } else {
     EXPECT_EQ(ToHebrew("234"), ResultAfter(CURSOR_LEFT));  // Pick left.
+  }
   EXPECT_EQ(ToHebrew("23"), ResultAfter(CURSOR_RIGHT));
 
   render_text->MoveCursor(CHARACTER_BREAK, CURSOR_LEFT, SELECTION_NONE);
@@ -4979,10 +5011,11 @@ TEST_F(RenderTextTest, DirectedSelections) {
   // Undirected, or forward (to the left) when kSelectionIsAlwaysDirected.
   render_text->SelectRange({2, 4});
   EXPECT_EQ(ToHebrew("23"), GetSelectedText(render_text));
-  if (RenderText::kSelectionIsAlwaysDirected)
+  if (RenderText::kSelectionIsAlwaysDirected) {
     EXPECT_EQ(ToHebrew("2"), ResultAfter(CURSOR_RIGHT));  // Keep left.
-  else
+  } else {
     EXPECT_EQ(ToHebrew("123"), ResultAfter(CURSOR_RIGHT));  // Pick right.
+  }
   EXPECT_EQ(ToHebrew("23"), ResultAfter(CURSOR_LEFT));
 
   render_text->MoveCursor(CHARACTER_BREAK, CURSOR_RIGHT, SELECTION_NONE);
@@ -5125,8 +5158,8 @@ TEST_F(RenderTextTest, StringSizeRespectsFontListMetrics) {
   RenderText* render_text = GetRenderText();
   render_text->SetText(smaller_font_text);
   render_text->SetFontList(FontList(smaller_font));
-  render_text->SetDisplayRect(Rect(0, 0, 0,
-                                   render_text->font_list().GetHeight()));
+  render_text->SetDisplayRect(
+      Rect(0, 0, 0, render_text->font_list().GetHeight()));
   EXPECT_EQ(smaller_font.GetHeight(), render_text->GetStringSize().height());
   EXPECT_EQ(smaller_font.GetBaseline(), render_text->GetBaseline());
   EXPECT_EQ(GetFontSpans()[0].first.GetFontName(), smaller_font.GetFontName());
@@ -5139,8 +5172,8 @@ TEST_F(RenderTextTest, StringSizeRespectsFontListMetrics) {
   fonts.push_back(larger_font);
   const FontList font_list(fonts);
   render_text->SetFontList(font_list);
-  render_text->SetDisplayRect(Rect(0, 0, 0,
-                                   render_text->font_list().GetHeight()));
+  render_text->SetDisplayRect(
+      Rect(0, 0, 0, render_text->font_list().GetHeight()));
   EXPECT_EQ(GetFontSpans()[0].first.GetFontName(), smaller_font.GetFontName());
   EXPECT_LE(smaller_font.GetHeight(), render_text->GetStringSize().height());
   EXPECT_LE(smaller_font.GetBaseline(), render_text->GetBaseline());
@@ -5198,8 +5231,6 @@ TEST_F(RenderTextTest, DefaultLineHeights) {
 
 #if BUILDFLAG(IS_MAC)
   const FontList body2_font = FontList().DeriveWithSizeDelta(-1);
-#elif BUILDFLAG(IS_IOS)
-  const FontList body2_font = FontList().DeriveWithSizeDelta(-2);
 #else
   const FontList body2_font;
 #endif
@@ -5275,8 +5306,9 @@ TEST_F(RenderTextTest, TextSizeMultiline) {
   render_text->SetMultiline(true);
 
   for (size_t line = 0; line < 10; ++line) {
-    if (line != 0)
+    if (line != 0) {
       render_text->AppendText(u"\n");
+    }
     const int text_length = line;
     render_text->AppendText(std::u16string(text_length, u'x'));
 
@@ -5392,11 +5424,6 @@ TEST_F(RenderTextTest, StringSizeBoldWidth) {
   // TODO(mboc): Add some unittests for other weights (currently not
   // implemented because of test system font configuration).
   RenderText* render_text = GetRenderText();
-
-#if BUILDFLAG(IS_FUCHSIA)
-  // Increase font size to ensure that bold and regular styles differ in width.
-  render_text->SetFontList(FontList("Arial, 20px"));
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
   render_text->SetText(u"Hello World");
 
@@ -5779,10 +5806,12 @@ TEST_F(RenderTextTest, SameFontForParentheses) {
       int start_paren_span_index = -1;
       int end_paren_span_index = -1;
       for (size_t k = 0; k < spans.size(); ++k) {
-        if (IndexInRange(spans[k].second, start_paren_char_index))
+        if (IndexInRange(spans[k].second, start_paren_char_index)) {
           start_paren_span_index = k;
-        if (IndexInRange(spans[k].second, end_paren_char_index))
+        }
+        if (IndexInRange(spans[k].second, end_paren_char_index)) {
           end_paren_span_index = k;
+        }
       }
       ASSERT_NE(-1, start_paren_span_index);
       ASSERT_NE(-1, end_paren_span_index);
@@ -5986,7 +6015,6 @@ TEST_F(RenderTextTest, DisplayRectShowsCursorRTL) {
   render_text->SetDisplayRect(Rect(width + 10, 1));
   EXPECT_EQ(render_text->display_rect().width() - width - 1,
             render_text->GetUpdatedCursorBounds().x());
-
 }
 
 // Changing colors between or inside ligated glyphs should not break shaping.
@@ -6205,10 +6233,11 @@ TEST_F(RenderTextTest, Multiline_Newline) {
       // ranges in the same line.
       const size_t segment_size = test_api()->lines()[j].segments.size();
       Range line_range;
-      if (segment_size > 0)
+      if (segment_size > 0) {
         line_range = Range(
             test_api()->lines()[j].segments[0].char_range.start(),
             test_api()->lines()[j].segments[segment_size - 1].char_range.end());
+      }
       EXPECT_EQ(cases[i].line_char_ranges[j], line_range);
     }
   }
@@ -6433,10 +6462,11 @@ TEST_F(RenderTextTest, Multiline_LineBreakerBehavior) {
       // Merge all the segments ranges in the same line.
       size_t segment_size = test_api()->lines()[j].segments.size();
       Range line_range;
-      if (segment_size > 0)
+      if (segment_size > 0) {
         line_range = Range(
             test_api()->lines()[j].segments[0].char_range.start(),
             test_api()->lines()[j].segments[segment_size - 1].char_range.end());
+      }
       EXPECT_EQ(cases[i].char_ranges[j], line_range);
       // Depending on kerning pairs in the font, a run's length is not strictly
       // equal to number of glyphs * kGlyphsize. Size should match within a
@@ -6877,8 +6907,9 @@ TEST_F(RenderTextTest, HarfBuzz_SubglyphGraphemePartition) {
   for (size_t i = 0; i < std::size(cases); ++i) {
     std::ranges::copy(cases[i].glyph_to_char, run.shape.glyph_to_char.begin());
     run.font_params.is_rtl = cases[i].is_rtl;
-    for (int j = 0; j < 2; ++j)
+    for (int j = 0; j < 2; ++j) {
       run.shape.positions[j].set(j * 10, 0);
+    }
 
     for (size_t j = 0; j < 4; ++j) {
       SCOPED_TRACE(base::StringPrintf("Case %" PRIuS ", char %" PRIuS, i, j));
@@ -7016,7 +7047,6 @@ TEST_F(RenderTextTest, HarfBuzz_BreakRunsByEmojiVariationSelectors) {
   EXPECT_EQ(1 * kGlyphWidth, render_text->GetUpdatedCursorBounds().x());
 
   // TODO(crbug.com/40585824): make this work on Android.
-#if !BUILDFLAG(IS_ANDROID)
   // Jump over the telephone: two codepoints, but a single glyph.
   render_text->MoveCursor(CHARACTER_BREAK, CURSOR_RIGHT, SELECTION_NONE);
   EXPECT_EQ(gfx::Range(3, 3), render_text->selection());
@@ -7030,7 +7060,6 @@ TEST_F(RenderTextTest, HarfBuzz_BreakRunsByEmojiVariationSelectors) {
   render_text->MoveCursor(CHARACTER_BREAK, CURSOR_RIGHT, SELECTION_NONE);
   EXPECT_EQ(gfx::Range(4, 4), render_text->selection());
   EXPECT_EQ(3 * kGlyphWidth, render_text->GetUpdatedCursorBounds().x());
-#endif
 }
 
 // Verifies that text-default emoji (codepoints with the `Emoji` property but
@@ -7076,10 +7105,6 @@ bool TypefaceMayRenderColorEmojiForTest(SkTypeface* typeface) {
     return true;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
-  // No platform color-emoji font to match by name on these platforms.
-  return false;
-#else
   // Some color-emoji typefaces (notably Segoe UI Emoji via DirectWrite) don't
   // expose a color table to Skia, so fall back to matching the known platform
   // family names. Checking all of them regardless of platform keeps this
@@ -7092,7 +7117,6 @@ bool TypefaceMayRenderColorEmojiForTest(SkTypeface* typeface) {
                                           "Apple Color Emoji") ||
          base::EqualsCaseInsensitiveASCII(family_name.c_str(),
                                           "Noto Color Emoji");
-#endif
 }
 
 // The emoji pre-pass in RenderTextHarfBuzz::ShapeRuns must route bare
@@ -7120,10 +7144,8 @@ TEST_F(RenderTextTest, HarfBuzz_DefaultEmojiCodepointProducesGlyphs) {
     size_t total_glyphs = 0;
     for (const auto& run : run_list->runs()) {
       total_glyphs += run->shape.glyph_count;
-#if !BUILDFLAG(IS_FUCHSIA)
       // Fuchsia does not bundle a suitable font to resolve all glyphs.
       EXPECT_EQ(0U, run->CountMissingGlyphs());
-#endif
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE)
       // The pre-pass must have routed the run through the platform color
       // emoji typeface. On Linux/CrOS we can't reliably assert this in tests
@@ -7162,10 +7184,8 @@ TEST_F(RenderTextTest,
          "on emoji presentation, update this test and the mixed-run guard.";
   const auto& run = run_list->runs()[0];
   EXPECT_GT(run->shape.glyph_count, 0U);
-#if !BUILDFLAG(IS_FUCHSIA)
   // Fuchsia does not bundle a suitable font to resolve all glyphs.
   EXPECT_EQ(0U, run->CountMissingGlyphs());
-#endif
 }
 
 // Verifies that emoji-default codepoints followed by VS-15 (U+FE0E) route
@@ -7437,14 +7457,9 @@ TEST_F(RenderTextTest, EmojiFlagGlyphCount) {
 
   const internal::TextRunList* run_list = GetHarfBuzzRunList();
   ASSERT_EQ(1U, run_list->runs().size());
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_APPLE)
   // On Linux and macOS, the flags should be found, so two glyphs result.
   EXPECT_EQ(2u, run_list->runs()[0]->shape.glyph_count);
-#elif BUILDFLAG(IS_ANDROID)
-  // It seems that some versions of android support the flags. Older versions
-  // don't support it.
-  EXPECT_TRUE(2u == run_list->runs()[0]->shape.glyph_count ||
-              4u == run_list->runs()[0]->shape.glyph_count);
 #else
   // Elsewhere, the flags are not found, so each surrogate pair gets a
   // placeholder glyph. Eventually, all platforms should have 2 glyphs.
@@ -7474,8 +7489,9 @@ TEST_F(RenderTextTest, HarfBuzz_ShapeRunsWithMultipleFonts) {
                                                    "Segoe UI Symbol"};
 
   std::vector<std::string> mapped_fonts;
-  for (const auto& font_span : GetFontSpans())
+  for (const auto& font_span : GetFontSpans()) {
     mapped_fonts.push_back(font_span.first.GetFontName());
+  }
   EXPECT_EQ(expected_fonts, mapped_fonts);
 #endif
 }
@@ -7488,8 +7504,9 @@ TEST_F(RenderTextTest, GlyphBounds) {
   for (auto* test_string : kTestStrings) {
     render_text->SetText(test_string);
 
-    for (size_t j = 0; j < render_text->text().length(); ++j)
+    for (size_t j = 0; j < render_text->text().length(); ++j) {
       EXPECT_FALSE(render_text->GetCursorSpan(Range(j, j + 1)).is_empty());
+    }
   }
 }
 
@@ -7581,7 +7598,6 @@ TEST_F(RenderTextTest, StringFitsOwnWidth) {
 }
 
 // TODO(crbug.com/40585825): Figure out why this fails on Android.
-#if !BUILDFLAG(IS_ANDROID)
 // Ensure that RenderText examines all of the fonts in its FontList before
 // falling back to other fonts.
 TEST_F(RenderTextTest, HarfBuzz_FontListFallback) {
@@ -7603,13 +7619,12 @@ TEST_F(RenderTextTest, HarfBuzz_FontListFallback) {
   ASSERT_EQ(static_cast<size_t>(1), spans.size());
   EXPECT_EQ(kSymbolFontName, spans[0].first.GetFontName());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Ensure that the fallback fonts offered by GetFallbackFonts() are tried. Note
 // this test assumes the font "Arial" doesn't provide a unicode glyph for a
 // particular character, and that there is a system fallback font which does.
 // TODO(msw): Fallback doesn't find a glyph on Linux and Android.
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_LINUX)
 TEST_F(RenderTextTest, HarfBuzz_UnicodeFallback) {
   RenderTextHarfBuzz* render_text = GetRenderText();
   render_text->SetFontList(FontList("Arial, 12px"));
@@ -7620,7 +7635,7 @@ TEST_F(RenderTextTest, HarfBuzz_UnicodeFallback) {
   ASSERT_EQ(1U, run_list->size());
   EXPECT_EQ(0U, run_list->MissingGlyphCount());
 }
-#endif  // !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS) &&
+#endif
         // !BUILDFLAG(IS_ANDROID)
 
 // Ensure that the fallback fonts offered by GetFallbackFont() support glyphs
@@ -7817,39 +7832,6 @@ const FallbackFontCase kCommonScriptCases[] = {
     {"common29", u"\u2981\ua721\u25a9\u2320\u21cf\u295a\u2273\u2ac2"},
     {"common30", u"\u22d9\u2465\u2347\u2a94\u4dca\u2389\u23b0\u208d"},
     {"common31", u"\u21cc\u2af8\u2912\u23a4\u2271\u2303\u241e\u33a1"},
-#elif BUILDFLAG(IS_ANDROID)
-    {"common00", u"\u2497\uff04\u277c\u21b6\u2076\u21e4\u2068\u21b3"},
-    {"common01", u"\u2663\u2466\u338e\u226b\u2734\u21be\u3389\u00ab"},
-    {"common02", u"\u2062\u2197\u3392\u2681\u33be\u206d\ufe10\ufe34"},
-    {"common03", u"\u02db\u00b0\u02d3\u2745\u33d1\u21e4\u24e4\u33d6"},
-    {"common04", u"\u21da\u261f\u26a1\u2586\u27af\u2560\u21cd\u25c6"},
-    {"common05", u"\ufe51\uff17\u0027\u21fd\u24de\uff5e\u2606\u251f"},
-    {"common06", u"\u2493\u2466\u21fc\u226f\u202d\u21a9\u0040\u265d"},
-    {"common07", u"\u2103\u255a\u2153\u26be\u27ac\u222e\u2490\u21a4"},
-    {"common08", u"\u270b\u2486\u246b\u263c\u27b6\u21d9\u219d\u25a9"},
-    {"common09", u"\u002d\u2494\u25fd\u2321\u2111\u2511\u00d7\u2535"},
-    {"common10", u"\u2523\u203e\u25b2\ufe18\u2499\u2229\ufd3e\ufe16"},
-    {"common11", u"\u2133\u2716\u273f\u2064\u2248\u005c\u265f\u21e6"},
-    {"common12", u"\u2060\u246a\u231b\u2726\u25bd\ufe40\u002e\u25ca"},
-    {"common13", u"\ufe39\u24a2\ufe18\u254b\u249c\u3396\ua71f\u2466"},
-    {"common14", u"\u21b8\u2236\u251a\uff11\u2077\u0035\u27bd\u2013"},
-    {"common15", u"\u2668\u2551\u221a\u02bc\u2741\u2649\u2192\u00a1"},
-    {"common16", u"\u2211\u21ca\u24dc\u2536\u201b\u21c8\u2530\u25fb"},
-    {"common17", u"\u231a\u33d8\u2934\u27bb\u2109\u23ec\u20a9\u3000"},
-    {"common18", u"\u2069\u205f\u33d3\u2466\u24a1\u24dd\u21ac\u21e3"},
-    {"common19", u"\u2737\u219a\u21f1\u2285\u226a\u00b0\u27b2\u2746"},
-    {"common20", u"\u264f\u2539\u2202\u264e\u2548\u2530\u2111\u2007"},
-    {"common21", u"\u2799\u0035\u25e4\u265b\u24e2\u2044\u222b\u0021"},
-    {"common22", u"\u2728\u00a2\u2533\ufe43\u33c9\u27a2\u02f9\u005d"},
-    {"common23", u"\ufe68\u256c\u25b6\u276c\u2771\u33c4\u2712\u24b3"},
-    {"common24", u"\ufe5d\ufe31\ufe3d\u205e\u2512\u33b8\u272b\ufe4f"},
-    {"common25", u"\u24e7\u25fc\u2582\u2743\u2010\u2474\u2262\u251a"},
-    {"common26", u"\u2020\u211c\u24b4\u33c7\u2007\uff0f\u267f\u00b4"},
-    {"common27", u"\u266c\u3399\u2570\u33a4\u276e\u00a8\u2506\u24dc"},
-    {"common28", u"\u2202\ufe43\u2511\u2191\u339a\u33b0\u02d7\u2473"},
-    {"common29", u"\u2517\u2297\u2762\u2460\u25bd\u24a9\u21a7\ufe64"},
-    {"common30", u"\u2105\u2722\u275d\u249c\u21a2\u2590\u2260\uff5d"},
-    {"common31", u"\u33ba\u21c6\u2706\u02cb\ufe64\u02e6\u0374\u2493"},
 #elif BUILDFLAG(IS_APPLE)
     {"common00", u"\u2153\u24e0\u2109\u02f0\u2a8f\u25ed\u02c5\u2716"},
     {"common01", u"\u02f0\u208c\u2203\u2518\u2067\u2270\u21f1\ufe66"},
@@ -8041,10 +8023,9 @@ TEST_F(RenderTextTest, DISABLED_TextDoesntClip) {
       // be a preexisting issue that wasn't revealed by the prior unit tests.
       // RenderText currently only uses origins and advances and ignores
       // bounding boxes so cannot account for under- and over-hang.
-      rect_buffer.EnsureSolidRect(SK_ColorWHITE,
-                                  kTestSize + string_size.width() + 1,
-                                  kTestSize, kTestSize - 1,
-                                  string_size.height());
+      rect_buffer.EnsureSolidRect(
+          SK_ColorWHITE, kTestSize + string_size.width() + 1, kTestSize,
+          kTestSize - 1, string_size.height());
     }
   }
 }
@@ -8158,8 +8139,7 @@ TEST_F(RenderTextTest, SubpixelRenderingSuppressed) {
   render_text->SetText(u"x");
 
   DrawVisualText();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX)
   // On Linux, whether subpixel AA is supported is determined by the platform
   // FontConfig. Force it into a particular style after computing runs. Other
   // platforms use a known default FontRenderParams from a static local.
@@ -8174,8 +8154,7 @@ TEST_F(RenderTextTest, SubpixelRenderingSuppressed) {
 
   render_text->set_subpixel_rendering_suppressed(true);
   DrawVisualText();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX)
   // For Linux, runs shouldn't be re-calculated, and the suppression of the
   // SUBPIXEL_RENDERING_RGB set above should now take effect. But, after
   // checking, apply the override anyway to be explicit that it is suppressed.
@@ -9162,8 +9141,7 @@ TEST_F(RenderTextTest, DrawVisualText_WithSelectionOnObcuredEmoji) {
 }
 
 TEST_F(RenderTextTest, DrawSelectAll) {
-  const std::vector<GlyphCountAndColor> kUnselected = {
-      {4, SK_ColorBLACK}};
+  const std::vector<GlyphCountAndColor> kUnselected = {{4, SK_ColorBLACK}};
   const std::vector<GlyphCountAndColor> kSelected = {{4, SK_ColorGREEN}};
   const std::vector<GlyphCountAndColor> kFocused = {
       {1, SK_ColorBLACK}, {2, SK_ColorGREEN}, {1, SK_ColorBLACK}};
@@ -9276,7 +9254,7 @@ TEST_F(RenderTextTest, GetLookupDataForRange_Obscured) {
   validate();
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(RenderTextTest, StringSizeUpdatedWhenDeviceScaleFactorChanges) {
   RenderText* render_text = GetRenderText();
   render_text->SetText(u"Test - 1");

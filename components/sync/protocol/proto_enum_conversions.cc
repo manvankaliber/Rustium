@@ -348,7 +348,7 @@ const char* ProtoEnumToString(sync_pb::SyncEnums::DeviceType device_type) {
 
 const char* ProtoEnumToString(sync_pb::SyncEnums::OsType os_type) {
   ASSERT_ENUM_BOUNDS(sync_pb::SyncEnums, OsType, OS_TYPE_UNSPECIFIED,
-                     OS_TYPE_FUCHSIA);
+                     OS_TYPE_CHROME_OS_LACROS);
   switch (os_type) {
     ENUM_CASE(sync_pb::SyncEnums, OS_TYPE_UNSPECIFIED);
     ENUM_CASE(sync_pb::SyncEnums, OS_TYPE_WINDOWS);
@@ -358,7 +358,6 @@ const char* ProtoEnumToString(sync_pb::SyncEnums::OsType os_type) {
     ENUM_CASE(sync_pb::SyncEnums, OS_TYPE_ANDROID);
     ENUM_CASE(sync_pb::SyncEnums, OS_TYPE_IOS);
     ENUM_CASE(sync_pb::SyncEnums, OS_TYPE_CHROME_OS_LACROS);
-    ENUM_CASE(sync_pb::SyncEnums, OS_TYPE_FUCHSIA);
   }
   NOTREACHED();
 }

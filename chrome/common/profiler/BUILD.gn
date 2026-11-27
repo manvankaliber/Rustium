@@ -40,20 +40,7 @@ source_set("profiler") {
     "//third_party/abseil-cpp:absl",
   ]
 
-  if (is_android) {
-    deps += [
-      "//base:native_unwinder_android",
-      "//chrome/android/features/stack_unwinder/public:native",
-      "//chrome/android/modules/stack_unwinder/public:module",
-    ]
-    public += [ "native_unwinder_android_map_delegate_impl.h" ]
-    sources += [
-      "core_unwinders_android.cc",
-      "native_unwinder_android_map_delegate_impl.cc",
-    ]
-  } else {
-    sources += [ "core_unwinders.cc" ]
-  }
+  sources += [ "core_unwinders.cc" ]
 
   if (enable_extensions_core) {
     deps += [ "//extensions/common" ]
@@ -85,10 +72,6 @@ source_set("unit_tests") {
     "//extensions/buildflags",
   ]
 
-  if (is_android) {
-    sources += [ "core_unwinders_android_unittest.cc" ]
-  }
-
   if (enable_extensions_core) {
     deps += [ "//extensions/common" ]
   }
@@ -100,7 +83,7 @@ source_set("platform_browser_tests") {
 
   defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-  if ((is_win && target_cpu == "x64") || is_mac || enable_arm_cfi_table) {
+  if ((is_win && target_cpu == "x64") || is_mac) {
     sources = [ "thread_profiler_browsertest.cc" ]
 
     deps = [

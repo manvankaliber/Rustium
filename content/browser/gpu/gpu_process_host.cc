@@ -11,8 +11,6 @@
 #include <list>
 #include <memory>
 #include <utility>
-
-#include "ash/constants/ash_switches.h"
 #include "base/base64.h"
 #include "base/base_switches.h"
 #include "base/command_line.h"
@@ -99,11 +97,7 @@
 #include "ui/gl/gl_switches.h"
 #include "ui/latency/latency_info.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/application_status_listener.h"
-#else
 #include "components/metrics/stability_metrics_helper.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -234,14 +228,6 @@ GpuTerminationStatus ConvertToGpuTerminationStatus(
       return GpuTerminationStatus::PROCESS_CRASHED;
     case base::TERMINATION_STATUS_STILL_RUNNING:
       return GpuTerminationStatus::STILL_RUNNING;
-#if BUILDFLAG(IS_CHROMEOS)
-    case base::TERMINATION_STATUS_PROCESS_WAS_KILLED_BY_OOM:
-      return GpuTerminationStatus::PROCESS_WAS_KILLED_BY_OOM;
-#endif
-#if BUILDFLAG(IS_ANDROID)
-    case base::TERMINATION_STATUS_OOM_PROTECTED:
-      return GpuTerminationStatus::OOM_PROTECTED;
-#endif
     case base::TERMINATION_STATUS_LAUNCH_FAILED:
       return GpuTerminationStatus::LAUNCH_FAILED;
     case base::TERMINATION_STATUS_OOM:
@@ -266,7 +252,7 @@ static const char* const kSwitchNames[] = {
 #if BUILDFLAG(IS_WIN)
     sandbox::policy::switches::kAllowThirdPartyModules,
 #endif
-#if BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     switches::kDisableDevShmUsage,
 #endif
 #if BUILDFLAG(IS_WIN)
@@ -331,14 +317,6 @@ static const char* const kSwitchNames[] = {
     switches::kUseCmdDecoder,
     switches::kForceVideoOverlays,
     switches::kSkiaGraphiteDawnBackend,
-#if BUILDFLAG(IS_ANDROID)
-    switches::kDisableAdpf,
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-    // TODO(crbug.com/371609830): Remove reven switch on experiment end.
-    ash::switches::kRevenBranding,
-    switches::kSchedulerBoostUrgent,
-#endif
 #if BUILDFLAG(USE_V4L2_CODEC)
     switches::kHardwareVideoDecodeFrameRate,
 #endif
@@ -842,7 +820,6 @@ GpuProcessHost::~GpuProcessHost() {
                                 ConvertToGpuTerminationStatus(info.status),
                                 GpuTerminationStatus::MAX_ENUM);
       int exit_code = std::clamp(info.exit_code, 0, 100);
-#if !BUILDFLAG(IS_ANDROID)
       if (info.status != base::TERMINATION_STATUS_NORMAL_TERMINATION &&
           info.status != base::TERMINATION_STATUS_STILL_RUNNING &&
           exit_code !=
@@ -855,7 +832,6 @@ GpuProcessHost::~GpuProcessHost() {
         metrics::StabilityMetricsHelper::RecordStabilityEvent(
             metrics::StabilityEventType::kGpuCrash);
       }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
       if (info.status == base::TERMINATION_STATUS_NORMAL_TERMINATION ||
           info.status == base::TERMINATION_STATUS_ABNORMAL_TERMINATION ||
@@ -899,18 +875,6 @@ GpuProcessHost::~GpuProcessHost() {
       case base::TERMINATION_STATUS_STILL_RUNNING:
         message += "hasn't exited yet.";
         break;
-#if BUILDFLAG(IS_CHROMEOS)
-      case base::TERMINATION_STATUS_PROCESS_WAS_KILLED_BY_OOM:
-        message += "was killed due to out of memory.";
-        unexpected_exit = true;
-        break;
-#endif  // BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_ANDROID)
-      case base::TERMINATION_STATUS_OOM_PROTECTED:
-        message += "was protected from out of memory kill.";
-        unexpected_exit = true;
-        break;
-#endif  // BUILDFLAG(IS_ANDROID)
       case base::TERMINATION_STATUS_LAUNCH_FAILED:
         message += "failed to start!";
         unexpected_exit = true;
@@ -1077,14 +1041,6 @@ void GpuProcessHost::DidInitialize(
     mode_ = gpu_data_manager->GetGpuMode();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Android may kill the GPU process to free memory, especially when the app
-  // is the background, so Android cannot have a hard limit on GPU starts.
-  // Reset crash count on Android when context creation succeeds, but only if no
-  // fallback option is available.
-  if (!GpuDataManagerImpl::GetInstance()->CanFallback())
-    recent_crash_count_ = 0;
-#endif
 }
 
 void GpuProcessHost::DidFailInitialize() {
@@ -1097,14 +1053,6 @@ void GpuProcessHost::DidFailInitialize() {
 }
 
 void GpuProcessHost::DidCreateContextSuccessfully() {
-#if BUILDFLAG(IS_ANDROID)
-  // Android may kill the GPU process to free memory, especially when the app
-  // is the background, so Android cannot have a hard limit on GPU starts.
-  // Reset crash count on Android when context creation succeeds, but only if no
-  // fallback option is available.
-  if (!GpuDataManagerImpl::GetInstance()->CanFallback())
-    recent_crash_count_ = 0;
-#endif
 }
 
 void GpuProcessHost::MaybeShutdownGpuProcess() {
@@ -1249,9 +1197,6 @@ bool GpuProcessHost::GpuAccessAllowed() const {
 }
 
 void GpuProcessHost::DisableGpuCompositing() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  DLOG(ERROR) << "Can't disable GPU compositing";
-#else
   // TODO(crbug.com/40565996): The switch from GPU to software compositing
   // should be handled here instead of by ImageTransportFactory.
   GetUIThreadTaskRunner({})->PostTask(
@@ -1259,7 +1204,6 @@ void GpuProcessHost::DisableGpuCompositing() {
         if (auto* factory = ImageTransportFactory::GetInstance())
           factory->DisableGpuCompositing();
       }));
-#endif
 }
 
 gpu::GpuDiskCacheFactory* GpuProcessHost::GetGpuDiskCacheFactory() {
@@ -1295,11 +1239,6 @@ void GpuProcessHost::ForceShutdown() {
 }
 
 void GpuProcessHost::DumpProcessStack() {
-#if BUILDFLAG(IS_ANDROID)
-  if (in_process_)
-    return;
-  process_->DumpProcessStack();
-#endif
 }
 
 void GpuProcessHost::RunServiceImpl(mojo::GenericPendingReceiver receiver) {
@@ -1313,14 +1252,7 @@ bool GpuProcessHost::LaunchGpuProcess() {
   base::CommandLine::StringType gpu_launcher =
       browser_command_line.GetSwitchValueNative(switches::kGpuLauncher);
 
-#if BUILDFLAG(IS_ANDROID)
-  // crbug.com/447735. readlink("self/proc/exe") sometimes fails on Android
-  // at startup with EACCES. As a workaround ignore this here, since the
-  // executable name is actually not used or useful anyways.
-  std::unique_ptr<base::CommandLine> cmd_line =
-      std::make_unique<base::CommandLine>(base::CommandLine::NO_PROGRAM);
-#else
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   int child_flags = gpu_launcher.empty() ? ChildProcessHost::CHILD_ALLOW_SELF
                                          : ChildProcessHost::CHILD_NORMAL;
 #elif BUILDFLAG(IS_MAC)
@@ -1338,7 +1270,6 @@ bool GpuProcessHost::LaunchGpuProcess() {
 
   std::unique_ptr<base::CommandLine> cmd_line =
       std::make_unique<base::CommandLine>(exe_path);
-#endif
 
   cmd_line->AppendSwitchASCII(switches::kProcessType, switches::kGpuProcess);
 
@@ -1456,29 +1387,9 @@ void GpuProcessHost::SendOutstandingReplies() {
 }
 
 int GpuProcessHost::GetFallbackCrashLimit() const {
-#if BUILDFLAG(IS_ANDROID)
-  // If there is fallback (so it doesn't crash the browser) and app is
-  // foreground (meaning crash is less liekly to be due to android OS
-  // killing the GPU process arbitrarily to free memory), then use the normal
-  // limit.
-  if (GpuDataManagerImpl::GetInstance()->CanFallback() &&
-      base::android::ApplicationStatusListener::HasVisibleActivities()) {
-    return 3;
-  } else {
-    // Otherwise use a larger maximum crash count limit here to account for
-    // Android OS killing the GPU process arbitrarily and fallback may crash the
-    // browser process.
-    return 6;
-  }
-#elif BUILDFLAG(IS_CHROMEOS)
-  // Chrome OS does not use software compositing and fallback crashes the
-  // browser process. So use larger maximum crash count limit.
-  return 6;
-#else
   // Maximum number of times the GPU process can crash before we try something
   // different, like disabling hardware acceleration or all GL.
   return 3;
-#endif
 }
 
 void GpuProcessHost::RecordProcessCrash() {

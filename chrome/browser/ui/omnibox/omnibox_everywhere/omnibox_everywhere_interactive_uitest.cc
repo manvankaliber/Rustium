@@ -443,11 +443,7 @@ class OmniboxEverywhereAimEligibleBrowserTest
   }
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ShowAndDismissViaHotkey DISABLED_ShowAndDismissViaHotkey
-#else
 #define MAYBE_ShowAndDismissViaHotkey ShowAndDismissViaHotkey
-#endif
 IN_PROC_BROWSER_TEST_F(OmniboxEverywhereEphemeralBrowserTest,
                        MAYBE_ShowAndDismissViaHotkey) {
   OmniboxEverywhereController* controller =
@@ -463,11 +459,7 @@ IN_PROC_BROWSER_TEST_F(OmniboxEverywhereEphemeralBrowserTest,
                   InvokeViaHotkey(), CheckWidgetVisible(false));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_CopyPasteSupportInQueryBox DISABLED_CopyPasteSupportInQueryBox
-#else
 #define MAYBE_CopyPasteSupportInQueryBox CopyPasteSupportInQueryBox
-#endif
 IN_PROC_BROWSER_TEST_F(OmniboxEverywhereEphemeralBrowserTest,
                        MAYBE_CopyPasteSupportInQueryBox) {
   OmniboxEverywhereController* controller =
@@ -647,11 +639,7 @@ IN_PROC_BROWSER_TEST_F(OmniboxEverywhereBrowserTest, VoicePermissionState) {
   EXPECT_FALSE(ui_manager.widget());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_RetainPositionOnReinvoke DISABLED_RetainPositionOnReinvoke
-#else
 #define MAYBE_RetainPositionOnReinvoke RetainPositionOnReinvoke
-#endif
 IN_PROC_BROWSER_TEST_F(OmniboxEverywhereEphemeralBrowserTest,
                        MAYBE_RetainPositionOnReinvoke) {
 #if BUILDFLAG(IS_OZONE)
@@ -707,11 +695,7 @@ IN_PROC_BROWSER_TEST_F(OmniboxEverywhereEphemeralBrowserTest,
                   InvokeViaHotkey(), CheckWidgetVisible(false));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_RetainInputTextOnReinvoke DISABLED_RetainInputTextOnReinvoke
-#else
 #define MAYBE_RetainInputTextOnReinvoke RetainInputTextOnReinvoke
-#endif
 IN_PROC_BROWSER_TEST_F(OmniboxEverywhereEphemeralBrowserTest,
                        MAYBE_RetainInputTextOnReinvoke) {
   OmniboxEverywhereController* controller =
@@ -836,11 +820,7 @@ IN_PROC_BROWSER_TEST_F(OmniboxEverywhereEphemeralBrowserTest,
       CheckWidgetVisible(false));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_StatusIconLifecycle DISABLED_StatusIconLifecycle_
-#else
 #define MAYBE_StatusIconLifecycle StatusIconLifecycle
-#endif
 IN_PROC_BROWSER_TEST_F(OmniboxEverywhereBrowserTest,
                        MAYBE_StatusIconLifecycle) {
   StatusTray* status_tray = g_browser_process->status_tray();
@@ -920,13 +900,8 @@ IN_PROC_BROWSER_TEST_F(OmniboxEverywhereBrowserTest, BackgroundModeKeepAlive) {
   local_state->SetBoolean(prefs::kOmniboxEverywhereBackgroundMode, false);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_StatusIconContextMenuOpensSearchSettings \
-  DISABLED_StatusIconContextMenuOpensSearchSettings
-#else
 #define MAYBE_StatusIconContextMenuOpensSearchSettings \
   StatusIconContextMenuOpensSearchSettings
-#endif
 IN_PROC_BROWSER_TEST_F(OmniboxEverywhereBrowserTest,
                        MAYBE_StatusIconContextMenuOpensSearchSettings) {
   StatusTray* status_tray = g_browser_process->status_tray();
@@ -967,13 +942,8 @@ IN_PROC_BROWSER_TEST_F(OmniboxEverywhereBrowserTest,
   local_state->SetBoolean(prefs::kOmniboxEverywhereBackgroundMode, false);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_StatusIconContextMenuOpensCustomizeKeyboardShortcut \
-  DISABLED_StatusIconContextMenuOpensCustomizeKeyboardShortcut
-#else
 #define MAYBE_StatusIconContextMenuOpensCustomizeKeyboardShortcut \
   StatusIconContextMenuOpensCustomizeKeyboardShortcut
-#endif
 IN_PROC_BROWSER_TEST_F(
     OmniboxEverywhereBrowserTest,
     MAYBE_StatusIconContextMenuOpensCustomizeKeyboardShortcut) {
@@ -1016,13 +986,8 @@ IN_PROC_BROWSER_TEST_F(
   local_state->SetBoolean(prefs::kOmniboxEverywhereBackgroundMode, false);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_TargetProfileUpdatesOnBrowserActivation \
-  DISABLED_TargetProfileUpdatesOnBrowserActivation
-#else
 #define MAYBE_TargetProfileUpdatesOnBrowserActivation \
   TargetProfileUpdatesOnBrowserActivation
-#endif
 
 IN_PROC_BROWSER_TEST_F(OmniboxEverywhereBrowserTest,
                        MAYBE_TargetProfileUpdatesOnBrowserActivation) {
@@ -1147,26 +1112,16 @@ IN_PROC_BROWSER_TEST_F(OmniboxEverywhereBrowserTest,
       KeepAliveOrigin::OMNIBOX_EVERYWHERE));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_OpenUrlCreatesBrowserBeforeClosingPopupWhenNoBrowsers \
-  DISABLED_OpenUrlCreatesBrowserBeforeClosingPopupWhenNoBrowsers
-#else
 #define MAYBE_OpenUrlCreatesBrowserBeforeClosingPopupWhenNoBrowsers \
   OpenUrlCreatesBrowserBeforeClosingPopupWhenNoBrowsers
-#endif
 IN_PROC_BROWSER_TEST_F(
     OmniboxEverywhereEphemeralBrowserTest,
     MAYBE_OpenUrlCreatesBrowserBeforeClosingPopupWhenNoBrowsers) {
   TestOpenUrlCreatesBrowserWhenNoBrowsers(/*ephemeral=*/true);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_OpenUrlCreatesBrowserBeforeDemotingPopupWhenNoBrowsers \
-  DISABLED_OpenUrlCreatesBrowserBeforeDemotingPopupWhenNoBrowsers
-#else
 #define MAYBE_OpenUrlCreatesBrowserBeforeDemotingPopupWhenNoBrowsers \
   OpenUrlCreatesBrowserBeforeDemotingPopupWhenNoBrowsers
-#endif
 IN_PROC_BROWSER_TEST_F(
     OmniboxEverywherePersistentBrowserTest,
     MAYBE_OpenUrlCreatesBrowserBeforeDemotingPopupWhenNoBrowsers) {
@@ -1238,13 +1193,8 @@ IN_PROC_BROWSER_TEST_F(OmniboxEverywhereCommandLineBrowserTest,
   EXPECT_FALSE(controller->target_profile()->IsOffTheRecord());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ProfileAvatarUpdatesWhenGAIAPictureLoads \
-  DISABLED_ProfileAvatarUpdatesWhenGAIAPictureLoads
-#else
 #define MAYBE_ProfileAvatarUpdatesWhenGAIAPictureLoads \
   ProfileAvatarUpdatesWhenGAIAPictureLoads
-#endif
 IN_PROC_BROWSER_TEST_F(OmniboxEverywhereBrowserTest,
                        MAYBE_ProfileAvatarUpdatesWhenGAIAPictureLoads) {
   Profile* profile = browser()->GetProfile();

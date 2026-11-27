@@ -11,8 +11,7 @@ features:
   dynamic_refresh: false
   per_profile: false
   platform_only: true
-future_on:
-- fuchsia
+future_on: []
 items:
 - caption: Prevent Chrome from launching if not enrolled into Chrome Browser Cloud
     Management

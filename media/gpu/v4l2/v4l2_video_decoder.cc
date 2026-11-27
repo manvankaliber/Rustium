@@ -24,12 +24,12 @@
 #include "media/base/media_switches.h"
 #include "media/base/video_types.h"
 #include "media/base/video_util.h"
-#include "media/gpu/chromeos/chromeos_status.h"
-#include "media/gpu/chromeos/dmabuf_video_frame_pool.h"
-#include "media/gpu/chromeos/fourcc.h"
-#include "media/gpu/chromeos/image_processor.h"
-#include "media/gpu/chromeos/platform_video_frame_utils.h"
-#include "media/gpu/chromeos/video_decoder_pipeline.h"
+#include "media/gpu/linux/chromeos_status.h"
+#include "media/gpu/linux/dmabuf_video_frame_pool.h"
+#include "media/gpu/linux/fourcc.h"
+#include "media/gpu/linux/image_processor.h"
+#include "media/gpu/linux/platform_video_frame_utils.h"
+#include "media/gpu/linux/video_decoder_pipeline.h"
 #include "media/gpu/gpu_video_decode_accelerator_helpers.h"
 #include "media/gpu/macros.h"
 #include "media/gpu/v4l2/legacy/v4l2_video_decoder_backend_stateful.h"
@@ -38,12 +38,6 @@
 #include "media/gpu/v4l2/v4l2_video_decoder_backend_stateless.h"
 #include "mojo/public/cpp/bindings/callback_helpers.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-// gn check does not account for BUILDFLAG(), so including this header will
-// make gn check fail for builds other than ChromeOS. See gn help nogncheck
-// for more information.
-#include "chromeos/components/cdm_factory_daemon/chromeos_cdm_context.h"  // nogncheck
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // TODO(jkardatzke): Remove these once they are in linux/videodev2.h.
 #define V4L2_CID_MPEG_MTK_BASE (0x00990000 | 0x2000)
@@ -164,11 +158,7 @@ V4L2VideoDecoder::GetSupportedConfigs() {
     return std::nullopt;
 
   return ConvertFromSupportedProfiles(configs,
-#if BUILDFLAG(USE_CHROMEOS_PROTECTED_MEDIA)
-                                      true /* allow_encrypted */);
-#else
                                       false /* allow_encrypted */);
-#endif
 }
 
 V4L2VideoDecoder::V4L2VideoDecoder(
@@ -246,27 +236,9 @@ void V4L2VideoDecoder::Initialize(const VideoDecoderConfig& config,
   cdm_context_ref_ = nullptr;
 
   if (config.is_encrypted()) {
-#if !BUILDFLAG(IS_CHROMEOS)
     VLOGF(1) << "Encrypted content is not supported";
     std::move(init_cb).Run(DecoderStatus::Codes::kUnsupportedEncryptionMode);
     return;
-#else
-    if (!cdm_context || !cdm_context->GetChromeOsCdmContext()) {
-      VLOGF(1) << "Cannot support encrypted stream w/out ChromeOsCdmContext";
-      std::move(init_cb).Run(DecoderStatus::Codes::kUnsupportedEncryptionMode);
-      return;
-    }
-    if (config.codec() != VideoCodec::kH264 &&
-        config.codec() != VideoCodec::kVP9 &&
-        config.codec() != VideoCodec::kAV1 &&
-        config.codec() != VideoCodec::kHEVC) {
-      VLOGF(1) << GetCodecName(config.codec())
-               << " is not supported for encrypted content";
-      std::move(init_cb).Run(DecoderStatus::Codes::kUnsupportedEncryptionMode);
-      return;
-    }
-    cdm_context_ref_ = cdm_context->GetChromeOsCdmContext()->GetCdmContextRef();
-#endif
   }
 
   // In the decoding state, we need to stop the queues since they have been
@@ -421,24 +393,6 @@ V4L2Status V4L2VideoDecoder::InitializeBackend() {
   // memory flag. This CTRL is not in the ToT kernel, so only set this when we
   // are doing secure playback (which has dependent code also not in the ToT
   // kernel).
-#if BUILDFLAG(USE_CHROMEOS_PROTECTED_MEDIA)
-  if (cdm_context_ref_) {
-    // Set SVP (secure video pipeline) mode.
-    struct v4l2_ext_control ctrl = {};
-    struct v4l2_ext_controls ctrls = {};
-    ctrl.id = V4L2_CID_MPEG_MTK_SET_SECURE_MODE;
-    ctrl.value = 1;
-
-    ctrls.count = 1;
-    ctrls.which = V4L2_CTRL_WHICH_CUR_VAL;
-    ctrls.controls = &ctrl;
-
-    VLOGF(1) << "Setting secure playback mode";
-    if (device_->Ioctl(VIDIOC_S_EXT_CTRLS, &ctrls)) {
-      PLOG(ERROR) << "Failed setting secure playback mode";
-    }
-  }
-#endif  // BUILDFLAG(USE_CHROMEOS_PROTECTED_MEDIA)
 
   struct v4l2_capability caps;
   const __u32 kCapsRequired = V4L2_CAP_VIDEO_M2M_MPLANE | V4L2_CAP_STREAMING;
@@ -495,22 +449,7 @@ V4L2Status V4L2VideoDecoder::InitializeBackend() {
 
 void V4L2VideoDecoder::AllocateSecureBuffer(uint32_t size,
                                             SecureBufferAllocatedCB callback) {
-#if BUILDFLAG(IS_CHROMEOS)
-  pending_secure_allocate_callbacks_++;
-  // Wrap this with a default handler if it gets dropped somehow or otherwise we
-  // could hang waiting to finish init.
-  cdm_context_ref_->GetCdmContext()
-      ->GetChromeOsCdmContext()
-      ->AllocateSecureBuffer(
-          size,
-          mojo::WrapCallbackWithDefaultInvokeIfNotRun(
-              base::BindPostTaskToCurrentDefault(base::BindOnce(
-                  &V4L2VideoDecoder::AllocateSecureBufferCB,
-                  weak_this_for_callbacks_.GetWeakPtr(), std::move(callback))),
-              mojo::PlatformHandle()));
-#else
   NOTREACHED();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void V4L2VideoDecoder::AllocateSecureBufferCB(SecureBufferAllocatedCB callback,

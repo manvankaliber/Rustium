@@ -56,8 +56,7 @@ enum {
                      // to set policies for chrome. This directory
                      // contains subdirectories.
 #endif
-#if BUILDFLAG(IS_CHROMEOS) || \
-    (BUILDFLAG(IS_LINUX) && BUILDFLAG(CHROMIUM_BRANDING)) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) && BUILDFLAG(CHROMIUM_BRANDING) || BUILDFLAG(IS_MAC)
   DIR_USER_EXTERNAL_EXTENSIONS,  // Directory for per-user external extensions
                                  // on Chrome Mac and Chromium Linux.
                                  // On Chrome OS, this path is used for OEM
@@ -65,7 +64,7 @@ enum {
                                  // create it.
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   DIR_STANDALONE_EXTERNAL_EXTENSIONS,  // Directory for 'per-extension'
                                        // definition manifest files that
                                        // describe extensions which are to be
@@ -99,24 +98,15 @@ enum {
                                // with the bundled WebUI code cache.
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  DIR_CHROMEOS_CRD_DATA,  // Directory where Chrome Remote Desktop can store
-                          // data that must persist a Chrome restart but that
-                          // must be cleared on device reboot.
-#endif
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) &&                                   \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-     BUILDFLAG(IS_ANDROID))
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC))
   DIR_NATIVE_MESSAGING,       // System directory where native messaging host
                               // manifest files are stored.
   DIR_USER_NATIVE_MESSAGING,  // Directory with Native Messaging Hosts
                               // installed per-user.
 #endif
-#if !BUILDFLAG(IS_ANDROID)
   DIR_GLOBAL_GCM_STORE,  // Directory where the global GCM instance
                          // stores its data.
-#endif
 
   // Valid only in development environment; TODO(darin): move these
   DIR_GEN_TEST_DATA,  // Directory where generated test data resides.
@@ -126,13 +116,11 @@ enum {
   DIR_OPTIMIZATION_GUIDE_PREDICTION_MODELS,  // Directory where verified models
                                              // downloaded by the Optimization
                                              // Guide are stored.
-#if !BUILDFLAG(IS_ANDROID)
   DIR_CHILD_MODULE_ROOT,  // Directory in which child module versions (e.g.,
                           // dynamic patches) for the running browser are
                           // staged. Set by the browser process at startup if
                           // dynamic patching is enabled; not available in
                           // other processes.
-#endif
   PATH_END
 };
 

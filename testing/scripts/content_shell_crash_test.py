@@ -62,12 +62,6 @@ def main(argv):
         'Content Shell Framework',
       ),
     ]
-  elif args.platform == 'android':
-    exe = os.path.join(
-      '.', 'lib.unstripped', 'libcontent_shell_content_view.so'
-    )
-  elif args.platform == 'fuchsia':
-    exe = os.path.join('.', 'exe.unstripped', 'content_shell')
   else:
     exe = os.path.join('.', 'content_shell')
 
@@ -96,11 +90,7 @@ def main(argv):
       + additional_args
       + unrecognized
     )
-
-    if args.platform == 'fuchsia':
-      rc = subprocess.call(cmd, env=env)
-    else:
-      rc = xvfb.run_executable(cmd, env)
+    rc = xvfb.run_executable(cmd, env)
 
     with open(tempfile_path) as f:
       failures = json.load(f)

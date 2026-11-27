@@ -19,7 +19,7 @@ enum GpuControlListTestingEntryEnum {
   kGpuControlListEntryTest_AllExceptNVidiaOnLinuxEntry = 3,
   kGpuControlListEntryTest_AllExceptIntelOnLinuxEntry = 4,
   kGpuControlListEntryTest_MultipleDevicesEntry = 5,
-  kGpuControlListEntryTest_ChromeOSEntry = 6,
+  kGpuControlListEntryTest_GenericAnyOsEntry = 6,
   kGpuControlListEntryTest_GlVersionGLESEntry = 7,
   kGpuControlListEntryTest_GlVersionANGLEEntry = 8,
   kGpuControlListEntryTest_GlVersionGLEntry = 9,

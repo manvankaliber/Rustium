@@ -148,7 +148,7 @@ TEST_F(BrowserSigninPolicyHandlerTest,
 
   handler_.ApplyPolicySettings(policies_, &prefs_);
   const base::Value* value = nullptr;
-  EXPECT_TRUE(prefs_.GetValue(BUILDFLAG(IS_ANDROID)
+  EXPECT_TRUE(prefs_.GetValue(false
                                   ? prefs::kSigninAllowed
                                   : prefs::kSigninAllowedOnNextStartup,
                               &value));

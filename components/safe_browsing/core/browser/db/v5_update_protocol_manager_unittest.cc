@@ -389,15 +389,9 @@ TEST_F(V5UpdateProtocolManagerTest,
   ASSERT_TRUE(request.ParseFromString(decoded_request));
   ASSERT_EQ(request.names_size(), 3);
   ASSERT_EQ(request.version_size(), 3);
-#if BUILDFLAG(IS_IOS)
-  EXPECT_EQ(request.names(0), "pha-4b");
-  EXPECT_EQ(request.names(1), "sea-4b");
-  EXPECT_EQ(request.names(2), "uwsa-4b");
-#else
   EXPECT_EQ(request.names(0), "mw-4b");
   EXPECT_EQ(request.names(1), "se-4b");
   EXPECT_EQ(request.names(2), "uws-4b");
-#endif
   EXPECT_EQ(request.version(0), "version_1");
   EXPECT_EQ(request.version(1), "version_2");
   EXPECT_EQ(request.version(2), "version_3");

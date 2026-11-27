@@ -46,7 +46,6 @@ class SharingDeviceRegistration {
   virtual bool IsOneTimeTokenBackendNotificationSupported() const = 0;
 
   // Returns if device can handle receiving of glic experimental triggering.
-  virtual bool IsGlicExperimentalTriggeringSupported() const = 0;
 
   // Returns if device can handle receiving of browser actuator.
   virtual bool IsBrowserActuatorSupported() const = 0;

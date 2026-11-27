@@ -86,19 +86,7 @@ unsafe extern "C" fn callback(
             OsStr::from_bytes(unsafe { CStr::from_ptr(dlpi_name) }.to_bytes()).to_owned()
         }
     };
-    #[cfg(target_os = "android")]
-    let zip_offset: Option<u64> = {
-        // only check for ZIP-embedded file if we have data from /proc/self/maps
-        maps.as_ref().and_then(|maps| {
-            // check if file is embedded within a ZIP archive by searching for `!/`
-            super::extract_zip_path_android(&name).and_then(|_| {
-                // find MapsEntry matching library's base address and get its file offset
-                maps.iter()
-                    .find(|m| m.ip_matches(dlpi_addr as usize))
-                    .map(|m| m.offset())
-            })
-        })
-    };
+
     let headers = if dlpi_phdr.is_null() || dlpi_phnum == 0 {
         &[]
     } else {
@@ -107,8 +95,7 @@ unsafe extern "C" fn callback(
     };
     libs.push(Library {
         name,
-        #[cfg(target_os = "android")]
-        zip_offset,
+
         segments: headers
             .iter()
             .map(|header| LibrarySegment {

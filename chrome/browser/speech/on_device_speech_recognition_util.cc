@@ -8,7 +8,6 @@
 
 #include "media/mojo/mojom/speech_recognizer.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/feature_list.h"
 #include "base/i18n/legacy_language_tag_helpers.h"
 #include "base/strings/string_split.h"
@@ -108,7 +107,6 @@ media::mojom::AvailabilityStatus ModelUnavailableReasonToAvailabilityStatus(
 }
 
 }  // namespace
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace speech {
 
@@ -116,9 +114,6 @@ media::mojom::AvailabilityStatus GetOnDeviceSpeechRecognitionAvailabilityStatus(
     content::BrowserContext* context,
     std::string_view language,
     media::mojom::SpeechRecognitionQuality quality) {
-#if BUILDFLAG(IS_ANDROID)
-  return media::mojom::AvailabilityStatus::kUnavailable;
-#else
   if (quality == media::mojom::SpeechRecognitionQuality::kConversation ||
       quality == media::mojom::SpeechRecognitionQuality::kDictation) {
     auto feature_and_service =
@@ -133,7 +128,6 @@ media::mojom::AvailabilityStatus GetOnDeviceSpeechRecognitionAvailabilityStatus(
   }
 
   return GetSodaAvailabilityStatus(language);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void GetOnDeviceSpeechRecognitionAvailabilityStatusAsync(
@@ -141,9 +135,6 @@ void GetOnDeviceSpeechRecognitionAvailabilityStatusAsync(
     std::string_view language,
     media::mojom::SpeechRecognitionQuality quality,
     base::OnceCallback<void(media::mojom::AvailabilityStatus)> callback) {
-#if BUILDFLAG(IS_ANDROID)
-  std::move(callback).Run(media::mojom::AvailabilityStatus::kUnavailable);
-#else
   if (quality == media::mojom::SpeechRecognitionQuality::kConversation ||
       quality == media::mojom::SpeechRecognitionQuality::kDictation) {
     auto feature_and_service =
@@ -169,7 +160,6 @@ void GetOnDeviceSpeechRecognitionAvailabilityStatusAsync(
   }
 
   std::move(callback).Run(GetSodaAvailabilityStatus(language));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 }  // namespace speech

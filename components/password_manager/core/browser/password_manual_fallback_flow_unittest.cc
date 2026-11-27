@@ -186,8 +186,7 @@ class MockPasswordManagerClient : public StubPasswordManagerClient {
               GetProfilePasswordStore,
               (),
               (const, override));
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   MOCK_METHOD(void,
               OpenPasswordDetailsBubble,
               (const password_manager::PasswordForm& form),
@@ -318,13 +317,8 @@ class PasswordManualFallbackFlowTest : public Test {
       const PasswordFormDigest& form,
       const std::vector<std::string>& affiliated_realms,
       const std::vector<std::string>& grouped_realms = {}) {
-#if BUILDFLAG(IS_ANDROID)
-    profile_password_store().SetAffiliatedAndGroupedRealms(
-        form.signon_realm, affiliated_realms, grouped_realms);
-#else
     affiliated_match_helper().ExpectCallToGetAffiliatedAndGrouped(
         form, affiliated_realms, grouped_realms);
-#endif
   }
 
   void ResetFlowAndMetricsRecorder() {
@@ -1326,8 +1320,7 @@ TEST_P(PasswordManualFallbackFlowReauthTest, NoFillingIfAuthFails) {
       1);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 class PasswordManualFallbackFlowCrossDomainConfirmationTest
     : public PasswordManualFallbackFlowTest,
       public testing::WithParamInterface<SuggestionType> {};
@@ -1606,8 +1599,7 @@ TEST_F(PasswordManualFallbackFlowTest, AcceptManagePasswordsEntry) {
       metrics_util::PasswordDropdownSelectedOption::kShowAll, 1);
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 TEST_F(PasswordManualFallbackFlowTest, ShowPasswordDetails) {
   PasswordForm form_com =
       CreateEntry("username@google.com", "password",

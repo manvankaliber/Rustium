@@ -131,13 +131,6 @@ void DataTypeController::InitDataTypeController(
         SESSIONS,
         THEMES,
         USER_EVENTS,
-#if BUILDFLAG(IS_CHROMEOS)
-        COOKIES,
-        PRINTERS,
-        PRINTERS_AUTHORIZATION_SERVERS,
-        WIFI_CONFIGURATIONS,
-        WORKSPACE_DESK,
-#endif  // BUILDFLAG(IS_CHROMEOS)
     };
     CHECK(kLegacyTypes.Has(type()))
         << DataTypeToDebugString(type())

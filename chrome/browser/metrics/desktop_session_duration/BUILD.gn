@@ -2,10 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/chromeos/args.gni")
-
-assert(!is_android)
-
 source_set("desktop_session_duration") {
   sources = [
     "audible_contents_tracker.h",
@@ -35,22 +31,20 @@ source_set("browser_tests") {
   ]
 }
 
-if (!is_chromeos_device) {
-  source_set("interactive_ui_tests") {
-    testonly = true
+source_set("interactive_ui_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [ "chrome_visibility_observer_interactive_uitest.cc" ]
+  sources = [ "chrome_visibility_observer_interactive_uitest.cc" ]
 
-    deps = [
-      ":desktop_session_duration",
-      "//base",
-      "//chrome/browser:chrome_browser_main",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/test:test_support",
-      "//content/test:test_support",
-      "//testing/gtest",
-    ]
-  }
+  deps = [
+    ":desktop_session_duration",
+    "//base",
+    "//chrome/browser:chrome_browser_main",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/test:test_support",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
 }

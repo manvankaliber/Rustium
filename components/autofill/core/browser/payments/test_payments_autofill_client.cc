@@ -6,7 +6,6 @@
 
 #include <memory>
 
-#include "base/android/device_info.h"
 #include "base/check_deref.h"
 #include "base/containers/span.h"
 #include "base/functional/callback.h"
@@ -34,21 +33,13 @@
 #include "components/autofill/core/browser/ui/payments/payments_churned_users_ui_delegate.h"
 #include "components/autofill/core/common/autofill_prefs.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/test/gmock_callback_support.h"
-#include "components/autofill/core/browser/payments/android_bnpl_strategy.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_IOS)
 #include "components/autofill/core/browser/payments/test_internal_authenticator.h"
 #include "components/webauthn/core/browser/internal_authenticator.h"
-#endif  // !BUILDFLAG(IS_IOS)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 #include "components/autofill/core/browser/payments/desktop_bnpl_strategy.h"
 #include "components/autofill/core/browser/suggestions/suggestion_hiding_reason.h"
 #include "components/autofill/core/browser/ui/payments/omnibox_autofill_delegate.h"
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 namespace autofill::payments {
 
@@ -60,12 +51,10 @@ TestPaymentsAutofillClient::TestPaymentsAutofillClient(AutofillClient* client)
     : client_(CHECK_DEREF(client)),
       mock_save_and_fill_manager_(
           std::make_unique<NiceMock<MockSaveAndFillManager>>()) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (base::FeatureList::IsEnabled(features::kAutofillEnableOmniboxAutofill)) {
     omnibox_autofill_delegate_ =
         std::make_unique<OmniboxAutofillDelegate>(client);
   }
-#endif
 }
 
 TestPaymentsAutofillClient::~TestPaymentsAutofillClient() = default;
@@ -80,19 +69,7 @@ void TestPaymentsAutofillClient::LoadRiskData(
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-AutofillSaveCardBottomSheetBridge*
-TestPaymentsAutofillClient::GetOrCreateAutofillSaveCardBottomSheetBridge() {
-  return nullptr;
-}
 
-AutofillSaveIbanBottomSheetBridge*
-TestPaymentsAutofillClient::GetOrCreateAutofillSaveIbanBottomSheetBridge() {
-  return nullptr;
-}
-#endif
-
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void TestPaymentsAutofillClient::ShowWebauthnOfferDialog(
     WebauthnDialogCallback offer_dialog_callback) {}
 
@@ -108,21 +85,6 @@ bool TestPaymentsAutofillClient::CloseWebauthnDialog() {
 void TestPaymentsAutofillClient::HideVirtualCardEnrollBubbleAndIconIfVisible() {
 }
 
-#else   // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-void TestPaymentsAutofillClient::ConfirmAccountNameFixFlow(
-    base::OnceCallback<void(const std::u16string&)> callback) {
-  credit_card_name_fix_flow_bubble_was_shown_ = true;
-  std::move(callback).Run(std::u16string(u"Gaia Name"));
-}
-
-void TestPaymentsAutofillClient::ConfirmExpirationDateFixFlow(
-    const CreditCard& card,
-    base::OnceCallback<void(const std::u16string&, const std::u16string&)>
-        callback) {
-  credit_card_name_fix_flow_bubble_was_shown_ = true;
-  std::move(callback).Run(u"03", base::ASCIIToUTF16(test::NextYear()));
-}
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 bool TestPaymentsAutofillClient::HasCreditCardScanFeature() const {
   return false;
@@ -258,22 +220,6 @@ void TestPaymentsAutofillClient::ShowUnmaskPrompt(
 void TestPaymentsAutofillClient::OnUnmaskVerificationResult(
     PaymentsRpcResult result) {}
 
-#if BUILDFLAG(IS_IOS)
-std::unique_ptr<AutofillProgressDialogController>
-TestPaymentsAutofillClient::ExtractProgressDialogModel() {
-  return nullptr;
-}
-
-std::unique_ptr<CardUnmaskOtpInputDialogController>
-TestPaymentsAutofillClient::ExtractOtpInputDialogModel() {
-  return nullptr;
-}
-
-CardUnmaskPromptController*
-TestPaymentsAutofillClient::GetCardUnmaskPromptModel() {
-  return nullptr;
-}
-#endif
 
 VirtualCardEnrollmentManager*
 TestPaymentsAutofillClient::GetVirtualCardEnrollmentManager() {
@@ -442,13 +388,11 @@ PaymentsDataManager& TestPaymentsAutofillClient::GetPaymentsDataManager() {
   return client_->GetPersonalDataManager().payments_data_manager();
 }
 
-#if !BUILDFLAG(IS_IOS)
 std::unique_ptr<webauthn::InternalAuthenticator>
 TestPaymentsAutofillClient::CreateCreditCardInternalAuthenticator(
     AutofillDriver* driver) {
   return std::make_unique<TestInternalAuthenticator>();
 }
-#endif
 
 MockMandatoryReauthManager*
 TestPaymentsAutofillClient::GetOrCreatePaymentsMandatoryReauthManager() {
@@ -481,13 +425,7 @@ bool TestPaymentsAutofillClient::IsTabModalPopup() const {
 
 BnplStrategy* TestPaymentsAutofillClient::GetBnplStrategy() {
   if (!bnpl_strategy_) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     bnpl_strategy_ = std::make_unique<DesktopBnplStrategy>();
-#elif BUILDFLAG(IS_ANDROID)
-    bnpl_strategy_ = std::make_unique<AndroidBnplStrategy>();
-#else   // BUILDFLAG(IS_IOS)
-    bnpl_strategy_ = nullptr;
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   }
   return bnpl_strategy_.get();
 }
@@ -515,7 +453,6 @@ TestPaymentsAutofillClient::GetPaymentsChurnedUsersUiDelegate() {
   return payments_churned_users_ui_delegate_.get();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 OmniboxAutofillDelegate*
 TestPaymentsAutofillClient::GetOmniboxAutofillDelegate() {
   return omnibox_autofill_delegate_.get();
@@ -544,7 +481,6 @@ void TestPaymentsAutofillClient::HideOmniboxAutofillChip() {
   omnibox_autofill_chip_hidden_ = true;
   omnibox_autofill_chip_shown_ = false;
 }
-#endif
 
 bool TestPaymentsAutofillClient::GetMandatoryReauthOptInPromptWasShown() {
   return mandatory_reauth_opt_in_prompt_was_shown_;
@@ -554,21 +490,5 @@ bool TestPaymentsAutofillClient::GetMandatoryReauthOptInPromptWasReshown() {
   return mandatory_reauth_opt_in_prompt_was_reshown_;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void TestPaymentsAutofillClient::
-    SetUpDeviceBiometricAuthenticatorSuccessOnAutomotive() {
-  if (!base::android::device_info::is_automotive()) {
-    return;
-  }
-
-  MockMandatoryReauthManager& mandatory_reauth_manager =
-      *GetOrCreatePaymentsMandatoryReauthManager();
-
-  ON_CALL(mandatory_reauth_manager, GetAuthenticationMethod)
-      .WillByDefault(Return(MandatoryReauthAuthenticationMethod::kBiometric));
-  ON_CALL(mandatory_reauth_manager, Authenticate)
-      .WillByDefault(RunOnceCallbackRepeatedly<0>(true));
-}
-#endif
 
 }  // namespace autofill::payments

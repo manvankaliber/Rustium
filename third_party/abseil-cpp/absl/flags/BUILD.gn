@@ -296,9 +296,6 @@ absl_test("parse_test") {
     "//third_party/abseil-cpp/absl/strings:string_view",
     "//third_party/abseil-cpp/absl/types:span",
   ]
-  if (is_ios) {
-    sources = []
-  }
 }
 
 absl_test("path_util_test") {

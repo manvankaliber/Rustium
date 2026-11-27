@@ -701,48 +701,9 @@
   <message name="IDS_EXTENSIONS_CANT_INSTALL_MV2_EXTENSION" desc="The text shown to a user when they try to install an extension that is no longer supported by the browser.">
     Cannot install extension because it uses an unsupported manifest version.
   </message>
-<if expr="is_chromeos">
-  <message name="IDS_EXTENSIONS_WFH_PERMISSION_HANDLER_FILES" desc="Label showing file names in singular or plural form.">
-    {FILE_COUNT, plural,
-      =1 {Open and edit <ph name="FILE1">{FILE1}<ex>1.txt</ex></ph> in this extension}
-      other {Open and edit <ph name="FILE1">{FILE1}<ex>1.txt</ex></ph>, ... in this app}
-    }
-  </message>
-</if>
 
-<if expr="is_chromeos">
-  <!-- Extensions Kiosk apps -->
-  <message name="IDS_EXTENSIONS_MANAGE_KIOSK_APP" desc="Label of the button to bring up kiosk management overlay on chrome extensions page.">
-    Manage kiosk applications
-  </message>
-  <message name="IDS_EXTENSIONS_KIOSK_ADD_APP" desc="Label above the application id text input in the kiosk settings overlay.">
-    Add kiosk application
-  </message>
-  <message name="IDS_EXTENSIONS_KIOSK_ADD_APP_HINT" desc="Placeholder hint in  the application id text input in the kiosk settings overlay.">
-    Enter application ID or webstore URL
-  </message>
-  <message name="IDS_EXTENSIONS_KIOSK_ENABLE_AUTO_LAUNCH" desc="Text for a button that enables an application to auto launch on startup in the kiosk settings overlay.">
-    Set to auto-launch
-  </message>
-  <message name="IDS_EXTENSIONS_KIOSK_DISABLE_AUTO_LAUNCH" desc="Text for a button that disables an application to auto launch on startup in the kiosk settings overlay.">
-    Disable auto-launch
-  </message>
-  <message name="IDS_EXTENSIONS_KIOSK_AUTO_LAUNCH" desc="Text shows besides an application that is set to auto launch on start up in the kiosk settings overlay.">
-    (auto-launched)
-  </message>
-  <message name="IDS_EXTENSIONS_KIOSK_INVALID_APP" desc="Text shows besides an application that is not valid in the kiosk settings overlay.">
-    Invalid application
-  </message>
-  <message name="IDS_EXTENSIONS_KIOSK_DISABLE_BAILOUT_SHORTCUT_LABEL" desc="Label text for a checkbox to disable kiosk application launch bail out shortcut.">
-    Permanently keep this device in kiosk mode
-  </message>
-  <message name="IDS_EXTENSIONS_KIOSK_DISABLE_BAILOUT_SHORTCUT_WARNING_TITLE" desc="Bold text of the warning dialog for disabling kiosk application launch bail out shortcut.">
-    Are you sure you want to permanently keep this device in kiosk mode?
-  </message>
-  <message name="IDS_EXTENSIONS_KIOSK_DISABLE_BAILOUT_SHORTCUT_WARNING_BODY" desc="Warning text of disabling kiosk application launch bail out shortcut.">
-    The only way to undo this is to re-install <ph name="IDS_SHORT_PRODUCT_OS_NAME">$1<ex>ChromeOS</ex></ph>
-  </message>
-</if>
+
+
 <if expr="enable_extensions">
   <!-- Extensions Zero State Promo IPH -->
   <message name="IDS_EXTENSIONS_ZERO_STATE_IPH_HEADER" desc="Header of the extensions zero state in-product help promo.">

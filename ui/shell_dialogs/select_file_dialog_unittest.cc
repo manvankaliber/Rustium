@@ -183,35 +183,3 @@ TEST(ShellDialogs, ScopedSetSelectFileDialogFactory) {
   // Clean up.
   ui::SelectFileDialog::SetFactory(nullptr);
 }
-
-#if BUILDFLAG(IS_ANDROID)
-namespace {
-
-class TestSelectFileDialogListener : public ui::SelectFileDialog::Listener {
- public:
-  void FileSelectionCanceled() override { canceled_ = true; }
-  bool canceled() const { return canceled_; }
-
- private:
-  bool canceled_ = false;
-};
-
-}  // namespace
-
-TEST(ShellDialogs, SelectFileWithNullOwningWindowCancels) {
-  base::test::SingleThreadTaskEnvironment task_environment;
-  TestSelectFileDialogListener listener;
-  scoped_refptr<ui::SelectFileDialog> dialog =
-      ui::SelectFileDialog::Create(&listener, nullptr);
-  ASSERT_TRUE(dialog);
-
-  dialog->SelectFile(ui::SelectFileDialog::SELECT_SAVEAS_FILE, std::u16string(),
-                     base::FilePath(FILE_PATH_LITERAL("foo.txt")), nullptr, 0,
-                     base::FilePath::StringType(), gfx::NativeWindow(),
-                     nullptr);
-  EXPECT_FALSE(listener.canceled());
-  task_environment.RunUntilIdle();
-  EXPECT_TRUE(listener.canceled());
-  dialog->ListenerDestroyed();
-}
-#endif  // BUILDFLAG(IS_ANDROID)

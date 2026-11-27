@@ -11,11 +11,6 @@
 
 namespace features {
 
-#if BUILDFLAG(IS_ANDROID)
-// Kill switch for allowing TWAs to autoplay with sound without requiring a user
-// gesture to unlock, for parity with PWAs.
-BASE_FEATURE(kAllowUnmutedAutoplayForTWA, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // This is used to enable an experiment for modifying confidence cutoff of
 // prerender and preconnect for autocomplete action predictor.
@@ -53,11 +48,7 @@ BASE_FEATURE(kCertificateTransparencyAskBeforeEnabling,
 // fail to validate with network time will fall back to the system time.
 // This has no effect if the network_time::kNetworkTimeServiceQuerying flag is
 // disabled, or the BrowserNetworkTimeQueriesEnabled policy is set to false.
-#if !BUILDFLAG(IS_CHROMEOS)
 BASE_FEATURE(kCertVerificationNetworkTime, base::FEATURE_ENABLED_BY_DEFAULT);
-#else
-BASE_FEATURE(kCertVerificationNetworkTime, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Killswitch that guards clearing all user data in the ProfileImpl destructor.
 BASE_FEATURE(kClearUserDataUponProfileDestruction,
@@ -82,19 +73,13 @@ BASE_FEATURE(kDestroyProfileOnBrowserClose,
 // Enables showing the email of the flex org admin that setup CBCM in the
 // management disclosures.
 BASE_FEATURE(kFlexOrgManagementDisclosure,
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 BASE_FEATURE(kInitialExternalExtensions, base::FEATURE_ENABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if !BUILDFLAG(IS_ANDROID)
 // Adds a "Snooze" action to mute notifications during screen sharing sessions.
 BASE_FEATURE(kMuteNotificationSnoozeAction, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 // This feature enables monitoring of first-party network requests in order to
 // find possible violations. Example: A Chrome policy is set to disabled but the
@@ -111,10 +96,8 @@ BASE_FEATURE(kNewTabPageTriggerForPrefetch, base::FEATURE_DISABLED_BY_DEFAULT);
 
 // Adds an "Unsubscribe" action to web push notifications that allows stopping
 // notifications from a given origin with a single tap (with an option to undo).
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kNotificationOneTapUnsubscribeOnDesktop,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
 // When this feature is enabled, Chrome will register os_update_handler with

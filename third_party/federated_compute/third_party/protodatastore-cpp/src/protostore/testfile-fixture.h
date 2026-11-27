@@ -33,11 +33,7 @@ using ::testing::NotNull;
 class TestFileFixture : public ::testing::Test {
  public:
   void SetUp() override {
-#ifdef __ANDROID__
-    char tmpl[] = "/data/local/tmp/file-storage.XXXXXX";
-#else
     char tmpl[] = "/tmp/file-storage.XXXXXX";
-#endif
     char* tmpdir = mkdtemp(tmpl);
     ASSERT_THAT(tmpdir, NotNull()) << tmpl << ": " << strerror(errno);
     testdir_ = tmpdir;

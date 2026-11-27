@@ -32,11 +32,6 @@ BASE_FEATURE(kUncachedGattDiscoveryForGattConnection,
              base::FEATURE_ENABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-// Controls whether to fail closed and report a position error when a precise
-// location leak is detected in LocationProviderGmsCore.
-BASE_FEATURE(kGmsCoreFailClosedOnPreciseLeak, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace features
 }  // namespace device

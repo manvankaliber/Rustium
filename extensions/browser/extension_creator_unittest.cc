@@ -12,7 +12,6 @@
 #include "base/path_service.h"
 #include "base/strings/string_util.h"
 #include "base/strings/utf_string_conversions.h"
-#include "base/test/android/content_uri_test_utils.h"
 #include "base/values.h"
 #include "extensions/common/constants.h"
 #include "extensions/common/extension_paths.h"
@@ -284,15 +283,6 @@ TEST_F(ExtensionCreatorTest, InitializeInput) {
       },
   };
 
-#if BUILDFLAG(IS_ANDROID)
-  base::FilePath extension_dir_vp =
-      *base::test::android::GetVirtualDocumentPathFromCacheDirDirectory(
-          extension_dir);
-  base::FilePath content_uri_crx =
-      *base::ResolveToContentUri(extension_dir_vp.AddExtension(".exist.crx"));
-  base::FilePath content_uri_pem =
-      *base::ResolveToContentUri(extension_dir_vp.AddExtension(".exist.pem"));
-#endif  // BUILDFLAG(IS_ANDROID)
 
   for (auto tc : test_cases) {
     EXPECT_EQ(

@@ -14,11 +14,6 @@ export const CrPolicyStrings: CrPolicyStringsType = {
   controlledSettingParent: 'parent',
   controlledSettingChildRestriction: 'Restricted for child',
 
-  // <if expr="is_chromeos">
-  controlledSettingShared: 'shared: $1',
-  controlledSettingWithOwner: 'owner: $1',
-  controlledSettingNoOwner: 'owner',
-  // </if>
 };
 
 // Necessary for tests residing within a JS module.

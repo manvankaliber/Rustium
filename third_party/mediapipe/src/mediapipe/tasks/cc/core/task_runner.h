@@ -16,7 +16,7 @@ limitations under the License.
 #ifndef MEDIAPIPE_TASKS_CC_CORE_TASK_RUNNER_H_
 #define MEDIAPIPE_TASKS_CC_CORE_TASK_RUNNER_H_
 
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
 #include <unistd.h>
 #endif
 

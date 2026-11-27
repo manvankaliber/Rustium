@@ -1,8 +1,8 @@
 //! Mount file systems
-#[cfg(linux_android)]
+#[cfg(linux)]
 mod linux;
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 pub use self::linux::*;
 
 #[cfg(bsd_without_apple)]

@@ -50,17 +50,6 @@ void SaasUsageReportUploaderImpl::UploadReport(
 }
 
 bool SaasUsageReportUploaderImpl::IsProfileReporting() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  // SaaS usage reports are always uploaded with the user DM token on ChromeOS,
-  // see RealtimeEventUploadHelper::GetDMToken(), so they must always use the
-  // profile client. Affiliation only selects the browser client on platforms
-  // where that client is the CBCM one; on ChromeOS the browser client is
-  // registered with the device DM token and is used by the Safe Browsing
-  // connectors. Device info is still reported for affiliated profiles, see
-  // IncludeDeviceInfo().
-  CHECK(profile_);
-  return true;
-#else
   if (!profile_) {
     return false;
   }
@@ -70,7 +59,6 @@ bool SaasUsageReportUploaderImpl::IsProfileReporting() const {
   // Server will use profile id from the report to distinguish between browser
   // and profile reports.
   return !enterprise_util::IsProfileAffiliated(profile_);
-#endif
 }
 
 }  // namespace enterprise_reporting

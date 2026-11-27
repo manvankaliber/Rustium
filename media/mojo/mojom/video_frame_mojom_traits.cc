@@ -24,15 +24,11 @@
 #include "ui/gfx/mojom/color_space_mojom_traits.h"
 #include "ui/gfx/mojom/hdr_metadata_mojom_traits.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "base/posix/eintr_wrapper.h"
 #include "media/gpu/buffer_validation.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/ozone/public/client_native_pixmap_factory_ozone.h"  // nogncheck
-#include "ui/ozone/public/ozone_platform.h"                      // nogncheck
 #endif
+
 
 namespace mojo {
 
@@ -145,7 +141,7 @@ media::mojom::VideoFrameDataPtr MakeVideoFrameData(
         media::mojom::OpaqueVideoFrameData::New());
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (input->storage_type() == media::VideoFrame::STORAGE_DMABUFS) {
     // Duplicates the DMA buffer FDs to a new vector since this cannot take
     // ownership of the FDs in |input| due to constness.
@@ -169,7 +165,7 @@ media::mojom::VideoFrameDataPtr MakeVideoFrameData(
             input->layout().buffer_addr_align(), input->layout().modifier(),
             std::move(duped_fds)));
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   NOTREACHED() << "Unsupported VideoFrame conversion";
 }
@@ -189,7 +185,7 @@ std::string PlanesToString(const std::vector<media::ColorPlaneLayout>& planes) {
 
 }  // namespace
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // static
 bool StructTraits<
     media::mojom::ColorPlaneLayoutDataView,
@@ -209,7 +205,7 @@ bool StructTraits<
   out->size = base::checked_cast<size_t>(data.size());
   return true;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // static
 media::mojom::VideoFrameDataPtr StructTraits<media::mojom::VideoFrameDataView,
@@ -318,42 +314,8 @@ bool StructTraits<media::mojom::VideoFrameDataView,
     auto mapped_region = mapping.GetMemoryAsSpan<uint8_t>();
 
     if (format == media::PIXEL_FORMAT_MJPEG) {
-#if BUILDFLAG(IS_CHROMEOS)
-      if (offsets[0] >= mapped_region.size()) {
-        DLOG(ERROR) << "Plane's offset is out of bounds for MJPEG. "
-                    << " offset: " << offsets[0]
-                    << " size: " << mapped_region.size();
-        return false;
-      }
-
-      const size_t plane_offset = base::strict_cast<size_t>(offsets[0]);
-      std::vector<media::ColorPlaneLayout> planes = {
-          media::ColorPlaneLayout(/*stride=*/strides[0],
-                                  /*offset=*/plane_offset,
-                                  /*size=*/mapping.size() - plane_offset)};
-
-      auto layout =
-          media::VideoFrameLayout::CreateWithPlanes(format, coded_size, planes);
-      if (!layout || !layout->FitsInContiguousBufferOfSize(mapping.size())) {
-        if (!layout) {
-          DLOG(ERROR)
-              << "Invalid layout for MJPEG: CreateWithPlanes failed for format "
-              << VideoPixelFormatToString(format) << ", coded_size "
-              << coded_size.ToString() << ", planes=" << PlanesToString(planes);
-        } else {
-          DLOG(ERROR) << "Invalid layout for MJPEG: " << *layout
-                      << " does not fit in contiguous buffer of size "
-                      << mapping.size();
-        }
-        return false;
-      }
-
-      frame = media::VideoFrame::WrapExternalDataWithLayout(
-          *layout, visible_rect, natural_size, mapped_region, timestamp);
-#else
       DLOG(ERROR) << "PIXEL_FORMAT_MJPEG is only supported on ChromeOS";
       return false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
     } else {
       std::vector<media::ColorPlaneLayout> planes(num_planes);
       for (size_t i = 0; i < num_planes; i++) {
@@ -451,7 +413,7 @@ bool StructTraits<media::mojom::VideoFrameDataView,
 
     bool is_mappable = shared_image_data.is_mappable();
     if (is_mappable) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
       // TODO(crbug.com/513289253): Avoid CloneGpuMemoryBufferHandle() only for
       // validation.
       const auto video_pixel_format =
@@ -495,7 +457,7 @@ bool StructTraits<media::mojom::VideoFrameDataView,
     frame = media::VideoFrame::WrapTrackingToken(
         format, *metadata.tracking_token, coded_size, visible_rect,
         natural_size, timestamp);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   } else if (data.is_dmabuf_data()) {
     media::mojom::DmabufVideoFrameDataDataView dmabuf_data;
     data.GetDmabufDataDataView(&dmabuf_data);
@@ -681,7 +643,7 @@ bool StructTraits<media::mojom::VideoFrameDataView,
 
     frame = media::VideoFrame::WrapExternalDmabufs(
         *layout, visible_rect, natural_size, std::move(scoped_fds), timestamp);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
   } else {
     // TODO(sandersd): Switch on the union tag to avoid this ugliness?
     NOTREACHED();

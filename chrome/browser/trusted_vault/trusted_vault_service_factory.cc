@@ -15,11 +15,6 @@
 #include "components/trusted_vault/trusted_vault_service.h"
 #include "device/fido/public/features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/signin/public/identity_manager/account_info.h"
-#include "components/signin/public/identity_manager/identity_manager.h"
-#include "components/trusted_vault/android/trusted_vault_client_android.h"
-#else
 #include "base/feature_list.h"
 #include "base/files/file_path.h"
 #include "chrome/browser/browser_process.h"
@@ -27,7 +22,6 @@
 #include "components/trusted_vault/standalone_trusted_vault_client.h"
 #include "components/trusted_vault/standalone_trusted_vault_frontend.h"
 #include "content/public/browser/storage_partition.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/common/chrome_version.h"
@@ -39,25 +33,6 @@ namespace {
 constexpr char kICloudKeychainAccessGroupPrefix[] = MAC_TEAM_IDENTIFIER_STRING;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-std::unique_ptr<trusted_vault::TrustedVaultService> CreateTrustedVaultService(
-    Profile* profile) {
-  TrustedVaultClientAndroid::GetAccountInfoByGaiaIdCallback
-      account_info_callback = base::BindRepeating(
-          [](signin::IdentityManager* identity_manager,
-             const GaiaId& gaia_id) -> CoreAccountInfo {
-            return identity_manager->FindExtendedAccountInfoByGaiaId(gaia_id)
-                .GetCoreAccountInfo();
-          },
-          IdentityManagerFactory::GetForProfile(profile));
-
-  return std::make_unique<trusted_vault::TrustedVaultService>(
-      std::make_unique<TrustedVaultClientAndroid>(
-          trusted_vault::SecurityDomainId::kChromeSync, account_info_callback),
-      std::make_unique<TrustedVaultClientAndroid>(
-          trusted_vault::SecurityDomainId::kPasskeys, account_info_callback));
-}
-#else
 std::unique_ptr<trusted_vault::TrustedVaultService> CreateTrustedVaultService(
     Profile* profile) {
   auto frontend =
@@ -87,7 +62,6 @@ std::unique_ptr<trusted_vault::TrustedVaultService> CreateTrustedVaultService(
   return std::make_unique<trusted_vault::TrustedVaultService>(
       std::move(chrome_sync_client), std::move(passkeys_client));
 }
-#endif
 
 std::unique_ptr<KeyedService> BuildTrustedVaultService(
     content::BrowserContext* context) {

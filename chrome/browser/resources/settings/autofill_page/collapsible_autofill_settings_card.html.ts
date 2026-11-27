@@ -69,7 +69,7 @@ export function getHtml(this: CollapsibleAutofillSettingsCardElement) {
     </div>
   </div>
 
-<if expr="is_win or is_macosx or is_chromeos">
+<if expr="is_win or is_macosx">
   ${this.autofillAiReauthOnViewingSensitiveDataEnabled_ ? html`
     <settings-toggle-button id="optInAuthenticationToggle"
         ?disabled="${!this.enhancedAutofillEligibleUser_}"

@@ -115,12 +115,7 @@ std::string Command::CommandPlatform() {
   return ui::kKeybindingPlatformWin;
 #elif BUILDFLAG(IS_MAC)
   return ui::kKeybindingPlatformMac;
-#elif BUILDFLAG(IS_CHROMEOS)
-  return ui::kKeybindingPlatformChromeOs;
 #elif BUILDFLAG(IS_LINUX)
-  return ui::kKeybindingPlatformLinux;
-#elif BUILDFLAG(IS_DESKTOP_ANDROID)
-  // For now, we use linux keybindings on desktop android.
   return ui::kKeybindingPlatformLinux;
 #else
 #error Unsupported platform

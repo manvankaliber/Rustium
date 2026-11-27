@@ -69,7 +69,6 @@ def resolve_owners(flags):
 def find_unused(flags):
   FLAG_FILES = [
     'chrome/browser/about_flags.cc',
-    'ios/chrome/browser/flags/about_flags.mm',
   ]
   flag_files_data = [open(f, 'r', encoding='utf-8').read() for f in FLAG_FILES]
   unused_flags = []

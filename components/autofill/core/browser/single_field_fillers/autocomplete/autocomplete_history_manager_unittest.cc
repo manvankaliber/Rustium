@@ -514,7 +514,6 @@ TEST_F(AutocompleteHistoryManagerTest, FieldWithAutocompleteOff) {
                                                     /*form=*/nullptr);
 }
 
-#if !BUILDFLAG(IS_IOS)
 // Tests that fields that are no longer focusable but still have user typed
 // input are sent to the WebDatabase to be saved. Will not work for iOS
 // because |properties_mask| is not set on iOS.
@@ -538,7 +537,6 @@ TEST_F(AutocompleteHistoryManagerTest, UserInputNotFocusable) {
   autocomplete_manager_->OnWillSubmitFormWithFields(form.fields(),
                                                     /*form=*/nullptr);
 }
-#endif
 
 // Tests that text entered into presentation fields is not sent to the
 // WebDatabase to be saved.
@@ -1618,149 +1616,6 @@ TEST_F(AutocompleteHistoryManagerTest,
 
   autocomplete_manager_->OnWillSubmitFormWithFields(form.fields(),
                                                     &form_structure);
-}
-
-class AutocompleteHistoryManagerAtMemoryTest
-    : public AutocompleteHistoryManagerTest {
- public:
-  void SetUp() override {
-    AutocompleteHistoryManagerTest::SetUp();
-
-    feature_list_.InitWithFeatures(
-        /*enabled_features=*/{features::kAutofillAtMemory,
-                              features::kShowAutocompleteAtMemoryButton},
-        /*disabled_features=*/{});
-
-    // Enable personal context toggle.
-    autofill_client_.GetPrefs()->registry()->RegisterIntegerPref(
-        optimization_guide::prefs::kFindAndFillWithGeminiSettings,
-        std::to_underlying(optimization_guide::EnterprisePolicyValue::kAllow));
-    autofill_client_.GetPrefs()->SetBoolean(
-        personal_context::prefs::kPersonalContextInAutofillSettingsToggleStatus,
-        true);
-
-    // Set mock enablement service state to enabled.
-    ON_CALL(personal_context_service_, GetEligibilityState)
-        .WillByDefault(Return(
-            personal_context::PersonalContextEligibilityState::kEligible));
-    autofill_client_.set_personal_context_eligibility_service(
-        &personal_context_service_);
-
-    // Mock database query response.
-    ON_CALL(*web_data_service_,
-            GetFormValuesForElementName(test_field_.name(), test_field_.value(),
-                                        _, _))
-        .WillByDefault([&](auto, auto, int, DbCallback callback) {
-          base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-              FROM_HERE,
-              base::BindOnce(std::move(callback), kTestDbQueryId,
-                             GetMockedDbResults({GetAutocompleteEntry(
-                                 test_field_.name(), u"Some Value")})));
-          return kTestDbQueryId;
-        });
-  }
-
- protected:
-  base::test::ScopedFeatureList feature_list_;
-  personal_context::MockPersonalContextEligibilityService
-      personal_context_service_;
-};
-
-// Tests that if both URLs allowed, AtMemory suggestion is returned.
-TEST_F(AutocompleteHistoryManagerAtMemoryTest,
-       AtMemorySuggestions_BothUrlsAllowed) {
-  GURL allowed_main("https://allowed-main.com");
-  GURL allowed_field("https://allowed-field.com");
-
-  autofill_client_.set_last_committed_primary_main_frame_url(allowed_main);
-  test_field_.set_origin(url::Origin::Create(allowed_field));
-
-  MockAutofillOptimizationGuideDecider* decider =
-      autofill_client_.GetAutofillOptimizationGuideDecider();
-  ON_CALL(*decider, ShouldBlockAtMemory(allowed_main))
-      .WillByDefault(Return(false));
-  ON_CALL(*decider, ShouldBlockAtMemory(allowed_field))
-      .WillByDefault(Return(false));
-
-  base::RunLoop run_loop;
-  MockSuggestionsReturnedCallback mock_callback;
-  EXPECT_CALL(mock_callback,
-              Run(test_field_.global_id(),
-                  Contains(Field(&Suggestion::type,
-                                 SuggestionType::kAutocompleteAtMemoryButton))))
-      .WillOnce(base::test::RunClosure(run_loop.QuitClosure()));
-
-  autocomplete_manager_->OnGetSingleFieldSuggestions(
-      test_form_data_, /*form_structure=*/nullptr, test_field_,
-      /*trigger_autofill_field=*/nullptr, autofill_client_,
-      mock_callback.Get());
-  run_loop.Run();
-}
-
-// Tests that if the main frame URL is blocked, the AtMemory suggestion is not
-// returned.
-TEST_F(AutocompleteHistoryManagerAtMemoryTest,
-       AtMemorySuggestions_MainFrameUrlBlocked) {
-  GURL allowed_field("https://allowed-field.com");
-  GURL blocked_main("https://blocked-main.com");
-
-  autofill_client_.set_last_committed_primary_main_frame_url(blocked_main);
-  test_field_.set_origin(url::Origin::Create(allowed_field));
-
-  MockAutofillOptimizationGuideDecider* decider =
-      autofill_client_.GetAutofillOptimizationGuideDecider();
-  ON_CALL(*decider, ShouldBlockAtMemory(blocked_main))
-      .WillByDefault(Return(true));
-  ON_CALL(*decider, ShouldBlockAtMemory(allowed_field))
-      .WillByDefault(Return(false));
-
-  base::RunLoop run_loop;
-  MockSuggestionsReturnedCallback mock_callback;
-  EXPECT_CALL(
-      mock_callback,
-      Run(test_field_.global_id(),
-          Not(Contains(Field(&Suggestion::type,
-                             SuggestionType::kAutocompleteAtMemoryButton)))))
-      .WillOnce(base::test::RunClosure(run_loop.QuitClosure()));
-
-  autocomplete_manager_->OnGetSingleFieldSuggestions(
-      test_form_data_, /*form_structure=*/nullptr, test_field_,
-      /*trigger_autofill_field=*/nullptr, autofill_client_,
-      mock_callback.Get());
-  run_loop.Run();
-}
-
-// Tests that if the field frame URL is blocked, the AtMemory suggestion is not
-// returned.
-TEST_F(AutocompleteHistoryManagerAtMemoryTest,
-       AtMemorySuggestions_FieldOriginUrlBlocked) {
-  GURL allowed_main("https://allowed-main.com");
-  GURL blocked_field("https://blocked-field.com");
-
-  autofill_client_.set_last_committed_primary_main_frame_url(allowed_main);
-  test_field_.set_origin(url::Origin::Create(blocked_field));
-
-  MockAutofillOptimizationGuideDecider* decider =
-      autofill_client_.GetAutofillOptimizationGuideDecider();
-  ON_CALL(*decider, ShouldBlockAtMemory(allowed_main))
-      .WillByDefault(Return(false));
-  ON_CALL(*decider, ShouldBlockAtMemory(blocked_field))
-      .WillByDefault(Return(true));
-
-  base::RunLoop run_loop;
-  MockSuggestionsReturnedCallback mock_callback;
-  EXPECT_CALL(
-      mock_callback,
-      Run(test_field_.global_id(),
-          Not(Contains(Field(&Suggestion::type,
-                             SuggestionType::kAutocompleteAtMemoryButton)))))
-      .WillOnce(base::test::RunClosure(run_loop.QuitClosure()));
-
-  autocomplete_manager_->OnGetSingleFieldSuggestions(
-      test_form_data_, /*form_structure=*/nullptr, test_field_,
-      /*trigger_autofill_field=*/nullptr, autofill_client_,
-      mock_callback.Get());
-  run_loop.Run();
 }
 
 }  // namespace autofill

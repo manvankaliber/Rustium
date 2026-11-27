@@ -36,25 +36,7 @@ void TestAccountPreviewDataService::GetPreviewPreferenceForAccount(
   std::move(callback).Run(preference_);
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-void TestAccountPreviewDataService::GetPreferredAccountForSigninAsync(
-    base::OnceCallback<void(std::optional<AccountPreviewPreference>)> callback,
-    base::TimeDelta timeout) {
-  last_preferred_account_request_timeout_ = timeout;
-  if (defer_preferred_account_requests_) {
-    pending_preferred_account_requests_.push_back(std::move(callback));
-    return;
-  }
-  base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
-      FROM_HERE,
-      base::BindOnce(std::move(callback), preferred_account_for_signin_));
-}
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-void TestAccountPreviewDataService::UpdateExternalAppAccount(
-    const std::optional<std::string>& email) {}
-#endif
 
 void TestAccountPreviewDataService::TriggerCallback(
     std::optional<AccountPreviewPreference> pref) {
@@ -63,16 +45,5 @@ void TestAccountPreviewDataService::TriggerCallback(
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-void TestAccountPreviewDataService::RunPendingPreferredAccountRequests(
-    std::optional<AccountPreviewPreference> preference) {
-  preferred_account_for_signin_ = std::move(preference);
-  std::vector<base::OnceCallback<void(std::optional<AccountPreviewPreference>)>>
-      callbacks = std::exchange(pending_preferred_account_requests_, {});
-  for (auto& callback : callbacks) {
-    std::move(callback).Run(preferred_account_for_signin_);
-  }
-}
-#endif
 
 }  // namespace signin

@@ -139,9 +139,7 @@ TEST_F(PageSpecificContentSettingsTest, BlockedContent) {
           web_contents()->GetPrimaryMainFrame());
 
   // Check that after initializing, nothing is blocked.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   EXPECT_FALSE(content_settings->IsContentBlocked(ContentSettingsType::IMAGES));
-#endif
   EXPECT_FALSE(
       content_settings->IsContentBlocked(ContentSettingsType::JAVASCRIPT));
   EXPECT_FALSE(content_settings->IsContentBlocked(ContentSettingsType::SOUND));
@@ -168,9 +166,7 @@ TEST_F(PageSpecificContentSettingsTest, BlockedContent) {
                                   false});
   content_settings = PageSpecificContentSettings::GetForFrame(
       web_contents()->GetPrimaryMainFrame());
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   content_settings->OnContentBlocked(ContentSettingsType::IMAGES);
-#endif
   content_settings->OnContentBlocked(ContentSettingsType::POPUPS);
   PageSpecificContentSettings::MicrophoneCameraState
       blocked_microphone_camera_state = {
@@ -182,9 +178,7 @@ TEST_F(PageSpecificContentSettingsTest, BlockedContent) {
                                                blocked_microphone_camera_state);
 
   // Check that only the respective content types are affected.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   EXPECT_TRUE(content_settings->IsContentBlocked(ContentSettingsType::IMAGES));
-#endif
   EXPECT_FALSE(
       content_settings->IsContentBlocked(ContentSettingsType::JAVASCRIPT));
   EXPECT_FALSE(content_settings->IsContentBlocked(ContentSettingsType::SOUND));
@@ -244,9 +238,7 @@ TEST_F(PageSpecificContentSettingsTest, BlockedContent) {
   NavigateAndCommit(GURL("http://google.com"));
   content_settings = PageSpecificContentSettings::GetForFrame(
       web_contents()->GetPrimaryMainFrame());
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   EXPECT_FALSE(content_settings->IsContentBlocked(ContentSettingsType::IMAGES));
-#endif
   EXPECT_FALSE(
       content_settings->IsContentBlocked(ContentSettingsType::JAVASCRIPT));
   EXPECT_FALSE(
@@ -754,7 +746,6 @@ TEST_F(PageSpecificContentSettingsTest,
                 &*(*blocked_browsing_data_model->begin()).data_owner));
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(PageSpecificContentSettingsTest,
        IndicatorChangedOnContentSettingChange) {
   NavigateAndCommit(GURL("http://google.com"));
@@ -797,7 +788,6 @@ TEST_F(PageSpecificContentSettingsTest,
   EXPECT_FALSE(content_settings->IsContentAllowed(
       ContentSettingsType::CLIPBOARD_READ_WRITE));
 }
-#endif
 
 TEST_F(PageSpecificContentSettingsTest, GeolocationHeaderAttachedToNavigation) {
   std::unique_ptr<content::NavigationSimulator> simulator =
@@ -1521,39 +1511,6 @@ TEST_F(PageSpecificContentSettingsTest, MediaBlockedStateIsResetIfMediaUsed) {
       PageSpecificContentSettings::kMicrophoneBlocked));
 }
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-TEST_F(PageSpecificContentSettingsTest, ObjectBasedInUseIndicator) {
-  NavigateAndCommit(GURL("http://google.com"));
-
-  PageSpecificContentSettings* pscs = PageSpecificContentSettings::GetForFrame(
-      web_contents()->GetPrimaryMainFrame());
-  ASSERT_NE(pscs, nullptr);
-
-  // Initially, no indicator should be visible and `IsInUse` should be false.
-  EXPECT_FALSE(pscs->ShouldShowDeviceInUseIndicator(
-      ContentSettingsType::SMART_CARD_GUARD));
-  EXPECT_FALSE(pscs->IsInUse(ContentSettingsType::SMART_CARD_GUARD));
-
-  // When the first connection is used, indicator should start appearing and
-  // `IsInUse` should return `true`.
-  pscs->OnDeviceUsed(ContentSettingsType::SMART_CARD_GUARD);
-  EXPECT_TRUE(pscs->ShouldShowDeviceInUseIndicator(
-      ContentSettingsType::SMART_CARD_GUARD));
-  EXPECT_TRUE(pscs->IsInUse(ContentSettingsType::SMART_CARD_GUARD));
-
-  // When the last connection closes, the indicator should still be visible
-  // initially, even though `IsInUse` should be false already...
-  pscs->OnLastDeviceConnectionLost(ContentSettingsType::SMART_CARD_GUARD);
-  EXPECT_TRUE(pscs->ShouldShowDeviceInUseIndicator(
-      ContentSettingsType::SMART_CARD_GUARD));
-  EXPECT_FALSE(pscs->IsInUse(ContentSettingsType::SMART_CARD_GUARD));
-
-  // ...but 15 seconds later it should disappear.
-  task_environment()->AdvanceClock(base::Seconds(15));
-  EXPECT_FALSE(pscs->ShouldShowDeviceInUseIndicator(
-      ContentSettingsType::SMART_CARD_GUARD));
-}
-#endif
 
 #if BUILDFLAG(IS_WIN)
 TEST_F(PageSpecificContentSettingsTest, ProtectedMediaIdentifier) {
@@ -1702,7 +1659,6 @@ TEST_F(PageSpecificContentSettingsIframeTest, PrimarySecondaryIdentical) {
   EXPECT_FALSE(content_settings->allow_script);
 }
 
-#if !BUILDFLAG(IS_IOS)
 // Tests that the image content settings are correctly set if a secondary url is
 // blocked.
 TEST_F(PageSpecificContentSettingsIframeTest, SecondaryUrlBlockedForImages) {
@@ -1831,5 +1787,4 @@ TEST_F(PageSpecificContentSettingsTest, Sensors) {
   EXPECT_EQ(0, content_settings->active_available_sensors());
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 }  // namespace content_settings

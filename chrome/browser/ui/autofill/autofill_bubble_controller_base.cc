@@ -13,11 +13,9 @@
 #include "components/autofill/core/common/autofill_payments_features.h"
 #include "components/tabs/public/tab_interface.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/page_action/page_action_controller.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace autofill {
 
@@ -80,7 +78,6 @@ AutofillBubbleControllerBase::GetPageActionTooltipText() {
 
 void AutofillBubbleControllerBase::UpdatePageActionIcon() {
   // Page action icons do not exist for Android.
-#if !BUILDFLAG(IS_ANDROID)
   std::optional<actions::ActionId> action_id = GetActionIdForPageAction();
   if (!action_id.has_value()) {
     return;
@@ -110,7 +107,6 @@ void AutofillBubbleControllerBase::UpdatePageActionIcon() {
     page_action_controller->ClearOverrideText(*action_id);
     page_action_controller->ClearOverrideTooltip(*action_id);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void AutofillBubbleControllerBase::ShowBubble() {
@@ -143,30 +139,20 @@ bool AutofillBubbleControllerBase::IsMouseHovered() const {
 }
 
 bool AutofillBubbleControllerBase::IsBubbleManagerEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   return BubbleManager::GetForTab(GetTabInterface()) != nullptr;
-#endif
 }
 
 bool AutofillBubbleControllerBase::MaySetUpBubble() {
-#if BUILDFLAG(IS_ANDROID)
-  return true;
-#else  // BUILDFLAG(IS_ANDROID)
   BubbleManager* const manager = BubbleManager::GetForTab(GetTabInterface());
   return !manager || !manager->HasConflictingPendingBubble(GetBubbleType());
-#endif
 }
 
 void AutofillBubbleControllerBase::QueueOrShowBubble(bool force_show) {
-#if !BUILDFLAG(IS_ANDROID)
   if (BubbleManager* const manager =
           BubbleManager::GetForTab(GetTabInterface())) {
     manager->RequestShowController(*this, force_show);
     return;
   }
-#endif
 
   ShowBubble();
 }
@@ -177,13 +163,10 @@ void AutofillBubbleControllerBase::SetBubbleView(
 }
 
 void AutofillBubbleControllerBase::ResetBubbleViewAndInformBubbleManager() {
-#if !BUILDFLAG(IS_ANDROID)
   const bool was_showing = IsShowingBubble();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   bubble_view_ = nullptr;
 
-#if !BUILDFLAG(IS_ANDROID)
   if (was_showing) {
     if (BubbleManager* const manager =
             BubbleManager::GetForTab(GetTabInterface())) {
@@ -191,7 +174,6 @@ void AutofillBubbleControllerBase::ResetBubbleViewAndInformBubbleManager() {
                                           allow_bubble_manager_to_show_next_);
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 tabs::TabInterface* AutofillBubbleControllerBase::GetTabInterface() {
@@ -203,7 +185,6 @@ tabs::TabInterface* AutofillBubbleControllerBase::GetTabInterface() {
 
 AutofillBubbleHandler*
 AutofillBubbleControllerBase::GetAutofillBubbleHandler() {
-#if !BUILDFLAG(IS_ANDROID)
   // We may be in a non-tab WebContents such as a side panel or extension popup;
   // in those cases we cannot access the AutofillBubbleHandler.
   tabs::TabInterface* const tab = GetTabInterface();
@@ -221,7 +202,6 @@ AutofillBubbleControllerBase::GetAutofillBubbleHandler() {
   if (BrowserWindow* browser_window = BrowserWindow::FromBrowser(browser)) {
     return browser_window->GetAutofillBubbleHandler();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   return nullptr;
 }
 

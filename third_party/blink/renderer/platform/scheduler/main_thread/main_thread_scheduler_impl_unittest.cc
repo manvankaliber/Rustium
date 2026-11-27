@@ -3188,22 +3188,6 @@ TEST_F(MainThreadSchedulerImplTest, LongIdlePeriodAfterWidgetShutdown_Hidden) {
   EXPECT_FALSE(idle_helper.IsInLongIdlePeriod());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(MainThreadSchedulerImplTest, PauseTimersForAndroidWebView) {
-  // Tasks in some queues don't fire when the throttleable queues are paused.
-  Vector<String> run_order;
-  PostTestTasks(&run_order, "D1 C1 L1 I1 T1");
-  scheduler_->PauseTimersForAndroidWebView();
-  EnableIdleTasks();
-  task_environment_.FastForwardUntilNoTasksRemain();
-  EXPECT_THAT(run_order, testing::ElementsAre("D1", "C1", "L1", "I1"));
-  // The rest queued tasks fire when the throttleable queues are resumed.
-  run_order.clear();
-  scheduler_->ResumeTimersForAndroidWebView();
-  task_environment_.FastForwardUntilNoTasksRemain();
-  EXPECT_THAT(run_order, testing::ElementsAre("T1"));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_F(MainThreadSchedulerImplTest, FreezesCompositorQueueWhenAllPagesFrozen) {
   main_frame_scheduler_.reset();

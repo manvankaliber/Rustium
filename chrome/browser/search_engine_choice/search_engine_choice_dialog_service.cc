@@ -44,9 +44,7 @@
 #include "content/public/common/url_constants.h"
 #include "third_party/search_engines_data/resources/definitions/prepopulated_engines.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/views/profiles/profile_customization_bubble_sync_controller.h"
-#endif
 
 namespace {
 using ::regional_capabilities::SearchEngineChoiceScreenConditions;
@@ -420,12 +418,10 @@ SearchEngineChoiceDialogService::ComputeDialogConditions(
   // currently displayed or is about to be displayed.
   bool signin_dialog_displayed_or_pending =
       SigninViewController::From(&browser)->ShowsModalDialog();
-#if !BUILDFLAG(IS_CHROMEOS)
   signin_dialog_displayed_or_pending =
       signin_dialog_displayed_or_pending ||
       ProfileCustomizationBubbleSyncController::From(&browser)
           ->IsWaitingForTheme();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   if (signin_dialog_displayed_or_pending) {
     return SearchEngineChoiceScreenConditions::kSuppressedByOtherDialog;
   }

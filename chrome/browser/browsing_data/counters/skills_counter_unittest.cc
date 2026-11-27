@@ -13,7 +13,6 @@
 #include "base/test/task_environment.h"
 #include "base/time/time.h"
 #include "chrome/browser/browsing_data/counters/browsing_data_counter_factory.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/test/base/testing_profile.h"
 #include "components/browsing_data/core/counters/browsing_data_counter.h"
 #include "components/browsing_data/core/pref_names.h"
@@ -82,7 +81,6 @@ class SkillsCounterTest : public testing::Test {
  private:
   base::test::TaskEnvironment task_environment_;
   std::vector<std::unique_ptr<skills::Skill>> skills_;
-  NiceMock<skills::MockSkillsService> skills_service_;
   syncer::TestSyncService sync_service_;
   bool finished_ = false;
   browsing_data::BrowsingDataCounter::ResultInt result_ = 0;
@@ -215,29 +213,6 @@ class SkillsCounterFactoryTest : public testing::Test {
   TestingProfile profile_;
 };
 
-TEST_F(SkillsCounterFactoryTest, NoCounterWithoutSkillsService) {
-  skills::SkillsServiceFactory::GetInstance()->SetTestingFactory(
-      &profile_,
-      base::BindRepeating(
-          [](content::BrowserContext*) -> std::unique_ptr<KeyedService> {
-            return nullptr;
-          }));
-  EXPECT_FALSE(BrowsingDataCounterFactory::GetForProfileAndPref(
-      &profile_, browsing_data::prefs::kDeleteSkills));
-}
 
-TEST_F(SkillsCounterFactoryTest, CreatesCounterWithSkillsService) {
-  skills::SkillsServiceFactory::GetInstance()->SetTestingFactory(
-      &profile_,
-      base::BindRepeating(
-          [](content::BrowserContext*) -> std::unique_ptr<KeyedService> {
-            return std::make_unique<NiceMock<skills::MockSkillsService>>();
-          }));
-  std::unique_ptr<browsing_data::BrowsingDataCounter> counter =
-      BrowsingDataCounterFactory::GetForProfileAndPref(
-          &profile_, browsing_data::prefs::kDeleteSkills);
-  ASSERT_TRUE(counter);
-  EXPECT_STREQ(browsing_data::prefs::kDeleteSkills, counter->GetPrefName());
-}
 
 }  // namespace

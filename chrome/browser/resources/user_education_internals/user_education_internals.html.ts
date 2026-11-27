@@ -170,7 +170,6 @@ export function getHtml(this: UserEducationInternalsElement) {
         </div>
         <div id="whatsNew" class="promo-list">
           <h2>What's New</h2>
-          <if expr="not is_chromeos">
             <div class="whats-new-section">
               <h3>Version Override</h3>
               <p>
@@ -241,7 +240,6 @@ export function getHtml(this: UserEducationInternalsElement) {
                 in the javascript console.
               </p>
             </div>
-          </if>
           ${this.whatsNewModules_.length > 0 ? html`
             <h3 class="whats-new-section">Modules</h3>` :
             ''}

@@ -14,7 +14,6 @@ from __future__ import print_function
 
 import argparse
 import errno
-import glob
 import json
 import platform
 import os
@@ -340,73 +339,6 @@ def main_linux(output_directory, results_collector, size_path):
   return result
 
 
-def check_android_binaries(
-  binaries, output_directory, results_collector, binaries_to_print=None
-):
-  """Common method for printing size information for Android targets.
-
-  Prints size information for each element of binaries in the output
-  directory. If binaries_to_print is specified, the name of each binary from
-  binaries is replaced with corresponding element of binaries_to_print
-  in output. Returns the first non-zero exit status of any command it
-  executes, or zero on success.
-  """
-  result = 0
-  if not binaries_to_print:
-    binaries_to_print = binaries
-
-  for binary, binary_to_print in zip(binaries, binaries_to_print):
-    this_result, this_sizes = check_linux_binary(binary, output_directory)
-    if result == 0:
-      result = this_result
-    for name, identifier, _, value, units in this_sizes:
-      name = name.replace('/', '_').replace(binary, binary_to_print)
-      identifier = identifier.replace(binary, binary_to_print)
-      results_collector.add_result(name, identifier, value, units)
-
-  return result
-
-
-def main_android(output_directory, results_collector, size_path):
-  """Print appropriate size information about built Android targets.
-
-  Returns the first non-zero exit status of any command it executes,
-  or zero on success.
-  """
-  assert size_path is None
-  binaries = [
-    'chrome_public_apk/libs/armeabi-v7a/libchrome.so',
-    'lib/libchrome.so',
-    'libchrome.so',
-  ]
-
-  return check_android_binaries(binaries, output_directory, results_collector)
-
-
-def main_android_cronet(output_directory, results_collector, size_path):
-  """Print appropriate size information about Android Cronet targets.
-
-  Returns the first non-zero exit status of any command it executes,
-  or zero on success.
-  """
-  assert size_path is None
-  # Use version in binary file name, but not in printed output.
-  binaries_with_paths = glob.glob(
-    os.path.join(output_directory, 'libcronet.*.so')
-  )
-  num_binaries = len(binaries_with_paths)
-  assert num_binaries == 1, "Got %d binaries: %s" % (
-    num_binaries,
-    ', '.join(binaries_with_paths),
-  )
-  binaries = [os.path.basename(binaries_with_paths[0])]
-  binaries_to_print = ['libcronet.so']
-
-  return check_android_binaries(
-    binaries, output_directory, results_collector, binaries_to_print
-  )
-
-
 def main_win(output_directory, results_collector, size_path):
   """Print appropriate size information about built Windows targets.
 
@@ -468,8 +400,6 @@ def main():
     default_platform = None
 
   main_map = {
-    'android': main_android,
-    'android-cronet': main_android_cronet,
     'linux': main_linux,
     'mac': main_mac,
     'win': main_win,

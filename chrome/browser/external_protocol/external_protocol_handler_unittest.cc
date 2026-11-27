@@ -31,12 +31,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "components/navigation_interception/intercept_navigation_delegate.h"
-#else
 #include "components/web_modal/web_contents_modal_dialog_manager.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -185,10 +180,8 @@ class ExternalProtocolHandlerTest : public testing::Test {
     rvh_test_enabler_ = std::make_unique<content::RenderViewHostTestEnabler>();
     web_contents_ = content::WebContentsTester::CreateTestWebContents(
         profile_.get(), nullptr);
-#if !BUILDFLAG(IS_ANDROID)
     web_modal::WebContentsModalDialogManager::CreateForWebContents(
         web_contents_.get());
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
 
   void TearDown() override {
@@ -236,10 +229,6 @@ class ExternalProtocolHandlerTest : public testing::Test {
         ui::PAGE_TRANSITION_LINK, /*has_user_gesture=*/true,
         /*is_in_fenced_frame_tree=*/false, initiating_origin,
         content::WeakDocumentPtr()
-#if BUILDFLAG(IS_ANDROID)
-            ,
-        nullptr
-#endif
     );
     run_loop_.Run();
     ExternalProtocolHandler::SetDelegateForTesting(nullptr);
@@ -292,7 +281,6 @@ TEST_F(ExternalProtocolHandlerTest,
 }
 
 // Android doesn't use the external protocol dialog.
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ExternalProtocolHandlerTest, TestLaunchSchemeUnBlockedChromeDefault) {
   DoTest(ExternalProtocolHandler::DONT_BLOCK, shell_integration::IS_DEFAULT,
@@ -384,51 +372,6 @@ TEST_F(ExternalProtocolHandlerTest, TestNoDialogWithoutManager) {
   EXPECT_FALSE(dump_observer.called());
 }
 
-#else  // if !BUILDFLAG(IS_ANDROID)
-
-class MockInterceptNavigationDelegate
-    : public navigation_interception::InterceptNavigationDelegate {
- public:
-  MockInterceptNavigationDelegate() = default;
-
-  MOCK_METHOD5(HandleSubframeExternalProtocol,
-               void(const GURL&,
-                    ui::PageTransition,
-                    bool,
-                    const std::optional<url::Origin>&,
-                    mojo::PendingRemote<network::mojom::URLLoaderFactory>*));
-};
-
-TEST_F(ExternalProtocolHandlerTest, TestUrlEscape_Android) {
-  GURL url("alert:test message\" --bad%2B\r\n 文本 \"file");
-  GURL escaped(
-      "alert:test%20message%22%20--bad%2B%20%E6%96%87%E6%9C%AC%20%22file");
-
-  auto delegate = std::make_unique<MockInterceptNavigationDelegate>();
-
-  url::Origin precursor_origin =
-      url::Origin::Create(GURL("https://precursor.test"));
-  url::Origin opaque_origin =
-      url::Origin::Resolve(GURL("data:text/html,hi"), precursor_origin);
-
-  EXPECT_CALL(*delegate.get(),
-              HandleSubframeExternalProtocol(testing::Eq(escaped), testing::_,
-                                             true, testing::Eq(opaque_origin),
-                                             testing::Eq(nullptr)));
-
-  navigation_interception::InterceptNavigationDelegate::Associate(
-      web_contents_.get(), std::move(delegate));
-
-  ExternalProtocolHandler::LaunchUrl(
-      url,
-      base::BindRepeating(&ExternalProtocolHandlerTest::GetWebContents,
-                          base::Unretained(this)),
-      ui::PAGE_TRANSITION_LINK, /*has_user_gesture=*/true,
-      /*is_in_fenced_frame_tree=*/false, opaque_origin,
-      content::WeakDocumentPtr(), nullptr);
-}
-
-#endif  // if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(ExternalProtocolHandlerTest, TestUrlEscapeNoChecks) {
   GURL url("alert:test message\" --bad%2B\r\n 文本 \"file");
@@ -734,7 +677,6 @@ TEST_F(ExternalProtocolHandlerTest, TestSetBlockStateWithUntrustowrthyOrigin) {
                   .empty());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Test that an opaque initiating origin gets transformed to its precursor
 // origin when the dialog is shown.
 TEST_F(ExternalProtocolHandlerTest, TestOpaqueInitiatingOrigin) {
@@ -746,7 +688,6 @@ TEST_F(ExternalProtocolHandlerTest, TestOpaqueInitiatingOrigin) {
          Action::PROMPT, GURL("mailto:test@test.test"), opaque_origin,
          precursor_origin, u"TestApp");
 }
-#endif
 
 TEST_F(ExternalProtocolHandlerTest, TestConsoleMessageElidesFullUrlOnBlock) {
   GURL url("afp://server/path?code=SECRET_CODE&state=123");
@@ -764,10 +705,6 @@ TEST_F(ExternalProtocolHandlerTest, TestConsoleMessageElidesFullUrlOnBlock) {
       ui::PAGE_TRANSITION_LINK, /*has_user_gesture=*/true,
       /*is_in_fenced_frame_tree=*/false, initiating_origin,
       rfh->GetWeakDocumentPtr()
-#if BUILDFLAG(IS_ANDROID)
-          ,
-      nullptr
-#endif
   );
   run_loop_.Run();
   ExternalProtocolHandler::SetDelegateForTesting(nullptr);
@@ -779,7 +716,6 @@ TEST_F(ExternalProtocolHandlerTest, TestConsoleMessageElidesFullUrlOnBlock) {
   EXPECT_EQ(std::string::npos, messages[0].find("SECRET_CODE"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ExternalProtocolHandlerTest,
        TestConsoleMessageElidesFullUrlOnAntiFloodBlock) {
   url::Origin initiating_origin =
@@ -809,4 +745,3 @@ TEST_F(ExternalProtocolHandlerTest,
       messages[0]);
   EXPECT_EQ(std::string::npos, messages[0].find("SECRET_OAUTH_CODE"));
 }
-#endif

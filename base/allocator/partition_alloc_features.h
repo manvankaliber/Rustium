@@ -197,11 +197,6 @@ BASE_EXPORT BASE_DECLARE_FEATURE_PARAM(
 BASE_EXPORT BASE_DECLARE_FEATURE(kPartitionAllocSortSmallerSlotSpanFreeLists);
 BASE_EXPORT BASE_DECLARE_FEATURE(kPartitionAllocSortActiveSlotSpans);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-BASE_EXPORT BASE_DECLARE_FEATURE_PARAM(
-    bool,
-    kPartialLowEndModeExcludePartitionAllocSupport);
-#endif
 
 // When set, partitions use a larger ring buffer and free memory less
 // aggressively when in the foreground.

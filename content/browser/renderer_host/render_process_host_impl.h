@@ -98,20 +98,12 @@
 #include "third_party/perfetto/include/perfetto/tracing/traced_value_forward.h"
 #include "third_party/perfetto/include/perfetto/tracing/track.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/renderer_host/android_spare_renderer_navigation_throttle.h"
-#include "content/public/browser/android/child_process_importance.h"
-#endif
 
 #if BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
 #include "media/mojo/mojom/interface_factory.mojom.h"
 #endif  // BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "media/fuchsia_media_codec_provider_impl.h"
-#endif
-
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "content/browser/child_thread_type_switcher_linux.h"
 #include "media/mojo/mojom/video_encode_accelerator.mojom.h"
 #endif
@@ -119,11 +111,6 @@
 namespace base {
 class CommandLine;
 class PersistentMemoryAllocator;
-#if BUILDFLAG(IS_ANDROID)
-namespace android {
-enum class ChildBindingState;
-}
-#endif
 }  // namespace base
 
 namespace blink {
@@ -292,13 +279,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
   void SetPriorityOverride(base::Process::Priority priority) override;
   bool HasPriorityOverride() override;
   void ClearPriorityOverride() override;
-#if BUILDFLAG(IS_ANDROID)
-  void GraduateSpareToNormalRendererPriority() override;
-  bool ShouldThrottleNavigationForSpareRendererGraduation() override;
-  ChildProcessImportance GetEffectiveImportance() override;
-  base::android::ChildBindingState GetEffectiveChildBindingState() override;
-  void DumpProcessStack() override;
-#endif
   void SetSuddenTerminationAllowed(bool enabled) override;
   IPC::ChannelProxy* GetChannel() override;
   bool FastShutdownStarted() override;
@@ -372,10 +352,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
 #if BUILDFLAG(CLANG_PROFILING_INSIDE_SANDBOX)
   void DumpProfilingData(base::OnceClosure callback) override;
 #endif
-#if BUILDFLAG(IS_CHROMEOS)
-  void ReinitializeLogging(uint32_t logging_dest,
-                           base::ScopedFD log_file_descriptor) override;
-#endif
   void SetBatterySaverMode(bool battery_saver_mode_enabled) override;
   uint64_t GetPrivateMemoryFootprint() override;
   bool IsOnlyHostingPrerenderedFramesOrEmpty() override;
@@ -395,11 +371,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
   // ChildProcessLauncher::Client implementation.
   void OnProcessLaunched() override;
   void OnProcessLaunchFailed(int error_code) override;
-#if BUILDFLAG(IS_ANDROID)
-  bool HasSpareRendererPriority() override;
-  void OnSpareRendererPriorityGraduated(bool is_alive) override;
-  bool IsForOutermostMainFrame() override;
-#endif
 
   const std::string& GetUnresponsiveDocumentJavascriptCallStack()
       const override;
@@ -658,14 +629,12 @@ class CONTENT_EXPORT RenderProcessHostImpl
   static scoped_refptr<base::SingleThreadTaskRunner>
   GetInProcessRendererThreadTaskRunnerForTesting();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Gets the platform-specific limit. Used by GetMaxRendererProcessCount().
   static size_t GetPlatformMaxRendererProcessCount();
 
   // Returns whether the current platform has no known process limit, in which
   // case `GetPlatformMaxRendererProcessCount()` will use a fallback value.
   static bool IsPlatformProcessLimitUnknownForTesting();
-#endif
 
   // This forces a renderer that is running "in process" to shut down.
   static void ShutDownInProcessRenderer();
@@ -830,14 +799,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
   // render process host, and is used by workers via `BrowserInterfaceBroker`.
   void BindPushMessaging(
       mojo::PendingReceiver<blink::mojom::PushMessaging> receiver);
-
-#if BUILDFLAG(IS_FUCHSIA)
-  // Binds |receiver| to the FuchsiaMediaCodecProvider instance owned by the
-  // render process host, and is used by workers via BrowserInterfaceBroker.
-  void BindMediaCodecProvider(
-      mojo::PendingReceiver<media::mojom::FuchsiaMediaCodecProvider> receiver)
-      override;
-#endif
 
   // Binds |receiver| to a OneShotBackgroundSyncService instance owned by the
   // StoragePartition associated with the render process host, and is used by
@@ -1007,13 +968,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
     kPrivileged = 1 << 6,
   };
 
-#if BUILDFLAG(IS_ANDROID)
-  enum class SpareRendererPriorityStatus {
-    kNormal = 0,
-    kSpare = 1,
-    kGraduating = 2,
-  };
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // A RenderProcessHostImpl's IO thread implementation of the
   // |mojom::ChildProcessHost| interface. This exists to allow the process host
@@ -1058,7 +1012,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
     mojo::Remote<media::mojom::VideoEncodeAcceleratorProviderFactory>
         video_encode_accelerator_factory_remote_;
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     ChildThreadTypeSwitcher child_thread_type_switcher_;
 #endif
   };
@@ -1118,10 +1072,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
                            BrowserHistogramCallback callback) override;
   void SuddenTerminationAllowedChanged(bool enabled) override;
   void RecordUserMetricsAction(const std::string& action) override;
-#if BUILDFLAG(IS_ANDROID)
-  void SetPrivateMemoryFootprint(
-      uint64_t private_memory_footprint_bytes) override;
-#endif
   void HasGpuProcess(HasGpuProcessCallback callback) override;
 
   void CreateEmbeddedFrameSinkProvider(
@@ -1268,11 +1218,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
 
   void NotifyRendererOfLockedStateUpdate();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Populates the ChildProcessTerminationInfo fields that are strictly related
-  // to renderer (This struct is also used for other child processes).
-  void PopulateTerminationInfoRendererFields(ChildProcessTerminationInfo* info);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   static void OnMojoError(ChildProcessId render_process_id,
                           const std::string& error);
@@ -1290,8 +1235,9 @@ class CONTENT_EXPORT RenderProcessHostImpl
         base::WeakPtr<RenderProcessHostImpl> weak_host,
         AddReceiverCallback<InterfaceType> callback,
         mojo::PendingReceiver<InterfaceType> receiver) {
-      if (!weak_host)
+      if (!weak_host) {
         return;
+      }
       std::move(callback).Run(std::move(receiver));
     }
   };
@@ -1328,7 +1274,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
   // if the request isn't handled on the IO thread.
   void OnBindHostReceiver(mojo::GenericPendingReceiver receiver);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Provides /proc/{renderer pid}/status and statm files for the renderer,
   // because the files are required to calculate the renderer's private
   // footprint on Chromium Linux. Regarding MacOS X and Windows, we have
@@ -1414,10 +1360,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
   // |is_discarding_| is whether the renderer process is executing discard
   // logic. This is effective only when WebContentsDiscard feature is enabled.
   bool is_discarding_ = false;
-#if BUILDFLAG(IS_ANDROID)
-  // Highest importance of all clients that contribute priority.
-  ChildProcessImportance effective_importance_ = ChildProcessImportance::NORMAL;
-#endif
 
   // Clients that contribute priority to this process.
   base::flat_set<raw_ptr<RenderProcessHostPriorityClient, CtnExperimental>>
@@ -1565,10 +1507,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
   base::OneShotTimer video_decoder_factory_reset_timer_;
 #endif  // BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
 
-#if BUILDFLAG(IS_FUCHSIA)
-  std::unique_ptr<FuchsiaMediaCodecProviderImpl> media_codec_provider_;
-#endif
-
   // The memory allocator, if any, in which the renderer will write its metrics.
   std::unique_ptr<base::PersistentMemoryAllocator> metrics_allocator_;
 
@@ -1673,7 +1611,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
   std::unique_ptr<TracingServiceController::ClientRegistration>
       tracing_registration_;
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   // For the render process to connect to the system tracing service.
   std::unique_ptr<tracing::SystemTracingService> system_tracing_service_;
 #endif
@@ -1685,9 +1623,7 @@ class CONTENT_EXPORT RenderProcessHostImpl
   // not be used directly but `GetPrivateMemoryFootprint` should be called
   // each time.
   uint64_t private_memory_footprint_bytes_ = 0u;
-#if !BUILDFLAG(IS_ANDROID)
   base::TimeTicks private_memory_footprint_valid_until_;
-#endif
 
   // IOThreadHostImpl owns some IO-thread state associated with this
   // RenderProcessHostImpl. This is mainly to allow various IPCs from the
@@ -1707,17 +1643,6 @@ class CONTENT_EXPORT RenderProcessHostImpl
   // Maximum number of outermost main frames this process hosted concurrently.
   size_t max_outermost_main_frames_ = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  // The spare renderer priority status of the process.
-  // The attribute starts out as kNormal and is set to kSpare if this renderer
-  // process is launched as a spare process. When the process is taken for
-  // navigation, the value be set to kGraduating when
-  // GraduateSpareToNormalRendererPriority is called. The value will be further
-  // updated to kNormal when we receive the OnSpareRendererPriorityGraduated
-  // callback.
-  SpareRendererPriorityStatus spare_renderer_priority_status_;
-  bool next_launch_for_initial_outermost_main_frame_ = false;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Tracing track used to emit async event related to lifecycle.
   perfetto::NamedTrack tracing_track_;

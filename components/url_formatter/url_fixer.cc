@@ -27,7 +27,7 @@
 #include "url/url_file.h"
 #include "url/url_util.h"
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include "base/path_service.h"
 #endif
 
@@ -134,7 +134,7 @@ bool ValidPathForFile(const std::string& text, base::FilePath* full_path) {
   return true;
 }
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 // Given a path that starts with ~, return a path that starts with an
 // expanded-out /user/foobar directory.
 std::string FixupHomedir(const std::string& text) {
@@ -192,7 +192,7 @@ std::string FixupPath(const std::string& text) {
   if (filename.length() > 1 && filename[1] == '|') {
     filename[1] = ':';
   }
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   base::FilePath input_path(text);
   PrepareStringForFileOps(input_path, &filename);
   if (filename.length() > 0 && filename[0] == '~') {
@@ -428,7 +428,7 @@ std::string SegmentURLInternal(std::string* text, url::Parsed* parts) {
       url::DoesBeginUncPath(trimmed_view, 0, true)) {
     scheme = url::kFileScheme;
   }
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   if (base::FilePath::IsSeparator(trimmed.data()[0]) ||
       trimmed.data()[0] == '~') {
     scheme = url::kFileScheme;
@@ -632,8 +632,8 @@ GURL FixupURLInternal(const std::string& text,
     }
 
     if (parts.host.is_valid()) {
-      FixupHost(trimmed.substr(parts.host.begin, parts.host.len),
-                 desired_tld, &url);
+      FixupHost(trimmed.substr(parts.host.begin, parts.host.len), desired_tld,
+                &url);
     }
     if (chrome_url && !parts.host.is_valid()) {
       url.append(kChromeUIDefaultHost);
@@ -718,7 +718,7 @@ GURL FixupRelativeFile(const base::FilePath& base_dir,
 // Fall back on regular fixup for this input.
 #if BUILDFLAG(IS_WIN)
   std::string text_utf8 = base::WideToUTF8(text.value());
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   std::string text_utf8 = text.value();
 #endif
   return FixupURL(text_utf8, std::string());

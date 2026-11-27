@@ -26,10 +26,6 @@
 #include "net/dns/mock_host_resolver.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/test/scoped_feature_list.h"
-#include "content/public/common/content_features.h"
-#else
 #include "base/test/mock_callback.h"
 #include "base/test/run_until.h"
 #include "chrome/browser/new_tab_page/prefs/ntp_pref_names.h"
@@ -37,11 +33,9 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "components/prefs/pref_service.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 // Observes TabStripModelChange::kRemoved notifications and records the
 // WebContents remove reason and the TabModel detach reason.
 class WebContentsRemovedObserver : public TabStripModelObserver {
@@ -76,7 +70,6 @@ class WebContentsRemovedObserver : public TabStripModelObserver {
   std::optional<TabRemovedReason> remove_reason_;
   std::optional<tabs::TabInterface::DetachReason> tab_detach_reason_;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void ExpectIsWebUiNtp(content::WebContents* tab) {
   EXPECT_EQ(chrome::ChromeUINewTabPageURLAsGURL().spec(),
@@ -98,15 +91,6 @@ std::set<content::ChildProcessId> LiveRenderProcessHostIds() {
 class WebUiNtpBrowserTest : public PlatformBrowserTest {
  public:
   WebUiNtpBrowserTest() {
-#if BUILDFLAG(IS_ANDROID)
-    // When `AndroidWarmUpSpareRendererWithTimeout` is enabled with
-    // `only_for_navigation=true` (e.g. via the fieldtrial testing config),
-    // root frame initialization (`kRFHInitRoot`) during new-tab creation
-    // cannot consume a spare renderer. Disable it so `SpareRenderer` behaves
-    // the same regardless of the field trial configuration.
-    feature_list_.InitAndDisableFeature(
-        features::kAndroidWarmUpSpareRendererWithTimeout);
-#endif
   }
 
   ~WebUiNtpBrowserTest() override = default;
@@ -141,9 +125,6 @@ class WebUiNtpBrowserTest : public PlatformBrowserTest {
   // existing tests run with the prewarm feature enabled.
   test::ScopedPrewarmFeatureList scoped_prewarm_feature_list_{
       test::ScopedPrewarmFeatureList::PrewarmState::kDisabled};
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList feature_list_;
-#endif
 };
 
 // Verify that the WebUI NTP commits in a SiteInstance with the WebUI URL.
@@ -187,10 +168,6 @@ IN_PROC_BROWSER_TEST_F(WebUiNtpBrowserTest, ProcessPerSite) {
 // Verify that the WebUI NTP uses an available spare process and does not
 // discard it as in https://crbug.com/40699271.
 IN_PROC_BROWSER_TEST_F(WebUiNtpBrowserTest, SpareRenderer) {
-#if BUILDFLAG(IS_ANDROID)
-  // Android does not keep a spare renderer around by default, so create one.
-  content::SpareRenderProcessHostManager::Get().WarmupSpare(GetProfile());
-#endif
 
   // Capture current spare renderer.
   std::vector<content::ChildProcessId> spare_ids_before_navigation =
@@ -222,7 +199,6 @@ IN_PROC_BROWSER_TEST_F(WebUiNtpBrowserTest, SpareRenderer) {
 
 // The tests below exercise the desktop TabStripModel, which is not available
 // on Android.
-#if !BUILDFLAG(IS_ANDROID)
 
 // Currently it is possible to load the NTP absent a TabModel in an app window
 // context. Assert the NTP loads without a TabModel successfully.
@@ -293,11 +269,9 @@ IN_PROC_BROWSER_TEST_F(WebUiNtpBrowserTest, HandlesTabModelChanges) {
   // Re-insert the tab into the tab strip, creating a new TabModel.
   tab_strip_model->AppendWebContents(std::move(extracted_contents), true);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // TODO(b:514161985): Enable on Android once enterprise shortcuts are
 // implemented there.
-#if !BUILDFLAG(IS_ANDROID)
 class WebUiNtpEnterpriseShortcutsBrowserTest : public WebUiNtpBrowserTest {
  public:
   WebUiNtpEnterpriseShortcutsBrowserTest() = default;
@@ -337,4 +311,3 @@ IN_PROC_BROWSER_TEST_F(WebUiNtpEnterpriseShortcutsBrowserTest,
   ASSERT_TRUE(base::test::RunUntil(
       [&] { return content::EvalJs(web_contents, js_check).ExtractBool(); }));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

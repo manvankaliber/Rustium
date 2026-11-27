@@ -56,7 +56,6 @@ export class SettingsSignoutDialogElement extends
        */
       syncStatus: {type: Object},
 
-      // <if expr="not is_chromeos">
       /**
        * True if the checkbox to delete the profile has been checked.
        */
@@ -73,26 +72,21 @@ export class SettingsSignoutDialogElement extends
        * stats is returned from the browser.
        */
       deleteProfileWarning_: {type: String},
-      // </if>
     };
   }
 
   accessor syncStatus: SyncStatus|null = null;
-  // <if expr="not is_chromeos">
   protected accessor deleteProfile_: boolean = false;
   protected accessor deleteProfileWarningVisible_: boolean = false;
   protected accessor deleteProfileWarning_: string = '';
-  // </if>
 
   override connectedCallback() {
     super.connectedCallback();
 
-    // <if expr="not is_chromeos">
     this.addWebUiListener(
         'profile-stats-count-ready',
         (count: number) => this.handleProfileStatsCount_(count));
     ProfileInfoBrowserProxyImpl.getInstance().getProfileStatsCount();
-    // </if>
 
     this.updateComplete.then(() => {
       if (this.isConnected && !this.$.dialog.open) {
@@ -116,7 +110,6 @@ export class SettingsSignoutDialogElement extends
     return this.$.dialog.getNative().returnValue === 'success';
   }
 
-  // <if expr="not is_chromeos">
   /**
    * Handler for when the profile stats count is pushed from the browser.
    */
@@ -133,7 +126,6 @@ export class SettingsSignoutDialogElement extends
           'deleteProfileWarningWithCountsPlural', count, username);
     }
   }
-  // </if>
 
   private syncStatusChanged_() {
     if (!!this.syncStatus &&
@@ -148,7 +140,6 @@ export class SettingsSignoutDialogElement extends
         loadTimeData.getString('syncDisconnectExplanation'));
   }
 
-  // <if expr="not is_chromeos">
   protected onDeleteProfileCheckedChanged_(e: CustomEvent<{value: boolean}>) {
     this.deleteProfile_ = e.detail.value;
   }
@@ -157,7 +148,6 @@ export class SettingsSignoutDialogElement extends
       e: CustomEvent<{value: boolean}>) {
     this.deleteProfileWarningVisible_ = e.detail.value;
   }
-  // </if>
 
   protected onDisconnectCancelClick_() {
     this.$.dialog.cancel();
@@ -165,13 +155,7 @@ export class SettingsSignoutDialogElement extends
 
   protected onDisconnectConfirmClick_() {
     this.$.dialog.close();
-    // <if expr="not is_chromeos">
     SyncBrowserProxyImpl.getInstance().signOut(this.deleteProfile_);
-    // </if>
-    // <if expr="is_chromeos">
-    // Chrome OS users are always signed-in, so just turn off sync.
-    SyncBrowserProxyImpl.getInstance().turnOffSync();
-    // </if>
   }
 }
 

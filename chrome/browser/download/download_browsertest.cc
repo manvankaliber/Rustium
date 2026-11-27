@@ -166,11 +166,9 @@
 #include "ui/base/ui_base_features.h"
 #include "ui/gfx/geometry/point_conversions.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/download/bubble/download_bubble_ui_controller.h"
 #include "chrome/browser/download/bubble/download_display_controller.h"
 #include "chrome/browser/ui/download/download_display.h"
-#endif
 
 #if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 #include "chrome/browser/safe_browsing/download_protection/download_feedback_service.h"
@@ -414,13 +412,11 @@ bool IsDownloadExternallyRemoved(DownloadItem* item) {
   return item->GetFileExternallyRemoved();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Called when a download starts. Marks the download as hidden.
 void SetHiddenDownloadCallback(DownloadItem* item,
                                download::DownloadInterruptReason reason) {
   DownloadItemModel(item).SetShouldShowInUi(false);
 }
-#endif
 
 class SimpleDownloadManagerCoordinatorWaiter
     : public download::SimpleDownloadManagerCoordinator::Observer {
@@ -513,7 +509,6 @@ class TestHistoryAdapter : public DownloadHistory::HistoryAdapter {
   history::HistoryService::DownloadQueryCallback callback_;
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Whether download UI is visible at all (download toolbar button for download
 // bubble).
 bool IsDownloadUiVisible(BrowserWindow* window) {
@@ -531,7 +526,6 @@ bool IsDownloadDetailedUiVisible(BrowserWindow* window) {
       ->download_display_for_testing()
       ->IsShowingDetails();
 }
-#endif
 
 }  // namespace
 
@@ -1286,7 +1280,6 @@ IN_PROC_BROWSER_TEST_F(IsolatedDownloadTest, IsolatedModeDownload) {
 // The download bubble UI (not used on ChromeOS) forces Incognito to prompt for
 // the download location, but Isolated Mode follows the regular profile's
 // setting.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Test that Incognito always prompts for the download location, regardless of
 // the regular profile's setting.
 IN_PROC_BROWSER_TEST_F(DownloadTest, IncognitoForcesPromptForDownload) {
@@ -1353,7 +1346,6 @@ IN_PROC_BROWSER_TEST_F(IsolatedDownloadTest,
   EXPECT_EQ(1u, observer->NumDownloadsSeenInState(DownloadItem::COMPLETE));
   EXPECT_TRUE(file_activity_observer.TestAndResetDidShowFileChooser());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Download one file on-record, then download the same file off-record, and test
 // that the filename is deduplicated.  The previous test tests for a specific
@@ -1895,8 +1887,7 @@ IN_PROC_BROWSER_TEST_F(DownloadTest, AnchorDownloadTag) {
 
 // Test that navigating to a user script URL will result in a download.
 // TODO(crbug.com/380333248): Re-enable this test
-#if BUILDFLAG(IS_LINUX) || \
-    (BUILDFLAG(IS_CHROMEOS) && defined(ADDRESS_SANITIZER))
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_UserScriptDownload DISABLED_UserScriptDownload
 #else
 #define MAYBE_UserScriptDownload UserScriptDownload
@@ -3082,10 +3073,7 @@ IN_PROC_BROWSER_TEST_F(DownloadTestWithHistogramTester,
 }
 
 // Times out often on debug ChromeOS because test is slow.
-#if BUILDFLAG(IS_CHROMEOS) && (!defined(NDEBUG) || defined(MEMORY_SANITIZER))
-#define MAYBE_SaveLargeImage DISABLED_SaveLargeImage
-#elif BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Flaking on Windows, macOS, Linux, ChromeOS. https://crbug.com/40727061
 #define MAYBE_SaveLargeImage DISABLED_SaveLargeImage
 #else
@@ -5248,7 +5236,6 @@ IN_PROC_BROWSER_TEST_F(DownloadTestWithFakeSafeBrowsing,
 
 // The rest of these tests rely on the download surface, which ChromeOS doesn't
 // use (crbug.com/40224714 is tracking Download Bubble on ChromeOS).
-#if !BUILDFLAG(IS_CHROMEOS)
 // Test that the download surface is shown by starting a download.
 //
 // TODO(crbug.com/40266279): This test is flaky. Perhaps because it depends on
@@ -5527,7 +5514,6 @@ IN_PROC_BROWSER_TEST_F(DownloadTest,
   EXPECT_TRUE(IsDownloadUiVisible(BrowserWindow::FromBrowser(browser())));
   EXPECT_FALSE(IsDownloadUiVisible(BrowserWindow::FromBrowser(app_browser)));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Test that web app info is properly attached to the download.
 IN_PROC_BROWSER_TEST_F(DownloadTest, DownloadFromWebApp) {

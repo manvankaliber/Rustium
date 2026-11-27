@@ -52,7 +52,6 @@ std::optional<AnalysisSettings> ConnectorsManagerBase::GetAnalysisSettings(
   return std::nullopt;
 }
 
-#if !BUILDFLAG(IS_IOS)
 std::optional<AnalysisSettings>
 ConnectorsManagerBase::GetNetworkRequestAnalysisSettings(
     const GURL& tab_url,
@@ -91,7 +90,6 @@ ConnectorsManagerBase::GetNetworkRequestAnalysisSettings(
   }
   return final_settings;
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 bool ConnectorsManagerBase::IsAnalysisConnectorEnabled(
     AnalysisConnector connector) const {
@@ -245,15 +243,9 @@ void ConnectorsManagerBase::CacheAnalysisConnectorPolicy(
   const base::ListValue& policy_value = prefs()->GetList(pref);
   for (const base::Value& service_settings : policy_value) {
     if (connector == AnalysisConnector::NETWORK_REQUEST) {
-#if BUILDFLAG(IS_IOS)
-      // The "OnNetworkRequestEnterpriseConnector" policy is not supported on
-      // iOS so this code should not be reachable.
-      NOTREACHED();
-#else
       analysis_connector_settings_[connector].push_back(
           std::make_unique<NetworkRequestServiceSettings>(
               service_settings, *service_provider_config_));
-#endif
     } else {
       analysis_connector_settings_[connector].push_back(
           MakeAnalysisServiceSettings(service_settings,
@@ -269,22 +261,15 @@ void ConnectorsManagerBase::OnAnalysisPrefChanged(AnalysisConnector connector) {
 void ConnectorsManagerBase::StartObservingPrefs(PrefService* pref_service) {
   pref_change_registrar_.Init(pref_service);
   StartObservingAnalysisPref(AnalysisConnector::FILE_DOWNLOADED);
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   StartObservingAnalysisPref(AnalysisConnector::FILE_ATTACHED);
   StartObservingAnalysisPref(AnalysisConnector::BULK_DATA_ENTRY);
   StartObservingAnalysisPref(AnalysisConnector::PRINT);
   StartObservingAnalysisPref(AnalysisConnector::DATA_COPIED);
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  StartObservingAnalysisPref(AnalysisConnector::FILE_TRANSFER);
-#endif
 
-#if !BUILDFLAG(IS_IOS)
   if (base::FeatureList::IsEnabled(kEnableAuditOnlyNetworkRequestConnector)) {
     StartObservingAnalysisPref(AnalysisConnector::NETWORK_REQUEST);
   }
-#endif
 
   StartObservingReportingPref();
 }

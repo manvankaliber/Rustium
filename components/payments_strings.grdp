@@ -278,24 +278,20 @@
   <message name="IDS_PAYMENTS_ERROR_MESSAGE" desc="The text that informs the user that there is error in verifying and charging the payment." formatter_data="android_java">
     There was an error processing your order. Please try again.
   </message>
-  <if expr="not is_android">
+
     <message name="IDS_PAYMENTS_MANDATORY_PAYMENT_APP_UI_ERROR_MESSAGE" desc="The text that informs the user that there is error in verifying and charging the payment.">
       There was an error processing your order on <ph name="MERCHANT_ORIGIN">$1<ex>merchant.com</ex></ph> via <ph name="PAYMENT_APP_ORIGIN">$2<ex>bobpay.xyz</ex></ph>.
     </message>
-  </if>
+
   <message name="IDS_PAYMENTS_CARD_AND_ADDRESS_SETTINGS" desc="Label of the section containing the link to go to the settings page for card and address options." formatter_data="android_java">
     You can manage cards and addresses in <ph name="BEGIN_LINK">BEGIN_LINK</ph>Settings<ph name="END_LINK">END_LINK</ph>.
   </message>
-  <if expr="is_android">
-    <message name="IDS_PAYMENTS_CARD_AND_ADDRESS_SETTINGS_SIGNED_IN" desc="Label of the section containing the origin description and the link to go to the settings page for card and address options. This label is used when the user is signed in." formatter_data="android_java">
-      Cards and addresses are from Chrome and your Google Account (<ph name="ACCOUNT_EMAIL">%1$s<ex>johndoe@gmail.com</ex></ph>). You can manage them in <ph name="BEGIN_LINK">BEGIN_LINK</ph>Settings<ph name="END_LINK">END_LINK</ph>.
-    </message>
-  </if>
-  <if expr="not is_android">
+
+
     <message name="IDS_PAYMENTS_CARD_AND_ADDRESS_SETTINGS_SIGNED_IN" desc="Label of the section containing the origin description and the link to go to the settings page for card and address options. This label is used when the user is signed in.">
       Cards and addresses are from Chrome and your Google Account (<ph name="ACCOUNT_EMAIL">$1<ex>johndoe@gmail.com</ex></ph>). You can manage them in <ph name="BEGIN_LINK">BEGIN_LINK</ph>Settings<ph name="END_LINK">END_LINK</ph>.
     </message>
-  </if>
+
   <message name="IDS_PAYMENTS_CARD_AND_ADDRESS_SETTINGS_SIGNED_OUT" desc="Label of the section containing the origin description and the link to go to the settings page for card and address options. This label is used when the user is not signed in." formatter_data="android_java">
     Cards and addresses are from Chrome. You can manage them in <ph name="BEGIN_LINK">BEGIN_LINK</ph>Settings<ph name="END_LINK">END_LINK</ph>.
   </message>
@@ -404,14 +400,10 @@
   <message name="IDS_PAYMENTS_ANDROID_APP_ERROR" desc="Error message that is shown when an Android payment application fails to start." formatter_data="android_java">
     Can’t open payment app
   </message>
-  <if expr="is_android">
-    <message name="IDS_EXTERNAL_PAYMENT_APP_LEAVE_INCOGNITO_WARNING" desc="Alert dialog text warning the user that Incognito mode does not continue into external payment apps." formatter_data="android_java">
-      Leaving Incognito mode to pay via an external application. Continue?
-    </message>
-  </if>
+
 
   <!-- Payment Request section preview strings. They are slightly different on desktop and android because the pluralization and formatting code behaves differently. -->
-  <if expr="not is_android">
+
     <message name="IDS_PAYMENT_REQUEST_PAYMENT_METHODS_PREVIEW" desc="This is a snippet of a payment method a user has saved to Chrome, plus an indication of the number of additional payment methods the user has saved. Its function is to show the user has payment methods that can be used to complete a payment, and thus doesn't have to type the entire payment method. [ICU Syntax]">
     {PAYMENT_METHOD, plural,
        =0 {<ph name="PAYMENT_METHOD_PREVIEW">{1}<ex>VISA ....1234</ex></ph>}
@@ -436,7 +428,7 @@
        =1 {<ph name="CONTACT_PREVIEW">{1}<ex>Jerry, 438-123-1922</ex></ph> and <ph name="NUMBER_OF_ADDITIONAL_CONTACTS">{2}<ex>1</ex></ph> more}
        other {<ph name="CONTACT_PREVIEW">{1}<ex>Jerry, 438-123-1922</ex></ph> and <ph name="NUMBER_OF_ADDITIONAL_CONTACTS">{2}<ex>2</ex></ph> more}}
     </message>
-  </if>
+
 
   <!-- a11y strings -->
   <message name="IDS_PAYMENTS_BACK" desc="The screen reader string for the back arrow button in the Desktop Payments dialog">
@@ -483,14 +475,14 @@
   <message name="IDS_PAYMENT_HANDLER_ICON" desc="The alt text for the payment handler icon. Used for accessibility.">
     Payment handler icon
   </message>
-  <if expr="not is_android">
+
     <message name="IDS_PAYMENT_APP_LOADING_MESSAGE" desc="Informational text shown to the user while their selected payment handler application is loading.">
       Loading <ph name="APP_ORIGIN">$1<ex>bobpay.com</ex></ph> to handle your payment on <ph name="MERCHANT_ORIGIN">$2<ex>example.com</ex></ph>.
     </message>
     <message name="IDS_PAYMENT_APP_LOADING_TITLE" desc="Accessible title read by screen readers for the loading view displayed when a payment handler application is loading.">
       Loading payment app
     </message>
-  </if> <!-- not is_android -->
+   <!-- not is_android -->
 
 
   <!-- Secure Payment Confirmation strings -->
@@ -504,22 +496,9 @@
     Verify
   </message>
 
-  <if expr="is_android">
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_FOOTNOTE" desc="Footnote on a secure payment confirmation dialog that explains what will happen next and provides a link to verify by another way." formatter_data="android_java">
-      Unlock your screen in the next step, typically using your fingerprint. Or you can <ph name="BEGIN_LINK">BEGIN_LINK</ph>verify another way<ph name="END_LINK">END_LINK</ph>.
-    </message>
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_OPT_OUT_LABEL" desc="Text on a dialog that explains to the user that they previously opted into this behavior for a given provider. Includes link text that they can click to request that the provider deletes their data." formatter_data="android_java">
-      You chose to verify with <ph name="DEVICE_LABEL">%1$s<ex>this phone</ex></ph> on websites that use <ph name="PROVIDER_ORIGIN">%2$s<ex>example.com</ex></ph>. This provider may have stored information about your payment method, which you can <ph name="BEGIN_LINK">BEGIN_LINK</ph>request to be deleted<ph name="END_LINK">END_LINK</ph>.
-    </message>
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_THIS_PHONE_LABEL" desc="Substring for a dialog that refers to the users current device, when the device is a phone." formatter_data="android_java">
-      this phone
-    </message>
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_THIS_TABLET_LABEL" desc="Substring for a dialog that refers to the users current device, when the device is a tablet." formatter_data="android_java">
-      this tablet
-    </message>
-  </if> <!-- is_android -->
+   <!-- is_android -->
 
-  <if expr="not is_android">
+
     <!-- TODO: 471015510 - Android's footer and opt-out text should be updated to use this. -->
     <message name="IDS_SECURE_PAYMENT_CONFIRMATION_FOOTNOTE_TEXT" desc="Footnote on a secure payment confirmation dialog that explains what will happen next and provides a link to verify by another way.">
       Unlock your screen in the next step, typically using your fingerprint. You can also <ph name="LINK_TEXT">$1<ex>verify another way</ex></ph>.
@@ -537,7 +516,7 @@
     <message name="IDS_SECURE_PAYMENT_CONFIRMATION_CONFIRM_BUTTON_LABEL" desc="As in 'Confirm your purchase', this is the label of the affirmitive button in a payment confirmation error dialog that asks the user to confirm their identity.">
       Confirm
     </message>
-  </if> <!-- not is_android -->
+   <!-- not is_android -->
 
   <if expr="is_macosx">
     <message name="IDS_SECURE_PAYMENT_CONFIRMATION_OPT_OUT_AUTHENTICATOR_TEXT" desc="Authenticator type on a part of a longer text string (Opt Out Text) where the user is being offered the choice to request that previously stored information on them be deleted.">
@@ -551,34 +530,12 @@
     </message>
   </if>  <!-- is_win -->
 
-  <if expr="not is_android and not is_macosx and not is_win">
+  <if expr="not is_macosx and (not is_win)">
     <message name="IDS_SECURE_PAYMENT_CONFIRMATION_OPT_OUT_AUTHENTICATOR_TEXT" desc="Authenticator type on a part of a longer text string (Opt Out Text) where the user is being offered the choice to request that previously stored information on them be deleted.">
       an authenticator device
     </message>
   </if>  <!-- not is_android and not is_macosx and not is_win -->
 
   <!-- Secure Payment Confirmation accessibility strings -->
-  <if expr="is_android">
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_AUTHENTICATION_SHEET_DESCRIPTION" desc="Accessibility string read when the payment credential authentication bottom sheet is opened. It describes where the users can verify their purchase." formatter_data="android_java">
-      Secure payment credential authentication sheet
-    </message>
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_AUTHENTICATION_SHEET_OPENED" desc="Accessibility string read when the payment credential authentication bottom sheet is opened." formatter_data="android_java">
-      Secure payment credential authentication sheet is opened
-    </message>
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_AUTHENTICATION_SHEET_CLOSED" desc="Accessibility string read when the payment credential authentication bottom sheet is closed." formatter_data="android_java">
-      Secure payment credential authentication sheet is closed
-    </message>
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_HEADER_LOGO_PRIMARY" desc="Accessibility string for the primary header logo shown on the Secure Payment Confirmation verification or confirmation prompt. The logo is provided by the web api and intended to be the logo of an entity facilitating the Secure Payment Confirmation transaction." formatter_data="android_java">
-      Primary Header Logo
-    </message>
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_HEADER_LOGO_SECONDARY" desc="Accessibility string for the secondary header logo shown on the Secure Payment Confirmation verification or confirmation prompt. The logo is provided by the web api and intended to be the logo of an entity facilitating the Secure Payment Confirmation transaction." formatter_data="android_java">
-      Secondary Header Logo
-    </message>
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_STORE_LABEL" desc="Accessibility string for the store icon shown on the Secure Payment Confirmation verification or confirmation prompt." formatter_data="android_java">
-      Store
-    </message>
-    <message name="IDS_SECURE_PAYMENT_CONFIRMATION_TOTAL_LABEL" desc="Accessibility string for the total amount icon shown on the Secure Payment Confirmation verification or confirmation prompt." formatter_data="android_java">
-      Total
-    </message>
-  </if>  <!-- is_android -->
+    <!-- is_android -->
 </grit-part>

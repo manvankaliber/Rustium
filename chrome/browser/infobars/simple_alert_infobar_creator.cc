@@ -23,10 +23,8 @@ void CreateSimpleAlertInfoBar(
     bool should_animate,
     bool closeable,
     infobars::InfoBarDelegate::InfobarPriority infobar_priority) {
-#if !BUILDFLAG(IS_ANDROID)
   infobar_manager->AddInfoBar(CreateConfirmInfoBar(
       pass_key, std::make_unique<SimpleAlertInfoBarDelegate>(
                     infobar_identifier, vector_icon, message, auto_expire,
                     should_animate, closeable, infobar_priority)));
-#endif
 }

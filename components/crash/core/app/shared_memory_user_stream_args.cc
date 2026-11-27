@@ -7,7 +7,7 @@
 #include "build/build_config.h"
 
 static_assert(BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) ||
-                  BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID),
+                  false || false,
               "Unsupported platform.");
 
 #include <stdint.h>
@@ -92,12 +92,8 @@ DeserializeSharedMemoryUserStreamArgument(std::string_view handle_and_size) {
     return std::nullopt;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  base::subtle::ScopedPlatformSharedMemoryHandle platform_handle(fd);
-#else
   base::subtle::ScopedPlatformSharedMemoryHandle platform_handle(
       base::ScopedFD(fd), base::ScopedFD{});
-#endif
 
 #endif
 
@@ -135,9 +131,6 @@ void AppendSharedMemoryUserStreamArgs(
 #if BUILDFLAG(IS_WIN)
     handle = region.GetPlatformHandle();
     handle_value = reinterpret_cast<size_t>(handle);
-#elif BUILDFLAG(IS_ANDROID)
-    handle = region.GetPlatformHandle();
-    handle_value = static_cast<size_t>(handle);
 #else
     handle = region.GetPlatformHandle().fd;
     handle_value = static_cast<size_t>(handle);

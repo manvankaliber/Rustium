@@ -38,10 +38,8 @@ export const MAX_SPEECH_LENGTH: number = 175;
 // failure and attempt to reload the extension failure is logged. Reading mode
 // doesn't reload at 10 seconds to avoid race conditions with recovery attempts
 // inside the extension.
-// <if expr="not is_chromeos">
 const ENGINE_TIMEOUT_THRESHOLD_MS: number = 10 * 1000;
 const ENGINE_RECOVERY_TIMEOUT_THRESHOLD_MS: number = 15 * 1000;
-// </if>
 
 export interface SpeechListener {
   onIsSpeechActiveChange(): void;
@@ -1194,7 +1192,6 @@ export class SpeechController {
     // and onStart being received, it is likely that the TTS engine extension
     // has stalled. This metric should not be logged on ChromeOS because
     // voices ChromeOS are not downloaded via the TTS extension.
-    // <if expr="not is_chromeos">
     this.engineTimeoutId_ = setTimeout(() => {
       if (this.model_.getEngineState() === SpeechEngineState.LOADING) {
         this.logger_.logSpeechError('timeout-engine-stalled');
@@ -1218,7 +1215,6 @@ export class SpeechController {
         this.voiceLanguageController_.onVoicesChanged();
       }
     }, ENGINE_RECOVERY_TIMEOUT_THRESHOLD_MS);
-    // </if>
 
     this.speech_.speak(message);
   }

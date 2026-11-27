@@ -2594,13 +2594,6 @@ DOMWindow* LocalDOMWindow::open(v8::Isolate* isolate,
     }
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Popup windows are handled just like new tabs on mobile today, but we might
-  // want to change that. https://crbug.com/1364321
-  if (window_features.is_popup) {
-    UseCounter::Count(*entered_window, WebFeature::kWindowOpenPopupOnMobile);
-  }
-#endif
 
   if (window_features.is_popup) {
     UseCounter::Count(*entered_window, WebFeature::kDOMWindowOpenPopup);

@@ -217,10 +217,6 @@ void TranslatePrefs::ResetToDefaults() {
   prefs_->ClearPref(prefs::kPrefTranslateRecentTarget);
   force_translate_on_english_for_testing_ = false;
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  prefs_->ClearPref(kPrefTranslateAutoAlwaysCount);
-  prefs_->ClearPref(kPrefTranslateAutoNeverCount);
-#endif
 
   prefs_->ClearPref(prefs::kOfferTranslateEnabled);
 }
@@ -228,12 +224,6 @@ void TranslatePrefs::ResetToDefaults() {
 // static
 base::ListValue TranslatePrefs::GetDefaultBlockedLanguages() {
   base::ListValue languages;
-#if BUILDFLAG(IS_CHROMEOS)
-  // Preferred languages.
-  LanguageTag language =
-      ToTranslateLanguageTag(language::kFallbackInputMethodLocale);
-  languages.Append(language.tag_string());
-#else
   // Accept languages.
 #pragma GCC diagnostic push
 // See comment above the |break;| in the loop just below for why.
@@ -257,7 +247,6 @@ base::ListValue TranslatePrefs::GetDefaultBlockedLanguages() {
     break;
 #pragma GCC diagnostic pop
   }
-#endif
 
   std::sort(languages.begin(), languages.end());
   languages.erase(std::unique(languages.begin(), languages.end()),
@@ -772,60 +761,7 @@ void TranslatePrefs::ResetTranslationAcceptedCount(std::string_view language) {
   update->Set(language, 0);
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-int TranslatePrefs::GetTranslationAutoAlwaysCount(
-    std::string_view language) const {
-  const base::DictValue& dict = prefs_->GetDict(kPrefTranslateAutoAlwaysCount);
-  return dict.FindInt(language).value_or(0);
-}
 
-void TranslatePrefs::IncrementTranslationAutoAlwaysCount(
-    std::string_view language) {
-  ScopedDictPrefUpdate update(prefs_, kPrefTranslateAutoAlwaysCount);
-  base::DictValue& dict = update.Get();
-
-  int count = dict.FindInt(language).value_or(0);
-  if (count < std::numeric_limits<int>::max())
-    dict.Set(language, count + 1);
-}
-
-void TranslatePrefs::ResetTranslationAutoAlwaysCount(
-    std::string_view language) {
-  ScopedDictPrefUpdate update(prefs_, kPrefTranslateAutoAlwaysCount);
-  update->Set(language, 0);
-}
-
-int TranslatePrefs::GetTranslationAutoNeverCount(
-    std::string_view language) const {
-  const base::DictValue& dict = prefs_->GetDict(kPrefTranslateAutoNeverCount);
-  return dict.FindInt(language).value_or(0);
-}
-
-void TranslatePrefs::IncrementTranslationAutoNeverCount(
-    std::string_view language) {
-  ScopedDictPrefUpdate update(prefs_, kPrefTranslateAutoNeverCount);
-  base::DictValue& dict = update.Get();
-
-  int count = dict.FindInt(language).value_or(0);
-  if (count < std::numeric_limits<int>::max())
-    dict.Set(language, count + 1);
-}
-
-void TranslatePrefs::ResetTranslationAutoNeverCount(std::string_view language) {
-  ScopedDictPrefUpdate update(prefs_, kPrefTranslateAutoNeverCount);
-  update->Set(language, 0);
-}
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-
-#if BUILDFLAG(IS_ANDROID)
-bool TranslatePrefs::GetAppLanguagePromptShown() const {
-  return prefs_->GetBoolean(language::prefs::kAppLanguagePromptShown);
-}
-
-void TranslatePrefs::SetAppLanguagePromptShown() {
-  prefs_->SetBoolean(language::prefs::kAppLanguagePromptShown, true);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 std::vector<base::i18n::LanguageTag> TranslatePrefs::GetLanguageList() const {
   std::vector<base::i18n::LanguageTag> languages;
@@ -990,14 +926,6 @@ void TranslatePrefs::RegisterProfilePrefs(
   registry->RegisterListPref(translate::prefs::kBlockedLanguages,
                              TranslatePrefs::GetDefaultBlockedLanguages(),
                              user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  registry->RegisterDictionaryPref(
-      kPrefTranslateAutoAlwaysCount,
-      user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
-  registry->RegisterDictionaryPref(
-      kPrefTranslateAutoNeverCount,
-      user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
-#endif
 
   RegisterProfilePrefsForMigration(registry);
 }

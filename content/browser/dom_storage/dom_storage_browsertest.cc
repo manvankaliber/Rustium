@@ -148,13 +148,6 @@ class DOMStorageBrowserTest : public base::test::WithFeatureOverride,
   // database cannot be opened there.
   // TODO(crbug.com/488731425): Re-enable the SQLite arm once the sandboxed
   // DomStorage SQLite backend runs on Fuchsia.
-  bool IsSqliteBackendOnFuchsia() const {
-#if BUILDFLAG(IS_FUCHSIA)
-    return GetParam();
-#else
-    return false;
-#endif
-  }
 
   // Stores a >1 KB incompressible value in the current page's `storage_type`
   // ("localStorage" or "sessionStorage") so the database rounds to a non-zero
@@ -405,22 +398,14 @@ IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest,
 }
 
 // TODO(crbug.com/488417166): Fix flakiness on android-x86-rel and re-enable.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SanityCheckIncognito DISABLED_SanityCheckIncognito
-#else
 #define MAYBE_SanityCheckIncognito SanityCheckIncognito
-#endif
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, MAYBE_SanityCheckIncognito) {
   SimpleTest(GetTestUrl("dom_storage", "sanity_check.html"), kIncognito);
 }
 
 // http://crbug.com/654704 PRE_ tests aren't supported on Android.
 // TODO(crbug.com/40885339): Re-enable this test for fuchsia.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_DataPersists DISABLED_DataPersists
-#else
 #define MAYBE_DataPersists DataPersists
-#endif
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, PRE_DataPersists) {
   SimpleTest(GetTestUrl("dom_storage", "store_data.html"), kNotIncognito);
 
@@ -435,18 +420,12 @@ IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, MAYBE_DataPersists) {
 // A PRE_ run persists a >1 KB database. The main run reopens it and checks the
 // on-disk size histogram records a non-zero sample on both backends.
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, PRE_LocalStorageOnDiskSize) {
-  if (IsSqliteBackendOnFuchsia()) {
-    GTEST_SKIP() << "SQLite DomStorage backend unsupported on Fuchsia";
-  }
   NavigateToTestOrigin();
   WriteLargeValue("localStorage");
   CommitLocalStorage();
 }
 
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, LocalStorageOnDiskSize) {
-  if (IsSqliteBackendOnFuchsia()) {
-    GTEST_SKIP() << "SQLite DomStorage backend unsupported on Fuchsia";
-  }
   NavigateToTestOrigin();
   // Accessing localStorage opens its on-disk database, which records the size.
   ASSERT_TRUE(ExecJs(shell()->web_contents(), "localStorage.length;"));
@@ -456,11 +435,7 @@ IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, LocalStorageOnDiskSize) {
 // SessionStorage on Android uses BackingMode::kClearDiskStateOnOpen, which
 // destroys any pre-existing on-disk data on open. That makes the on-disk size
 // unobservable across a restart, so we skip these tests on Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, PRE_SessionStorageOnDiskSize) {
-  if (IsSqliteBackendOnFuchsia()) {
-    GTEST_SKIP() << "SQLite DomStorage backend unsupported on Fuchsia";
-  }
   NavigateToTestOrigin();
   WriteLargeValue("sessionStorage");
 
@@ -477,23 +452,15 @@ IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, PRE_SessionStorageOnDiskSize) {
 }
 
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, SessionStorageOnDiskSize) {
-  if (IsSqliteBackendOnFuchsia()) {
-    GTEST_SKIP() << "SQLite DomStorage backend unsupported on Fuchsia";
-  }
   NavigateToTestOrigin();
   // Accessing sessionStorage opens its on-disk database, which records the
   // size.
   ASSERT_TRUE(ExecJs(shell()->web_contents(), "sessionStorage.length;"));
   ExpectNonZeroOnDiskSize("Storage.SessionStorage.DatabaseOnDiskSizeKB");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // TODO(crbug/361107780): Fix flakiness on android-bfcache-rel and re-enable.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DeletePhysicalStorageKey DISABLED_DeletePhysicalStorageKey
-#else
 #define MAYBE_DeletePhysicalStorageKey DeletePhysicalStorageKey
-#endif
 IN_PROC_BROWSER_TEST_P(DOMStorageBrowserTest, MAYBE_DeletePhysicalStorageKey) {
   EXPECT_EQ(0U, GetUsage().size());
   SimpleTest(GetTestUrl("dom_storage", "store_data.html"), kNotIncognito);

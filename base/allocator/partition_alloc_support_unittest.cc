@@ -29,9 +29,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "base/ios/ios_util.h"
-#endif
 
 namespace base::allocator {
 
@@ -51,8 +48,7 @@ TEST(PartitionAllocSupportTest,
 }
 
 // - Death tests misbehave on Android, http://crbug.com/643760.
-#if PA_BUILDFLAG(ENABLE_DANGLING_RAW_PTR_CHECKS) && !BUILDFLAG(IS_ANDROID) && \
-    defined(GTEST_HAS_DEATH_TEST)
+#if PA_BUILDFLAG(ENABLE_DANGLING_RAW_PTR_CHECKS) && defined(GTEST_HAS_DEATH_TEST)
 
 namespace {
 
@@ -120,22 +116,6 @@ TEST(PartitionAllocDanglingPtrChecks, FreeNotRecorded) {
 }
 
 // TODO(crbug.com/40260713): Check for leaked refcount on Android.
-#if BUILDFLAG(IS_ANDROID)
-// Some raw_ptr might never release their refcount. Make sure this cause a
-// crash on exit.
-TEST(PartitionAllocDanglingPtrChecks, ReleaseNotRecorded) {
-  EXPECT_DEATH(
-      {
-        ScopedInstallDanglingRawPtrChecks scoped_install_dangling_checks;
-        partition_alloc::GetDanglingRawPtrDetectedFn()(42);
-      },
-      HasSubstr("A freed allocation is still referenced by a dangling pointer "
-                "at exit, or at test end. Leaked raw_ptr/raw_ref "
-                "could cause PartitionAlloc's quarantine memory bloat."
-                "\n\n"
-                "Memory was released on:"));
-}
-#endif
 
 // Getting the same allocation reported twice in a row, without matching
 // `DanglingRawPtrReleased` in between is unexpected. Make sure this kind of
@@ -409,11 +389,7 @@ TEST(PartitionAllocSupportTest, GetBrpConfiguration) {
       features::kPartitionAllocBackupRefPtr);
   PartitionAllocSupport::BrpConfiguration config =
       PartitionAllocSupport::GetBrpConfiguration("");
-#if BUILDFLAG(IS_IOS)
-  EXPECT_EQ(config.enable_brp, ios::IsRunningOnOrLater(26, 5, 0));
-#else
   EXPECT_TRUE(config.enable_brp);
-#endif
   EXPECT_FALSE(config.suppress_corruption_detected_crash);
 }
 #endif

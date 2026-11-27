@@ -6,9 +6,7 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/process.h>
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include <windows.h>
 #endif
 
@@ -43,13 +41,6 @@ MojoResult UnwrapAndClonePlatformProcessHandle(
     return MOJO_RESULT_INVALID_ARGUMENT;
   }
   process = base::Process(out_handle);
-#elif BUILDFLAG(IS_FUCHSIA)
-  zx::process out;
-  if (zx::unowned_process(in_handle)->duplicate(ZX_RIGHT_SAME_RIGHTS, &out) !=
-      ZX_OK) {
-    return MOJO_RESULT_INVALID_ARGUMENT;
-  }
-  process = base::Process(out.release());
 #else
   process = base::Process(in_handle);
 #endif

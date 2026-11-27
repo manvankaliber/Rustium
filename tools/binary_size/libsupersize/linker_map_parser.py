@@ -24,7 +24,10 @@ import itertools
 import logging
 import os
 import re
-import readline
+try:
+  import readline
+except ImportError:
+  readline = None
 import sys
 
 import archive_util
@@ -1085,7 +1088,8 @@ def main():
       print(sym)
   else:
     # Enter interactive shell.
-    readline.parse_and_bind('tab: complete')
+    if readline is not None:
+      readline.parse_and_bind('tab: complete')
     variables = {
       'section_ranges': section_ranges,
       'syms': syms,

@@ -155,10 +155,8 @@
 #include "ui/views/controls/menu/menu_cocoa_watcher_mac.h"
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
 #include "components/policy/core/common/management/scoped_management_service_override_for_testing.h"
-#endif
 
 namespace {
 
@@ -541,11 +539,9 @@ TEST_F(ActionAppMenuTest, PopulatesSectionCardsWithStyling) {
   ASSERT_TRUE(root);
 
   // Check if the menu contains section menu items.
-#if !BUILDFLAG(IS_CHROMEOS)
   views::MenuItemView* profile_item =
       root->GetMenuItemByID(kActionProfileSubmenu);
   ASSERT_TRUE(profile_item);
-#endif
 
   views::MenuItemView* password_item =
       root->GetMenuItemByID(kActionPasswordsAndAutofillSubmenu);
@@ -566,9 +562,7 @@ TEST_F(ActionAppMenuTest, PopulatesSectionCardsWithStyling) {
   ASSERT_TRUE(zoom_item);
 
   // Check if the styling is applied to the menu items.
-#if !BUILDFLAG(IS_CHROMEOS)
   ASSERT_TRUE(profile_item->GetMenuItemBackground().has_value());
-#endif
   ASSERT_TRUE(password_item->GetMenuItemBackground().has_value());
   ASSERT_TRUE(print_item->GetMenuItemBackground().has_value());
   ASSERT_TRUE(downloads_item->GetMenuItemBackground().has_value());
@@ -578,10 +572,8 @@ TEST_F(ActionAppMenuTest, PopulatesSectionCardsWithStyling) {
   // Check horizontal margins on card backgrounds match container margin.
   const int container_margin = ChromeLayoutProvider::Get()->GetDistanceMetric(
       DISTANCE_ACTION_APP_MENU_CONTAINER_MARGIN);
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(profile_item->GetMenuItemBackground()->horizontal_margin,
             container_margin);
-#endif
   EXPECT_EQ(password_item->GetMenuItemBackground()->horizontal_margin,
             container_margin);
   EXPECT_EQ(print_item->GetMenuItemBackground()->horizontal_margin,
@@ -596,15 +588,10 @@ TEST_F(ActionAppMenuTest, PopulatesSectionCardsWithStyling) {
   // Check corner radiuses for section cards (first item has top radius, last
   // has bottom radius, middle items have neither, except profile bottom and
   // passwords and autofill top which have 2px radius adjacent to divider).
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(password_item->GetMenuItemBackground()->top_radius, 12);
-  EXPECT_EQ(password_item->GetMenuItemBackground()->bottom_radius, 0);
-#else
   EXPECT_EQ(profile_item->GetMenuItemBackground()->top_radius, 12);
   EXPECT_EQ(profile_item->GetMenuItemBackground()->bottom_radius, 2);
   EXPECT_EQ(password_item->GetMenuItemBackground()->top_radius, 2);
   EXPECT_EQ(password_item->GetMenuItemBackground()->bottom_radius, 0);
-#endif
   EXPECT_EQ(downloads_item->GetMenuItemBackground()->top_radius, 0);
   EXPECT_EQ(downloads_item->GetMenuItemBackground()->bottom_radius, 0);
   EXPECT_EQ(clear_browsing_item->GetMenuItemBackground()->top_radius, 0);
@@ -618,10 +605,8 @@ TEST_F(ActionAppMenuTest, PopulatesSectionCardsWithStyling) {
   ASSERT_TRUE(more_tools_item->GetMenuItemBackground().has_value());
   const int card_padding = ChromeLayoutProvider::Get()->GetDistanceMetric(
       DISTANCE_ACTION_APP_MENU_CONTAINER_VERTICAL_PADDING);
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(profile_item->GetMenuItemBackground()->top_padding, 0);
   EXPECT_EQ(profile_item->GetMenuItemBackground()->bottom_padding, 0);
-#endif
   EXPECT_EQ(password_item->GetMenuItemBackground()->top_padding, card_padding);
   EXPECT_EQ(password_item->GetMenuItemBackground()->bottom_padding, 0);
   EXPECT_EQ(downloads_item->GetMenuItemBackground()->top_padding, 0);
@@ -638,9 +623,7 @@ TEST_F(ActionAppMenuTest, PopulatesSectionCardsWithStyling) {
             card_padding);
 
   // Standard items (32dp row height): (32 - 16) / 2 = 8dp.
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(profile_item->GetTopMargin(), 12);
-#endif
   // Standard items (32dp row height): (32 - 16) / 2 = 8dp.
   EXPECT_EQ(password_item->GetTopMargin(), 8);
   EXPECT_EQ(print_item->GetTopMargin(), 8);
@@ -651,7 +634,6 @@ TEST_F(ActionAppMenuTest, PopulatesSectionCardsWithStyling) {
   EXPECT_EQ(zoom_item->GetTopMargin(), 16);
 
   // Check hover selection color matching subtle state.
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(profile_item->GetSelectedColorId(),
             ui::kColorAppMenuRowBackgroundHovered);
   EXPECT_EQ(menu.GetLabelFontList(profile_item->GetCommand()),
@@ -676,7 +658,6 @@ TEST_F(ActionAppMenuTest, PopulatesSectionCardsWithStyling) {
   EXPECT_EQ(item_separator->GetType(),
             ui::MenuSeparatorType::MENU_ITEM_SEPARATOR);
   EXPECT_EQ(item_separator->GetColorId(), ui::kColorMenuBackground);
-#endif
   EXPECT_EQ(password_item->GetSelectedColorId(),
             ui::kColorAppMenuRowBackgroundHovered);
   EXPECT_EQ(print_item->GetSelectedColorId(),
@@ -1672,7 +1653,7 @@ TEST_F(ActionAppMenuTest, PopulatesFooterElements) {
   ASSERT_TRUE(left_container);
   views::View* right_container = footer_view->right_container_for_testing();
   ASSERT_TRUE(right_container);
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC)
   ASSERT_EQ(left_container->children().size(), 1u);  // Settings
   EXPECT_TRUE(
       views::IsViewClass<AppMenuFooterButton>(left_container->children()[0]));
@@ -1702,7 +1683,6 @@ TEST_F(ActionAppMenuTest, PopulatesFooterElements) {
   menu.CloseMenu();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ActionAppMenuTest, PopulatesFooterElementsWithManagedAction) {
   policy::ScopedManagementServiceOverrideForTesting profile_management(
       policy::ManagementServiceFactory::GetForProfile(profile_.get()),
@@ -1773,7 +1753,6 @@ TEST_F(ActionAppMenuTest, PopulatesFooterElementsWithManagedAction) {
   EXPECT_CALL(on_menu_closed, Run()).Times(1);
   menu.CloseMenu();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ActionAppMenuTest, ZoomLabelUpdatesOnZoomChange) {
   content::RenderViewHostTestEnabler rvh_test_enabler;
@@ -2989,7 +2968,6 @@ TEST_F(ActionAppMenuWithSearchTest, SearchBarArrowNavigation) {
   menu.CloseMenu();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ActionAppMenuWithSearchTest,
        SearchBarUpArrowNavigationThroughNotificationWrapsToBottom) {
   if (!browser_defaults::kShowUpgradeMenuItem) {
@@ -3089,7 +3067,6 @@ TEST_F(ActionAppMenuWithSearchTest,
   EXPECT_CALL(on_menu_closed, Run()).Times(1);
   menu.CloseMenu();
 }
-#endif
 
 TEST_F(ActionAppMenuWithSearchTest, ZoomSearchResultsShowLiveZoomPercent) {
   SetZoomSecondaryText(u"Zoom - 100%");
@@ -3845,7 +3822,6 @@ TEST_F(ActionAppMenuTest, MaxWidthForMenu) {
   menu.CloseMenu();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ActionAppMenuTest, UpgradeNotificationRowStyling) {
   if (!browser_defaults::kShowUpgradeMenuItem) {
     GTEST_SKIP() << "Upgrade menu item is not supported on this platform.";
@@ -4027,7 +4003,6 @@ TEST_F(ActionAppMenuTest, UpgradeNotificationHiddenWhenInvisible) {
   EXPECT_CALL(on_menu_closed, Run()).Times(1);
   menu.CloseMenu();
 }
-#endif
 
 TEST_F(ActionAppMenuTest, MenuItemVerticalMarginExpandedHeight) {
   actions::ActionItem* global_error_action =
@@ -4083,7 +4058,6 @@ TEST_F(ActionAppMenuTest, MenuItemVerticalMarginExpandedHeight) {
   menu.CloseMenu();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ActionAppMenuTest, DefaultBrowserNotificationRowStyling) {
   actions::ActionItem* default_browser_action =
       actions::ActionManager::Get().FindAction(
@@ -4186,7 +4160,6 @@ TEST_F(ActionAppMenuTest, DefaultBrowserNotificationHiddenWhenInvisible) {
   EXPECT_EQ(*block_margins, ChromeLayoutProvider::Get()->GetInsetsMetric(
                                 INSETS_ACTION_APP_MENU_BLOCK_MARGIN));
 }
-#endif
 
 TEST_F(ActionAppMenuTest, MenuItemNewBadgeProperty) {
   MockBrowserUserEducationInterface user_education(&mock_window_interface_);
@@ -4447,9 +4420,7 @@ TEST_F(ActionAppMenuTest,
         Profile* profile = Profile::FromBrowserContext(context);
         auto service = std::make_unique<SafetyHubMenuNotificationService>(
             profile->GetPrefs(), nullptr,
-#if !BUILDFLAG(IS_ANDROID)
             nullptr,
-#endif
             profile);
         auto getter = base::BindRepeating(
             []() -> std::optional<std::unique_ptr<SafetyHubResult>> {
@@ -4467,13 +4438,11 @@ TEST_F(ActionAppMenuTest,
   ASSERT_NE(global_error_action, nullptr);
   global_error_action->SetVisible(true);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   actions::ActionItem* default_browser_action =
       actions::ActionManager::Get().FindAction(
           kActionSetBrowserAsDefault, browser_actions_->root_action_item());
   ASSERT_NE(default_browser_action, nullptr);
   default_browser_action->SetVisible(true);
-#endif
 
   base::MockCallback<base::RepeatingClosure> on_menu_closed;
   ActionAppMenu menu(&mock_window_interface_, on_menu_closed.Get());
@@ -4492,15 +4461,12 @@ TEST_F(ActionAppMenuTest,
   EXPECT_EQ(safety_hub_item->GetMenuItemBackground()->bottom_radius, 12);
 
   EXPECT_FALSE(root->GetMenuItemByID(kActionGlobalError));
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   EXPECT_FALSE(root->GetMenuItemByID(kActionSetBrowserAsDefault));
-#endif
 
   EXPECT_CALL(on_menu_closed, Run()).Times(1);
   menu.CloseMenu();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ActionAppMenuTest, GlobalErrorPrioritizedOverDefaultBrowser) {
   actions::ActionItem* global_error_action =
       actions::ActionManager::Get().FindAction(
@@ -4535,9 +4501,7 @@ TEST_F(ActionAppMenuTest, GlobalErrorPrioritizedOverDefaultBrowser) {
   EXPECT_CALL(on_menu_closed, Run()).Times(1);
   menu.CloseMenu();
 }
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ActionAppMenuTest, MultipleNotificationsSeparatedBySpacingSeparator) {
   if (!browser_defaults::kShowUpgradeMenuItem) {
     GTEST_SKIP() << "Upgrade menu item is not supported on this platform.";
@@ -4595,7 +4559,6 @@ TEST_F(ActionAppMenuTest, MultipleNotificationsSeparatedBySpacingSeparator) {
   EXPECT_CALL(on_menu_closed, Run()).Times(1);
   menu.CloseMenu();
 }
-#endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_F(ActionAppMenuTest,
@@ -4896,9 +4859,7 @@ TEST_F(ActionAppMenuTest, SafetyHubNotificationMetrics) {
         Profile* profile = Profile::FromBrowserContext(context);
         auto service = std::make_unique<SafetyHubMenuNotificationService>(
             profile->GetPrefs(), nullptr,
-#if !BUILDFLAG(IS_ANDROID)
             nullptr,
-#endif
             profile);
         auto getter = base::BindRepeating(
             []() -> std::optional<std::unique_ptr<SafetyHubResult>> {
@@ -5679,7 +5640,7 @@ TEST_F(ActionAppMenuTest, CreateOtherDeviceTabsActionsWithDevices) {
       "WrenchMenu.TimeToAction.OpenOtherDeviceTab", 1);
 }
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 TEST_F(ActionAppMenuTest, PopulatesHelpSubmenuWithEnterpriseReleaseNotes) {
   actions::ActionItem* release_notes_action =
       actions::ActionManager::Get().FindAction(
@@ -5724,7 +5685,7 @@ TEST_F(ActionAppMenuTest, PopulatesHelpSubmenuWithEnterpriseReleaseNotes) {
   EXPECT_CALL(on_menu_closed, Run()).Times(1);
   menu.CloseMenu();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 // Block and footer buttons set the mnemonic that the menu uses to press them,
 // and expose it to screen readers. Block buttons with a short title take their

@@ -45,10 +45,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "ui/base/device_form_factor.h"
-#endif
 
 namespace {
 

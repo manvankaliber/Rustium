@@ -1654,8 +1654,7 @@ TEST_P(IndexedDBTest, CloseThenAddReceiver) {
 
   // Trigger the bucket context to be created.
   mojo::Remote<blink::mojom::IDBFactory> factory_remote1;
-  BindFactory(
-      factory_remote1.BindNewPipeAndPassReceiver(), bucket_info);
+  BindFactory(factory_remote1.BindNewPipeAndPassReceiver(), bucket_info);
 
   ASSERT_TRUE(context()->BucketContextExists(bucket_locator));
 
@@ -1676,9 +1675,8 @@ TEST_P(IndexedDBTest, CloseThenAddReceiver) {
   // bucket context above, but that fails in
   // BucketContext::AddReceiver().
   mojo::Remote<blink::mojom::IDBFactory> factory_remote2;
-  BindFactory(
-      factory_remote2.BindNewPipeAndPassReceiver(),
-      ToBucketInfo(bucket_locator));
+  BindFactory(factory_remote2.BindNewPipeAndPassReceiver(),
+              ToBucketInfo(bucket_locator));
 
   // Round trip a message through the new mojo pipe to verify that it is set
   // up correctly.
@@ -2148,9 +2146,6 @@ TEST_P(IndexedDBTest, QuotaErrorOnDbOpenError) {
   if (IsSqliteBackingStoreEnabled()) {
     // The mechanism used to induce errors (`MakeFileUnwritable`) doesn't work
     // on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-    GTEST_SKIP();
-#endif  // BUILDFLAG(IS_FUCHSIA)
   } else {
     leveldb_env::SetDBFactoryForTesting(base::BindRepeating(
         [](const leveldb_env::Options& options, const std::string& name,

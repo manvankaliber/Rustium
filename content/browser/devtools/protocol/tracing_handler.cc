@@ -64,9 +64,6 @@
 #include "components/tracing/common/etw_stack_sampling_win.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/renderer_host/compositor_impl_android.h"
-#endif
 
 namespace content::protocol {
 

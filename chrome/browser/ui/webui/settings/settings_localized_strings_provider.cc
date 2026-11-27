@@ -25,12 +25,6 @@
 #include "chrome/browser/contextual_cueing/features.h"
 #include "chrome/browser/enterprise/browser_management/management_identity.h"
 #include "chrome/browser/file_system_access/chrome_file_system_access_permission_context.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/glic_settings_util.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/indigo/resources/grit/indigo_strings.h"
 #include "chrome/browser/net/system_network_context_manager.h"
 #include "chrome/browser/obsolete_system/obsolete_system.h"
@@ -47,7 +41,6 @@
 #include "chrome/browser/signin/chrome_signin_client_factory.h"
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/signin/signin_ui_util.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/subscription_eligibility/subscription_eligibility_service_factory.h"
 #include "chrome/browser/sync/sync_service_factory.h"
 #include "chrome/browser/ui/managed_ui.h"
@@ -62,7 +55,6 @@
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/browser/ui/webui/management/management_ui.h"
 #include "chrome/browser/ui/webui/policy_indicator_localized_strings_provider.h"
-#include "chrome/browser/ui/webui/settings/glic_handler.h"
 #include "chrome/browser/ui/webui/settings/reset_settings_handler.h"
 #include "chrome/browser/ui/webui/settings/shared_settings_localized_strings_provider.h"
 #include "chrome/browser/ui/webui/version/version_ui.h"
@@ -87,7 +79,6 @@
 #include "components/autofill/core/common/autofill_features.h"
 #include "components/autofill/core/common/autofill_payments_features.h"
 #include "components/autofill/core/common/autofill_prefs.h"
-#include "components/commerce/core/commerce_constants.h"
 #include "components/content_settings/core/common/features.h"
 #include "components/dom_distiller/core/dom_distiller_features.h"
 #include "components/google/core/common/google_util.h"
@@ -143,22 +134,7 @@
 #include "ui/strings/grit/ui_strings.h"
 #include "ui/webui/webui_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "ash/webui/settings/public/constants/routes.mojom.h"
-#include "ash/webui/settings/public/constants/routes_util.h"
-#include "chrome/browser/ash/account_manager/account_manager_util.h"
-#include "chrome/browser/ash/kerberos/kerberos_credentials_manager.h"
-#include "chrome/browser/ash/login/quick_unlock/quick_unlock_utils.h"
-#include "chrome/browser/ash/ownership/owner_settings_service_ash.h"
-#include "chrome/browser/ash/ownership/owner_settings_service_ash_factory.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/common/webui_url_constants.h"
-#include "components/user_manager/user_manager.h"
-#include "ui/chromeos/devicetype_utils.h"
-#else  // !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/webui/settings/system_handler.h"
-#endif
 
 #if BUILDFLAG(IS_LINUX)
 #include "ui/display/screen.h"
@@ -221,10 +197,8 @@ void AddCommonStrings(content::WebUIDataSource* html_source, Profile* profile) {
       {"columnHeadingWhenOn", IDS_SETTINGS_COLUMN_HEADING_WHEN_ON},
       {"columnHeadingConsider", IDS_SETTINGS_COLUMN_HEADING_CONSIDER},
       {"columnHeadingWhenUsed", IDS_SETTINGS_COLUMN_HEADING_WHEN_USED},
-#if !BUILDFLAG(IS_CHROMEOS)
       {"relaunchConfirmationDialogTitle",
        IDS_RELAUNCH_CONFIRMATION_DIALOG_TITLE},
-#endif
       {"remove", IDS_REMOVE},
       {"restart", IDS_SETTINGS_RESTART},
       {"restartToApplyChanges", IDS_SETTINGS_RESTART_TO_APPLY_CHANGES},
@@ -259,12 +233,7 @@ void AddCommonStrings(content::WebUIDataSource* html_source, Profile* profile) {
 
   html_source->AddBoolean(
       "isGuest",
-#if BUILDFLAG(IS_CHROMEOS)
-      user_manager::UserManager::Get()->IsLoggedInAsGuest() ||
-          user_manager::UserManager::Get()->IsLoggedInAsManagedGuestSession());
-#else
       profile->IsGuestSession());
-#endif
 
   html_source->AddBoolean("isChildAccount", profile->IsChild());
 }
@@ -284,10 +253,6 @@ void AddA11yStrings(content::WebUIDataSource* html_source) {
        IDS_SETTINGS_SLIDER_MIN_MAX_ARIA_ROLE_DESCRIPTION},
       {"caretBrowsingTitle", IDS_SETTINGS_ENABLE_CARET_BROWSING_TITLE},
       {"caretBrowsingSubtitle", IDS_SETTINGS_ENABLE_CARET_BROWSING_SUBTITLE},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"manageAccessibilityFeatures",
-       IDS_SETTINGS_ACCESSIBILITY_MANAGE_ACCESSIBILITY_FEATURES},
-#else  // !BUILDFLAG(IS_CHROMEOS)
       {"focusHighlightLabel",
        IDS_SETTINGS_ACCESSIBILITY_FOCUS_HIGHLIGHT_DESCRIPTION},
       {"toastAlertLevelTitle",
@@ -308,7 +273,6 @@ void AddA11yStrings(content::WebUIDataSource* html_source) {
        IDS_SETTINGS_APPLY_PAGE_COLORS_ONLY_ON_INCREASED_CONTRAST_TITLE},
       {"applyPageColorsOnlyOnIncreasedContrastSubtitle",
        IDS_SETTINGS_APPLY_PAGE_COLORS_ONLY_ON_INCREASED_CONTRAST_SUBTITLE},
-#endif
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
       {"overscrollHistoryNavigationTitle",
        IDS_SETTINGS_OVERSCROLL_HISTORY_NAVIGATION_TITLE},
@@ -320,10 +284,8 @@ void AddA11yStrings(content::WebUIDataSource* html_source) {
   };
   html_source->AddLocalizedStrings(kLocalizedStrings);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   html_source->AddBoolean("pageColorsSettingsEnabled",
                           features::IsPageColorsSettingsEnabled());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   AddAxAnnotationsSectionStrings(html_source);
   AddCaptionSubpageStrings(html_source);
@@ -363,11 +325,7 @@ void AddAboutStrings(content::WebUIDataSource* html_source, Profile* profile) {
                          GetDeviceManagedUiHelpLabel(profile));
   html_source->AddString(
       "aboutUpgradeUpToDate",
-#if BUILDFLAG(IS_CHROMEOS)
-      ui::SubstituteChromeOSDeviceType(IDS_SETTINGS_UPGRADE_UP_TO_DATE));
-#else
       l10n_util::GetStringUTF16(IDS_SETTINGS_UPGRADE_UP_TO_DATE));
-#endif
 
   std::u16string browser_version = VersionUI::GetAnnotatedVersionStringForUi();
 
@@ -470,25 +428,6 @@ void AddAiStrings(content::WebUIDataSource* html_source) {
       {"indigoLabel", IDS_INDIGO_SETTINGS_LABEL},
       {"indigoSublabel", IDS_INDIGO_SETTINGS_SUB_LABEL},
 
-      // Google Search AI Mode and connected apps (AIM Workspace) strings.
-      {"googleSearchAiModeWorkspaceLabel",
-       IDS_SETTINGS_GOOGLE_SEARCH_AI_MODE_WORKSPACE_LABEL},
-      {"googleSearchAiModeWorkspaceSublabel",
-       IDS_SETTINGS_GOOGLE_SEARCH_AI_MODE_WORKSPACE_SUBLABEL},
-
-      // AI Mode Search Settings strings for Smart Tab Sharing (STS)
-      {"stsSettingsEntrypointGoogleSearchAiMode",
-       IDS_STS_SETTINGS_ENTRYPOINT_GOOGLE_SEARCH_AI_MODE},
-      {"stsSettingsEntrypointGetResponsesWithContext",
-       IDS_STS_SETTINGS_ENTRYPOINT_GET_RESPONSES_WITH_CONTEXT},
-      {"stsSettingsOption1ShareOpenTabsForEveryThreadV3",
-       IDS_STS_SETTINGS_OPTION_1_SHARE_OPEN_TABS_FOR_EVERY_THREAD_V3},
-      {"stsSettingsOption1ChooseHowRelevantOpenTabsCanBeUsedV3",
-       IDS_STS_SETTINGS_OPTION_1_CHOOSE_HOW_RELEVANT_OPEN_TABS_CAN_BE_USED_V3},
-      {"stsSettingsOption1LearnMore", IDS_STS_SETTINGS_OPTION_1_LEARN_MORE},
-      {"stsSettingsOption1NeverShareTheseSites",
-       IDS_STS_SETTINGS_OPTION_1_NEVER_SHARE_THESE_SITES},
-
       // Suggestions strings.
       {"aiSuggestionsLabel", IDS_CONTEXTUAL_CUEING_SETTINGS_PAGE_TITLE},
       {"aiSuggestionsSublabel", IDS_CONTEXTUAL_CUEING_SETTINGS_PAGE_SUBLABEL},
@@ -530,15 +469,6 @@ void AddAiStrings(content::WebUIDataSource* html_source) {
           ? IDS_CONTEXTUAL_CUEING_SETTINGS_CONSIDER_1_PRIVATE
           : IDS_CONTEXTUAL_CUEING_SETTINGS_CONSIDER_1_NON_PRIVATE);
 
-  int sts_option_1_sites_added_here_wont_be_referenced_string_id =
-      base::FeatureList::IsEnabled(
-          lens::features::kLensDeleteContextOnPageNavigation)
-          ? IDS_STS_SETTINGS_OPTION_1_SITES_ADDED_HERE_WONT_BE_REFERENCED_V2
-          : IDS_STS_SETTINGS_OPTION_1_SITES_ADDED_HERE_WONT_BE_REFERENCED_V3;
-  html_source->AddLocalizedString(
-      "stsSettingsOption1SitesAddedHereWontBeReferenced",
-      sts_option_1_sites_added_here_wont_be_referenced_string_id);
-
   html_source->AddString("aiPageMainManagedLearnMoreUrl",
                          chrome::kAiSettingsLearnMorePageManagedUrl);
 
@@ -550,8 +480,6 @@ void AddAiStrings(content::WebUIDataSource* html_source) {
                          chrome::kChromeUiPasswordChangeUrl);
   html_source->AddString("indigoSavedUrl", features::kIndigoSavedUrl.Get());
 
-  html_source->AddString("googleSearchAiModeWorkspaceUrl",
-                         chrome::kMyActivitySearchServicesAppsUrl);
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   html_source->AddString("onDeviceAiLearnMoreUrl",
                          chrome::kOnDeviceAiLearnMoreUrl);
@@ -562,8 +490,6 @@ void AddAiStrings(content::WebUIDataSource* html_source) {
           chrome::kOnDeviceAiLearnMoreUrl,
           l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB)));
 #endif
-  html_source->AddString("googleSearchAiModeRestrictedUrl",
-                         "https://myactivity.google.com/myactivity");
 }
 
 void AddAppearanceStrings(content::WebUIDataSource* html_source,
@@ -786,21 +712,15 @@ void AddClearBrowsingDataStrings(content::WebUIDataSource* html_source,
   html_source->AddString("geminiPersonalContextUrl",
                          chrome::kGeminiPersonalContextUrl);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   html_source->AddBoolean("isClearPrimaryAccountAllowed",
                           !profile->IsGuestSession() &&
                               ChromeSigninClientFactory::GetForProfile(profile)
                                   ->IsClearPrimaryAccountAllowed());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-  html_source->AddBoolean(
-      "showDeleteSkillsDataType",
-      skills::SkillsServiceFactory::GetForProfile(profile) != nullptr);
 
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void AddDefaultBrowserStrings(content::WebUIDataSource* html_source) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
       {"defaultBrowser", IDS_SETTINGS_DEFAULT_BROWSER},
@@ -822,7 +742,6 @@ void AddDefaultBrowserStrings(content::WebUIDataSource* html_source) {
   };
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
-#endif
 
 void AddDownloadsStrings(content::WebUIDataSource* html_source) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
@@ -837,44 +756,6 @@ void AddDownloadsStrings(content::WebUIDataSource* html_source) {
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
 
-void AddGeicStrings(content::WebUIDataSource* html_source) {
-  // Also registers the GEiC switcher strings shown on `glic_subpage` so that
-  // `GetDeviceManagerIdentity()` is only queried once.
-  static constexpr webui::LocalizedString kLocalizedStrings[] = {
-      {"geicSectionTitle", IDS_SETTINGS_GEIC_SECTION_TITLE},
-      {"geicRowSublabel", IDS_SETTINGS_GEIC_ROW_SUBLABEL},
-      {"geicDevicePolicyToggle",
-       IDS_SETTINGS_GEIC_ENABLED_BY_DEVICE_POLICY_TOGGLE},
-      {"geicDevicePolicyButton",
-       IDS_SETTINGS_GEIC_ENABLED_BY_DEVICE_POLICY_BUTTON},
-      {"glicSwitchToGeicToggle", IDS_SETTINGS_GLIC_SWITCH_TO_GEIC_TOGGLE},
-  };
-  html_source->AddLocalizedStrings(kLocalizedStrings);
-
-  std::optional<std::string> device_manager = GetDeviceManagerIdentity();
-  const std::u16string manager_domain =
-      device_manager && !device_manager->empty()
-          ? base::UTF8ToUTF16(*device_manager)
-          : l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GEIC_DEFAULT_MANAGEMENT_DOMAIN);
-  html_source->AddString(
-      "geicDevicePolicyToggleSublabel",
-      l10n_util::GetStringFUTF16(
-          IDS_SETTINGS_GEIC_ENABLED_BY_DEVICE_POLICY_TOGGLE_SUBLABEL,
-          manager_domain));
-  html_source->AddString(
-      "glicSwitchToGeicToggleSublabel",
-      l10n_util::GetStringFUTF16(
-          IDS_SETTINGS_GLIC_SWITCH_TO_GEIC_TOGGLE_SUBLABEL, manager_domain));
-
-  html_source->AddString(
-      "geicDefaultTabAccessToggleLearnMoreUrl",
-      google_util::AppendGoogleLocaleParam(
-          GURL(features::kGeicDefaultTabAccessToggleLearnMoreURL.Get()),
-          g_browser_process->GetApplicationLocale())
-          .spec());
-}
-
 void AddGeneralStrings(content::WebUIDataSource* html_source) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
       {"generalPageTitle", IDS_SETTINGS_GENERAL},
@@ -882,350 +763,6 @@ void AddGeneralStrings(content::WebUIDataSource* html_source) {
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
 
-void AddGlicStrings(content::WebUIDataSource* html_source, Profile* profile) {
-  static constexpr webui::LocalizedString kLocalizedStrings[] = {
-      {"glicPageTitle", IDS_SETTINGS_GLIC_PAGE_TITLE},
-      {"glicSectionTitle", IDS_SETTINGS_GLIC_SECTION_TITLE},
-      {"glicRowLabel", IDS_SETTINGS_GLIC_ROW_LABEL},
-      {"glicRowSublabel", IDS_SETTINGS_GLIC_ROW_SUBLABEL},
-      {"glicPolicyDisabledMessage", IDS_SETTINGS_GLIC_POLICY_DISABLED_MESSAGE},
-      {"glicPreferencesSection", IDS_SETTINGS_GLIC_PREFERENCES_SECTION},
-      {"glicDataSection", IDS_SETTINGS_GLIC_PERMISSIONS_SECTION},
-      {"glicAutoBrowseSection", IDS_SETTINGS_GLIC_AUTO_BROWSE_SECTION},
-      {"glicTabstripButtonToggle", IDS_SETTINGS_GLIC_BUTTON_TOGGLE},
-      {"glicTabstripButtonToggleSublabel",
-       IDS_SETTINGS_GLIC_BUTTON_TOGGLE_SUBLABEL},
-      {"glicOsWidgetToggleSublabel",
-       IDS_SETTINGS_GLIC_OS_WIDGET_TOGGLE_SUBLABEL},
-      {"glicKeyboardShortcut", IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT},
-      {"glicKeyboardShortcutEditLabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_EDIT_LABEL},
-      {"glicKeyboardShortcutClearLabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_CLEAR_LABEL},
-      {"glicKeyboardShortcutSublabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_SUBLABEL},
-      {"glicKeyboardShortcutLearnMoreLabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_LEARN_MORE_LABEL},
-      {"glicNavigationShortcut", IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT},
-      {"glicNavigationShortcutEditLabel",
-       IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT_EDIT_LABEL},
-      {"glicNavigationShortcutClearLabel",
-       IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT_CLEAR_LABEL},
-      {"glicNavigationShortcutSublabel",
-       IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT_SUBLABEL},
-      {"glicSelectionShortcut", IDS_SETTINGS_GLIC_SELECTION_SHORTCUT},
-      {"glicSelectionShortcutEditLabel",
-       IDS_SETTINGS_GLIC_SELECTION_SHORTCUT_EDIT_LABEL},
-      {"glicSelectionShortcutClearLabel",
-       IDS_SETTINGS_GLIC_SELECTION_SHORTCUT_CLEAR_LABEL},
-      {"glicSelectionShortcutSublabel",
-       IDS_SETTINGS_GLIC_SELECTION_SHORTCUT_SUBLABEL},
-      {"glicKeyboardShortcutLearnMoreAriaLabel",
-       IDS_SETTINGS_GLIC_KEYBOARD_SHORTCUT_LEARN_MORE_ARIA_LABEL},
-      {"glicNavigationShortcutLearnMoreAriaLabel",
-       IDS_SETTINGS_GLIC_NAVIGATION_SHORTCUT_LEARN_MORE_ARIA_LABEL},
-      {"glicSelectionShortcutLearnMoreAriaLabel",
-       IDS_SETTINGS_GLIC_SELECTION_SHORTCUT_LEARN_MORE_ARIA_LABEL},
-      {"glicClosedCaptionsToggle", IDS_SETTINGS_GLIC_CLOSED_CAPTIONING},
-      {"glicClosedCaptionsToggleSublabel",
-       IDS_SETTINGS_GLIC_CLOSED_CAPTIONING_SUBLABEL},
-      {"glicKeepSidepanelOpenOnNewTabsToggle",
-       IDS_SETTINGS_GLIC_KEEP_SIDEPANEL_OPEN_ON_NEW_TABS},
-      {"glicKeepSidepanelOpenOnNewTabsToggleSublabel",
-       IDS_SETTINGS_GLIC_KEEP_SIDEPANEL_OPEN_ON_NEW_TABS_SUBLABEL},
-      {"glicShakeTriggerToggle", IDS_SETTINGS_GLIC_SHAKE_TRIGGER_TOGGLE},
-      {"glicShakeTriggerToggleSublabel",
-       IDS_SETTINGS_GLIC_SHAKE_TRIGGER_TOGGLE_SUBLABEL},
-      {"glicLocationToggle", IDS_SETTINGS_GLIC_PERMISSIONS_LOCATION_TOGGLE},
-      {"glicLocationToggleSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_LOCATION_TOGGLE_SUBLABEL},
-      {"glicLocationToggleSublabelDataProtected",
-       IDS_SETTINGS_GLIC_PERMISSIONS_LOCATION_TOGGLE_SUBLABEL_DATA_PROTECTED},
-      {"glicMicrophoneToggle", IDS_SETTINGS_GLIC_PERMISSIONS_MICROPHONE_TOGGLE},
-      {"glicMicrophoneToggleSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_MICROPHONE_TOGGLE_SUBLABEL},
-      {"glicMicrophoneToggleSublabelDataProtected",
-       IDS_SETTINGS_GLIC_PERMISSIONS_MICROPHONE_TOGGLE_SUBLABEL_DATA_PROTECTED},
-      {"glicTabAccessToggle", IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_TOGGLE},
-      {"glicTabAccessToggleSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_TOGGLE_SUBLABEL},
-      {"glicTabAccessToggleSublabelDataProtected",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_TOGGLE_SUBLABEL_DATA_PROTECTED},
-      {"glicDefaultTabAccessToggle",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_TOGGLE},
-      {"glicDefaultTabAccessToggleSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_TOGGLE_SUBLABEL},
-      {"glicDefaultTabAccessToggleSublabelDataProtected",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_TOGGLE_SUBLABEL_DATA_PROTECTED},
-      {"glicWebActuationToggle",
-       IDS_SETTINGS_GLIC_PERMISSIONS_CHROME_WEB_ACTUATION_TOGGLE},
-      {"glicActorLoginPermissionsSectionTitle",
-       IDS_SETTINGS_GLIC_ACTOR_LOGIN_PERMISSIONS_SECTION_TITLE},
-      {"glicActorLoginPermissionsSectionSublabel",
-       IDS_SETTINGS_GLIC_ACTOR_LOGIN_PERMISSIONS_SECTION_SUBLABEL},
-      {"glicLoginPermissionsPageTitle",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_PAGE_TITLE},
-      {"glicLoginPermissionsOfflineWarning",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_OFFLINE_WARNING},
-      {"glicLoginPermissionsPageDescription",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_PAGE_DESCRIPTION},
-      {"glicLoginPermissionsNoSites",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_NO_SITES},
-      {"glicRevokeActorLoginPermissionAriaLabel",
-       IDS_SETTINGS_GLIC_REVOKE_ACTOR_LOGIN_PERMISSION_ARIA_LABEL},
-      {"glicRemoveActorLoginDialogTitle",
-       IDS_SETTINGS_GLIC_REMOVE_ACTOR_LOGIN_DIALOG_TITLE},
-      {"glicRemoveActorLoginDialogDescription",
-       IDS_SETTINGS_GLIC_REMOVE_ACTOR_LOGIN_DIALOG_DESCRIPTION},
-      {"glicLoginPermissionsRemoveError",
-       IDS_SETTINGS_GLIC_LOGIN_PERMISSIONS_REMOVE_ERROR},
-      {"glicActivityButton", IDS_SETTINGS_GLIC_PERMISSIONS_ACTIVITY_BUTTON},
-      {"glicActivityButtonSublabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_ACTIVITY_BUTTON_SUBLABEL},
-      {"glicExtensionsButton", IDS_SETTINGS_GLIC_EXTENSIONS_BUTTON},
-      {"glicExtensionsButtonSublabel",
-       IDS_SETTINGS_GLIC_EXTENSIONS_BUTTON_SUBLABEL},
-      {"glicTabAccessWhenOn1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_WHEN_ON_1},
-      {"glicTabAccessConsider1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_CONSIDER_1},
-      {"glicTabAccessConsider1LearnMoreLabel",
-       IDS_SETTINGS_GLIC_PERMISSIONS_TAB_ACCESS_CONSIDER_1_LEARN_MORE_LABEL},
-      {"glicDefaultTabAccessWhenOn1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_WHEN_ON_1},
-      {"glicDefaultTabAccessConsider1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_CONSIDER_1},
-      {"glicDefaultTabAccessConsider2",
-       IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_CONSIDER_2},
-      {"glicPersonalContextSettingButton", IDS_SETTINGS_GLIC_PERSONAL_CONTEXT},
-      {"glicPersonalContextSettingSublabel",
-       IDS_SETTINGS_GLIC_PERSONAL_CONTEXT_LABEL},
-      {"glicInstructionsSettingButton", IDS_SETTINGS_GLIC_INSTRUCTIONS_BUTTON},
-      {"glicInstructionsSettingSublabel",
-       IDS_SETTINGS_GLIC_INSTRUCTIONS_BUTTON_SUBLABEL},
-      {"glicWebActuationToggleWhenOn1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_WHEN_ON_1},
-      {"glicWebActuationToggleWhenOn2",
-       IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_WHEN_ON_2},
-      {"glicWebActuationToggleConsider1",
-       IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_1},
-      {"glicExperimentalTriggering",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_TOGGLE},
-      {"glicExperimentalTriggeringWhenOn1",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_WHEN_ON_1},
-      {"glicExperimentalTriggeringWhenOn2",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_WHEN_ON_2},
-      {"glicExperimentalTriggeringConsider1",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_1},
-      {"glicExperimentalTriggeringConsider2",
-       IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_2},
-      {"glicMediaUnderstandingToggle", IDS_SETTINGS_GLIC_MEDIA_UNDERSTANDING},
-      {"glicMediaUnderstandingToggleSublabel",
-       IDS_SETTINGS_GLIC_MEDIA_UNDERSTANDING_SUBLABEL},
-      {"siteSettingsInlineCueMenu", IDS_SETTINGS_GLIC_INLINE_CUE_MENU},
-      {"siteSettingsInlineCueMenuDescription",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_DESCRIPTION},
-      {"siteSettingsInlineCueMenuBlockedExceptions",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_BLOCKED_EXCEPTIONS},
-      {"siteSettingsInlineCueMenuAddSite",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_ADD_SITE},
-      {"siteSettingsInlineCueMenuPreview",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_PREVIEW},
-      {"siteSettingsInlineCueMenuPreviewText",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_PREVIEW_TEXT},
-      {"siteSettingsInlineCueMenuPreviewPill",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_PREVIEW_PILL},
-      {"siteSettingsInlineCueMenuToggleLabel",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU},
-      {"siteSettingsInlineCueMenuToggleSublabel",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_TOGGLE_SUBLABEL},
-      {"glicHotkeyGlobalScopeDescription",
-       IDS_SETTINGS_GLIC_HOTKEY_GLOBAL_SCOPE_DESCRIPTION},
-  };
-  html_source->AddLocalizedStrings(kLocalizedStrings);
-
-  html_source->AddString("glicActivityButtonUrl", chrome::kGlicActivityUrl);
-
-  html_source->AddLocalizedString(
-      "glicOsWidgetToggle",
-      base::FeatureList::IsEnabled(features::kGlicHotkeyLocalScope)
-          ? IDS_SETTINGS_GLIC_OS_WIDGET_TOGGLE_SHORTCUT_EXCLUDED
-          : IDS_SETTINGS_GLIC_OS_WIDGET_TOGGLE);
-  html_source->AddLocalizedString(
-      "glicDefaultTabAccessWhenOn2",
-      glic::GlicEnabling::EnablementForProfile(profile).EligibleForLive()
-          ? IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_WHEN_ON_2
-          : IDS_SETTINGS_GLIC_PERMISSIONS_DEFAULT_TAB_ACCESS_WHEN_ON_2_NO_LIVE);
-
-  auto* command_line = base::CommandLine::ForCurrentProcess();
-  bool has_url =
-      command_line->HasSwitch(::switches::kGlicShortcutsLearnMoreURL);
-  const std::string keyboard_shortcut_learn_more_url =
-      has_url ? command_line->GetSwitchValueASCII(
-                    ::switches::kGlicShortcutsLearnMoreURL)
-              : features::kGlicShortcutsLearnMoreURL.Get();
-
-  const std::string& application_locale =
-      g_browser_process->GetApplicationLocale();
-
-  auto add_localized_url = [&](std::string_view name,
-                               std::string_view url_string) {
-    html_source->AddString(
-        name, google_util::AppendGoogleLocaleParam(
-                  glic::GetHelpCenterUrl(url_string), application_locale)
-                  .spec());
-  };
-
-  add_localized_url("glicKeyboardShortcutLearnMoreUrl",
-                    keyboard_shortcut_learn_more_url);
-  add_localized_url("glicLauncherToggleLearnMoreUrl",
-                    features::kGlicLauncherToggleLearnMoreURL.Get());
-  add_localized_url("glicLocationToggleLearnMoreUrl",
-                    features::kGlicLocationToggleLearnMoreURL.Get());
-  add_localized_url("glicTabAccessToggleLearnMoreUrl",
-                    features::kGlicTabAccessToggleLearnMoreURL.Get());
-  add_localized_url(
-      "glicTabAccessToggleLearnMoreUrlDataProtected",
-      features::kGlicTabAccessToggleLearnMoreURLDataProtected.Get());
-  add_localized_url("glicDefaultTabAccessToggleLearnMoreUrl",
-                    features::kGlicDefaultTabAccessToggleLearnMoreURL.Get());
-  add_localized_url(
-      "glicDefaultTabAccessToggleLearnMoreUrlDataProtected",
-      features::kGlicDefaultTabAccessToggleLearnMoreURLDataProtected.Get());
-  add_localized_url("glicSettingsPageLearnMoreUrl",
-                    features::kGlicSettingsPageLearnMoreURL.Get());
-  add_localized_url("glicExtensionsManagementUrl",
-                    features::kGlicExtensionsManagementUrl.Get());
-  add_localized_url("glicWebActuationToggleLearnMoreUrl",
-                    features::kGlicWebActuationToggleLearnMoreURL.Get());
-  if (base::FeatureList::IsEnabled(features::kGlicSettingsA11yContextFix)) {
-    html_source->AddString(
-        "glicWebActuationToggleSublabelV2",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_PERMISSIONS_CHROME_WEB_ACTUATION_TOGGLE_SUBLABEL_V2,
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_PERMISSIONS_CHROME_WEB_ACTUATION_TOGGLE_LEARN_MORE_ARIA_LABEL)),
-            base::EscapeForHTML(
-                l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB))));
-    html_source->AddString(
-        "glicWebActuationToggleConsider2V2",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_2_V2,
-            base::EscapeForHTML(base::UTF8ToUTF16(
-                features::kGlicWebActuationToggleConsiderSafelyURL.Get())),
-            base::EscapeForHTML(base::UTF8ToUTF16(
-                features::kGlicWebActuationToggleConsiderUnexpectedResultsURL
-                    .Get())),
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_SAFELY_ARIA_LABEL)),
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_UNEXPECTED_RESULTS_ARIA_LABEL)),
-            base::EscapeForHTML(
-                l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB))));
-  } else {
-    html_source->AddLocalizedString(
-        "glicWebActuationToggleSublabelV2",
-        IDS_SETTINGS_GLIC_PERMISSIONS_CHROME_WEB_ACTUATION_TOGGLE_SUBLABEL);
-    html_source->AddString(
-        "glicWebActuationToggleConsider2V2",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_PERMISSIONS_WEB_ACTUATION_TOGGLE_CONSIDER_2,
-            base::EscapeForHTML(base::UTF8ToUTF16(
-                features::kGlicWebActuationToggleConsiderSafelyURL.Get())),
-            base::EscapeForHTML(base::UTF8ToUTF16(
-                features::kGlicWebActuationToggleConsiderUnexpectedResultsURL
-                    .Get()))));
-  }
-
-  const std::string experimental_triggering_learn_more_url =
-      google_util::AppendGoogleLocaleParam(
-          glic::GetHelpCenterUrl(
-              features::kGlicExperimentalTriggeringLearnMoreURL.Get()),
-          application_locale)
-          .spec();
-  html_source->AddString("glicExperimentalTriggeringLearnMoreUrl",
-                         experimental_triggering_learn_more_url);
-  const std::string experimental_triggering_safety_url =
-      google_util::AppendGoogleLocaleParam(
-          glic::GetHelpCenterUrl(
-              features::kGlicExperimentalTriggeringSafetyURL.Get()),
-          application_locale)
-          .spec();
-
-  if (base::FeatureList::IsEnabled(
-          features::kGlicSparkSettingsAccessibleLabels)) {
-    html_source->AddString(
-        "glicExperimentalTriggeringSublabel",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_SUB_LABEL_V2,
-            base::UTF8ToUTF16(experimental_triggering_learn_more_url),
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_SUB_LABEL_LEARN_MORE_LINK_LABEL)),
-            base::EscapeForHTML(
-                l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB))));
-    html_source->AddString(
-        "glicExperimentalTriggeringConsider3",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_3_V2,
-            base::UTF8ToUTF16(experimental_triggering_safety_url),
-            base::EscapeForHTML(l10n_util::GetStringUTF16(
-                IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_REVIEW_RISKS_LINK_LABEL)),
-            base::EscapeForHTML(
-                l10n_util::GetStringUTF16(IDS_SETTINGS_OPENS_IN_NEW_TAB))));
-  } else {
-    html_source->AddString(
-        "glicExperimentalTriggeringSublabel",
-        l10n_util::GetStringUTF16(
-            IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_SUB_LABEL));
-    html_source->AddString(
-        "glicExperimentalTriggeringConsider3",
-        l10n_util::GetStringFUTF16(
-            IDS_SETTINGS_GLIC_EXPERIMENTAL_TRIGGERING_CONSIDER_3,
-            base::UTF8ToUTF16(experimental_triggering_safety_url)));
-  }
-
-  html_source->AddBoolean(
-      "glicExtensionsFeatureEnabled",
-      base::FeatureList::IsEnabled(features::kGlicExtensions));
-  html_source->AddBoolean(
-      "glicUserStatusCheckFeatureEnabled",
-      base::FeatureList::IsEnabled(features::kGlicUserStatusCheck));
-  html_source->AddBoolean("glicAssetsV2Enabled", base::FeatureList::IsEnabled(
-                                                     features::kGlicAssetsV2));
-  html_source->AddBoolean(
-      "showGlicDefaultTabContextSetting",
-      base::FeatureList::IsEnabled(features::kGlicDefaultTabContextSetting));
-  html_source->AddBoolean(
-      "showGlicKeepSidepanelOpenOnNewTabsSetting",
-      base::FeatureList::IsEnabled(features::kGlicDaisyChainNewTabs));
-  html_source->AddBoolean("glicWebActuationFeatureEnabled",
-                          GlicHandler::ShouldShowWebActuationToggle(profile));
-  html_source->AddBoolean(
-      "isWebActuationDisabledForEnterprise",
-      GlicHandler::IsWebActuationDisabledForEnterprise(profile));
-  html_source->AddBoolean("glicActorEnabled",
-                          base::FeatureList::IsEnabled(features::kGlicActor));
-  html_source->AddBoolean(
-      "glicCanUseLive",
-      glic::GlicEnabling::EnablementForProfile(profile).EligibleForLive());
-  html_source->AddBoolean("headlessCaptionsEnabled",
-                          captions::IsHeadlessCaptionFeatureSupported());
-  html_source->AddBoolean(
-      "actorLoginFederatedLoginSupportEnabled",
-      base::FeatureList::IsEnabled(features::kFedCmEmbedderInitiatedLogin));
-  html_source->AddBoolean("glicSelectionFeatureEnabled",
-                          glic::GetGlicProviderSpec(profile).SupportsFeature(
-                              glic::GlicFeature::kCaptureRegion));
-  html_source->AddBoolean(
-      "glicHotkeyLocalScopeEnabled",
-      base::FeatureList::IsEnabled(features::kGlicHotkeyLocalScope));
-  html_source->AddBoolean(
-      "showGlicExperimentalTriggering",
-      GlicHandler::ShouldShowExperimentalTriggeringToggle(profile));
-  html_source->AddBoolean(
-      "showGlicShakeTrigger",
-      base::FeatureList::IsEnabled(features::kGlicShakeTrigger));
-}
 
 void AddResetStrings(content::WebUIDataSource* html_source, Profile* profile) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
@@ -1262,7 +799,6 @@ void AddResetStrings(content::WebUIDataSource* html_source, Profile* profile) {
                          chrome::kAutomaticSettingsResetLearnMoreURL);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void AddImportDataStrings(content::WebUIDataSource* html_source) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
       {"importTitle", IDS_SETTINGS_IMPORT_SETTINGS_TITLE},
@@ -1282,7 +818,6 @@ void AddImportDataStrings(content::WebUIDataSource* html_source) {
   };
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
-#endif
 
 void AddPerformanceStrings(content::WebUIDataSource* html_source) {
   // TODO(crbug.com/339250758): Clean up unused strings now that multistate mode
@@ -1461,12 +996,6 @@ void AddPerformanceStrings(content::WebUIDataSource* html_source) {
   html_source->AddString("performanceInterventionLearnMoreUrl",
                          chrome::kPerformanceInterventionLearnMoreUrl);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  html_source->AddString("osPowerSettingsUrl",
-                         chromeos::settings::GetOSSettingsUrl(
-                             chromeos::settings::mojom::kPowerSubpagePath)
-                             .spec());
-#endif
 
   html_source->AddBoolean(
       "cpuPerformanceEnabled",
@@ -1477,7 +1006,6 @@ void AddLanguagesStrings(content::WebUIDataSource* html_source,
                          Profile* profile) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
       {"languagesPageTitle", IDS_SETTINGS_LANGUAGES_PAGE_TITLE},
-#if !BUILDFLAG(IS_CHROMEOS)
       {"languagesCardTitle", IDS_SETTINGS_LANGUAGES_CARD_TITLE},
       {"searchLanguages", IDS_SETTINGS_LANGUAGE_SEARCH},
       {"languagesExpandA11yLabel",
@@ -1553,26 +1081,13 @@ void AddLanguagesStrings(content::WebUIDataSource* html_source,
       {"languagesDictionaryDownloadErrorHelp",
        IDS_SETTINGS_LANGUAGES_DICTIONARY_DOWNLOAD_FAILED_HELP},
 #endif
-#endif  // !BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_CHROMEOS)
-      {"openChromeOSLanguagesSettingsLabel",
-       IDS_SETTINGS_LANGUAGES_OPEN_CHROME_OS_SETTINGS_LABEL},
-#endif
   };
   html_source->AddLocalizedStrings(kLocalizedStrings);
-#if !BUILDFLAG(IS_CHROMEOS)
   html_source->AddLocalizedString(
       "offerToEnableTranslateSublabel",
       base::FeatureList::IsEnabled(translate::kEnableTranslatePdf)
           ? IDS_SETTINGS_LANGUAGES_OFFER_TO_ENABLE_TRANSLATE_SUBLABEL_WITH_PDF
           : IDS_SETTINGS_LANGUAGES_OFFER_TO_ENABLE_TRANSLATE_SUBLABEL);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_CHROMEOS)
-  html_source->AddString("osSettingsLanguagesPageUrl",
-                         chromeos::settings::GetOSSettingsUrl(
-                             chromeos::settings::mojom::kLanguagesSubpagePath)
-                             .spec());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void AddOnStartupStrings(content::WebUIDataSource* html_source) {
@@ -2092,7 +1607,7 @@ void AddAutofillStrings(content::WebUIDataSource* html_source,
 
   bool is_mandatory_reauth_feature_flag_enabled = false;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   // The feature is already launched on Windows, Mac and ChromeOS.
   is_mandatory_reauth_feature_flag_enabled = true;
 #endif
@@ -2146,9 +1661,6 @@ void AddAutofillStrings(content::WebUIDataSource* html_source,
   html_source->AddBoolean(
       "emailVerificationProtocolEnabled",
       base::FeatureList::IsEnabled(features::kEmailVerificationProtocol));
-  html_source->AddBoolean("autofillGmailOtpFillingEnabled",
-                          base::FeatureList::IsEnabled(
-                              features::kGlicActorAutofillOneTimePassword));
   html_source->AddString(
       "enableGmailOtpFillingDescription",
       l10n_util::GetStringFUTF16(
@@ -2312,9 +1824,7 @@ void AddPersonalizationOptionsStrings(content::WebUIDataSource* html_source) {
       {"urlKeyedAnonymizedDataCollectionDesc",
        IDS_SETTINGS_ENABLE_URL_KEYED_ANONYMIZED_DATA_COLLECTION_DESC},
       {"spellingPref", IDS_SETTINGS_SPELLING_PREF},
-#if !BUILDFLAG(IS_CHROMEOS)
       {"signinAllowedTitle", IDS_SETTINGS_SIGNIN_ALLOWED},
-#endif
       {"enablePersonalizationLogging", IDS_SETTINGS_ENABLE_LOGGING_PREF},
       {"enablePersonalizationLoggingDesc",
        IDS_SETTINGS_ENABLE_LOGGING_PREF_DESC},
@@ -2324,9 +1834,6 @@ void AddPersonalizationOptionsStrings(content::WebUIDataSource* html_source) {
       {"searchAggregatorSuggestPref", IDS_SETTINGS_SEARCH_AGGREGATOR_PREF},
       {"searchAggregatorSuggestPrefDesc",
        IDS_SETTINGS_SEARCH_AGGREGATOR_PREF_DESC},
-      {"priceEmailNotificationsPref", IDS_PRICE_TRACKING_SETTINGS_TITLE},
-      {"priceEmailNotificationsPrefDesc",
-       IDS_PRICE_TRACKING_SETTINGS_EMAIL_DESCRIPTION},
       {"chromeSigninChoiceTitle",
        IDS_SETTINGS_SIGNIN_CHROME_SIGNIN_OPTIONS_TITLE},
       {"chromeSigninChoiceDescription",
@@ -2344,13 +1851,11 @@ void AddPersonalizationOptionsStrings(content::WebUIDataSource* html_source) {
   };
   html_source->AddLocalizedStrings(kLocalizedStrings);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   html_source->AddLocalizedString(
       "signinAllowedDescription",
       syncer::IsReplaceSyncPromosWithSignInPromosEnabled()
           ? IDS_SETTINGS_SIGNIN_ALLOWED_DESC_2
           : IDS_SETTINGS_SIGNIN_ALLOWED_DESC);
-#endif
 }
 
 void AddBrowserSyncPageStrings(content::WebUIDataSource* html_source) {
@@ -2378,24 +1883,16 @@ void AddBrowserSyncPageStrings(content::WebUIDataSource* html_source) {
       {"personalizeGoogleServicesLinkedServicesDesc",
        IDS_SETTINGS_PERSONALIZE_GOOGLE_SERVICES_LINKED_SERVICES_DESC},
       {"themeCheckboxLabel", IDS_SETTINGS_THEME_CHECKBOX_LABEL},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"browserSyncFeatureLabel", IDS_BROWSER_SETTINGS_SYNC_FEATURE_LABEL},
-      {"cookiesCheckboxLabel", IDS_SETTINGS_COOKIES_CHECKBOX_LABEL},
-      {"peopleSignInSyncPagePromptSecondaryWithNoAccount",
-       IDS_SETTINGS_PEOPLE_SIGN_IN_PROMPT_SECONDARY_WITH_ACCOUNT},
-#endif
       {"passwordsCheckboxLabel",
        IDS_SETTINGS_PASSWORDS_AND_PASSKEYS_CHECKBOX_LABEL},
   };
   html_source->AddLocalizedStrings(kLocalizedStrings);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   html_source->AddLocalizedString(
       "peopleSignInSyncPagePromptSecondaryWithNoAccount",
       syncer::IsReplaceSyncPromosWithSignInPromosEnabled()
           ? IDS_SETTINGS_PEOPLE_EXPLICIT_SIGN_IN_PROMPT_SECONDARY_WITH_NO_ACCOUNT_WITH_BOOKMARKS
           : IDS_SETTINGS_PEOPLE_EXPLICIT_SIGN_IN_PROMPT_SECONDARY_WITH_NO_ACCOUNT);
-#endif
 
   html_source->AddString("activityControlsUrl",
                          chrome::kGoogleAccountActivityControlsURL);
@@ -2406,21 +1903,6 @@ void AddBrowserSyncPageStrings(content::WebUIDataSource* html_source) {
   html_source->AddString("linkedServicesUrl",
                          chrome::kGoogleAccountLinkedServicesURL);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  html_source->AddString("osSyncSetupSettingsUrl",
-                         chromeos::settings::GetOSSettingsUrl(
-                             chromeos::settings::mojom::kSyncSetupSubpagePath)
-                             .spec());
-  html_source->AddString("osSettingsPrivacyHubSubpageUrl",
-                         chromeos::settings::GetOSSettingsUrl(
-                             chromeos::settings::mojom::kPrivacyHubSubpagePath)
-                             .spec());
-  html_source->AddString(
-      "osSyncSettingsUrl",
-      chromeos::settings::GetOSSettingsUrl(
-          chromeos::settings::mojom::kSyncControlsSubpagePath)
-          .spec());
-#endif
 }
 
 void AddSyncControlsStrings(content::WebUIDataSource* html_source) {
@@ -2451,7 +1933,6 @@ void AddSyncControlsStrings(content::WebUIDataSource* html_source) {
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::string GetPeopleSignInPromptSecondaryWithAccount(Profile* profile) {
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
   if (base::FeatureList::IsEnabled(
@@ -2483,7 +1964,6 @@ std::string GetPeopleSignInPromptSecondaryWithAccount(Profile* profile) {
           ? IDS_SETTINGS_PEOPLE_EXPLICIT_SIGN_IN_PROMPT_SECONDARY_WITH_NO_ACCOUNT_WITH_BOOKMARKS
           : IDS_SETTINGS_PEOPLE_SIGN_IN_PROMPT_SECONDARY_WITH_ACCOUNT);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void AddPeopleStrings(content::WebUIDataSource* html_source, Profile* profile) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
@@ -2497,28 +1977,12 @@ void AddPeopleStrings(content::WebUIDataSource* html_source, Profile* profile) {
        IDS_SYNC_UNAVAILABLE_FOR_NON_GOOGLE_ACCOUNT},
       {"accountPageTitle", IDS_SETTINGS_ACCOUNT_PAGE_TITLE},
       {"accountDataTypesHeading", IDS_SETTINGS_ACCOUNT_DATATYPES_HEADING},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"accountDataTypesBody", IDS_SETTINGS_ACCOUNT_BODY_CHROMEOS},
-#else
       {"accountDataTypesBody", IDS_SETTINGS_ACCOUNT_BODY},
-#endif
       {"googleServicesPageTitle", IDS_SETTINGS_GOOGLE_SERVICES_PAGE_TITLE},
       {"syncDisabledUserInformation", IDS_SETTINGS_ACCOUNT_SYNC_DISABLED},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"manageDeviceAccounts", IDS_ACCOUNT_CHROMEOS_DEVICE_ACCOUNTS},
-      {"accountManagerSubMenuLabel",
-       IDS_SETTINGS_ACCOUNT_MANAGER_SUBMENU_LABEL},
-      {"peopleSignInPrompt", IDS_SETTINGS_PEOPLE_SIGN_IN_PROMPT},
-      {"peopleSignInPromptSecondaryWithAccount",
-       IDS_SETTINGS_PEOPLE_SIGN_IN_PROMPT_SECONDARY_WITH_ACCOUNT},
-      {"peopleSignInPromptSecondaryWithNoAccount",
-       IDS_SETTINGS_PEOPLE_SIGN_IN_PROMPT_SECONDARY_WITH_ACCOUNT},
-#else
       {"editPerson", IDS_SETTINGS_CUSTOMIZE_PROFILE},
-#endif
 
   // Manage profile strings:
-#if !BUILDFLAG(IS_CHROMEOS)
       {"showShortcutLabel", IDS_SETTINGS_PROFILE_SHORTCUT_TOGGLE_LABEL},
       {"nameInputLabel", IDS_SETTINGS_PROFILE_NAME_INPUT_LABEL},
       {"nameYourProfile", IDS_SETTING_NAME_YOUR_PROFILE},
@@ -2540,7 +2004,6 @@ void AddPeopleStrings(content::WebUIDataSource* html_source, Profile* profile) {
       // Managed theme dialog strings:
       {"themeManagedDialogTitle", IDS_NTP_THEME_MANAGED_DIALOG_TITLE},
       {"themeManagedDialogBody", IDS_NTP_THEME_MANAGED_DIALOG_BODY},
-#endif
       {"deleteProfileWarningExpandA11yLabel",
        IDS_SETTINGS_SYNC_DISCONNECT_EXPAND_ACCESSIBILITY_LABEL},
       {"deleteProfileWarningWithCountsSingular",
@@ -2552,7 +2015,6 @@ void AddPeopleStrings(content::WebUIDataSource* html_source, Profile* profile) {
   };
   html_source->AddLocalizedStrings(kLocalizedStrings);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   html_source->AddLocalizedString(
       "peopleSignInPrompt",
       syncer::IsReplaceSyncPromosWithSignInPromosEnabled()
@@ -2572,7 +2034,6 @@ void AddPeopleStrings(content::WebUIDataSource* html_source, Profile* profile) {
       syncer::IsReplaceSyncPromosWithSignInPromosEnabled()
           ? IDS_SETTINGS_CUSTOMIZE_PROFILE
           : IDS_SETTINGS_CUSTOMIZE_YOUR_CHROME_PROFILE);
-#endif
 
   // Add Google Account URL and include UTM parameter to signal the source of
   // the navigation.
@@ -2596,32 +2057,16 @@ void AddPeopleStrings(content::WebUIDataSource* html_source, Profile* profile) {
       AccountConsistencyModeManager::IsDiceSignInAllowed(profile_entry));
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Toggles the Chrome OS Account Manager submenu in the People section.
-  html_source->AddBoolean("isAccountManagerEnabled",
-                          ash::IsAccountManagerAvailable(profile));
-  html_source->AddString("osSettingsAccountsPageUrl",
-                         chromeos::settings::GetOSSettingsUrl(
-                             chromeos::settings::mojom::kPeopleSectionPath)
-                             .spec());
-#endif
 
   AddSignOutDialogStrings(html_source, profile);
   AddSyncControlsStrings(html_source);
   AddSyncAccountControlStrings(html_source);
-#if BUILDFLAG(IS_CHROMEOS)
-  AddPasswordPromptDialogStrings(html_source);
-#endif
   AddBrowserSyncPageStrings(html_source);
   AddSharedSyncPageStrings(html_source);
 }
 
 bool ShouldLinkSecureDnsOsSettings() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return true;
-#else
   return false;
-#endif
 }
 
 void AddPrivacyStrings(content::WebUIDataSource* html_source,
@@ -2810,10 +2255,6 @@ void AddPrivacyStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_SECURITY_JAVASCRIPT_OPTIMIZATION_LINK_ROW_ENABLED},
       {"securityJavascriptOptimizerLinkRowLabelDisabled",
        IDS_SETTINGS_SECURITY_JAVASCRIPT_OPTIMIZATION_LINK_ROW_DISABLED},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"openChromeOSSecureDnsSettingsLabel",
-       IDS_SETTINGS_SECURE_DNS_OPEN_CHROME_OS_SETTINGS_LABEL},
-#endif
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
       {"manageDeviceCertificates", IDS_SETTINGS_MANAGE_DEVICE_CERTIFICATES},
       {"manageDeviceCertificatesDescription",
@@ -2850,12 +2291,6 @@ void AddPrivacyStrings(content::WebUIDataSource* html_source,
 
   bool link_secure_dns = ShouldLinkSecureDnsOsSettings();
   html_source->AddBoolean("showSecureDnsSetting", !link_secure_dns);
-#if BUILDFLAG(IS_CHROMEOS)
-  html_source->AddBoolean("showSecureDnsSettingLink", link_secure_dns);
-  html_source->AddString(
-      "chromeOSPrivacyAndSecuritySectionPath",
-      chromeos::settings::mojom::kPrivacyAndSecuritySectionPath);
-#endif
 
 #if BUILDFLAG(CHROME_ROOT_STORE_SUPPORTED)
   html_source->AddString("chromeRootStoreHelpCenterURL",
@@ -3471,7 +2906,7 @@ void AddSiteSettingsStrings(content::WebUIDataSource* html_source,
       {"siteSettingsProtectedContentAllowedSubLabel",
        IDS_SETTINGS_SITE_SETTINGS_PROTECTED_CONTENT_ALLOWED_SUB_LABEL},
 #endif
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
       {"siteSettingsProtectedContentIdentifiersExplanation",
        IDS_SETTINGS_SITE_SETTINGS_PROTECTED_CONTENT_IDENTIFIERS_EXPLANATION},
       {"siteSettingsProtectedContentIdentifiersAllowed",
@@ -4071,9 +3506,6 @@ void AddSiteSettingsStrings(content::WebUIDataSource* html_source,
       {"siteSettingsArMidSentence", IDS_SITE_SETTINGS_TYPE_AR_MID_SENTENCE},
       {"siteSettingsArAsk", IDS_SETTINGS_SITE_SETTINGS_AR_ASK},
       {"siteSettingsArBlock", IDS_SETTINGS_SITE_SETTINGS_AR_BLOCK},
-      {"siteSettingsInlineCueMenu", IDS_SETTINGS_GLIC_INLINE_CUE_MENU},
-      {"siteSettingsInlineCueMenuMidSentence",
-       IDS_SETTINGS_GLIC_INLINE_CUE_MENU_MID_SENTENCE},
       {"siteSettingsVr", IDS_SITE_SETTINGS_TYPE_VR},
       {"siteSettingsVrMidSentence", IDS_SITE_SETTINGS_TYPE_VR_MID_SENTENCE},
       {"siteSettingsWebAppInstallation",
@@ -4153,20 +3585,6 @@ void AddSiteSettingsStrings(content::WebUIDataSource* html_source,
        IDS_SETTINGS_OFFER_WRITING_HELP_ENABLED_SUB_LABEL},
       {"siteSettingsOfferWritingHelpDisabledSublabel",
        IDS_SETTINGS_OFFER_WRITING_HELP_DISABLED_SUB_LABEL},
-#if BUILDFLAG(ENABLE_SMART_CARD)
-      {"siteSettingsSmartCardReaders", IDS_SITE_SETTINGS_SMART_CARD_READERS},
-      {"siteSettingsSmartCardReadersDescription",
-       IDS_SITE_SETTINGS_SMART_CARD_READERS_DESCRIPTION},
-      {"siteSettingsSmartCardReadersDefaultDescription",
-       IDS_SITE_SETTINGS_SMART_CARDS_DEFAULT_DESCRIPTION},
-      {"siteSettingsSmartCardReadersAsk", IDS_SITE_SETTINGS_SMART_CARDS_ASK},
-      {"siteSettingsSmartCardReadersBlocked",
-       IDS_SITE_SETTINGS_SMART_CARDS_BLOCKED},
-      {"siteSettingsNoSmartCardReadersFound",
-       IDS_SITE_SETTINGS_NO_SMART_CARD_READERS_FOUND},
-      {"siteSettingsResetSmartCardConfirmation",
-       IDS_SITE_SETTINGS_RESET_SMART_CARD_CONFIRMATION},
-#endif
 
       {"siteSettingsLocalNetwork", IDS_SITE_SETTINGS_TYPE_LOCAL_NETWORK},
       {"siteSettingsLocalNetworkMidSentence",
@@ -4355,7 +3773,6 @@ void AddSiteDataPageStrings(content::WebUIDataSource* html_source,
   html_source->AddLocalizedStrings(kLocalizedStrings);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void AddSystemStrings(content::WebUIDataSource* html_source) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
       {"systemPageTitle", IDS_SETTINGS_SYSTEM},
@@ -4408,7 +3825,6 @@ void AddSystemStrings(content::WebUIDataSource* html_source) {
   // strings" to "load time data" as all primitive types are used now.
   SystemHandler::AddLoadTimeData(html_source);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void AddExtensionsStrings(content::WebUIDataSource* html_source) {
   html_source->AddLocalizedString("extensionsPageTitle",
@@ -4559,12 +3975,10 @@ void AddAutofillStringsForTesting(content::WebUIDataSource* html_source,
   AddAutofillStrings(html_source, profile, web_contents);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::string GetPeopleSignInPromptSecondaryWithAccountForTesting(
     Profile* profile) {
   return GetPeopleSignInPromptSecondaryWithAccount(profile);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void AddLocalizedStrings(content::WebUIDataSource* html_source,
                          Profile* profile,
@@ -4578,9 +3992,7 @@ void AddLocalizedStrings(content::WebUIDataSource* html_source,
   AddCommonStrings(html_source, profile);
   AddDownloadsStrings(html_source);
   AddExtensionsStrings(html_source);
-  AddGeicStrings(html_source);
   AddGeneralStrings(html_source);
-  AddGlicStrings(html_source, profile);
   AddPerformanceStrings(html_source);
   AddLanguagesStrings(html_source, profile);
   AddOnStartupStrings(html_source);
@@ -4598,11 +4010,9 @@ void AddLocalizedStrings(content::WebUIDataSource* html_source,
   AddSiteDataPageStrings(html_source, profile);
   AddStorageAccessStrings(html_source);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   AddDefaultBrowserStrings(html_source);
   AddImportDataStrings(html_source);
   AddSystemStrings(html_source);
-#endif
 
   policy_indicator::AddLocalizedStrings(html_source);
   AddSecurityKeysStrings(html_source);

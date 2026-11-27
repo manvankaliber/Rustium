@@ -637,10 +637,7 @@ bool VideoCaptureImpl::ProcessBuffer(
       auto gmb_handle = buffer_context->CloneGpuMemoryBufferHandle();
       CHECK(!gmb_handle.is_null());
 
-#if BUILDFLAG(IS_CHROMEOS)
-      video_frame_init_data.is_webgpu_compatible =
-          gmb_handle.type == gfx::NATIVE_PIXMAP;
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
       video_frame_init_data.is_webgpu_compatible =
           gfx::IOSurfacePixelFormatIsWebGPUCompatible(
               IOSurfaceGetPixelFormat(gmb_handle.io_surface().get()));
@@ -849,7 +846,7 @@ bool VideoCaptureImpl::BindVideoFrameOnMediaTaskRunner(
 #if BUILDFLAG(IS_APPLE)
     usage |= gpu::SHARED_IMAGE_USAGE_MACOS_VIDEO_TOOLBOX;
 #endif
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     // These SharedImages may be used for zero-copy of VideoFrames into WebGPU.
     if (video_frame_init_data.is_webgpu_compatible) {
       usage |= gpu::SHARED_IMAGE_USAGE_WEBGPU_READ;

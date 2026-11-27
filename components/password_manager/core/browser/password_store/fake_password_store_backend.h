@@ -62,12 +62,6 @@ class FakePasswordStoreBackend : public PasswordStoreBackend {
   // Do NOT enable this method on Desktop; instead, attach a
   // `MockAffiliatedMatchHelper` via `SetAffiliatedMatchHelper()` and use
   // `ExpectCallToGetAffiliatedAndGrouped()`.
-#if BUILDFLAG(IS_ANDROID)
-  void SetAffiliatedAndGroupedRealms(
-      const std::string& realm,
-      const std::vector<std::string>& affiliated_realms,
-      const std::vector<std::string>& grouped_realms = {});
-#endif
   void ReturnErrorOnRequest(
       std::optional<PasswordStoreBackendError> password_store_backend_error);
   void SetError(ActionableError error);
@@ -138,13 +132,6 @@ class FakePasswordStoreBackend : public PasswordStoreBackend {
   std::vector<StoredCredential> FillMatchingLoginsHelper(
       const PasswordFormDigest& form,
       bool include_psl);
-#if BUILDFLAG(IS_ANDROID)
-  std::vector<StoredCredential> GetGroupedMatchingLoginsInternal(
-      const PasswordFormDigest& form_digest);
-  void AddLoginsWithMatchType(const std::vector<std::string>& realms,
-                              affiliations::MatchType match_type,
-                              std::vector<StoredCredential>& results);
-#endif
   PasswordStoreChangeList AddLoginInternal(const StoredCredential& cred);
   PasswordStoreChangeList UpdateLoginInternal(const StoredCredential& cred);
   void DisableAutoSignInForOriginsInternal(
@@ -159,10 +146,6 @@ class FakePasswordStoreBackend : public PasswordStoreBackend {
 
   raw_ptr<AffiliatedMatchHelper> match_helper_ = nullptr;
   PasswordMap stored_passwords_;
-#if BUILDFLAG(IS_ANDROID)
-  std::map<std::string, std::vector<std::string>> affiliated_realms_;
-  std::map<std::string, std::vector<std::string>> grouped_realms_;
-#endif
   PasswordStoreBackend::RemoteChangesReceived remote_form_changes_received_;
   scoped_refptr<base::SequencedTaskRunner> task_runner_;
   std::optional<PasswordStoreBackendError> password_store_backend_error_;

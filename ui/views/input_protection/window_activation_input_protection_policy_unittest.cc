@@ -88,14 +88,8 @@ class WindowActivationInputProtectionPolicyTest : public WidgetTest {
   base::test::ScopedFeatureList scoped_feature_list_;
 };
 
-#if BUILDFLAG(IS_FUCHSIA) && defined(ARCH_CPU_ARM64) && !defined(NDEBUG)
-// TODO(crbug.com/464455929): Crash in llvm on Fuchsia arm64 in debug.
-#define MAYBE_ParentInvisibleOnActivation_TriggersProtection \
-  DISABLED_ParentInvisibleOnActivation_TriggersProtection
-#else
 #define MAYBE_ParentInvisibleOnActivation_TriggersProtection \
   ParentInvisibleOnActivation_TriggersProtection
-#endif
 TEST_F(WindowActivationInputProtectionPolicyTest,
        MAYBE_ParentInvisibleOnActivation_TriggersProtection) {
   // Create parent widget.
@@ -287,14 +281,8 @@ TEST_F(WindowActivationInputProtectionPolicyTest,
       mock_protector));
 }
 
-#if BUILDFLAG(IS_FUCHSIA) && defined(ARCH_CPU_ARM64) && !defined(NDEBUG)
-// TODO(crbug.com/464455929): Crash in llvm on Fuchsia arm64 in debug.
-#define MAYBE_ParentHideWhileChildInactive_TriggersProtection \
-  DISABLED_ParentHideWhileChildInactive_TriggersProtection
-#else
 #define MAYBE_ParentHideWhileChildInactive_TriggersProtection \
   ParentHideWhileChildInactive_TriggersProtection
-#endif
 TEST_F(WindowActivationInputProtectionPolicyTest,
        MAYBE_ParentHideWhileChildInactive_TriggersProtection) {
   // Create parent widget.

@@ -44,12 +44,6 @@ js_injection::mojom::JsWebMessageDataView::Tag UnionTraits<
             return js_injection::mojom::JsWebMessageDataView::Tag::
                 kArrayBufferValue;
           },
-#if BUILDFLAG(IS_ANDROID)
-          [](const base::UnsafeSharedMemoryRegion&) {
-            return js_injection::mojom::JsWebMessageDataView::Tag::
-                kSharedArrayBufferValue;
-          },
-#endif
       },
       payload);
 }
@@ -77,17 +71,6 @@ bool UnionTraits<
           std::move(array_buffer_value));
       return true;
     }
-#if BUILDFLAG(IS_ANDROID)
-    case js_injection::mojom::JsWebMessageDataView::Tag::
-        kSharedArrayBufferValue: {
-      base::UnsafeSharedMemoryRegion shared_memory;
-      if (!r.ReadSharedArrayBufferValue(&shared_memory)) {
-        return false;
-      }
-      out->emplace<base::UnsafeSharedMemoryRegion>(std::move(shared_memory));
-      return true;
-    }
-#endif
   }
   return false;
 }

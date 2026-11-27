@@ -8,15 +8,14 @@ use crate::fcntl::AtFlags;
 
 #[cfg(feature = "fs")]
 #[cfg(any(
-    linux_android,
+    linux,
     freebsdlike,
     solarish,
     netbsdlike,
     target_os = "emscripten",
-    target_os = "fuchsia",
     target_os = "hurd",
     target_os = "redox",
-    target_os = "cygwin",
+    target_os = "cygwin"
 ))]
 use crate::fcntl::OFlag;
 #[cfg(all(feature = "fs", bsd))]
@@ -35,14 +34,14 @@ use std::{fmt, mem, ptr};
 
 feature! {
     #![feature = "fs"]
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     pub use self::pivot_root::*;
 }
 
-#[cfg(any(freebsdlike, linux_android, target_os = "openbsd"))]
+#[cfg(any(freebsdlike, linux, target_os = "openbsd"))]
 pub use self::setres::*;
 
-#[cfg(any(freebsdlike, linux_android, target_os = "openbsd"))]
+#[cfg(any(freebsdlike, linux, target_os = "openbsd"))]
 pub use self::getres::*;
 
 feature! {
@@ -398,7 +397,7 @@ pub fn getpgrp() -> Pid {
 ///
 /// No error handling is required as a thread id should always exist for any
 /// process, even if threads are not being used.
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[inline]
 pub fn gettid() -> Pid {
     Pid(unsafe { libc::syscall(libc::SYS_gettid) as pid_t })
@@ -655,14 +654,7 @@ pub unsafe fn dup2_raw<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::IntoRawFd>(oldf
 /// * [Linux](https://man7.org/linux/man-pages/man2/dup.2.html)
 /// * [NetBSD](https://man.netbsd.org/dup3.2)
 /// * [OpenBSD](https://man.openbsd.org/dup3.2)
-#[cfg(any(
-    netbsdlike,
-    solarish,
-    target_os = "freebsd",
-    target_os = "fuchsia",
-    target_os = "hurd",
-    target_os = "linux"
-))]
+#[cfg(any(netbsdlike, solarish, target_os = "freebsd", target_os = "hurd", target_os = "linux"))]
 pub fn dup3<Fd: std::os::fd::AsFd>(oldfd: Fd, newfd: &mut std::os::fd::OwnedFd, flags: OFlag) -> Result<()> {
     use std::os::fd::AsRawFd;
 
@@ -694,14 +686,7 @@ pub fn dup3<Fd: std::os::fd::AsFd>(oldfd: Fd, newfd: &mut std::os::fd::OwnedFd, 
 /// # See also
 ///
 /// * [`dup3()`]
-#[cfg(any(
-    netbsdlike,
-    solarish,
-    target_os = "freebsd",
-    target_os = "fuchsia",
-    target_os = "hurd",
-    target_os = "linux"
-))]
+#[cfg(any(netbsdlike, solarish, target_os = "freebsd", target_os = "hurd", target_os = "linux"))]
 pub unsafe fn dup3_raw<Fd1: std::os::fd::AsFd, Fd2: std::os::fd::IntoRawFd>(oldfd: Fd1, newfd: Fd2, flags: OFlag) -> Result<std::os::fd::OwnedFd> {
     use std::os::fd::AsRawFd;
     use std::os::fd::OwnedFd;
@@ -738,7 +723,7 @@ pub fn chdir<P: ?Sized + NixPath>(path: &P) -> Result<()> {
 /// This function may fail in a number of different scenarios.  See the man
 /// pages for additional details on possible failure cases.
 #[inline]
-#[cfg(not(target_os = "fuchsia"))]
+
 pub fn fchdir<Fd: std::os::fd::AsFd>(dirfd: Fd) -> Result<()> {
     use std::os::fd::AsRawFd;
 
@@ -838,14 +823,9 @@ pub fn mkfifo<P: ?Sized + NixPath>(path: &P, mode: crate::sys::stat::Mode) -> Re
 /// # References
 ///
 /// [mkfifoat(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/mkfifoat.html).
-// mkfifoat is not implemented in OSX or android
+// mkfifoat is not implemented in OSX
 #[inline]
-#[cfg(not(any(
-    apple_targets,
-    target_os = "haiku",
-    target_os = "android",
-    target_os = "redox"
-)))]
+#[cfg(not(any(apple_targets, target_os = "haiku", target_os = "redox")))]
 pub fn mkfifoat<Fd: std::os::fd::AsFd, P: ?Sized + NixPath>(
     dirfd: Fd,
     path: &P,
@@ -1189,7 +1169,7 @@ pub fn execvpe<SA: AsRef<CStr>, SE: AsRef<CStr>>(
 ///
 /// This function is similar to `execve`, except that the program to be executed
 /// is referenced as a file descriptor instead of a path.
-#[cfg(any(linux_android, freebsdlike, target_os = "hurd"))]
+#[cfg(any(linux, freebsdlike, target_os = "hurd"))]
 #[inline]
 pub fn fexecve<Fd: std::os::fd::AsFd, SA: AsRef<CStr>, SE: AsRef<CStr>>(
     fd: Fd,
@@ -1216,7 +1196,7 @@ pub fn fexecve<Fd: std::os::fd::AsFd, SA: AsRef<CStr>, SE: AsRef<CStr>>(
 ///
 /// This function is similar to `execve`, except that the program to be executed
 /// is referenced as a file descriptor to the base directory plus a path.
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[inline]
 pub fn execveat<Fd: std::os::fd::AsFd, SA: AsRef<CStr>, SE: AsRef<CStr>>(
     dirfd: Fd,
@@ -1270,7 +1250,7 @@ pub fn execveat<Fd: std::os::fd::AsFd, SA: AsRef<CStr>, SE: AsRef<CStr>>(
 /// * `noclose = false`: The process' stdin, stdout, and stderr will point to
 ///   `/dev/null` after daemonizing.
 #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         solarish,
         netbsdlike
@@ -1361,13 +1341,8 @@ pub fn close<Fd: std::os::fd::IntoRawFd>(fd: Fd) -> Result<()> {
 pub fn read<Fd: std::os::fd::AsFd>(fd: Fd, buf: &mut [u8]) -> Result<usize> {
     use std::os::fd::AsRawFd;
 
-    let res = unsafe {
-        libc::read(
-            fd.as_fd().as_raw_fd(),
-            buf.as_mut_ptr().cast(),
-            buf.len() as size_t,
-        )
-    };
+    let res =
+        unsafe { libc::read(fd.as_fd().as_raw_fd(), buf.as_mut_ptr().cast(), buf.len() as size_t) };
 
     Errno::result(res).map(|r| r as usize)
 }
@@ -1378,13 +1353,8 @@ pub fn read<Fd: std::os::fd::AsFd>(fd: Fd, buf: &mut [u8]) -> Result<usize> {
 pub fn write<Fd: std::os::fd::AsFd>(fd: Fd, buf: &[u8]) -> Result<usize> {
     use std::os::fd::AsRawFd;
 
-    let res = unsafe {
-        libc::write(
-            fd.as_fd().as_raw_fd(),
-            buf.as_ptr().cast(),
-            buf.len() as size_t,
-        )
-    };
+    let res =
+        unsafe { libc::write(fd.as_fd().as_raw_fd(), buf.as_ptr().cast(), buf.len() as size_t) };
 
     Errno::result(res).map(|r| r as usize)
 }
@@ -1446,7 +1416,7 @@ pub fn lseek<Fd: std::os::fd::AsFd>(fd: Fd, offset: off_t, whence: Whence) -> Re
 ///
 /// Unlike [`lseek`], it takes a 64-bit argument even on platforms where [`libc::off_t`] is
 /// 32 bits.
-#[cfg(linux_android)]
+#[cfg(linux)]
 pub fn lseek64<Fd: std::os::fd::AsFd>(
     fd: Fd,
     offset: libc::off64_t,
@@ -1463,8 +1433,7 @@ pub fn lseek64<Fd: std::os::fd::AsFd>(
 /// Create an interprocess channel.
 ///
 /// See also [pipe(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/pipe.html)
-pub fn pipe(
-) -> std::result::Result<(std::os::fd::OwnedFd, std::os::fd::OwnedFd), Error> {
+pub fn pipe() -> std::result::Result<(std::os::fd::OwnedFd, std::os::fd::OwnedFd), Error> {
     let mut fds = mem::MaybeUninit::<[std::os::fd::OwnedFd; 2]>::uninit();
 
     let res = unsafe { libc::pipe(fds.as_mut_ptr().cast()) };
@@ -1495,7 +1464,7 @@ feature! {
 ///
 /// See also [pipe(2)](https://man7.org/linux/man-pages/man2/pipe.2.html)
 #[cfg(any(
-    linux_android,
+    linux,
     freebsdlike,
     solarish,
     target_os = "emscripten",
@@ -1520,7 +1489,7 @@ pub fn pipe2(flags: OFlag) -> Result<(std::os::fd::OwnedFd, std::os::fd::OwnedFd
 ///
 /// See also
 /// [truncate(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/truncate.html)
-#[cfg(not(any(target_os = "redox", target_os = "fuchsia")))]
+#[cfg(not(target_os = "redox"))]
 pub fn truncate<P: ?Sized + NixPath>(path: &P, len: off_t) -> Result<()> {
     let res = path
         .with_nix_path(|cstr| unsafe { libc::truncate(cstr.as_ptr(), len) })?;
@@ -1663,7 +1632,7 @@ pub fn unlinkat<Fd: std::os::fd::AsFd, P: ?Sized + NixPath>(
 
 /// Change a process's root directory
 #[inline]
-#[cfg(not(target_os = "fuchsia"))]
+
 pub fn chroot<P: ?Sized + NixPath>(path: &P) -> Result<()> {
     let res =
         path.with_nix_path(|cstr| unsafe { libc::chroot(cstr.as_ptr()) })?;
@@ -1676,7 +1645,7 @@ pub fn chroot<P: ?Sized + NixPath>(path: &P) -> Result<()> {
 /// See also [sync(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/sync.html)
 #[cfg(any(
     bsd,
-    linux_android,
+    linux,
     solarish,
     target_os = "haiku",
     target_os = "aix",
@@ -1691,7 +1660,7 @@ pub fn sync() {
 /// descriptor `fd` to disk
 ///
 /// See also [syncfs(2)](https://man7.org/linux/man-pages/man2/sync.2.html)
-#[cfg(any(linux_android, target_os = "hurd"))]
+#[cfg(any(linux, target_os = "hurd"))]
 pub fn syncfs<Fd: std::os::fd::AsFd>(fd: Fd) -> Result<()> {
     use std::os::fd::AsRawFd;
 
@@ -1716,17 +1685,7 @@ pub fn fsync<Fd: std::os::fd::AsFd>(fd: Fd) -> Result<()> {
 ///
 /// See also
 /// [fdatasync(2)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/fdatasync.html)
-#[cfg(any(
-    linux_android,
-    solarish,
-    netbsdlike,
-    apple_targets,
-    target_os = "freebsd",
-    target_os = "emscripten",
-    target_os = "fuchsia",
-    target_os = "aix",
-    target_os = "hurd",
-))]
+#[cfg(any(linux, solarish, netbsdlike, apple_targets, target_os = "freebsd", target_os = "emscripten", target_os = "aix", target_os = "hurd"))]
 #[inline]
 pub fn fdatasync<Fd: std::os::fd::AsFd>(fd: Fd) -> Result<()> {
     use std::os::fd::AsRawFd;
@@ -1839,7 +1798,7 @@ feature! {
 /// ID of the caller.
 ///
 /// See also [setfsuid(2)](https://man7.org/linux/man-pages/man2/setfsuid.2.html)
-#[cfg(linux_android)]
+#[cfg(linux)]
 pub fn setfsuid(uid: Uid) -> Uid {
     let prev_fsuid = unsafe { libc::setfsuid(uid.into()) };
     Uid::from_raw(prev_fsuid as uid_t)
@@ -1850,7 +1809,7 @@ pub fn setfsuid(uid: Uid) -> Uid {
 /// ID of the caller.
 ///
 /// See also [setfsgid(2)](https://man7.org/linux/man-pages/man2/setfsgid.2.html)
-#[cfg(linux_android)]
+#[cfg(linux)]
 pub fn setfsgid(gid: Gid) -> Gid {
     let prev_fsgid = unsafe { libc::setfsgid(gid.into()) };
     Gid::from_raw(prev_fsgid as gid_t)
@@ -2393,7 +2352,7 @@ pub enum PathconfVar {
     /// a pipe.
     PIPE_BUF = libc::_PC_PIPE_BUF,
     #[cfg(any(
-        linux_android,
+        linux,
         solarish,
         netbsdlike,
         target_os = "dragonfly",
@@ -2402,7 +2361,7 @@ pub enum PathconfVar {
     /// Symbolic links can be created.
     POSIX2_SYMLINKS = libc::_PC_2_SYMLINKS,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         target_os = "openbsd",
         target_os = "redox"
@@ -2412,14 +2371,14 @@ pub enum PathconfVar {
     POSIX_ALLOC_SIZE_MIN = libc::_PC_ALLOC_SIZE_MIN,
     #[cfg(any(
         freebsdlike,
-        linux_android,
+        linux,
         target_os = "openbsd"
     ))]
     /// Recommended increment for file transfer sizes between the
     /// `POSIX_REC_MIN_XFER_SIZE` and `POSIX_REC_MAX_XFER_SIZE` values.
     POSIX_REC_INCR_XFER_SIZE = libc::_PC_REC_INCR_XFER_SIZE,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         target_os = "openbsd",
         target_os = "redox"
@@ -2427,7 +2386,7 @@ pub enum PathconfVar {
     /// Maximum recommended file transfer size.
     POSIX_REC_MAX_XFER_SIZE = libc::_PC_REC_MAX_XFER_SIZE,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         target_os = "openbsd",
         target_os = "redox"
@@ -2435,7 +2394,7 @@ pub enum PathconfVar {
     /// Minimum recommended file transfer size.
     POSIX_REC_MIN_XFER_SIZE = libc::_PC_REC_MIN_XFER_SIZE,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         target_os = "openbsd",
         target_os = "redox"
@@ -2443,7 +2402,7 @@ pub enum PathconfVar {
     ///  Recommended file transfer buffer alignment.
     POSIX_REC_XFER_ALIGN = libc::_PC_REC_XFER_ALIGN,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         solarish,
         netbsdlike,
@@ -2462,7 +2421,7 @@ pub enum PathconfVar {
     /// disable terminal special character handling.
     _POSIX_VDISABLE = libc::_PC_VDISABLE,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         solarish,
         target_os = "openbsd",
@@ -2472,7 +2431,7 @@ pub enum PathconfVar {
     /// associated file.
     _POSIX_ASYNC_IO = libc::_PC_ASYNC_IO,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         solarish,
         target_os = "openbsd",
@@ -2482,7 +2441,7 @@ pub enum PathconfVar {
     /// associated file.
     _POSIX_PRIO_IO = libc::_PC_PRIO_IO,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         solarish,
         netbsdlike,
@@ -2603,7 +2562,7 @@ pub enum SysconfVar {
     #[cfg(not(any(target_os = "redox", target_os = "haiku")))]
     AIO_MAX = libc::_SC_AIO_MAX,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -2731,7 +2690,7 @@ pub enum SysconfVar {
     #[cfg(not(target_os = "redox"))]
     _POSIX_MONOTONIC_CLOCK = libc::_SC_MONOTONIC_CLOCK,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         solarish,
         apple_targets,
@@ -2759,7 +2718,7 @@ pub enum SysconfVar {
     /// The implementation supports read-write locks.
     _POSIX_READER_WRITER_LOCKS = libc::_SC_READER_WRITER_LOCKS,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3039,7 +2998,7 @@ pub enum SysconfVar {
     RE_DUP_MAX = libc::_SC_RE_DUP_MAX,
     /// Maximum number of realtime signals reserved for application use.
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3050,7 +3009,7 @@ pub enum SysconfVar {
     SEM_NSEMS_MAX = libc::_SC_SEM_NSEMS_MAX,
     /// The maximum value a semaphore may have.
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3059,7 +3018,7 @@ pub enum SysconfVar {
     /// Maximum number of queued signals that a process may send and have pending at the
     /// receiver(s) at any time.
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3079,7 +3038,7 @@ pub enum SysconfVar {
     /// The minimum maximum number of types supported for the name of a timezone.
     TZNAME_MAX = libc::_SC_TZNAME_MAX,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3087,7 +3046,7 @@ pub enum SysconfVar {
     /// The implementation supports the X/Open Encryption Option Group.
     _XOPEN_CRYPT = libc::_SC_XOPEN_CRYPT,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3096,7 +3055,7 @@ pub enum SysconfVar {
     /// Internationalization Option Group.
     _XOPEN_ENH_I18N = libc::_SC_XOPEN_ENH_I18N,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3106,7 +3065,7 @@ pub enum SysconfVar {
     /// See Also <https://pubs.opengroup.org/onlinepubs/007904975/basedefs/xbd_chap02.html>
     _XOPEN_LEGACY = libc::_SC_XOPEN_LEGACY,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3114,7 +3073,7 @@ pub enum SysconfVar {
     /// The implementation supports the X/Open Realtime Option Group.
     _XOPEN_REALTIME = libc::_SC_XOPEN_REALTIME,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3134,7 +3093,7 @@ pub enum SysconfVar {
     /// The implementation supports the XSI STREAMS Option Group.
     _XOPEN_STREAMS = libc::_SC_XOPEN_STREAMS,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3142,7 +3101,7 @@ pub enum SysconfVar {
     /// The implementation supports the XSI option
     _XOPEN_UNIX = libc::_SC_XOPEN_UNIX,
     #[cfg(any(
-        linux_android,
+        linux,
         freebsdlike,
         apple_targets,
         target_os = "openbsd"
@@ -3152,16 +3111,16 @@ pub enum SysconfVar {
     _XOPEN_VERSION = libc::_SC_XOPEN_VERSION,
     /// The number of pages of physical memory. Note that it is possible for
     /// the product of this value to overflow.
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     _PHYS_PAGES = libc::_SC_PHYS_PAGES,
     /// The number of currently available pages of physical memory.
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     _AVPHYS_PAGES = libc::_SC_AVPHYS_PAGES,
     /// The number of processors configured.
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     _NPROCESSORS_CONF = libc::_SC_NPROCESSORS_CONF,
     /// The number of processors currently online (available).
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     _NPROCESSORS_ONLN = libc::_SC_NPROCESSORS_ONLN,
 }
 
@@ -3198,7 +3157,7 @@ pub fn sysconf(var: SysconfVar) -> Result<Option<c_long>> {
 }
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg(feature = "fs")]
 mod pivot_root {
     use crate::errno::Errno;
@@ -3213,11 +3172,7 @@ mod pivot_root {
     ) -> Result<()> {
         let res = new_root.with_nix_path(|new_root| {
             put_old.with_nix_path(|put_old| unsafe {
-                libc::syscall(
-                    libc::SYS_pivot_root,
-                    new_root.as_ptr(),
-                    put_old.as_ptr(),
-                )
+                libc::syscall(libc::SYS_pivot_root, new_root.as_ptr(), put_old.as_ptr())
             })
         })??;
 
@@ -3225,7 +3180,7 @@ mod pivot_root {
     }
 }
 
-#[cfg(any(linux_android, freebsdlike, target_os = "openbsd"))]
+#[cfg(any(linux, freebsdlike, target_os = "openbsd"))]
 mod setres {
     feature! {
     #![feature = "user"]
@@ -3270,7 +3225,7 @@ mod setres {
     }
 }
 
-#[cfg(any(linux_android, freebsdlike, target_os = "openbsd"))]
+#[cfg(any(linux, freebsdlike, target_os = "openbsd"))]
 mod getres {
     feature! {
     #![feature = "user"]
@@ -3500,47 +3455,20 @@ pub struct User {
     /// Group ID
     pub gid: Gid,
     /// User information
-    #[cfg(not(all(target_os = "android", target_pointer_width = "32")))]
+
     pub gecos: CString,
     /// Home directory
     pub dir: PathBuf,
     /// Path to shell
     pub shell: PathBuf,
     /// Login class
-    #[cfg(not(any(
-        linux_android,
-        solarish,
-        target_os = "aix",
-        target_os = "fuchsia",
-        target_os = "haiku",
-        target_os = "hurd",
-        target_os = "emscripten",
-        target_os = "cygwin",
-    )))]
+    #[cfg(not(any(linux, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
     pub class: CString,
     /// Last password change
-    #[cfg(not(any(
-        linux_android,
-        solarish,
-        target_os = "aix",
-        target_os = "fuchsia",
-        target_os = "haiku",
-        target_os = "hurd",
-        target_os = "emscripten",
-        target_os = "cygwin",
-    )))]
+    #[cfg(not(any(linux, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
     pub change: libc::time_t,
     /// Expiration time of account
-    #[cfg(not(any(
-        linux_android,
-        solarish,
-        target_os = "aix",
-        target_os = "fuchsia",
-        target_os = "haiku",
-        target_os = "hurd",
-        target_os = "emscripten",
-        target_os = "cygwin",
-    )))]
+    #[cfg(not(any(linux, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
     pub expire: libc::time_t,
 }
 
@@ -3560,10 +3488,7 @@ impl From<&libc::passwd> for User {
                     CString::new(CStr::from_ptr(pw.pw_passwd).to_bytes())
                         .unwrap()
                 },
-                #[cfg(not(all(
-                    target_os = "android",
-                    target_pointer_width = "32"
-                )))]
+
                 gecos: if pw.pw_gecos.is_null() {
                     Default::default()
                 } else {
@@ -3586,39 +3511,12 @@ impl From<&libc::passwd> for User {
                 },
                 uid: Uid::from_raw(pw.pw_uid),
                 gid: Gid::from_raw(pw.pw_gid),
-                #[cfg(not(any(
-                    linux_android,
-                    solarish,
-                    target_os = "aix",
-                    target_os = "fuchsia",
-                    target_os = "haiku",
-                    target_os = "hurd",
-                    target_os = "emscripten",
-                    target_os = "cygwin",
-                )))]
+                #[cfg(not(any(linux, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
                 class: CString::new(CStr::from_ptr(pw.pw_class).to_bytes())
                     .unwrap(),
-                #[cfg(not(any(
-                    linux_android,
-                    solarish,
-                    target_os = "aix",
-                    target_os = "fuchsia",
-                    target_os = "haiku",
-                    target_os = "hurd",
-                    target_os = "emscripten",
-                    target_os = "cygwin",
-                )))]
+                #[cfg(not(any(linux, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
                 change: pw.pw_change,
-                #[cfg(not(any(
-                    linux_android,
-                    solarish,
-                    target_os = "aix",
-                    target_os = "fuchsia",
-                    target_os = "haiku",
-                    target_os = "hurd",
-                    target_os = "emscripten",
-                    target_os = "cygwin",
-                )))]
+                #[cfg(not(any(linux, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
                 expire: pw.pw_expire,
             }
         }
@@ -3643,47 +3541,17 @@ impl From<User> for libc::passwd {
         Self {
             pw_name: name,
             pw_passwd: u.passwd.into_raw(),
-            #[cfg(not(all(
-                target_os = "android",
-                target_pointer_width = "32"
-            )))]
+
             pw_gecos: u.gecos.into_raw(),
             pw_dir: dir,
             pw_shell: shell,
             pw_uid: u.uid.0,
             pw_gid: u.gid.0,
-            #[cfg(not(any(
-                linux_android,
-                solarish,
-                target_os = "aix",
-                target_os = "fuchsia",
-                target_os = "haiku",
-                target_os = "hurd",
-                target_os = "emscripten",
-                target_os = "cygwin",
-            )))]
+            #[cfg(not(any(linux, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
             pw_class: u.class.into_raw(),
-            #[cfg(not(any(
-                linux_android,
-                solarish,
-                target_os = "aix",
-                target_os = "fuchsia",
-                target_os = "haiku",
-                target_os = "hurd",
-                target_os = "emscripten",
-                target_os = "cygwin",
-            )))]
+            #[cfg(not(any(linux, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
             pw_change: u.change,
-            #[cfg(not(any(
-                linux_android,
-                solarish,
-                target_os = "aix",
-                target_os = "fuchsia",
-                target_os = "haiku",
-                target_os = "hurd",
-                target_os = "emscripten",
-                target_os = "cygwin",
-            )))]
+            #[cfg(not(any(linux, solarish, target_os = "aix", target_os = "haiku", target_os = "hurd", target_os = "emscripten", target_os = "cygwin")))]
             pw_expire: u.expire,
             #[cfg(solarish)]
             pw_age: CString::new("").unwrap().into_raw(),
@@ -3967,7 +3835,7 @@ feature! {
 
 /// Get the name of the terminal device that is open on file descriptor fd
 /// (see [`ttyname(3)`](https://man7.org/linux/man-pages/man3/ttyname.3.html)).
-#[cfg(not(target_os = "fuchsia"))]
+
 pub fn ttyname<F: std::os::fd::AsFd>(fd: F) -> Result<PathBuf> {
     use std::os::fd::AsRawFd;
 

@@ -38,16 +38,7 @@
 #include "third_party/perfetto/include/perfetto/tracing/core/trace_config.h"
 #include "third_party/perfetto/protos/perfetto/trace/trace.pbzero.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/dbus/debug_daemon/debug_daemon_client.h"
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#include "chromeos/ash/components/system/statistics_provider.h"
-#include "content/browser/tracing/cros_tracing_agent.h"
-#endif
 
-#if BUILDFLAG(IS_CASTOS)
-#include "content/browser/tracing/cast_tracing_agent.h"
-#endif
 
 using base::trace_event::TraceConfig;
 
@@ -118,22 +109,11 @@ class TracingControllerTest : public ContentBrowserTest {
     enable_recording_done_callback_count_ = 0;
     disable_recording_done_callback_count_ = 0;
 
-#if BUILDFLAG(IS_CHROMEOS)
-    ash::DebugDaemonClient::InitializeFake();
-    // Set statistic provider for hardware class tests.
-    ash::system::StatisticsProvider::SetTestProvider(
-        &fake_statistics_provider_);
-    fake_statistics_provider_.SetMachineStatistic(
-        ash::system::kHardwareClassKey, "test-hardware-class");
-#endif
     ContentBrowserTest::SetUp();
   }
 
   void TearDown() override {
     ContentBrowserTest::TearDown();
-#if BUILDFLAG(IS_CHROMEOS)
-    ash::DebugDaemonClient::Shutdown();
-#endif
   }
 
   void Navigate(Shell* shell) {
@@ -326,10 +306,6 @@ class TracingControllerTest : public ContentBrowserTest {
     }
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
- protected:
-  ash::system::ScopedFakeStatisticsProvider fake_statistics_provider_;
-#endif
 
  private:
   int get_categories_done_callback_count_;
@@ -340,29 +316,6 @@ class TracingControllerTest : public ContentBrowserTest {
 };
 
 // Consistent failures on Android Asan https://crbug.com/1045519
-#if BUILDFLAG(IS_ANDROID) && defined(ADDRESS_SANITIZER)
-#define MAYBE_EnableAndStopTracing DISABLED_EnableAndStopTracing
-#define MAYBE_EnableAndStopTracingWithFilePath \
-  DISABLED_EnableAndStopTracingWithFilePath
-#define MAYBE_EnableAndStopTracingWithCompression \
-  DISABLED_EnableAndStopTracingWithCompression
-#define MAYBE_EnableAndStopTracingWithEmptyFile \
-  DISABLED_EnableAndStopTracingWithEmptyFile
-#define MAYBE_DoubleStopTracing DISABLED_DoubleStopTracing
-#define MAYBE_ProcessesPresentInTrace DISABLED_ProcessesPresentInTrace
-#define MAYBE_EnableAndStopTracingWithProtobufOutput \
-  DISABLED_EnableAndStopTracingWithProtobufOutput
-#define MAYBE_ProtobufOutputToFileIsNotTranslated \
-  DISABLED_ProtobufOutputToFileIsNotTranslated
-#define MAYBE_StartTracingWithAddedDataSource \
-  DISABLED_StartTracingWithAddedDataSource
-#define MAYBE_StartTracingWithMixedOutputFormatsFails \
-  DISABLED_StartTracingWithMixedOutputFormatsFails
-#define MAYBE_StartTracingWithPerfettoConfigFailsWhileTracing \
-  DISABLED_StartTracingWithPerfettoConfigFailsWhileTracing
-#define MAYBE_StopTracingWithAgentLabelFailsForProtobuf \
-  DISABLED_StopTracingWithAgentLabelFailsForProtobuf
-#else
 #define MAYBE_EnableAndStopTracing EnableAndStopTracing
 #define MAYBE_EnableAndStopTracingWithFilePath EnableAndStopTracingWithFilePath
 #define MAYBE_EnableAndStopTracingWithCompression \
@@ -382,7 +335,6 @@ class TracingControllerTest : public ContentBrowserTest {
   StartTracingWithPerfettoConfigFailsWhileTracing
 #define MAYBE_StopTracingWithAgentLabelFailsForProtobuf \
   StopTracingWithAgentLabelFailsForProtobuf
-#endif
 
 IN_PROC_BROWSER_TEST_F(TracingControllerTest, GetCategories) {
   TestStartAndStopTracingString();
@@ -456,19 +408,10 @@ IN_PROC_BROWSER_TEST_F(TracingControllerTest, MAYBE_DoubleStopTracing) {
 }
 
 // Only CrOS and Cast support system tracing.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_CASTOS)
-#define MAYBE_SystemTraceEvents SystemTraceEvents
-#else
 #define MAYBE_SystemTraceEvents DISABLED_SystemTraceEvents
-#endif
 class SystemTraceTracingControllerTest : public TracingControllerTest {
  public:
   SystemTraceTracingControllerTest() {
-#if BUILDFLAG(IS_CHROMEOS)
-    feature_list_.InitAndEnableFeature(kCrOSTracingDataSource);
-#elif BUILDFLAG(IS_CASTOS)
-    feature_list_.InitAndEnableFeature(kCastTracingDataSource);
-#endif
   }
 
  private:

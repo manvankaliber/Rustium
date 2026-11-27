@@ -31,9 +31,6 @@
 #include "components/sync_sessions/sync_sessions_client.h"
 #include "content/public/common/url_utils.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/sync/glue/synced_window_delegates_getter_android.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -49,12 +46,8 @@ class SyncSessionsClientImpl final : public sync_sessions::SyncSessionsClient {
   explicit SyncSessionsClientImpl(Profile* profile)
       : profile_(profile), session_sync_prefs_(profile->GetPrefs()) {
     window_delegates_getter_ =
-#if BUILDFLAG(IS_ANDROID)
-        std::make_unique<SyncedWindowDelegatesGetterAndroid>(profile);
-#else   // BUILDFLAG(IS_ANDROID)
         std::make_unique<browser_sync::BrowserSyncedWindowDelegatesGetter>(
             profile);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   SyncSessionsClientImpl(const SyncSessionsClientImpl&) = delete;

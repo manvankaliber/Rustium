@@ -30,8 +30,7 @@ It is not valid using `++it` in the second branch of the loop after if
 Clang is built using CMake. To run cmake, this script can be used:
 ```bash
   ./tools/clang/scripts/build.py     \
-    --without-android                \
-    --without-fuchsia                \
+                   \
     --extra-tools iterator_checker
 ```
 

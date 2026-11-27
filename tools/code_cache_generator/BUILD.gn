@@ -12,10 +12,6 @@ import("//build/config/compiler/compiler.gni")
 import("//tools/v8_context_snapshot/v8_context_snapshot.gni")
 import("//v8/gni/snapshot_toolchain.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 # The generator runs on the build host. Code cache actions use the copy built
 # in the V8 snapshot toolchain, like v8_context_snapshot_generator, and pass it
 # the target's snapshot. The default-toolchain copy serves the Python unit

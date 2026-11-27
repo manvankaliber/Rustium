@@ -741,6 +741,27 @@ TEST_F(AutofillAgentTest, TriggerSuggestions) {
       AutofillSuggestionTriggerSource::kFormControlElementClicked);
 }
 
+TEST_F(AutofillAgentTest, LegacyAtMemoryTriggerIsIgnored) {
+  EXPECT_CALL(autofill_driver(), FormsSeen);
+  LoadHTML(R"(<body><input id="input"></body>)");
+  WaitForFormsSeen();
+  EXPECT_CALL(autofill_driver(), AskForValuesToFill).Times(0);
+  autofill_agent().TriggerSuggestions(
+      GetFieldRendererIdById("input"),
+      AutofillSuggestionTriggerSource::kAtMemoryDoubleCtrl);
+}
+
+TEST_F(AutofillAgentTest, LegacyAtMemoryFieldActionIsIgnored) {
+  LoadHTML(R"(<body><input id="input" value="unchanged"></body>)");
+  auto input = GetWebElementById("input").DynamicTo<blink::WebInputElement>();
+  ASSERT_TRUE(input);
+  autofill_agent().ApplyFieldAction(
+      mojom::FieldActionType::kReplaceSelectionForAtMemory,
+      mojom::ActionPersistence::kFill, GetFieldRendererIdById("input"),
+      u"replacement");
+  EXPECT_EQ(input.Value().Utf16(), u"unchanged");
+}
+
 // Tests that `AutofillAgent::TriggerSuggestions()` works for elements with a
 // datalist and extracts datalist options.
 TEST_F(AutofillAgentTest, TriggerSuggestionsForElementWithDatalist) {
@@ -1932,11 +1953,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 // Tests that clicking on a field triggers AskForValuesToFillOnClick().
 // TODO(crbug.com/342126797): Fix Android's OnAskForValuesToFill() event.
-#if !BUILDFLAG(IS_ANDROID)
 #define MAYBE_AskForValuesToFillOnClick AskForValuesToFillOnClick
-#else
-#define MAYBE_AskForValuesToFillOnClick DISABLED_AskForValuesToFillOnClick
-#endif
 TEST_P(AutofillAgentTestClick, MAYBE_AskForValuesToFillOnClick) {
   testing::MockFunction<void(std::string_view)> checkpoint;
   {

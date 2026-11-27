@@ -118,16 +118,6 @@ void ActorLoginDelegateImpl::GetCredentials(
   std::vector<std::unique_ptr<ActorLoginCredentialsFetcher>> fetchers;
 
   bool can_fetch_passwords = true;
-#if BUILDFLAG(IS_ANDROID)
-  // `password_manager_client_` can be null on Android when using third-party
-  // password manager. In this case we can still support FedCM. Checking
-  // kAutofillUsingPlatformAutofill is currently redundant but it's possible
-  // that in the future we start supporting third-party password manager through
-  // password manager client, so check the pref for future-proofing.
-  can_fetch_passwords = password_manager_client_ &&
-                        !actor_login_delegate_client_->GetPrefs()->GetBoolean(
-                            autofill::prefs::kAutofillUsingPlatformAutofill);
-#endif
   if (can_fetch_passwords) {
     PasswordManagerDriver* driver =
         actor_login_delegate_client_->GetPasswordManagerDriverForMainFrame();

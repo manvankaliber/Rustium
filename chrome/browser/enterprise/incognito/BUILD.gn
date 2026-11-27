@@ -27,22 +27,20 @@ source_set("incognito") {
   ]
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    configs += [ "//components/enterprise:extra_warnings" ]
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  configs += [ "//components/enterprise:extra_warnings" ]
 
-    sources = [ "incognito_navigation_throttle_browsertest.cc" ]
+  sources = [ "incognito_navigation_throttle_browsertest.cc" ]
 
-    deps = [
-      ":incognito",
-      "//base",
-      "//chrome/browser/sync/test/integration:sync_integration_test_support",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/test:test_support",
-      "//content/test:test_support",
-      "//testing/gmock",
-    ]
-  }
+  deps = [
+    ":incognito",
+    "//base",
+    "//chrome/browser/sync/test/integration:sync_integration_test_support",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/test:test_support",
+    "//content/test:test_support",
+    "//testing/gmock",
+  ]
 }

@@ -41,12 +41,10 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 // components/webauthn/core is a desktop-only dependency of
 // components/password_manager/core. gn cannot parse the preprocessor directive
 // above when checking includes, so we need nogncheck here.
 #include "components/webauthn/core/browser/test_passkey_model.h"  // nogncheck
-#endif
 
 namespace password_manager {
 
@@ -75,7 +73,6 @@ struct MockSavedPasswordsPresenterObserver : SavedPasswordsPresenter::Observer {
 using StrictMockSavedPasswordsPresenterObserver =
     ::testing::StrictMock<MockSavedPasswordsPresenterObserver>;
 
-#if !BUILDFLAG(IS_ANDROID)
 constexpr char kPasskeyCredentialId[] = "abcd";
 constexpr char kPasskeyRPID[] = "passkeys.com";
 constexpr char kPasskeyUserId[] = "1234";
@@ -100,28 +97,21 @@ CredentialUIEntry AsCredentialUIEntry(
       PasskeyCredential::FromCredentialSpecifics(std::array{std::move(passkey)})
           .at(0));
 }
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 constexpr char kDefaultFallbackIconUrl[] = "https://t1.gstatic.com/faviconV2";
 constexpr char kFallbackIconQueryParams[] =
     "client=PASSWORD_MANAGER&type=FAVICON&fallback_opts=TYPE,SIZE,URL,"
     "TOP_DOMAIN&size=32&url=";
 constexpr char kDefaultAndroidIcon[] =
     "https://www.gstatic.com/images/branding/product/1x/play_apps_32dp.png";
-#endif
 
 GURL CreateFaviconUrl(GURL url) {
-#if BUILDFLAG(IS_ANDROID)
-  return url;
-#else
   GURL::Replacements replacements;
   std::string query = kFallbackIconQueryParams +
                       base::EscapeQueryParamValue(url.spec(),
                                                   /*use_plus=*/false);
   replacements.SetQueryStr(query);
   return GURL(kDefaultFallbackIconUrl).ReplaceComponents(replacements);
-#endif
 }
 
 class SavedPasswordsPresenterTest : public testing::Test {
@@ -137,9 +127,7 @@ class SavedPasswordsPresenterTest : public testing::Test {
   void TearDown() override { store_->ShutdownOnUIThread(); }
 
   TestPasswordStore& store() { return *store_; }
-#if !BUILDFLAG(IS_ANDROID)
   webauthn::TestPasskeyModel& passkey_store() { return test_passkey_store_; }
-#endif
   SavedPasswordsPresenter& presenter() { return presenter_; }
 
   void AdvanceClock(base::TimeDelta time) { task_env_.AdvanceClock(time); }
@@ -147,11 +135,7 @@ class SavedPasswordsPresenterTest : public testing::Test {
   syncer::TestSyncService* GetSyncService() { return &test_sync_service_; }
 
   constexpr bool IsGroupingEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-    return false;
-#else
     return true;
-#endif
   }
 
  private:
@@ -161,15 +145,10 @@ class SavedPasswordsPresenterTest : public testing::Test {
       base::MakeRefCounted<TestPasswordStore>();
   FakeAffiliationService affiliation_service_;
   syncer::TestSyncService test_sync_service_;
-#if !BUILDFLAG(IS_ANDROID)
   webauthn::TestPasskeyModel test_passkey_store_;
   SavedPasswordsPresenter presenter_{&affiliation_service_, store_,
                                      /*account_store=*/nullptr,
                                      &test_passkey_store_};
-#else
-  SavedPasswordsPresenter presenter_{&affiliation_service_, store_,
-                                     /*account_store=*/nullptr};
-#endif
 };
 
 PasswordForm CreateTestPasswordForm(PasswordForm::Store store, int index = 0) {
@@ -931,7 +910,6 @@ TEST_F(SavedPasswordsPresenterTest,
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(SavedPasswordsPresenterTest, GetSavedCredentialsWithPasskeys) {
   // Password grouping is required for passkey support.
   if (!IsGroupingEnabled()) {
@@ -1214,7 +1192,6 @@ TEST_F(SavedPasswordsPresenterTest, DeleteAllDataWithPasskeyNotReady) {
   EXPECT_FALSE(future.Get());
 }
 
-#endif
 
 TEST_F(SavedPasswordsPresenterTest, UndoRemoval) {
   PasswordForm form =
@@ -1327,11 +1304,7 @@ class SavedPasswordsPresenterWithTwoStoresTest : public testing::Test {
   SavedPasswordsPresenter& presenter() { return presenter_; }
 
   constexpr bool IsGroupingEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-    return false;
-#else
     return true;
-#endif
   }
 
  private:
@@ -2251,11 +2224,7 @@ TEST_F(SavedPasswordsPresenterTest,
                                           "details?id=com.app.name"),
                               .signon_realm = form_2.signon_realm},
               .username = form_2.username_value,
-#if BUILDFLAG(IS_ANDROID)
-              .favicon_url = GURL()
-#else
               .favicon_url = GURL(kDefaultAndroidIcon)
-#endif
           }));
 }
 
@@ -2333,9 +2302,7 @@ TEST_F(SavedPasswordsPresenterTest,
     return presenter().GetActorLoginPermissions(GetSyncService()).size() == 2u;
   }));
 
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_EQ(2u, presenter().GetActorLoginPermissions(GetSyncService()).size());
-#endif
 
   presenter().RevokeActorLoginPermission(form_1.signon_realm, u"user_1");
   ASSERT_TRUE(base::test::RunUntil([&] {

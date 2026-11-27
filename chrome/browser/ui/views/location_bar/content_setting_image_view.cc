@@ -71,9 +71,6 @@ std::optional<ViewID> GetViewID(
     case ImageType::kSensors:
     case ImageType::kNotifications:
     case ImageType::kStorageAccess:
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    case ImageType::kSmartCard:
-#endif
 #if BUILDFLAG(IS_WIN)
     case ImageType::kProtectedMediaIdentifier:
 #endif

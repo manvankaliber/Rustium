@@ -89,13 +89,7 @@ void TestSyncService::SetSignedOut() {
 }
 
 void TestSyncService::MimicDashboardClear() {
-#if BUILDFLAG(IS_CHROMEOS)
-  // Clearing sync from the dashboard results in
-  // IsSyncFeatureDisabledViaDashboard() returning true.
-  user_settings_.SetSyncFeatureDisabledViaDashboard();
-#else
   SetSignedIn(signin::ConsentLevel::kSignin);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void TestSyncService::SetAllowedByEnterprisePolicy(bool allowed) {
@@ -222,11 +216,6 @@ void TestSyncService::FireSyncCycleCompleted() {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-base::android::ScopedJavaLocalRef<jobject> TestSyncService::GetJavaObject() {
-  return base::android::ScopedJavaLocalRef<jobject>();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TestSyncUserSettings* TestSyncService::GetUserSettings() {
   return &user_settings_;
@@ -256,7 +245,6 @@ SyncService::TransportState TestSyncService::GetTransportState() const {
 
 SyncService::UserActionableError TestSyncService::GetUserActionableError()
     const {
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   if (HasSyncConsent()) {
     if (!user_settings_.IsInitialSyncFeatureSetupComplete()) {
       return UserActionableError::kNeedsSettingsConfirmation;
@@ -269,7 +257,6 @@ SyncService::UserActionableError TestSyncService::GetUserActionableError()
       return UserActionableError::kUnrecoverableError;
     }
   }
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 
   if (GetAuthError().state() != GoogleServiceAuthError::NONE) {
     return UserActionableError::kSignInNeedsUpdate;
@@ -286,11 +273,9 @@ SyncService::UserActionableError TestSyncService::GetUserActionableError()
                ? UserActionableError::kNeedsTrustedVaultKeyForEverything
                : UserActionableError::kNeedsTrustedVaultKeyForPasswords;
   }
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   if (passkeys_locked_ && GetActiveDataTypes().Has(WEBAUTHN_CREDENTIAL)) {
     return UserActionableError::kPasskeysLocked;
   }
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   if (user_settings_.IsTrustedVaultRecoverabilityDegraded()) {
     return user_settings_.IsEncryptEverythingEnabled()
                ? UserActionableError::
@@ -358,11 +343,6 @@ DataTypeSet TestSyncService::GetActiveDataTypes() const {
   if (GetTransportState() != TransportState::ACTIVE) {
     return DataTypeSet();
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  if (user_settings_.IsSyncFeatureDisabledViaDashboard()) {
-    return DataTypeSet();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   DataTypeSet types_with_encryption_error =
       (user_settings_.IsPassphraseRequired() ||
@@ -475,9 +455,6 @@ SyncService::DataTypeDownloadStatus TestSyncService::GetDownloadStatusFor(
   return DataTypeDownloadStatus::kUpToDate;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void TestSyncService::SetInvalidationsForSessionsEnabled(bool enabled) {}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void TestSyncService::SetPasskeysLocked(bool passkeys_locked) {
   passkeys_locked_ = passkeys_locked;

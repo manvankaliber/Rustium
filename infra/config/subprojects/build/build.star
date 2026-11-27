@@ -136,45 +136,6 @@ def ci_build_perf_builder(description_html, **kwargs):
     )
 
 cq_build_perf_builder(
-    name = "android-build-perf-siso",
-    description_html = "This builder measures Android CQ build performance with Siso.<br/>" +
-                       "The build configs and the bot specs should be in sync with " + linkify_builder("try", "android-arm64-rel-compilator", "chromium"),
-    executable = "recipe:chrome_build/build_perf_siso",
-    builder_spec = builder_config.builder_spec(
-        gclient_config = builder_config.gclient_config(
-            config = "chromium",
-            apply_configs = [
-                "android",
-                "siso_latest",
-            ],
-        ),
-        chromium_config = builder_config.chromium_config(
-            config = "main_builder",
-            apply_configs = [
-                "mb",
-            ],
-            build_config = builder_config.build_config.RELEASE,
-            target_arch = builder_config.target_arch.ARM,
-            target_bits = 64,
-            target_platform = builder_config.target_platform.ANDROID,
-        ),
-        android_config = builder_config.android_config(
-            config = "base_config",
-        ),
-    ),
-    gn_args = {
-        "builtin": gn_args.config(configs = ["try/android-arm64-rel"]),
-        "no_clang_modules": gn_args.config(configs = ["try/android-arm64-rel", "no_clang_modules"]),
-    },
-    os = os.LINUX_DEFAULT,
-    console_view_entry = consoles.console_view_entry(
-        category = "build perf|android",
-        short_name = "siso",
-    ),
-    siso_profile_mode = "local",
-)
-
-cq_build_perf_builder(
     name = "linux-build-perf-siso",
     description_html = "This builder measures Linux CQ build performance with Siso.<br/>" +
                        "The build configs and the bot specs should be in sync with " + linkify_builder("try", "linux-rel-compilator", "chromium"),
@@ -372,39 +333,6 @@ ci_build_perf_builder(
 )
 
 cq_build_perf_builder(
-    name = "linux-chromeos-build-perf-siso",
-    description_html = "This builder measures CrOS CQ build performance with Siso.<br/>" +
-                       "The build configs and the bot specs should be in sync with " + linkify_builder("try", "linux-chromeos-rel-compilator", "chromium"),
-    executable = "recipe:chrome_build/build_perf_siso",
-    builder_spec = builder_config.builder_spec(
-        gclient_config = builder_config.gclient_config(
-            config = "chromium",
-            apply_configs = [
-                "chromeos",
-                "siso_latest",
-            ],
-        ),
-        chromium_config = builder_config.chromium_config(
-            config = "chromium",
-            apply_configs = [
-                "mb",
-            ],
-            target_platform = builder_config.target_platform.CHROMEOS,
-        ),
-    ),
-    gn_args = {
-        "builtin": gn_args.config(configs = ["try/linux-chromeos-rel"]),
-        "no_clang_modules": gn_args.config(configs = ["try/linux-chromeos-rel", "no_clang_modules"]),
-    },
-    os = os.LINUX_DEFAULT,
-    console_view_entry = consoles.console_view_entry(
-        category = "build perf|cros",
-        short_name = "siso",
-    ),
-    siso_profile_mode = "local",
-)
-
-cq_build_perf_builder(
     name = "mac-build-perf-siso",
     description_html = "This builder measures Mac CQ build performance with Siso.<br/>" +
                        "The build configs and the bot specs should be in sync with " + linkify_builder("try", "mac-rel-compilator", "chromium"),
@@ -440,44 +368,6 @@ cq_build_perf_builder(
     siso_profile_mode = "local",
 )
 
-cq_build_perf_builder(
-    name = "ios-build-perf-siso",
-    description_html = "This builder measures iOS CQ build performance with Siso.<br/>" +
-                       "The build configs and the bot specs should be in sync with " + linkify_builder("try", "ios-simulator-compilator", "chromium"),
-    executable = "recipe:chrome_build/build_perf_siso",
-    builder_spec = builder_config.builder_spec(
-        gclient_config = builder_config.gclient_config(
-            config = "ios",
-            apply_configs = [
-                "siso_latest",
-            ],
-        ),
-        chromium_config = builder_config.chromium_config(
-            config = "chromium",
-            apply_configs = [
-                "mb",
-                "mac_toolchain",
-            ],
-            build_config = builder_config.build_config.DEBUG,
-            target_bits = 64,
-            target_platform = builder_config.target_platform.IOS,
-        ),
-    ),
-    gn_args = {
-        "builtin": gn_args.config(configs = ["try/ios-simulator"]),
-        "no_clang_modules": gn_args.config(configs = ["try/ios-simulator", "no_clang_modules"]),
-    },
-    os = os.MAC_DEFAULT,
-    cpu = cpu.ARM64,
-    console_view_entry = consoles.console_view_entry(
-        category = "build perf|ios",
-        short_name = "siso",
-    ),
-    siso_configs = ["builder"],
-    siso_profile_mode = "local",
-    xcode = xcode.xcode_default,
-)
-
 def developer_build_perf_builder(description_html, **kwargs):
     props = {
         # Run the extra missing-deps check build (crbug.com/346429448) on all
@@ -495,48 +385,6 @@ def developer_build_perf_builder(description_html, **kwargs):
         properties = props,
         **kwargs
     )
-
-developer_build_perf_builder(
-    name = "android-build-perf-developer",
-    description_html = """\
-This builder measures build performance for Android developer builds, by simulating developer build scenarios on a high spec bot.\
-""",
-    builder_spec = builder_config.builder_spec(
-        gclient_config = builder_config.gclient_config(
-            config = "chromium",
-            apply_configs = [
-                "android",
-                "siso_latest",
-                "ninja_staging",
-            ],
-        ),
-        chromium_config = builder_config.chromium_config(
-            config = "main_builder",
-            apply_configs = [
-                "mb",
-            ],
-            build_config = builder_config.build_config.DEBUG,
-            target_arch = builder_config.target_arch.ARM,
-            target_bits = 64,
-            target_platform = builder_config.target_platform.ANDROID,
-        ),
-        android_config = builder_config.android_config(
-            config = "base_config",
-        ),
-    ),
-    gn_args = {
-        "siso_native": gn_args.config(configs = ["android_developer", "remoteexec"]),
-        "siso_no_clang_modules": gn_args.config(configs = ["android_developer", "remoteexec", "no_clang_modules"]),
-    },
-    os = os.LINUX_DEFAULT,
-    console_view_entry = consoles.console_view_entry(
-        category = "build perf|android",
-        short_name = "dev",
-    ),
-    siso_profile_mode = "local",
-    # Setting -1 makes siso use the default remote concurrency.
-    siso_remote_jobs = -1,
-)
 
 developer_build_perf_builder(
     name = "linux-build-perf-developer",
@@ -641,46 +489,6 @@ This builder measures build performance for Mac developer builds, by simulating 
     siso_profile_mode = "local",
     # Setting -1 makes siso use the default remote concurrency.
     siso_remote_jobs = -1,
-)
-
-developer_build_perf_builder(
-    name = "ios-build-perf-developer",
-    description_html = """\
-This builder measures build performance for iOS developer builds, by simulating developer build scenarios on a bot.\
-""",
-    builder_spec = builder_config.builder_spec(
-        gclient_config = builder_config.gclient_config(
-            config = "ios",
-            apply_configs = [
-                "siso_latest",
-            ],
-        ),
-        chromium_config = builder_config.chromium_config(
-            config = "chromium",
-            apply_configs = [
-                "mb",
-                "mac_toolchain",
-            ],
-            build_config = builder_config.build_config.DEBUG,
-            target_bits = 64,
-            target_platform = builder_config.target_platform.IOS,
-        ),
-    ),
-    gn_args = {
-        "siso_native": gn_args.config(configs = ["ios_developer", "remoteexec", "arm64"]),
-        "siso_no_clang_modules": gn_args.config(configs = ["ios_developer", "remoteexec", "arm64", "no_clang_modules"]),
-    },
-    os = os.MAC_DEFAULT,
-    cpu = cpu.ARM64,
-    console_view_entry = consoles.console_view_entry(
-        category = "build perf|ios",
-        short_name = "dev",
-    ),
-    siso_configs = [],
-    siso_profile_mode = "local",
-    # Setting -1 makes siso use the default remote concurrency.
-    siso_remote_jobs = -1,
-    xcode = xcode.xcode_default,
 )
 
 # Experimental builder set up to track local CPU time for Chromium build. b/333389736

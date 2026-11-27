@@ -234,10 +234,6 @@ void WipeSearchEngineChoicePrefs(PrefService& profile_prefs,
   profile_prefs.ClearPref(
       prefs::kDefaultSearchProviderChoiceInvalidationTimestamp);
 
-#if BUILDFLAG(IS_IOS)
-  profile_prefs.ClearPref(
-      prefs::kDefaultSearchProviderChoiceScreenSkippedCount);
-#endif
 }
 
 base::expected<ChoiceCompletionMetadata, ChoiceCompletionMetadata::ParseError>

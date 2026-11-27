@@ -9,9 +9,6 @@
 #include "base/time/time.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/blink/public/platform/platform.h"
-#endif
 
 namespace blink {
 namespace {
@@ -47,11 +44,6 @@ QueueReportTimeSwapPromise::QueueReportTimeSwapPromise(
     : source_frame_number_(source_frame_number),
       drain_callback_(std::move(drain_callback)),
       swap_callback_(std::move(swap_callback)),
-#if BUILDFLAG(IS_ANDROID)
-      call_swap_on_activate_(
-          Platform::Current()
-              ->IsSynchronousCompositingEnabledForAndroidWebView()),
-#endif
       compositor_task_runner_(std::move(compositor_task_runner)) {
 }
 
@@ -94,10 +86,6 @@ cc::SwapPromise::DidNotSwapAction QueueReportTimeSwapPromise::DidNotSwap(
 void QueueReportTimeSwapPromise::DidActivate() {
   if (drain_callback_)
     std::move(drain_callback_).Run(source_frame_number_);
-#if BUILDFLAG(IS_ANDROID)
-  if (call_swap_on_activate_ && swap_callback_)
-    std::move(swap_callback_).Run();
-#endif
 }
 
 }  // namespace blink

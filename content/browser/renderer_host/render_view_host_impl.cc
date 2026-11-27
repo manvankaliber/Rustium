@@ -113,9 +113,7 @@
 #include "ui/gfx/system_fonts_win.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "content/browser/host_zoom_map_impl.h"
-#endif
 
 using blink::WebInputEvent;
 
@@ -241,8 +239,9 @@ RenderViewHostImpl* RenderViewHostImpl::From(RenderWidgetHost* rwh) {
   CHECK(rwh, base::NotFatalUntil::M152);
   RenderWidgetHostOwnerDelegate* owner_delegate =
       RenderWidgetHostImpl::From(rwh)->owner_delegate();
-  if (!owner_delegate)
+  if (!owner_delegate) {
     return nullptr;
+  }
   RenderViewHostImpl* rvh = static_cast<RenderViewHostImpl*>(owner_delegate);
   CHECK_EQ(rwh, rvh->GetWidget(), base::NotFatalUntil::M152);
   return rvh;
@@ -267,7 +266,7 @@ void RenderViewHostImpl::GetPlatformSpecificPrefs(
   GetFontInfo(gfx::win::SystemFont::kStatus, &prefs->status_font_family_name,
               &prefs->status_font_height);
 
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kSystemFontFamily)) {
     prefs->system_font_family_name =
@@ -275,11 +274,6 @@ void RenderViewHostImpl::GetPlatformSpecificPrefs(
   } else {
     prefs->system_font_family_name = gfx::Font().GetFontName();
   }
-#elif BUILDFLAG(IS_FUCHSIA)
-  // Make Blink's "focus ring" invisible. The focus ring is a hairline border
-  // that's rendered around clickable targets.
-  // TODO(crbug.com/40124608): Consider exposing this as a FIDL parameter.
-  prefs->focus_ring_color = SK_AlphaTRANSPARENT;
 #endif
 #if BUILDFLAG(IS_OZONE)
   prefs->selection_clipboard_buffer_available =
@@ -355,8 +349,9 @@ RenderViewHostImpl::RenderViewHostImpl(
   // it even needed after the migration?
   GetProcess()->EnableSendQueue();
 
-  if (!is_active())
+  if (!is_active()) {
     GetWidget()->UpdatePriority();
+  }
 
   bool initially_hidden = frame_tree_->delegate()->IsHidden();
   page_lifecycle_state_manager_ = std::make_unique<PageLifecycleStateManager>(
@@ -387,8 +382,9 @@ RenderViewHostImpl::~RenderViewHostImpl() {
 
   // We may have already unregistered the RenderViewHost when marking this not
   // available for reuse.
-  if (registered_with_frame_tree_)
+  if (registered_with_frame_tree_) {
     frame_tree_->UnregisterRenderViewHost(render_view_host_map_id_, this);
+  }
 
   // Corresponds to the TRACE_EVENT_BEGIN in RenderViewHostImpl's constructor.
   TRACE_EVENT_END("navigation.debug",
@@ -423,8 +419,9 @@ bool RenderViewHostImpl::CreateRenderView(
   // initialized it) or may not (we have our own process or the old process
   // crashed) have been initialized. Calling Init() multiple times will be
   // ignored, so this is safe.
-  if (!GetAgentSchedulingGroup().Init())
+  if (!GetAgentSchedulingGroup().Init()) {
     return false;
+  }
   CHECK(GetProcess()->IsInitializedAndNotDead(), base::NotFatalUntil::M152);
   CHECK(GetProcess()->GetBrowserContext(), base::NotFatalUntil::M152);
 
@@ -530,7 +527,6 @@ bool RenderViewHostImpl::CreateRenderView(
         frame_tree_node->current_frame_host()->IsRenderFrameLive() &&
         frame_tree_node->current_frame_host()->GetSiteInstance()->group() ==
             site_instance_group_.get()) {
-
       params->main_frame =
           mojom::CreateMainFrameUnion::NewProvisionalLocalParams(
               mojom::CreateProvisionalLocalMainFrameParams::New(
@@ -651,8 +647,9 @@ void RenderViewHostImpl::SetFrameTree(FrameTree& frame_tree) {
 }
 
 void RenderViewHostImpl::EnterBackForwardCache() {
-  if (!will_enter_back_forward_cache_callback_for_testing_.is_null())
+  if (!will_enter_back_forward_cache_callback_for_testing_.is_null()) {
     will_enter_back_forward_cache_callback_for_testing_.Run();
+  }
 
   TRACE_EVENT("navigation", "RenderViewHostImpl::EnterBackForwardCache",
               ChromeTrackEvent::kRenderViewHost, *this);
@@ -771,8 +768,9 @@ bool RenderViewHostImpl::IsMainFrameActive() {
 
 blink::web_pref::WebPreferences
 RenderViewHostImpl::GetWebkitPreferencesForWidget() {
-  if (!delegate_)
+  if (!delegate_) {
     return blink::web_pref::WebPreferences();
+  }
   return delegate_->GetOrCreateWebPreferences(this);
 }
 
@@ -831,14 +829,16 @@ int RenderViewHostImpl::GetRoutingID() const {
 
 void RenderViewHostImpl::RenderWidgetGotFocus() {
   RenderViewHostDelegateView* view = delegate_->GetDelegateView();
-  if (view)
+  if (view) {
     view->GotFocus(GetWidget());
+  }
 }
 
 void RenderViewHostImpl::RenderWidgetLostFocus() {
   RenderViewHostDelegateView* view = delegate_->GetDelegateView();
-  if (view)
+  if (view) {
     view->LostFocus(GetWidget());
+  }
 }
 
 void RenderViewHostImpl::SetInitialFocus(bool reverse) {
@@ -863,8 +863,9 @@ std::string RenderViewHostImpl::ToDebugString() {
 
 void RenderViewHostImpl::OnTakeFocus(bool reverse) {
   RenderViewHostDelegateView* view = delegate_->GetDelegateView();
-  if (view)
+  if (view) {
     view->TakeFocus(reverse);
+  }
 }
 
 void RenderViewHostImpl::OnFocus() {
@@ -916,8 +917,9 @@ void RenderViewHostImpl::SendWebPreferencesToRenderer() {
 void RenderViewHostImpl::SendRendererPreferencesToRenderer(
     const blink::RendererPreferences& preferences) {
   if (auto& broadcast = GetAssociatedPageBroadcast()) {
-    if (!will_send_renderer_preferences_callback_for_testing_.is_null())
+    if (!will_send_renderer_preferences_callback_for_testing_.is_null()) {
       will_send_renderer_preferences_callback_for_testing_.Run(preferences);
+    }
     broadcast->UpdateRendererPreferences(preferences);
   }
 }

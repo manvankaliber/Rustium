@@ -282,7 +282,6 @@ DMServerJobConfiguration::MapNetErrorAndResponseToDMStatus(
     case DeviceManagementService::kServiceUnavailable:
       return DM_STATUS_TEMPORARY_UNAVAILABLE;
     case DeviceManagementService::kDeviceNotFound: {
-#if !BUILDFLAG(IS_CHROMEOS)
       // The `kDeviceNotFound` response code can correspond to different DM
       // statuses depending on the contents of the response body.
       em::DeviceManagementResponse response;
@@ -302,7 +301,6 @@ DMServerJobConfiguration::MapNetErrorAndResponseToDMStatus(
               features::kCbcmRequireErrorDetailForUnenrollment)) {
         return DM_STATUS_HTTP_STATUS_ERROR;
       }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
       return DM_STATUS_SERVICE_DEVICE_NOT_FOUND;
     }
     case DeviceManagementService::kPolicyNotFound:

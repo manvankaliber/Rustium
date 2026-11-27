@@ -31,10 +31,6 @@
 #include "third_party/abseil-cpp/absl/container/flat_hash_map.h"
 #include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/media/key_system_support_android.h"
-#include "media/base/android/media_drm_bridge.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "content/browser/gpu/gpu_data_manager_impl.h"
@@ -389,12 +385,10 @@ CdmRegistryImpl::GetCapability(const std::string& key_system,
   using Status = CdmInfo::Status;
 
   if (robustness == CdmInfo::Robustness::kHardwareSecure) {
-#if !BUILDFLAG(USE_CHROMEOS_PROTECTED_MEDIA)
     if (!media::IsHardwareSecureDecryptionEnabled()) {
       DVLOG(1) << "Hardware secure decryption disabled";
       return {std::nullopt, Status::kHardwareSecureDecryptionDisabled};
     }
-#endif  // !BUILDFLAG(USE_CHROMEOS_PROTECTED_MEDIA)
 
     // Secure codecs override takes precedence over other checks.
     auto overridden_capability =
@@ -599,8 +593,6 @@ void CdmRegistryImpl::LazyInitializeCapability(
     std::move(cdm_capability_cb)
         .Run(base::unexpected(media::CdmCapabilityQueryStatus::kUnknown));
   }
-#elif BUILDFLAG(IS_ANDROID)
-  GetAndroidCdmCapability(key_system, robustness, std::move(cdm_capability_cb));
 #else
   std::move(cdm_capability_cb)
       .Run(base::unexpected(media::CdmCapabilityQueryStatus::kUnknown));

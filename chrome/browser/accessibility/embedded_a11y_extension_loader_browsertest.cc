@@ -96,7 +96,6 @@ IN_PROC_BROWSER_TEST_F(EmbeddedA11yExtensionLoaderTest,
   RemoveAndWaitForExtensionUnloaded(profile);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(EmbeddedA11yExtensionLoaderTest,
                        InstallsOnMultipleProfiles) {
   ProfileManager* profile_manager = g_browser_process->profile_manager();
@@ -123,7 +122,6 @@ IN_PROC_BROWSER_TEST_F(EmbeddedA11yExtensionLoaderTest,
     RemoveAndWaitForExtensionUnloaded(profile);
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(EmbeddedA11yExtensionLoaderTest,
                        InstallsOnIncognitoProfile) {
@@ -136,7 +134,6 @@ IN_PROC_BROWSER_TEST_F(EmbeddedA11yExtensionLoaderTest,
   RemoveAndWaitForExtensionUnloaded(incognito->GetProfile());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // CreateGuestBrowser() is not supported for ChromeOS out of the box.
 IN_PROC_BROWSER_TEST_F(EmbeddedA11yExtensionLoaderTest,
                        InstallsOnGuestProfile) {
@@ -146,4 +143,3 @@ IN_PROC_BROWSER_TEST_F(EmbeddedA11yExtensionLoaderTest,
   InstallAndWaitForExtensionLoaded(guest_browser->GetProfile());
   RemoveAndWaitForExtensionUnloaded(guest_browser->GetProfile());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)

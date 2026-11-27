@@ -7,15 +7,6 @@ import("//build/config/features.gni")
 import("//testing/test.gni")
 import("//tools/grit/grit_rule.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-  import("//third_party/jni_zero/jni_zero.gni")
-}
-
-if (is_chromeos) {
-  import("//third_party/protobuf/proto_library.gni")
-}
-
 # Dependency for histogram manager users: cronet and ios/webview
 source_set("library_support") {
   public = [
@@ -35,62 +26,6 @@ source_set("library_support") {
   ]
 }
 
-if (!is_cronet_build && is_android) {
-  generate_jni("jni_headers") {
-    sources = [
-      "android/java/src/org/chromium/components/metrics/LowEntropySource.java",
-    ]
-  }
-
-  java_cpp_features("java_features_srcjar") {
-    # External code should depend on ":foo_java" instead.
-    visibility = [ ":*" ]
-    sources = [ "//components/metrics/metrics_features.cc" ]
-    class_name = "org.chromium.components.metrics.MetricsFeatures"
-  }
-
-  java_cpp_strings("java_switches_srcjar") {
-    # External code should depend on ":metrics_java" instead.
-    visibility = [ ":*" ]
-    sources = [ "metrics_switches.h" ]
-    class_name = "org.chromium.components.metrics.MetricsSwitches"
-  }
-
-  java_cpp_enum("java_enum_srcjar") {
-    # External code should depend on ":metrics_java" instead.
-    visibility = [ ":*" ]
-    sources = [ "stability_metrics_helper.h" ]
-  }
-
-  android_library("metrics_java") {
-    # Right now, this only includes the Java switches. But if we need more Java
-    # files, they should be added here as necessary.
-    srcjar_deps = [
-      ":java_enum_srcjar",
-      ":java_features_srcjar",
-      ":java_switches_srcjar",
-    ]
-    sources = [
-      "android/java/src/org/chromium/components/metrics/LimitedEntropyRandomizationSource.java",
-      "android/java/src/org/chromium/components/metrics/LowEntropySource.java",
-    ]
-    deps = [
-      "//base:base_java",
-      "//third_party/androidx:androidx_annotation_annotation_java",
-      "//third_party/jni_zero:jni_zero_java",
-    ]
-  }
-
-  robolectric_library("components_metrics_junit_tests") {
-    sources = [ "android/junit/src/org/chromium/components/metrics/LimitedEntropyRandomizationSourceTest.java" ]
-    deps = [
-      ":metrics_java",
-      "//base:base_junit_test_support",
-      "//third_party/junit",
-    ]
-  }
-}
-
 # Used by the Chrome installer, which doesn't need the whole metrics library.
 source_set("client_info") {
   sources = [
@@ -106,7 +41,7 @@ source_set("metrics_pref_names") {
   configs += [ "//build/config/compiler:wglobal_constructors" ]
 }
 
-if (!is_cronet_build || is_ios) {
+if (!is_cronet_build) {
   # These files contain singletons. If they were be part of a static library
   # linked into multiple components (such as //content and //chrome), each
   # component would get their own copy of these singletons, causing issues. For
@@ -114,8 +49,6 @@ if (!is_cronet_build || is_ios) {
   # multiple other components.
   component("metrics_component") {
     sources = [
-      "android_metrics_helper.cc",
-      "android_metrics_helper.h",
       "histogram_child_process.h",
       "histogram_controller.cc",
       "histogram_controller.h",
@@ -130,15 +63,6 @@ if (!is_cronet_build || is_ios) {
     ]
 
     defines = [ "IS_METRICS_IMPL" ]
-  }
-
-  if (is_chromeos) {
-    proto_library("system_stack_sampled_metrics_status_proto") {
-      sources = [ "//third_party/cros_system_api/proto/stack_sampled_metrics_status/stack_sampled_metrics_status.proto" ]
-
-      proto_out_dir =
-          "third_party/cros_system_api/proto/stack_sampled_metrics_status"
-    }
   }
 
   source_set("system_profile_user_stream") {
@@ -314,37 +238,7 @@ if (!is_cronet_build || is_ios) {
       "//url",
     ]
 
-    if (is_android) {
-      sources += [
-        "android_metrics_provider.cc",
-        "android_metrics_provider.h",
-        "android_unconditional_persistent_histograms_field_trial.cc",
-        "android_unconditional_persistent_histograms_field_trial.h",
-        "gms_metrics_provider.cc",
-        "gms_metrics_provider.h",
-      ]
-      public += [
-        "android_metrics_provider.h",
-        "android_unconditional_persistent_histograms_field_trial.h",
-        "gms_metrics_provider.h",
-      ]
-      deps += [ ":jni_headers" ]
-    } else {
-      deps += [ "//components/keep_alive_registry" ]
-    }
-
-    if (is_ios) {
-      sources += [ "clean_exit_beacon_ios.mm" ]
-    }
-
-    if (is_chromeos) {
-      sources += [
-        "call_stacks/stack_sampling_recorder.cc",
-        "call_stacks/stack_sampling_recorder.h",
-      ]
-
-      deps += [ ":system_stack_sampled_metrics_status_proto" ]
-    }
+    deps += [ "//components/keep_alive_registry" ]
 
     if (is_win) {
       sources += [
@@ -433,9 +327,6 @@ if (!is_cronet_build) {
         "//extensions/buildflags",
         "//gpu/config",
       ]
-      if (is_android) {
-        deps += [ "//components/crash/content/browser" ]
-      }
     }
   }
 
@@ -567,7 +458,7 @@ if (!is_cronet_build) {
     ]
   }
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     static_library("serialization") {
       sources = [
         "serialization/metric_sample.cc",
@@ -582,7 +473,6 @@ if (!is_cronet_build) {
   source_set("unit_tests") {
     testonly = true
     sources = [
-      "android_metrics_helper_unittest.cc",
       "call_stacks/call_stack_profile_builder_unittest.cc",
       "call_stacks/call_stack_profile_metadata_unittest.cc",
       "call_stacks/call_stack_profile_metrics_provider_unittest.cc",
@@ -680,26 +570,9 @@ if (!is_cronet_build) {
       sources += [ "machine_id_provider_nonwin_unittest.cc" ]
     }
 
-    if (is_linux || is_chromeos) {
+    if (is_linux) {
       sources += [ "serialization/serialization_utils_unittest.cc" ]
       deps += [ ":serialization" ]
-    }
-
-    if (is_chromeos) {
-      sources += [ "call_stacks/stack_sampling_recorder_unittest.cc" ]
-
-      deps += [
-        ":system_stack_sampled_metrics_status_proto",
-        "//chromeos/ash/components/dbus:test_support",
-        "//chromeos/ash/components/network:test_support",
-      ]
-    }
-
-    if (is_android) {
-      sources += [
-        "android_metrics_provider_unittest.cc",
-        "gms_metrics_provider_unittest.cc",
-      ]
     }
 
     if (use_blink) {
@@ -709,19 +582,11 @@ if (!is_cronet_build) {
       ]
     }
 
-    # iOS is not supported by the profiler and the ios-simulator bot chokes on
-    # these tests.
-    if (is_ios) {
-      sources -=
-          [ "call_stacks/child_call_stack_profile_collector_unittest.cc" ]
-      deps += [ "//ios/web/public/test" ]
-    } else {
-      sources += [
-        "content/content_stability_metrics_provider_unittest.cc",
-        "content/subprocess_metrics_provider_unittest.cc",
-      ]
-      deps += [ "//extensions/buildflags" ]
-    }
+    sources += [
+      "content/content_stability_metrics_provider_unittest.cc",
+      "content/subprocess_metrics_provider_unittest.cc",
+    ]
+    deps += [ "//extensions/buildflags" ]
 
     if (is_win || is_linux) {
       sources += [ "motherboard_metrics_provider_unittest.cc" ]

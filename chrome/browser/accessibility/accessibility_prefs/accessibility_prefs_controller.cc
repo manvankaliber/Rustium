@@ -20,25 +20,11 @@ namespace accessibility {
 // static
 void AccessibilityPrefsController::RegisterLocalStatePrefs(
     PrefRegistrySimple* registry) {
-#if BUILDFLAG(IS_ANDROID)
-  registry->RegisterBooleanPref(
-      prefs::kAccessibilityPerformanceFilteringAllowed, true);
-#endif
 }
 
 AccessibilityPrefsController::AccessibilityPrefsController(
     PrefService* local_state_prefs)
     : local_state_prefs_(local_state_prefs) {
-#if BUILDFLAG(IS_ANDROID)
-  pref_change_registrar_ = std::make_unique<PrefChangeRegistrar>();
-  pref_change_registrar_->Init(local_state_prefs_);
-
-  pref_change_registrar_->Add(
-      prefs::kAccessibilityPerformanceFilteringAllowed,
-      base::BindRepeating(&AccessibilityPrefsController::
-                              OnAccessibilityPerformanceFilteringAllowedChanged,
-                          base::Unretained(this)));
-#endif
 
   base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
       FROM_HERE, base::BindOnce(&AccessibilityPrefsController::Init,
@@ -55,9 +41,6 @@ void AccessibilityPrefsController::Init() {
       OnProfileAdded(profile);
     }
   }
-#if BUILDFLAG(IS_ANDROID)
-  OnAccessibilityPerformanceFilteringAllowedChanged();
-#endif
   OnRendererAccessibilityEnabledChanged();
 }
 
@@ -78,15 +61,6 @@ void AccessibilityPrefsController::OnProfileManagerDestroying() {
   profile_manager_observation_.Reset();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void AccessibilityPrefsController::
-    OnAccessibilityPerformanceFilteringAllowedChanged() {
-  bool new_state = local_state_prefs_->GetBoolean(
-      prefs::kAccessibilityPerformanceFilteringAllowed);
-  content::BrowserAccessibilityState::GetInstance()
-      ->SetPerformanceFilteringAllowed(new_state);
-}
-#endif
 
 void AccessibilityPrefsController::OnRendererAccessibilityEnabledChanged() {
   bool enabled = (profile_pref_change_registrar_ &&

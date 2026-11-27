@@ -45,28 +45,6 @@ VkDeviceSize GetPreferredVMALargeHeapBlockSize() {
   return kVulkanVMALargeHeapBlockSize;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class VulkanMetric final
-    : public base::android::PreFreezeBackgroundMemoryTrimmer::PreFreezeMetric {
- public:
-  explicit VulkanMetric(VmaAllocator vma_allocator)
-      : PreFreezeMetric("Vulkan"), vma_allocator_(vma_allocator) {
-    base::android::PreFreezeBackgroundMemoryTrimmer::RegisterMemoryMetric(this);
-  }
-
-  ~VulkanMetric() override {
-    base::android::PreFreezeBackgroundMemoryTrimmer::UnregisterMemoryMetric(
-        this);
-  }
-
- private:
-  std::optional<base::ByteSize> Measure() const override {
-    auto allocated_used = vma::GetTotalAllocatedAndUsedMemory(vma_allocator_);
-    return base::ByteSize(allocated_used.first);
-  }
-  VmaAllocator vma_allocator_;
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // anonymous namespace
 
@@ -100,8 +78,9 @@ bool VulkanDeviceQueue::Initialize(
   DCHECK_EQ(static_cast<VmaAllocator>(VK_NULL_HANDLE), vma_allocator_);
   DCHECK_EQ(nullptr, angle_display_);
 
-  if (VK_NULL_HANDLE == vk_instance_)
+  if (VK_NULL_HANDLE == vk_instance_) {
     return false;
+  }
 
   const VulkanInfo& info = instance_->vulkan_info();
 
@@ -136,11 +115,12 @@ bool VulkanDeviceQueue::Initialize(
   for (size_t i = 0; i < info.physical_devices.size(); ++i) {
     const auto& device_info = info.physical_devices[i];
     const auto& device_properties = device_info.properties;
-    if (device_properties.apiVersion < info.used_api_version)
+    if (device_properties.apiVersion < info.used_api_version) {
       continue;
+    }
 
-      // In dual-CPU cases, we cannot detect the active GPU correctly on Linux,
-      // so don't select GPU device based on the |gpu_info|.
+    // In dual-CPU cases, we cannot detect the active GPU correctly on Linux,
+    // so don't select GPU device based on the |gpu_info|.
 #if !BUILDFLAG(IS_LINUX)
     // If gpu_info is provided, the device should match it.
     if (gpu_info && (device_properties.vendorID != gpu_info->gpu.vendor_id ||
@@ -179,17 +159,20 @@ bool VulkanDeviceQueue::Initialize(
       }
     }
 
-    if (!found)
+    if (!found) {
       continue;
+    }
 
     // Use the device, if it matches gpu_info.
-    if (gpu_info)
+    if (gpu_info) {
       break;
+    }
 
     // If the device is a discrete GPU, we will use it. Otherwise go through
     // all the devices and find the device with the highest score.
-    if (device_properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
+    if (device_properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
       break;
+    }
   }
 
   if (device_index == -1) {
@@ -224,11 +207,9 @@ bool VulkanDeviceQueue::Initialize(
       // On Fuchsia, some device extensions are provided by layers.
       // TODO(penghuang): checking extensions against layer device extensions
       // too.
-#if !BUILDFLAG(IS_FUCHSIA)
       DLOG(ERROR) << "Required Vulkan extension " << extension
                   << " is not supported.";
       return false;
-#endif
     }
     enabled_extensions.push_back(extension);
   }
@@ -277,8 +258,9 @@ bool VulkanDeviceQueue::Initialize(
       "cpu",
   });
   uint32_t gpu_type = vk_physical_device_properties_.deviceType;
-  if (gpu_type >= std::size(kDeviceTypeNames))
+  if (gpu_type >= std::size(kDeviceTypeNames)) {
     gpu_type = 0;
+  }
   crash_keys::vulkan_device_type.Set(kDeviceTypeNames[gpu_type]);
   crash_keys::vulkan_device_name.Set(vk_physical_device_properties_.deviceName);
 
@@ -287,8 +269,7 @@ bool VulkanDeviceQueue::Initialize(
 
   // Android, Fuchsia, Linux, and CrOS (VaapiVideoDecoder) need YCbCr sampler
   // support.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (!physical_device_info.feature_sampler_ycbcr_conversion) {
     LOG(ERROR) << "samplerYcbcrConversion is not supported.";
     return false;
@@ -301,8 +282,8 @@ bool VulkanDeviceQueue::Initialize(
   // of VkPhysicalDeviceFeatures2 to enable YCbCr sampler support.
   sampler_ycbcr_conversion_features_.pNext = enabled_device_features_2_.pNext;
   enabled_device_features_2_.pNext = &sampler_ycbcr_conversion_features_;
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_LINUX)
-        // || BUILDFLAG(IS_CHROMEOS)
+#endif
+  // || BUILDFLAG(IS_CHROMEOS)
 
   if (allow_protected_memory) {
     if (!physical_device_info.feature_protected_memory) {
@@ -392,11 +373,6 @@ bool VulkanDeviceQueue::Initialize(
 
   allow_protected_memory_ = allow_protected_memory;
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!metric_) {
-    metric_ = std::make_unique<VulkanMetric>(vma_allocator());
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   if (base::SingleThreadTaskRunner::HasCurrentDefault()) {
     base::trace_event::MemoryDumpManager::GetInstance()->RegisterDumpProvider(
@@ -431,11 +407,6 @@ bool VulkanDeviceQueue::InitCommon(VkPhysicalDevice vk_physical_device,
         /*heap_size_limit=*/nullptr,
         /*is_thread_safe =*/is_thread_safe, &owned_vma_allocator_);
     vma_allocator_ = owned_vma_allocator_;
-#if BUILDFLAG(IS_ANDROID)
-    if (!metric_) {
-      metric_ = std::make_unique<VulkanMetric>(vma_allocator());
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   skia_vk_memory_allocator_ =
@@ -453,8 +424,9 @@ bool VulkanDeviceQueue::InitCommon(VkPhysicalDevice vk_physical_device,
 bool VulkanDeviceQueue::InitializeFromANGLE(bool is_thread_safe) {
   const VulkanInfo& info = instance_->vulkan_info();
   VkPhysicalDevice vk_physical_device = gl::QueryVkPhysicalDeviceFromANGLE();
-  if (vk_physical_device == VK_NULL_HANDLE)
+  if (vk_physical_device == VK_NULL_HANDLE) {
     return false;
+  }
 
   int device_index = -1;
   for (size_t i = 0; i < info.physical_devices.size(); ++i) {
@@ -486,8 +458,9 @@ bool VulkanDeviceQueue::InitializeFromANGLE(bool is_thread_safe) {
 
   enabled_device_features_2_from_angle_ =
       gl::QueryVkEnabledDeviceFeaturesFromANGLE();
-  if (!enabled_device_features_2_from_angle_)
+  if (!enabled_device_features_2_from_angle_) {
     return false;
+  }
 
   angle_display_ = gl::QueryDisplayFromANGLE();
 
@@ -495,11 +468,6 @@ bool VulkanDeviceQueue::InitializeFromANGLE(bool is_thread_safe) {
   // because angle uses single vkQueue regardless of virtualization group, we
   // have to make vma/queue access thread-safe to synchronize skia's access on
   // the main thread with off-thread access in angle.
-#if BUILDFLAG(IS_CHROMEOS)
-  GetVulkanFunctionPointers()->per_queue_lock_map[vk_queue] =
-      std::make_unique<gpu::VulkanQueueLock>(angle_display_);
-  is_thread_safe = true;
-#endif
 
   return InitCommon(vk_physical_device, vk_device, vk_queue, vk_queue_index,
                     enabled_extensions, is_thread_safe);
@@ -597,9 +565,6 @@ bool VulkanDeviceQueue::InitializeForCompositorGpuThread(
 void VulkanDeviceQueue::Destroy() {
   base::trace_event::MemoryDumpManager::GetInstance()->UnregisterDumpProvider(
       this);
-#if BUILDFLAG(IS_ANDROID)
-  metric_ = nullptr;
-#endif
 
   if (cleanup_helper_) {
     cleanup_helper_->Destroy();
@@ -633,8 +598,9 @@ void VulkanDeviceQueue::Destroy() {
 
 std::unique_ptr<VulkanCommandPool> VulkanDeviceQueue::CreateCommandPool() {
   std::unique_ptr<VulkanCommandPool> command_pool(new VulkanCommandPool(this));
-  if (!command_pool->Initialize())
+  if (!command_pool->Initialize()) {
     return nullptr;
+  }
 
   return command_pool;
 }

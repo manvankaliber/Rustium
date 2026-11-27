@@ -46,12 +46,6 @@ OnDeviceCategoryClassifier::OnDeviceCategoryClassifier(
           optimization_guide_model_provider_,
           base::ThreadPool::CreateSequencedTaskRunner(
               {base::MayBlock(), base::TaskPriority::BEST_EFFORT}));
-  category_classifier_model_handlers_[CategoryType::kShopping] =
-      std::make_unique<CategoryClassifierModelHandler>(
-          optimization_guide::proto::OPTIMIZATION_TARGET_SHOPPING_CLASSIFIER,
-          optimization_guide_model_provider_,
-          base::ThreadPool::CreateSequencedTaskRunner(
-              {base::MayBlock(), base::TaskPriority::BEST_EFFORT}));
 }
 
 OnDeviceCategoryClassifier::~OnDeviceCategoryClassifier() = default;

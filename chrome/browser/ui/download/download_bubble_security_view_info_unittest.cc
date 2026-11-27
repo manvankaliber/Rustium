@@ -382,7 +382,6 @@ TEST_F(DownloadBubbleSecurityViewInfoTest,
 }
 #endif  // BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 class DownloadBubbleSecurityViewInfoTailoredWarningTest
     : public DownloadBubbleSecurityViewInfoTest {
  public:
@@ -439,4 +438,3 @@ TEST_F(DownloadBubbleSecurityViewInfoTailoredWarningTest,
   EXPECT_EQ(info().warning_summary(),
             u"This archive file includes other files that may hide malware");
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)

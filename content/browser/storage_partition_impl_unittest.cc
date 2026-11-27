@@ -108,10 +108,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/public/browser/android/java_interfaces.h"
-#include "services/service_manager/public/cpp/interface_provider.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using net::CanonicalCookie;
 using CookieDeletionFilter = network::mojom::CookieDeletionFilter;

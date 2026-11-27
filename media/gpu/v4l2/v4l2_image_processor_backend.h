@@ -19,7 +19,7 @@
 #include "base/sequence_checker.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/task/single_thread_task_runner.h"
-#include "media/gpu/chromeos/image_processor_backend.h"
+#include "media/gpu/linux/image_processor_backend.h"
 #include "media/gpu/media_gpu_export.h"
 #include "media/gpu/v4l2/v4l2_device.h"
 #include "ui/gfx/geometry/size.h"

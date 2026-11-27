@@ -42,9 +42,6 @@
 #include "base/threading/thread.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/java_handler_thread.h"
-#endif
 
 namespace gpu::gles2 {
 class GLES2Interface;
@@ -58,14 +55,7 @@ namespace device {
 
 class OpenXrApiWrapper;
 
-#if BUILDFLAG(IS_ANDROID)
-class XRThread : public base::android::JavaHandlerThread {
- public:
-  explicit XRThread(const char* name)
-      : base::android::JavaHandlerThread(name) {}
-  ~XRThread() override = default;
-};
-#elif BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 class XRThread : public base::Thread {
  public:
   explicit XRThread(const char* name) : base::Thread(name) {}

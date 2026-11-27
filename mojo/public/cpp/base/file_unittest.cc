@@ -96,7 +96,7 @@ TEST(FileTest, ReadOnlyFile) {
 }
 
 // This dies only if we can interrogate the underlying platform handle.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_POSIX)
 #if !BUILDFLAG(IS_AIX)
 TEST(FileTest, ReadOnlyFileDeath) {
 #if defined(OFFICIAL_BUILD)
@@ -127,12 +127,12 @@ TEST(FileTest, ReadOnlyFileDeath) {
       kReadOnlyFileCheckFailedRegex);
 }
 #endif  // !BUILDFLAG(IS_AIX)
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
 // This should work on all platforms. This check might be relaxed in which case
 // this test can be removed. iOS without blink does not build SyncSocket, so do
 // not build this when blink isn't used.
-#if DCHECK_IS_ON() && (!BUILDFLAG(IS_IOS) || BUILDFLAG(MOJO_USE_APPLE_CHANNEL))
+#if DCHECK_IS_ON()
 TEST(FileTest, NonPhysicalFileDeath) {
 #if defined(OFFICIAL_BUILD)
   const char kPhysicalFileCheckFailedRegex[] = "";

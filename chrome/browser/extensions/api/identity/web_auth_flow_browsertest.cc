@@ -52,10 +52,6 @@
 #include "components/keep_alive_registry/scoped_keep_alive.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "chrome/test/test_support_jni_headers/PopupCreatorImpl_jni.h"
-#endif
 
 namespace extensions {
 
@@ -64,19 +60,14 @@ namespace {
 // The acceptable margin of error (in dips) when comparing requested and actual
 // window bounds. On Android, this counters the rounding error during dip->px
 // conversion.
-constexpr int kBoundsToleranceDip = BUILDFLAG(IS_ANDROID) ? 2 : 0;
+constexpr int kBoundsToleranceDip = false ? 2 : 0;
 
 // Returns whether `window` can be placed at requested bounds. On Android,
 // requested bounds are only applied when the window can be resized (e.g. the
 // SDK supports the window bounds API and the window is in desktop windowing
 // mode).
 bool CanApplyRequestedBounds(BrowserWindowInterface* window) {
-#if BUILDFLAG(IS_ANDROID)
-  ui::WindowResizePrecheckResult result;
-  return window->GetWindow()->CanResize(result);
-#else
   return true;
-#endif
 }
 
 }  // namespace
@@ -97,12 +88,6 @@ class WebAuthFlowTestNavigationObserver
   }
 
   void WaitForWindow(WebAuthFlow* flow) {
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-    // On Android, wait for the window to be created.
-    base::test::TestFuture<void> future;
-    flow->SetPopupDisplayedCallbackForTesting(future.GetCallback());
-    EXPECT_TRUE(future.Wait());
-#endif
     // Wait for navigation on all platforms.
     Wait();
   }
@@ -110,13 +95,6 @@ class WebAuthFlowTestNavigationObserver
 
 class WebAuthFlowBrowserTest : public PlatformBrowserTest {
  public:
-#if BUILDFLAG(IS_ANDROID)
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    PlatformBrowserTest::SetUpCommandLine(command_line);
-
-    command_line->AppendSwitch("disable-fre");
-  }
-#endif
 
   void SetUpOnMainThread() override {
     PlatformBrowserTest::SetUpOnMainThread();
@@ -215,12 +193,6 @@ class WebAuthFlowBrowserTest : public PlatformBrowserTest {
     return first_activated_browser;
   }
 
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-  void CloseBrowserSynchronously(BrowserWindowInterface* browser) {
-    BrowserEventWaiter waiter(BrowserEventWaiter::Event::CLOSED, browser);
-    browser->GetWindow()->Close();
-  }
-#endif
 
   MockWebAuthFlowDelegate& mock() { return mock_web_auth_flow_delegate_; }
 
@@ -774,11 +746,7 @@ IN_PROC_BROWSER_TEST_F(WebAuthFlowBrowserTest,
       .WillOnce([&future](WebAuthFlow::Failure failure) {
         future.SetValue(failure);
       });
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-  CloseBrowserSynchronously(popup_window_browser);
-#else
   popup_window_browser->GetWindow()->Close();
-#endif
   EXPECT_EQ(future.Get(), WebAuthFlow::Failure::WINDOW_CLOSED);
 }
 
@@ -913,86 +881,5 @@ IN_PROC_BROWSER_TEST_F(WebAuthFlowBrowserTest, NoInitiatorOriginByDefault) {
   EXPECT_EQ(std::nullopt, navigation_observer.last_initiator_origin());
 }
 
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-IN_PROC_BROWSER_TEST_F(WebAuthFlowBrowserTest,
-                       PopupCreationFailure_CallsCannotCreateWindow) {
-  const GURL auth_url = embedded_test_server()->GetURL("/title1.html");
-  StartWebAuthFlow(auth_url, WebAuthFlow::Mode::INTERACTIVE);
-
-  base::test::TestFuture<WebAuthFlow::Failure> future;
-  EXPECT_CALL(mock(),
-              OnAuthFlowFailure(WebAuthFlow::Failure::CANNOT_CREATE_WINDOW))
-      .WillOnce([&future](WebAuthFlow::Failure failure) {
-        future.SetValue(failure);
-      });
-
-  web_auth_flow()->OnBrowserWindowInterfaceInitialized(nullptr);
-  EXPECT_EQ(future.Get(), WebAuthFlow::Failure::CANNOT_CREATE_WINDOW);
-}
-
-IN_PROC_BROWSER_TEST_F(WebAuthFlowBrowserTest,
-                       JavaStartActivityFails_ReportsCannotCreateWindow) {
-  JNIEnv* env = base::android::AttachCurrentThread();
-  Java_PopupCreatorImpl_setTryStartActivityResultForTesting(env, false);
-
-  const GURL auth_url = embedded_test_server()->GetURL("/title1.html");
-
-  base::test::TestFuture<WebAuthFlow::Failure> future;
-  EXPECT_CALL(mock(),
-              OnAuthFlowFailure(WebAuthFlow::Failure::CANNOT_CREATE_WINDOW))
-      .WillOnce([this, &future](WebAuthFlow::Failure failure) {
-        // Delete the flow synchronously, as real delegates do.
-        DeleteWebAuthFlow();
-        future.SetValue(failure);
-      });
-
-  StartWebAuthFlow(auth_url, WebAuthFlow::Mode::INTERACTIVE);
-  EXPECT_EQ(future.Get(), WebAuthFlow::Failure::CANNOT_CREATE_WINDOW);
-}
-
-namespace {
-// Runs `callback` on the first DidStopLoading. Registered after WebAuthFlow,
-// so it runs after WebAuthFlow::AfterUrlLoaded() has posted the deferred
-// popup launch.
-class StopLoadingObserver : public content::WebContentsObserver {
- public:
-  StopLoadingObserver(content::WebContents* web_contents,
-                      base::OnceClosure callback)
-      : content::WebContentsObserver(web_contents),
-        callback_(std::move(callback)) {}
-
-  void DidStopLoading() override {
-    if (callback_) {
-      std::move(callback_).Run();
-    }
-  }
-
- private:
-  base::OnceClosure callback_;
-};
-}  // namespace
-
-// The delegate detaches (e.g. the redirect URL was reached) after the popup
-// launch was posted but before it ran. The launch must be abandoned and the
-// WebContents destroyed, not handed to an ownerless popup.
-IN_PROC_BROWSER_TEST_F(WebAuthFlowBrowserTest,
-                       Interactive_DelegateDetachedBeforeLaunch_NoPopup) {
-  size_t initial_browser_count = GetAllBrowserWindowInterfaces().size();
-  const GURL auth_url = embedded_test_server()->GetURL("/title1.html");
-  EXPECT_CALL(mock(), OnAuthFlowFailure(testing::_)).Times(0);
-
-  StartWebAuthFlow(auth_url, WebAuthFlow::Mode::INTERACTIVE);
-  content::WebContents* contents = web_contents();
-  ASSERT_TRUE(contents);
-  content::WebContentsDestroyedWatcher destroyed_watcher(contents);
-  StopLoadingObserver detach_on_stop(
-      contents, base::BindOnce(&WebAuthFlowBrowserTest::DeleteWebAuthFlow,
-                               base::Unretained(this)));
-
-  destroyed_watcher.Wait();
-  EXPECT_TRUE(destroyed_watcher.IsDestroyed());
-  EXPECT_EQ(GetAllBrowserWindowInterfaces().size(), initial_browser_count);
-}
-#endif
 
 }  //  namespace extensions

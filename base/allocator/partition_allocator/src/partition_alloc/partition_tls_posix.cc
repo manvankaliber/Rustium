@@ -12,8 +12,8 @@
 #include "partition_alloc/partition_alloc_config.h"
 #include "partition_alloc/partition_lock.h"
 
-#if !PA_BUILDFLAG(IS_POSIX) && !PA_BUILDFLAG(IS_FUCHSIA)
-#error "This file is only for POSIX or Fuchsia platforms."
+#if !PA_BUILDFLAG(IS_POSIX)
+#error "This file is only for POSIX platforms."
 #endif
 
 namespace partition_alloc::internal {

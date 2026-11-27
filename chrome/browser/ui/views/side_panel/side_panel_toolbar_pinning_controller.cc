@@ -157,16 +157,6 @@ bool SidePanelToolbarPinningController::ShouldShowActiveInToolbar(
             IsContextualTasksEphemeralPinButtonRefactorEnabled()) {
       return true;
     }
-    if (!contextual_tasks::IsContextualTasksPinningV2Enabled()) {
-      auto* contextual_tasks_controller =
-          contextual_tasks::ContextualTasksPanelController::From(&*browser_);
-      if (contextual_tasks_controller &&
-          contextual_tasks_controller->GetActiveEntrySource() ==
-              contextual_tasks::ContextualTasksPanelController::EntrySource::
-                  kLensOverlay) {
-        return true;
-      }
-    }
   }
   return entry && (entry->should_show_ephemerally_in_toolbar() ||
                    GetPinnedStateFor(entry->key()));
@@ -187,36 +177,9 @@ void SidePanelToolbarPinningController::UpdateActiveState(
       extensions_container->UpdateSidePanelState(show_active_in_toolbar);
     }
   } else {
-    SidePanelEntryId target_id = key.id();
-    std::optional<SidePanelEntryId> other_id;
-
-    if (target_id == SidePanelEntryId::kContextualTasks) {
-      auto* contextual_tasks_controller =
-          contextual_tasks::ContextualTasksPanelController::From(&*browser_);
-      if (!contextual_tasks::IsContextualTasksPinningV2Enabled() &&
-          contextual_tasks_controller &&
-          contextual_tasks_controller->GetActiveEntrySource() ==
-              contextual_tasks::ContextualTasksPanelController::EntrySource::
-                  kLensOverlay) {
-        target_id = SidePanelEntryId::kLensOverlayResults;
-        other_id = SidePanelEntryId::kContextualTasks;
-      } else {
-        other_id = SidePanelEntryId::kLensOverlayResults;
-      }
-    } else if (target_id == SidePanelEntryId::kLensOverlayResults) {
-      other_id = SidePanelEntryId::kContextualTasks;
-    }
-
     std::optional<actions::ActionId> action_id =
-        SidePanelEntryIdToActionId(target_id);
+        SidePanelEntryIdToActionId(key.id());
     CHECK(action_id.has_value());
     toolbar_container->UpdateActionState(*action_id, show_active_in_toolbar);
-
-    if (other_id.has_value()) {
-      std::optional<actions::ActionId> other_action_id =
-          SidePanelEntryIdToActionId(*other_id);
-      CHECK(other_action_id.has_value());
-      toolbar_container->UpdateActionState(*other_action_id, false);
-    }
   }
 }

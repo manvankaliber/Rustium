@@ -18,21 +18,12 @@
 #include "media/base/win/media_foundation_cdm_proxy.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace chromeos {
-class ChromeOsCdmContext;
-}
-#endif
 
 namespace media {
 
 class CallbackRegistration;
 class Decryptor;
 class MediaCryptoContext;
-
-#if BUILDFLAG(IS_FUCHSIA)
-class FuchsiaCdmContext;
-#endif
 
 // An interface representing the context that a media player needs from a
 // content decryption module (CDM) to decrypt (and decode) encrypted buffers.
@@ -108,22 +99,7 @@ class MEDIA_EXPORT CdmContext {
   virtual scoped_refptr<MediaFoundationCdmProxy> GetMediaFoundationCdmProxy();
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns a MediaCryptoContext that can be used by MediaCodec based decoders.
-  virtual MediaCryptoContext* GetMediaCryptoContext();
-#endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // Returns FuchsiaCdmContext interface when the context is backed by Fuchsia
-  // CDM. Otherwise returns nullptr.
-  virtual FuchsiaCdmContext* GetFuchsiaCdmContext();
-#endif
-
-#if BUILDFLAG(IS_CHROMEOS)
-  // Returns a ChromeOsCdmContext interface when the context is backed by the
-  // ChromeOS CdmFactoryDaemon. Otherwise return nullptr.
-  virtual chromeos::ChromeOsCdmContext* GetChromeOsCdmContext();
-#endif
 
  protected:
   CdmContext();

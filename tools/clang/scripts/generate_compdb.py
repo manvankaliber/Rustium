@@ -30,10 +30,6 @@ def main(argv):
   parser.add_argument(
     '--target_os',
     choices=[
-      'android',
-      'chromeos',
-      'fuchsia',
-      'ios',
       'linux',
       'mac',
       'nacl',

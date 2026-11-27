@@ -30,7 +30,7 @@
 #include "extensions/test/test_extension_dir.h"
 
 // This file tests declarativeWebRequest, which is not supported on Android.
-static_assert(!BUILDFLAG(IS_ANDROID));
+static_assert(!false);
 
 namespace extensions {
 

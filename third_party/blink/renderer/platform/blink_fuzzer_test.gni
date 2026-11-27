@@ -17,10 +17,5 @@ template("blink_fuzzer_test") {
     if (defined(invoker.deps)) {
       deps += invoker.deps
     }
-
-    if (is_android) {
-      # Add assets target for Android.
-      deps += [ "//third_party/blink/renderer/platform:blink_fuzzer_test_support_assets" ]
-    }
   }
 }

@@ -37,10 +37,6 @@ class PrintingService : public mojom::PrintingService {
   void BindPdfToPwgRasterConverter(
       mojo::PendingReceiver<mojom::PdfToPwgRasterConverter> receiver) override;
 #endif
-#if BUILDFLAG(IS_CHROMEOS)
-  void BindPdfFlattener(
-      mojo::PendingReceiver<mojom::PdfFlattener> receiver) override;
-#endif
 #if BUILDFLAG(IS_WIN)
   void BindPdfToEmfConverterFactory(
       mojo::PendingReceiver<mojom::PdfToEmfConverterFactory> receiver) override;

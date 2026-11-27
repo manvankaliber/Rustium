@@ -21,7 +21,6 @@
 #include "chrome/browser/contextual_cueing/prefs.h"
 #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
 #include "chrome/browser/extensions/component_loader.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/indigo/api_client.h"
 #include "chrome/browser/indigo/indigo_extension_utils.h"
 #include "chrome/browser/indigo/indigo_prefs.h"
@@ -47,8 +46,6 @@
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #include "base/enterprise_util.h"
-#elif BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/install_attributes/install_attributes.h"
 #endif
 
 namespace indigo {
@@ -90,11 +87,6 @@ bool IsBrowserUnderAnyEnterpriseManagement(Profile* profile) {
   // Browser Cloud Management) is fully captured by Step 1 above.
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   if (base::IsManagedOrEnterpriseDevice()) {
-    return true;
-  }
-#elif BUILDFLAG(IS_CHROMEOS)
-  if (ash::InstallAttributes::IsInitialized() &&
-      ash::InstallAttributes::Get()->IsEnterpriseManaged()) {
     return true;
   }
 #endif
@@ -389,10 +381,6 @@ LocalEligibility IndigoService::ComputeLocalEligibility() const {
     return LocalEligibility::kMissingCapabilities;
   }
 
-  if (features::kIndigoRequireGlicEnabling.Get() &&
-      !glic::GlicEnabling::IsEnabledForProfile(profile_)) {
-    return LocalEligibility::kGlicDisabledForProfile;
-  }
 
   if (identity_manager_->HasAccountWithRefreshTokenInPersistentErrorState(
           account_id)) {

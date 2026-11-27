@@ -81,11 +81,6 @@ TEST(MachExtensions, ExcMaskAll) {
   EXPECT_FALSE(exc_mask_all & EXC_MASK_CRASH);
   EXPECT_FALSE(exc_mask_all & EXC_MASK_CORPSE_NOTIFY);
 
-#if BUILDFLAG(IS_IOS)
-  // Assume at least iOS 7 (≅ OS X 10.9).
-  EXPECT_TRUE(exc_mask_all & EXC_MASK_RESOURCE);
-  EXPECT_TRUE(exc_mask_all & EXC_MASK_GUARD);
-#else  // BUILDFLAG(IS_IOS)
   const int macos_version_number = MacOSVersionNumber();
   if (macos_version_number >= 10'08'00) {
     EXPECT_TRUE(exc_mask_all & EXC_MASK_RESOURCE);
@@ -98,7 +93,6 @@ TEST(MachExtensions, ExcMaskAll) {
   } else {
     EXPECT_FALSE(exc_mask_all & EXC_MASK_GUARD);
   }
-#endif  // BUILDFLAG(IS_IOS)
 
   // Bit 0 should not be set.
   EXPECT_FALSE(ExcMaskAll() & 1);
@@ -113,12 +107,6 @@ TEST(MachExtensions, ExcMaskValid) {
 
   EXPECT_TRUE(exc_mask_valid & EXC_MASK_CRASH);
 
-#if BUILDFLAG(IS_IOS)
-  // Assume at least iOS 9 (≅ OS X 10.11).
-  EXPECT_TRUE(exc_mask_valid & EXC_MASK_RESOURCE);
-  EXPECT_TRUE(exc_mask_valid & EXC_MASK_GUARD);
-  EXPECT_TRUE(exc_mask_valid & EXC_MASK_CORPSE_NOTIFY);
-#else  // BUILDFLAG(IS_IOS)
   const int macos_version_number = MacOSVersionNumber();
   if (macos_version_number >= 10'08'00) {
     EXPECT_TRUE(exc_mask_valid & EXC_MASK_RESOURCE);
@@ -137,7 +125,6 @@ TEST(MachExtensions, ExcMaskValid) {
   } else {
     EXPECT_FALSE(exc_mask_valid & EXC_MASK_CORPSE_NOTIFY);
   }
-#endif  // BUILDFLAG(IS_IOS)
 
   // Bit 0 should not be set.
   EXPECT_FALSE(ExcMaskValid() & 1);

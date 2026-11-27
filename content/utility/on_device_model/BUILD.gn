@@ -18,18 +18,17 @@ source_set("on_device_model_sandbox_init") {
   if (enable_ml_internal) {
     deps += [ "//services/on_device_model/ml" ]
   }
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     deps += [
       "//content/common",
       "//gpu/config",
       "//sandbox/policy",
     ]
   }
-  if (!is_fuchsia) {
-    deps += [
-      "//third_party/dawn/include/dawn:cpp_headers",
-      "//third_party/dawn/src/dawn:proc",
-      "//third_party/dawn/src/dawn/native",
-    ]
-  }
+
+  deps += [
+    "//third_party/dawn/include/dawn:cpp_headers",
+    "//third_party/dawn/src/dawn:proc",
+    "//third_party/dawn/src/dawn/native",
+  ]
 }

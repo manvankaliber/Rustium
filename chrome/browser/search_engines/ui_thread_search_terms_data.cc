@@ -62,7 +62,6 @@ std::string UIThreadSearchTermsData::GetApplicationLocale() const {
 }
 
 // Android implementations are in ui_thread_search_terms_data_android.cc.
-#if !BUILDFLAG(IS_ANDROID)
 std::u16string UIThreadSearchTermsData::GetRlzParameterValue(
     bool from_app_list) const {
   CHECK(!BrowserThread::IsThreadInitialized(BrowserThread::UI) ||
@@ -95,7 +94,6 @@ std::string UIThreadSearchTermsData::GetSearchClient() const {
         base::NotFatalUntil::M163);
   return std::string();
 }
-#endif
 
 // It's acutally OK to call this method on any thread, but it's currently placed
 // in UIThreadSearchTermsData since SearchTermsData cannot depend on src/chrome

@@ -222,11 +222,6 @@ void TestingSpellCheckProvider::InitializeDictionaries(
 #endif  // BUILDFLAG(IS_WIN)
 #endif  // BUILDFLAG(USE_BROWSER_SPELLCHECKER)
 
-#if BUILDFLAG(IS_ANDROID)
-void TestingSpellCheckProvider::DisconnectSessionBridge() {
-  NOTREACHED();
-}
-#endif
 
 void TestingSpellCheckProvider::SetLastResults(
     const std::u16string last_request,

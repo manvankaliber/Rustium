@@ -34,10 +34,6 @@
 #include <os/lock.h>
 #endif  // PA_BUILDFLAG(IS_APPLE)
 
-#if PA_BUILDFLAG(IS_FUCHSIA)
-#include <lib/sync/mutex.h>
-#endif
-
 #if PA_CONFIG(HAS_LINUX_KERNEL) && \
     PA_BUILDFLAG(ENABLE_PARTITION_LOCK_PRIORITY_INHERITANCE)
 #include <linux/futex.h>
@@ -103,12 +99,6 @@ class PA_LOCKABLE PA_COMPONENT_EXPORT(PARTITION_ALLOC) SpinningMutex {
   PA_NOINLINE void AcquireSpinThenBlock() PA_EXCLUSIVE_LOCK_FUNCTION();
   void LockSlow() PA_EXCLUSIVE_LOCK_FUNCTION();
 
-#if PA_BUILDFLAG(IS_ANDROID) && PA_BUILDFLAG(PA_ARCH_CPU_ARM64)
-  // On ARM64, 2048 cycles results in spinning for 500-1500 nanoseconds on
-  // most Android devices which overlaps with the time spent on a futex
-  // syscall.
-  static constexpr int kSpinCount = 2048;
-#else
   // See below, the latency of PA_YIELD_PROCESSOR can be as high as ~150
   // cycles. Meanwhile, sleeping costs a few us. Spinning 64 times at 3GHz would
   // cost 150 * 64 / 3e9 ~= 3.2us.
@@ -116,7 +106,6 @@ class PA_LOCKABLE PA_COMPONENT_EXPORT(PARTITION_ALLOC) SpinningMutex {
   // This applies to Linux kernels, on x86_64. On ARM64, the yield instruction
   // is a NOP, so we need to spin more. (See crbug.com/458028996)
   static constexpr int kSpinCount = 64;
-#endif  // PA_BUILDFLAG(IS_ANDROID) && PA_BUILDFLAG(PA_ARCH_CPU_ARM64)
 
 #if PA_CONFIG(HAS_LINUX_KERNEL)
   void FutexWait();
@@ -147,8 +136,6 @@ class PA_LOCKABLE PA_COMPONENT_EXPORT(PARTITION_ALLOC) SpinningMutex {
   os_unfair_lock unfair_lock_ = OS_UNFAIR_LOCK_INIT;
 #elif PA_BUILDFLAG(IS_POSIX)
   pthread_mutex_t lock_ = PTHREAD_MUTEX_INITIALIZER;
-#elif PA_BUILDFLAG(IS_FUCHSIA)
-  sync_mutex lock_;
 #else
   std::atomic<bool> lock_{false};
 #endif
@@ -296,16 +283,6 @@ PA_ALWAYS_INLINE bool SpinningMutex::Try() {
 PA_ALWAYS_INLINE void SpinningMutex::Release() {
   int retval = pthread_mutex_unlock(&lock_);
   PA_DCHECK(retval == 0);
-}
-
-#elif PA_BUILDFLAG(IS_FUCHSIA)
-
-PA_ALWAYS_INLINE bool SpinningMutex::Try() {
-  return sync_mutex_trylock(&lock_) == ZX_OK;
-}
-
-PA_ALWAYS_INLINE void SpinningMutex::Release() {
-  sync_mutex_unlock(&lock_);
 }
 
 #else

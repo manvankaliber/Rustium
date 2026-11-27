@@ -174,9 +174,6 @@ void ActionAppMenuMetrics::LogMenuActionWithId(actions::ActionId action_id) {
       break;
 
     // Lens overlay.
-    case kActionShowLensOverlayFromAppMenu:
-      RecordAction(MENU_ACTION_SHOW_LENS_OVERLAY, "ShowLensOverlay");
-      break;
     case kActionAskGoogleAboutThisPageFromAppMenu:
       RecordAction(MENU_ACTION_ASK_GOOGLE_ABOUT_THIS_PAGE,
                    "AskGoogleAboutThisPage");
@@ -216,9 +213,6 @@ void ActionAppMenuMetrics::LogMenuActionWithId(actions::ActionId action_id) {
       break;
     case kActionPrint:
       RecordAction(MENU_ACTION_PRINT, "Print");
-      break;
-    case kActionOpenGlic:
-      RecordAction(MENU_ACTION_OPEN_GLIC, "OpenGlic");
       break;
     case kActionShowTtcMenu:
       RecordAction(MENU_ACTION_TTC_APP_MENU, "TtcAppMenu");
@@ -380,7 +374,6 @@ void ActionAppMenuMetrics::LogMenuActionWithId(actions::ActionId action_id) {
       break;
 
       // Profile submenu.
-#if !BUILDFLAG(IS_CHROMEOS)
     case kActionCustomizeChrome:
       RecordAction(MENU_ACTION_CUSTOMIZE_CHROME, "CustomizeChrome");
       break;
@@ -411,7 +404,6 @@ void ActionAppMenuMetrics::LogMenuActionWithId(actions::ActionId action_id) {
     case kActionManageChromeProfiles:
       RecordAction(MENU_ACTION_MANAGE_CHROME_PROFILES, "ManageChromeProfiles");
       break;
-#endif
 
     // Reading list submenu.
     case kActionReadingListMenuAddTab:

@@ -23,16 +23,11 @@
 #include "ui/gfx/image/image.h"
 #include "url/gurl.h"
 
-#if (!BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_VR)) && !BUILDFLAG(IS_IOS)
 #define SUPPORT_PEDALS_VECTOR_ICONS
 namespace gfx {
 struct VectorIcon;
 }
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif
 
 class AutocompleteInput;
 class AutocompleteProviderClient;
@@ -215,10 +210,6 @@ class OmniboxAction : public base::RefCountedThreadSafe<OmniboxAction> {
   // Returns an ID used to identify the action.
   virtual OmniboxActionId ActionId() const;
 
-#if BUILDFLAG(IS_ANDROID)
-  virtual base::android::ScopedJavaLocalRef<jobject> GetOrCreateJavaObject(
-      JNIEnv* env) const;
-#endif
 
  protected:
   friend class base::RefCountedThreadSafe<OmniboxAction>;
@@ -235,9 +226,6 @@ class OmniboxAction : public base::RefCountedThreadSafe<OmniboxAction> {
   // How the action should be presented in the UI.
   ActionPresentationMode presentation_mode_;
 
-#if BUILDFLAG(IS_ANDROID)
-  mutable base::android::ScopedJavaGlobalRef<jobject> j_omnibox_action_;
-#endif
 };
 
 #endif  // COMPONENTS_OMNIBOX_BROWSER_ACTIONS_OMNIBOX_ACTION_H_

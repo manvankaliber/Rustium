@@ -74,7 +74,6 @@ void ExtensionViewHost::LoadInitialURL() {
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Popups and side panels may spawn modal dialogs (e.g. the directory upload
   // confirmation for <input webkitdirectory>), which need positioning
   // information.
@@ -83,7 +82,6 @@ void ExtensionViewHost::LoadInitialURL() {
     web_modal_handler_ = std::make_unique<ExtensionViewHostWebModalHandler>(
         host_contents(), view_->GetNativeView());
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   ExtensionHost::LoadInitialURL();
 }

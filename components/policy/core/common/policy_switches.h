@@ -19,13 +19,7 @@ extern const char kChromePolicy[];
 extern const char kSecureConnectApiUrl[];
 extern const char kFileStorageServerUploadUrl[];
 extern const char kPolicyVerificationKey[];
-#if BUILDFLAG(IS_CHROMEOS)
-extern const char kDisablePolicyKeyVerification[];
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-extern const char kForceDeviceOwnership[];
-#endif
 
 #if !BUILDFLAG(GOOGLE_CHROME_BRANDING)
 extern const char kUseFakeDmserver[];

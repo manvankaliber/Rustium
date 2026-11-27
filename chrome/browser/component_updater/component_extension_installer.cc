@@ -26,7 +26,6 @@
 #include "chrome/browser/extensions/component_loader.h"
 #include "chrome/browser/extensions/component_loader_prefs.h"
 #include "chrome/common/extensions/extension_constants.h"
-#include "chrome/grit/aim_eligibility_extension_resources.h"
 #include "components/component_updater/component_updater_service.h"
 #include "components/omnibox/common/omnibox_features.h"
 #include "content/public/browser/browser_thread.h"
@@ -46,17 +45,6 @@ namespace {
 // `extension_id` are independent and are expected to differ. The component
 // (CRX) is signed with its own key and has its own manifest.json, while
 // `extension_id` is derived from the "key" in extension_manifest.json.
-
-// The SHA256 of the SubjectPublicKeyInfo used to sign the extension.
-// The extension id is: kabpfonokkamggpgbldambnmkliehlbh
-constexpr std::array<uint8_t, 32> kAimEligibilityPublicKeySHA256 = {
-    0xa0, 0x1f, 0x5e, 0xde, 0xaa, 0x0c, 0x66, 0xf6, 0x1b, 0x30, 0xc1,
-    0xdc, 0xab, 0x84, 0x7b, 0x17, 0xa0, 0xb9, 0x5f, 0x0e, 0xa6, 0x9c,
-    0xf7, 0x89, 0x39, 0x17, 0xb2, 0x95, 0x5b, 0x02, 0x89, 0xb8};
-
-// The name of the AIM Eligibility component.
-constexpr char kAimEligibilityManifestName[] =
-    "AIM Eligibility Component Extension";
 
 // The manifest filename of the component extension.
 constexpr base::FilePath::CharType kExtensionManifestFilename[] =
@@ -227,19 +215,6 @@ ComponentExtensionInstallerPolicy::GetInstallerAttributes() const {
 }
 
 void ManageComponentExtensionRegistrations(ComponentUpdateService* cus) {
-  ManageComponentExtensionRegistration(
-      cus,
-      {.name = kAimEligibilityManifestName,
-       .extension_id = extension_misc::kAimEligibilityExtensionId,
-       .public_key_sha256 = kAimEligibilityPublicKeySHA256,
-       .relative_install_dir =
-           base::FilePath(extension_misc::kAimEligibilityExtensionDirName),
-       .bundled_manifest_resource_id =
-           IDR_AIM_ELIGIBILITY_EXTENSION_MANIFEST_JSON},
-      base::FeatureList::IsEnabled(
-          omnibox::kAimEligibilityComponentExtension) &&
-          omnibox::kAimEligibilityUseComponentUpdater.Get());
-
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
   ManageComponentExtensionRegistration(
       cus,

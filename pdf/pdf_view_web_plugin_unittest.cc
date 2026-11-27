@@ -4572,10 +4572,6 @@ class PdfViewWebPluginAnnotationAgentContainerTest
         annotation_agent_host_receiver;
     mojo::PendingRemote<blink::mojom::AnnotationAgent> annotation_agent_remote;
 
-    plugin_->CreateAgent(
-        annotation_agent_host_receiver.InitWithNewPipeAndPassRemote(),
-        annotation_agent_remote.InitWithNewPipeAndPassReceiver(),
-        blink::mojom::AnnotationType::kGlic, std::move(selector), std::nullopt);
     fake_annotation_agent_host_ = std::make_unique<FakeAnnotationAgentHost>(
         std::move(annotation_agent_host_receiver),
         std::move(annotation_agent_remote));

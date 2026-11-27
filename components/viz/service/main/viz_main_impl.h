@@ -108,16 +108,6 @@ class VizMainImpl : public mojom::VizMain {
     mutable base::OnceCallback<void(
         mojo::PendingReceiver<webnn::mojom::WebNNBrowserHost>)>
         bind_webnn_browser_host;
-#if BUILDFLAG(IS_ANDROID)
-    // GpuServiceImpl normally creates the below objects internally. However,
-    // on Android WebView it is created by the embedder.
-    raw_ptr<gpu::SyncPointManager> sync_point_manager = nullptr;
-    raw_ptr<gpu::SharedImageManager> shared_image_manager = nullptr;
-    raw_ptr<gpu::Scheduler> scheduler = nullptr;
-    raw_ptr<VizCompositorThreadRunner> viz_compositor_thread_runner = nullptr;
-    raw_ptr<const gpu::SharedContextState::GrContextOptionsProvider>
-        gr_context_options_provider = nullptr;
-#endif
   };
 
   VizMainImpl(Delegate* delegate,
@@ -150,10 +140,6 @@ class VizMainImpl : public mojom::VizMain {
   void CreateInfoCollectionGpuService(
       mojo::PendingReceiver<mojom::InfoCollectionGpuService> pending_receiver)
       override;
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  void SetHostProcessId(int32_t pid) override;
-  void NotifyWorkloadIncrease() override;
 #endif
   void CreateFrameSinkManager(mojom::FrameSinkManagerParamsPtr params) override;
 #if BUILDFLAG(USE_VIZ_DEBUGGER)

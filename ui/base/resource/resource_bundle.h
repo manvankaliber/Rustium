@@ -82,23 +82,6 @@ class COMPONENT_EXPORT(UI_BASE) ResourceBundle {
     kDefault = kOther,
   };
 
-#if BUILDFLAG(IS_ANDROID)
-  // The purpose for a pak file represented by an FdAndRegion. These correspond
-  // to entries in the android_webview/common/aw_descriptors.h and
-  // chrome/common/chrome_descriptors.h enums.
-  enum class LocalePakPurpose {
-    kWebViewMain = 0,
-    kNonWebViewMain,
-    kWebViewFallback,
-    kNonWebViewFallback,
-  };
-
-  struct FdAndRegion {
-    int fd;
-    base::MemoryMappedFile::Region region;
-    LocalePakPurpose purpose;
-  };
-#endif  // BUILDFLAG(IS_ANDROID)
 
   struct COMPONENT_EXPORT(UI_BASE) FontDetails {
     explicit FontDetails(std::string typeface = std::string(),
@@ -191,9 +174,6 @@ class COMPONENT_EXPORT(UI_BASE) ResourceBundle {
 
    private:
     raw_ptr<ResourceBundle> instance_;
-#if BUILDFLAG(IS_ANDROID)
-    std::vector<ResourceBundle::FdAndRegion> android_locale_packs_;
-#endif  // BUILDFLAG(IS_ANDROID)
   };
 
   using LottieData = std::vector<uint8_t>;
@@ -245,11 +225,6 @@ class COMPONENT_EXPORT(UI_BASE) ResourceBundle {
   // calling this directly when possible.
   static ResourceBundle* SwapSharedInstanceForTesting(
       ResourceBundle* instance
-#if BUILDFLAG(IS_ANDROID)
-      ,
-      const std::vector<ResourceBundle::FdAndRegion>& new_android_locale_packs,
-      std::vector<ResourceBundle::FdAndRegion>* old_android_locale_packs
-#endif  // BUILDFLAG(IS_ANDROID)
   );
 
   // Returns true after the global resource loader instance has been created.

@@ -8,7 +8,6 @@ import type {SettingsSyncAccountControlElement} from './sync_account_control.js'
 
 export function getHtml(this: SettingsSyncAccountControlElement) {
   return html`<!--_html_template_start_-->
-<if expr="not is_chromeos">
 <div id="banner" ?hidden="${this.shouldHideBanner_()}" part="banner"></div>
 <div class="cr-row first" id="promo-header"
     ?hidden="${this.shouldHideBanner_()}">
@@ -25,7 +24,6 @@ export function getHtml(this: SettingsSyncAccountControlElement) {
     $i18n{peopleSignInNoAccountAwareness}
   </cr-button>
 </div>
-</if>
 ${this.shouldShowAvatarRow_ ? html`
   <div class="cr-row first two-line" id="avatar-row">
     <div id="avatar-container">
@@ -33,12 +31,10 @@ ${this.shouldShowAvatarRow_ ? html`
           src="${this.getProfileImageSrc_(
               this.shownAccount_?.avatarImage || null,
               this.profileAvatarURL_)}">
-<if expr="not is_chromeos">
       <div id="sync-icon-container" ?hidden="${!this.isSyncing_()}"
           class="${this.getSyncIconStyle_()}">
         <cr-icon icon="${this.getSyncIcon_()}"></cr-icon>
       </div>
-</if>
     </div>
     <div class="cr-row-gap cr-padded-text flex no-min-width" id="user-info">
       <div class="text-elide">
@@ -53,7 +49,6 @@ ${this.shouldShowAvatarRow_ ? html`
         ${this.getAvatarSubtitleLabel_()}
       </div>
     </div>
-<if expr="not is_chromeos">
     <cr-icon-button class="icon-arrow-dropdown cr-button-gap"
         ?hidden="${!this.shouldAllowAccountSwitch_()}"
         @click="${this.onMenuButtonClick_}" id="dropdown-arrow"
@@ -71,14 +66,12 @@ ${this.shouldShowAvatarRow_ ? html`
         ?disabled="${!!this.syncStatus.firstSetupInProgress}">
       ${this.getTurnOffSyncLabel_()}
     </cr-button>
-</if>
     <cr-button id="sync-error-button" class="action-button cr-button-gap"
         ?hidden="${!this.shouldShowErrorActionButton_()}"
         @click="${this.onErrorButtonClick_}"
         ?disabled="${!!this.syncStatus.firstSetupInProgress}">
       ${this.syncStatus.statusActionText}
     </cr-button>
-<if expr="not is_chromeos">
     <cr-button class="action-button cr-button-gap"
         @click="${this.onSyncButtonClick_}" id="account-aware"
         ?hidden="${!this.shouldShowAccountAwareSigninButton_()}">
@@ -108,10 +101,8 @@ ${this.shouldShowAvatarRow_ ? html`
         $i18n{verifyAccount}
       </cr-button>
     </div>
-</if>
 
   </div>
-<if expr="not is_chromeos">
   ${this.shouldAllowAccountSwitch_() ? html`
     <cr-action-menu id="menu" auto-reposition role-description="$i18n{menu}"
         @close="${this.onDropdownClose_}">
@@ -131,7 +122,6 @@ ${this.shouldShowAvatarRow_ ? html`
       </button>
     </cr-action-menu>
   ` : ''}
-</if>
 ` : ''}
 <!--_html_template_end_-->`;
 }

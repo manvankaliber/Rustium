@@ -11,8 +11,7 @@ import("//build/toolchain/toolchain.gni")
 import("//build_overrides/build.gni")
 
 # Allow Android builds on macOS
-assert(current_os == "mac" || current_toolchain == default_toolchain ||
-       target_os == "android")
+assert(current_os == "mac" || current_toolchain == default_toolchain)
 
 declare_args() {
   # The following two variables control the minimum supported version for
@@ -76,7 +75,7 @@ declare_args() {
 # check that current_toolchain is default_toolchain, and the file should
 # assert that current_os is "mac" once this file is no longer included by
 # iOS toolchains.
-if (is_chrome_branded && is_official_build && target_os != "ios") {
+if (is_chrome_branded && is_official_build) {
   assert(!use_system_xcode ||
              mac_allow_system_xcode_for_official_builds_for_testing,
          "official branded builds should use hermetic xcode")

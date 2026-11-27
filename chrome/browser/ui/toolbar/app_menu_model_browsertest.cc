@@ -23,8 +23,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/defaults.h"
 #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
 #include "chrome/browser/password_manager/password_manager_test_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sharing_hub/sharing_hub_features.h"
@@ -32,7 +30,6 @@
 #include "chrome/browser/signin/signin_browser_test_base.h"
 #include "chrome/browser/sync/send_tab_to_self_sync_service_factory.h"
 #include "chrome/browser/sync/sync_service_factory.h"
-#include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/browser_actions.h"
 #include "chrome/browser/ui/global_error/global_error.h"
@@ -78,11 +75,6 @@
 #include "ui/views/widget/any_widget_observer.h"
 #include "ui/views/widget/widget.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/policy/system_features_disable_list_policy_handler.h"
-#include "chromeos/constants/chromeos_features.h"
-#include "components/policy/core/common/policy_pref_names.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/global_features.h"
@@ -353,70 +345,18 @@ IN_PROC_BROWSER_TEST_F(AppMenuModelTest, CustomizeChromeLogMetrics) {
   EXPECT_EQ(1, model.log_metrics_count_);
 }
 
-class AppMenuModelGlicTest : public AppMenuModelTest {
- public:
-  AppMenuModelGlicTest() {
-    feature_list_.InitWithFeatures({features::kGlic, features::kGlicRollout},
-                                   {});
-  }
-};
 
-IN_PROC_BROWSER_TEST_F(AppMenuModelGlicTest, GlicItem) {
-  TestLogMetricsAppMenuModel model(this, browser());
-  model.Init();
-  model.ExecuteCommand(IDC_OPEN_GLIC, 0);
-  EXPECT_EQ(1, model.log_metrics_count_);
-}
 
-class AppMenuModelTtcTest : public AppMenuModelTest {
- protected:
-  AppMenuModelTtcTest() {
-    feature_list_.InitAndEnableFeature(ttc::kTtc);
-    // ChromeOS creates `TtcKeyedService` only where Glic's system requirements
-    // are met.
-    glic::GlicEnabling::SetSystemRequirementMetForTesting(true);
-  }
-  ~AppMenuModelTtcTest() override {
-    glic::GlicEnabling::SetSystemRequirementMetForTesting(std::nullopt);
-  }
-};
 
-IN_PROC_BROWSER_TEST_F(AppMenuModelTtcTest, TtcItem) {
+IN_PROC_BROWSER_TEST_F(AppMenuModelTest, TtcItemAbsent) {
   AppMenuModel model(this, browser());
   model.Init();
-
-  const std::optional<size_t> index =
-      model.GetIndexOfCommandId(IDC_SHOW_TTC_MENU);
-  ASSERT_TRUE(index.has_value());
-  EXPECT_FALSE(model.GetIconAt(index.value()).IsEmpty());
-}
-
-IN_PROC_BROWSER_TEST_F(AppMenuModelTtcTest, TtcItemLogsMetrics) {
-  TestLogMetricsAppMenuModel model(this, browser());
-  model.Init();
-  model.ExecuteCommand(IDC_SHOW_TTC_MENU, 0);
-  EXPECT_EQ(1, model.log_metrics_count_);
-}
-
-class AppMenuModelTtcDisabledTest : public AppMenuModelTest {
- protected:
-  AppMenuModelTtcDisabledTest() {
-    feature_list_.InitAndDisableFeature(ttc::kTtc);
-  }
-};
-
-IN_PROC_BROWSER_TEST_F(AppMenuModelTtcDisabledTest, TtcItemAbsent) {
-  AppMenuModel model(this, browser());
-  model.Init();
-
   EXPECT_FALSE(model.GetIndexOfCommandId(IDC_SHOW_TTC_MENU).has_value());
 }
 
 IN_PROC_BROWSER_TEST_F(AppMenuModelTest, DoNotShowShareSubMenuItem) {
   PrefService* prefs = browser()->GetProfile()->GetPrefs();
-#if !BUILDFLAG(IS_CHROMEOS)
   prefs->SetBoolean(prefs::kDesktopSharingHubEnabled, false);
-#endif
   prefs->SetBoolean(prefs::kDisableScreenshots, true);
 
   AppMenuModel model(this, browser());
@@ -554,7 +494,6 @@ class SkillsAndExtensionsMenuModelTest : public AppMenuModelTest {
   ~SkillsAndExtensionsMenuModelTest() override = default;
 
  private:
-  glic::GlicTestEnvironment glic_test_env_;
   base::test::ScopedFeatureList feature_list_;
 };
 
@@ -614,42 +553,6 @@ IN_PROC_BROWSER_TEST_F(SkillsAndExtensionsMenuModelTest,
   EXPECT_FALSE(skills_and_extensions_submenu->GetIconAt(1).IsEmpty());
 }
 
-IN_PROC_BROWSER_TEST_F(SkillsAndExtensionsMenuModelTest,
-                       SkillsAndExtensionsMenuHiddenWhenGlicDisabled) {
-  browser()->GetProfile()->GetPrefs()->SetInteger(
-      optimization_guide::prefs::kGeminiSettings,
-      std::to_underlying(
-          optimization_guide::prefs::GeminiSettingsPolicyState::kDisabled));
-
-  actions::ActionItem* root_action =
-      BrowserActions::From(browser())->root_action_item();
-  auto* skills_and_extensions_action = actions::ActionManager::Get().FindAction(
-      kActionSkillsAndExtensionsSubmenu, root_action);
-  ASSERT_NE(skills_and_extensions_action, nullptr);
-  EXPECT_FALSE(skills_and_extensions_action->GetVisible());
-
-  auto* extensions_action = actions::ActionManager::Get().FindAction(
-      kActionExtensionsSubmenu, root_action);
-  ASSERT_NE(extensions_action, nullptr);
-  EXPECT_TRUE(extensions_action->GetVisible());
-
-  auto* find_extensions_action = actions::ActionManager::Get().FindAction(
-      kActionFindExtensions, root_action);
-  ASSERT_NE(find_extensions_action, nullptr);
-  EXPECT_TRUE(find_extensions_action->GetVisible());
-
-  AppMenuModel model(this, browser());
-  model.Init();
-
-  EXPECT_FALSE(model
-                   .GetIndexOfCommandId(
-                       AppMenuModel::kSkillsAndExtensionsMenuPlaceholder)
-                   .has_value());
-  EXPECT_TRUE(
-      model.GetIndexOfCommandId(AppMenuModel::kExtensionsSubmenuPlaceholder)
-          .has_value() ||
-      model.GetIndexOfCommandId(IDC_FIND_EXTENSIONS).has_value());
-}
 
 class SkillsAndExtensionsMenuModelDisabledTest : public AppMenuModelTest {
  public:
@@ -659,7 +562,6 @@ class SkillsAndExtensionsMenuModelDisabledTest : public AppMenuModelTest {
   ~SkillsAndExtensionsMenuModelDisabledTest() override = default;
 
  private:
-  glic::GlicTestEnvironment glic_test_env_;
   base::test::ScopedFeatureList feature_list_;
 };
 
@@ -705,7 +607,6 @@ class SkillsAndExtensionsMenuModelSkillsDisabledTest : public AppMenuModelTest {
   ~SkillsAndExtensionsMenuModelSkillsDisabledTest() override = default;
 
  private:
-  glic::GlicTestEnvironment glic_test_env_;
   base::test::ScopedFeatureList feature_list_;
 };
 
@@ -756,12 +657,6 @@ IN_PROC_BROWSER_TEST_F(AppMenuModelTest,
 class ContextualTasksAskGoogleEnabledTest : public AppMenuModelTest {
  public:
   ContextualTasksAskGoogleEnabledTest() {
-    feature_list_.InitWithFeaturesAndParameters(
-        {{lens::features::kLensOverlay, {}},
-         {contextual_tasks::kContextualTasksUpdatedEntryPoints,
-          {{"ContextualTasksContextMenuShowAskGoogle", "true"},
-           {"ContextualTasksContextMenuSubmenu", "false"}}}},
-        {omnibox::kAimServerEligibilityEnabled});
   }
   ~ContextualTasksAskGoogleEnabledTest() override = default;
 
@@ -809,12 +704,6 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksAskGoogleEnabledTest,
 class ContextualTasksAskGoogleSubmenuTest : public AppMenuModelTest {
  public:
   ContextualTasksAskGoogleSubmenuTest() {
-    feature_list_.InitWithFeaturesAndParameters(
-        {{lens::features::kLensOverlay, {}},
-         {contextual_tasks::kContextualTasksUpdatedEntryPoints,
-          {{"ContextualTasksContextMenuShowAskGoogle", "true"},
-           {"ContextualTasksContextMenuSubmenu", "true"}}}},
-        {omnibox::kAimServerEligibilityEnabled});
   }
   ~ContextualTasksAskGoogleSubmenuTest() override = default;
 
@@ -851,11 +740,9 @@ IN_PROC_BROWSER_TEST_F(ContextualTasksAskGoogleSubmenuTest,
   EXPECT_FALSE(submenu->GetIconAt(1).IsEmpty());
   EXPECT_EQ(AppMenuModel::kAskGoogleAboutThisPageItem,
             submenu->GetElementIdentifierAt(0));
-  EXPECT_EQ(AppMenuModel::kShowLensOverlay, submenu->GetElementIdentifierAt(1));
 }
 
 // Profile row does not show on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 class TestAppMenuModelMetricsTest : public AppMenuModelTest,
                                     public testing::WithParamInterface<int> {
  public:
@@ -1217,59 +1104,7 @@ IN_PROC_BROWSER_TEST_F(
   EXPECT_FALSE(profile_menu->GetIndexOfCommandId(0).has_value());
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Tests settings menu items is disabled in the app menu when
-// kSystemFeaturesDisableList is set.
-IN_PROC_BROWSER_TEST_F(AppMenuModelTest, DisableSettingsItem) {
-  AppMenuModel model(this, browser());
-  model.Init();
-  const size_t options_index = model.GetIndexOfCommandId(IDC_OPTIONS).value();
-  EXPECT_TRUE(model.IsEnabledAt(options_index));
-
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  const size_t help_menu_index =
-      model.GetIndexOfCommandId(AppMenuModel::kHelpMenuPlaceholder).value();
-  ui::SimpleMenuModel* help_menu = static_cast<ui::SimpleMenuModel*>(
-      model.GetSubmenuModelAt(help_menu_index));
-  const size_t about_index = help_menu->GetIndexOfCommandId(IDC_ABOUT).value();
-  EXPECT_TRUE(help_menu->IsEnabledAt(about_index));
-#else
-  const size_t about_index = model.GetIndexOfCommandId(IDC_ABOUT).value();
-  EXPECT_TRUE(model.IsEnabledAt(about_index));
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-
-  {
-    ScopedListPrefUpdate update(
-        g_browser_process->local_state(),
-        policy::policy_prefs::kSystemFeaturesDisableList);
-    update->Append(static_cast<int>(policy::SystemFeature::kBrowserSettings));
-  }
-  EXPECT_FALSE(model.IsEnabledAt(options_index));
-
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  EXPECT_FALSE(help_menu->IsEnabledAt(about_index));
-#else
-  EXPECT_FALSE(model.IsEnabledAt(about_index));
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-
-  {
-    ScopedListPrefUpdate update(
-        g_browser_process->local_state(),
-        policy::policy_prefs::kSystemFeaturesDisableList);
-    update->clear();
-  }
-  EXPECT_TRUE(model.IsEnabledAt(options_index));
-
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-  EXPECT_TRUE(help_menu->IsEnabledAt(about_index));
-#else
-  EXPECT_TRUE(model.IsEnabledAt(about_index));
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class TestAppMenuModelSafetyHubTest : public AppMenuModelTest {
  public:
@@ -1318,14 +1153,6 @@ IN_PROC_BROWSER_TEST_F(TestAppMenuModelSafetyHubTest,
 class TabSearchMenuModelTest : public AppMenuModelTest {
  public:
   TabSearchMenuModelTest() {
-    glic_enabled_feature_list_.InitWithFeatures(
-        {
-#if BUILDFLAG(IS_CHROMEOS)
-            chromeos::features::kFeatureManagementGlic
-#endif  // BUILDFLAG(IS_CHROMEOS)
-        },
-        /*disabled_features=*/{features::kGlicLocaleFiltering,
-                               features::kGlicCountryFiltering});
   }
 
   ~TabSearchMenuModelTest() override = default;
@@ -1334,18 +1161,13 @@ class TabSearchMenuModelTest : public AppMenuModelTest {
     AppMenuModelTest::SetUpOnMainThread();
     // This is necessary because the global features that GlicEnabling depends
     // on are not initialized for glic.
-    scoped_glic_bypass_.emplace();
   }
 
   void TearDownOnMainThread() override {
-    scoped_glic_bypass_.reset();
     AppMenuModelTest::TearDownOnMainThread();
   }
 
  private:
-  std::optional<glic::GlicEnabling::ScopedBypassEnablementChecksForTesting>
-      scoped_glic_bypass_;
-  base::test::ScopedFeatureList glic_enabled_feature_list_;
 };
 
 IN_PROC_BROWSER_TEST_F(TabSearchMenuModelTest, TabSearchItem) {

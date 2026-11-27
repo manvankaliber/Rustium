@@ -40,7 +40,7 @@ fn test_subprocess_command_line_mutations() {
 }
 
 // Can't launch subprocesses on mobile.
-#[cfg(not(any(target_os = "android", target_os = "ios")))]
+
 #[gtest(RustCommandLineTest, SpawnsSubprocessWithNewCommandLine)]
 fn test_spawns_subprocess_with_new_command_line() {
     let current_cmd = CurrentCommandLine::get();
@@ -61,7 +61,7 @@ fn test_spawns_subprocess_with_new_command_line() {
 }
 
 // Can't launch subprocesses on mobile.
-#[cfg(not(any(target_os = "android", target_os = "ios")))]
+
 #[gtest(RustCommandLineTest, SubprocessTarget)]
 fn test_subprocess_target() {
     let cl = CurrentCommandLine::get();

@@ -147,7 +147,7 @@ def EnsureGClientTargets(robo_configuration):
         robo_configuration.chrome_src(), "..", ".gclient"
     )
 
-    # Ensure that target_os include 'android' and 'win'
+    # Ensure that target_os includes Windows for desktop cross-compilation.
     scope = {}
     try:
         exec(FileRead(gclient_filename), scope)
@@ -158,20 +158,18 @@ def EnsureGClientTargets(robo_configuration):
         shell.log("Missing 'target_os', which goes at the end of .gclient,")
         shell.log("OUTSIDE of the solutions = [] section")
         shell.log("Example line:")
-        shell.log("target_os = [ 'android', 'win' ]")
+        shell.log("target_os = [ 'win' ]")
         raise UserInstructions("Please add target_os to %s" % gclient_filename)
 
-    if ('android' not in scope['target_os']) or (
-        'win' not in scope['target_os']
-    ):
+    if 'win' not in scope['target_os']:
         shell.log(
-            "Missing 'android' and/or 'win' in target_os, which goes at the"
+            "Missing 'win' in target_os, which goes at the"
         )
         shell.log("end of .gclient, OUTSIDE of the solutions = [] section")
         shell.log("Example line:")
-        shell.log("target_os = [ 'android', 'win' ]")
+        shell.log("target_os = [ 'win' ]")
         raise UserInstructions(
-            "Please add 'android' and 'win' to target_os in %s"
+            "Please add 'win' to target_os in %s"
             % gclient_filename
         )
 

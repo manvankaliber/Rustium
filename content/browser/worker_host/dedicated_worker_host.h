@@ -56,9 +56,7 @@
 #include "third_party/blink/public/mojom/worker/subresource_loader_updater.mojom.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "third_party/blink/public/mojom/direct_sockets/direct_sockets.mojom-forward.h"
-#endif
 
 #if BUILDFLAG(ENABLE_COMPUTE_PRESSURE)
 #include "content/browser/compute_pressure/pressure_service_for_dedicated_worker.h"
@@ -168,10 +166,8 @@ class CONTENT_EXPORT DedicatedWorkerHost final
       mojo::PendingReceiver<blink::mojom::IdleManager> receiver);
   void CreateNestedDedicatedWorker(
       mojo::PendingReceiver<blink::mojom::DedicatedWorkerHostFactory> receiver);
-#if !BUILDFLAG(IS_ANDROID)
   void CreateDirectSocketsService(
       mojo::PendingReceiver<blink::mojom::DirectSocketsService> receiver);
-#endif
   void CreateWebUsbService(
       mojo::PendingReceiver<blink::mojom::WebUsbService> receiver);
   void CreateWebSocketConnector(

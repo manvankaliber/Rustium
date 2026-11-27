@@ -420,10 +420,6 @@ if (current_toolchain == default_toolchain) {
       "settings_outline_old.icon",
       "shield.icon",
       "shield_question.icon",
-      "shopping_bag.icon",
-      "shopping_bag_old.icon",
-      "shopping_bag_refresh_old.icon",
-      "shopping_bag_spark.icon",
       "shoppingmode.icon",
       "shoppingmode_old.icon",
       "skip_next.icon",
@@ -528,10 +524,6 @@ if (current_toolchain == default_toolchain) {
       "work.icon",
       "work_old.icon",
     ]
-
-    if (is_chromeos) {
-      sources += [ "notification_download_old.icon" ]
-    }
 
     if (is_chrome_branded) {
       sources += [

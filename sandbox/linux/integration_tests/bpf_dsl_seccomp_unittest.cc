@@ -27,10 +27,6 @@
 #include "base/compiler_specific.h"
 #include "base/containers/span.h"
 
-#if defined(ANDROID)
-// Work-around for buggy headers in Android's NDK
-#define __user
-#endif
 #include <linux/futex.h>
 
 #include "base/check.h"
@@ -2072,7 +2068,6 @@ SANDBOX_TEST(SandboxBPF, DISABLE_ON_TSAN(SeccompRetTrace)) {
 }
 
 // Android does not expose pread64 nor pwrite64.
-#if !BUILDFLAG(IS_ANDROID)
 
 bool FullPwrite64(int fd, const char* buffer, size_t count, off64_t offset) {
   while (count > 0) {
@@ -2154,7 +2149,6 @@ BPF_TEST_C(SandboxBPF, Pread64, TrapPread64Policy) {
   BPF_ASSERT(pread_64_was_forwarded);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void* TsyncApplyToTwoThreadsFunc(void* cond_ptr) {
   base::WaitableEvent* event = static_cast<base::WaitableEvent*>(cond_ptr);
@@ -2175,13 +2169,6 @@ SANDBOX_TEST(SandboxBPF, Tsync) {
   const bool supports_multi_threaded = SandboxBPF::SupportsSeccompSandbox(
       SandboxBPF::SeccompLevel::MULTI_THREADED);
 // On Chrome OS tsync is mandatory.
-#if BUILDFLAG(IS_CHROMEOS)
-  if (base::SysInfo::IsRunningOnChromeOS()) {
-    BPF_ASSERT_EQ(true, supports_multi_threaded);
-  }
-// else a Chrome OS build not running on a Chrome OS device e.g. Chrome bots.
-// In this case fall through.
-#endif
   if (!supports_multi_threaded) {
     return;
   }

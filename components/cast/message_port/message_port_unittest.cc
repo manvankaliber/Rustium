@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "components/cast/message_port/message_port.h"
+
 #include <memory>
 
 #include "base/run_loop.h"
@@ -10,16 +12,11 @@
 #include "components/cast/message_port/blink_message_port_adapter.h"
 #include "components/cast/message_port/cast/message_port_cast.h"
 #include "components/cast/message_port/cast_core/create_message_port_core.h"
-#include "components/cast/message_port/message_port.h"
 #include "components/cast/message_port/message_port_buildflags.h"
 #include "components/cast/message_port/platform_message_port.h"
 #include "components/cast/message_port/test_message_port_receiver.h"
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/blink/public/common/messaging/web_message_port.h"
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include "components/cast/message_port/fuchsia/message_port_fuchsia.h"
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 #ifdef PostMessage
 #undef PostMessage
@@ -122,16 +119,11 @@ TEST_F(MessagePortTest, WrapPlatformPort) {
   // Initialize ports from the platform type instead of agnostic CreatePair
 #if BUILDFLAG(USE_MESSAGE_PORT_CORE)
   cast_api_bindings::CreateMessagePortCorePair(&client_, &server_);
-#elif BUILDFLAG(IS_FUCHSIA)
-  fidl::InterfaceHandle<fuchsia::web::MessagePort> port0;
-  fidl::InterfaceRequest<fuchsia::web::MessagePort> port1 = port0.NewRequest();
-  client_ = MessagePortFuchsia::Create(std::move(port0));
-  server_ = MessagePortFuchsia::Create(std::move(port1));
 #else
   auto pair = blink::WebMessagePort::CreatePair();
   client_ = MessagePortCast::Create(std::move(pair.first));
   server_ = MessagePortCast::Create(std::move(pair.second));
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 
   TestPostMessage();
 }
@@ -146,17 +138,12 @@ TEST_F(MessagePortTest, UnwrapPlatformPort) {
       cast_api_bindings::MessagePortCore::FromMessagePort(client_.release()));
   server_.reset(
       cast_api_bindings::MessagePortCore::FromMessagePort(server_.release()));
-#elif BUILDFLAG(IS_FUCHSIA)
-  client_ = MessagePortFuchsia::Create(
-      MessagePortFuchsia::FromMessagePort(client_.get())->TakeClientHandle());
-  server_ = MessagePortFuchsia::Create(
-      MessagePortFuchsia::FromMessagePort(server_.get())->TakeServiceRequest());
 #else
   client_ = MessagePortCast::Create(
       MessagePortCast::FromMessagePort(client_.get())->TakePort());
   server_ = MessagePortCast::Create(
       MessagePortCast::FromMessagePort(server_.get())->TakePort());
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 
   TestPostMessage();
 }
@@ -165,7 +152,6 @@ enum MessagePortTestType {
   PLATFORM,
   PLATFORM_TO_BLINK,
   BLINK_TO_PLATFORM,
-  FUCHSIA,
   CORE,
   CAST
 };
@@ -179,9 +165,6 @@ const MessagePortTestParam MessagePortTestParams[] = {
     {MessagePortTestType::PLATFORM, &CreatePlatformMessagePortPair},
     {MessagePortTestType::PLATFORM_TO_BLINK, &CreatePlatformToBlinkPair},
     {MessagePortTestType::BLINK_TO_PLATFORM, &CreateBlinkToPlatformPair},
-#if BUILDFLAG(IS_FUCHSIA)
-    {MessagePortTestType::FUCHSIA, &MessagePortFuchsia::CreatePair},
-#endif  // BUILDFLAG(IS_FUCHSIA)
     {MessagePortTestType::CORE, &CreateMessagePortCorePair},
     {MessagePortTestType::CAST, &MessagePortCast::CreatePair}};
 
@@ -217,13 +200,6 @@ TEST_P(ParameterizedMessagePortTest, OnError) {
   server_receiver_.SetOnMessageResult(false);
   SetDefaultReceivers();
   client_->PostMessage("");
-
-#if BUILDFLAG(IS_FUCHSIA)
-  // blink::WebMessagePort reports failure when PostMessage returns false, but
-  // fuchsia::web::MessagePort will not report the error until the port closes
-  server_receiver_.RunUntilMessageCountEqual(1);
-  server_.reset();
-#endif
 
   client_receiver_.RunUntilDisconnected();
 }

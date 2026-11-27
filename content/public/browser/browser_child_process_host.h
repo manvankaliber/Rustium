@@ -80,7 +80,7 @@ class CONTENT_EXPORT BrowserChildProcessHost {
   // Sets the name of the process used for metrics reporting.
   virtual void SetMetricsName(const std::string& metrics_name) = 0;
 
-#if BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_IOS_TVOS)
+#if BUILDFLAG(IS_APPLE)
   // Returns a PortProvider used to get the task port for child processes.
   static base::PortProvider* GetPortProvider();
 #endif

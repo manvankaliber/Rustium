@@ -89,9 +89,6 @@
 #include "ui/gfx/presentation_feedback.h"
 #include "ui/gfx/swap_result.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/gfx/android/android_surface_control_compat.h"
-#endif
 
 namespace viz {
 
@@ -313,15 +310,6 @@ Display::Display(
   DCHECK(output_surface_);
   DCHECK(frame_sink_id_.is_valid());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  static bool logged = false;
-  // TODO(b/329688656): Remove this after the issue is resolved.
-  if (!logged && output_surface_->capabilities().max_texture_size > 0) {
-    logged = true;
-    LOG(ERROR) << "Max Texture Size="
-               << output_surface_->capabilities().max_texture_size;
-  }
-#endif
 
   if (scheduler_)
     scheduler_->SetClient(this);
@@ -885,15 +873,6 @@ bool Display::DrawAndSwap(const DrawAndSwapParams& params) {
     renderer_->SetDelegatedInkMetadata(std::move(frame.delegated_ink_metadata));
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  bool wide_color_enabled =
-      display_color_spaces_.GetOutputColorSpace(
-          frame.content_color_usage, true) != gfx::ColorSpace::CreateSRGB();
-  if (wide_color_enabled != last_wide_color_enabled_) {
-    client_->SetWideColorEnabled(wide_color_enabled);
-    last_wide_color_enabled_ = wide_color_enabled;
-  }
-#endif
 
   UMA_HISTOGRAM_COUNTS_1M("Compositing.SurfaceAggregator.AggregateUs",
                           aggregate_timer.Elapsed().InMicroseconds());
@@ -1479,22 +1458,6 @@ void Display::SetNeedsOneBeginFrame(const BeginFrameArgs& args) {
     scheduler_->SetNeedsOneBeginFrame(args, /*needs_draw=*/false);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool Display::OutputSurfaceSupportsSetFrameRate() {
-  return output_surface_ &&
-         output_surface_->capabilities().renderer_allocates_images &&
-         gfx::SurfaceControl::SupportsSetFrameRate();
-}
-
-void Display::SetFrameIntervalOnOutputSurface(
-    gfx::SurfaceControlFrameRate frame_rate) {
-  output_surface_->SetFrameRate(frame_rate);
-}
-
-base::ScopedClosureRunner Display::GetCacheBackBufferCb() {
-  return output_surface_->GetCacheBackBufferCb();
-}
-#endif
 
 void Display::DisableGPUAccessByDefault() {
   DCHECK(resource_provider_);

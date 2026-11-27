@@ -17,8 +17,7 @@
 #include "base/win/windows_types.h"
 #endif
 
-#if BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_IOS) && !BUILDFLAG(CRONET_BUILD) && !BUILDFLAG(IS_IOS_TVOS))
+#if BUILDFLAG(IS_MAC)
 #include <mach/mach.h>
 #endif
 
@@ -86,20 +85,12 @@ class BASE_EXPORT IOWatcher {
       const Location& location = Location::Current());
 #endif
 
-#if BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_IOS) && !BUILDFLAG(CRONET_BUILD) && !BUILDFLAG(IS_IOS_TVOS))
+#if BUILDFLAG(IS_MAC)
   bool WatchMachReceivePort(
       mach_port_t port,
       MessagePumpForIO::MachPortWatchController* controller,
       MessagePumpForIO::MachPortWatcher* delegate);
-#elif BUILDFLAG(IS_FUCHSIA)
-  // Additional watch API for native platform resources.
-  bool WatchZxHandle(zx_handle_t handle,
-                     bool persistent,
-                     zx_signals_t signals,
-                     MessagePumpForIO::ZxHandleWatchController* controller,
-                     MessagePumpForIO::ZxHandleWatcher* delegate);
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 
  protected:
   IOWatcher();
@@ -119,20 +110,12 @@ class BASE_EXPORT IOWatcher {
       FdWatcher& fd_watcher,
       const Location& location) = 0;
 #endif
-#if BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_IOS) && !BUILDFLAG(CRONET_BUILD) && !BUILDFLAG(IS_IOS_TVOS))
+#if BUILDFLAG(IS_MAC)
   virtual bool WatchMachReceivePortImpl(
       mach_port_t port,
       MessagePumpForIO::MachPortWatchController* controller,
       MessagePumpForIO::MachPortWatcher* delegate) = 0;
-#elif BUILDFLAG(IS_FUCHSIA)
-  virtual bool WatchZxHandleImpl(
-      zx_handle_t handle,
-      bool persistent,
-      zx_signals_t signals,
-      MessagePumpForIO::ZxHandleWatchController* controller,
-      MessagePumpForIO::ZxHandleWatcher* delegate) = 0;
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 };
 
 }  // namespace base

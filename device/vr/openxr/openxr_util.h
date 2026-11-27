@@ -14,7 +14,6 @@
 #include "device/vr/public/mojom/vr_service.mojom-forward.h"
 #include "device/vr/public/mojom/xr_session.mojom-forward.h"
 #include "device/vr/vr_export.h"
-#include "third_party/openxr/dev/xr_android.h"
 #include "third_party/openxr/src/include/openxr/openxr.h"
 #include "ui/gfx/geometry/transform.h"
 #include "ui/gfx/geometry/transform_util.h"
@@ -80,8 +79,6 @@ bool IsFeatureSupportedForMode(device::mojom::XRSessionFeature feature,
 
 mojom::XRSemanticLabel ToMojomSemanticLabel(
     XrSpatialPlaneSemanticLabelEXT label);
-mojom::XRSemanticLabel ToMojomSemanticLabel(
-    XrSceneMeshSemanticLabelANDROID label);
 
 bool IsConvexPolygon(
     const std::vector<mojom::XRPlanePointDataPtr>& polygon);

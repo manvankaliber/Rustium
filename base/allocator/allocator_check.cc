@@ -11,7 +11,7 @@
 #include "partition_alloc/shim/winheap_stubs_win.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <malloc.h>
 #endif
 

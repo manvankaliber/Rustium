@@ -249,8 +249,4 @@ void ChromeZoomLevelPrefs::InitHostZoomMap(
 // extra callback to the HostZoomMapImpl for setting the default zoom Pref when
 // Java sends an update through the JNI. The HostZoomMapImpl cannot directly
 // depend on this file, which will save the Pref to the storage partition.
-#if BUILDFLAG(IS_ANDROID)
-  host_zoom_map_->SetDefaultZoomLevelPrefCallback(base::BindRepeating(
-      &ChromeZoomLevelPrefs::SetDefaultZoomLevelPref, base::Unretained(this)));
-#endif
 }

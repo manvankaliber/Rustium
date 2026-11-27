@@ -10,9 +10,6 @@
 #include "build/build_config.h"
 #include "content/public/browser/browser_context.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/shell/android/shell_descriptors.h"
-#endif
 
 namespace content {
 
@@ -60,15 +57,4 @@ base::i18n::LanguageTag TestContentBrowserClient::GetApplicationLocale() {
       ContentBrowserClient::GetApplicationLocale());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void TestContentBrowserClient::GetAdditionalMappedFilesForChildProcess(
-    const base::CommandLine& command_line,
-    int child_process_id,
-    content::PosixFileDescriptorInfo* mappings) {
-  mappings->ShareWithRegion(
-      kShellPakDescriptor,
-      base::GlobalDescriptors::GetInstance()->Get(kShellPakDescriptor),
-      base::GlobalDescriptors::GetInstance()->GetRegion(kShellPakDescriptor));
-}
-#endif
 }  // namespace content

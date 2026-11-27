@@ -87,7 +87,7 @@ void* sk_realloc_throw(void* addr, size_t size) {
       old_size = _msize(addr);
 #elif BUILDFLAG(IS_APPLE)
       old_size = malloc_size(addr);
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
       old_size = malloc_usable_size(addr);
 #endif
     }
@@ -102,11 +102,7 @@ void* sk_realloc_throw(void* addr, size_t size) {
 
 void sk_free(void* p) {
     if (p) {
-#if BUILDFLAG(IS_IOS)
-        free(p);
-#else
         base::UncheckedFree(p);
-#endif
     }
 }
 
@@ -125,12 +121,8 @@ static void* malloc_nothrow(size_t size, int debug_sentinel) {
   // TODO(b.kelemen): we should always use UncheckedMalloc but currently it
   // doesn't work as intended everywhere.
   void* result;
-#if BUILDFLAG(IS_IOS)
-  result = malloc(size);
-#else
   // It's the responsibility of the caller to check the return value.
   std::ignore = base::UncheckedMalloc(size, &result);
-#endif
   if (result) {
     prevent_overcommit(debug_sentinel, size, result);
   }
@@ -145,12 +137,8 @@ static void* calloc_nothrow(size_t size) {
   // TODO(b.kelemen): we should always use UncheckedCalloc but currently it
   // doesn't work as intended everywhere.
   void* result;
-#if BUILDFLAG(IS_IOS)
-  result = calloc(1, size);
-#else
   // It's the responsibility of the caller to check the return value.
   std::ignore = base::UncheckedCalloc(size, 1, &result);
-#endif
   if (result) {
     prevent_overcommit(0, size, result);
   }

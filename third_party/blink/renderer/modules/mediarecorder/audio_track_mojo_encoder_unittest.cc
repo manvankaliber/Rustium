@@ -127,22 +127,6 @@ class TestInterfaceFactory final : public media::mojom::InterfaceFactory {
       mojo::PendingReceiver<media::mojom::Renderer> receiver) override {
     NOTREACHED();
   }
-#if BUILDFLAG(ENABLE_CAST_RENDERER)
-  void CreateCastRenderer(
-      const base::UnguessableToken& overlay_plane_id,
-      mojo::PendingReceiver<media::mojom::Renderer> receiver) override {
-    NOTREACHED();
-  }
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  void CreateFlingingRenderer(
-      const std::string& presentation_id,
-      mojo::PendingRemote<media::mojom::FlingingRendererClientExtension>
-          client_extension,
-      mojo::PendingReceiver<media::mojom::Renderer> receiver) override {
-    NOTREACHED();
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   void CreateCdm(const media::CdmConfig& cdm_config,
                  CreateCdmCallback callback) override {
     NOTREACHED();

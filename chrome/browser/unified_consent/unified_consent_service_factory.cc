@@ -10,7 +10,6 @@
 #include "chrome/browser/signin/identity_manager_factory.h"
 #include "chrome/browser/sync/sync_service_factory.h"
 #include "chrome/common/pref_names.h"
-#include "components/commerce/core/pref_names.h"
 #include "components/embedder_support/pref_names.h"
 #include "components/prefs/pref_registry_simple.h"
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
@@ -37,10 +36,6 @@ std::vector<std::string> GetSyncedServicePrefNames() {
     prefs::kSearchSuggestEnabled, prefs::kSafeBrowsingEnabled,
         prefs::kSafeBrowsingScoutReportingEnabled,
         spellcheck::prefs::kSpellCheckUseSpellingService,
-        commerce::kPriceEmailNotificationsEnabled,
-#if BUILDFLAG(IS_ANDROID)
-        prefs::kContextualSearchEnabled
-#endif
   };
 }
 
@@ -97,9 +92,5 @@ UnifiedConsentServiceFactory::BuildServiceInstanceForBrowserContext(
   return std::make_unique<UnifiedConsentService>(
       pref_service, IdentityManagerFactory::GetForProfile(profile),
       sync_service, GetSyncedServicePrefNames()
-#if BUILDFLAG(IS_CHROMEOS)
-                        ,
-      profile->IsNewProfile()
-#endif
   );
 }

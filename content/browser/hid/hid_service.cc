@@ -116,13 +116,6 @@ HidService::HidService(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(blink::features::kWebHID) ||
-      !base::FeatureList::IsEnabled(
-          features::kWebHidOnDesktopAndroidServiceWorkers)) {
-    return;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // For service worker case, it relies on ServiceWorkerHidDelegateObserver to
   // be the broker between HidDelegate and HidService.
@@ -173,11 +166,6 @@ void HidService::Create(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(blink::features::kWebHID)) {
-    return;
-  }
-#endif
 
   // Avoid creating the HidService if there is no HID delegate to provide the
   // implementation.
@@ -228,13 +216,6 @@ void HidService::Create(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(blink::features::kWebHID) ||
-      !base::FeatureList::IsEnabled(
-          features::kWebHidOnDesktopAndroidServiceWorkers)) {
-    return;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Avoid creating the HidService if there is no HID delegate to provide
   // the implementation.
@@ -418,13 +399,6 @@ void HidService::RegisterClient(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(blink::features::kWebHID) ||
-      !base::FeatureList::IsEnabled(
-          features::kWebHidOnDesktopAndroidServiceWorkers)) {
-    return;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // HidService is expected to have only one HidManagerClient when it is for a
   // service worker. One renderer side of a service worker has its own

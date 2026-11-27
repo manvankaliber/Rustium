@@ -113,10 +113,6 @@ class ChromeDriver(object):
     self,
     server_url,
     chrome_binary=None,
-    android_package=None,
-    android_activity=None,
-    android_process=None,
-    android_use_running_app=None,
     chrome_switches=None,
     chrome_extensions=None,
     chrome_log_path=None,
@@ -151,21 +147,13 @@ class ChromeDriver(object):
       assert isinstance(experimental_options, dict)
       options = experimental_options.copy()
 
-    if android_package:
-      options['androidPackage'] = android_package
-      if android_activity:
-        options['androidActivity'] = android_activity
-      if android_process:
-        options['androidProcess'] = android_process
-      if android_use_running_app:
-        options['androidUseRunningApp'] = android_use_running_app
-    elif chrome_binary:
+    if chrome_binary:
       options['binary'] = chrome_binary
 
     if chrome_switches is None:
       chrome_switches = []
 
-    if sys.platform.startswith('linux') and android_package is None:
+    if sys.platform.startswith('linux'):
       # Workaround for crbug.com/40469290.
       chrome_switches.append('no-sandbox')
       # https://bugs.chromium.org/p/chromedriver/issues/detail?id=1695

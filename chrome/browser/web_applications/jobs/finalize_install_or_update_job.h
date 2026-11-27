@@ -18,7 +18,7 @@
 #include "chrome/browser/web_applications/jobs/finalizer_delegate.h"
 #include "chrome/browser/web_applications/model/integrity_block_data.h"
 #include "chrome/browser/web_applications/proto/web_app_install_state.pb.h"
-#include "chrome/browser/web_applications/web_app_chromeos_data.h"
+#include "chrome/browser/web_applications/legacy_platform_app_data.h"
 #include "chrome/browser/web_applications/web_app_constants.h"
 #include "chrome/browser/web_applications/web_app_install_info.h"
 #include "chrome/browser/web_applications/web_app_management_type.h"
@@ -26,9 +26,6 @@
 #include "components/webapps/browser/installable/installable_metrics.h"
 #include "components/webapps/common/web_app_id.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/experiences/system_web_apps/types/system_web_app_data.h"
-#endif
 
 class Profile;
 
@@ -77,10 +74,7 @@ struct FinalizeJobOptions {
   bool overwrite_existing_manifest_fields = true;
   bool skip_icon_writes_on_download_failure = false;
 
-  std::optional<WebAppChromeOsData> chromeos_data;
-#if BUILDFLAG(IS_CHROMEOS)
-  std::optional<ash::SystemWebAppData> system_web_app_data;
-#endif
+  std::optional<LegacyPlatformAppData> chromeos_data;
 
   // These are required to be false if `install_state` is not
   // proto::INSTALLED_WITH_OS_INTEGRATION.
@@ -91,7 +85,7 @@ struct FinalizeJobOptions {
   // defaults to false on ChromeOS, while remaining true by default on other
   // desktop platforms where it has the expected native shortcut-creation
   // effect.
-  bool add_to_quick_launch_bar = !BUILDFLAG(IS_CHROMEOS);
+  bool add_to_quick_launch_bar = !false;
   std::optional<RunOnOsLoginMode> run_on_os_login_mode;
 
   // Controls fetching and validation of web_app_origin_association data

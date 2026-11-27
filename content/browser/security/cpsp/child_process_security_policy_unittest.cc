@@ -206,12 +206,6 @@ class ChildProcessSecurityPolicyTest
     // for default protocols as this is the responsibility of the browser (which
     // is responsible for adding the appropriate ProtocolHandler).
     test_browser_client_.AddScheme(url::kFileScheme);
-#if BUILDFLAG(IS_ANDROID)
-    test_browser_client_.AddScheme(url::kContentScheme);
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-    test_browser_client_.AddScheme(content::kExternalFileScheme);
-#endif
     SiteIsolationPolicy::DisableFlagCachingForTesting();
 
     // With unit tests, it's possible that the same global
@@ -825,89 +819,7 @@ TEST_P(ChildProcessSecurityPolicyTest, GrantCommitURLToNonStandardScheme) {
   EXPECT_TRUE(p->CanCommitURL(renderer_id, url2));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_P(ChildProcessSecurityPolicyTest, ExternalFile_Normalization) {
-  ChildProcessSecurityPolicyImpl* p =
-      ChildProcessSecurityPolicyImpl::GetInstance();
 
-  GURL base_url("externalfile:foo.pdf");
-  GURL url_with_ref("externalfile:foo.pdf#page=1");
-  GURL url_with_query("externalfile:foo.pdf?print=true");
-  GURL url_with_both("externalfile:foo.pdf?print=true#page=1");
-  GURL completely_different_url("externalfile:bar.pdf");
-
-  // Verify that externalfile is registered as a handled scheme on ChromeOS.
-  ASSERT_TRUE(GetContentClientForTesting()->browser()->IsHandledURL(base_url));
-
-  MockRenderProcessHost process(browser_context());
-  const int renderer_id = process.GetDeprecatedID();
-  LockProcessIfNeeded(process.GetID(), browser_context(), base_url);
-
-  // Grant request access to the base URL.
-  p->GrantRequestOfExternalFileUrl(process.GetID(), base_url);
-
-  // Verify that the base URL is allowed.
-  EXPECT_TRUE(p->CanRequestURL(renderer_id, base_url));
-
-  // Verify that variations with query and ref are also allowed,
-  // proving that the URLs are being properly normalized under the hood.
-  EXPECT_TRUE(p->CanRequestURL(renderer_id, url_with_ref));
-  EXPECT_TRUE(p->CanRequestURL(renderer_id, url_with_query));
-  EXPECT_TRUE(p->CanRequestURL(renderer_id, url_with_both));
-
-  // Verify that normalization doesn't accidentally grant access to other files.
-  EXPECT_FALSE(p->CanRequestURL(renderer_id, completely_different_url));
-
-  // Grant commit access using a URL that contains a query and ref.
-  p->GrantCommitOfExternalFileUrl(process.GetID(), url_with_both);
-
-  // Verify that normalization allows the base URL to be committed,
-  // even though the grant was issued using a complex URL.
-  EXPECT_TRUE(p->CanCommitURL(renderer_id, base_url));
-}
-#endif
-
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_P(ChildProcessSecurityPolicyTest, ExternalFile) {
-  ChildProcessSecurityPolicyImpl* p =
-      ChildProcessSecurityPolicyImpl::GetInstance();
-
-  GURL externalfile1("externalfile:foo.png");
-  GURL externalfile2("externalfile:bar.png");
-
-  // Verify that externalfile is registered as a handled scheme on ChromeOS.
-  ASSERT_TRUE(
-      GetContentClientForTesting()->browser()->IsHandledURL(externalfile1));
-
-  MockRenderProcessHost process(browser_context());
-  const int renderer_id = process.GetDeprecatedID();
-  LockProcessIfNeeded(process.GetID(), browser_context(), externalfile2);
-
-  // Initially, neither can be requested or committed.
-  EXPECT_FALSE(p->CanRequestURL(renderer_id, externalfile1));
-  EXPECT_FALSE(p->CanCommitURL(renderer_id, externalfile1));
-  EXPECT_FALSE(p->CanRequestURL(renderer_id, externalfile2));
-  EXPECT_FALSE(p->CanCommitURL(renderer_id, externalfile2));
-
-  // Grant ONLY request access to externalfile1.
-  p->GrantRequestOfExternalFileUrl(process.GetID(), externalfile1);
-
-  // Verify request is granted, but commit is strictly denied.
-  EXPECT_TRUE(p->CanRequestURL(renderer_id, externalfile1));
-  EXPECT_FALSE(p->CanCommitURL(renderer_id, externalfile1));
-
-  // externalfile2 should remain entirely unaffected.
-  EXPECT_FALSE(p->CanRequestURL(renderer_id, externalfile2));
-  EXPECT_FALSE(p->CanCommitURL(renderer_id, externalfile2));
-
-  // Grant ONLY commit access to externalfile2.
-  p->GrantCommitOfExternalFileUrl(process.GetID(), externalfile2);
-
-  // Verify commit is granted and request is also granted.
-  EXPECT_TRUE(p->CanCommitURL(renderer_id, externalfile2));
-  EXPECT_TRUE(p->CanRequestURL(renderer_id, externalfile2));
-}
-#endif
 
 TEST_P(ChildProcessSecurityPolicyTest, SpecificFile) {
   ChildProcessSecurityPolicyImpl* p =
@@ -974,15 +886,8 @@ TEST_P(ChildProcessSecurityPolicyTest, ContentUri) {
   LockProcessIfNeeded(process.GetID(), browser_context(),
                       content_uri_sensitive);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Since android handles content:// URLs, CanRequestURL() is false for a URL
-  // which was not registered with GrantRequestOfSpecificFile().
-  EXPECT_FALSE(p->CanRequestURL(renderer_id, content_uri));
-  EXPECT_FALSE(p->CanRequestURL(renderer_id, content_uri_sensitive));
-#else
   EXPECT_TRUE(p->CanRequestURL(renderer_id, content_uri));
   EXPECT_TRUE(p->CanRequestURL(renderer_id, content_uri_sensitive));
-#endif
   EXPECT_TRUE(p->CanRedirectToURL(content_uri));
   EXPECT_TRUE(p->CanRedirectToURL(content_uri_sensitive));
   EXPECT_FALSE(p->CanCommitURL(renderer_id, content_uri));
@@ -992,11 +897,7 @@ TEST_P(ChildProcessSecurityPolicyTest, ContentUri) {
       process.GetID(),
       base::FilePath::FromUTF8Unsafe(content_uri.possibly_invalid_spec()));
   EXPECT_TRUE(p->CanRequestURL(renderer_id, content_uri));
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(p->CanRequestURL(renderer_id, content_uri_sensitive));
-#else
   EXPECT_TRUE(p->CanRequestURL(renderer_id, content_uri_sensitive));
-#endif
   EXPECT_TRUE(p->CanRedirectToURL(content_uri));
   EXPECT_TRUE(p->CanRedirectToURL(content_uri_sensitive));
   EXPECT_FALSE(p->CanCommitURL(renderer_id, content_uri));

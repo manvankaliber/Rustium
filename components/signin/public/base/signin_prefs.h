@@ -157,13 +157,6 @@ class SigninPrefs {
   void SetBookmarksExplicitBrowserSignin(const GaiaId& gaia_id, bool enabled);
   bool GetBookmarksExplicitBrowserSignin(const GaiaId& gaia_id) const;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Per-account Android counterpart of the profile pref
-  // `device_signals::prefs::kDeviceSignalsPermanentConsentReceived`.
-  void SetDeviceSignalsPermanentConsentReceived(const GaiaId& gaia_id,
-                                                bool received);
-  bool GetDeviceSignalsPermanentConsentReceived(const GaiaId& gaia_id) const;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   void SetPolicyDisclaimerLastRegistrationFailureTime(
       const GaiaId& gaia_id,

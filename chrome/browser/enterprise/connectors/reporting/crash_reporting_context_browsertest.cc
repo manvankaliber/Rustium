@@ -18,7 +18,6 @@
 
 namespace enterprise_connectors {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 using CrashReportingContextTest = InProcessBrowserTest;
 
@@ -48,6 +47,5 @@ IN_PROC_BROWSER_TEST_F(CrashReportingContextTest, OnCloudReportingLaunched) {
   crash_reporting_context->OnCloudReportingLaunched(nullptr);
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace enterprise_connectors

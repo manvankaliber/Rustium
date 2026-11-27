@@ -23,7 +23,6 @@ class IPC_MESSAGE_SUPPORT_EXPORT MessageAttachment
     PLATFORM_FILE,
     WIN_HANDLE,
     MACH_PORT,
-    FUCHSIA_HANDLE,
   };
 
   static scoped_refptr<MessageAttachment> CreateFromMojoHandle(

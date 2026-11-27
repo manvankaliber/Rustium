@@ -285,37 +285,6 @@ class TestSessionController : public SessionController {
   bool should_reset_for_next_call_;
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-class TestConfigurationProvider : public ConfigurationProvider {
- public:
-  TestConfigurationProvider() = default;
-  ~TestConfigurationProvider() override = default;
-
-  // ConfigurationProvider:
-  bool MaybeProvideFeatureConfiguration(
-      const base::Feature& feature,
-      FeatureConfig& config,
-      const FeatureVector& known_features,
-      const GroupVector& known_groups) const override {
-    config = config_;
-    return true;
-  }
-
-  const char* GetConfigurationSourceDescription() const override {
-    return "Test Configuration Provider";
-  }
-
-  std::set<std::string> MaybeProvideAllowedEventPrefixes(
-      const base::Feature& feature) const override {
-    return {};
-  }
-
-  void SetConfig(const FeatureConfig& config) { config_ = config; }
-
- private:
-  FeatureConfig config_;
-};
-#endif
 
 class TrackerImplTest : public ::testing::Test {
  public:
@@ -1258,34 +1227,6 @@ TEST_F(TrackerImplTest, TestWouldTriggerWithTrackingOnly) {
   EXPECT_FALSE(tracker_->WouldTriggerHelpUI(kTrackerTestFeatureBaz));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(TrackerImplTest, TestWouldTriggerWithUpdatedConfig) {
-  // Ensure all initialization is finished.
-  StoringInitializedCallback callback;
-  tracker_->AddOnInitializedCallback(base::BindOnce(
-      &StoringInitializedCallback::OnInitialized, base::Unretained(&callback)));
-  base::RunLoop().RunUntilIdle();
-  base::UserActionTester user_action_tester;
-
-  // Initially, foo would have been shown.
-  EXPECT_TRUE(tracker_->WouldTriggerHelpUI(kTrackerTestFeatureFoo));
-
-  FeatureConfig config;
-  config.valid = false;
-  config.used.name = kTrackerTestFeatureFoo.name + std::string("_used");
-  config.trigger.name = kTrackerTestFeatureFoo.name + std::string("_trigger");
-
-  auto provider = std::make_unique<TestConfigurationProvider>();
-  provider->SetConfig(config);
-  tracker_->UpdateConfig(kTrackerTestFeatureFoo, provider.get());
-  EXPECT_FALSE(tracker_->WouldTriggerHelpUI(kTrackerTestFeatureFoo));
-
-  config.valid = true;
-  provider->SetConfig(config);
-  tracker_->UpdateConfig(kTrackerTestFeatureFoo, provider.get());
-  EXPECT_TRUE(tracker_->WouldTriggerHelpUI(kTrackerTestFeatureFoo));
-}
-#endif
 
 TEST_F(TrackerImplTest, TestNotifyEvent) {
   StoringInitializedCallback callback;
@@ -1322,7 +1263,6 @@ TEST_F(TrackerImplTest, TestNotifyEvent) {
   EXPECT_EQ(1u, bar_event.events(0).count());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(TrackerImplTest, TestNotifyUsedEvent) {
   StoringInitializedCallback callback;
@@ -1372,7 +1312,6 @@ TEST_F(TrackerImplTest, TestClearEventData) {
   EXPECT_EQ(0, event_store_->GetEvent("test_event_event").events_size());
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(TrackerImplTest, ShouldPassThroughAcquireDisplayLock) {
   auto lock_handle = std::make_unique<DisplayLockHandle>(base::DoNothing());

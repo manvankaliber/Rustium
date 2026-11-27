@@ -17,7 +17,6 @@ build_webui_tests("build") {
     "active_timer_test.ts",
     "ai_info_card_test.ts",
     "ai_logging_info_bullet_test.ts",
-    "ai_mode_search_page_test.ts",
     "ai_page_index_test.ts",
     "ai_page_test.ts",
     "ai_policy_indicator_test.ts",
@@ -65,19 +64,15 @@ build_webui_tests("build") {
     "file_system_site_list_test.ts",
     "focus_list_container_test.ts",
     "security/fingerprint_progress_arc_test.ts",
-    "geic_subpage_test.ts",
+
     "general_page_index_test.ts",
     "geolocation_page_test.ts",
-    "glic_login_permissions_page_test.ts",
-    "glic_page_test.ts",
-    "glic_subpage_focus_test.ts",
-    "glic_subpage_test.ts",
+
     "gmail_otp_disclaimer_dialog_test.ts",
     "google_services_page_test.ts",
     "help_page_test.ts",
     "home_url_input_test.ts",
     "identity_docs_page_test.ts",
-    "inline_cue_menu_page_test.ts",
     "keyboard_shortcut_page_test.ts",
     "list_property_update_mixin_test.ts",
     "memory_page_test.ts",
@@ -189,7 +184,6 @@ build_webui_tests("build") {
     "storage_access_site_list_entry_test.ts",
     "storage_access_site_list_test.ts",
     "storage_access_static_site_list_entry_test.ts",
-    "suggestions_from_gemini_page_test.ts",
     "sync_encryption_options_test.ts",
     "sync_account_control_test.ts",
     "sync_test_util.ts",
@@ -202,7 +196,7 @@ build_webui_tests("build") {
     "test_dictation_browser_proxy.ts",
     "test_entity_data_manager_proxy.ts",
     "test_extension_control_browser_proxy.ts",
-    "test_glic_browser_proxy.ts",
+
     "test_hats_browser_proxy.ts",
     "test_lifetime_browser_proxy.ts",
     "test_metrics_browser_proxy.ts",
@@ -225,7 +219,7 @@ build_webui_tests("build") {
     "test_startup_urls_page_browser_proxy.ts",
     "test_sync_browser_proxy.ts",
     "test_util.ts",
-    "shopping_page_test.ts",
+
     "travel_page_test.ts",
     "v8_page_test.ts",
     "walletable_pass_detection_toggle_test.ts",
@@ -233,36 +227,28 @@ build_webui_tests("build") {
     "zoom_levels_test.ts",
   ]
 
-  if (is_chromeos) {
-    files += [ "people_page_test_cros.ts" ]
-  } else {
-    files += [
-      "clear_browsing_data_account_indicator_test.ts",
-      "default_browser_test.ts",
-      "fake_language_settings_private.ts",
-      "import_data_dialog_test.ts",
-      "languages_page_metrics_test_browser.ts",
-      "languages_page_test.ts",
-      "languages_test.ts",
-      "live_caption_test.ts",
-      "live_translate_test.ts",
-      "metrics_reporting_test.ts",
-      "people_page_manage_profile_test.ts",
-      "relaunch_confirmation_dialog_test.ts",
-      "spell_check_page_metrics_test_browser.ts",
-      "spell_check_page_test.ts",
-      "system_page_test.ts",
-      "test_captions_browser_proxy.ts",
-      "test_languages_browser_proxy.ts",
-      "test_languages_settings_metrics_proxy.ts",
-      "translate_page_metrics_test_browser.ts",
-      "translate_page_test.ts",
-    ]
-  }
-
-  if (enable_smart_card) {
-    files += [ "smart_card_readers_page_test.ts" ]
-  }
+  files += [
+    "clear_browsing_data_account_indicator_test.ts",
+    "default_browser_test.ts",
+    "fake_language_settings_private.ts",
+    "import_data_dialog_test.ts",
+    "languages_page_metrics_test_browser.ts",
+    "languages_page_test.ts",
+    "languages_test.ts",
+    "live_caption_test.ts",
+    "live_translate_test.ts",
+    "metrics_reporting_test.ts",
+    "people_page_manage_profile_test.ts",
+    "relaunch_confirmation_dialog_test.ts",
+    "spell_check_page_metrics_test_browser.ts",
+    "spell_check_page_test.ts",
+    "system_page_test.ts",
+    "test_captions_browser_proxy.ts",
+    "test_languages_browser_proxy.ts",
+    "test_languages_settings_metrics_proxy.ts",
+    "translate_page_metrics_test_browser.ts",
+    "translate_page_test.ts",
+  ]
 
   if (is_chrome_branded) {
     files += [
@@ -276,7 +262,7 @@ build_webui_tests("build") {
     files += [ "passkey_edit_dialog_test.ts" ]
   }
 
-  if (!is_mac && !is_chromeos) {
+  if (!is_mac) {
     files += [ "edit_dictionary_page_test.ts" ]
   }
 
@@ -318,10 +304,6 @@ build_webui_tests("build") {
     "//tools/typescript/definitions/pending.d.ts",
     "//tools/typescript/definitions/settings_private.d.ts",
   ]
-  if (is_chromeos) {
-    ts_definitions +=
-        [ "//tools/typescript/definitions/quick_unlock_private.d.ts" ]
-  }
 
   ts_deps = [
     "//chrome/browser/resources/settings:build_ts",

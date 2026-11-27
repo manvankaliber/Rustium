@@ -51,9 +51,6 @@ Suggestion BuildOtpSuggestion(const std::string& otp_value,
       break;
     }
     case SuggestionType::kOneTimePasswordEntry:
-#if BUILDFLAG(IS_ANDROID)
-      suggestion.icon = Suggestion::Icon::kAndroidMessages;
-#endif
       suggestion.voice_over = l10n_util::GetStringFUTF16(
           IDS_AUTOFILL_ONE_TIME_PASSWORD_VOICE_OVER_A11Y_LABEL,
           suggestion.main_text.value);

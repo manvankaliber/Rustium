@@ -185,8 +185,6 @@ impl Inotify {
         cfg_if! {
             if #[cfg(target_os = "linux")] {
                 let arg = wd.wd;
-            } else if #[cfg(target_os = "android")] {
-                let arg = wd.wd as u32;
             }
         }
         let res = unsafe { libc::inotify_rm_watch(self.fd.as_raw_fd(), arg) };

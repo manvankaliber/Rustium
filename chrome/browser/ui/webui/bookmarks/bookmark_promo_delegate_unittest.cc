@@ -51,9 +51,7 @@ class BatchUploadPromoDelegateTest : public BookmarkPromoDelegateTestBase {
  public:
   BatchUploadPromoDelegateTest() {
     std::vector<base::test::FeatureRef> enabled_features = {};
-#if !BUILDFLAG(IS_CHROMEOS)
     enabled_features.push_back(syncer::kUnoPhase2FollowUp);
-#endif
     feature_list_.InitWithFeatures(enabled_features, {});
     batch_upload_service_ = batch_upload_test_helper_.CreateBatchUploadService(
         identity_test_env_.identity_manager(), &pref_service_);

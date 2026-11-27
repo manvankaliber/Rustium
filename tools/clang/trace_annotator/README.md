@@ -36,8 +36,8 @@ The following might take approx. 2 hours depending on your computer.
 *  From chromium/src:
 *  ```shell cr build all``` To make sure all files have been generated.
 *  ```shell cp -R third_party/llvm-build ~```
-*  ```shell tools/clang/scripts/build.py --bootstrap --without-android
-   --without-fuchsia --extra-tools trace_annotator```
+*  ```shell tools/clang/scripts/build.py --bootstrap
+   --extra-tools trace_annotator```
    *  TODO how to build with plugin 'find-bad-constructs'?
 
 ### Rebuild just the tool:

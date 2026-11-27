@@ -166,9 +166,9 @@
 #include "ui/views/view_utils.h"
 #include "ui/views/widget/any_widget_observer.h"
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 #include "chrome/browser/ui/webui/signin/signout_confirmation/signout_confirmation_ui.h"
@@ -197,7 +197,6 @@ Profile* CreateAdditionalProfile() {
   return &profile;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 const char kPasswordManagerId[] = "chrome://password-manager/";
 const char kPasswordManagerPWAUrl[] = "chrome://password-manager/?source=pwa";
@@ -209,7 +208,6 @@ std::unique_ptr<web_app::WebAppInstallInfo> CreatePasswordManagerWebAppInfo() {
   return web_app_info;
 }
 
-#endif
 
 void Click(views::View* clickable_view) {
   // Simulate a mouse click. Note: Buttons are either fired when pressed or
@@ -1064,7 +1062,6 @@ IN_PROC_BROWSER_TEST_F(ProfileMenuViewSyncServiceUnavailableTest,
   EXPECT_TRUE(coordinator->IsShowing());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 class ProfileMenuViewWebOnlyTest : public ProfileMenuViewTestBase,
                                    public SigninBrowserTestBase {
@@ -1310,7 +1307,6 @@ IN_PROC_BROWSER_TEST_F(ProfileMenuViewSigninPendingTest, OpenReauthTab) {
       signin_metrics::AccessPoint::kProfileMenuPrimaryButton, 1);
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // This class is used to test the existence, the correct order and the call to
 // the correct action of the buttons in the profile menu. This is done by
@@ -2245,10 +2241,10 @@ class ProfileMenuClickTestEnterpriseIsolated : public ProfileMenuClickTest {
   }
 
  private:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   chrome::ScopedChannelOverride channel_override_{
       chrome::ScopedChannelOverride::Channel::kDev};
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 };
 
 // List of actionable items in the correct order as they appear in the menu.
@@ -2393,7 +2389,6 @@ PROFILE_MENU_CLICK_TEST_WITH_FEATURE_STATES_F(
   RunTest();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class ProfileMenuClickTestWebApp : public ProfileMenuClickTest {
  protected:
   void SetUpOnMainThread() override {
@@ -2444,7 +2439,6 @@ PROFILE_MENU_CLICK_TEST_F(ProfileMenuClickTestWebApp,
   SetTargetBrowser(toolbar_helper().app_browser());
   RunTest();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_MAC)
 // List of actionable items in the correct order as they appear in the menu.
@@ -2691,7 +2685,6 @@ IN_PROC_BROWSER_TEST_F(ProfileMenuHatsSurveyTest,
 
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class ProfileMenuViewWebAppTest : public ProfileMenuViewTestBase,
                                   public web_app::WebAppBrowserTestBase {
  protected:
@@ -2748,7 +2741,6 @@ IN_PROC_BROWSER_TEST_F(ProfileMenuViewWebAppTest,
             new_web_contents);
   EXPECT_EQ(new_web_contents->GetVisibleURL(), GURL(kPasswordManagerPWAUrl));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_F(ProfileMenuViewWebAppTest, SelectingOtherProfile) {

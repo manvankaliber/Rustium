@@ -11,9 +11,6 @@
 #include "build/build_config.h"
 #include "components/sync_device_info/device_info.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/jni_zero/jni_zero.h"
-#endif
 
 namespace syncer {
 
@@ -58,15 +55,5 @@ struct RemoteDeviceInfo {
 
 }  // namespace syncer
 
-#if BUILDFLAG(IS_ANDROID)
-namespace jni_zero {
-
-template <>
-ScopedJavaLocalRef<jobject> ToJniType<syncer::RemoteDeviceInfo>(
-    JNIEnv* env,
-    const syncer::RemoteDeviceInfo& input);
-
-}  // namespace jni_zero
-#endif
 
 #endif  // COMPONENTS_SYNC_DEVICE_INFO_REMOTE_DEVICE_INFO_H_

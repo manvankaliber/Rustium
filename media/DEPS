@@ -58,9 +58,6 @@ specific_include_rules = {
   "cras_unified_unittest.cc": [
     "+chromeos/ash/components/dbus"
   ],
-  "fuchsia_video_decoder_unittest.cc": [
-    "+components/viz/test/test_context_support.h",
-  ],
   "mappable_shared_image_video_frame_pool_unittest.cc": [
     "+components/viz/test/test_context_provider.h",
   ],
@@ -73,7 +70,5 @@ specific_include_rules = {
   "null_video_sink_unittest.cc": [
     "+components/viz/common/frame_sinks/begin_frame_args.h",
   ],
-  "fuchsia_.*_mojom_traits\\.h": [
-    "+mojo/public/cpp/base/fuchsia/fidl_interface_request_mojom_traits.h",
-  ],
+
 }

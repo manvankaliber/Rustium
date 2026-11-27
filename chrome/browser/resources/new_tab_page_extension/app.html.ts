@@ -16,10 +16,13 @@ export function getHtml(this: NtpExtensionAppElement) {
   <ntp-logo id="logo" ?single-colored="${this.isLogoSingleColored_()}"
       .theme="${this.theme_}">
   </ntp-logo>
-  ${this.ntpRealboxNextEnabled_ ? html`
-    <div id="scrim" @click="${this.onScrimClick_}" ?hidden="${!this.showScrim_}">
+  ${
+      this.ntpRealboxNextEnabled_ ?
+      html`
+    <div id="scrim" @click="${this.onScrimClick_}" ?hidden="${
+  !this.showScrim_}">
     </div>
-  ` : ''}
+  `: ''}
   <div id="searchboxContainer"
       @focusin="${this.onSearchboxContainerFocusin_}"
       @focusout="${this.onSearchboxContainerFocusout_}">
@@ -36,17 +39,24 @@ export function getHtml(this: NtpExtensionAppElement) {
         ?can-show-secondary-side="${this.realboxCanShowSecondarySide}"
         ?compose-button-enabled="${this.composeButtonEnabled_}"
         ?composebox-enabled="${this.composeboxEnabled_}"
-        searchbox-layout-mode="${this.ntpRealboxNextEnabled_ ? 'Compact' : ''}"
+        searchbox-layout-mode="${
+      this.ntpRealboxNextEnabled_ ?
+      'Compact' :
+      ''}"
         ?ntp-realbox-next-enabled="${this.ntpRealboxNextEnabled_}"
         ?cycling-placeholders="${this.searchboxCyclingPlaceholders_}"
-        context-menu-glif-animation-state="${this.contextMenuGlifAnimationState_}"
+        context-menu-glif-animation-state="${
+      this.contextMenuGlifAnimationState_}"
         .energyEffectAnimationEnabled="${this.energyEffectAnimationEnabled_}"
-        .contextManagementInComposeboxEnabled="${this.contextManagementInComposeboxEnabled_}"
+        .contextManagementInComposeboxEnabled="${
+      this.contextManagementInComposeboxEnabled_}"
         ?multi-line-enabled="${this.multiLineEnabled_}"
         ?inert="${!this.realboxShown_}">
     </ntp-searchbox>
     <div id="dialogAnchor"></div>
-    ${this.showComposebox_ ? html`
+    ${
+      this.showComposebox_ ?
+      html`
       <div id="composeboxDialog">
         <ntp-composebox id="composebox"
             searchbox-layout-mode="Compact"
@@ -56,32 +66,42 @@ export function getHtml(this: NtpExtensionAppElement) {
             .usePecApi="${this.usePecApi_}"
             .showVoiceSearch="${true}"
             .smartTabSharingVisible="${this.smartTabSharingVisible_}"
-            .contextManagementInComposeboxEnabled="${this.contextManagementInComposeboxEnabled_}"
+            .contextManagementInComposeboxEnabled="${
+          this.contextManagementInComposeboxEnabled_}"
             @context-menu-opened="${this.onComposeboxContextMenuOpened_}"
             @close-composebox="${this.onCloseComposebox_}"
             .submitButtonIconType="${SubmitButtonIconType.FORWARD}"
             .clearAllInputsWhenSubmittingQuery="${true}"
             .closeOnEscape="${false}"
             .energyEffectEnabled="${this.energyEffectEnabled_}"
-            .energyEffectAnimationEnabled="${this.energyEffectAnimationEnabled_}">
+            .energyEffectAnimationEnabled="${
+          this.energyEffectAnimationEnabled_}">
         </ntp-composebox>
       </div>
-    ` : ''}
-    ${this.showLensUploadDialog_ ? html`
+    ` :
+      ''}
+    ${
+      this.showLensUploadDialog_ ?
+      html`
       <ntp-lens-upload-dialog id="lensUploadDialog"
           @close-lens-search="${this.onCloseLensSearch_}">
       </ntp-lens-upload-dialog>
-    ` : ''}
+    ` :
+      ''}
   </div>
-  ${this.showActionChips_() ? html`
+  ${
+      this.showActionChips_() ?
+      html`
     <ntp-action-chips
         ?show-background="${this.showActionChipsBackground_()}"
         ?inert="${this.showComposebox_}"
         @action-chip-click="${this.onActionChipClick_}"
         @action-chips-disabled="${this.onActionChipsDisabled_}"
-        @action-chips-retrieval-state-changed="${this.onActionChipsRetrievalStateChanged_}">
+        @action-chips-retrieval-state-changed="${
+          this.onActionChipsRetrievalStateChanged_}">
     </ntp-action-chips>
-  ` : ''}
+  ` :
+      ''}
   <cr-toast id="undoToast" duration="10000" ?inert="${this.showComposebox_}">
     <div id="undoToastMessage">${this.undoToastMessage_}</div>
     <cr-button id="undoButton" aria-label="${this.i18n('undoDescription')}"
@@ -89,12 +109,16 @@ export function getHtml(this: NtpExtensionAppElement) {
       ${this.i18n('undo')}
     </cr-button>
   </cr-toast>
-  ${this.showVoiceSearch_ ? html`
+  ${
+      this.showVoiceSearch_ ?
+      html`
     <dialog id="voiceSearchDialog" tabindex="-1" autofocus
         @close="${this.onVoiceSearchClose_}"
         @click="${this.onVoiceSearchDialogClick_}">
       <div id="voiceSearchCardContainer">
-        ${this.showVoiceSearchGlow_() ? html`
+        ${
+          this.showVoiceSearchGlow_() ?
+          html`
           <search-animated-glow id="voiceSearchGlow"
               .coloredTicTacVoiceAnimationEnabled="${true}"
               .isListening="${this.voiceSearchListening_}"
@@ -102,7 +126,8 @@ export function getHtml(this: NtpExtensionAppElement) {
               .transcript="${this.voiceSearchTranscript_}"
               .receivedSpeech="${this.voiceSearchReceivedSpeech_}">
           </search-animated-glow>
-        ` : ''}
+        ` :
+          ''}
         <cr-composebox-voice-search id="voiceSearch"
             in-voice-search-mode
             .audioWaveEnabled="${this.voiceSearchHelperTextEnabled_}"
@@ -118,22 +143,25 @@ export function getHtml(this: NtpExtensionAppElement) {
             .pageCallbackRouter="${this.searchboxCallbackRouter_}"
             .autosubmitEnabled="${this.voiceSearchAutoEndpointEnabled_}"
             .dynamicTimeoutEnabled="${false}"
-            .androidContinuousRecognitionEnabled="${
-              this.androidSpeechRecognition_}"
             .queryLengthLimit="${this.voiceQueryLengthLimit_}"
             .idleTimeout="${this.voiceAutoSubmitIdleTimeoutMs_}"
             .manualSubmitIdleTimeout="${this.voiceManualSubmitIdleTimeoutMs_}"
-            .liveTranscriptEnabled="${this.voiceSearchLiveTranscriptionEnabled_}"
+            .liveTranscriptEnabled="${
+          this.voiceSearchLiveTranscriptionEnabled_}"
             .helperTextEnabled="${this.voiceSearchHelperTextEnabled_}"
             .submitStopButtonsEnabled="${true}"
             .metricSource="${'NTP_REALBOX'}">
         </cr-composebox-voice-search>
       </div>
     </dialog>
-  ` : ''}
+  ` :
+      ''}
 </div>
-${!this.ntpRealboxNextEnabled_ &&
-    (this.showComposebox_ || this.showVoiceSearch_) ? html`
+${
+  !this.ntpRealboxNextEnabled_ &&
+          (this.showComposebox_ || this.showVoiceSearch_) ?
+      html`
   <div id="scrim" @click="${this.onScrimClick_}"></div>
-` : ''}`;
+` :
+      ''}`;
 }

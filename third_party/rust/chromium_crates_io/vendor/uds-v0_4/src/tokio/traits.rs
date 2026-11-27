@@ -47,7 +47,7 @@ pub trait UnixStreamExt: AsRawFd + private::Sealed {
     }
     /// Returns the SELinux security context of the process that created the other end of this stream.
     ///
-    /// Will return an error on other operating systems than Linux or Android,
+    /// Will return an error on other operating systems than Linux,
     /// and also if running under kubernetes.
     /// On success the number of bytes used is returned. (like `Read`)
     ///
@@ -108,8 +108,8 @@ pub trait UnixDatagramExt: AsRawFd + private::Sealed {
     ///
     /// # Examples
     ///
-    #[cfg_attr(any(target_os="linux", target_os="android"), doc="```")]
-    #[cfg_attr(not(any(target_os="linux", target_os="android")), doc="```no_run")]
+    #[cfg_attr(target_os="linux", doc="```")]
+    #[cfg_attr(not(target_os="linux"), doc="```no_run")]
     /// # use tokio::net::UnixDatagram;
     /// # use uds::{tokio::UnixDatagramExt, UnixSocketAddr};
     /// #
@@ -183,7 +183,7 @@ pub trait UnixDatagramExt: AsRawFd + private::Sealed {
     /// Returns the SELinux security context of the process that created a socket pair.
     ///
     /// Has the same limitations and gotchas as `initial_pair_credentials()`,
-    /// and will return an error on other OSes than Linux or Android
+    /// and will return an error on other OSes than Linux
     /// or if running under kubernetes.
     ///
     /// The default security context is the string `unconfined`.

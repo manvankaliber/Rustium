@@ -10,9 +10,7 @@
 #include "ui/base/accelerators/accelerator.h"
 #include "ui/ozone/public/ozone_platform.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/base/accelerators/global_accelerator_listener/global_accelerator_listener_chromeos.h"
-#elif BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_DBUS)
+#if BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_DBUS)
 #include "base/environment.h"
 #include "base/feature_list.h"
 #include "base/version_info/nix/version_extra_utils.h"
@@ -45,11 +43,7 @@ GlobalAcceleratorListener* GlobalAcceleratorListener::GetInstance() {
     return instance->get();
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  static const base::NoDestructor<std::unique_ptr<GlobalAcceleratorListener>>
-      chromeos_instance(GlobalAcceleratorListenerChromeOS::Create());
-  return chromeos_instance->get();
-#elif BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_DBUS)
+#if BUILDFLAG(IS_LINUX) && BUILDFLAG(USE_DBUS)
   if (base::FeatureList::IsEnabled(kGlobalShortcutsPortal)) {
     static GlobalAcceleratorListenerLinux* const linux_instance =
         new GlobalAcceleratorListenerLinux(nullptr, GetSessionName());

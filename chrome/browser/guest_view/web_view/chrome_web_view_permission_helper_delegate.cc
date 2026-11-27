@@ -675,8 +675,7 @@ bool ChromeWebViewPermissionHelperDelegate::
   // TODO(crbug.com/382773576): Change to true for all chrome:// origins, with
   // the exception of chrome://chrome-signin and chrome://oobe, which needs the
   // old behavior.
-  return embedder_origin.scheme() == content::kChromeUIScheme &&
-         embedder_origin.host() == chrome::kChromeUIGlicHost;
+  return false;
 }
 
 std::optional<content::PermissionResult>
@@ -685,12 +684,10 @@ ChromeWebViewPermissionHelperDelegate::OverridePermissionResult(
     const url::Origin& requesting_origin) {
   const url::Origin& origin =
       web_view_guest()->owner_rfh()->GetLastCommittedOrigin();
-  // chrome://glic and chrome://contextual-tasks requires additional
+  // chrome://contextual-tasks requires additional
   // permissions, and webview's permissionrequest API does not handle clipboard
   // access or screen wake lock.
-  if (origin.scheme() == content::kChromeUIScheme &&
-      (origin.host() == chrome::kChromeUIGlicHost ||
-       origin.host() == chrome::kChromeUIContextualTasksHost)) {
+  if ((origin.scheme() == content::kChromeUIScheme && origin.host() == chrome::kChromeUIContextualTasksHost)) {
     switch (type) {
       case ContentSettingsType::CLIPBOARD_READ_WRITE:
       case ContentSettingsType::CLIPBOARD_SANITIZED_WRITE:

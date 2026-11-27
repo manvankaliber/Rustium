@@ -176,13 +176,7 @@ TEST(WebFontTypefaceFactoryTest, FontationsSelectedSbixNonApple) {
 #endif
 }
 
-#if BUILDFLAG(IS_IOS)
-// TODO(crbug.com/1499557): Currently fails on the platform.
-#define MAYBE_VariationsWinFallbackIfNeeded \
-  DISABLED_VariationsWinFallbackIfNeeded
-#else
 #define MAYBE_VariationsWinFallbackIfNeeded VariationsWinFallbackIfNeeded
-#endif
 TEST(WebFontTypefaceFactoryTest, MAYBE_VariationsWinFallbackIfNeeded) {
   sk_sp<SkData> data = SkData::MakeEmpty();
   MockFontFormatCheck mock_font_format_check(data);

@@ -68,8 +68,7 @@ BASE_FEATURE(kKeychainKeyProviderUserDataDirProtection,
              base::FEATURE_ENABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Enables or disables the Autofill survey triggered by opening a prompt to
 // save address info.
 BASE_FEATURE(kAutofillAddressSurvey, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -81,47 +80,10 @@ BASE_FEATURE(kAutofillCardSurvey, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kAutofillPasswordSurvey, base::FEATURE_DISABLED_BY_DEFAULT);
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, GetUserCacheDirectory on Android will append the relative path
-// of non-default partitions to the cache directory.
-BASE_FEATURE(kAndroidKeepProfilePartitionDirsInCacheDir,
-             base::FEATURE_ENABLED_BY_DEFAULT);
 
-// When enabled, Android profile startup supports more than one profile: only
-// the profile that StartupData was built for takes over its pre-created
-// objects, and other profiles load their own prefs.
-BASE_FEATURE(kAndroidMultiprofileStartupData,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Blocks navigations to content:// URIs served by Chrome's own
-// android:exported="false" content providers. Kill switch for
-// https://crbug.com/496190746.
-BASE_FEATURE(kBlockNonExportedContentProviderNavigation,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-// Enable boarding pass detector on Chrome Android.
-BASE_FEATURE(kBoardingPassDetector, base::FEATURE_DISABLED_BY_DEFAULT);
-const char kBoardingPassDetectorUrlParamName[] = "boarding_pass_detector_urls";
-const base::FeatureParam<std::string> kBoardingPassDetectorUrlParam(
-    &kBoardingPassDetector,
-    kBoardingPassDetectorUrlParamName,
-    "");
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kCaptureHandleForStandalonePwasAndIwas,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// If enabled, use the restricted/unified locked state controller.
-BASE_FEATURE(kUseUnifiedLockedStateController,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-bool IsUseUnifiedLockedStateControllerEnabled() {
-  return base::FeatureList::IsEnabled(kUseUnifiedLockedStateController);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Enables stricter cryptography settings for CNSA2 compliance. This is not
 // needed for security, but may be required by some organizations.
@@ -167,7 +129,6 @@ BASE_FEATURE_PARAM(bool,
                    &kImprovedStartupBestEffortDelay,
                    true);
 
-#if !BUILDFLAG(IS_ANDROID)
 // Whether to allow installed-by-default web apps to be installed or not.
 BASE_FEATURE(kPreinstalledWebAppInstallation,
              "DefaultWebAppInstallation",
@@ -178,15 +139,12 @@ BASE_FEATURE(kPreinstalledWebAppInstallation,
 // Used by unit tests.
 BASE_FEATURE(kPreinstalledWebAppAlwaysMigrateForTesting,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 // Controls the enablement of structured metrics on Windows, Linux, and Mac.
 BASE_FEATURE(kChromeStructuredMetrics, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_ANDROID)
 // Enables the chrome://craft page.
 BASE_FEATURE(kCraft, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 #if BUILDFLAG(IS_MAC)
 // Defers Cocoa spellchecker initialization to a post-startup idle task on
@@ -197,20 +155,12 @@ BASE_FEATURE(kDeferSpellcheckInitialization, base::FEATURE_DISABLED_BY_DEFAULT);
 // Moves the Extensions "puzzle piece" icon from the title bar into the app menu
 // for web app windows.
 BASE_FEATURE(kDesktopPWAsElidedExtensionsMenu,
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 // If enabled, allow-listed PWAs cannot be closed manually by the user.
 BASE_FEATURE(kDesktopPWAsPreventClose,
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 // Adds a user settings that allows PWAs to be opened with a tab strip.
@@ -230,15 +180,8 @@ BASE_FEATURE(kDesktopPWAsWindowControlsOverlayWithNoToggle,
 BASE_FEATURE(kDocumentPipStandaloneWindow, base::FEATURE_DISABLED_BY_DEFAULT);
 
 // Allows fullscreen to claim whole display area when in windowing mode
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kDisplayEdgeToEdgeFullscreen, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // Enables Fullscreen to Screen on Android platform
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kEnableFullscreenToAnyScreenAndroid,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Controls whether Chrome Apps are supported. See https://crbug.com/40186761.
@@ -247,11 +190,6 @@ BASE_FEATURE(kEnableFullscreenToAnyScreenAndroid,
 BASE_FEATURE(kChromeAppsDeprecation, base::FEATURE_ENABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-BASE_FEATURE(kForcedAppRelaunchOnPlaceholderUpdate,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Controls whether the actor component of Glic is enabled.
 BASE_FEATURE(kGlicActor, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -274,11 +212,7 @@ BASE_FEATURE(kGlicExperimentalTriggeringOptInBypass,
 BASE_FEATURE(kGlicExperimentalTriggeringOpenWindowIfNone,
              base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kGlicExperimentalTriggeringOsNotification,
-#if !BUILDFLAG(IS_ANDROID)
              base::FEATURE_ENABLED_BY_DEFAULT
-#else
-             base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 BASE_FEATURE(kGlicExperimentalTriggeringScriptTools,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -539,8 +473,7 @@ BASE_FEATURE(kGlicMessageFirstFre, base::FEATURE_DISABLED_BY_DEFAULT);
 // kill-switch for Glic and can be used in the future to handle unsupported
 // Chrome versions.
 BASE_FEATURE(kGlic,
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT
@@ -561,11 +494,7 @@ const base::FeatureParam<std::string> kGlicIneligibleAccountHelpUrl{
 
 const base::FeatureParam<int> kGlicMinRequiredRamMb{&kGlic,
                                                     "glic-min-required-ram-mb",
-#if BUILDFLAG(IS_ANDROID)
-                                                    3600};
-#else
                                                     0};
-#endif
 
 const base::FeatureParam<bool> kGlicAdaptiveToolbarAutoPin{
     &kGlic, "adaptive-toolbar-auto-pin", true};
@@ -979,11 +908,7 @@ extern const base::FeatureParam<std::string> kGlicCaaGuestRedirectPatterns{
     "https://access.workspace.google.com https://admin.google.com "
     "https://accounts.google.com/info/servicerestricted"};
 
-#if BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_DESKTOP_ANDROID)
-BASE_FEATURE(kGlicDaisyChainNewTabs, base::FEATURE_DISABLED_BY_DEFAULT);
-#else
 BASE_FEATURE(kGlicDaisyChainNewTabs, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 BASE_FEATURE(kGlicGeminiContinueURLRedirect, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kGlicWebContinuity, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -1069,7 +994,6 @@ BASE_FEATURE(kPrivacyGuideForceAvailable, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kPdfGlicSummarizeFre, base::FEATURE_DISABLED_BY_DEFAULT);
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 // Enables or disables the Happiness Tracking System demo mode for Desktop
 // Chrome.
 BASE_FEATURE(kHappinessTrackingSurveysForDesktopDemo,
@@ -1207,7 +1131,6 @@ const base::FeatureParam<bool>
 // Enables or disables HaTS for Scheduled Restarts on Desktop.
 BASE_FEATURE(kHappinessTrackingSurveysForDesktopScheduledRestart,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Enables HTTPS-First Mode in a balanced configuration that doesn't warn on
 // HTTP when HTTPS can't be reasonably expected.
@@ -1337,20 +1260,11 @@ BASE_FEATURE(kIsolatedWebAppFastUpdateCheck, base::FEATURE_DISABLED_BY_DEFAULT);
 
 // Enables users on unmanaged devices to install Isolated Web Apps.
 BASE_FEATURE(kIsolatedWebAppUnmanagedInstall,
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif  // BUILDFLAG(IS_CHROMEOS)
 );
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Enables bundle cache for isolated web apps in kiosk and managed guest
-// session.
-BASE_FEATURE(kIsolatedWebAppBundleCache, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 BASE_FEATURE(kLinuxLowMemoryMonitor, base::FEATURE_DISABLED_BY_DEFAULT);
 // Values taken from the low-memory-monitor documentation and also apply to the
 // portal API:
@@ -1359,7 +1273,7 @@ constexpr base::FeatureParam<int> kLinuxLowMemoryMonitorModerateLevel{
     &kLinuxLowMemoryMonitor, "moderate_level", 50};
 constexpr base::FeatureParam<int> kLinuxLowMemoryMonitorCriticalLevel{
     &kLinuxLowMemoryMonitor, "critical_level", 255};
-#endif  // BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 BASE_FEATURE(kListWebAppsSwitch, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -1473,18 +1387,6 @@ BASE_FEATURE_PARAM(bool,
                    &kLazyKeyedServiceInstantiation,
                    true);
 
-#if BUILDFLAG(IS_CHROMEOS)
-// When enabled, ChromeOS extension API resource manager and dispatcher keyed
-// services (which do not register startup observers or perform proactive
-// background work at profile startup) are instantiated lazily on demand.
-//
-// TODO(crbug.com/527272238): Temporarily disabled due to increased renderer hangs on
-// ChromeOS caused by extension API resource managers
-BASE_FEATURE_PARAM(bool,
-                   kLazyKeyedServiceInstantiationExtensionsChromeOSResources,
-                   &kLazyKeyedServiceInstantiation,
-                   false);
-#endif
 
 // Enables the use of system notification centers instead of using the Message
 // Center for displaying the toasts. The feature is hardcoded to enabled for
@@ -1513,18 +1415,11 @@ BASE_FEATURE(kSystemNotifications, base::FEATURE_ENABLED_BY_DEFAULT);
 // referrers instead of their ordinary behavior.
 BASE_FEATURE(kNoReferrers, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kOfflineAutoFetch, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 BASE_FEATURE(kOnConnectNative, base::FEATURE_DISABLED_BY_DEFAULT);
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables or disables the OOM intervention.
-BASE_FEATURE(kOomIntervention, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 #if BUILDFLAG(IS_WIN)
 // Changes behavior of App Launch Prefetch to ignore chrome browser launches
@@ -1569,28 +1464,6 @@ BASE_FEATURE(kSafetyHubThreeDotDetails, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kSafetyHubDisruptiveNotificationRevocation,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr base::FeatureParam<int>
-    kSafetyHubDisruptiveNotificationRevocationExperimentVersion{
-        &kSafetyHubDisruptiveNotificationRevocation,
-        /*name=*/"experiment_version", /*default_value=*/1};
-
-constexpr base::FeatureParam<int>
-    kSafetyHubDisruptiveNotificationRevocationMinNotificationCount{
-        &kSafetyHubDisruptiveNotificationRevocation,
-        /*name=*/"min_notification_count", /*default_value=*/4};
-
-constexpr base::FeatureParam<base::TimeDelta>
-    kSafetyHubDisruptiveNotificationRevocationWaitingTimeAsProposed{
-        &kSafetyHubDisruptiveNotificationRevocation,
-        /*name=*/"waiting_time_as_proposed", /*default_value=*/base::Days(4)};
-
-constexpr base::FeatureParam<int>
-    kSafetyHubDisruptiveNotificationRevocationNotificationTimeoutSeconds{
-        &kSafetyHubDisruptiveNotificationRevocation,
-        /*name=*/"notification_timeout_seconds",
-        /*default_value=*/7 * 24 * 3600};
-#else
 constexpr base::FeatureParam<int>
     kSafetyHubDisruptiveNotificationRevocationExperimentVersion{
         &kSafetyHubDisruptiveNotificationRevocation,
@@ -1605,7 +1478,6 @@ constexpr base::FeatureParam<base::TimeDelta>
     kSafetyHubDisruptiveNotificationRevocationWaitingTimeAsProposed{
         &kSafetyHubDisruptiveNotificationRevocation,
         /*name=*/"waiting_time_as_proposed", /*default_value=*/base::Days(14)};
-#endif
 
 constexpr base::FeatureParam<double>
     kSafetyHubDisruptiveNotificationRevocationMaxEngagementScore{
@@ -1641,25 +1513,11 @@ constexpr base::FeatureParam<int>
         &kSafetyHubDisruptiveNotificationRevocation,
         /*name=*/"waiting_for_metrics_days", /*default_value=*/1};
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables Weak and Reused passwords in Safety Hub.
-BASE_FEATURE(kSafetyHubWeakAndReusedPasswords,
-             base::FEATURE_DISABLED_BY_DEFAULT);
 
-// Enables the local passwords module in Safety Hub.
-BASE_FEATURE(kSafetyHubLocalPasswordsModule, base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Enables the unified passwords module in Safety Hub.
-BASE_FEATURE(kSafetyHubUnifiedPasswordsModule,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if !BUILDFLAG(IS_ANDROID)
 // Enables or disables the Trust Safety Sentiment Survey for Safety Hub.
 BASE_FEATURE(kSafetyHubTrustSafetySentimentSurvey,
              "TrustSafetySentimentSurveyForSafetyHub",
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // SCT auditing hashdance allows Chrome clients who are not opted-in to Enhanced
 // Safe Browsing Reporting to perform a k-anonymous query to see if Google knows
@@ -1715,11 +1573,7 @@ BASE_FEATURE(kExtensionServiceWorkerPriorityVoter,
 // TODO(alexmos): Move this and the other site isolation features below to
 // browser_features, as they are only used on the browser side.
 BASE_FEATURE(kSitePerProcess,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
              base::FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 // The default behavior to opt devtools users out of
@@ -1738,11 +1592,7 @@ BASE_FEATURE(kProcessPerSiteSkipEnterpriseUsers,
 // //content.
 
 BASE_FEATURE(kProcessPerSiteForDSE,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
              base::FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 // Disable downloads of unsafe file types over insecure transports if initiated
@@ -1750,7 +1600,6 @@ BASE_FEATURE(kProcessPerSiteForDSE,
 BASE_FEATURE(kTreatUnsafeDownloadsAsActive, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // TrustSafetySentimentSurvey
-#if !BUILDFLAG(IS_ANDROID)
 // Enables surveying of users of Trust & Safety features with HaTS.
 BASE_FEATURE(kTrustSafetySentimentSurvey, base::FEATURE_DISABLED_BY_DEFAULT);
 // The minimum and maximum time after a user has interacted with a Trust and
@@ -1809,10 +1658,8 @@ const base::FeatureParam<base::TimeDelta>
         &kTrustSafetySentimentSurvey, "transactions-password-manager-time",
         base::Seconds(20)};
 
-#endif
 
 // TrustSafetySentimentSurveyV2
-#if !BUILDFLAG(IS_ANDROID)
 // Enables the second version of the sentiment survey for users of Trust &
 // Safety features, using HaTS.
 BASE_FEATURE(kTrustSafetySentimentSurveyV2, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -1932,21 +1779,17 @@ const base::FeatureParam<base::TimeDelta>
     kTrustSafetySentimentSurveyV2TrustedSurfaceTime{
         &kTrustSafetySentimentSurveyV2, "trusted-surface-time",
         base::Seconds(5)};
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kWebAppPeriodicPreinstallUpdate, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kWebAppMigratePreinstalledChat, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kWebAppInstallDialog, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kWebAppInstallDialogWinPin, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 BASE_FEATURE(kWebAppUpgradeToDatabaseVersion6,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_FEATURE(kWebium, base::FEATURE_DISABLED_BY_DEFAULT);
 // When enable, the reload button will be replaced with the a WebView, and
 // chrome://webui-toolbar.top-chrome will be loaded as the content.
@@ -2100,7 +1943,6 @@ BASE_FEATURE(kWebUIPinnedToolbarActions, base::FEATURE_DISABLED_BY_DEFAULT);
 // from chrome://webui-toolbar.top-chrome.
 BASE_FEATURE(kWebUIExtensionsContainer, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Enables the User-Agent override fix for SearchPrefetch. This will work only
 // if enabled together with `kPreloadingRespectUserAgentOverride`.
@@ -2116,11 +1958,6 @@ BASE_FEATURE(kRestrictedWebUICodeCache, base::FEATURE_DISABLED_BY_DEFAULT);
 const base::FeatureParam<std::string> kRestrictedWebUICodeCacheResources{
     &kRestrictedWebUICodeCache, "RestrictedWebUICodeCacheResources", ""};
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Populates storage dimensions in UMA log if enabled. Requires diagnostics
-// package in the image.
-BASE_FEATURE(kUmaStorageDimensions, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 #if BUILDFLAG(IS_WIN)
 // Kill switch for pinning PWA Shortcut to the Windows taskbar with the Taskbar
@@ -2128,15 +1965,7 @@ BASE_FEATURE(kUmaStorageDimensions, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kWinPinPWAShortcutWithLAF, base::FEATURE_ENABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
 
-// A feature to enable periodic log class management enabled policy.
-BASE_FEATURE(kClassManagementEnabledMetricsProvider,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if !BUILDFLAG(IS_ANDROID)
 // A feature to enable smart restart metrics collection. The collected metrics
 // will be used to make informed decisions about the future of the smart restart
 // feature.
@@ -2186,6 +2015,5 @@ BASE_FEATURE(kRelaunchWaitForParentProcess, base::FEATURE_DISABLED_BY_DEFAULT);
 // A feature to record the difference in the number of tabs, windows, and
 // profiles between the last session and the current session on restart.
 BASE_FEATURE(kRecordTabWindowDiffOnRestart, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace features

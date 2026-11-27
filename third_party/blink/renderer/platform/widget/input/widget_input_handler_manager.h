@@ -143,17 +143,6 @@ class PLATFORM_EXPORT WidgetInputHandlerManager final
   mojo::SharedRemote<mojom::blink::WidgetInputHandlerHost>
   GetVizWidgetInputHandlerHost();
 
-#if BUILDFLAG(IS_ANDROID)
-  void AttachSynchronousCompositor(
-      mojo::PendingRemote<mojom::blink::SynchronousCompositorControlHost>
-          control_host,
-      mojo::PendingAssociatedRemote<mojom::blink::SynchronousCompositorHost>
-          host,
-      mojo::PendingAssociatedReceiver<mojom::blink::SynchronousCompositor>
-          compositor_request);
-
-  SynchronousCompositorRegistry* GetSynchronousCompositorRegistry();
-#endif
 
   void InvokeInputProcessedCallback();
   void InputWasProcessed(const gfx::PresentationFeedback& feedback);
@@ -394,10 +383,6 @@ class PLATFORM_EXPORT WidgetInputHandlerManager final
 
   unsigned dropped_pointer_down_ = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<SynchronousCompositorProxyRegistry>
-      synchronous_compositor_registry_;
-#endif
 
   // Whether to use ScrollPredictor to resample scroll events. This is false for
   // web_tests to ensure that scroll deltas are not timing-dependent.

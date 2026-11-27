@@ -35,7 +35,6 @@ class FakeSharingDeviceRegistration : public SharingDeviceRegistration {
     return false;
   }
 
-  bool IsGlicExperimentalTriggeringSupported() const override { return false; }
 
   bool IsBrowserActuatorSupported() const override { return false; }
 

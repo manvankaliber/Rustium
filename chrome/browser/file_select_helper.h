@@ -24,7 +24,7 @@
 #include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
 #include "ui/shell_dialogs/select_file_dialog.h"
 
-#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
 #include "chrome/browser/enterprise/connectors/analysis/content_analysis_delegate.h"
 #endif
 
@@ -247,7 +247,7 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
   base::FilePath MaybeSubstituteFuseboxFilePath(
       const blink::mojom::FileSystemFileInfo& file_system_info);
 
-#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
   // Callback used to receive the results of a content analysis scan.
   void ContentAnalysisCompletionCallback(
       std::vector<blink::mojom::FileChooserFileInfoPtr> list,
@@ -354,14 +354,12 @@ class FileSelectHelper : public base::RefCountedThreadSafe<
   std::unique_ptr<content::WebContentsBasedCanceller>
       web_contents_based_canceller_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // When not null, this prevents picture-in-picture windows from opening.
   std::unique_ptr<ScopedDisallowPictureInPicture>
       scoped_disallow_picture_in_picture_;
 
   // When not null, this tucks picture-in-picture windows out of the way.
   std::unique_ptr<ScopedTuckPictureInPicture> scoped_tuck_picture_in_picture_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   base::WeakPtrFactory<FileSelectHelper> weak_ptr_factory_{this};
 };

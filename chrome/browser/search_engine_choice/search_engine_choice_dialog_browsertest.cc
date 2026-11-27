@@ -473,7 +473,6 @@ IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
 
 // We don't run this test on ChromeOS because we can't create multiple
 // profiles.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
                        DialogGetsDisplayedForAllProfiles) {
   // Start a first profile that will later show the dialog.
@@ -528,7 +527,6 @@ IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
                        kSearchEngineChoiceScreenNavigationConditionsHistogram,
                    SearchEngineChoiceScreenConditions::kEligible));
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
                        PRE_DialogDoesNotShowAgainAfterSettingPref) {
@@ -564,7 +562,6 @@ IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
   EXPECT_FALSE(service);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
                        DialogDoesNotOverlapWithProfileCustomizationDialog) {
   Profile* profile = browser()->GetProfile();
@@ -585,7 +582,6 @@ IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
   CheckNavigationConditionRecorded(
       SearchEngineChoiceScreenConditions::kSuppressedByOtherDialog, 1);
 }
-#endif
 
 // TODO(crbug.com/429600559): Re-implement this test and cover windows once a
 // non-flaky implementation is found.
@@ -747,7 +743,6 @@ IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
       SearchEngineType::SEARCH_ENGINE_BING, 1);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
                        DialogIsDisplayedOnEveryGuestSession) {
   // Initial browser
@@ -952,7 +947,6 @@ IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
   CheckNavigationConditionRecorded(
       SearchEngineChoiceScreenConditions::kUsingPersistedGuestSessionChoice, 1);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(SearchEngineChoiceDialogBrowserTest,
                        DialogNotShownIfPolicyIsSet) {

@@ -47,11 +47,7 @@ namespace {
 
 constexpr const char kCategory[] = "media";
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-constexpr uint32_t kDefaultOpusComplexity = 5;
-#else
 constexpr uint32_t kDefaultOpusComplexity = 9;
-#endif
 
 template <typename T>
 bool VerifyParameterValues(const T& value,

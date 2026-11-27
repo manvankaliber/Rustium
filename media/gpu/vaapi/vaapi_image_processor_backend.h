@@ -10,7 +10,7 @@
 #include "base/containers/flat_map.h"
 #include "base/containers/id_map.h"
 #include "base/task/sequenced_task_runner.h"
-#include "media/gpu/chromeos/image_processor_backend.h"
+#include "media/gpu/linux/image_processor_backend.h"
 #include "media/gpu/media_gpu_export.h"
 
 namespace media {

@@ -34,18 +34,6 @@
 #include "services/network/public/cpp/resource_request.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
-#if BUILDFLAG(PLATFORM_CFM)
-#include "base/check_deref.h"
-#include "base/types/expected.h"
-#include "chrome/browser/ash/policy/enrollment/enrollment_requisition_manager.h"
-#include "chrome/browser/browser_process.h"
-#include "chrome/browser/device_identity/device_oauth2_token_service.h"
-#include "chrome/browser/device_identity/device_oauth2_token_service_factory.h"
-#include "components/prefs/pref_service.h"
-#include "google_apis/gaia/gaia_constants.h"
-#include "google_apis/gaia/oauth2_access_token_consumer.h"
-#include "google_apis/gaia/oauth2_access_token_manager.h"
-#endif  // BUILDFLAG(PLATFORM_CFM)
 
 namespace feedback {
 
@@ -72,61 +60,6 @@ CreateURLLoaderFactoryForBrowserContext(content::BrowserContext* context) {
 
 }  // namespace
 
-#if BUILDFLAG(PLATFORM_CFM)
-
-class FeedbackUploaderChrome::ActiveAccountAccessTokenFetcher
-    : OAuth2AccessTokenManager::Consumer {
- public:
-  using ActiveAccountAccessTokenCallback = base::OnceCallback<void(
-      base::expected<std::string /* access_token */, GoogleServiceAuthError>)>;
-
-  ActiveAccountAccessTokenFetcher(
-      DeviceOAuth2TokenService* device_token_service,
-      ActiveAccountAccessTokenCallback callback)
-      : OAuth2AccessTokenManager::Consumer(kAccessTokenConsumer),
-        callback_(std::move(callback)) {
-    CHECK(device_token_service);
-
-    const OAuth2AccessTokenManager::ScopeSet scopes{
-        GaiaConstants::kSupportContentOAuth2Scope};
-
-    access_token_request_ =
-        device_token_service->StartAccessTokenRequest(scopes, this);
-  }
-
-  ActiveAccountAccessTokenFetcher(const ActiveAccountAccessTokenFetcher&) =
-      delete;
-  ActiveAccountAccessTokenFetcher& operator=(
-      const ActiveAccountAccessTokenFetcher&) = delete;
-
-  ~ActiveAccountAccessTokenFetcher() override = default;
-
- private:
-  static constexpr char kAccessTokenConsumer[] = "feedback_uploader";
-
-  // OAuth2AccessTokenManager::Consumer:
-  void OnGetTokenSuccess(
-      const OAuth2AccessTokenManager::Request* request,
-      const OAuth2AccessTokenConsumer::TokenResponse& token_response) override {
-    HandleTokenRequestCompletion(request, token_response.access_token);
-  }
-  void OnGetTokenFailure(const OAuth2AccessTokenManager::Request* request,
-                         const GoogleServiceAuthError& error) override {
-    HandleTokenRequestCompletion(request, base::unexpected(error));
-  }
-
-  void HandleTokenRequestCompletion(
-      const OAuth2AccessTokenManager::Request* request,
-      base::expected<std::string, GoogleServiceAuthError> access_token) {
-    access_token_request_.reset();
-    std::move(callback_).Run(std::move(access_token));
-  }
-
-  ActiveAccountAccessTokenCallback callback_;
-  std::unique_ptr<OAuth2AccessTokenManager::Request> access_token_request_;
-};
-
-#endif  // BUILDFLAG(PLATFORM_CFM)
 
 FeedbackUploaderChrome::FeedbackUploaderChrome(content::BrowserContext* context)
     // The FeedbackUploaderChrome lifetime is bound to that of BrowserContext
@@ -162,16 +95,6 @@ void FeedbackUploaderChrome::PrimaryAccountAccessTokenAvailable(
   AccessTokenAvailable(error, access_token_info.token);
 }
 
-#if BUILDFLAG(PLATFORM_CFM)
-void FeedbackUploaderChrome::ActiveAccountAccessTokenAvailable(
-    base::expected<std::string, GoogleServiceAuthError> access_token) {
-  CHECK(active_account_token_fetcher_, base::NotFatalUntil::M161);
-  active_account_token_fetcher_.reset();
-  AccessTokenAvailable(
-      access_token.error_or(GoogleServiceAuthError::AuthErrorNone()),
-      access_token.value_or(std::string()));
-}
-#endif  // BUILDFLAG(PLATFORM_CFM)
 
 void FeedbackUploaderChrome::AccessTokenAvailable(GoogleServiceAuthError error,
                                                   std::string token) {
@@ -215,30 +138,6 @@ void FeedbackUploaderChrome::StartDispatchingReport() {
     return;
   }
 
-#if BUILDFLAG(PLATFORM_CFM)
-  // CFM Devices may need to acquire the auth token for their robot account
-  // before they submit feedback.
-
-  DeviceOAuth2TokenService* device_token_service =
-      DeviceOAuth2TokenServiceFactory::Get();
-  CHECK(device_token_service);
-
-  const bool is_meet_device =
-      policy::EnrollmentRequisitionManager::IsMeetDevice(
-          CHECK_DEREF(g_browser_process->local_state()));
-  const bool has_robot_account =
-      !device_token_service->GetRobotAccountId().empty();
-
-  if (is_meet_device && has_robot_account) {
-    active_account_token_fetcher_ =
-        std::make_unique<ActiveAccountAccessTokenFetcher>(
-            device_token_service,
-            base::BindOnce(
-                &FeedbackUploaderChrome::ActiveAccountAccessTokenAvailable,
-                base::Unretained(this)));
-    return;
-  }
-#endif  // BUILDFLAG(PLATFORM_CFM)
 
   LOG(ERROR) << "Failed to request oauth access token. "
              << kAuthenticationErrorLogMessage;

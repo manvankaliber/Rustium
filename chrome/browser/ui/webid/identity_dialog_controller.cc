@@ -14,8 +14,6 @@
 #include "base/memory/weak_ptr.h"
 #include "base/metrics/histogram_functions.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_task.h"
 #include "chrome/browser/optimization_guide/optimization_guide_keyed_service.h"
 #include "chrome/browser/optimization_guide/optimization_guide_keyed_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
@@ -45,11 +43,9 @@
 
 // We add nognchecks on these includes so that Android bots do not fail
 // dependency checks.
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"  // nogncheck
 #include "chrome/browser/ui/views/webid/fedcm_account_selection_view_desktop.h"  // nogncheck
 #include "components/tabs/public/tab_interface.h"  // nogncheck
-#endif
 
 using content::webid::FederatedLoginResult;
 
@@ -133,18 +129,6 @@ IdentityDialogController::IdentityDialogController(
       optimization_guide_decider_(decider) {
   Profile* profile = Profile::FromBrowserContext(
       rp_web_contents_->GetPrimaryMainFrame()->GetBrowserContext());
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(profile);
-  if (actor_service) {
-    actor_task_state_subscription_ = actor_service->AddTaskStateChangedCallback(
-        base::BindRepeating(&IdentityDialogController::OnActorTaskStateChanged,
-                            weak_ptr_factory_.GetWeakPtr()));
-    const actor::ActorTask* acting_task =
-        actor_service->GetActingActorTaskForWebContents(rp_web_contents_);
-    if (acting_task) {
-      acting_task_id_ = acting_task->id();
-    }
-  }
 
   if (!base::FeatureList::IsEnabled(
           segmentation_platform::features::kSegmentationPlatformFedCmUser)) {
@@ -182,49 +166,7 @@ IdentityDialogController::IdentityDialogController(
 
 IdentityDialogController::~IdentityDialogController() = default;
 
-void IdentityDialogController::OnActorTaskStateChanged(actor::ActorTask& task) {
-  const actor::TaskId task_id = task.id();
-  const actor::ActorTask::State state = task.GetState();
 
-  actor::ActorKeyedService* actor_service =
-      actor::ActorKeyedService::Get(rp_web_contents_->GetBrowserContext());
-  CHECK(actor_service);
-  // TODO(b:472336281): this can be simplified once the bug is fixed, but for
-  // not a completed task does not know which tabs it was acting on.
-  if (acting_task_id_ == task_id && actor::ActorTask::IsCompletedState(state)) {
-    UpdateTaskId(actor::TaskId());
-    return;
-  }
-
-  tabs::TabInterface* tab =
-      tabs::TabInterface::MaybeGetFromContents(rp_web_contents_);
-  if (!tab || !task.IsActingOnActorSurface(
-                  actor::ActorSurfaceHandle::From(tab->GetHandle()))) {
-    if (acting_task_id_ == task_id) {
-      // The task we thought was acting on this tab is no longer active, so we
-      // clear the task ID.
-      UpdateTaskId(actor::TaskId());
-    }
-    return;
-  }
-  UpdateTaskId(task.IsUnderActorControl() ? task_id : actor::TaskId());
-}
-
-void IdentityDialogController::UpdateTaskId(actor::TaskId task_id) {
-  acting_task_id_ = task_id;
-  if (account_view_) {
-    account_view_->SetCanShowUi(acting_task_id_.is_null());
-    if (acting_task_id_.is_null() && did_invoke_show_ui_) {
-      did_show_ui_ = true;
-    }
-  }
-  // If there is no longer an active task (e.g. user takes over the task) and we
-  // previously invoked active mode UI, dismiss the current API call.
-  if (acting_task_id_.is_null() && rp_mode_ == blink::mojom::RpMode::kActive &&
-      on_dismiss_) {
-    std::move(on_dismiss_).Run(DismissReason::kOther);
-  }
-}
 
 int IdentityDialogController::GetBrandIconMinimumSize(
     blink::mojom::RpMode rp_mode) {
@@ -748,25 +690,11 @@ content::WebContents* IdentityDialogController::ShowModalDialog(
 }
 
 void IdentityDialogController::CloseModalDialog() {
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, this method is invoked on the modal dialog controller,
-  // which means we may need to initialize the |account_view|.
-  if (!account_view_) {
-    account_view_ = AccountSelectionView::Create(this);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   CHECK(account_view_);
   account_view_->CloseModalDialog();
 }
 
 content::WebContents* IdentityDialogController::GetRpWebContents() {
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, this method is invoked on the modal dialog controller,
-  // which means we may need to initialize the |account_view|.
-  if (!account_view_) {
-    account_view_ = AccountSelectionView::Create(this);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   CHECK(account_view_);
   return account_view_->GetRpWebContents();
 }
@@ -788,18 +716,11 @@ void IdentityDialogController::SetAccountSelectionViewForTesting(
   account_view_ = std::move(account_view);
 }
 
-void IdentityDialogController::SetActingTaskIdForTesting(
-    actor::TaskId task_id) {
-  UpdateTaskId(task_id);
-}
 
 bool IdentityDialogController::TrySetAccountView() {
   if (account_view_) {
     return true;
   }
-#if BUILDFLAG(IS_ANDROID)
-  account_view_ = AccountSelectionView::Create(this);
-#else
   tabs::TabInterface* tab =
       tabs::TabInterface::MaybeGetFromContents(rp_web_contents_);
   // FedCM is supported in general web content, but not in chrome UI. Of the
@@ -810,7 +731,6 @@ bool IdentityDialogController::TrySetAccountView() {
     return false;
   }
   account_view_ = std::make_unique<webid::FedCmAccountSelectionView>(this, tab);
-#endif
   account_view_->SetCanShowUi(ShouldShowFedCmUi());
   return true;
 }
@@ -937,7 +857,7 @@ IdentityDialogController::GetFedCmClickthroughRateMetadata() {
 
 
 bool IdentityDialogController::ShouldShowFedCmUi() {
-  return acting_task_id_.is_null();
+  return true;
 }
 
 void IdentityDialogController::DidInvokeShowUi() {

@@ -99,7 +99,7 @@ struct ZipParams {
   // Either dest_file or dest_fd should be set, but not both.
   base::FilePath dest_file;
 
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
   // Destination file passed a file descriptor.
   // Either dest_file or dest_fd should be set, but not both.
   int dest_fd = base::kInvalidPlatformFile;
@@ -159,7 +159,7 @@ bool Zip(const base::FilePath& src_dir,
          const base::FilePath& dest_file,
          bool include_hidden_files);
 
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
 // Zips files listed in |src_relative_paths| to destination specified by file
 // descriptor |dest_fd|, without taking ownership of |dest_fd|. The paths listed
 // in |src_relative_paths| are relative to the |src_dir| and will be used as the
@@ -168,7 +168,7 @@ bool Zip(const base::FilePath& src_dir,
 bool ZipFiles(const base::FilePath& src_dir,
               Paths src_relative_paths,
               int dest_fd);
-#endif  // defined(OS_POSIX) || defined(OS_FUCHSIA)
+#endif
 
 // Callback reporting the number of bytes written during Unzip.
 using UnzipProgressCallback = base::RepeatingCallback<void(uint64_t bytes)>;

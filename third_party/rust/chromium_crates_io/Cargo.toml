@@ -35,6 +35,7 @@ jpeg-encoder = "=0.7.1"
 lazy_static = "1"
 libafl = "0.16.1"
 libc = "0.2"
+memchr = "2"
 minijinja = "2.14.0"
 num-traits = "0.2"
 ordered-float = "5.1.0"
@@ -226,3 +227,8 @@ features = ["arith"]
 [patch.crates-io]
 harfrust = { path = "vendor/harfrust-v0_15" }
 sfv = { path = "vendor/sfv-v0_15" }
+
+# Network error policy uses canonical SDK constants without runtime OS calls.
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.52.0"
+features = ["Win32_Foundation", "Win32_Networking_WinSock"]

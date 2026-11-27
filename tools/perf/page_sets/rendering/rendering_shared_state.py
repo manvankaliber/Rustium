@@ -12,6 +12,7 @@ class NoSwiftShaderAssertionFailure(AssertionError):
 
 
 class RenderingSharedState(shared_page_state.SharedPageState):
+
   def CanRunOnBrowser(self, browser_info, page):
     if page.TAGS and story_tags.REQUIRED_WEBGL in page.TAGS:
       assert hasattr(page, 'skipped_gpus')
@@ -55,21 +56,16 @@ class RenderingSharedState(shared_page_state.SharedPageState):
     super(RenderingSharedState, self).WillRunStory(story)
     if not self._finder_options.allow_software_compositing:
       self._EnsureNotSwiftShader()
-    if story.TAGS and story_tags.KEY_IDLE_POWER in story.TAGS:
-      self._EnsureScreenOn()
 
   def DidRunStory(self, results):
-    if (
-      self.current_page.TAGS and story_tags.MOTIONMARK in self.current_page.TAGS
-    ):
+    if (self.current_page.TAGS
+        and story_tags.MOTIONMARK in self.current_page.TAGS):
       unit = 'unitless_biggerIsBetter'
       results.AddMeasurement('motionmark', unit, [self.current_page.score])
-      results.AddMeasurement(
-        'motionmarkLower', unit, [self.current_page.scoreLowerBound]
-      )
-      results.AddMeasurement(
-        'motionmarkUpper', unit, [self.current_page.scoreUpperBound]
-      )
+      results.AddMeasurement('motionmarkLower', unit,
+                             [self.current_page.scoreLowerBound])
+      results.AddMeasurement('motionmarkUpper', unit,
+                             [self.current_page.scoreUpperBound])
 
       stories = self.current_page.stories
       storyScores = self.current_page.storyScores
@@ -82,19 +78,7 @@ class RenderingSharedState(shared_page_state.SharedPageState):
         results.AddMeasurement(story + ' Upper', unit, upperBounds[score_index])
         score_index += 1
 
-    if (
-      self.current_page.TAGS
-      and story_tags.KEY_IDLE_POWER in self.current_page.TAGS
-    ):
-      try:
-        super(RenderingSharedState, self).DidRunStory(results)
-      finally:
-        self._EnsureScreenOn()
-    else:
-      super(RenderingSharedState, self).DidRunStory(results)
-
-  def _EnsureScreenOn(self):
-    self.platform.android_action_runner.TurnScreenOn()
+    super(RenderingSharedState, self).DidRunStory(results)
 
   def _EnsureNotSwiftShader(self):
     system_info = self.browser.GetSystemInfo()
@@ -102,10 +86,9 @@ class RenderingSharedState(shared_page_state.SharedPageState):
       for device in system_info.gpu.devices:
         if device.device_string == 'Google SwiftShader':
           raise NoSwiftShaderAssertionFailure(
-            'SwiftShader should not be used for rendering benchmark, since '
-            'the metrics produced from that do not reflect the real '
-            'performance for a lot of metrics.'
-          )
+              'SwiftShader should not be used for rendering benchmark, since '
+              'the metrics produced from that do not reflect the real '
+              'performance for a lot of metrics.')
 
 
 class DesktopRenderingSharedState(RenderingSharedState):

@@ -70,15 +70,10 @@ void VerifyProfileEntry(const base::DictValue& dict,
 
 class ProfilePickerHandlerTest : public testing::Test {
  public:
-  explicit ProfilePickerHandlerTest(bool is_glic_version = false)
-      : is_glic_version_(is_glic_version),
-        profile_manager_(TestingBrowserProcess::GetGlobal()) {
-  }
 
   void SetUp() override {
     ASSERT_TRUE(profile_manager_.SetUp());
 
-    handler_ = std::make_unique<ProfilePickerHandler>(is_glic_version_);
     web_ui_profile_ = GetWebUIProfile();
     web_ui_.set_web_contents(
         web_contents_factory_.CreateWebContents(web_ui_profile_));
@@ -161,7 +156,6 @@ class ProfilePickerHandlerTest : public testing::Test {
   }
 
  private:
-  const bool is_glic_version_;
 
   content::BrowserTaskEnvironment task_environment_;
   TestingProfileManager profile_manager_;
@@ -550,90 +544,5 @@ TEST_F(ProfilePickerHandlerTest, ProfilesOrderChangedExternally) {
   // and push the updated profile list to the WebUI.
   storage->UpdateProfilesOrderPref(0, 2, ProfileOrderUpdateType::kDragAndDrop);
   VerifyProfileListWasPushed({profile_b, profile_c, profile_a, profile_d});
-  web_ui()->ClearTrackedCalls();
-}
-
-class ProfilePickerHandlerGlicVersionTest : public ProfilePickerHandlerTest {
- public:
-  ProfilePickerHandlerGlicVersionTest()
-      : ProfilePickerHandlerTest(/*is_glic_version=*/true) {}
-};
-
-TEST_F(ProfilePickerHandlerGlicVersionTest, FilteringProfileEntries) {
-  ProfileAttributesEntry* eligible_1 = CreateTestingProfile("E1");
-  eligible_1->SetIsGlicEligible(true);
-  ProfileAttributesEntry* eligible_2 = CreateTestingProfile("E2");
-  eligible_2->SetIsGlicEligible(true);
-
-  ProfileAttributesEntry* ineligible_1 = CreateTestingProfile("I1");
-  ineligible_1->SetIsGlicEligible(false);
-
-  InitializeMainViewAndVerifyProfileList({eligible_1, eligible_2});
-}
-
-TEST_F(ProfilePickerHandlerGlicVersionTest, ChangeGlicEligibility) {
-  ProfileAttributesEntry* eligible_1 = CreateTestingProfile("E1");
-  eligible_1->SetIsGlicEligible(true);
-  ProfileAttributesEntry* ineligible_1 = CreateTestingProfile("I1");
-  ineligible_1->SetIsGlicEligible(false);
-
-  InitializeMainViewAndVerifyProfileList({eligible_1});
-  web_ui()->ClearTrackedCalls();
-
-  // Test that regular updates that trigger PushProfilesList() work.
-  eligible_1->SetLocalProfileName(u"E1 Renamed", false);
-  VerifyProfileListWasPushed({eligible_1});
-  web_ui()->ClearTrackedCalls();
-
-  // Profile becomes Glic eligible: added to list and pushed.
-  ineligible_1->SetIsGlicEligible(true);
-  VerifyProfileListWasPushed({eligible_1, ineligible_1});
-  web_ui()->ClearTrackedCalls();
-
-  // Test that regular updates that trigger PushProfilesList() work with
-  // multiple profiles.
-  ineligible_1->SetLocalProfileName(u"I1 Renamed", false);
-  VerifyProfileListWasPushed({eligible_1, ineligible_1});
-  web_ui()->ClearTrackedCalls();
-
-  // Profile becomes ineligible: removed from list.
-  ineligible_1->SetIsGlicEligible(false);
-  VerifyProfileWasRemoved(ineligible_1->GetPath());
-  web_ui()->ClearTrackedCalls();
-
-  // Trigger PushProfilesList() after removal to verify profiles_order_ remains
-  // consistent.
-  eligible_1->SetLocalProfileName(u"E1 Renamed Again", false);
-  VerifyProfileListWasPushed({eligible_1});
-  web_ui()->ClearTrackedCalls();
-
-  // Last profile becomes ineligible: removed from list.
-  eligible_1->SetIsGlicEligible(false);
-  VerifyProfileWasRemoved(eligible_1->GetPath());
-  web_ui()->ClearTrackedCalls();
-
-  // Trigger PushProfilesList() on empty list to verify no crash.
-  eligible_1->SetLocalProfileName(u"E1 Final", false);
-  VerifyProfileListWasPushed({});
-}
-
-TEST_F(ProfilePickerHandlerGlicVersionTest, ChangeAiSubscriptionTier) {
-  ProfileAttributesEntry* eligible_1 = CreateTestingProfile("E1");
-  eligible_1->SetIsGlicEligible(true);
-  ProfileAttributesEntry* ineligible_1 = CreateTestingProfile("I1");
-  ineligible_1->SetIsGlicEligible(false);
-
-  InitializeMainViewAndVerifyProfileList({eligible_1});
-  web_ui()->ClearTrackedCalls();
-
-  // Changing the AI subscription tier on an eligible profile pushes an update.
-  eligible_1->SetAiSubscriptionTier(1);
-  VerifyProfileListWasPushed({eligible_1});
-  web_ui()->ClearTrackedCalls();
-
-  // Changing the AI subscription tier on an ineligible profile does not add it
-  // to the Glic profile picker list, and does not crash.
-  ineligible_1->SetAiSubscriptionTier(1);
-  VerifyProfileListWasPushed({eligible_1});
   web_ui()->ClearTrackedCalls();
 }

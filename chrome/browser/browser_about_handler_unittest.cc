@@ -35,9 +35,6 @@
 #include "ui/base/page_transition_types.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/login/session/session_termination_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -94,9 +91,6 @@ class BrowserAboutHandlerTest : public testing::Test {
   // specifically for testing environments to prevent test failures.
   void ResetBrowserExitState() {
     browser_shutdown::SetTryingToQuit(false);
-#if BUILDFLAG(IS_CHROMEOS)
-    ash::SessionTerminationManager::SetSendStopRequestToSessionManager(false);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   void SetBlockList(base::ListValue blocklist) {
@@ -192,12 +186,7 @@ TEST_F(BrowserAboutHandlerTest,
   EXPECT_TRUE(HandleNonNavigationAboutURL(url, profile()));
   task_environment()->RunUntilIdle();
 
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_FALSE(browser_shutdown::IsTryingToQuit());
-#else
-  EXPECT_FALSE(
-      ash::SessionTerminationManager::IsSendingStopRequestToSessionManager());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 TEST_F(BrowserAboutHandlerTest,
@@ -209,12 +198,7 @@ TEST_F(BrowserAboutHandlerTest,
   EXPECT_TRUE(HandleNonNavigationAboutURL(url, profile()));
   task_environment()->RunUntilIdle();
 
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_TRUE(browser_shutdown::IsTryingToQuit());
-#else
-  EXPECT_TRUE(
-      ash::SessionTerminationManager::IsSendingStopRequestToSessionManager());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   ResetBrowserExitState();
 }
 
@@ -222,35 +206,27 @@ TEST_F(BrowserAboutHandlerTest,
        HandleNonNavigationAboutURL_RestartDebugUrlIsBlocked) {
   GURL url(chrome::kChromeUIRestartURL);
   SetBlockList(base::ListValue().Append(chrome::kChromeUIRestartURL));
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_FALSE(local_state()->GetBoolean(prefs::kWasRestarted));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Blocked URL should be handled and should not attempt to restart.
   EXPECT_TRUE(HandleNonNavigationAboutURL(url, profile()));
   task_environment()->RunUntilIdle();
 
   EXPECT_FALSE(browser_shutdown::IsTryingToQuit());
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_FALSE(local_state()->GetBoolean(prefs::kWasRestarted));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 TEST_F(BrowserAboutHandlerTest,
        HandleNonNavigationAboutURL_RestartDebugUrlIsNotBlocked) {
   GURL url(chrome::kChromeUIRestartURL);
   SetBlockList(base::ListValue());
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_FALSE(local_state()->GetBoolean(prefs::kWasRestarted));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // URL is not blocked, expect a restart attempt.
   EXPECT_TRUE(HandleNonNavigationAboutURL(url, profile()));
   task_environment()->RunUntilIdle();
 
   EXPECT_TRUE(browser_shutdown::IsTryingToQuit());
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(local_state()->GetBoolean(prefs::kWasRestarted));
-#endif  // !BUILDFLAG(IS_ANDROID)
   ResetBrowserExitState();
 }

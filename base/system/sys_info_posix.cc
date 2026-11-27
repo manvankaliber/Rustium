@@ -35,14 +35,9 @@
 #include "base/threading/scoped_blocking_call.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <sys/vfs.h>
-#define statvfs statfs  // Android uses a statvfs-like statfs struct and call.
-#else
 #include <sys/statvfs.h>
-#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <linux/magic.h>
 #include <sys/vfs.h>
 #endif
@@ -64,7 +59,7 @@ base::ByteSize AmountOfVirtualMemory() {
 using LazyVirtualMemory =
     base::internal::LazySysInfoValue<base::ByteSize, AmountOfVirtualMemory>;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 bool IsStatsZeroIfUnlimited(const base::FilePath& path) {
   struct statfs stats;
 
@@ -86,7 +81,7 @@ bool IsStatsZeroIfUnlimited(const base::FilePath& path) {
   }
   return false;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 void GetKernelVersionNumbers(int32_t* major_version,
                              int32_t* minor_version,
@@ -200,7 +195,7 @@ std::optional<SysInfo::DiskSpaceInfo> SysInfo::AmountOfDiskSpace(
     return std::nullopt;
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   const bool zero_size_means_unlimited =
       stats.f_blocks == 0 && IsStatsZeroIfUnlimited(path);
 #else
@@ -220,7 +215,7 @@ std::optional<SysInfo::DiskSpaceInfo> SysInfo::AmountOfDiskSpace(
       .available = ByteSize(static_cast<uint64_t>(available_bytes))};
 }
 
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_APPLE)
 // static
 std::string SysInfo::OperatingSystemName() {
   struct utsname info;
@@ -229,9 +224,9 @@ std::string SysInfo::OperatingSystemName() {
   }
   return std::string(info.sysname);
 }
-#endif  //! BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#endif
 
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_APPLE)
 // static
 std::string SysInfo::OperatingSystemVersion() {
   struct utsname info;
@@ -242,7 +237,7 @@ std::string SysInfo::OperatingSystemVersion() {
 }
 #endif
 
-#if !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_APPLE)
 // static
 void SysInfo::OperatingSystemVersionNumbers(int32_t* major_version,
                                             int32_t* minor_version,
@@ -263,7 +258,7 @@ std::ostream& operator<<(std::ostream& out,
   return out << v.major << "." << v.minor << "." << v.bugfix;
 }
 
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_MAC)
 // static
 std::string SysInfo::OperatingSystemArchitecture() {
   struct utsname info;
@@ -280,14 +275,14 @@ std::string SysInfo::OperatingSystemArchitecture() {
   }
   return arch;
 }
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_IOS)
+#endif
 
 // static
 size_t SysInfo::VMAllocationGranularity() {
   return GetPageSize();
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 
 namespace {
 std::vector<uint64_t> MaxFrequencyPerProcessorImpl() {
@@ -328,7 +323,7 @@ const std::vector<uint64_t>& SysInfo::MaxFrequencyPerProcessor() {
 #if !BUILDFLAG(IS_APPLE)
 // static
 int SysInfo::NumberOfEfficientProcessorsImpl() {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   // Try to guess the CPU architecture and cores of each cluster by comparing
   // the maximum frequencies of the available (online and offline) cores.
   const std::vector<uint64_t>& max_core_frequencies =

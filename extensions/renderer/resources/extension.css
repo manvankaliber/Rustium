@@ -168,7 +168,7 @@ textarea {
   min-height: 2em;
   padding: 3px;
   outline: none;
-<if expr="is_win or is_macosx or is_ios">
+<if expr="is_win or is_macosx">
   /* For better alignment between adjacent buttons and inputs. */
   padding-bottom: 4px;
 </if>

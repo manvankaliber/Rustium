@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "services/network/public/cpp/transferable_socket.h"
+
 #include "base/feature_list.h"
 #include "base/process/process_handle.h"
 #include "base/run_loop.h"
@@ -28,13 +30,9 @@
 #include "net/test/embedded_test_server/http_response.h"
 #include "sandbox/policy/features.h"
 #include "services/network/public/cpp/features.h"
-#include "services/network/public/cpp/transferable_socket.h"
 #include "services/network/public/mojom/network_service.mojom.h"
 #include "services/network/public/mojom/network_service_test.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 
 namespace content {
 namespace {
@@ -42,13 +40,13 @@ namespace {
 class TransferableSocketBrowserTest : public ContentBrowserTest {
  public:
   TransferableSocketBrowserTest() {
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
-      // Network Service Sandboxing is unconditionally enabled on these
-      // platforms.
-      scoped_feature_list_.InitAndEnableFeature(
-          sandbox::policy::features::kNetworkServiceSandbox);
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
-      ForceOutOfProcessNetworkService();
+#if !BUILDFLAG(IS_MAC)
+    // Network Service Sandboxing is unconditionally enabled on these
+    // platforms.
+    scoped_feature_list_.InitAndEnableFeature(
+        sandbox::policy::features::kNetworkServiceSandbox);
+#endif
+    ForceOutOfProcessNetworkService();
   }
 
   void SetUp() override {
@@ -56,12 +54,6 @@ class TransferableSocketBrowserTest : public ContentBrowserTest {
     if (!sandbox::policy::features::IsNetworkSandboxSupported()) {
       // On *some* Windows, sandboxing cannot be enabled. We skip all the tests
       // on such platforms.
-      GTEST_SKIP();
-    }
-#elif BUILDFLAG(IS_ANDROID)
-    if (base::android::android_info::sdk_int() <
-        base::android::android_info::SdkVersion::SDK_VERSION_R) {
-      // Android below R does not support transfer of sockets.
       GTEST_SKIP();
     }
 #endif

@@ -13,15 +13,10 @@
 #include "chrome/browser/profiles/profile_keyed_service_factory.h"
 #include "chrome/browser/profiles/profile_manager.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/profiles/profile_window.h"
 #include "components/signin/public/identity_manager/account_managed_status_finder.h"
 #include "testing/gtest/include/gtest/gtest.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/login/login_state/login_state.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace profiles::testing {
 
@@ -34,7 +29,6 @@ Profile& CreateProfileSync(ProfileManager* profile_manager,
   return *profile;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 void SwitchToProfileSync(const base::FilePath& path, bool always_create) {
   base::test::TestFuture<BrowserWindowInterface*> future;
@@ -52,7 +46,6 @@ ScopedNonEnterpriseDomainSetterForTesting::
   signin::AccountManagedStatusFinder::SetNonEnterpriseDomainForTesting(nullptr);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 ScopedProfileSelectionsForFactoryTesting::
     ScopedProfileSelectionsForFactoryTesting(
@@ -68,20 +61,9 @@ ScopedProfileSelectionsForFactoryTesting::
 }
 
 ScopedTestManagedGuestSession::ScopedTestManagedGuestSession() {
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::LoginState::Initialize();
-  ash::LoginState::Get()->SetLoggedInState(
-      ash::LoginState::LOGGED_IN_ACTIVE,
-      ash::LoginState::LOGGED_IN_USER_PUBLIC_ACCOUNT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 ScopedTestManagedGuestSession::~ScopedTestManagedGuestSession() {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (ash::LoginState::IsInitialized()) {
-    ash::LoginState::Shutdown();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 }  // namespace profiles::testing

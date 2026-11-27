@@ -28,9 +28,7 @@ namespace syncer {
 class SyncService;
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 class GoogleGroupsManager;
-#endif
 
 namespace autofill {
 
@@ -125,9 +123,7 @@ bool MayPerformAutofillAiAction(
     std::string* debug_message = nullptr);
 
 bool MayPerformAutofillAiAction(
-#if !BUILDFLAG(IS_FUCHSIA)
     const GoogleGroupsManager* google_groups_manager,
-#endif
     const PrefService* prefs,
     const EntityDataManager* edm,
     const signin::IdentityManager* identity_manager,
@@ -156,8 +152,8 @@ bool MayPerformAutofillAiAction(
     const PrefService* prefs,
     const signin::IdentityManager* identity_manager);
 
-// Same as above but doesn't consider the Private API experiment. Used to determine
-// whether the user is opted-in regardless of the experiment status.
+// Same as above but doesn't consider the Private API experiment. Used to
+// determine whether the user is opted-in regardless of the experiment status.
 [[nodiscard]] bool GetObsoleteAutofillAiOptInStatus(
     const PrefService* prefs,
     const signin::IdentityManager* identity_manager);
@@ -173,20 +169,17 @@ bool MayPerformAutofillAiAction(
 // (Enhanced Autofill) are.
 bool SetAutofillAiOptInStatus(AutofillClient& client,
                               AutofillAiOptInStatus opt_in_status);
-bool SetAutofillAiOptInStatus(
-#if !BUILDFLAG(IS_FUCHSIA)
-    const GoogleGroupsManager* google_groups_manager,
-#endif
-    PrefService* prefs,
-    const EntityDataManager* edm,
-    const signin::IdentityManager* identity_manager,
-    const syncer::SyncService* sync_service,
-    bool is_wallet_public_pass_storage_enabled,
-    bool is_off_the_record,
-    const GeoIpCountryCode& country_code,
-    personal_context::PersonalContextEligibilityState
-        personal_context_eligibility_state,
-    AutofillAiOptInStatus opt_in_status);
+bool SetAutofillAiOptInStatus(const GoogleGroupsManager* google_groups_manager,
+                              PrefService* prefs,
+                              const EntityDataManager* edm,
+                              const signin::IdentityManager* identity_manager,
+                              const syncer::SyncService* sync_service,
+                              bool is_wallet_public_pass_storage_enabled,
+                              bool is_off_the_record,
+                              const GeoIpCountryCode& country_code,
+                              personal_context::PersonalContextEligibilityState
+                                  personal_context_eligibility_state,
+                              AutofillAiOptInStatus opt_in_status);
 
 // Returns true if `entity_type` is blocked by enterprise policy on `url`.
 bool IsAutofillAiEntityTypeBlockedByPolicy(const AutofillClient& client,

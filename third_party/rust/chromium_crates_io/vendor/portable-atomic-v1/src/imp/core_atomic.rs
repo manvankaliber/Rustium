@@ -50,12 +50,7 @@ impl<T> AtomicPtr<T> {
         }
     }
 }
-#[cfg(not(all(
-    target_arch = "arm",
-    not(any(miri, portable_atomic_sanitize_thread)),
-    any(target_os = "linux", target_os = "android"),
-    not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
-)))]
+#[cfg(not(all(target_arch = "arm", not(any(miri, portable_atomic_sanitize_thread)), target_os = "linux", not(any(target_feature = "v6", portable_atomic_target_feature = "v6")))))]
 impl<T> AtomicPtr<T> {
     #[inline]
     #[cfg_attr(
@@ -79,12 +74,7 @@ impl<T> AtomicPtr<T> {
 #[cfg_attr(portable_atomic_no_cfg_target_has_atomic, cfg(not(portable_atomic_no_atomic_cas)))]
 #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
 items!({
-    #[cfg(not(all(
-        target_arch = "arm",
-        not(any(miri, portable_atomic_sanitize_thread)),
-        any(target_os = "linux", target_os = "android"),
-        not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
-    )))]
+    #[cfg(not(all(target_arch = "arm", not(any(miri, portable_atomic_sanitize_thread)), target_os = "linux", not(any(target_feature = "v6", portable_atomic_target_feature = "v6")))))]
     impl<T> AtomicPtr<T> {
         #[inline]
         #[cfg_attr(
@@ -296,12 +286,7 @@ macro_rules! atomic_int {
                 }
             }
         }
-        #[cfg(not(all(
-            target_arch = "arm",
-            not(any(miri, portable_atomic_sanitize_thread)),
-            any(target_os = "linux", target_os = "android"),
-            not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
-        )))]
+        #[cfg(not(all(target_arch = "arm", not(any(miri, portable_atomic_sanitize_thread)), target_os = "linux", not(any(target_feature = "v6", portable_atomic_target_feature = "v6")))))]
         impl $atomic_type {
             #[inline]
             #[cfg_attr(
@@ -329,12 +314,7 @@ macro_rules! atomic_int {
         #[cfg_attr(not(portable_atomic_no_cfg_target_has_atomic), cfg(target_has_atomic = "ptr"))]
         items!({
             impl_default_no_fetch_ops!($atomic_type, $int_type);
-            #[cfg(not(all(
-                target_arch = "arm",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                any(target_os = "linux", target_os = "android"),
-                not(any(target_feature = "v6", portable_atomic_target_feature = "v6")),
-            )))]
+            #[cfg(not(all(target_arch = "arm", not(any(miri, portable_atomic_sanitize_thread)), target_os = "linux", not(any(target_feature = "v6", portable_atomic_target_feature = "v6")))))]
             impl $atomic_type {
                 #[inline]
                 #[cfg_attr(

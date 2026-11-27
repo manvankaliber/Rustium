@@ -26,7 +26,7 @@ ClientSharedImageInterface::ClientSharedImageInterface(
     : gpu_channel_(std::move(channel)),
       proxy_(proxy),
       shared_memory_pool_(
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
           base::MakeRefCounted<base::UnsafeSharedMemoryPool>()
 #else
           nullptr
@@ -54,19 +54,6 @@ void ClientSharedImageInterface::UpdateSharedImage(
     const Mailbox& mailbox) {
   proxy_->UpdateSharedImage(sync_token, std::move(acquire_fence), mailbox);
 }
-
-#if BUILDFLAG(IS_FUCHSIA)
-void ClientSharedImageInterface::RegisterSysmemBufferCollection(
-    zx::eventpair service_handle,
-    zx::channel sysmem_token,
-    const viz::SharedImageFormat& format,
-    gfx::BufferUsage usage,
-    bool register_with_image_pipe) {
-  proxy_->RegisterSysmemBufferCollection(std::move(service_handle),
-                                         std::move(sysmem_token), format, usage,
-                                         register_with_image_pipe);
-}
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 SyncToken ClientSharedImageInterface::GenUnverifiedSyncToken() {
   return proxy_->GenUnverifiedSyncToken();
@@ -168,7 +155,7 @@ scoped_refptr<ClientSharedImage> ClientSharedImageInterface::CreateSharedImage(
   CHECK(!si_info.format.PrefersExternalSampler()) << si_info.format.ToString();
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   // Only valid client from renderer on ChromeOS and Linux is VideoCapture, that
   // uses SCANOUT_VEA_CPU_READ.
   if (gpu_channel_->client_type() == viz::mojom::GpuClientType::kRenderer) {
@@ -199,12 +186,10 @@ scoped_refptr<ClientSharedImage> ClientSharedImageInterface::CreateSharedImage(
   CHECK(!si_info.format.PrefersExternalSampler()) << si_info.format.ToString();
 #endif
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // This path of creating SI with buffer_handle inside renderer is used only on
   // Fuchsia for video decoder.
   CHECK_NE(gpu_channel_->client_type(), viz::mojom::GpuClientType::kRenderer,
            base::NotFatalUntil::M158);
-#endif
 
   auto buffer_handle_type = buffer_handle.type;
   auto mailbox = proxy_->CreateSharedImage(si_info, std::move(buffer_handle));
@@ -272,22 +257,19 @@ void ClientSharedImageInterface::UpdateSharedImage(
 }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 void ClientSharedImageInterface::CopyNativeGmbToSharedMemoryAsync(
     gfx::GpuMemoryBufferHandle buffer_handle,
     base::UnsafeSharedMemoryRegion memory_region,
     base::OnceCallback<void(bool)> callback) {
 #if BUILDFLAG(IS_WIN)
   CHECK_EQ(buffer_handle.type, gfx::GpuMemoryBufferType::DXGI_SHARED_HANDLE);
-#elif BUILDFLAG(IS_ANDROID)
-  CHECK_EQ(buffer_handle.type,
-           gfx::GpuMemoryBufferType::ANDROID_HARDWARE_BUFFER);
 #endif
   CHECK(memory_region.IsValid());
   proxy_->CopyNativeGmbToSharedMemoryAsync(
       std::move(buffer_handle), std::move(memory_region), std::move(callback));
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
 void ClientSharedImageInterface::DestroySharedImage(
     std::vector<SyncToken> sync_tokens,
@@ -341,8 +323,9 @@ scoped_refptr<ClientSharedImage> ClientSharedImageInterface::NotifyMailboxAdded(
 }
 
 Mailbox ClientSharedImageInterface::AddMailbox(const gpu::Mailbox& mailbox) {
-  if (mailbox.IsZero())
+  if (mailbox.IsZero()) {
     return mailbox;
+  }
 
   base::AutoLock lock(lock_);
   CHECK_GE(mailboxes_[mailbox], 0);

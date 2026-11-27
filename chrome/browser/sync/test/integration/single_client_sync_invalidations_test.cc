@@ -523,7 +523,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientSyncInvalidationsTest,
 }
 
 // PRE_* tests aren't supported on Android browser tests.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(SingleClientSyncInvalidationsTest,
                        PRE_ShouldNotSendAdditionalGetUpdates) {
   ASSERT_TRUE(SetupSync());
@@ -677,7 +676,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientSyncInvalidationsTest,
       {syncer::DEVICE_INFO});
   EXPECT_TRUE(NotificationHintChecker(syncer::DEVICE_INFO).Wait());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(SingleClientSyncInvalidationsTest,
                        EnableAndDisableADataType) {
@@ -715,14 +713,9 @@ IN_PROC_BROWSER_TEST_P(SingleClientSyncInvalidationsTest,
 }
 
 // ChromeOS doesn't have the concept of sign-out.
-#if !BUILDFLAG(IS_CHROMEOS)
 
 // TODO(crbug.com/40833316): Enable test on Android once signout is supported.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SignoutAndSignin DISABLED_SignoutAndSignin
-#else
 #define MAYBE_SignoutAndSignin SignoutAndSignin
-#endif
 IN_PROC_BROWSER_TEST_P(SingleClientSyncInvalidationsTest,
                        MAYBE_SignoutAndSignin) {
   ASSERT_TRUE(SetupSync());
@@ -759,7 +752,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientSyncInvalidationsTest,
       ServerDeviceInfoMatchChecker(Contains(HasInstanceIdToken(new_token)))
           .Wait());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(SingleClientSyncInvalidationsTest,
                        RecordTransitLatencyHistograms) {

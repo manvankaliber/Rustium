@@ -139,11 +139,7 @@ void DistilledPagePrefs::SetDefaultFontScaling(float scaling) {
   // Default zoom level pref is outside of the distilled page prefs font
   // scaling range, so set it to the closest boundary.
   default_font_scaling_ = scaling;
-#if BUILDFLAG(IS_ANDROID)
-  ClampDefaultFontScaling();
-#else
   default_font_scaling_ = std::clamp(scaling, kMinFontScale, kMaxFontScale);
-#endif
   base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
       FROM_HERE, base::BindOnce(&DistilledPagePrefs::NotifyOnChangeFontScaling,
                                 weak_ptr_factory_.GetWeakPtr()));
@@ -154,12 +150,7 @@ float DistilledPagePrefs::GetFontScaling() {
   if (pref_service_->FindPreference(prefs::kFontScale)->HasUserSetting()) {
     scaling = pref_service_->GetDouble(prefs::kFontScale);
   } else {
-#if BUILDFLAG(IS_ANDROID)
-    ClampDefaultFontScaling();
-    scaling = default_font_scaling_;
-#else
     scaling = kDefaultFontScale;
-#endif
   }
   if (scaling < kMinFontScale || scaling > kMaxFontScale) {
     // Persisted data was incorrect, trying to clean it up by storing the
@@ -186,12 +177,6 @@ void DistilledPagePrefs::RemoveObserver(Observer* obs) {
   observers_.RemoveObserver(obs);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void DistilledPagePrefs::ClampDefaultFontScaling() {
-  default_font_scaling_ = std::clamp(
-      default_font_scaling_, kMinFontScaleAndroid, kMaxFontScaleAndroid);
-}
-#endif
 
 void DistilledPagePrefs::NotifyOnChangeFontFamily() {
   mojom::FontFamily new_font_family = GetFontFamily();

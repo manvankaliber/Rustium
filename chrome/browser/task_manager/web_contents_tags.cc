@@ -23,9 +23,7 @@
 #include "extensions/buildflags/buildflags.h"
 #include "printing/buildflags/buildflags.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/task_manager/providers/web_contents/background_contents_tag.h"
-#endif
 
 #if BUILDFLAG(ENABLE_GUEST_VIEW)
 #include "chrome/browser/task_manager/providers/web_contents/guest_tag.h"
@@ -79,7 +77,6 @@ bool IsExtensionWebContents(content::WebContents* contents) {
 
 }  // namespace
 
-#if !BUILDFLAG(IS_ANDROID)
 // static
 void WebContentsTags::CreateForBackgroundContents(
     content::WebContents* web_contents,
@@ -91,7 +88,6 @@ void WebContentsTags::CreateForBackgroundContents(
                    WebContentsTag::kTagKey);
   }
 }
-#endif
 
 // static
 void WebContentsTags::CreateForDevToolsContents(

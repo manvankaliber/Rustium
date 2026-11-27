@@ -46,13 +46,7 @@
 #include "third_party/perfetto/include/perfetto/tracing/track.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/renderer_host/navigation_transitions/navigation_transition_config.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "storage/browser/file_system/external_mount_points.h"
-#endif
 
 namespace content {
 
@@ -345,14 +339,7 @@ storage::ExternalMountPoints* BrowserContextImpl::GetMountPoints() {
             !BrowserThread::IsThreadInitialized(BrowserThread::UI),
         base::NotFatalUntil::M159);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!external_mount_points_) {
-    external_mount_points_ = storage::ExternalMountPoints::CreateRefCounted();
-  }
-  return external_mount_points_.get();
-#else
   return nullptr;
-#endif
 }
 
 PrefetchService* BrowserContextImpl::GetPrefetchService() {
@@ -381,18 +368,6 @@ void BrowserContextImpl::SetPrefetchServiceForTesting(
   prefetch_service_ = std::move(prefetch_service);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-NavigationEntryScreenshotManager*
-BrowserContextImpl::GetNavigationEntryScreenshotManager() {
-  if (!nav_entry_screenshot_manager_ &&
-      BackForwardTransitionAnimationManager::
-          ShouldAnimateBackForwardTransitions()) {
-    nav_entry_screenshot_manager_ =
-        std::make_unique<NavigationEntryScreenshotManager>();
-  }
-  return nav_entry_screenshot_manager_.get();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void BrowserContextImpl::WriteIntoTrace(
     perfetto::TracedProto<TraceProto> proto) const {

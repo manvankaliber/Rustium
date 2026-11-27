@@ -54,7 +54,6 @@ enum class ContextualSearchSource;
 }  // namespace contextual_search
 
 namespace lens {
-class LensMediaLinkHandler;
 }  // namespace lens
 
 namespace signin {
@@ -98,7 +97,6 @@ class ContextualTasksUiService : public KeyedService {
    public:
     virtual void OnContextualTasksUiServiceShutdown(
         ContextualTasksUiService* service) {}
-    virtual void OnLensOverlayStateChanged(bool is_showing) {}
   };
 
   ContextualTasksUiService(
@@ -385,10 +383,6 @@ class ContextualTasksUiService : public KeyedService {
 
   // Called when the Lens overlay is shown/hidden. No-op if the active UI is not
   // in the side panel since the Lens button is always hidden in a tab.
-  virtual void OnLensOverlayStateChanged(
-      BrowserWindowInterface* browser_window_interface,
-      bool is_showing,
-      std::optional<lens::LensOverlayInvocationSource> invocation_source);
 
   // Associates a WebContents with a task, assuming the URL of the WebContents'
   // main frame or side panel is a contextual task URL.
@@ -454,12 +448,8 @@ class ContextualTasksUiService : public KeyedService {
       BrowserWindowInterface* browser_window_interface);
 
   // Invokes the platform's native voice recognition system.
-  virtual void StartPlatformVoiceRecognition(
-      BrowserWindowInterface* browser,
-      content::WebContents* requesting_contents);
 
   // Called when the platform voice recognition completes with a result.
-  virtual void OnVoiceTranscribed(const std::string& query);
 
   // Returns whether the provided URL is for the primary account in Chrome.
   virtual bool IsUrlForPrimaryAccount(const GURL& url);
@@ -650,13 +640,6 @@ class ContextualTasksUiService : public KeyedService {
       base::WeakPtr<content::WebContents> source_contents,
       tabs::TabInterface* target_tab);
 
-  // Creates a LensMediaLinkHandler for the given WebContents.
-  // Virtual to allow overriding in tests to mock the handler.
-#if !BUILDFLAG(IS_ANDROID)
-  virtual std::unique_ptr<lens::LensMediaLinkHandler> CreateMediaLinkHandler(
-      content::WebContents* web_contents);
-#endif
-
   // Handles PDF citation links by scrolling to page if applicable.
   // Returns true if handled.
   // Virtual to allow overriding in tests.
@@ -738,13 +721,11 @@ class ContextualTasksUiService : public KeyedService {
                                        const base::Uuid& task_id,
                                        BrowserWindowInterface* browser);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Called when back button expands side panel.
   // TODO(crbug.com/533072235): Deprecated. This method is being deprecated and
   // should not be used. It is only used by the legacy HandleNavigationImpl
   // which will be cleaned up (see comment there).
   void OnBackButtonExpandsSidePanel(base::WeakPtr<tabs::TabInterface> weak_tab);
-#endif
 
   // A callback for checking whether text fragments from a URL are on a page.
   void OnTextFinderLookupComplete(
@@ -767,7 +748,6 @@ class ContextualTasksUiService : public KeyedService {
   void AssociateSessionTabsToTask(
       const contextual_search::ContextualSearchSessionHandle* session_handle,
       const base::Uuid& task_id);
-
 
   // Sets the initial thread URL for a given task and runs any pending
   // callbacks.
@@ -879,8 +859,6 @@ class ContextualTasksUiService : public KeyedService {
 
   // The WebContents that initiated the platform voice recognition. Used to
   // safely inject the transcribed query back into the correct WebUI panel.
-  base::WeakPtr<content::WebContents>
-      web_contents_for_outstanding_voice_request_;
 
   base::WeakPtrFactory<ContextualTasksUiService> weak_ptr_factory_{this};
 };

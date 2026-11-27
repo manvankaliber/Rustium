@@ -72,11 +72,7 @@ using ValuableDatabaseOperationResult =
 static const int kAutofillValuableSyncBridgeUserDataKey = 0;
 
 constexpr bool IsLoyaltyCardSyncEnabled() {
-#if BUILDFLAG(IS_IOS)
-  return false;
-#else
   return true;
-#endif
 }
 
 // Tests if the valuable `specifics` are valid and can be converted into an

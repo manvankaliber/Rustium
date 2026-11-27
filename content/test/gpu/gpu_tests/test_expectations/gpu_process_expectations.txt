@@ -154,7 +154,6 @@ crbug.com/1084794 [ chromeos ] GpuProcess_swiftshader_for_webgl [ Skip ]
 crbug.com/1084794 [ chromeos ] GpuProcess_no_swiftshader_for_webgl_without_flags [ Skip ]
 
 # Seems to kill the system UI/otherwise make the device unusable.
-crbug.com/1294065 [ android android-shield-android-tv ] GpuProcess_visibility [ Skip ]
 
 # SwiftShader is disabled on Mac M1 by default
 crbug.com/1378476 [ mac arch-arm64 ] GpuProcess_no_swiftshader_for_webgl_without_flags [ Skip ]
@@ -163,7 +162,6 @@ crbug.com/1378476 [ mac arch-arm64 ] GpuProcess_no_swiftshader_for_webgl_without
 crbug.com/504644655 [ chromeos ] GpuProcess_vulkan_vma_race [ Skip ]
 
 # Times out, or causes next test to time out when it passes.
-crbug.com/558993697 [ android android-pixel-11-pro-xl ] GpuProcess_visibility [ Skip ]
 
 ###################
 # Failures/Flakes #
@@ -171,7 +169,6 @@ crbug.com/558993697 [ android android-pixel-11-pro-xl ] GpuProcess_visibility [ 
 # Non-"Skip" expectations go here to suppress regular flakes/failures.
 
 # Samsung flake that seems to signal visibility too many times
-crbug.com/380269801 [ android android-brya ] GpuProcess_visibility [ Failure ]
 
 
 #######################################################################

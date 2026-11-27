@@ -37,9 +37,7 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "third_party/protobuf/src/google/protobuf/io/zero_copy_stream_impl_lite.h"
-#endif
 
 namespace {
 
@@ -53,7 +51,6 @@ using testing::ElementsAre;
 using testing::IsEmpty;
 using testing::UnorderedElementsAre;
 
-#if !BUILDFLAG(IS_ANDROID)
 std::string CreateSerializedProtoField(int field_number,
                                        const std::string& value) {
   std::string result;
@@ -74,9 +71,7 @@ MATCHER_P2(HasContactInfoWithGuidAndUnknownFields, guid, unknown_fields, "") {
   return arg.specifics().contact_info().guid() == guid &&
          arg.specifics().contact_info().unknown_fields() == unknown_fields;
 }
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Matches a sync::entity_data has a contact info field with `address`.
 MATCHER_P(HasContactInfoWithAddress, address, "") {
   return base::UTF8ToUTF16(
@@ -89,7 +84,6 @@ MATCHER_P(HasContactInfoWithAddress, address, "") {
 MATCHER_P(HasContactInfoWithFirstName, first_name, "") {
   return arg->GetRawInfo(autofill::FieldType::NAME_FIRST) == first_name;
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Checker to wait until the CONTACT_INFO datatype becomes (in)active, depending
 // on `expect_active`.
@@ -266,7 +260,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest, FinalizeAfterImport) {
 }
 
 // ChromeOS does not support signing out of a primary account.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest, ClearOnSignout) {
   const AutofillProfile kProfile = BuildTestAccountProfile();
   AddSpecificsToServer(AsContactInfoSpecifics(kProfile), GetFakeServer());
@@ -280,7 +273,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest, ClearOnSignout) {
                   &GetPersonalDataManager()->address_data_manager(), IsEmpty())
                   .Wait());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Specialized fixture to test the behavior for custom passphrase users with and
 // without kSyncEnableContactInfoDataTypeForCustomPassphraseUsers enabled.
@@ -290,11 +282,6 @@ class SingleClientContactInfoPassphraseSyncTest
           std::tuple<SyncTest::SetupSyncMode, bool>> {
  public:
   SingleClientContactInfoPassphraseSyncTest() {
-#if BUILDFLAG(IS_CHROMEOS)
-    passphrase_feature_.InitWithFeatureState(
-        syncer::kSyncEnableContactInfoDataTypeForCustomPassphraseUsers,
-        EnabledForPassphraseUsersTestParam());
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   SyncTest::SetupSyncMode GetSetupSyncMode() const override {
@@ -306,20 +293,13 @@ class SingleClientContactInfoPassphraseSyncTest
   }
 
  private:
-#if BUILDFLAG(IS_CHROMEOS)
-  base::test::ScopedFeatureList passphrase_feature_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 };
 
 INSTANTIATE_TEST_SUITE_P(
     ,
     SingleClientContactInfoPassphraseSyncTest,
     testing::Combine(GetSyncTestModes(),
-#if BUILDFLAG(IS_CHROMEOS)
-                     testing::Bool()
-#else
                      testing::Values(true)
-#endif
                          ),
     [](const testing::TestParamInfo<std::tuple<SyncTest::SetupSyncMode, bool>>&
            info) {
@@ -329,11 +309,7 @@ INSTANTIATE_TEST_SUITE_P(
     });
 
 // TODO(crbug.com/336993637): Flaky on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_Passphrase DISABLED_Passphrase
-#else
 #define MAYBE_Passphrase Passphrase
-#endif
 IN_PROC_BROWSER_TEST_P(SingleClientContactInfoPassphraseSyncTest,
                        MAYBE_Passphrase) {
   ASSERT_TRUE(SetupSyncAndHideAccountNameEmailProfile());
@@ -460,7 +436,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest, AuthErrorState) {
 }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest,
                        PreservesUnsupportedFieldsDataOnCommits) {
   // Create an unsupported field with an unused tag.
@@ -508,7 +483,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest,
                   HasContactInfoWithGuidAndUnknownFields(profile2.guid(), "")));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest,
                        ShouldReturnLocalDataDescriptions) {
   ASSERT_TRUE(SetupClients());
@@ -654,7 +628,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest,
       ElementsAre(HasContactInfoWithFirstName(
           profile1.GetRawInfo(autofill::FieldType::NAME_FIRST))));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest,
                        DisabledForManagedAccounts) {
@@ -664,6 +637,5 @@ IN_PROC_BROWSER_TEST_P(SingleClientContactInfoSyncTest,
   EXPECT_FALSE(
       GetSyncService(0)->GetActiveDataTypes().Has(syncer::CONTACT_INFO));
 }
-#endif
 
 }  // namespace

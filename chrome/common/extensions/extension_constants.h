@@ -15,9 +15,6 @@
 #include "chrome/common/buildflags.h"
 #include "extensions/common/constants.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_extension_constants.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace extension_urls {
 
@@ -55,27 +52,12 @@ inline constexpr char kKeyboardExtensionId[] =
     "mppnpdlheglhdfmldimlhpnegondlapf";
 
 // The extension id of the Gemini transition extension.
-inline constexpr char kGlicExtensionId[] = "admccjkmockfdflocgggjfgdacdodkdf";
 
 // The public key of the Gemini transition extension.
-inline constexpr char kGlicPublicKey[] =
-    "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDZI0bgiASzP89xOCIcg2Ej0S4/"
-    "2Xoi8htu1qh4M1o4V0Q8GiqJ2nU2xJ9dJYxpMQff9OtNJ3giNman1xodSImQEWtm+"
-    "YVUWJKu8V5ZyGWRJTtyo0tQiyNOx/kf3/"
-    "f43CtsAKtsbFqJy9i9ux7JmF+KoORP1fjBJs0zpOGXWHbqIQIDAQAB";
 
 // The extension id of the Gemini testing extension.
-inline constexpr char kGlicTestExtensionId[] =
-    "oljbkhokcbpaencibijkoolhipplkeoc";
 
 // The public key of the Gemini testing extension.
-inline constexpr char kGlicTestPublicKey[] =
-    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmXEAMP+pPV/eGfsrDMku2ftK"
-    "AbJ0JV4ao9jhq1+b36wHEDYShjUVdQjHw6ygAv35v8F8vu8xEKqqY/vguTD8u/Xz3g0l"
-    "hytN9xCR/YUaJxLGbf8Vfz39LcQxg56pHddCTDOJqUOAw3Wuq1v5TYFpuHlC3XNBL8qj"
-    "WsrwVbdrOsyIum9PBNyzKX2hxpYSWIf12TRixU+ZJoEhEnh8CWodZJ2tGbptMNl03hPp"
-    "GydJeTv/Tug4U6dhOIEdWzkLhaX3znm+Nn+jj0lxvcnbN79H43e79ASt1P0IRWsVI79M"
-    "Avt1oyQsAvfVp6L/qCxejjzZDD/Ps0HarahFk7LLLHBcRwIDAQAB";
 
 // The buckets used for app launches.
 enum AppLaunchBucket {
@@ -208,23 +190,6 @@ inline constexpr auto kBuiltInFirstPartyExtensionIds =
         kGoogleSheetsAppId,
         kGoogleSlidesAppId,
         kInAppPaymentsSupportAppId,
-#if BUILDFLAG(IS_CHROMEOS)
-        kAssessmentAssistantExtensionId,
-        kAccessibilityCommonExtensionId,
-        kCalendarAppId,
-        kSelectToSpeakExtensionId,
-        kSwitchAccessExtensionId,
-        kFilesManagerAppId,
-        kFirstRunDialogId,
-        kEspeakSpeechSynthesisExtensionId,
-        kGooglePhotosAppId,
-        kGooglePlayBooksAppId,
-        kGooglePlayMoviesAppId,
-        kGooglePlayMusicAppId,
-        kGooglePlusAppId,
-        kGoogleSpeechSynthesisExtensionId,
-        kTextEditorAppId,
-#endif  // BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
         kTTSEngineExtensionId,
         kComponentUpdaterTTSEngineExtensionId,

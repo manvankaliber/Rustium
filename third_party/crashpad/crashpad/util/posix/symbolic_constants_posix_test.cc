@@ -52,7 +52,7 @@ constexpr struct {
     {SIGWINCH, "SIGWINCH", "WINCH"}, {SIGXCPU, "SIGXCPU", "XCPU"},
 #if BUILDFLAG(IS_APPLE)
     {SIGEMT, "SIGEMT", "EMT"},       {SIGINFO, "SIGINFO", "INFO"},
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
     {SIGPWR, "SIGPWR", "PWR"},
 #if !defined(ARCH_CPU_MIPS_FAMILY)
     {SIGSTKFLT, "SIGSTKFLT", "STKFLT"},
@@ -109,7 +109,7 @@ TEST(SymbolicConstantsPOSIX, SignalToString) {
                        kSignalTestData[index].short_name);
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   // NSIG is 64 to account for real-time signals.
   constexpr int kSignalCount = 32;
 #else

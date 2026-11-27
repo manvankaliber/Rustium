@@ -31,9 +31,6 @@ constexpr std::string_view kEntitledFeatures[] = {
     "direct-sockets", "direct-sockets-multicast",
     "sub-apps",       "usb-unrestricted",
     "web-printing",   "controlled-frame",
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    "smart-card",
-#endif
 };
 
 constexpr PermissionsPolicyFeature kEntitledPermissions[] = {
@@ -43,9 +40,6 @@ constexpr PermissionsPolicyFeature kEntitledPermissions[] = {
     PermissionsPolicyFeature::kUsbUnrestricted,
     PermissionsPolicyFeature::kWebPrinting,
     PermissionsPolicyFeature::kControlledFrame,
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    PermissionsPolicyFeature::kSmartCard,
-#endif
 };
 
 constexpr IwaEntitlement kEntitlements[] = {
@@ -55,9 +49,6 @@ constexpr IwaEntitlement kEntitlements[] = {
     IwaEntitlementProto::UNRESTRICTED_WEBUSB,
     IwaEntitlementProto::WEB_PRINTING,
     IwaEntitlementProto::CONTROLLED_FRAME,
-#if BUILDFLAG(ENABLE_SMART_CARD)
-    IwaEntitlementProto::SMART_CARD,
-#endif
 };
 
 }  // namespace
@@ -70,9 +61,6 @@ class IsolatedWebAppEntitlementsBrowserTest
         {
             blink::features::kSubApps,
             blink::features::kWebPrinting,
-#if BUILDFLAG(ENABLE_SMART_CARD)
-            blink::features::kSmartCard,
-#endif
         },
         {});
   }

@@ -17,10 +17,6 @@
 #include "ui/platform_window/platform_window.h"
 #include "ui/platform_window/platform_window_init_properties.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "ui/platform_window/fuchsia/initialize_presenter_api_view.h"
-#endif
-
 namespace ui {
 
 DemoWindow::DemoWindow(WindowManager* window_manager,
@@ -65,8 +61,9 @@ void DemoWindow::OnCursorUpdate() {}
 void DemoWindow::OnDamageRect(const gfx::Rect& damaged_region) {}
 
 void DemoWindow::DispatchEvent(Event* event) {
-  if (event->IsKeyEvent() && event->AsKeyEvent()->code() == DomCode::US_Q)
+  if (event->IsKeyEvent() && event->AsKeyEvent()->code() == DomCode::US_Q) {
     Quit();
+  }
 }
 
 void DemoWindow::OnCloseRequest() {
@@ -92,12 +89,14 @@ void DemoWindow::OnAcceleratedWidgetDestroyed() {
 void DemoWindow::OnActivationChanged(bool active) {}
 
 void DemoWindow::StartRendererIfNecessary() {
-  if (renderer_ || GetSize().IsEmpty())
+  if (renderer_ || GetSize().IsEmpty()) {
     return;
+  }
   renderer_ =
       renderer_factory_->CreateRenderer(GetAcceleratedWidget(), GetSize());
-  if (!renderer_->Initialize())
+  if (!renderer_->Initialize()) {
     LOG(ERROR) << "Failed to initialize renderer.";
+  }
 }
 
 }  // namespace ui

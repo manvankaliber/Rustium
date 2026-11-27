@@ -236,7 +236,6 @@ export enum ChromeSigninAccessPoint {
 // LINT.ThenChange(/chrome/browser/ui/webui/settings/people_handler.cc:ChromeSigninAccessPoint)
 
 export interface SyncBrowserProxy {
-  // <if expr="not is_chromeos">
   /**
    * Starts the signin process for the user. Does nothing if the user is
    * already signed in.
@@ -255,7 +254,6 @@ export interface SyncBrowserProxy {
 
   recordSigninPendingOffered(): void;
   recordSigninOffered(accessPoint: ChromeSigninAccessPoint): void;
-  // </if>
 
   /**
    * Sets a single type of data to sync.
@@ -269,23 +267,6 @@ export interface SyncBrowserProxy {
    */
   didNavigateToAccountSettingsPage(): void;
 
-  // <if expr="is_chromeos">
-  /**
-   * Signs the user out.
-   */
-  attemptUserExit(): void;
-
-  /**
-   * Turns on sync for the currently logged in user. Chrome OS users are
-   * always signed in to Chrome.
-   */
-  turnOnSync(): void;
-
-  /**
-   * Turns off sync. Does not sign out of Chrome.
-   */
-  turnOffSync(): void;
-  // </if>
 
   /**
    * Starts the key retrieval process.
@@ -388,7 +369,6 @@ export interface SyncBrowserProxy {
 }
 
 export class SyncBrowserProxyImpl implements SyncBrowserProxy {
-  // <if expr="not is_chromeos">
   startSignIn(accessPoint: ChromeSigninAccessPoint) {
     chrome.send('SyncSetupStartSignIn', [accessPoint]);
   }
@@ -408,7 +388,6 @@ export class SyncBrowserProxyImpl implements SyncBrowserProxy {
   recordSigninOffered(accessPoint: ChromeSigninAccessPoint) {
     chrome.send('RecordSigninOffered', [accessPoint]);
   }
-  // </if>
 
   setSyncDatatype(pref: UserSelectableType, value: boolean) {
     return sendWithPromise<PageStatus>('SetDatatype', pref, value);
@@ -418,19 +397,6 @@ export class SyncBrowserProxyImpl implements SyncBrowserProxy {
     chrome.send('ShowAccountSettingsUI');
   }
 
-  // <if expr="is_chromeos">
-  attemptUserExit() {
-    chrome.send('AttemptUserExit');
-  }
-
-  turnOnSync() {
-    chrome.send('TurnOnSync');
-  }
-
-  turnOffSync() {
-    chrome.send('TurnOffSync');
-  }
-  // </if>
 
   startKeyRetrieval() {
     chrome.send('SyncStartKeyRetrieval');

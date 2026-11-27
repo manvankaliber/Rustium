@@ -64,10 +64,5 @@ TEST_F(WebUIToolbarUIConfigTest, IsWebUIEnabled) {
   }
 }
 
-TEST(WebUIToolbarUITest, KnownElementIdentifiersIncludeGlicSplitElements) {
-  const auto known_ids = WebUIToolbarUI::GetKnownElementIdentifiers();
-  EXPECT_TRUE(std::ranges::contains(known_ids, kGlicButtonElementId));
-  EXPECT_TRUE(std::ranges::contains(known_ids, kGlicActorTaskIconElementId));
-}
 
 }  // namespace

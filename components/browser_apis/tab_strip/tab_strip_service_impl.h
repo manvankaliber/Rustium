@@ -19,9 +19,7 @@
 #include "mojo/public/cpp/bindings/remote_set.h"
 #include "ui/gfx/geometry/point.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/browser_apis/tab_strip/tab_strip_experiment_api.mojom.h"
-#endif
 
 namespace tabs_api {
 
@@ -49,11 +47,9 @@ class TabStripServiceImpl
   TabStripService::GetTabsResult GetTabsWithoutObservation() override;
   void Accept(
       mojo::PendingReceiver<tabs_api::mojom::TabStripService> client) override;
-#if !BUILDFLAG(IS_ANDROID)
   void AcceptExperimental(
       mojo::PendingReceiver<tabs_api::mojom::TabStripExperimentService> client)
       override;
-#endif
 
   // TabStripServiceDirectReturnStub:
   mojom::TabStripService::GetTabsResult GetTabs() override;
@@ -76,7 +72,6 @@ class TabStripServiceImpl
       mojom::DataPtr data,
       const std::optional<std::vector<std::string>>& update_mask) override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // tabs_api::mojom::TabStripExperimentalService overrides
   //
   // TabStripExperimentalService is intended for quick prototyping for
@@ -88,7 +83,6 @@ class TabStripServiceImpl
 
   mojom::TabStripExperimentService::GetAllTabsForProfileResult
   GetAllTabsForProfile() override;
-#endif
 
   void AddObserver(observation::TabStripApiBatchedObserver* observer) override;
   void RemoveObserver(
@@ -114,9 +108,7 @@ class TabStripServiceImpl
 
  private:
   mojom::TabStripServiceBridge bridge_{this};
-#if !BUILDFLAG(IS_ANDROID)
   mojom::TabStripExperimentServiceBridge experimental_bridge_{this};
-#endif
 
   TabStripModelAdapter& tab_strip_model_adapter();
   TranslationAdapter& translation_adapter();
@@ -140,10 +132,8 @@ class TabStripServiceImpl
   base::ObserverList<observation::TabStripApiBatchedObserver> observers_;
 
   mojo::ReceiverSet<tabs_api::mojom::TabStripService> mojo_clients_;
-#if !BUILDFLAG(IS_ANDROID)
   mojo::ReceiverSet<tabs_api::mojom::TabStripExperimentService>
       mojo_experiment_clients_;
-#endif
   mojo::AssociatedRemoteSet<tabs_api::mojom::TabsObserver> mojo_observers_;
 };
 

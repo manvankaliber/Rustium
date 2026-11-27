@@ -13,9 +13,6 @@
 #include "components/sync/base/features.h"
 #include "content/public/test/browser_test.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
 namespace {
 
@@ -27,12 +24,10 @@ using extension_settings_helper::SetExtensionSettings;
 class TwoClientAppSettingsSyncTest : public AppsSyncTestBase {
  public:
   TwoClientAppSettingsSyncTest() : AppsSyncTestBase(TWO_CLIENT) {
-#if !BUILDFLAG(IS_CHROMEOS)
     // TODO(crbug.com/40066949): clean up once syncer::APPS deprecation is
     // complete.
     feature_list_.InitAndDisableFeature(
         syncer::kSyncDoNotSyncAppsAndAppSettings);
-#endif
   }
   ~TwoClientAppSettingsSyncTest() override = default;
 
@@ -42,9 +37,7 @@ class TwoClientAppSettingsSyncTest : public AppsSyncTestBase {
   }
 
  private:
-#if !BUILDFLAG(IS_CHROMEOS)
   base::test::ScopedFeatureList feature_list_;
-#endif
 
  public:
   struct ExpectedSettings {

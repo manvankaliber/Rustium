@@ -56,11 +56,9 @@ IN_PROC_BROWSER_TEST_F(MediaColorTest, GbrpVp9) {
 }
 
 // Fuchsia isn't able to playback 4:4:4 av1.
-#if !BUILDFLAG(IS_FUCHSIA)
 IN_PROC_BROWSER_TEST_F(MediaColorTest, GbrpAv1) {
   RunGBRPTest("av1.mp4");
 }
-#endif
 
 #if BUILDFLAG(USE_PROPRIETARY_CODECS) && BUILDFLAG(ENABLE_FFMPEG_VIDEO_DECODERS)
 
@@ -69,11 +67,7 @@ IN_PROC_BROWSER_TEST_F(MediaColorTest, Yuv420pH264) {
 }
 
 // TODO(crbug.com/501324952): Fix and enable on Android with hardware decoding.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_Yuvj420pH264 DISABLED_Yuvj420pH264
-#else
 #define MAYBE_Yuvj420pH264 Yuvj420pH264
-#endif  // BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(MediaColorTest, MAYBE_Yuvj420pH264) {
   RunBlackWhiteTest("yuvj420p.mp4");
 }

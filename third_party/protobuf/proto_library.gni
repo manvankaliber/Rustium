@@ -269,7 +269,7 @@ _protoc_gen_ts_runtime_deps = [
 
 # When use_remoteexec=true, node actions may run on remote
 # Linux worker. So it should include linux node binary in inputs.
-if (is_linux || is_chromeos || use_remoteexec) {
+if (is_linux || use_remoteexec) {
   _protoc_gen_ts_runtime_deps +=
       [ "//third_party/node/linux/node-linux-x64/bin/node" ]
 }
@@ -297,8 +297,7 @@ template("proto_library") {
     _is_exempt = filter_exclude([ _caller_dir ],
                                 [
                                   "//third_party/perfetto/*",
-                                  "//third_party/cast_core/*",
-                                  "//chromecast/*",
+
                                   "//components/policy/*",
                                   "//components/optimization_guide/internal/*",
                                 ]) == []

@@ -63,11 +63,9 @@ class SigninViewControllerDelegateViews
           history_optin_completed_callback);
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
-#if !BUILDFLAG(IS_CHROMEOS)
   static std::unique_ptr<views::WebView> CreateSigninErrorWebView(
       BrowserWindowInterface* browser,
       const SigninUIError& error);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
   static std::unique_ptr<views::WebView> CreateProfileCustomizationWebView(

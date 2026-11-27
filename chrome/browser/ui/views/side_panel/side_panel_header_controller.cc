@@ -385,11 +385,9 @@ void SidePanelHeaderController::Close() {
 }
 
 void SidePanelHeaderController::MaybeQueuePinPromo(SidePanelEntryId id) {
-  // Which feature is shown depends on the specific side panel that is showing.
   const base::Feature* const iph_feature =
-      (id == SidePanelEntryId::kLensOverlayResults)
-          ? &feature_engagement::kIPHSidePanelLensOverlayPinnableFeature
-          : &feature_engagement::kIPHSidePanelGenericPinnableFeature;
+      &feature_engagement::kIPHSidePanelGenericPinnableFeature;
+  // Which feature is shown depends on the specific side panel that is showing.
 
   // If the desired promo hasn't changed, there's nothing to do.
   if (pending_pin_promo_ == iph_feature) {
@@ -438,11 +436,6 @@ void SidePanelHeaderController::MaybeEndPinPromo(bool pinned) {
     user_education->NotifyFeaturePromoFeatureUsed(
         *pending_pin_promo_,
         FeaturePromoFeatureUsedAction::kClosePromoIfPresent);
-    if (pending_pin_promo_ ==
-        &feature_engagement::kIPHSidePanelLensOverlayPinnableFeature) {
-      user_education->MaybeShowFeaturePromo(
-          feature_engagement::kIPHSidePanelLensOverlayPinnableFollowupFeature);
-    }
   } else {
     user_education->AbortFeaturePromo(*pending_pin_promo_);
   }

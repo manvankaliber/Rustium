@@ -155,7 +155,6 @@ class PasswordGenerationAgent::DeferringPasswordGenerationDriver
     DeferMsg(&mojom::PasswordGenerationDriver::PasswordNoLongerGenerated,
              form_data);
   }
-#if !BUILDFLAG(IS_ANDROID)
   void ShowPasswordEditingPopup(const gfx::RectF& bounds,
                                 const FormData& form_data,
                                 FieldRendererId field_renderer_id,
@@ -173,7 +172,6 @@ class PasswordGenerationAgent::DeferringPasswordGenerationDriver
   void GenerationElementLostFocus() override {
     DeferMsg(&mojom::PasswordGenerationDriver::GenerationElementLostFocus);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   raw_ptr<PasswordGenerationAgent> agent_ = nullptr;
   base::WeakPtrFactory<DeferringPasswordGenerationDriver> weak_ptr_factory_{
@@ -301,7 +299,6 @@ void PasswordGenerationAgent::DidCommitProvisionalLoad(
 }
 
 void PasswordGenerationAgent::DidChangeScrollOffset(blink::mojom::ScrollType) {
-#if !BUILDFLAG(IS_ANDROID)
   auto [current_generation_item, auto_protect] =
       current_generation_item_.GetAndProtect();
   auto* driver = unsafe_driver();
@@ -309,7 +306,6 @@ void PasswordGenerationAgent::DidChangeScrollOffset(blink::mojom::ScrollType) {
     return;
   }
   driver->FrameWasScrolled();
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void PasswordGenerationAgent::OnDestruct() {
@@ -600,9 +596,7 @@ bool PasswordGenerationAgent::ShowPasswordGenerationSuggestions(
       return MaybeOfferAutomaticGeneration();
     }
     current_generation_item->generation_element.SetShouldRevealPassword(true);
-#if !BUILDFLAG(IS_ANDROID)
     ShowEditingPopup(form_cache);
-#endif  // !BUILDFLAG(IS_ANDROID)
     return true;
   }
 
@@ -623,11 +617,9 @@ void PasswordGenerationAgent::DidEndTextFieldEditing(
       current_generation_item_.GetAndProtect();
   if (element && current_generation_item &&
       element == current_generation_item->generation_element) {
-#if !BUILDFLAG(IS_ANDROID)
     if (auto* driver = unsafe_driver()) {
       driver->GenerationElementLostFocus();
     }
-#endif  // !BUILDFLAG(IS_ANDROID)
     current_generation_item->password_revealed_after_editing = false;
     current_generation_item->generation_element.SetShouldRevealPassword(false);
   }
@@ -683,11 +675,9 @@ bool PasswordGenerationAgent::TextDidChangeInTextField(
       MaybeOfferAutomaticGeneration();
     } else {
       // User has rejected the feature and has started typing a password.
-#if !BUILDFLAG(IS_ANDROID)
       if (auto* driver = unsafe_driver()) {
         driver->PasswordGenerationRejectedByTyping();
       }
-#endif  // !BUILDFLAG(IS_ANDROID)
       // If the user is still modifying the field after leaving the editing
       // state without fully clearing, it should remain revealed.
       current_generation_item->generation_element.SetShouldRevealPassword(
@@ -784,7 +774,6 @@ void PasswordGenerationAgent::AutomaticGenerationAvailable() {
   unsafe_driver()->AutomaticGenerationAvailable(password_generation_ui_data);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void PasswordGenerationAgent::ShowEditingPopup(
     const SynchronousFormCache& form_cache) {
   auto [current_generation_item, auto_protect] =
@@ -816,7 +805,6 @@ void PasswordGenerationAgent::ShowEditingPopup(
   }
   current_generation_item->editing_popup_shown = true;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void PasswordGenerationAgent::PasswordNoLongerGenerated(
     base::optional_ref<SynchronousFormCache> form_cache) {

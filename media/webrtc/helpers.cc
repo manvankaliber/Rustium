@@ -13,6 +13,7 @@
 #include "base/time/time.h"
 #include "build/build_config.h"
 #include "build/chromecast_buildflags.h"
+#include "components/optimization_guide/core/tflite_op_resolver.h"  // nogncheck
 #include "media/base/media_switches.h"
 #include "media/webrtc/webrtc_features.h"
 #include "third_party/webrtc/api/audio/audio_processing.h"
@@ -23,10 +24,6 @@
 #include "third_party/webrtc/api/make_ref_counted.h"
 #include "third_party/webrtc/modules/audio_processing/aec_dump/aec_dump_factory.h"
 #include "third_party/webrtc_overrides/environment.h"
-
-#if !BUILDFLAG(IS_FUCHSIA)
-#include "components/optimization_guide/core/tflite_op_resolver.h"  // nogncheck
-#endif
 
 namespace media {
 namespace {
@@ -68,12 +65,9 @@ void ConfigAutomaticGainControl(const AudioProcessingSettings& settings,
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   const bool kInputVolumeAdjustmentOverrideAllowed = true;
-#elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
-  const bool kInputVolumeAdjustmentOverrideAllowed = false;
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   // Use AGC2 digital and input volume controller.
   // TODO(crbug.com/40872787): Remove `kWebRtcAllowInputVolumeAdjustment` safely
   // and set `input_volume_controller.enabled` true.
@@ -89,15 +83,6 @@ void ConfigAutomaticGainControl(const AudioProcessingSettings& settings,
   apm_config.gain_controller1.analog_gain_controller.enabled = false;
   apm_config.gain_controller1.analog_gain_controller.enable_digital_adaptive =
       false;
-  return;
-#elif BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS) || BUILDFLAG(IS_CASTOS) || \
-    BUILDFLAG(IS_CAST_ANDROID)
-  // Configure AGC for mobile.
-  apm_config.gain_controller1.enabled = false;
-  apm_config.gain_controller2.enabled = true;
-  apm_config.gain_controller2.fixed_digital.gain_db = 6.0f;
-  apm_config.gain_controller2.adaptive_digital.enabled = false;
-  apm_config.gain_controller2.input_volume_controller.enabled = false;
   return;
 #else
 #error Undefined AGC configuration. Add a case above for the current platform.
@@ -167,7 +152,6 @@ CreateWebRtcAudioProcessingModule(
   // Fuchsia does not use the optimization guide.
   // Avoid linking the op resolver to keep Fuchsia binary size down.
   // TODO(crbug.com/450466837): Investigate if this build guard can be avoided.
-#if !BUILDFLAG(IS_FUCHSIA)
   if (residual_echo_estimator_model) {
     if (base::FeatureList::IsEnabled(
             features::kWebRtcNeuralResidualEchoEstimationAsyncInit)) {
@@ -185,7 +169,6 @@ CreateWebRtcAudioProcessingModule(
       LOG(ERROR) << "Failed to initialize neural residual echo estimator.";
     }
   }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 #if BUILDFLAG(SYSTEM_LOOPBACK_AS_AEC_REFERENCE)
   if (settings.use_loopback_aec_reference) {

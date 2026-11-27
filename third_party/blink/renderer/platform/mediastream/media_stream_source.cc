@@ -266,7 +266,6 @@ void MediaStreamSource::OnDeviceCaptureHandleChange(
 
 void MediaStreamSource::OnZoomLevelChange(const MediaStreamDevice& device,
                                           int zoom_level) {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (!platform_source_) {
     return;
   }
@@ -277,7 +276,6 @@ void MediaStreamSource::OnZoomLevelChange(const MediaStreamDevice& device,
   for (auto observer : observers) {
     observer->SourceChangedZoomLevel(zoom_level);
   }
-#endif
 }
 
 void MediaStreamSource::Trace(Visitor* visitor) const {

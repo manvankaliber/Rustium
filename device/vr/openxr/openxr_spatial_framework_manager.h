@@ -17,7 +17,6 @@
 namespace device {
 
 class OpenXrSpatialAnchorManager;
-class OpenXrSpatialHitTestManager;
 class OpenXrSpatialPlaneManager;
 
 // Orchestrator class for interfacing with the XR_EXT_SPATIAL_* class of
@@ -56,7 +55,6 @@ class OpenXrSpatialFrameworkManager : public OpenXRSceneUnderstandingManager {
   XrSpatialSnapshotEXT discovery_snapshot_ = XR_NULL_HANDLE;
 
   std::unique_ptr<OpenXrSpatialPlaneManager> plane_manager_;
-  std::unique_ptr<OpenXrSpatialHitTestManager> hit_test_manager_;
   std::unique_ptr<OpenXrSpatialAnchorManager> anchor_manager_;
 
   base::WeakPtrFactory<OpenXrSpatialFrameworkManager> weak_ptr_factory_{this};

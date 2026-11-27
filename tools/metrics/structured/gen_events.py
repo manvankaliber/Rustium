@@ -28,11 +28,6 @@ parser.add_argument('--output', help='Path to generated files.')
 parser.add_argument(
   '--target', help='Target for generating events, e.g. chromium, webui.'
 )
-parser.add_argument(
-  '--cros_events',
-  action='store_true',
-  help='Include ChromeOS-only projects for chromium target.',
-)
 
 
 def main():
@@ -40,10 +35,9 @@ def main():
   data = model.Model(open(args.input, encoding='utf-8').read(), 'chrome')
 
   if args.target == 'chromium':
-    if not args.cros_events:
-      data.projects = [
-        p for p in data.projects if not Util.is_chromeos_only_project(p)
-      ]
+    data.projects = [
+      p for p in data.projects if not Util.is_chromeos_only_project(p)
+    ]
     code_generator_cpp.TemplateCpp(
       data,
       args.output,

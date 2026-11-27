@@ -21,12 +21,6 @@
 #include "media/media_buildflags.h"
 #include "ui/webui/buildflags.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/path_utils.h"
-#include "base/base_paths_android.h"
-// ui/base must only be used on Android. See BUILD.gn for dependency info.
-#include "ui/base/ui_base_paths.h"  // nogncheck
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "base/apple/bundle_locations.h"
@@ -50,7 +44,7 @@ namespace {
 bool g_user_data_dir_set_by_policy = false;
 std::optional<bool> g_override_using_default_data_directory_for_testing;
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // The path to the external extension <id>.json files.
 // /usr/share seems like a good choice, see: http://www.pathname.com/fhs/
 // On ChromeOS, the "arc" sub directory is also exposed as
@@ -62,7 +56,7 @@ const base::FilePath::CharType kFilepathSinglePrefExtensions[] =
     FILE_PATH_LITERAL("/usr/share/chromium/extensions");
 #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(ENABLE_WIDEVINE)
 // The name of the hint file that tells the latest component updated Widevine
@@ -72,29 +66,6 @@ const base::FilePath::CharType kComponentUpdatedWidevineCdmHint[] =
     FILE_PATH_LITERAL("latest-component-updated-widevine-cdm");
 #endif  // BUILDFLAG(ENABLE_WIDEVINE)
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool GetChromeOsCrdDataDirInternal(base::FilePath* result,
-                                   bool* should_be_created) {
-#if BUILDFLAG(IS_CHROMEOS_DEVICE)
-  *result = base::FilePath::FromASCII("/run/crd");
-  // The directory is created by ChromeOS (since we do not have the permissions
-  // to create anything in /run).
-  *should_be_created = false;
-  return true;
-#else
-  // On glinux-ChromeOS builds `/run/` doesn't exist, so we simply use the temp
-  // directory.
-  base::FilePath temp_directory;
-  if (!base::PathService::Get(base::DIR_TEMP, &temp_directory)) {
-    return false;
-  }
-
-  *result = temp_directory.Append(FILE_PATH_LITERAL("crd"));
-  *should_be_created = true;
-  return true;
-#endif  // BUILDFLAG(IS_CHROMEOS_DEVICE)
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 base::FilePath& GetInvalidSpecifiedUserDataDirInternal() {
   static base::NoDestructor<base::FilePath> s;
@@ -177,7 +148,7 @@ bool PathProvider(int key, base::FilePath* result) {
       }
       break;
     case chrome::DIR_DEFAULT_DOWNLOADS_SAFE:
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
       if (!GetUserDownloadsDirectorySafe(&cur)) {
         return false;
       }
@@ -186,17 +157,11 @@ bool PathProvider(int key, base::FilePath* result) {
       // Fall through for all other platforms.
 #endif
     case chrome::DIR_DEFAULT_DOWNLOADS:
-#if BUILDFLAG(IS_ANDROID)
-      if (!base::android::GetDownloadsDirectory(&cur)) {
-        return false;
-      }
-#else
       if (!GetUserDownloadsDirectory(&cur)) {
         return false;
       }
       // Do not create the download directory here, we have done it twice now
       // and annoyed a lot of users.
-#endif
       break;
     case chrome::DIR_CRASH_METRICS:
       if (!base::PathService::Get(chrome::DIR_USER_DATA, &cur)) {
@@ -207,14 +172,6 @@ bool PathProvider(int key, base::FilePath* result) {
 // Only use /var/log/chrome on IS_CHROMEOS_DEVICE builds. For non-device
 // ChromeOS builds we fall back to the #else below and store relative to the
 // default user-data directory.
-#if BUILDFLAG(IS_CHROMEOS_DEVICE)
-      // ChromeOS uses a separate directory. See http://crosbug.com/25089
-      cur = base::FilePath("/var/log/chrome");
-#elif BUILDFLAG(IS_ANDROID)
-      if (!base::android::GetCacheDirectory(&cur)) {
-        return false;
-      }
-#else
       // The crash reports are always stored relative to the default user data
       // directory.  This avoids the problem of having to re-initialize the
       // exception handler after parsing command line options, which may
@@ -224,8 +181,7 @@ bool PathProvider(int key, base::FilePath* result) {
       if (!GetDefaultUserDataDirectory(&cur)) {
         return false;
       }
-#endif
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
       cur = cur.Append(FILE_PATH_LITERAL("Crashpad"));
 #else
       cur = cur.Append(FILE_PATH_LITERAL("Crash Reports"));
@@ -233,15 +189,9 @@ bool PathProvider(int key, base::FilePath* result) {
       create_dir = true;
       break;
     case chrome::DIR_LOCAL_TRACES:
-#if BUILDFLAG(IS_ANDROID)
-      if (!base::PathService::Get(base::DIR_CACHE, &cur)) {
-        return false;
-      }
-#else
       if (!base::PathService::Get(chrome::DIR_USER_DATA, &cur)) {
         return false;
       }
-#endif
       cur = cur.Append(FILE_PATH_LITERAL("Local Traces"));
       create_dir = true;
       break;
@@ -338,16 +288,6 @@ bool PathProvider(int key, base::FilePath* result) {
       cur = base::apple::FrameworkBundlePath();
       cur = cur.Append(FILE_PATH_LITERAL("Resources"))
                 .Append(FILE_PATH_LITERAL("resources.pak"));
-#elif BUILDFLAG(IS_ANDROID)
-      if (!base::PathService::Get(ui::DIR_RESOURCE_PAKS_ANDROID, &cur)) {
-        return false;
-      }
-      if (key == chrome::FILE_DEV_UI_RESOURCES_PACK) {
-        cur = cur.Append(FILE_PATH_LITERAL("dev_ui_resources.pak"));
-      } else {
-        DCHECK_EQ(chrome::FILE_RESOURCES_PACK, key);
-        cur = cur.Append(FILE_PATH_LITERAL("resources.pak"));
-      }
 #else
       // If we're not bundled on mac or Android, resources.pak should be in
       // the "assets" location (e.g. next to the binary, on many platforms).
@@ -366,14 +306,6 @@ bool PathProvider(int key, base::FilePath* result) {
       break;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-    case chrome::DIR_CHROMEOS_CRD_DATA:
-      if (!GetChromeOsCrdDataDirInternal(&cur,
-                                         /*should_be_created=*/&create_dir)) {
-        return false;
-      }
-      break;
-#endif
 
     // The following are only valid in the development environment, and
     // will fail if executed from an installed executable (because the
@@ -421,8 +353,7 @@ bool PathProvider(int key, base::FilePath* result) {
       break;
     }
 #endif
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_LINUX) && BUILDFLAG(CHROMIUM_BRANDING))
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) && BUILDFLAG(CHROMIUM_BRANDING)
     case chrome::DIR_USER_EXTERNAL_EXTENSIONS: {
       if (!base::PathService::Get(chrome::DIR_USER_DATA, &cur)) {
         return false;
@@ -431,7 +362,7 @@ bool PathProvider(int key, base::FilePath* result) {
       break;
     }
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     case chrome::DIR_STANDALONE_EXTERNAL_EXTENSIONS: {
       cur = base::FilePath(kFilepathSinglePrefExtensions);
       break;
@@ -456,9 +387,7 @@ bool PathProvider(int key, base::FilePath* result) {
 #endif
       break;
 
-#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) &&                                   \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-     BUILDFLAG(IS_ANDROID))
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC))
     case chrome::DIR_NATIVE_MESSAGING:
 #if BUILDFLAG(IS_MAC)
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
@@ -493,14 +422,12 @@ bool PathProvider(int key, base::FilePath* result) {
       break;
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE) && (BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID))
-#if !BUILDFLAG(IS_ANDROID)
     case chrome::DIR_GLOBAL_GCM_STORE:
       if (!base::PathService::Get(chrome::DIR_USER_DATA, &cur)) {
         return false;
       }
       cur = cur.Append(kGCMStoreDirname);
       break;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
     case chrome::DIR_OPTIMIZATION_GUIDE_PREDICTION_MODELS:
       if (!base::PathService::Get(chrome::DIR_USER_DATA, &cur)) {

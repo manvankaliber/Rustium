@@ -239,8 +239,7 @@ table ImageProperties {
 // <Codegen usage>:
 // Input image tensors: NA.
 // Output image tensors: parses the values into a data stucture that represents
-// bounding boxes. For example, in the generated wrapper for Android, it returns
-// the output as android.graphics.Rect objects.
+// bounding boxes.
 enum BoundingBoxType : byte {
   UNKNOWN = 0,
   // Represents the bounding box by using the combination of boundaries,

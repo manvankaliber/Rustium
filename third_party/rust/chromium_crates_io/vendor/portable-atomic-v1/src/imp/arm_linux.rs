@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Atomic operations implementation on pre-v6 ARM Linux/Android.
+Atomic operations implementation on pre-v6 ARM Linux.
 
 This module optimizes cases where LLVM code generation is not optimal,
 and provides workaround for core::sync::atomic bug (https://github.com/rust-lang/compiler-builtins/pull/1234).

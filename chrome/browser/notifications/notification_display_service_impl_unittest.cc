@@ -34,10 +34,8 @@
 #include "ui/message_center/public/cpp/notification_types.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/notifications/muted_notification_handler.h"
 #include "chrome/browser/notifications/screen_capture_notification_blocker.h"
-#endif
 
 namespace {
 
@@ -279,7 +277,6 @@ TEST_F(NotificationDisplayServiceImplTest, CloseQueuedNotification) {
   EXPECT_TRUE(GetDisplayedPlatformSync().empty());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 // Desktop specific test class that uses the default NotificationBlockers.
 class DesktopNotificationDisplayServiceImplTest
@@ -355,5 +352,3 @@ TEST_F(DesktopNotificationDisplayServiceImplTest, SnoozeDuringScreenCapture) {
   EXPECT_EQ(1u, GetDisplayedPlatformSync().count(notification_id_1));
   EXPECT_EQ(1u, GetDisplayedPlatformSync().count(notification_id_2));
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID)

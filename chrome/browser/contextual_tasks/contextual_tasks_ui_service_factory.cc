@@ -16,11 +16,7 @@
 #include "components/contextual_tasks/public/prefs.h"
 #include "components/pref_registry/pref_registry_syncable.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/contextual_tasks/android/contextual_tasks_ui_service_delegate_android.h"
-#else
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service_delegate_desktop.h"
-#endif
 
 namespace contextual_tasks {
 
@@ -34,16 +30,14 @@ ContextualTasksUiServiceFactory::GetInstance() {
 // static
 ContextualTasksUiService* ContextualTasksUiServiceFactory::GetForBrowserContext(
     content::BrowserContext* context) {
-  return static_cast<ContextualTasksUiService*>(
-      GetInstance()->GetServiceForBrowserContext(context, true));
+  return nullptr;
 }
 
 // static
 ContextualTasksUiService*
 ContextualTasksUiServiceFactory::GetForBrowserContextIfExists(
     content::BrowserContext* context) {
-  return static_cast<ContextualTasksUiService*>(
-      GetInstance()->GetServiceForBrowserContext(context, false));
+  return nullptr;
 }
 
 ContextualTasksUiServiceFactory::ContextualTasksUiServiceFactory()
@@ -66,13 +60,8 @@ ContextualTasksUiServiceFactory::BuildServiceInstanceForBrowserContext(
   }
 
   Profile* profile = Profile::FromBrowserContext(context);
-#if BUILDFLAG(IS_ANDROID)
-  auto delegate =
-      std::make_unique<ContextualTasksUiServiceDelegateAndroid>(profile);
-#else
   auto delegate =
       std::make_unique<ContextualTasksUiServiceDelegateDesktop>(profile);
-#endif
   std::unique_ptr<ContextualTasksCookieSynchronizer> cookie_synchronizer;
   if (contextual_tasks::ShouldEnableCookieSync()) {
     cookie_synchronizer = std::make_unique<ContextualTasksCookieSynchronizer>(
@@ -108,7 +97,7 @@ void ContextualTasksUiServiceFactory::RegisterProfilePrefs(
 
 bool ContextualTasksUiServiceFactory::ServiceIsCreatedWithBrowserContext()
     const {
-  return true;
+  return false;
 }
 
 bool ContextualTasksUiServiceFactory::ServiceIsNULLWhileTesting() const {

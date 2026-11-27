@@ -39,9 +39,6 @@ class ChromeMainDelegate : public content::ContentMainDelegate {
  public:
   static base::span<const char* const> GetNonWildcardDomainNonPortSchemes();
 
-#if BUILDFLAG(IS_ANDROID)
-  ChromeMainDelegate();
-#endif
 
   // `timestamps.exe_entry_point_ticks` is the time at which the main function
   // of the executable was entered. On Windows, StartupTimestamps contains
@@ -55,12 +52,10 @@ class ChromeMainDelegate : public content::ContentMainDelegate {
   ~ChromeMainDelegate() override;
 
  protected:
-#if !BUILDFLAG(IS_ANDROID)
   // Does not record startup metrics; for use in tests where
   // ChromeUnitTestSuite::Initialize() has already recorded application start
   // time.
   ChromeMainDelegate();
-#endif
 
   // content::ContentMainDelegate:
   std::optional<int> BasicStartupComplete() override;
@@ -70,7 +65,7 @@ class ChromeMainDelegate : public content::ContentMainDelegate {
       const std::string& process_type,
       content::MainFunctionParams main_function_params) override;
   void ProcessExiting(const std::string& process_type) override;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   void ZygoteStarting(std::vector<std::unique_ptr<content::ZygoteForkDelegate>>*
                           delegates) override;
   void ZygoteForked() override;
@@ -118,11 +113,9 @@ class ChromeMainDelegate : public content::ContentMainDelegate {
 
   memory_system::MemorySystem memory_system_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // The sampling profiler exists until the `ChromeContentBrowserClient` is
   // created and ownership is passed to it.
   std::unique_ptr<MainThreadStackSamplingProfiler> sampling_profiler_;
-#endif
 };
 
 #endif  // CHROME_APP_CHROME_MAIN_DELEGATE_H_

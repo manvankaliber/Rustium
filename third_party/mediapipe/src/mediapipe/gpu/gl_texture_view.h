@@ -60,7 +60,6 @@ class GlTextureView {
  private:
   friend class GlTextureBuffer;
   friend class GpuBufferStorageCvPixelBuffer;
-  friend class GpuBufferStorageAhwb;
   GlTextureView(GlContext* context, GLenum target, GLuint name, int width,
                 int height, int plane, DetachFn detach,
                 DoneWritingFn done_writing)

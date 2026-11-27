@@ -20,8 +20,7 @@ features:
   cloud_only: true
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 items:
 - caption: Allow GenAI features and improve AI models
   name: Allowed

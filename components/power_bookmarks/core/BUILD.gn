@@ -4,10 +4,6 @@
 
 import("//third_party/protobuf/proto_library.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 static_library("core") {
   sources = [
     "bookmark_client_base.cc",
@@ -29,7 +25,6 @@ static_library("core") {
     "//base",
     "//base:i18n",
     "//components/bookmarks/browser",
-    "//components/commerce/core:proto",
     "//components/keyed_service/core",
     "//components/sync/model",
     "//ui/base",
@@ -43,18 +38,7 @@ proto_library("proto") {
     "proto/power_bookmark_meta.proto",
     "proto/shopping_specifics.proto",
   ]
-  deps = [ "//components/commerce/core:proto" ]
-}
-
-if (is_android) {
-  proto_java_library("proto_java") {
-    proto_path = "//"
-    sources = [
-      "proto/power_bookmark_meta.proto",
-      "proto/shopping_specifics.proto",
-    ]
-    deps = [ "//components/commerce/core:proto_java" ]
-  }
+  deps = []
 }
 
 source_set("unit_tests") {

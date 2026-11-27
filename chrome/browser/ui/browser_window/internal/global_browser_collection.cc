@@ -99,11 +99,9 @@ size_t GlobalBrowserCollection::GetIncognitoBrowserCount() {
     if (!browser->GetProfile()->IsIncognitoProfile()) {
       return true;
     }
-#if !BUILDFLAG(IS_ANDROID)
     if (browser->GetType() == BrowserWindowInterface::Type::TYPE_DEVTOOLS) {
       return true;
     }
-#endif
     incognito_browser_count++;
     return true;
   });
@@ -114,9 +112,7 @@ size_t GlobalBrowserCollection::GetGuestBrowserCount() {
   size_t guest_browser_count = 0;
   ForEach([&guest_browser_count](BrowserWindowInterface* browser) {
     if (browser->GetProfile()->IsGuestSession()
-#if !BUILDFLAG(IS_ANDROID)
         && browser->GetType() != BrowserWindowInterface::Type::TYPE_DEVTOOLS
-#endif
     ) {
       ++guest_browser_count;
     }
@@ -131,11 +127,9 @@ size_t GlobalBrowserCollection::GetIsolatedBrowserCount() {
     if (!browser->GetProfile()->IsEnterpriseIsolatedModeProfile()) {
       return true;
     }
-#if !BUILDFLAG(IS_ANDROID)
     if (browser->GetType() == BrowserWindowInterface::Type::TYPE_DEVTOOLS) {
       return true;
     }
-#endif
     isolated_browser_count++;
     return true;
   });

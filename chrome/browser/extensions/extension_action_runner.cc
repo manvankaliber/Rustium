@@ -52,9 +52,7 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 

@@ -16,9 +16,6 @@
 
 namespace autofill {
 
-#if BUILDFLAG(IS_ANDROID)
-class AutofillVCNEnrollBottomSheetBridge;
-#endif
 
 class VirtualCardEnrollBubbleControllerImpl
     : public AutofillBubbleControllerBase,
@@ -60,11 +57,9 @@ class VirtualCardEnrollBubbleControllerImpl
       const override;
   AutofillBubbleBase* GetVirtualCardBubbleView() const override;
 
-#if !BUILDFLAG(IS_ANDROID)
   void HideIconAndBubble() override;
   bool IsEnrollmentInProgress() const override;
   bool IsEnrollmentComplete() const override;
-#endif
 
   void OnAcceptButton(bool did_switch_to_loading_state) override;
   void OnDeclineButton() override;
@@ -90,10 +85,8 @@ class VirtualCardEnrollBubbleControllerImpl
 
   // AutofillBubbleControllerBase::
   void DoShowBubble() override;
-#if !BUILDFLAG(IS_ANDROID)
   bool ShouldShowPageAction() override;
   std::optional<actions::ActionId> GetActionIdForPageAction() override;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  private:
   friend class VirtualCardEnrollBubbleControllerImplTestApi;
@@ -117,12 +110,6 @@ class VirtualCardEnrollBubbleControllerImpl
   // Whether we should re-show the dialog when users return to the tab.
   bool reprompt_required_ = false;
 
-#if BUILDFLAG(IS_ANDROID)
-  // A Java bridge for the bottom sheet version of the virtual card enrollment
-  // UI.
-  std::unique_ptr<AutofillVCNEnrollBottomSheetBridge>
-      autofill_vcn_enroll_bottom_sheet_bridge_;
-#else
   // Returns whether the web content associated with this controller is active.
   virtual bool IsWebContentsActive();
 
@@ -134,7 +121,6 @@ class VirtualCardEnrollBubbleControllerImpl
 
   // Whether the omnibox icon for the bubble should be visible.
   bool is_icon_visible_ = false;
-#endif
 
   // Denotes whether the bubble is shown due to user gesture. If this is true,
   // it means the bubble is a reshown bubble.

@@ -170,9 +170,6 @@ class ServiceWorkerHidDelegateObserverTest
         /*enabled_features=*/
         {
             blink::features::kWebHID,
-#if BUILDFLAG(IS_ANDROID)
-            features::kWebHidOnDesktopAndroidServiceWorkers,
-#endif  // BUILDFLAG(IS_ANDROID)
         },
         /*disabled_features=*/{});
   }

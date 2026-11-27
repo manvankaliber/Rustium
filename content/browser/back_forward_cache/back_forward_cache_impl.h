@@ -82,11 +82,7 @@ BASE_FEATURE(kBackForwardCachePrioritizedEntry,
 // unload. When enabled, pages with unload handlers may enter the
 // cache.
 BASE_FEATURE(kBackForwardCacheUnloadAllowed,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 // Combines a flattened list and a tree of the reasons why each document cannot

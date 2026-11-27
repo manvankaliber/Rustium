@@ -20,7 +20,7 @@
 #include "content/public/browser/render_process_host.h"
 #include "content/public/browser/render_widget_host.h"
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
 #include "mojo/public/cpp/bindings/remote.h"
 #include "third_party/blink/public/mojom/choosers/popup_menu.mojom.h"
 #endif
@@ -92,7 +92,7 @@ CreateNewPopupWidgetInterceptor::GetForwardingInterface() {
   return swapped_impl_.old_impl();
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
 ShowPopupWidgetWaiter::ShowPopupMenuInterceptor::ShowPopupMenuInterceptor(
     RenderFrameHost* rfh,
     base::OnceCallback<void(const gfx::Rect&)> did_show_popup_menu_callback)
@@ -136,7 +136,7 @@ ShowPopupWidgetWaiter::ShowPopupWidgetWaiter(WebContents* web_contents,
           static_cast<RenderFrameHostImpl*>(frame_host),
           base::BindOnce(&ShowPopupWidgetWaiter::DidCreatePopupWidget,
                          base::Unretained(this))),
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
       show_popup_menu_interceptor_(
           frame_host,
           base::BindOnce(&ShowPopupWidgetWaiter::DidShowPopupMenu,
@@ -181,7 +181,7 @@ void ShowPopupWidgetWaiter::DidCreatePopupWidget(
                     .SwapImplForTesting(this);
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
 void ShowPopupWidgetWaiter::DidShowPopupMenu(const gfx::Rect& bounds) {
   initial_rect_ = bounds;
   run_loop_.Quit();

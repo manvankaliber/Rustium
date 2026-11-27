@@ -11,9 +11,6 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/test/test_utils.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/gfx/geometry/rect_f.h"
-#endif
 
 namespace content {
 
@@ -78,27 +75,12 @@ class FindTestWebContentsDelegate : public WebContentsDelegate,
   // replies.
   const std::vector<FindResults>& GetReplyRecord();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Waits for all of the find match rects to be received.
-  void WaitForMatchRects();
-
-  const std::vector<gfx::RectF>& find_match_rects() const {
-    return find_match_rects_;
-  }
-
-  const gfx::RectF& active_match_rect() const {
-    return active_match_rect_;
-  }
-#endif
 
  private:
   enum WaitingFor {
     NOTHING,
     FINAL_REPLY,
     NEXT_REPLY,
-#if BUILDFLAG(IS_ANDROID)
-    MATCH_RECTS
-#endif
   };
 
   // WebContentsObserver override.
@@ -117,17 +99,6 @@ class FindTestWebContentsDelegate : public WebContentsDelegate,
   // Stop waiting for |waiting_for_|.
   void StopWaiting();
 
-#if BUILDFLAG(IS_ANDROID)
-  // WebContentsDelegate override.
-  void FindMatchRectsReply(WebContents* web_contents,
-                           int version,
-                           const std::vector<gfx::RectF>& rects,
-                           const gfx::RectF& active_rect) override;
-
-  std::vector<gfx::RectF> find_match_rects_;
-
-  gfx::RectF active_match_rect_;
-#endif
 
   // The latest known results from the current find request.
   FindResults current_results_;

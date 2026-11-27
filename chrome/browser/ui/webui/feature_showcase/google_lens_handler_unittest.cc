@@ -5,7 +5,6 @@
 #include "chrome/browser/ui/webui/feature_showcase/google_lens_handler.h"
 
 #include "base/test/metrics/histogram_tester.h"
-#include "chrome/browser/ui/lens/lens_search_feature_flag_utils.h"
 #include "chrome/browser/ui/views/profiles/feature_showcase/feature_showcase_metrics.h"
 #include "chrome/browser/ui/webui/feature_showcase/google_lens.mojom.h"
 #include "chrome/test/base/testing_profile.h"
@@ -35,12 +34,10 @@ TEST_F(GoogleLensHandlerTest, EnablesGoogleLens) {
   GoogleLensHandler handler(std::move(receiver), profile());
 
   // Ensure it starts not granted.
-  ASSERT_FALSE(lens::DidUserGrantLensOverlayNeededPermissions(profile()));
 
   handler.EnableGoogleLens();
 
   // Ensure it is now granted.
-  EXPECT_TRUE(lens::DidUserGrantLensOverlayNeededPermissions(profile()));
 
   histogram_tester_.ExpectUniqueSample(
       "ProfilePicker.FREFlow.FeatureShowcase.StepUserAction.GoogleLens",

@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "base/allocator/partition_alloc_support.h"
-#include "base/android/android_info.h"
 #include "base/command_line.h"
 #include "base/debug/asan_invalid_access.h"
 #include "base/debug/crash_logging.h"
@@ -86,18 +85,7 @@
 #include "ui/gl/init/gl_factory.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scudo_features.h"
-#include "base/android/scudo_purge_coordinator.h"
-#include "components/viz/service/gl/throw_uncaught_exception.h"
-#include "media/base/android/media_codec_util.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/chromeos_camera/gpu_mjpeg_decode_accelerator_factory.h"
-#include "components/chromeos_camera/mojo_jpeg_encode_accelerator_service.h"
-#include "components/chromeos_camera/mojo_mjpeg_decode_accelerator_service.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 #include "gpu/command_buffer/service/shared_image/d3d_image_backing_factory.h"
@@ -145,12 +133,7 @@ constexpr char kGpuInitializationEventCategory[] = "latency";
 constexpr char kGpuInitializationEvent[] = "GpuInitialization";
 
 bool IsAcceleratedJpegDecodeSupported() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return chromeos_camera::GpuMjpegDecodeAcceleratorFactory::
-      IsAcceleratedJpegDecodeSupported();
-#else
   return false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void RunGetPeakGpuMemoryUsageCallbackOnMainThread(
@@ -302,15 +285,6 @@ GpuServiceImpl::GpuServiceImpl(
 
   weak_ptr_ = weak_ptr_factory_.GetWeakPtr();
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!in_host_process()) {
-    scudo_purge_coordinator_ =
-        base::android::ScudoPurgeCoordinator::CreateIfEnabled();
-    if (scudo_purge_coordinator_) {
-      scudo_purge_coordinator_->Start();
-    }
-  }
-#endif
 }
 
 GpuServiceImpl::GpuServiceImpl()
@@ -351,12 +325,10 @@ GpuServiceImpl::~GpuServiceImpl() {
     }
   }
 
-  if (watchdog_thread_)
+  if (watchdog_thread_) {
     watchdog_thread_->OnGpuProcessTearDown();
+  }
 
-#if BUILDFLAG(IS_ANDROID)
-  scudo_purge_coordinator_.reset();
-#endif
 
   compositor_gpu_thread_.reset();
   media_gpu_channel_manager_.reset();
@@ -378,8 +350,9 @@ GpuServiceImpl::~GpuServiceImpl() {
   // background threads can cleanup. For example, in the renderer the
   // RenderThread instances will be able to notice shutdown before the render
   // process begins waiting for them to exit.
-  if (owned_shutdown_event_)
+  if (owned_shutdown_event_) {
     owned_shutdown_event_->Signal();
+  }
 }
 
 void GpuServiceImpl::UpdateGPUInfo() {
@@ -411,42 +384,6 @@ void GpuServiceImpl::UpdateGPUInfoGL() {
   gpu_host_->DidUpdateGPUInfo(gpu_info_);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void GpuServiceImpl::InitializeWithHost(
-    mojo::PendingRemote<mojom::GpuHost> pending_gpu_host,
-    gpu::GpuProcessShmCount use_shader_cache_shm_count,
-    scoped_refptr<gl::GLSurface> default_offscreen_surface,
-    mojom::GpuServiceCreationParamsPtr creation_params,
-    gpu::SyncPointManager* sync_point_manager,
-    gpu::SharedImageManager* shared_image_manager,
-    gpu::Scheduler* scheduler,
-    base::WaitableEvent* shutdown_event,
-    const gpu::SharedContextState::GrContextOptionsProvider*
-        gr_context_options_provider) {
-  if (!sync_point_manager) {
-    sync_point_manager = CreateSyncPointManager();
-  }
-
-  if (!shared_image_manager) {
-    shared_image_manager = CreateSharedImageManager();
-  }
-
-  if (!scheduler) {
-    scheduler = CreateScheduler(sync_point_manager);
-  }
-
-  if (!shutdown_event) {
-    shutdown_event = CreateShutdownEvent();
-  }
-
-  gr_context_options_provider_ = gr_context_options_provider;
-
-  InitializeWithHostInternal(
-      std::move(pending_gpu_host), std::move(use_shader_cache_shm_count),
-      default_offscreen_surface, std::move(creation_params), sync_point_manager,
-      shared_image_manager, scheduler, shutdown_event);
-}
-#else
 void GpuServiceImpl::InitializeWithHost(
     mojo::PendingRemote<mojom::GpuHost> pending_gpu_host,
     gpu::GpuProcessShmCount use_shader_cache_shm_count,
@@ -485,7 +422,6 @@ void GpuServiceImpl::InitializeWithHost(
   }
 #endif
 }
-#endif
 
 void GpuServiceImpl::InitializeWithHostInternal(
     mojo::PendingRemote<mojom::GpuHost> pending_gpu_host,
@@ -606,26 +542,6 @@ void GpuServiceImpl::SetPriorityChangedCallback(
   priority_changed_callback_ = std::move(callback);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void GpuServiceImpl::CreateJpegDecodeAccelerator(
-    mojo::PendingReceiver<chromeos_camera::mojom::MjpegDecodeAccelerator>
-        jda_receiver) {
-  DCHECK(io_runner_->BelongsToCurrentThread());
-  chromeos_camera::MojoMjpegDecodeAcceleratorService::Create(
-      std::move(jda_receiver),
-      base::BindRepeating(
-          &GpuServiceImpl::SetMjpegDecodeAcceleratorBeginFrameCB,
-          base::Unretained(this)));
-}
-
-void GpuServiceImpl::CreateJpegEncodeAccelerator(
-    mojo::PendingReceiver<chromeos_camera::mojom::JpegEncodeAccelerator>
-        jea_receiver) {
-  DCHECK(io_runner_->BelongsToCurrentThread());
-  chromeos_camera::MojoJpegEncodeAcceleratorService::Create(
-      std::move(jea_receiver));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 void GpuServiceImpl::RegisterDCOMPSurfaceHandle(
@@ -652,17 +568,7 @@ void GpuServiceImpl::CreateVideoEncodeAcceleratorProvider(
   // and creating encoder might take quite some time, and they might block
   // processing of other mojo calls if executed on the current runner.
   scoped_refptr<base::SequencedTaskRunner> runner;
-#if BUILDFLAG(IS_FUCHSIA)
-  // TODO(crbug.com/40850116): Fuchsia does not support FIDL communication from
-  // ThreadPool's worker threads.
-  if (!vea_thread_) {
-    base::Thread::Options thread_options(base::MessagePumpType::IO, /*size=*/0);
-    vea_thread_ =
-        std::make_unique<base::Thread>("GpuVideoEncodeAcceleratorThread");
-    CHECK(vea_thread_->StartWithOptions(std::move(thread_options)));
-  }
-  runner = vea_thread_->task_runner();
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Windows hardware encoder requires a COM STA thread.
   runner = base::ThreadPool::CreateCOMSTATaskRunner({base::MayBlock()});
 #else
@@ -790,11 +696,13 @@ void GpuServiceImpl::RequestDXGIInfoOnMainThread(
 #endif
 
 void GpuServiceImpl::LoseAllContexts() {
-  if (IsExiting())
+  if (IsExiting()) {
     return;
+  }
   gpu_channel_manager_->LoseAllContexts();
-  if (compositor_gpu_thread_)
+  if (compositor_gpu_thread_) {
     compositor_gpu_thread_->LoseContext();
+  }
 }
 
 void GpuServiceImpl::DidCreateContextSuccessfully() {
@@ -837,10 +745,6 @@ std::string GpuServiceImpl::GetShaderPrefixKey() {
         "-" + active_gpu.driver_version + "-" + active_gpu.driver_vendor + "-" +
         base::SysInfo::ProcessCPUArchitecture();
 
-#if BUILDFLAG(IS_ANDROID)
-    std::string build_fp = base::android::android_info::android_build_fp();
-    shader_prefix_key_ += "-" + build_fp;
-#endif
   }
 
   return shader_prefix_key_;
@@ -1049,8 +953,9 @@ void GpuServiceImpl::SetWakeUpGpuClosure(base::RepeatingClosure closure) {
 }
 
 void GpuServiceImpl::WakeUpGpu() {
-  if (wake_up_closure_)
+  if (wake_up_closure_) {
     wake_up_closure_.Run();
+  }
   if (main_runner_->BelongsToCurrentThread()) {
     WakeUpGpuOnMainThread();
     return;
@@ -1062,11 +967,7 @@ void GpuServiceImpl::WakeUpGpu() {
 
 void GpuServiceImpl::WakeUpGpuOnMainThread() {
   if (gpu_feature_info_.IsWorkaroundEnabled(gpu::WAKE_UP_GPU_BEFORE_DRAWING)) {
-#if BUILDFLAG(IS_ANDROID)
-    gpu_channel_manager_->WakeUpGpu();
-#else
     NOTREACHED() << "WakeUpGpu() not supported on this platform.";
-#endif
   }
 }
 
@@ -1129,37 +1030,22 @@ void GpuServiceImpl::OnBackgroundCleanup() {
 
 void GpuServiceImpl::OnBackgroundCleanupGpuMainThread() {
   // Currently only called on Android.
-#if BUILDFLAG(IS_ANDROID)
-  if (!main_runner_->BelongsToCurrentThread()) {
-    main_runner_->PostTask(
-        FROM_HERE,
-        base::BindOnce(&GpuServiceImpl::OnBackgroundCleanupGpuMainThread,
-                       weak_ptr_));
-    return;
-  }
-  DVLOG(1) << "GPU: Performing background cleanup";
-  gpu_channel_manager_->OnBackgroundCleanup();
-#else
   NOTREACHED();
-#endif
 }
 
 void GpuServiceImpl::OnBackgroundCleanupCompositorGpuThread() {
   // Currently only called on Android.
-#if BUILDFLAG(IS_ANDROID)
-  if (compositor_gpu_thread_)
-    compositor_gpu_thread_->OnBackgroundCleanup();
-#else
   NOTREACHED();
-#endif
 }
 
 void GpuServiceImpl::OnBackgrounded() {
   DCHECK(io_runner_->BelongsToCurrentThread());
-  if (watchdog_thread_)
+  if (watchdog_thread_) {
     watchdog_thread_->OnBackgrounded();
-  if (compositor_gpu_thread_)
+  }
+  if (compositor_gpu_thread_) {
     compositor_gpu_thread_->OnBackgrounded();
+  }
 
   main_runner_->PostTask(
       FROM_HERE,
@@ -1178,19 +1064,16 @@ void GpuServiceImpl::OnBackgroundedOnMainThread() {
   }
 
   base::allocator::PartitionAllocSupport::Get()->OnBackgrounded();
-#if BUILDFLAG(IS_ANDROID)
-  if (scudo_purge_coordinator_) {
-    scudo_purge_coordinator_->OnBackgrounded();
-  }
-#endif
 }
 
 void GpuServiceImpl::OnForegrounded() {
   DCHECK(io_runner_->BelongsToCurrentThread());
-  if (watchdog_thread_)
+  if (watchdog_thread_) {
     watchdog_thread_->OnForegrounded();
-  if (compositor_gpu_thread_)
+  }
+  if (compositor_gpu_thread_) {
     compositor_gpu_thread_->OnForegrounded();
+  }
 
   main_runner_->PostTask(
       FROM_HERE,
@@ -1207,11 +1090,6 @@ void GpuServiceImpl::OnForegroundedOnMainThread() {
   }
   gpu_channel_manager_->OnApplicationForegounded();
   base::allocator::PartitionAllocSupport::Get()->OnForegrounded();
-#if BUILDFLAG(IS_ANDROID)
-  if (scudo_purge_coordinator_) {
-    scudo_purge_coordinator_->OnForegrounded();
-  }
-#endif
 }
 
 #if BUILDFLAG(IS_APPLE)
@@ -1248,11 +1126,7 @@ void GpuServiceImpl::Hang() {
 
 void GpuServiceImpl::ThrowJavaException() {
   DCHECK(io_runner_->BelongsToCurrentThread());
-#if BUILDFLAG(IS_ANDROID)
-  ThrowUncaughtException();
-#else
   NOTREACHED() << "Java exception not supported on this platform.";
-#endif
 }
 
 void GpuServiceImpl::InduceMemoryInvalidAccess(
@@ -1373,8 +1247,9 @@ void GpuServiceImpl::OnOverlayCapsChanged() {
 
   // Update overlay info in the GPU process and send the updated data back to
   // the GPU host in the Browser process through mojom if the info has changed.
-  if (old_overlay_info != gpu_info_.overlay_info)
+  if (old_overlay_info != gpu_info_.overlay_info) {
     gpu_host_->DidUpdateOverlayInfo(gpu_info_.overlay_info);
+  }
 
   // Update DXGI adapter info in the GPU process through the GPU host mojom.
   auto old_dxgi_info = std::move(dxgi_info_);
@@ -1477,11 +1352,6 @@ void GpuServiceImpl::GetDawnInfoOnMain(bool collect_metrics,
                                                  std::move(dawn_info_list)));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void GpuServiceImpl::SetHostProcessId(base::ProcessId pid) {
-  host_process_id_ = pid;
-}
-#endif
 
 GpuServiceImpl::InitParams::InitParams() = default;
 GpuServiceImpl::InitParams::InitParams(InitParams&& other) = default;

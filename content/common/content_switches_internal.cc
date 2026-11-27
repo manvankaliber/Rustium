@@ -23,12 +23,8 @@
 #include "content/public/common/content_switches.h"
 #include "third_party/blink/public/mojom/v8_cache_options.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/debug/debugger.h"
-#include "base/feature_list.h"
-#endif
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
 #include <signal.h>
 static void SigUSR1Handler(int signal) {}
 #endif
@@ -98,11 +94,6 @@ void WaitForDebugger(const std::string& label) {
   ::MessageBox(NULL, base::UTF8ToWide(message).c_str(),
                base::UTF8ToWide(title).c_str(), MB_OK | MB_SETFOREGROUND);
 #elif BUILDFLAG(IS_POSIX)
-#if BUILDFLAG(IS_ANDROID)
-  LOG(ERROR) << label << " waiting for GDB.";
-  // Wait 24 hours for a debugger to be attached to the current process.
-  base::debug::WaitForDebugger(24 * 60 * 60, true);
-#else
   // TODO(playmobil): In the long term, overriding this flag doesn't seem
   // right, either use our own flag or open a dialog we can use.
   // This is just to ease debugging in the interim.
@@ -115,7 +106,6 @@ void WaitForDebugger(const std::string& label) {
   sigaction(SIGUSR1, &sa, nullptr);
 
   pause();
-#endif  // BUILDFLAG(IS_ANDROID)
 #endif  // BUILDFLAG(IS_POSIX)
 }
 

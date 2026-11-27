@@ -609,10 +609,10 @@ std::optional<ui::ImageModel> GetIconImageModelFromIcon(Suggestion::Icon icon) {
       return ImageModelFromVectorIcon(vector_icons::kOpenInNewFlippableIcon,
                                       kIconSize);
     case Suggestion::Icon::kOrder:
-      return ImageModelFromVectorIcon(vector_icons::kShoppingBagIcon,
+      return ImageModelFromVectorIcon(vector_icons::kShoppingmodeIcon,
                                       kChromeRefreshIconSize);
     case Suggestion::Icon::kOrderSpark:
-      return ImageModelFromVectorIcon(vector_icons::kShoppingBagSparkIcon,
+      return ImageModelFromVectorIcon(vector_icons::kShoppingmodeIcon,
                                       kChromeRefreshIconSize);
     case Suggestion::Icon::kPassport:
       return ImageModelFromVectorIcon(::features::IsRoundedIconsEnabled()

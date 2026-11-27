@@ -103,9 +103,7 @@ class MODULES_EXPORT UserMediaProcessor
 
   bool HasActiveSources() const;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   void FocusCapturedSurface(const String& label, bool focus);
-#endif
 
   void OnDeviceStopped(const blink::MediaStreamDevice& device);
   void OnDeviceChanged(const blink::MediaStreamDevice& old_device,

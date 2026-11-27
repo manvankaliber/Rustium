@@ -11,18 +11,14 @@ import getopt
 import gzip
 import multiprocessing
 import os
-import pathlib
 import re
 import shutil
 import sys
-import tempfile
 import traceback
 
 from grit import grd_reader
 from grit import shortcuts
 from grit import util
-from grit import zip_helpers
-from grit.format import android_xml
 from grit.format import c_format
 from grit.format import chrome_messages_json
 from grit.format import data_pack
@@ -38,14 +34,12 @@ from grit.node import structure
 from grit.tool import interface
 
 
-JAVA_STRINGS_PATH_RE = re.compile(r'^.*/(values.*)$')
 
 
 # It would be cleaner to have each module register itself, but that would
 # require importing all of them on every run of GRIT.
 '''Map from <output> node types to modules under grit.format.'''
 _format_modules = {
-  'android': android_xml,
   'c_format': c_format,
   'chrome_messages_json': chrome_messages_json,
   'chrome_messages_json_gzip': chrome_messages_json,
@@ -177,12 +171,6 @@ class RcBuilder(interface.Tool):
                       'NEUTER'
                       genders.
 
-    --android-output-zip
-                      Output a single zip file containing all the android
-                      strings.xml files instead of outputting each xml
-                      individually. This is a convenient way to skip some work
-                      in
-                      GN.
 
   Conditional inclusion of resources only affects the output of files which
   control which resources get linked into a binary, e.g. it affects .rc files
@@ -231,7 +219,6 @@ class RcBuilder(interface.Tool):
         'allowlist-support',
         'brotli=',
         'translate-genders',
-        'android-output-zip=',
       ),
     )
     for key, val in own_opts:
@@ -280,8 +267,6 @@ class RcBuilder(interface.Tool):
         brotli_util.SetBrotliCommand([os.path.abspath(val)])
       elif key == '--translate-genders':
         translate_genders = True
-      elif key == '--android-output-zip':
-        self.android_output_zip_path = val
       elif key == '--help':
         self.ShowUsage()
         sys.exit(0)
@@ -366,9 +351,6 @@ class RcBuilder(interface.Tool):
     # Whether to compare outputs to their old contents before writing.
     self.write_only_new = False
 
-    # If not None, this will cause Android xml resources to be zipped in the
-    # specified file.
-    self.android_output_zip_path = None
 
   @staticmethod
   def AddAllowlistTags(start_node, allowlist_names):
@@ -439,13 +421,11 @@ class RcBuilder(interface.Tool):
     ):
       return 'cp1252'
     if output_type in (
-      'android',
       'c_format',
       'plist',
       'plist_strings',
       'doc',
       'json',
-      'android_policy',
       'chrome_messages_json',
       'chrome_messages_json_gzip',
       'policy_templates',
@@ -454,7 +434,7 @@ class RcBuilder(interface.Tool):
     # TODO(gfeher) modify here to set utf-8 encoding for admx/adml
     return 'utf_16'
 
-  def _ProcessOutput(self, output, zippable_android_xml_outputs):
+  def _ProcessOutput(self, output):
     self.VerboseOut('Creating %s...' % output.GetOutputFilename())
 
     # Set the context, for conditional inclusion of resources
@@ -466,20 +446,10 @@ class RcBuilder(interface.Tool):
     # Write the results to a temporary file and only overwrite the original
     # if the file changed.  This avoids unnecessary rebuilds.
     #
-    # TODO(hartmanng): Android xml strings currently bypass this behaviour
-    # when self.android_output_zip_path is set. We should take another look to
-    # make sure we avoid unnecessary rebuilds.
     out_filename = output.GetOutputFilename()
     tmp_filename = out_filename + '.tmp'
 
     output_type = output.GetType()
-    if output_type == 'android' and self.android_output_zip_path is not None:
-      # if these files are just going to be zipped and then deleted, they
-      # shouldn't be in the normal `out/...` directory - we'll just store them
-      # in the system tmp dir instead.
-      tmp_filename = self.GetTempAndroidOutputPath(tmp_filename)
-      out_filename = self.GetTempAndroidOutputPath(out_filename)
-      zippable_android_xml_outputs.append(out_filename)
 
     # Make the output directory if it doesn't exist.
     self.MakeDirectoriesTo(out_filename)
@@ -539,11 +509,6 @@ class RcBuilder(interface.Tool):
     if self.allowlist_names:
       self.AddAllowlistTags(self.res, self.allowlist_names)
 
-    if self.android_output_zip_path is not None:
-      self.android_output_tmp_dir = tempfile.TemporaryDirectory(
-        ignore_cleanup_errors=True
-      )
-    zippable_android_xml_outputs = []
     can_fork = hasattr(os, 'fork')
     if os.environ.get('GRIT_DISABLE_MULTIPROCESSING') == '1':
       can_fork = False
@@ -556,7 +521,7 @@ class RcBuilder(interface.Tool):
       # AST. If we don't do this, all N child processes will concurrently
       # perform the O(N) tree traversals and destroy memory/CPU caches.
       first_output = outputs[0]
-      self._ProcessOutput(first_output, zippable_android_xml_outputs)
+      self._ProcessOutput(first_output)
 
       remaining_outputs = outputs[1:]
       # Limit max workers to 16 to avoid overwhelming the system with
@@ -565,7 +530,6 @@ class RcBuilder(interface.Tool):
       num_workers = min(16, multiprocessing.cpu_count(), len(remaining_outputs))
       chunks = [remaining_outputs[i::num_workers] for i in range(num_workers)]
       pids = []
-      tmp_dir = tempfile.mkdtemp()
 
       # Flush standard streams before forking to prevent buffered data from
       # being copied into child processes and printed multiple times.
@@ -583,15 +547,9 @@ class RcBuilder(interface.Tool):
         pid = os.fork()
         if pid == 0:
           # Child process
-          child_zippable = []
           try:
             for output in chunk:
-              self._ProcessOutput(output, child_zippable)
-            if child_zippable:
-              with open(
-                os.path.join(tmp_dir, f'zip_{i}.txt'), 'w', encoding='utf-8'
-              ) as f:
-                f.write('\n'.join(child_zippable))
+              self._ProcessOutput(output)
             os._exit(0)
           except Exception as e:
             traceback.print_exc()
@@ -609,26 +567,10 @@ class RcBuilder(interface.Tool):
         print("Error: One or more grit output workers failed. Aborting.")
         sys.exit(1)
 
-      for i in range(num_workers):
-        zip_file = os.path.join(tmp_dir, f'zip_{i}.txt')
-        if os.path.exists(zip_file):
-          with open(zip_file, 'r', encoding='utf-8') as f:
-            zippable_android_xml_outputs.extend(f.read().splitlines())
-          os.remove(zip_file)
-      shutil.rmtree(tmp_dir, ignore_errors=True)
 
     else:
       for output in outputs:
-        self._ProcessOutput(output, zippable_android_xml_outputs)
-
-    # Move all the Android xml files into a single zip file. This simplifies gn
-    # logic, since the next step in the build process would be to zip the files
-    # anyway.
-    #
-    # Asserts that each path contains '/values'.
-    if self.android_output_zip_path is not None:
-      self.ZipAndroidOutputs(zippable_android_xml_outputs)
-      self.android_output_tmp_dir.cleanup()
+        self._ProcessOutput(output)
 
     # Print warnings if there are any duplicate shortcuts.
     warnings = shortcuts.GenerateDuplicateShortcutsWarnings(
@@ -649,75 +591,16 @@ class RcBuilder(interface.Tool):
       )
       sys.exit(-1)
 
-  # Gets a temporary output path that mirrors the given reference path.
-  # |out_filename| can be either absolute or relative.
-  # |self.android_output_tmp_dir| must be set to a tempfile.TemporaryDirectory
-  # object before calling this function.
-  #
-  # Examples (assuming |self.android_output_tmp_dir.name| =
-  # '/tmp/android_output', and current working directory is
-  # '/chromium/src/out/Debug'):
-  #
-  #   GetTempAndroidOutputPath('relative/path') =
-  #     '/tmp/android_output/chromium/src/out/Debug/relative/path'
-  #
-  #   GetTempAndroidOutputPath('../../relative/path') =
-  #     '/tmp/android_output/chromium/src/relative/path'
-  #
-  #   GetTempAndroidOutputPath('/absolute/path') =
-  #     '/tmp/android_output/absolute/path'
-  def GetTempAndroidOutputPath(self, out_filename):
-    return os.path.join(
-      self.android_output_tmp_dir.name,
-      os.path.relpath(os.path.abspath(out_filename), '/'),
-    )
 
-  # zip_helpers.add_files_to_zip takes in a list of tuples (zip_filename,
-  # fs_filename). We are given a list of fs_filenames, and must construct
-  # zip_filenames. We do so by converting the path to posix-style (ie, replacing
-  # \ with /), then trimming everything up to but not including '/values'.
-  #
-  # Returns [(zip_filename, fs_filename)], or raises an AssertionError.
-  def MakeAndroidZipOutputPaths(self, xml_outputs):
-    ret = []
-    for fs_filename in xml_outputs:
-      zip_filename = str(pathlib.Path(fs_filename).as_posix())
-      match = JAVA_STRINGS_PATH_RE.match(zip_filename)
-      assert match is not None, (
-        f'fs_filename does not contain "/values": "{fs_filename}"'
-      )
-      zip_filename = match.group(1)
-      ret.append((zip_filename, fs_filename))
-
-    return ret
-
-  # Takes the files in |xml_outputs|, zips them into
-  # |self.android_output_zip_path|, and then deletes the originals. Assumes
-  # |self.android_output_zip_path| is not None.
-  #
-  # Raises an AssertionError if any of the paths does not contain '/values'.
-  def ZipAndroidOutputs(self, xml_outputs):
-    xml_outputs = self.MakeAndroidZipOutputPaths(xml_outputs)
-    zip_helpers.add_files_to_zip(xml_outputs, self.android_output_zip_path)
-
-    for zipped_file in xml_outputs:
-      os.remove(zipped_file[1])
-
-  # If |self.android_output_zip_path| isn't specified, this simply returns the
-  # full output paths from each output node. If |self.android_output_zip_path|
-  # is specified, then Android output nodes are suppressed in favour of
-  # including a single zip file instead.
+  # Returns the full output paths from each output node.
   def GetFinalOutputFileList(self):
     files = [
       os.path.abspath(
         os.path.join(self.output_directory, i.GetOutputFilename())
       )
       for i in self.res.GetOutputFiles()
-      if i.GetType() != 'android' or self.android_output_zip_path is None
     ]
 
-    if self.android_output_zip_path is not None:
-      files.append(os.path.abspath(self.android_output_zip_path))
 
     return sorted(files)
 

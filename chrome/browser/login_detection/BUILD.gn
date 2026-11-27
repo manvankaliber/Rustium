@@ -61,21 +61,19 @@ source_set("unit_tests") {
   ]
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "login_detection_browsertest.cc" ]
-    deps = [
-      ":login_detection",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/browser/profiles:profile",
-      "//chrome/test:test_support",
-      "//components/site_isolation",
-      "//content/test:test_support",
-      "//net:test_support",
-      "//testing/gtest",
-    ]
-  }
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "login_detection_browsertest.cc" ]
+  deps = [
+    ":login_detection",
+    "//base",
+    "//base/test:test_support",
+    "//chrome/browser/profiles:profile",
+    "//chrome/test:test_support",
+    "//components/site_isolation",
+    "//content/test:test_support",
+    "//net:test_support",
+    "//testing/gtest",
+  ]
 }

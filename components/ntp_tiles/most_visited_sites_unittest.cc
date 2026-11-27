@@ -155,8 +155,7 @@ MostVisitedURL MakeMostVisitedURL(const std::u16string& title,
   return result;
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 EnterpriseShortcut MakeEnterpriseShortcut(const std::u16string& title,
                                           const std::string& url,
                                           bool allow_user_edit = false,
@@ -328,25 +327,6 @@ class PopularSitesFactoryForTest {
               "favicon_url": "http://news.google.com/favicon.ico"
             }
            ])");
-#if BUILDFLAG(IS_IOS)
-    test_url_loader_factory_.AddResponse(
-        "https://www.gstatic.com/chrome/ntp/ios/"
-        "suggested_sites_US_2023q1_mvt_experiment_with_popular_sites.json",
-        R"([{
-              "title": "ESPN",
-              "url": "http://www.espn.com",
-              "favicon_url": "http://www.espn.com/favicon.ico"
-            }, {
-              "title": "Mobile",
-              "url": "http://www.mobile.de",
-              "favicon_url": "http://www.mobile.de/favicon.ico"
-            }, {
-              "title": "Google News",
-              "url": "http://news.google.com",
-              "favicon_url": "http://news.google.com/favicon.ico"
-            }
-           ])");
-#endif
 
     test_url_loader_factory_.AddResponse(
         "https://www.gstatic.com/chrome/ntp/suggested_sites_IN_6.json",
@@ -470,8 +450,7 @@ TEST(MostVisitedSitesStaticHelpersTest, AddCustomLinksObserverWatchesScope) {
   pref_service.SetBoolean(prefs::kCustomLinksInitializedMobile, true);
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 TEST(MostVisitedSitesStaticHelpersTest, HasEnterpriseShortcuts) {
   sync_preferences::TestingPrefServiceSyncable pref_service;
   pref_service.registry()->RegisterListPref(
@@ -1163,7 +1142,6 @@ TEST_F(MostVisitedSitesTest, MultipleObservers) {
                                      TileSource::TOP_SITES)))));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(MostVisitedSitesTest, MostVisitedRedesignEnforcesExpandedBoundsCleanly) {
   base::test::ScopedFeatureList feature_list;
   feature_list.InitWithFeatures(
@@ -1275,7 +1253,6 @@ TEST_F(MostVisitedSitesTest, CustomLinksCappedAtTenWhenRedesignDisabled) {
               testing::Contains(testing::Key(SectionType::PERSONALIZED)));
   EXPECT_EQ(10ul, sections.at(SectionType::PERSONALIZED).size());
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Existing tests check the default 8-link mobile cap. This dedicated test
 // verifies the 10-link limit configured on WebUI NTP (AL) builds.
@@ -2146,8 +2123,7 @@ TEST_F(MostVisitedSitesWithCustomLinksTest, ShouldHonorMaxNumNonCustomLinks) {
                   MatchesTile(kTestTitle1, kTestUrl1, TileSource::TOP_SITES)));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 class MostVisitedSitesWithEnterpriseShortcutsTest
     : public MostVisitedSitesTest {
  public:

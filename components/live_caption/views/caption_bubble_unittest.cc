@@ -108,10 +108,6 @@ class CaptionBubbleTest : public views::ViewsTestBase {
         /*application_locale=*/std::string(),
         /*destroyed_callback=*/base::DoNothing());
     bubble_ = bubble.get();
-#if BUILDFLAG(IS_CHROMEOS)
-    // The caption bubble has no parent, so give its widget a context.
-    test_views_delegate()->set_context(GetContext());
-#endif
     widget_ = views::BubbleDialogDelegateView::CreateBubble(std::move(bubble));
     widget_->Show();
     bubble_->SetModel(model_.get());
@@ -374,7 +370,6 @@ TEST_F(CaptionBubbleTest, ScrollsLongText) {
   ASSERT_TRUE(frame_contents_in_screen.Contains(right_margin_point));
   ASSERT_FALSE(bubble_bounds_in_screen.Contains(right_margin_point));
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // FlatlandWindow::SetBoundsInDIP does not update Aura Window bounds in unit
   // tests, so EventGenerator cannot hit-test widget_->GetNativeWindow() on
   // Fuchsia.
@@ -401,7 +396,6 @@ TEST_F(CaptionBubbleTest, ScrollsLongText) {
   generator.SendMouseEnter();
   task_environment()->FastForwardBy(base::Milliseconds(200));
   EXPECT_EQ(1.0f, scroll_bar->layer()->opacity());
-#endif
 }
 
 }  // namespace

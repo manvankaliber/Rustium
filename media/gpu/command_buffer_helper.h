@@ -56,13 +56,11 @@ class MEDIA_GPU_EXPORT CommandBufferHelper
   virtual void WaitForSyncTokens(std::vector<gpu::SyncToken> sync_tokens,
                                  base::OnceClosure done_cb);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Retrieve the interface through which to create shared images.
   virtual gpu::SharedImageStub* GetSharedImageStub() = 0;
 
   virtual gpu::MemoryTypeTracker* GetMemoryTypeTracker() = 0;
 
-#endif
 
   virtual gpu::SharedImageManager* GetSharedImageManager() = 0;
 

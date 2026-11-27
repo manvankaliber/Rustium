@@ -6203,17 +6203,11 @@ Called by update_autofill_enums.py.-->
 
 <!-- LINT.ThenChange(/components/one_time_tokens/android/backend/sms/sms_otp_retrieval_api_error_codes.h:SmsOtpRetrievalApiErrorCode) -->
 
-<!-- LINT.IfChange(SuggestionsFromGeminiAction) -->
-
 <enum name="SuggestionsFromGeminiAction">
   <int value="0" label="Manage connected apps click"/>
   <int value="1" label="Toggle on"/>
   <int value="2" label="Toggle off"/>
 </enum>
-
-<!-- LINT.ThenChange(/chrome/browser/resources/settings/metrics_browser_proxy.ts:SuggestionsFromGeminiAction) -->
-
-<!-- LINT.IfChange(SuggestionsFromGeminiEntryPoint) -->
 
 <enum name="SuggestionsFromGeminiEntryPoint">
   <int value="0" label="Your saved info"/>
@@ -6221,8 +6215,6 @@ Called by update_autofill_enums.py.-->
   <int value="2" label="Shopping"/>
   <int value="3" label="Identity docs"/>
 </enum>
-
-<!-- LINT.ThenChange(/chrome/browser/resources/settings/metrics_browser_proxy.ts:SuggestionsFromGeminiEntryPoint) -->
 
 <!-- LINT.IfChange(SuggestionType) -->
 

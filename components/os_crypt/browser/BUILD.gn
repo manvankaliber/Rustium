@@ -36,7 +36,7 @@ if (is_win) {
   }
 }
 
-if ((is_posix || is_fuchsia) && !is_apple) {
+if (is_posix && !is_apple) {
   group("posix_key_provider") {
     # TODO(crbug.com/547814493): Move to this file.
     public_deps = [ "//components/os_crypt/async/browser:posix_key_provider" ]

@@ -126,18 +126,6 @@ cc_library(
 )
 
 cc_library(
-    name = "ahwb_view",
-    hdrs = ["ahwb_view.h"],
-    deps = [
-        ":hardware_buffer",
-        ":shared_fd",
-        "//mediapipe/framework:port",
-        "//mediapipe/gpu:gpu_buffer_storage",
-        "@com_google_absl//absl/status",
-    ],
-)
-
-cc_library(
     name = "affine_transform",
     srcs = ["affine_transform.cc"],
     hdrs = ["affine_transform.h"],
@@ -156,81 +144,6 @@ cc_library(
         "@com_google_absl//absl/status:statusor",
         "@com_google_absl//absl/strings",
         "@com_google_protobuf//:protobuf",
-    ],
-)
-
-cc_library(
-    name = "ahwb_gpu_releaser",
-    srcs = ["ahwb_gpu_releaser.cc"],
-    hdrs = ["ahwb_gpu_releaser.h"],
-    visibility = ["//visibility:private"],
-    deps = [
-        ":hardware_buffer",
-        ":tensor_ahwb_usage",
-        "//mediapipe/framework:port",
-        "//mediapipe/framework/port:ret_check",
-        "//mediapipe/gpu:gl_base_hdr",
-        "//mediapipe/gpu:gl_context",
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/synchronization",
-    ],
-)
-
-# Real device is required to test GLES31+ and Ahwb:
-# bazel build -c dbg --config=android_arm64 --android_ndk_min_sdk_version=33 --config=force_full_protos //mediapipe/framework/formats:ahwb_gpu_releaser_test && \
-# adb push bazel-bin/mediapipe/framework/formats/ahwb_gpu_releaser_test /data/local/tmp && \
-# adb shell "/data/local/tmp/ahwb_gpu_releaser_test"
-cc_test(
-    name = "ahwb_gpu_releaser_test",
-    srcs = ["ahwb_gpu_releaser_test.cc"],
-    deps = [
-        ":tensor",
-        "//mediapipe/framework/port:gtest",
-        "//mediapipe/gpu:gl_context",
-        "//mediapipe/gpu:gpu_service",
-        "@com_google_googletest//:gtest_main",
-    ],
-)
-
-cc_library(
-    name = "hardware_buffer",
-    srcs = ["hardware_buffer_android.cc"],
-    hdrs = ["hardware_buffer.h"],
-    linkopts = select({
-        "//conditions:default": [],
-        # Option for vendor binaries to avoid linking libandroid.so.
-        "//mediapipe/framework:android_no_jni": [],
-        "//mediapipe:android": ["-landroid"],
-        ":android_link_native_window": [
-            "-lnativewindow",  # Provides <android/hardware_buffer.h> to vendor binaries on Android API >= 26.
-        ],
-    }),
-    visibility = [
-        "//mediapipe/framework:__pkg__",
-        "//mediapipe/gpu:__pkg__",
-    ],
-    deps = [
-        "//mediapipe/framework/port:ret_check",
-        "@com_google_absl//absl/functional:any_invocable",
-        "@com_google_absl//absl/log:absl_check",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/status:status_macros",
-        "@com_google_absl//absl/status:statusor",
-    ],
-)
-
-cc_library(
-    name = "hardware_buffer_pool",
-    hdrs = ["hardware_buffer_pool.h"],
-    visibility = ["//mediapipe/framework:__pkg__"],
-    deps = [
-        ":hardware_buffer",
-        "//mediapipe/gpu:multi_pool",
-        "//mediapipe/gpu:reusable_pool",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/status:status_macros",
-        "@com_google_absl//absl/status:statusor",
     ],
 )
 
@@ -312,7 +225,7 @@ cc_library(
     ] + select({
         "//conditions:default": [
         ],
-        "//mediapipe:android": [],
+
         "//mediapipe:ios": [],
     }),
     alwayslink = 1,
@@ -572,20 +485,6 @@ cc_test(
     ],
 )
 
-# Used by vendor processes that don't have access to libandroid.so, but want to use AHardwareBuffer.
-config_setting(
-    name = "android_link_native_window",
-    define_values = {
-        "MEDIAPIPE_ANDROID_LINK_NATIVE_WINDOW": "1",
-        "MEDIAPIPE_NO_JNI": "1",
-    },
-    values = {"crosstool_top": "//external:android/crosstool"},
-    visibility = [
-        "//mediapipe/framework:__pkg__",
-        "//mediapipe/gpu:__pkg__",
-    ],
-)
-
 cc_library(
     name = "tensor",
     srcs =
@@ -596,7 +495,7 @@ cc_library(
             "//conditions:default": [],
         }) + [
             "tensor.cc",
-            "tensor_ahwb.cc",
+
             "tensor_debugstring.cc",
         ],
     hdrs = [
@@ -619,8 +518,7 @@ cc_library(
             "-framework MetalKit",
         ],
         "//conditions:default": [],
-        # Option for vendor binaries to avoid linking libandroid.so.
-        "//mediapipe/framework:android_no_jni": [],
+
         "//mediapipe/gpu/webgpu:use_webgpu_emscripten": ["-sUSE_WEBGPU=1"],
     }),
     deps = [
@@ -649,24 +547,7 @@ cc_library(
             "//mediapipe/gpu/webgpu:webgpu_service",
             "//mediapipe/gpu/webgpu:webgpu_utils",
         ],
-        "//mediapipe:android": [
-            ":ahwb_gpu_releaser",
-            ":hardware_buffer",
-            ":hardware_buffer_pool",
-            ":shared_fd",
-            ":tensor_ahwb_usage",
-            ":unique_fd",
-            "//mediapipe/util:sync_wait",
-            "@com_google_absl//absl/base:log_severity",
-            "@com_google_absl//absl/time",
-        ],
-        ":android_link_native_window": [
-            ":ahwb_gpu_releaser",
-            ":hardware_buffer",
-            ":hardware_buffer_pool",
-            ":tensor_ahwb_usage",
-            ":unique_fd",
-        ],
+
         "//conditions:default": [],
     }) + select({
         "//mediapipe/gpu:disable_gpu": [],
@@ -742,17 +623,6 @@ mediapipe_register_type(
 )
 
 cc_library(
-    name = "tensor_ahwb_usage",
-    srcs = ["tensor_ahwb_usage.cc"],
-    hdrs = ["tensor_ahwb_usage.h"],
-    deps = [
-        "//mediapipe/framework/port",
-        "@com_google_absl//absl/functional:any_invocable",
-        "@com_google_absl//absl/log:absl_log",
-    ],
-)
-
-cc_library(
     name = "tensor_opencv",
     srcs = ["tensor_opencv.cc"],
     hdrs = ["tensor_opencv.h"],
@@ -789,15 +659,6 @@ cc_test(
         "//mediapipe/framework/port:gtest_main",
         "//mediapipe/framework/port:opencv_core",
         "@com_google_absl//absl/status",
-    ],
-)
-
-cc_test(
-    name = "tensor_ahwb_usage_test",
-    srcs = ["tensor_ahwb_usage_test.cc"],
-    deps = [
-        ":tensor_ahwb_usage",
-        "//mediapipe/framework/port:gtest_main",
     ],
 )
 

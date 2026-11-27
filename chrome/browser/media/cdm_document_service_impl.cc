@@ -22,16 +22,11 @@
 #include "content/public/browser/render_process_host.h"
 #endif
 
-#if BUILDFLAG(ENABLE_CDM_STORAGE_ID) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_CDM_STORAGE_ID)
 #include "chrome/browser/profiles/profile.h"
 #include "content/public/browser/render_frame_host.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/media/platform_verification_chromeos.h"
-#include "chromeos/ash/components/settings/cros_settings.h"
-#include "chromeos/ash/components/settings/cros_settings_names.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -263,74 +258,6 @@ CdmDocumentServiceImpl::~CdmDocumentServiceImpl() {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void CdmDocumentServiceImpl::ChallengePlatform(
-    const std::string& service_id,
-    const std::string& challenge,
-    ChallengePlatformCallback callback) {
-  DVLOG(2) << __func__;
-  CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
-
-  bool success = platform_verification::PerformBrowserChecks(
-      render_frame_host().GetMainFrame());
-  if (!success) {
-    std::move(callback).Run(false, std::string(), std::string(), std::string());
-    return;
-  }
-
-  if (!platform_verification_flow_)
-    platform_verification_flow_ =
-        base::MakeRefCounted<ash::attestation::PlatformVerificationFlow>();
-
-  platform_verification_flow_->ChallengePlatformKey(
-      content::WebContents::FromRenderFrameHost(&render_frame_host()),
-      service_id, challenge,
-      base::BindOnce(&CdmDocumentServiceImpl::OnPlatformChallenged,
-                     weak_factory_.GetWeakPtr(), std::move(callback)));
-}
-
-void CdmDocumentServiceImpl::OnPlatformChallenged(
-    ChallengePlatformCallback callback,
-    PlatformVerificationResult result,
-    const std::string& signed_data,
-    const std::string& signature,
-    const std::string& platform_key_certificate) {
-  DVLOG(2) << __func__ << ": " << result;
-  CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M161);
-
-  if (result != ash::attestation::PlatformVerificationFlow::SUCCESS) {
-    CHECK(signed_data.empty(), base::NotFatalUntil::M161);
-    CHECK(signature.empty(), base::NotFatalUntil::M161);
-    CHECK(platform_key_certificate.empty(), base::NotFatalUntil::M161);
-    LOG(ERROR) << "Platform verification failed.";
-    std::move(callback).Run(false, "", "", "");
-    return;
-  }
-
-  CHECK(!signed_data.empty(), base::NotFatalUntil::M161);
-  CHECK(!signature.empty(), base::NotFatalUntil::M161);
-  CHECK(!platform_key_certificate.empty(), base::NotFatalUntil::M161);
-  std::move(callback).Run(true, signed_data, signature,
-                          platform_key_certificate);
-}
-
-void CdmDocumentServiceImpl::IsVerifiedAccessEnabled(
-    IsVerifiedAccessEnabledCallback callback) {
-  // If we are in guest/incognito mode, then verified access is effectively
-  // disabled.
-  Profile* profile =
-      Profile::FromBrowserContext(render_frame_host().GetBrowserContext());
-  if (profile->IsOffTheRecord() || profile->IsGuestSession()) {
-    std::move(callback).Run(false);
-    return;
-  }
-
-  bool enabled_for_device = false;
-  ash::CrosSettings::Get()->GetBoolean(
-      ash::kAttestationForContentProtectionEnabled, &enabled_for_device);
-  std::move(callback).Run(enabled_for_device);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_CDM_STORAGE_ID)
 void CdmDocumentServiceImpl::GetStorageId(uint32_t version,

@@ -102,10 +102,6 @@
 #include "ui/gfx/canvas.h"
 #include "ui/gfx/image/image.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/renderer_host/render_widget_host_view_android.h"
-#include "ui/android/screen_android.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "content/browser/renderer_host/test_render_widget_host_view_mac_factory.h"
@@ -115,9 +111,6 @@
 #include "ui/display/test/test_screen.h"
 #endif
 
-#if BUILDFLAG(IS_IOS)
-#include "content/browser/renderer_host/test_render_widget_host_view_ios_factory.h"
-#endif
 
 #if defined(USE_AURA) || BUILDFLAG(IS_APPLE)
 #include "content/public/test/test_image_transport_factory.h"
@@ -366,10 +359,6 @@ class FakeRenderFrameMetadataObserver
 
   ~FakeRenderFrameMetadataObserver() override {}
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void UpdateRootScrollOffsetUpdateFrequency(
-      cc::mojom::RootScrollOffsetUpdateFrequency frequency) override {}
-#endif
   void ReportAllFrameSubmissionsForTesting(bool enabled) override {}
 
  private:
@@ -394,12 +383,6 @@ class MockInputEventObserver : public RenderWidgetHost::InputEventObserver {
                const blink::WebInputEvent&,
                InputEventSource),
               (override));
-#if BUILDFLAG(IS_ANDROID)
-  MOCK_METHOD1(OnImeTextCommittedEvent, void(const std::u16string& text_str));
-  MOCK_METHOD1(OnImeSetComposingTextEvent,
-               void(const std::u16string& text_str));
-  MOCK_METHOD0(OnImeFinishComposingTextEvent, void());
-#endif
 };
 
 // MockRenderWidgetHostDelegate --------------------------------------------
@@ -693,10 +676,6 @@ class RenderWidgetHostTest : public testing::Test {
     ImageTransportFactory::SetFactory(
         std::make_unique<TestImageTransportFactory>());
 #endif
-#if BUILDFLAG(IS_ANDROID)
-    // calls display::Screen::SetScreenInstance().
-    ui::SetScreenAndroid(false /* use_display_wide_color_gamut */);
-#endif
 #if BUILDFLAG(IS_APPLE)
     screen_ = std::make_unique<display::test::TestScreen>();
     display::Screen::SetScreenInstance(screen_.get());
@@ -763,7 +742,7 @@ class RenderWidgetHostTest : public testing::Test {
 #if defined(USE_AURA) || BUILDFLAG(IS_APPLE)
     ImageTransportFactory::Terminate();
 #endif
-#if defined(USE_AURA) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_ANDROID)
+#if defined(USE_AURA) || BUILDFLAG(IS_APPLE)
     display::Screen::SetScreenInstance(nullptr);
     screen_.reset();
 #endif
@@ -1671,20 +1650,12 @@ TEST_F(RenderWidgetHostTest, Background) {
   RenderWidgetHostViewBase* view;
 #if defined(USE_AURA)
   view = new RenderWidgetHostViewAura(host_.get());
-#elif BUILDFLAG(IS_ANDROID)
-  view = new RenderWidgetHostViewAndroid(host_.get(),
-                                         /*parent_native_view=*/nullptr,
-                                         /*parent_layer=*/nullptr);
 #elif BUILDFLAG(IS_MAC)
   view = CreateRenderWidgetHostViewMacForTesting(host_.get());
-#elif BUILDFLAG(IS_IOS)
-  view = CreateRenderWidgetHostViewIOSForTesting(host_.get());
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   // TODO(derat): Call this on all platforms: http://crbug.com/102450.
   view->InitAsChild(gfx::NativeView());
-#endif
   host_->SetView(view);
 
   ASSERT_FALSE(view->GetBackgroundColor());
@@ -1724,14 +1695,6 @@ TEST_F(RenderWidgetHostTest, Background) {
     EXPECT_EQ(unsigned{SK_ColorBLUE}, *view->GetBackgroundColor());
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Surface Eviction attempts to crawl the FrameTree. This makes use of
-  // RenderViewHostImpl::From which performs a static_cast on the
-  // RenderWidgetHostOwnerDelegate. Our MockRenderWidgetHostOwnerDelegate is not
-  // a RenderViewHostImpl, so it crashes. Clear this here as it is not needed
-  // for TearDown.
-  host_->set_owner_delegate(nullptr);
-#endif  // BUILDFLAG(IS_ANDROID)
   host_->SetView(nullptr);
   view->DestroyOrDefer();
 }
@@ -2337,87 +2300,7 @@ TEST_F(RenderWidgetHostTest, KeyboardListenerSuppressFollowingEvents) {
   EXPECT_TRUE(host_->mock_input_router()->sent_keyboard_event_);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(RenderWidgetHostTest, KeyboardListenerKeyDownFeatureDisabled) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitAndDisableFeature(
-      features::kAllowKeyDownInKeyPressListeners);
 
-  host_->SetupForInputRouterTest();
-  host_->AddKeyPressEventCallback(base::BindRepeating(
-      &RenderWidgetHostTest::KeyPressEventCallback, base::Unretained(this)));
-
-  handle_key_press_event_ = true;
-  input::NativeWebKeyboardEvent key_down_event =
-      CreateNativeWebKeyboardEvent(WebInputEvent::Type::kKeyDown);
-  key_down_event.is_confirmed_physical_keyboard_input = true;
-  host_->ForwardKeyboardEvent(key_down_event);
-
-  // KeyDown events should not be processed by key press listeners when the
-  // feature is disabled.
-  EXPECT_TRUE(host_->mock_input_router()->sent_keyboard_event_);
-}
-
-TEST_F(RenderWidgetHostTest, KeyboardListenerKeyDownFeatureEnabledNonPhysical) {
-  base::test::ScopedFeatureList feature_list{
-      features::kAllowKeyDownInKeyPressListeners};
-
-  host_->SetupForInputRouterTest();
-  host_->AddKeyPressEventCallback(base::BindRepeating(
-      &RenderWidgetHostTest::KeyPressEventCallback, base::Unretained(this)));
-
-  handle_key_press_event_ = true;
-
-  // Non-physical KeyDown event should not be processed by listeners.
-  input::NativeWebKeyboardEvent non_physical_key_down =
-      CreateNativeWebKeyboardEvent(WebInputEvent::Type::kKeyDown);
-  non_physical_key_down.is_confirmed_physical_keyboard_input = false;
-  host_->ForwardKeyboardEvent(non_physical_key_down);
-  EXPECT_TRUE(host_->mock_input_router()->sent_keyboard_event_);
-}
-
-TEST_F(RenderWidgetHostTest,
-       KeyboardListenerKeyDownFeatureEnabledSkipIfUnhandled) {
-  base::test::ScopedFeatureList feature_list{
-      features::kAllowKeyDownInKeyPressListeners};
-
-  host_->SetupForInputRouterTest();
-  host_->AddKeyPressEventCallback(base::BindRepeating(
-      &RenderWidgetHostTest::KeyPressEventCallback, base::Unretained(this)));
-
-  handle_key_press_event_ = true;
-
-  // Physical KeyDown event with skip_if_unhandled should not be processed.
-  input::NativeWebKeyboardEvent skip_key_down =
-      CreateNativeWebKeyboardEvent(WebInputEvent::Type::kKeyDown);
-  skip_key_down.is_confirmed_physical_keyboard_input = true;
-  skip_key_down.skip_if_unhandled = true;
-  host_->ForwardKeyboardEvent(skip_key_down);
-  EXPECT_TRUE(host_->mock_input_router()->sent_keyboard_event_);
-}
-
-TEST_F(RenderWidgetHostTest, KeyboardListenerKeyDownFeatureEnabledPhysical) {
-  base::test::ScopedFeatureList feature_list{
-      features::kAllowKeyDownInKeyPressListeners};
-
-  host_->SetupForInputRouterTest();
-  host_->AddKeyPressEventCallback(base::BindRepeating(
-      &RenderWidgetHostTest::KeyPressEventCallback, base::Unretained(this)));
-
-  handle_key_press_event_ = true;
-
-  // Physical KeyDown event.
-  input::NativeWebKeyboardEvent physical_key_down =
-      CreateNativeWebKeyboardEvent(WebInputEvent::Type::kKeyDown);
-  physical_key_down.is_confirmed_physical_keyboard_input = true;
-  host_->ForwardKeyboardEvent(physical_key_down);
-
-  // On Android, the physical KeyDown event is handled.
-  EXPECT_FALSE(host_->mock_input_router()->sent_keyboard_event_);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(RenderWidgetHostTest, KeyboardListenerKeyDownIgnoredOnNonAndroid) {
   base::test::ScopedFeatureList feature_list{
       features::kAllowKeyDownInKeyPressListeners};
@@ -2435,7 +2318,6 @@ TEST_F(RenderWidgetHostTest, KeyboardListenerKeyDownIgnoredOnNonAndroid) {
   // On other platforms, KeyDown is never processed by key press listeners.
   EXPECT_TRUE(host_->mock_input_router()->sent_keyboard_event_);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(RenderWidgetHostTest, MouseEventCallbackCanHandleEvent) {
   host_->SetupForInputRouterTest();
@@ -3373,25 +3255,6 @@ TEST_F(RenderWidgetHostTest, ScopedObservationWithInputEventObserver) {
       .Run(native_event, input::DispatchToRendererResult::kNotDispatched);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(RenderWidgetHostTest, AddAndRemoveImeInputEventObserver) {
-  MockInputEventObserver observer;
-
-  // Add ImeInputEventObserver.
-  host_->AddImeInputEventObserver(&observer);
-
-  // Confirm ImeFinishComposingTextEvent is triggered.
-  EXPECT_CALL(observer, OnImeFinishComposingTextEvent()).Times(1);
-  host_->ImeFinishComposingText(true);
-
-  // Remove ImeInputEventObserver.
-  host_->RemoveImeInputEventObserver(&observer);
-
-  // Confirm ImeInputEventObserver is removed.
-  EXPECT_CALL(observer, OnImeFinishComposingTextEvent()).Times(0);
-  host_->ImeFinishComposingText(true);
-}
-#endif
 
 TEST_F(RenderWidgetHostTest, SetAndCommitExternallySourcedComposition) {
   std::u16string text = u"hello";
@@ -3712,16 +3575,6 @@ TEST(RenderFrameMetadataMojoTraitsTest, ValidMetadata) {
   input.browser_controls_metadata.top_controls_shown_ratio = 1.0f;
   input.viewport_size_in_pixels = gfx::Size(800, 600);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  input.browser_controls_metadata.bottom_controls_height = 50.0f;
-  input.browser_controls_metadata.bottom_controls_shown_ratio = 0.5f;
-  input.browser_controls_metadata.top_controls_min_height_offset = 10.0f;
-  input.browser_controls_metadata.bottom_controls_min_height_offset = 5.0f;
-  input.min_page_scale_factor = 0.5f;
-  input.max_page_scale_factor = 4.0f;
-  input.scrollable_viewport_size = gfx::SizeF(800.0f, 600.0f);
-  input.root_layer_size = gfx::SizeF(800.0f, 2000.0f);
-#endif
 
   cc::RenderFrameMetadata output;
   EXPECT_TRUE(
@@ -3735,18 +3588,6 @@ TEST(RenderFrameMetadataMojoTraitsTest, ValidMetadata) {
             output.browser_controls_metadata.top_controls_height);
   EXPECT_EQ(input.browser_controls_metadata.top_controls_shown_ratio,
             output.browser_controls_metadata.top_controls_shown_ratio);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  EXPECT_EQ(input.browser_controls_metadata.bottom_controls_height,
-            output.browser_controls_metadata.bottom_controls_height);
-  EXPECT_EQ(input.browser_controls_metadata.bottom_controls_shown_ratio,
-            output.browser_controls_metadata.bottom_controls_shown_ratio);
-  EXPECT_EQ(input.browser_controls_metadata.top_controls_min_height_offset,
-            output.browser_controls_metadata.top_controls_min_height_offset);
-  EXPECT_EQ(input.browser_controls_metadata.bottom_controls_min_height_offset,
-            output.browser_controls_metadata.bottom_controls_min_height_offset);
-  EXPECT_EQ(input.min_page_scale_factor, output.min_page_scale_factor);
-  EXPECT_EQ(input.max_page_scale_factor, output.max_page_scale_factor);
-#endif
 }
 
 TEST(RenderFrameMetadataMojoTraitsTest, BoundaryShownRatios) {
@@ -3760,14 +3601,6 @@ TEST(RenderFrameMetadataMojoTraitsTest, BoundaryShownRatios) {
             input, output));
     EXPECT_EQ(ratio, output.browser_controls_metadata.top_controls_shown_ratio);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    input.browser_controls_metadata.bottom_controls_shown_ratio = ratio;
-    EXPECT_TRUE(
-        mojo::test::SerializeAndDeserialize<cc::mojom::RenderFrameMetadata>(
-            input, output));
-    EXPECT_EQ(ratio,
-              output.browser_controls_metadata.bottom_controls_shown_ratio);
-#endif
   }
 }
 
@@ -3804,37 +3637,6 @@ TEST(RenderFrameMetadataMojoTraitsTest, InvalidScaleFactors) {
             input, output));
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  const float invalid_scale_limits[] = {
-      -0.001f,
-      -1.0f,
-      std::numeric_limits<float>::infinity(),
-      -std::numeric_limits<float>::infinity(),
-      std::numeric_limits<float>::quiet_NaN(),
-  };
-
-  for (float scale : invalid_scale_limits) {
-    input = cc::RenderFrameMetadata();
-    input.min_page_scale_factor = scale;
-    EXPECT_FALSE(
-        mojo::test::SerializeAndDeserialize<cc::mojom::RenderFrameMetadata>(
-            input, output));
-
-    input = cc::RenderFrameMetadata();
-    input.max_page_scale_factor = scale;
-    EXPECT_FALSE(
-        mojo::test::SerializeAndDeserialize<cc::mojom::RenderFrameMetadata>(
-            input, output));
-  }
-
-  // Max page scale factor less than min page scale factor.
-  input = cc::RenderFrameMetadata();
-  input.min_page_scale_factor = 2.0f;
-  input.max_page_scale_factor = 1.0f;
-  EXPECT_FALSE(
-      mojo::test::SerializeAndDeserialize<cc::mojom::RenderFrameMetadata>(
-          input, output));
-#endif
 }
 
 TEST(RenderFrameMetadataMojoTraitsTest, InvalidTopControlsValues) {
@@ -3878,60 +3680,6 @@ TEST(RenderFrameMetadataMojoTraitsTest, InvalidTopControlsValues) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-TEST(RenderFrameMetadataMojoTraitsTest, InvalidBottomControlsAndOffsets) {
-  cc::RenderFrameMetadata input;
-  cc::RenderFrameMetadata output;
-
-  const float invalid_heights[] = {
-      -0.001f,
-      -1.0f,
-      -100.0f,
-      std::numeric_limits<float>::infinity(),
-      -std::numeric_limits<float>::infinity(),
-      std::numeric_limits<float>::quiet_NaN(),
-  };
-
-  for (float height : invalid_heights) {
-    input = cc::RenderFrameMetadata();
-    input.browser_controls_metadata.bottom_controls_height = height;
-    EXPECT_FALSE(
-        mojo::test::SerializeAndDeserialize<cc::mojom::RenderFrameMetadata>(
-            input, output));
-
-    input = cc::RenderFrameMetadata();
-    input.browser_controls_metadata.top_controls_min_height_offset = height;
-    EXPECT_FALSE(
-        mojo::test::SerializeAndDeserialize<cc::mojom::RenderFrameMetadata>(
-            input, output));
-
-    input = cc::RenderFrameMetadata();
-    input.browser_controls_metadata.bottom_controls_min_height_offset = height;
-    EXPECT_FALSE(
-        mojo::test::SerializeAndDeserialize<cc::mojom::RenderFrameMetadata>(
-            input, output));
-  }
-
-  const float invalid_ratios[] = {
-      -0.1f,
-      -0.001f,
-      1.001f,
-      1.1f,
-      100.0f,
-      std::numeric_limits<float>::infinity(),
-      -std::numeric_limits<float>::infinity(),
-      std::numeric_limits<float>::quiet_NaN(),
-  };
-
-  for (float ratio : invalid_ratios) {
-    input = cc::RenderFrameMetadata();
-    input.browser_controls_metadata.bottom_controls_shown_ratio = ratio;
-    EXPECT_FALSE(
-        mojo::test::SerializeAndDeserialize<cc::mojom::RenderFrameMetadata>(
-            input, output));
-  }
-}
-#endif
 
 TEST_F(RenderWidgetHostTest, RenderFrameMetadataOutOfRangeMessageDisconnects) {
   mojo::Remote<cc::mojom::RenderFrameMetadataObserverClient> client_remote;

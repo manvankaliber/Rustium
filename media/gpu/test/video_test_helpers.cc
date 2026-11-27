@@ -35,7 +35,7 @@
 #if BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)
 // These includes are used for non-ChromeOS platforms as well.
 // TODO(crbug.com/414455717): Consider renaming them.
-#include "media/gpu/chromeos/platform_video_frame_utils.h"
+#include "media/gpu/linux/platform_video_frame_utils.h"
 #endif
 
 namespace media::test {

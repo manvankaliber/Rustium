@@ -27,9 +27,7 @@ BASE_DECLARE_FEATURE(kAllowEyeDropperWGCScreenCapture);
 BASE_DECLARE_FEATURE(kBrowserWindowListenerObservation);
 bool IsBrowserWindowListenerObservationEnabled();
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_DECLARE_FEATURE(kBookmarkBarAreaKeyboardNavigation);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 BASE_DECLARE_FEATURE(kCtrlTabMru);
 
@@ -217,7 +215,6 @@ BASE_DECLARE_FEATURE(kPressAndHoldEscToExitBrowserFullscreen);
 BASE_DECLARE_FEATURE(kProcessIsolationSettings);
 #endif  // BUILDFLAG(IS_WIN)
 
-BASE_DECLARE_FEATURE(kLensOverlayVirtualFocusNavigation);
 BASE_DECLARE_FEATURE(kOmniboxEverywhereVirtualFocusNavigation);
 BASE_DECLARE_FEATURE(kOmniboxPopupDesktopWidget);
 BASE_DECLARE_FEATURE(kWebuiBrowserVirtualFocusNavigation);
@@ -238,9 +235,7 @@ BASE_DECLARE_FEATURE(kTabDuplicateMetrics);
 
 BASE_DECLARE_FEATURE(kCollapseTabGroupDuringDrag);
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_DECLARE_FEATURE(kNewTabButtonContextMenu);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 BASE_DECLARE_FEATURE(kTabHoverCardImages);
 
@@ -278,14 +273,12 @@ BASE_DECLARE_FEATURE(kTabModalUsesDesktopWidget);
 
 BASE_DECLARE_FEATURE(kTearOffWebAppTabOpensWebAppWindow);
 
-#if !BUILDFLAG(IS_ANDROID)
 // Enables a three-button password save dialog variant (essentially adding a
 // "not now" button alongside "never").
 BASE_DECLARE_FEATURE(kThreeButtonPasswordSaveDialog);
 
 // Enables a split button for the "Cancel" action in the Password Save bubble.
 BASE_DECLARE_FEATURE(kPasswordSaveUpdateDropdownMenuExperiment);
-#endif
 
 // TODO(crbug.com/460764864): Cleanup all the enterprise badging feature flags.
 BASE_DECLARE_FEATURE(kNTPFooterBadgingPolicies);
@@ -314,7 +307,6 @@ BASE_DECLARE_FEATURE(kPageSpecificDataDialogRelatedInstalledAppsSection);
 
 // Gates the optimization to cache LocationBarView in
 // LensOverlayHomeworkPageActionController.
-BASE_DECLARE_FEATURE(kLensOverlayHomeworkPageActionFocusOptimization);
 
 // Enables the anchored message bubble to close when deactivated (e.g. when
 // losing focus).
@@ -347,7 +339,6 @@ BASE_DECLARE_FEATURE(kByDateHistoryInSidePanel);
 // If enabled, the "Tabs from other devices" side panel will be available.
 BASE_DECLARE_FEATURE(kTabsFromOtherDevicesSidePanel);
 
-#if !BUILDFLAG(IS_ANDROID)
 
 bool IsWebUIReloadButtonEnabled();
 
@@ -372,8 +363,6 @@ BASE_DECLARE_FEATURE(kWebUIMediaButton);
 bool IsWebUIMediaButtonEnabled();
 
 // Controls whether the WebUI version of the Glic Button is used.
-BASE_DECLARE_FEATURE(kWebUIGlicButton);
-bool IsWebUIGlicButtonEnabled();
 
 bool IsWebUIPerformanceInterventionButtonEnabled();
 
@@ -386,16 +375,10 @@ bool IsWebUIToolbarEnabled();
 
 // Returns true if all toolbar controls are being handled by WebUI.
 bool IsWebUIToolbarFullyEnabled();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Controls whether to show a toast for Chrome non milestone update.
 BASE_DECLARE_FEATURE(kNonMilestoneUpdateToast);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_DECLARE_FEATURE(kAndroidAnimatedProgressBarInBrowser);
-
-bool IsAndroidAnimatedProgressBarInBrowserEnabled();
-#endif  // BUILDFLAG(IS_ANDROID)
 
 BASE_DECLARE_FEATURE(kAiOverlayDialog);
 BASE_DECLARE_FEATURE(kAiOverlayDialogDev);
@@ -424,7 +407,6 @@ BASE_DECLARE_FEATURE(kToolbarAppMenuLabelResizing);
 
 BASE_DECLARE_FEATURE(kToolbarProfileChipResizing);
 
-BASE_DECLARE_FEATURE(kToolbarGlicButtonResizing);
 
 // Whether or not OSCryptAsyncAvailabilityInfoBarDelegate is enabled.
 // Currently only used on MacOS as that's the only platform we can

@@ -36,7 +36,7 @@
 #include "components/update_client/crx_update_item.h"
 #include "crypto/hash.h"
 
-#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
 #include "chrome/browser/request_header_integrity/platform_runtime_host.h"  // nogncheck
 #endif
 
@@ -362,7 +362,7 @@ void PlatformRuntimeComponentInstallerPolicy::ComponentReady(
         }
     // The library is executed only in a sandboxed utility process, so the
     // browser just records where it is.
-#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_REQUEST_HEADER_INTEGRITY)
         if (g_browser_process && g_browser_process->GetFeatures()) {
           if (auto* host =
                   g_browser_process->GetFeatures()->platform_runtime_host()) {

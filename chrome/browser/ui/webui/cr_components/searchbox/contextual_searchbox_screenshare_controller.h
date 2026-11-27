@@ -26,10 +26,8 @@
 #include "third_party/skia/include/core/SkBitmap.h"
 #include "ui/gfx/geometry/rect.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "content/public/browser/desktop_media_id.h"
 #include "third_party/webrtc/modules/desktop_capture/desktop_capturer.h"
-#endif
 
 namespace content {
 class WebContents;
@@ -136,7 +134,6 @@ class ContextualSearchboxScreenshareController {
     return weak_ptr_factory_.GetWeakPtr();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   void set_screen_capture_delay_for_testing(
       std::optional<base::TimeDelta> delay) {
     screen_capture_delay_for_testing_ = delay;
@@ -147,10 +144,8 @@ class ContextualSearchboxScreenshareController {
   DesktopMediaPickerController* screenshare_picker_controller_for_testing() {
     return screenshare_picker_controller_.get();
   }
-#endif
 
  private:
-#if !BUILDFLAG(IS_ANDROID)
   void StartScreenshareInternal(bool prefer_entire_screen,
                                 bool is_region_capture,
                                 StartScreenshareCallback callback);
@@ -189,13 +184,11 @@ class ContextualSearchboxScreenshareController {
   void NotifyScreensharePickerOpened();
   void NotifyScreensharePickerClosed();
   bool IsScreenshareInProgress() const;
-#endif
 
   raw_ptr<content::WebContents> web_contents_;
   raw_ptr<Host> host_;
   raw_ptr<Delegate> delegate_ = nullptr;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<DesktopMediaPickerController> screenshare_picker_controller_;
   std::unique_ptr<content::desktop_capture::ScreenshotCaptureRequest>
       active_screenshot_request_;
@@ -219,7 +212,6 @@ class ContextualSearchboxScreenshareController {
   std::optional<RegionCaptureSource> pending_region_capture_source_;
   bool chrome_default_picker_destroyed_ = false;
   std::optional<base::TimeDelta> screen_capture_delay_for_testing_;
-#endif
 
   bool is_capturing_ = false;
 

@@ -23,7 +23,6 @@ export function getHtml(this: SettingsSignoutDialogElement) {
       $i18n{syncDisconnect}
     </cr-button>
   </div>
-<if expr="not is_chromeos">
   <div id="wideFooter" slot="footer">
     <div class="cr-row first">
       <cr-checkbox id="deleteProfile" class="flex"
@@ -43,7 +42,6 @@ export function getHtml(this: SettingsSignoutDialogElement) {
       </div>
     </cr-collapse>
   </div>
-</if>
 </cr-dialog>
 <!--_html_template_end_-->`;
 }

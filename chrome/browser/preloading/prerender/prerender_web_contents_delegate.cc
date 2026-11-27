@@ -14,9 +14,6 @@
 #include "components/optimization_guide/core/optimization_guide_features.h"
 #include "extensions/buildflags/buildflags.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/content_settings/request_desktop_site_web_contents_observer_android.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/browser/extensions/api/web_navigation/web_navigation_tab_observer.h"
@@ -37,10 +34,6 @@ void PrerenderWebContentsDelegateImpl::PrerenderWebContentsCreated(
         prerender_web_contents);
   }
   InitializePageLoadMetricsForWebContents(prerender_web_contents);
-#if BUILDFLAG(IS_ANDROID)
-  RequestDesktopSiteWebContentsObserverAndroid::CreateForWebContents(
-      prerender_web_contents);
-#endif
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   if (extensions::GetViewType(prerender_web_contents) ==
       extensions::mojom::ViewType::kInvalid) {

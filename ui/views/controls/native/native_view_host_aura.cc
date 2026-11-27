@@ -28,16 +28,10 @@
 #include "ui/views/view_class_properties.h"
 #include "ui/views/widget/widget.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/views/controls/native/native_view_host_aura_with_clip_window.h"
-#endif
 
 namespace views {
 
 NativeViewHostAura::NativeViewHostAura(NativeViewHost* host) : host_(host) {
-#if BUILDFLAG(IS_CHROMEOS)
-  CHECK(host_->layer_managed_by_views());
-#endif
 }
 
 NativeViewHostAura::~NativeViewHostAura() {
@@ -67,15 +61,7 @@ void NativeViewHostAura::AttachNativeView() {
   host_->native_view()->SetLayerManagedByParent(false);
   // Native views in views should be above independent native views
   host_->GetWidget()->GetNativeView()->StackChildAtBottom(host_->native_view());
-#if BUILDFLAG(IS_CHROMEOS)
-  if (host_->create_layer()) {
-    host_->SetPaintToLayer(ui::LAYER_NOT_DRAWN);
-  } else {
-    CHECK(host_->layer());
-  }
-#else
   host_->SetPaintToLayer(ui::LAYER_NOT_DRAWN);
-#endif
   host_->layer()->Add(GetUILayer());
   native_view_observation_.Observe(host_->native_view());
   original_transform_ = host_->native_view()->transform();
@@ -118,13 +104,7 @@ void NativeViewHostAura::NativeViewDetaching(bool destroyed) {
   if (!destroyed) {
     native_view_observation_.Reset();
     host_->native_view()->SetLayerManagedByParent(true);
-#if BUILDFLAG(IS_CHROMEOS)
-    if (host_->create_layer()) {
-      host_->DestroyLayer();
-    }
-#else
     host_->DestroyLayer();
-#endif
     host_->native_view()->ClearProperty(
         aura::client::kParentNativeViewAccessibleKey);
     if (original_transform_changed_) {
@@ -287,11 +267,6 @@ void NativeViewHostAura::OnWindowDestroyed(aura::Window* window) {
 // static
 NativeViewHostWrapper* NativeViewHostWrapper::CreateWrapper(
     NativeViewHost* host) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!host->layer_managed_by_views()) {
-    return new NativeViewHostAuraWithClipWindow(host);
-  }
-#endif
   return new NativeViewHostAura(host);
 }
 

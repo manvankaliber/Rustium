@@ -1,4 +1,4 @@
-load("@flatbuffers//:build_defs.bzl", "flatbuffer_android_library", "flatbuffer_cc_library", "flatbuffer_java_library", "flatbuffer_py_library")
+load("@flatbuffers//:build_defs.bzl", "flatbuffer_cc_library", "flatbuffer_java_library", "flatbuffer_py_library")
 load(
     "//tensorflow_lite_support:api_visibility.bzl",
     "TFLITE_SUPPORT_FRAMEWORK_VISIBILITY",
@@ -17,11 +17,6 @@ flatbuffer_py_library(
 )
 
 # Generic schema for inference on device.
-flatbuffer_android_library(
-    name = "schema_fbs_android",
-    srcs = ["@org_tensorflow//tensorflow/compiler/mlir/lite/schema:schema.fbs"],
-    custom_package = "org.tensorflow.lite.schema",
-)
 
 flatbuffer_java_library(
     name = "schema_fbs_java",
@@ -42,12 +37,6 @@ flatbuffer_py_library(
 
 flatbuffer_java_library(
     name = "metadata_schema_java",
-    srcs = ["metadata_schema.fbs"],
-    custom_package = "org.tensorflow.lite.support.metadata.schema",
-)
-
-flatbuffer_android_library(
-    name = "metadata_schema_fbs_android",
     srcs = ["metadata_schema.fbs"],
     custom_package = "org.tensorflow.lite.support.metadata.schema",
 )

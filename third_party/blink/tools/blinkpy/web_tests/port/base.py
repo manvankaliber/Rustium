@@ -182,10 +182,9 @@ class Port(object):
         ('win11-arm64', 'arm64'),
         ('win11', 'x86_64'),
         ('linux', 'x86_64'),
-        ('fuchsia', 'x86_64'),
         ('ios26-simulator', 'x86_64'),
         ('tvos26-simulator', 'x86_64'),
-        ('android', 'x86_64'),
+        ('x86_64',),
         ('webview', 'x86_64'),
     )
 
@@ -200,12 +199,9 @@ class Port(object):
             'mac26',
             'mac26-arm64',
         ],
-        'ios': ['ios26-simulator'],
         'tvos': ['tvos26-simulator'],
         'win': ['win10.20h2', 'win11-arm64', 'win11'],
         'linux': ['linux'],
-        'fuchsia': ['fuchsia'],
-        'android': ['android'],
         'webview': ['webview'],
     }
 

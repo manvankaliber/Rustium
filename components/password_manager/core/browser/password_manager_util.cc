@@ -51,10 +51,6 @@
 #include "crypto/process_bound_string.h"
 #include "url/url_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/strings/string_number_conversions.h"
-#endif
 
 using autofill::password_generation::PasswordGenerationType;
 using password_manager::PasswordForm;
@@ -149,14 +145,6 @@ void UserTriggeredManualGenerationFromContextMenu(
 }
 
 bool IsAbleToSavePasswords(password_manager::PasswordManagerClient* client) {
-#if BUILDFLAG(IS_ANDROID)
-  if (password_manager::sync_util::HasChosenToSyncPasswords(
-          client->GetSyncService())) {
-    const password_manager::PasswordStoreInterface* account_store =
-        client->GetAccountPasswordStore();
-    return account_store && IsAbleToSavePasswords(account_store->GetError());
-  }
-#endif
   // TODO(b/324054761): Check AccountPasswordStore store when needed.
   const password_manager::PasswordStoreInterface* profile_store =
       client->GetProfilePasswordStore();
@@ -165,32 +153,6 @@ bool IsAbleToSavePasswords(password_manager::PasswordManagerClient* client) {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-bool IsBlockingOnMobile(const password_manager::PasswordManagerClient* client) {
-  const password_manager::PasswordStoreInterface* account_store =
-      client->GetAccountPasswordStore();
-  if (!account_store ||
-      account_store->GetError() !=
-          password_manager::ActionableError::kTrustedVaultKeyNeeded ||
-      !base::FeatureList::IsEnabled(
-          password_manager::features::kPasswordSaveInContextErrorResolution)) {
-    return false;
-  }
-
-#if BUILDFLAG(IS_ANDROID)
-  int gms_version = 0;
-  return base::StringToInt(base::android::device_info::gms_version_code(),
-                           &gms_version) &&
-         gms_version >=
-             password_manager::features::
-                 kPasswordSaveInContextErrorResolutionMinGmsVersion.Get();
-#elif BUILDFLAG(IS_IOS)
-  return true;
-#else
-  NOTREACHED();
-#endif
-}
-#else   // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 bool IsBlockingOnDesktop(
     const password_manager::PasswordManagerClient* client,
     const password_manager::PasswordFormManagerForUI* form_manager) {
@@ -226,7 +188,6 @@ bool IsBlockingOnDesktop(
          base::FeatureList::IsEnabled(
              password_manager::features::kPasswordSaveInContextErrorResolution);
 }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 }  // namespace
 
@@ -247,41 +208,13 @@ bool IsSavingBlockedByTrustedVaultError(
     return false;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return IsBlockingOnMobile(client);
-#else
   return IsBlockingOnDesktop(client, form_manager);
-#endif
 }
 
 bool IsSavingBlockedByRecoverableError(
     const password_manager::PasswordManagerClient* client,
     const password_manager::PasswordFormManagerForUI* form_manager) {
-#if BUILDFLAG(IS_IOS)
-  if (!password_manager::sync_util::HasChosenToSyncPasswords(
-          client->GetSyncService())) {
-    return false;
-  }
-  // The updates of the locally stored passwords should not be blocked by
-  // recoverable errors.
-  if (form_manager && form_manager->IsPasswordUpdate() &&
-      !form_manager->IsUpdateAffectingPasswordsStoredInTheGoogleAccount()) {
-    return false;
-  }
-  const password_manager::PasswordStoreInterface* account_store =
-      client->GetAccountPasswordStore();
-  if (!account_store) {
-    return false;
-  }
-  password_manager::ActionableError error = account_store->GetError();
-  return (error == password_manager::ActionableError::kTrustedVaultKeyNeeded ||
-          error == password_manager::ActionableError::kSignInNeeded ||
-          error == password_manager::ActionableError::kNeedsPassphrase) &&
-         base::FeatureList::IsEnabled(
-             password_manager::features::kPasswordSaveInContextErrorResolution);
-#else  // !BUILDFLAG(IS_IOS)
   return false;
-#endif
 }
 
 std::string_view GetSignonRealmWithProtocolExcluded(const PasswordForm& form) {
@@ -543,7 +476,7 @@ PasswordForm MakeNormalizedBlocklistedForm(
   return result;
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // TODO(crbug.com/367336383): Make the this block Ash only for
 // ChromeOS.
 bool ShouldBiometricAuthenticationForFillingToggleBeVisible(
@@ -583,7 +516,7 @@ bool ShouldShowBiometricAuthenticationBeforeFillingPromo(
   return !client->GetPrefs()->GetBoolean(
       password_manager::prefs::kBiometricAuthenticationBeforeFilling);
 }
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 GURL StripAuthAndParams(const GURL& gurl) {
   GURL::Replacements rep;
@@ -619,18 +552,6 @@ std::string GetSignonRealm(const GURL& url) {
   return url.ReplaceComponents(rep).spec();
 }
 
-#if BUILDFLAG(IS_IOS)
-bool IsCredentialProviderEnabledOnStartup(const PrefService* local_state) {
-  return local_state->GetBoolean(
-      password_manager::prefs::kCredentialProviderEnabledOnStartup);
-}
-
-void SetCredentialProviderEnabledOnStartup(PrefService* local_state,
-                                           bool enabled) {
-  local_state->SetBoolean(
-      password_manager::prefs::kCredentialProviderEnabledOnStartup, enabled);
-}
-#endif
 
 bool IsNumeric(char16_t c) {
   return '0' <= c && c <= '9';

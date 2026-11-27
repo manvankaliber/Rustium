@@ -57,10 +57,8 @@ class FakeTabStripService : public TabStripService {
     observers_.RemoveObserver(observer);
   }
   void Accept(mojo::PendingReceiver<mojom::TabStripService>) override {}
-#if !BUILDFLAG(IS_ANDROID)
   void AcceptExperimental(
       mojo::PendingReceiver<mojom::TabStripExperimentService>) override {}
-#endif
 
   // mojom::TabStripServiceDirectReturnStub:
   mojom::TabStripService::GetTabsResult GetTabs() override {
@@ -97,7 +95,6 @@ class FakeTabStripService : public TabStripService {
     return base::unexpected(mojo_base::mojom::Error::New());
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // mojom::TabStripExperimentServiceDirectReturnStub:
   mojom::TabStripExperimentService::GetAllTabsForProfileResult
   GetAllTabsForProfile() override {
@@ -108,7 +105,6 @@ class FakeTabStripService : public TabStripService {
       const NodeId&) override {
     return base::unexpected(mojo_base::mojom::Error::New());
   }
-#endif
 
  private:
   mojom::ContainerPtr initial_root_;

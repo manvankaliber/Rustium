@@ -12,6 +12,11 @@
 #include "net/test/net_test_suite.h"
 #include "url/buildflags.h"
 
+#if BUILDFLAG(IS_WIN)
+#include "base/logging.h"
+#include "base/logging/logging_settings.h"
+#endif
+
 namespace {
 
 bool VerifyBuildIsTimely() {
@@ -49,6 +54,15 @@ int main(int argc, char** argv) {
     return 1;
 
   NetTestSuite test_suite(argc, argv);
+#if BUILDFLAG(IS_WIN)
+  // Construction initializes CommandLine. The launcher can log before Run().
+  // Child and single-process Run() still initialize suite logging as before.
+  // Capture early Windows diagnostics without writing beside sealed binaries.
+  if (!logging::InitLogging({.logging_dest = logging::LOG_TO_STDERR})) {
+    return 1;
+  }
+#endif
+
 
   return base::LaunchUnitTests(
       argc, argv,

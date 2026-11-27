@@ -71,8 +71,8 @@ class HttpAuthCacheStatus;
 class IntentPickerTabHelper;
 class IntentPickerViewPageActionController;
 class JsOptimizationsPageActionController;
-class LensOverlayHomeworkPageActionController;
-class LensSearchController;
+
+
 class ManagePasswordsPageActionController;
 class ManagePasswordsUIController;
 class MemorySaverChipTabHelper;
@@ -111,9 +111,7 @@ class TranslatePageActionController;
 class UMABrowsingActivityTabHelper;
 class ZeroSuggestPrefetchTabHelper;
 
-namespace skills {
-class SkillsUiTabControllerInterface;
-}  // namespace skills
+namespace skills {}  // namespace skills
 
 namespace site_protection {
 class SiteProtectionMetricsObserver;
@@ -144,25 +142,17 @@ class WalletReminderNoticePageActionController;
 }  // namespace autofill
 
 namespace actor {
-class ActorSurfaceTabHelper;
+
 class ActorTabData;
 }  // namespace actor
 
-namespace actor::ui {
-class ActorUiTabControllerInterface;
-}  // namespace actor::ui
+namespace actor::ui {}  // namespace actor::ui
 
 namespace chrome_browser_net {
 class NetErrorTabHelper;
 }  // namespace chrome_browser_net
 
-namespace commerce {
-class CommerceTabHelper;
-class CommerceUiTabHelper;
-class DiscountsPageActionViewController;
-class InStockNotificationManager;
-class PriceInsightsPageActionViewController;
-}  // namespace commerce
+  // namespace commerce
 
 namespace enterprise_data_protection {
 class DataProtectionNavigationController;
@@ -196,9 +186,6 @@ class ContextualSearchCueTabState;
 namespace contextual_tasks {
 class ContextualTasksTabNavigationObserver;
 class ContextualTasksTabVisitTracker;
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-class SearchAiModePromoTabHelper;
-#endif
 class SearchJourneyTabFeature;
 }  // namespace contextual_tasks
 
@@ -224,21 +211,7 @@ class NavigationExtensionEnabler;
 #endif
 }  // namespace extensions
 
-namespace glic {
-class ContextualCueingHelper;
-class GlicCueTabState;
-class GlicGeminiWebWarmingObserver;
-class GlicInstanceHelper;
-class GlicMarketingPageTabHelper;
-class GlicTabIndicatorHelper;
-class GlicSidePanelCoordinator;
-class GlicSelectionObserver;
-class GlicWebDragObserver;
-class QuickAnswersTool;
-class SelectionOverlayController;
-class SelectionSuggestionTool;
-class GlicPageFeaturesManager;
-}  // namespace glic
+  // namespace glic
 
 namespace history {
 class WebContentsTopSitesObserver;
@@ -256,11 +229,6 @@ namespace permissions {
 class PermissionIndicatorsTabData;
 }  // namespace permissions
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace policy {
-class DlpContentTabHelper;
-}  // namespace policy
-#endif
 
 namespace predictors {
 class LoadingPredictorTabHelper;
@@ -287,11 +255,7 @@ namespace web_app {
 class WindowManagementContentSettingObserver;
 }  // namespace web_app
 
-#if !BUILDFLAG(IS_ANDROID)
-namespace skills {
-class SkillsUpdateObserver;
-}  // namespace skills
-#endif  // !BUILDFLAG(IS_ANDROID)
+namespace skills {}  // namespace skills
 
 namespace sync_sessions {
 class SyncSessionsRouterTabHelper;
@@ -322,14 +286,11 @@ namespace tasks {
 class TaskTabHelper;
 }  // namespace tasks
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace record_replay {
 class RecordReplayClient;
 }  // namespace record_replay
-#endif
 
 namespace lens {
-class LensSuggestionTool;
 class TabContextualizationController;
 }  // namespace lens
 
@@ -340,28 +301,12 @@ class DesktopSessionDurationObserver;
 #endif
 }  // namespace metrics
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 namespace wallet {
 class ChromeWalletablePassClient;
 }  // namespace wallet
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-class CampaignsManagerSessionTabHelper;
-class GeminiAppTabHelper;
-class GoogleOneOfferIphTabHelper;
-namespace ash {
-class BootTimesRecorderTabHelper;
-class CrosIsolatedWebAppEnabler;
-}  // namespace ash
-namespace mahi {
-class MahiTabHelper;
-}  // namespace mahi
-namespace web_app {
-class ProtocolHandlerPickerCoordinator;
-}  // namespace web_app
-#endif
 
 #if BUILDFLAG(ENABLE_RLZ)
 class ChromeRLZTrackerWebContentsObserver;
@@ -465,7 +410,6 @@ class TabFeatures {
       permission_indicators_tab_data_;
 
   std::unique_ptr<SidePanelRegistry> side_panel_registry_;
-  std::unique_ptr<LensSearchController> lens_search_controller_;
 
   // Responsible for the customize chrome tab-scoped side panel.
   std::unique_ptr<customize_chrome::SidePanelController>
@@ -475,10 +419,6 @@ class TabFeatures {
   std::unique_ptr<ReadAnythingController> read_anything_controller_;
 
   // Responsible for commerce related features.
-  std::unique_ptr<commerce::CommerceTabHelper> commerce_tab_helper_;
-  std::unique_ptr<commerce::CommerceUiTabHelper> commerce_ui_tab_helper_;
-  std::unique_ptr<commerce::InStockNotificationManager>
-      in_stock_notification_manager_;
 
   // Responsible for updating status indicator of the pinned translate button.
   std::unique_ptr<PinnedTranslateActionListener>
@@ -498,12 +438,6 @@ class TabFeatures {
   std::unique_ptr<tab_groups::SavedTabGroupWebContentsListener>
       saved_tab_group_web_contents_listener_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Manages the protocol handler picker dialog on ChromeOS. Must be destroyed
-  // after the `tab_dialog_manager_`.
-  std::unique_ptr<web_app::ProtocolHandlerPickerCoordinator>
-      protocol_handler_picker_coordinator_;
-#endif
 
   // Manages various tab modal dialogs.
   std::unique_ptr<TabDialogManager> tab_dialog_manager_;
@@ -563,12 +497,8 @@ class TabFeatures {
       js_optimizations_page_action_controller_;
 
   // Responsible for managing the commerce "Price insights" page action.
-  std::unique_ptr<commerce::PriceInsightsPageActionViewController>
-      commerce_price_insights_page_action_view_controller_;
 
   // Responsible for managing the commerce "Price insights" page action.
-  std::unique_ptr<commerce::DiscountsPageActionViewController>
-      commerce_discounts_page_action_view_controller_;
 
   // Contains the recent collaboration message for a shared tab.
   std::unique_ptr<tab_groups::CollaborationMessagingTabData>
@@ -583,37 +513,17 @@ class TabFeatures {
       cookie_controls_page_action_controller_;
 
   // Manages the Lens Overlay Homework page action.
-  std::unique_ptr<LensOverlayHomeworkPageActionController>
-      lens_overlay_homework_page_action_controller_;
 
   // Manages the Bookmark page action.
   std::unique_ptr<BookmarkPageActionController>
       bookmark_page_action_controller_;
 
-  std::unique_ptr<glic::GlicInstanceHelper> glic_instance_helper_;
-  std::unique_ptr<glic::GlicTabIndicatorHelper> glic_tab_indicator_helper_;
-  std::unique_ptr<glic::GlicSidePanelCoordinator> glic_side_panel_coordinator_;
-  std::unique_ptr<glic::GlicSelectionObserver> glic_selection_observer_;
-  std::unique_ptr<glic::GlicWebDragObserver> glic_web_drag_observer_;
   std::unique_ptr<selection::SuggestionService> selection_suggestion_service_;
-  std::unique_ptr<glic::SelectionSuggestionTool>
-      glic_selection_suggestion_tool_;
-  std::unique_ptr<glic::QuickAnswersTool> glic_quick_answers_tool_;
-  std::unique_ptr<lens::LensSuggestionTool> lens_suggestion_tool_;
-  std::unique_ptr<glic::SelectionOverlayController>
-      glic_selection_overlay_controller_;
 
-  std::unique_ptr<glic::GlicPageFeaturesManager> glic_page_features_manager_;
-  std::unique_ptr<glic::GlicMarketingPageTabHelper>
-      glic_marketing_page_tab_helper_;
-  std::unique_ptr<glic::GlicGeminiWebWarmingObserver>
-      glic_gemini_web_warming_observer_;
 
   // Observes page loads to decide when to offer glic contextual cueing.
-  std::unique_ptr<glic::ContextualCueingHelper> contextual_cueing_helper_;
 
   // Per-tab eligibility state for the glic contextual cue.
-  std::unique_ptr<glic::GlicCueTabState> glic_cue_tab_state_;
 
   // Per-tab eligibility state for the contextual search contextual cue.
   std::unique_ptr<contextual_search::ContextualSearchCueTabState>
@@ -670,8 +580,6 @@ class TabFeatures {
 
   std::unique_ptr<QwacWebContentsObserver> qwac_web_contents_observer_;
 
-  std::unique_ptr<actor::ui::ActorUiTabControllerInterface>
-      actor_ui_tab_controller_;
 
   std::unique_ptr<TabCreationMetricsController>
       tab_creation_metrics_controller_;
@@ -713,12 +621,8 @@ class TabFeatures {
   std::unique_ptr<AskBeforeHttpDialogController>
       ask_before_http_dialog_controller_;
 
-  std::unique_ptr<actor::ActorTabData> actor_tab_data_;
-  std::unique_ptr<actor::ActorSurfaceTabHelper> actor_surface_tab_helper_;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<record_replay::RecordReplayClient> record_replay_client_;
-#endif
 
   std::unique_ptr<lens::TabContextualizationController>
       tab_contextualization_controller_;
@@ -742,14 +646,11 @@ class TabFeatures {
 
   std::unique_ptr<dictation::DictationIphController> dictation_iph_controller_;
 
-  std::unique_ptr<skills::SkillsUiTabControllerInterface>
-      skills_ui_tab_controller_;
 
   std::unique_ptr<tabs::PageContextEligibilityHelper>
       page_context_eligibility_helper_;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   std::unique_ptr<wallet::ChromeWalletablePassClient> walletable_pass_client_;
 #endif
 
@@ -760,17 +661,13 @@ class TabFeatures {
   std::unique_ptr<contextual_tasks::SearchJourneyTabFeature>
       search_journey_tab_feature_;
 
-#if !BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<skills::SkillsUpdateObserver> skills_update_observer_;
-#endif  //  !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   std::unique_ptr<metrics::DesktopSessionDurationObserver>
       desktop_session_duration_observer_;
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   std::unique_ptr<enterprise_reporting::SaasUsageNavigationObserver>
       saas_usage_navigation_observer_;
   std::unique_ptr<HatsHelper> hats_helper_;
@@ -785,17 +682,6 @@ class TabFeatures {
   std::unique_ptr<FontPrewarmerTabHelper> font_prewarmer_tab_helper_;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<GoogleOneOfferIphTabHelper> google_one_offer_iph_tab_helper_;
-  std::unique_ptr<CampaignsManagerSessionTabHelper>
-      campaigns_manager_session_tab_helper_;
-  std::unique_ptr<ash::CrosIsolatedWebAppEnabler>
-      cros_isolated_web_app_enabler_;
-  std::unique_ptr<GeminiAppTabHelper> gemini_app_tab_helper_;
-  std::unique_ptr<mahi::MahiTabHelper> mahi_tab_helper_;
-  std::unique_ptr<ash::BootTimesRecorderTabHelper>
-      boot_times_recorder_tab_helper_;
-#endif
 
 #if BUILDFLAG(ENABLE_RLZ)
   std::unique_ptr<ChromeRLZTrackerWebContentsObserver>
@@ -810,11 +696,6 @@ class TabFeatures {
   std::unique_ptr<ChromeComposeClient> compose_client_;
 #endif
 
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  std::unique_ptr<contextual_tasks::SearchAiModePromoTabHelper>
-      search_ai_mode_promo_tab_helper_;
-#endif
-
 #if BUILDFLAG(ENABLE_EXTENSIONS)
   std::unique_ptr<extensions::AppTabHelper> app_tab_helper_;
 #endif
@@ -824,10 +705,8 @@ class TabFeatures {
       navigation_extension_enabler_;
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<indigo::IndigoPageActionController>
       indigo_page_action_controller_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   std::unique_ptr<multistep_filter::FilterUiController> filter_ui_controller_;
   std::unique_ptr<multistep_filter::ChromeFilterNavigationObserver>
@@ -984,9 +863,6 @@ class TabFeatures {
   std::unique_ptr<FileSystemAccessPermissionRequestManager>
       file_system_access_permission_request_manager_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<policy::DlpContentTabHelper> dlp_content_tab_helper_;
-#endif
 
   // Must be the last member.
   base::WeakPtrFactory<TabFeatures> weak_factory_{this};

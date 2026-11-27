@@ -106,11 +106,6 @@ class ChromeTranslateClient
   PrefService* GetPrefs() override;
   std::unique_ptr<translate::TranslatePrefs> GetTranslatePrefs() override;
   language::AcceptLanguagesService* GetAcceptLanguagesService() override;
-#if BUILDFLAG(IS_ANDROID)
-  // Trigger a manual translation when the necessary state (e.g. source
-  // language) is ready.
-  void ManualTranslateWhenReady();
-#endif
   void SetPredefinedTargetLanguage(const base::i18n::LanguageTag& language,
                                    bool should_auto_translate);
 
@@ -125,9 +120,7 @@ class ChromeTranslateClient
   void OnSidePanelClosed();
   bool IsReadingModeOpen() const override;
 
-#if !BUILDFLAG(IS_ANDROID)
   class ReadAnythingObserver;
-#endif
 
   // Performs a one-time undo of the translation and shows the translation
   // bubble.
@@ -152,33 +145,18 @@ class ChromeTranslateClient
   // content::WebContentsObserver implementation.
   void WebContentsDestroyed() override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Shows the Full Page Translate bubble.
   ShowTranslateBubbleResult ShowBubble(translate::TranslateStep step,
                                        const std::string& source_language,
                                        const std::string& target_language,
                                        translate::TranslateErrors error_type,
                                        bool is_user_gesture);
-#endif
 
   std::unique_ptr<translate::ContentTranslateDriver> translate_driver_;
   std::unique_ptr<language_detection::ContentLanguageDetectionDriver>
       language_detection_driver_;
   std::unique_ptr<translate::TranslateManager> translate_manager_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Whether to trigger a manual translation when ready.
-  // See ChromeTranslateClient::ManualTranslateOnReady
-  bool manual_translate_on_ready_ = false;
-
-  std::unique_ptr<translate::TranslateMessage> translate_message_;
-  std::unique_ptr<translate::AutoTranslateSnackbarController>
-      auto_translate_snackbar_controller_;
-
-  // content::WebContentsObserver implementation on Android only. Used for the
-  // auto-translate Snackbar.
-  void OnVisibilityChanged(content::Visibility visibility) override;
-#endif
 
   // content::WebContentsObserver implementation. On Android, dismisses the
   // auto-translate Snackbar. On desktop, closes Reading Mode if it was opened
@@ -187,9 +165,7 @@ class ChromeTranslateClient
 
   bool opened_side_panel_for_pdf_translation_ = false;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<ReadAnythingObserver> read_anything_observer_;
-#endif
 
   base::WeakPtrFactory<ChromeTranslateClient> weak_factory_{this};
 

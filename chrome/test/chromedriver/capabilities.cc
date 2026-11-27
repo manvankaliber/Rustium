@@ -62,222 +62,31 @@ Status ParseString(std::string* to_set,
   return Status(kOk);
 }
 
-bool IsValidAndroidPackageName(const std::string& name) {
-  if (name.empty() || name.length() > 255) {
-    return false;
-  }
-  std::vector<std::string> segments =
-      base::SplitString(name, ".", base::KEEP_WHITESPACE, base::SPLIT_WANT_ALL);
-  if (segments.size() < 2) {
-    return false;
-  }
-  for (const std::string& segment : segments) {
-    if (segment.empty()) {
-      return false;
-    }
-    if (!base::IsAsciiAlpha(segment[0]) && segment[0] != '_') {
-      return false;
-    }
-    for (char c : segment) {
-      if (!base::IsAsciiAlphaNumeric(c) && c != '_') {
-        return false;
-      }
-    }
-  }
-  return true;
-}
 
-bool IsValidAndroidActivityName(const std::string& name) {
-  if (name.empty() || name.length() > 255) {
-    return false;
-  }
-  std::vector<std::string> segments =
-      base::SplitString(name, ".", base::KEEP_WHITESPACE, base::SPLIT_WANT_ALL);
-  for (size_t i = 0; i < segments.size(); ++i) {
-    const std::string& segment = segments[i];
-    if (segment.empty()) {
-      if (i == 0) {
-        continue;
-      }
-      return false;
-    }
-    char first_char = segment[0];
-    if (!base::IsAsciiAlpha(first_char) && first_char != '_' &&
-        first_char != ':') {
-      return false;
-    }
-    for (char c : segment) {
-      if (!base::IsAsciiAlphaNumeric(c) && c != '_' && c != ':') {
-        return false;
-      }
-    }
-  }
-  return true;
-}
 
-bool IsValidAndroidProcessName(const std::string& name) {
-  if (name.empty() || name.length() > 255) {
-    return false;
-  }
-  std::vector<std::string> segments =
-      base::SplitString(name, ".", base::KEEP_WHITESPACE, base::SPLIT_WANT_ALL);
-  for (const std::string& segment : segments) {
-    if (segment.empty()) {
-      return false;
-    }
-    char first_char = segment[0];
-    if (!base::IsAsciiAlpha(first_char) && first_char != '_' &&
-        first_char != ':') {
-      return false;
-    }
-    for (char c : segment) {
-      if (!base::IsAsciiAlphaNumeric(c) && c != '_' && c != ':') {
-        return false;
-      }
-    }
-  }
-  return true;
-}
 
-bool IsValidAndroidDeviceSocketName(const std::string& name) {
-  if (name.empty() || name.length() > 255) {
-    return false;
-  }
-  for (char c : name) {
-    if (!base::IsAsciiAlphaNumeric(c) && c != '_' && c != '.' && c != '/' &&
-        c != '@' && c != ':' && c != '-') {
-      return false;
-    }
-  }
-  return true;
-}
 
-bool IsValidAndroidDeviceSerialName(const std::string& name) {
-  if (name.empty() || name.length() > 255) {
-    return false;
-  }
-  for (char c : name) {
-    if (!base::IsAsciiAlphaNumeric(c) && c != '_' && c != '.' && c != ':' &&
-        c != '-') {
-      return false;
-    }
-  }
-  return true;
-}
 
-bool IsValidAndroidExecName(const std::string& name) {
-  if (name.empty() || name.length() > 255) {
-    return false;
-  }
-  for (char c : name) {
-    if (!base::IsAsciiAlphaNumeric(c) && c != '/' && c != '.' && c != '_' &&
-        c != '-') {
-      return false;
-    }
-  }
-  return true;
-}
 
-bool IsValidAndroidPermissionName(const std::string& name) {
-  // Permission names are interpolated into an `adb shell pm grant` command, so
-  // only allow characters that are valid in Java-style permission names.
-  if (name.empty() || name.length() > 255) {
-    return false;
-  }
-  return std::ranges::all_of(name, [](char c) {
-    return base::IsAsciiAlphaNumeric(c) || c == '_' || c == '.';
-  });
-}
 
-Status ParseAndroidPackage(std::string* to_set,
-                           const base::Value& option,
-                           Capabilities* capabilities) {
-  std::string str;
-  Status status = ParseString(&str, option, capabilities);
-  if (status.IsError()) {
-    return status;
-  }
-  if (!IsValidAndroidPackageName(str)) {
-    return Status(kInvalidArgument, "invalid 'androidPackage': " + str);
-  }
-  *to_set = std::move(str);
-  return Status(kOk);
-}
 
-Status ParseAndroidActivity(std::string* to_set,
-                            const base::Value& option,
-                            Capabilities* capabilities) {
-  std::string str;
-  Status status = ParseString(&str, option, capabilities);
-  if (status.IsError()) {
-    return status;
-  }
-  if (!IsValidAndroidActivityName(str)) {
-    return Status(kInvalidArgument, "invalid 'androidActivity': " + str);
-  }
-  *to_set = std::move(str);
-  return Status(kOk);
-}
 
-Status ParseAndroidProcess(std::string* to_set,
-                           const base::Value& option,
-                           Capabilities* capabilities) {
-  std::string str;
-  Status status = ParseString(&str, option, capabilities);
-  if (status.IsError()) {
-    return status;
-  }
-  if (!IsValidAndroidProcessName(str)) {
-    return Status(kInvalidArgument, "invalid 'androidProcess': " + str);
-  }
-  *to_set = std::move(str);
-  return Status(kOk);
-}
 
-Status ParseAndroidDeviceSocket(std::string* to_set,
-                                const base::Value& option,
-                                Capabilities* capabilities) {
-  std::string str;
-  Status status = ParseString(&str, option, capabilities);
-  if (status.IsError()) {
-    return status;
-  }
-  if (!IsValidAndroidDeviceSocketName(str)) {
-    return Status(kInvalidArgument, "invalid 'androidDeviceSocket': " + str);
-  }
-  *to_set = std::move(str);
-  return Status(kOk);
-}
 
-Status ParseAndroidDeviceSerial(std::string* to_set,
-                                const base::Value& option,
-                                Capabilities* capabilities) {
-  std::string str;
-  Status status = ParseString(&str, option, capabilities);
-  if (status.IsError()) {
-    return status;
-  }
-  if (!IsValidAndroidDeviceSerialName(str)) {
-    return Status(kInvalidArgument, "invalid 'androidDeviceSerial': " + str);
-  }
-  *to_set = std::move(str);
-  return Status(kOk);
-}
 
-Status ParseAndroidExecName(std::string* to_set,
-                            const base::Value& option,
-                            Capabilities* capabilities) {
-  std::string str;
-  Status status = ParseString(&str, option, capabilities);
-  if (status.IsError()) {
-    return status;
-  }
-  if (!IsValidAndroidExecName(str)) {
-    return Status(kInvalidArgument, "invalid 'androidExecName': " + str);
-  }
-  *to_set = std::move(str);
-  return Status(kOk);
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 Status ParseInterval(int* to_set,
                      const base::Value& option,
@@ -901,48 +710,6 @@ Status ParseExcludeSwitches(const base::Value& option,
   return Status(kOk);
 }
 
-Status ParseAndroidGrantPermissions(const base::Value& option,
-                                    Capabilities* capabilities) {
-  const base::ListValue* list = option.GetIfList();
-  if (!list) {
-    return Status(kInvalidArgument, "must be a list of strings");
-  }
-  std::vector<std::string> permissions;
-  permissions.reserve(list->size());
-  for (const base::Value& item : *list) {
-    const std::string* name = item.GetIfString();
-    if (!name) {
-      return Status(kInvalidArgument, "each permission must be a string");
-    }
-    if (!IsValidAndroidPermissionName(*name)) {
-      return Status(kInvalidArgument, "invalid permission name: " + *name);
-    }
-    // Short names such as "POST_NOTIFICATIONS" are expanded to the platform
-    // permission namespace. Fully-qualified names are passed through as is.
-    if (name->find('.') == std::string::npos) {
-      permissions.push_back("android.permission." + *name);
-    } else {
-      permissions.push_back(*name);
-    }
-  }
-  capabilities->android_grant_permissions = std::move(permissions);
-  return Status(kOk);
-}
-
-Status ParsePortNumber(int* to_set,
-                     const base::Value& option,
-                     Capabilities* capabilities) {
-  int max_port_number = 65535;
-  if (!option.is_int())
-    return Status(kInvalidArgument, "must be an integer");
-  if (option.GetInt() <= 0)
-    return Status(kInvalidArgument, "must be positive");
-  if (option.GetInt() > max_port_number)
-    return Status(kInvalidArgument, "must be less than or equal to " +
-                                    base::NumberToString(max_port_number));
-  *to_set = option.GetInt();
-  return Status(kOk);
-}
 
 
 Status ParseNetAddress(NetAddress* to_set,
@@ -1075,7 +842,6 @@ Status ParseChromeOptions(
   if (!chrome_options)
     return Status(kInvalidArgument, "must be a dictionary");
 
-  bool is_android = chrome_options->Find("androidPackage") != nullptr;
   bool is_remote = chrome_options->Find("debuggerAddress") != nullptr;
 
   std::map<std::string, Parser> parser_map;
@@ -1102,32 +868,7 @@ Status ParseChromeOptions(
       base::BindRepeating(&ParseDict, &capabilities->local_state);
   parser_map["prefs"] = base::BindRepeating(&ParseDict, &capabilities->prefs);
 
-  if (is_android) {
-    parser_map["androidActivity"] = base::BindRepeating(
-        &ParseAndroidActivity, &capabilities->android_activity);
-    parser_map["androidDeviceSerial"] = base::BindRepeating(
-        &ParseAndroidDeviceSerial, &capabilities->android_device_serial);
-    parser_map["androidPackage"] = base::BindRepeating(
-        &ParseAndroidPackage, &capabilities->android_package);
-    parser_map["androidProcess"] = base::BindRepeating(
-        &ParseAndroidProcess, &capabilities->android_process);
-    parser_map["androidExecName"] = base::BindRepeating(
-        &ParseAndroidExecName, &capabilities->android_exec_name);
-    parser_map["androidDeviceSocket"] = base::BindRepeating(
-        &ParseAndroidDeviceSocket, &capabilities->android_device_socket);
-    parser_map["androidUseRunningApp"] = base::BindRepeating(
-        &ParseBoolean, &capabilities->android_use_running_app);
-    parser_map["androidKeepAppDataDir"] = base::BindRepeating(
-        &ParseBoolean, &capabilities->android_keep_app_data_dir);
-    parser_map["androidGrantPermissions"] =
-        base::BindRepeating(&ParseAndroidGrantPermissions);
-    parser_map["androidDevToolsPort"] = base::BindRepeating(
-        &ParsePortNumber, &capabilities->android_devtools_port);
-    parser_map["args"] = base::BindRepeating(&ParseSwitches);
-    parser_map["excludeSwitches"] = base::BindRepeating(&ParseExcludeSwitches);
-    parser_map["loadAsync"] =
-        base::BindRepeating(&IgnoreDeprecatedOption, "loadAsync");
-  } else if (is_remote) {
+  if (is_remote) {
     parser_map["debuggerAddress"] =
         base::BindRepeating(&ParseNetAddress, &capabilities->debugger_address);
   } else {
@@ -1368,16 +1109,13 @@ Capabilities::Capabilities()
     : accept_insecure_certs(false),
       page_load_strategy(PageLoadStrategy::kNormal),
       strict_file_interactability(false),
-      android_use_running_app(false),
       detach(false),
       extension_load_timeout(base::Seconds(10)),
       network_emulation_enabled(false) {}
 
 Capabilities::~Capabilities() = default;
 
-bool Capabilities::IsAndroid() const {
-  return !android_package.empty();
-}
+
 
 bool Capabilities::IsRemoteBrowser() const {
   return debugger_address.IsValid();

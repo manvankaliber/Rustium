@@ -126,9 +126,9 @@ class MetricsStateManagerTest : public testing::Test {
   int client_info_load_count_ = 0;
 
  protected:
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
   using ClientIdBackupFixMethod = MetricsStateManager::ClientIdBackupFixMethod;
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#endif
 
   TestingPrefServiceSimple prefs_;
 
@@ -318,7 +318,7 @@ TEST_F(MetricsStateManagerTest, ForceClientIdCreation) {
               kFakeInstallationDate);
     EXPECT_EQ(prefs_.GetInt64(prefs::kMetricsReportingEnabledTimestamp),
               stored_client_info_backup_->reporting_enabled_date);
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
     histogram_tester.ExpectUniqueSample(
         "UMA.ClientIdBackupFixMethod",
         ClientIdBackupFixMethod::kBackupNewlyCreated, 1);
@@ -462,7 +462,7 @@ TEST_F(MetricsStateManagerTest, LoadPrefs) {
     state_manager->ForceClientIdCreation();
     EXPECT_FALSE(stored_client_info_backup_);
     EXPECT_EQ(state_manager->client_id(), client_info.client_id);
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
     const int expected_load_count =
         base::FeatureList::IsEnabled(features::kClientIdBackupCorrectnessFix)
             ? 1
@@ -498,7 +498,7 @@ TEST_F(MetricsStateManagerTest, PreferPrefs) {
 
     // The backup should not be modified.
     ASSERT_FALSE(stored_client_info_backup_);
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
     const int expected_load_count =
         base::FeatureList::IsEnabled(features::kClientIdBackupCorrectnessFix)
             ? 1
@@ -793,7 +793,7 @@ TEST_F(MetricsStateManagerTest,
   }
 }
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
 TEST_F(MetricsStateManagerTest, RepairClientInfoBackup_DisabledByDefault) {
   base::HistogramTester histogram_tester;
   EXPECT_FALSE(
@@ -1009,6 +1009,6 @@ TEST_F(MetricsStateManagerTest,
         1);
   }
 }
-#endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#endif
 
 }  // namespace metrics

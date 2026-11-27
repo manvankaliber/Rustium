@@ -54,14 +54,6 @@ class LanguagePrefs {
   // Returns true if the target language is forced through policy.
   bool IsForcedLanguage(std::string_view language);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Get the ULP languages from a preference. This is an unfiltered list of
-  // languages and may contain country specific language locales. If you do not
-  // need specific locals always compare base languages from the list.
-  std::vector<std::string> GetULPLanguages();
-  // Clear the previous ULP language pref and set to the new list of languages.
-  void SetULPLanguages(std::vector<base::i18n::LanguageTag> ulp_languages);
-#endif
 
  private:
   // Updates the language list containing combination of policy-forced and

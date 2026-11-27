@@ -44,12 +44,6 @@
 #include "third_party/blink/public/common/features.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "chromeos/ash/components/browser_context_helper/browser_context_types.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/scoped_user_manager.h"
-#endif
 
 using ::base::test::ParseJson;
 using ::base::test::RunClosure;
@@ -77,15 +71,8 @@ constexpr char kTestExtensionId[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 class HidChooserContextTestBase {
  public:
   HidChooserContextTestBase() {
-#if !BUILDFLAG(IS_ANDROID)
     scoped_feature_list_.InitAndEnableFeature(
         features::kSecurityKeyHidInterfacesAreFido);
-#elif BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-    scoped_feature_list_.InitWithFeatures(
-        {blink::features::kWebHID, features::kSecurityKeyHidInterfacesAreFido,
-         features::kWebHidOnDesktopAndroidServiceWorkers},
-        {});
-#endif  // !BUILDFLAG(IS_ANDROID)
   }
 
   HidChooserContextTestBase(const HidChooserContextTestBase&) = delete;
@@ -95,22 +82,6 @@ class HidChooserContextTestBase {
 
   void DoSetUp(bool is_affiliated, bool login_user) {
     auto* profile_name = kTestUserEmail;
-#if BUILDFLAG(IS_CHROMEOS)
-    if (login_user) {
-      const GaiaId kTestUserGaiaId("1111111111");
-      auto fake_user_manager = std::make_unique<ash::FakeChromeUserManager>();
-      auto* fake_user_manager_ptr = fake_user_manager.get();
-      scoped_user_manager_ = std::make_unique<user_manager::ScopedUserManager>(
-          std::move(fake_user_manager));
-
-      auto account_id =
-          AccountId::FromUserEmailGaiaId(kTestUserEmail, kTestUserGaiaId);
-      fake_user_manager_ptr->AddUserWithAffiliation(account_id, is_affiliated);
-      fake_user_manager_ptr->LoginUser(account_id);
-    } else {
-      profile_name = ash::kSigninBrowserContextBaseName;
-    }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
     testing_profile_manager_ = std::make_unique<TestingProfileManager>(
         TestingBrowserProcess::GetGlobal());
@@ -356,9 +327,6 @@ class HidChooserContextTestBase {
   std::unique_ptr<TestingProfileManager> testing_profile_manager_;
   raw_ptr<TestingProfile> profile_ = nullptr;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<user_manager::ScopedUserManager> scoped_user_manager_;
-#endif
 
   raw_ptr<HidChooserContext> context_;
   permissions::MockPermissionObserver permission_observer_;
@@ -383,19 +351,6 @@ class HidChooserContextTest : public HidChooserContextTestBase,
   void TearDown() override { DoTearDown(); }
 };
 
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-class HidChooserContextDesktopAndroidFeatureDisabledTest
-    : public HidChooserContextTest {
- public:
-  HidChooserContextDesktopAndroidFeatureDisabledTest() {
-    disabled_feature_list_.InitAndDisableFeature(
-        features::kWebHidOnDesktopAndroidServiceWorkers);
-  }
-
- private:
-  base::test::ScopedFeatureList disabled_feature_list_;
-};
-#endif  // BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
 
 }  // namespace
 
@@ -1436,20 +1391,6 @@ TEST_P(HidChooserContextAffiliatedTest,
   EXPECT_FALSE(context()->HasDevicePermission(kOtherOrigin, *device));
 }
 
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-TEST_F(HidChooserContextDesktopAndroidFeatureDisabledTest,
-       FidoDisallowedWhenDesktopAndroidFeatureDisabled) {
-  const auto kFidoAllowedOrigin = url::Origin::Create(
-      GURL("chrome-extension://ckcendljdlmgnhghiaomidhiiclmapok"));
-  EXPECT_FALSE(context()->IsFidoAllowedForOrigin(kFidoAllowedOrigin));
-
-  auto sibling_device = ConnectFidoSiblingDeviceBlocking();
-  EXPECT_TRUE(context()->IsKnownSecurityKey(*sibling_device));
-  GrantDevicePermissionBlocking(kFidoAllowedOrigin, *sibling_device);
-  EXPECT_FALSE(
-      context()->HasDevicePermission(kFidoAllowedOrigin, *sibling_device));
-}
-#endif  // BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
 // Boolean parameter means if user is affiliated on the device. Affiliated
@@ -1461,11 +1402,7 @@ TEST_F(HidChooserContextDesktopAndroidFeatureDisabledTest,
 INSTANTIATE_TEST_SUITE_P(
     HidChooserContextAffiliatedTestInstance,
     HidChooserContextAffiliatedTest,
-#if BUILDFLAG(IS_CHROMEOS)
-    testing::Values(true, false),
-#else
     testing::Values(true),
-#endif
     [](const testing::TestParamInfo<HidChooserContextAffiliatedTest::ParamType>&
            info) { return info.param ? "affiliated" : "unaffiliated"; });
 
@@ -1501,15 +1438,9 @@ TEST_F(HidChooserContextLoginScreenTest, ApplyPolicyOnLoginScreen) {
 
   // The policy has an effect only for IS_CHROMEOS build, otherwise it is
   // ignored.
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_TRUE(context()->HasDevicePermission(kOrigin, *device));
-  EXPECT_EQ(1u, context()->GetGrantedObjects(kOrigin).size());
-  EXPECT_EQ(1u, context()->GetAllGrantedObjects().size());
-#else
   EXPECT_FALSE(context()->HasDevicePermission(kOrigin, *device));
   EXPECT_EQ(0u, context()->GetGrantedObjects(kOrigin).size());
   EXPECT_EQ(0u, context()->GetAllGrantedObjects().size());
-#endif
 }
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)

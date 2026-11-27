@@ -47,12 +47,10 @@ BASE_FEATURE(kFullscreenLowPowerBackdropMac, base::FEATURE_DISABLED_BY_DEFAULT);
 
 namespace {
 
-#if BUILDFLAG(IS_MAC)
 // Show borders around RenderPassDrawQuad CALayers. which is the output of a
 // non-root render pass.
 BASE_FEATURE(kShowMacRenderPassDrawQuadBorders,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 // Use the CALayer contentsHeadroom attribute, if available.
 BASE_FEATURE(kUseCALayerContentsHeadroom, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -1441,7 +1439,6 @@ void CARendererLayerTree::ContentLayer::CommitBackdropFilterToCA(
 
 void CARendererLayerTree::ContentLayer::CommitDebugBordersToCA(
     bool update_anything) {
-#if BUILDFLAG(IS_MAC)
   static bool show_overlay_borders =
       base::CommandLine::ForCurrentProcess()->HasSwitch(
           switches::kShowMacOverlayBorders);
@@ -1520,7 +1517,6 @@ void CARendererLayerTree::ContentLayer::CommitDebugBordersToCA(
       }
     }
   }
-#endif
 }
 
 }  // namespace ui

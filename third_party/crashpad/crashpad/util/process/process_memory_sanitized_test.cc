@@ -20,7 +20,7 @@
 #include "util/misc/from_pointer_cast.h"
 #include "util/process/process_memory_native.h"
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "test/linux/fake_ptrace_connection.h"
 #endif
 
@@ -29,14 +29,14 @@ namespace test {
 namespace {
 
 TEST(ProcessMemorySanitized, DenyDisallowedMemory) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   FakePtraceConnection connection;
   ASSERT_TRUE(connection.Initialize(GetSelfProcess()));
   ProcessMemoryLinux memory(&connection);
 #else
   ProcessMemoryNative memory;
   ASSERT_TRUE(memory.Initialize(GetSelfProcess()));
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
   char c = 42;
@@ -53,14 +53,14 @@ TEST(ProcessMemorySanitized, DenyDisallowedMemory) {
 }
 
 TEST(ProcessMemorySanitized, AllowedMemory) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   FakePtraceConnection connection;
   ASSERT_TRUE(connection.Initialize(GetSelfProcess()));
   ProcessMemoryLinux memory(&connection);
 #else
   ProcessMemoryNative memory;
   ASSERT_TRUE(memory.Initialize(GetSelfProcess()));
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
   char str[4] = "ABC";

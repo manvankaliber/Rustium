@@ -367,15 +367,7 @@ void StreamFactory::CreateOutputStreamInternal(
   // TODO(crbug.com/1336055): Determine if this condition should instead be
   // ENABLE_CAST_RECEIVER && !IS_FUCHSIA.
   const std::string device_id_or_group_id =
-#if BUILDFLAG(IS_CASTOS) || BUILDFLAG(IS_CAST_ANDROID)
-      (::media::AudioDeviceDescription::IsCommunicationsDevice(
-           output_device_id) ||
-       group_id.is_empty())
-          ? output_device_id
-          : group_id.ToString();
-#else
       output_device_id;
-#endif
 
 #if !BUILDFLAG(ENABLE_PASSTHROUGH_AUDIO_CODECS)
   // This is forbidden by IPC validation.

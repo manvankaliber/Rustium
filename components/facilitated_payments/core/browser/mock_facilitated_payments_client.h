@@ -19,9 +19,6 @@
 #include "components/signin/public/identity_manager/account_info.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/facilitated_payments/core/browser/payment_link_manager.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace autofill {
 class PaymentsDataManager;
@@ -72,50 +69,6 @@ class MockFacilitatedPaymentsClient : public FacilitatedPaymentsClient {
               GetStrikeDatabase,
               (),
               (override));
-#if BUILDFLAG(IS_ANDROID)
-  MOCK_METHOD(void,
-              ShowPixPaymentPrompt,
-              (base::span<const autofill::BankAccount> pix_account_suggestions,
-               base::OnceCallback<void(int64_t)>),
-              (override));
-  MOCK_METHOD(void,
-              ShowPaymentLinkPrompt,
-              (base::span<const autofill::Ewallet> ewallet_suggestions,
-               std::unique_ptr<FacilitatedPaymentsAppInfoList> app_suggestions,
-               base::OnceCallback<void(SelectedFopData)>),
-              (override));
-  MOCK_METHOD(void, ShowProgressScreen, (ProgressScreenType), (override));
-  MOCK_METHOD(void, ShowErrorScreen, (), (override));
-  MOCK_METHOD(void, DismissPrompt, (), (override));
-  MOCK_METHOD(void,
-              SetUiEventListener,
-              (base::RepeatingCallback<void(payments::facilitated::UiEvent)>
-                   ui_event_listener),
-              (override));
-  MOCK_METHOD(void,
-              InitPixAccountLinkingFlow,
-              (const url::Origin& pix_payment_page_origin),
-              (override));
-  MOCK_METHOD(void,
-              ShowPixAccountLinkingPrompt,
-              (int strike_count,
-               base::OnceCallback<void()> on_accepted,
-               base::OnceCallback<void()> on_declined),
-              (override));
-  MOCK_METHOD(void, ShowPixAccountLinkingSuccessScreen, (), (override));
-  MOCK_METHOD(void,
-              ShowAccountLinkingPrompt,
-              (const AccountLinkingParams& params,
-               base::OnceCallback<void()> on_accepted,
-               base::OnceCallback<void()> on_declined,
-               base::OnceCallback<void()> on_dismissed),
-              (override));
-  MOCK_METHOD(void,
-              ShowAccountLinkingFailureNotification,
-              (FacilitatedPaymentsType),
-              (override));
-  MOCK_METHOD(bool, HasScreenlockOrBiometricSetup, (), (override));
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace payments::facilitated

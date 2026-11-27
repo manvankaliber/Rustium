@@ -14,11 +14,7 @@
 #include "components/startup_metric_utils/browser/startup_metric_utils.h"
 #include "content/public/test/browser_test.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 #include "base/command_line.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
@@ -27,7 +23,6 @@
 #include "content/public/test/browser_test_utils.h"
 #include "url/gurl.h"
 #include "url/url_constants.h"
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
 using StartupMetricsTest = PlatformBrowserTest;
 
@@ -38,7 +33,6 @@ constexpr const char* kStartupMetrics[] = {
     "Startup.BrowserMessageLoopStartTime",
 
 // Desktop specific metrics
-#if !BUILDFLAG(IS_ANDROID)
     "Startup.BrowserMessageLoopStart.To.NonEmptyPaint2",
     "Startup.BrowserMessageLoopStart.To.NonEmptyPaint2.NoSleep",
     "Startup.BrowserWindow.FirstPaint",
@@ -46,7 +40,6 @@ constexpr const char* kStartupMetrics[] = {
     "Startup.FirstWebContents.MainNavigationFinished",
     "Startup.FirstWebContents.MainNavigationStart",
     "Startup.FirstWebContents.NonEmptyPaint3",
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
     "Startup.BrowserMessageLoopStartHardFaultBytes",
@@ -73,16 +66,7 @@ IN_PROC_BROWSER_TEST_F(StartupMetricsTest, MAYBE_ReportsValues) {
   std::vector<const char*> startup_metrics{std::begin(kStartupMetrics),
                                            std::end(kStartupMetrics)};
 
-#if !BUILDFLAG(IS_ANDROID)
   AddProcessCreateMetrics(startup_metrics);
-#else
-  // On Android these metrics are based on Process.getStartUptimeMillis() - not
-  // available before N.
-  if (base::android::android_info::sdk_int() >=
-      base::android::android_info::SDK_VERSION_NOUGAT) {
-    AddProcessCreateMetrics(startup_metrics);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Wait for all histograms to be recorded. The test will hit a RunLoop timeout
   // if a histogram is not recorded.
@@ -103,7 +87,6 @@ IN_PROC_BROWSER_TEST_F(StartupMetricsTest, MAYBE_ReportsValues) {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -198,5 +181,3 @@ IN_PROC_BROWSER_TEST_F(StartupMetricsContentfulPaintTest,
 
   WaitForHistogramSample(kLargestContentfulPaintHistogram);
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)

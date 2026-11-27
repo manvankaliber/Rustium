@@ -77,7 +77,7 @@ bool CloseMultipleNowOrOnExecUsingFDDir(int min_fd,
                                         const std::set<int>& preserve_fds) {
 #if BUILDFLAG(IS_APPLE)
   static constexpr char kFDDir[] = "/dev/fd";
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
   static constexpr char kFDDir[] = "/proc/self/fd";
 #endif
 
@@ -112,7 +112,7 @@ bool CloseMultipleNowOrOnExecUsingFDDir(int min_fd,
 }  // namespace
 
 void CloseMultipleNowOrOnExec(int fd, const std::set<int>& preserve_fds) {
-#if defined(OS_LINUX) || defined(OS_CHROMEOS)
+#if defined(OS_LINUX)
   // See comments on the ResetFDOwnership() declaration in
   // base/files/scoped_file.h regarding why this is called here.
   base::subtle::ResetFDOwnership();
@@ -137,16 +137,12 @@ void CloseMultipleNowOrOnExec(int fd, const std::set<int>& preserve_fds) {
   // bionic/libc/bionic/ndk_cruft.cpp getdtablesize().
   int max_fd = implicit_cast<int>(sysconf(_SC_OPEN_MAX));
 
-#if !BUILDFLAG(IS_ANDROID)
   // getdtablesize() was removed effective Android 5.0.0 (API 21). Since it
   // returns the same thing as the sysconf() above, just skip it. See
   // https://android.googlesource.com/platform/bionic/+/462abab12b074c62c0999859e65d5a32ebb41951.
   max_fd = std::max(max_fd, getdtablesize());
-#endif
 
-#if !(BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-      BUILDFLAG(IS_ANDROID)) ||                        \
-    defined(OPEN_MAX)
+#if !BUILDFLAG(IS_LINUX) || defined(OPEN_MAX)
   // Linux does not provide OPEN_MAX. See
   // https://git.kernel.org/cgit/linux/kernel/git/stable/linux-stable.git/commit/include/linux/limits.h?id=77293034696e3e0b6c8b8fc1f96be091104b3d2b.
   max_fd = std::max(max_fd, OPEN_MAX);
@@ -173,7 +169,7 @@ void CloseMultipleNowOrOnExec(int fd, const std::set<int>& preserve_fds) {
   } else {
     PLOG(WARNING) << "sysctl";
   }
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
   // See linux-4.4.27/fs/file.c sysctl_nr_open, referenced by kernel/sys.c
   // do_prlimit() and kernel/sysctl.c fs_table. Inability to open this file is
   // not considered an error, because /proc may not be available or usable.

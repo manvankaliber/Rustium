@@ -89,9 +89,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/application_status_listener.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -169,8 +166,9 @@ class NetworkServiceBrowserTest : public ContentBrowserTest {
       delete;
 
   bool FetchResource(const GURL& url, bool synchronous = false) {
-    if (!url.is_valid())
+    if (!url.is_valid()) {
       return false;
+    }
     std::string script = JsReplace(
         "var xhr = new XMLHttpRequest();"
         "xhr.open('GET', $1, $2);"
@@ -251,11 +249,7 @@ class NetworkServiceBrowserTest : public ContentBrowserTest {
   base::ScopedTempDir temp_dir_;
 };
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_WebUIBindingsNoHttp DISABLED_WebUIBindingsNoHttp
-#else
 #define MAYBE_WebUIBindingsNoHttp WebUIBindingsNoHttp
-#endif
 
 // Verifies that WebUI pages with WebUI bindings can't make network requests.
 IN_PROC_BROWSER_TEST_F(NetworkServiceBrowserTest, MAYBE_WebUIBindingsNoHttp) {
@@ -316,70 +310,8 @@ IN_PROC_BROWSER_TEST_F(NetworkServiceBrowserTest,
   ASSERT_EQ(headers->response_code(), 401);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class NetworkServiceBrowserSimpleCacheTest : public NetworkServiceBrowserTest {
- public:
-  NetworkServiceBrowserSimpleCacheTest() {
-    scoped_feature_list_.InitAndEnableFeatureWithParameters(
-        net::features::kDiskCacheBackendExperiment, {{"backend", "simple"}});
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-// `HttpCacheWrittenToDiskOnApplicationStateChange` test tests the behavior
-// specific to SimpleCache, so it is extracted to a dedicated test class that
-// enables DiskCacheBackendExperiment with simple backend.
-IN_PROC_BROWSER_TEST_F(NetworkServiceBrowserSimpleCacheTest,
-                       HttpCacheWrittenToDiskOnApplicationStateChange) {
-  ASSERT_TRUE(disk_cache::InSimpleBackendExperimentGroup());
-  base::ScopedAllowBlockingForTesting allow_blocking;
-
-  // Create network context with cache pointing to the temp cache dir.
-  mojo::Remote<network::mojom::NetworkContext> network_context;
-  network::mojom::NetworkContextParamsPtr context_params =
-      network::mojom::NetworkContextParams::New();
-  context_params->cert_verifier_params = GetCertVerifierParams(
-      cert_verifier::mojom::CertVerifierCreationParams::New());
-  context_params->file_paths = network::mojom::NetworkContextFilePaths::New();
-  context_params->file_paths->http_cache_directory = GetCacheDirectory();
-  CreateNetworkContextInNetworkService(
-      network_context.BindNewPipeAndPassReceiver(), std::move(context_params));
-
-  network::mojom::URLLoaderFactoryParamsPtr params =
-      network::mojom::URLLoaderFactoryParams::New();
-  params->process_id = network::OriginatingProcessId::browser();
-  params->automatically_assign_isolation_info = true;
-  params->is_orb_enabled = false;
-  params->is_trusted = true;
-  mojo::Remote<network::mojom::URLLoaderFactory> loader_factory;
-  network_context->CreateURLLoaderFactory(
-      loader_factory.BindNewPipeAndPassReceiver(), std::move(params));
-
-  // Load a URL and check the cache index size.
-  LoadURL(embedded_test_server()->GetURL("/cachetime"), loader_factory.get());
-  int64_t directory_size = base::ComputeDirectorySize(GetCacheIndexDirectory());
-
-  // Load another URL, cache index should not be written to disk yet.
-  LoadURL(embedded_test_server()->GetURL("/cachetime?foo"),
-          loader_factory.get());
-  EXPECT_EQ(directory_size,
-            base::ComputeDirectorySize(GetCacheIndexDirectory()));
-
-  // After application state changes, cache index should be written to disk.
-  base::android::ApplicationStatusListener::NotifyApplicationStateChange(
-      base::android::APPLICATION_STATE_HAS_STOPPED_ACTIVITIES);
-  base::RunLoop().RunUntilIdle();
-  FlushNetworkServiceInstanceForTesting();
-  disk_cache::FlushCacheThreadForTesting();
-
-  EXPECT_GT(base::ComputeDirectorySize(GetCacheIndexDirectory()),
-            directory_size);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 class NetworkConnectionObserver
     : public network::NetworkConnectionTracker::NetworkConnectionObserver {
  public:
@@ -398,8 +330,9 @@ class NetworkConnectionObserver
 
   void WaitForConnectionType(net::NetworkChangeNotifier::ConnectionType type) {
     type_to_wait_for_ = type;
-    if (last_connection_type_ == type_to_wait_for_)
+    if (last_connection_type_ == type_to_wait_for_) {
       return;
+    }
 
     run_loop_ = std::make_unique<base::RunLoop>();
     run_loop_->Run();
@@ -409,8 +342,9 @@ class NetworkConnectionObserver
   void OnConnectionChanged(
       net::NetworkChangeNotifier::ConnectionType type) override {
     last_connection_type_ = type;
-    if (run_loop_ && type_to_wait_for_ == type)
+    if (run_loop_ && type_to_wait_for_ == type) {
       run_loop_->Quit();
+    }
   }
 
  private:
@@ -442,7 +376,7 @@ IN_PROC_BROWSER_TEST_F(NetworkServiceConnectionTypeSyncedBrowserTest,
   observer.WaitForConnectionType(
       net::NetworkChangeNotifier::ConnectionType::CONNECTION_ETHERNET);
 }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
 
 class NetworkServiceOutOfProcessBrowserTest : public NetworkServiceBrowserTest {
  public:
@@ -622,7 +556,6 @@ IN_PROC_BROWSER_TEST_F(NetworkServiceBrowserTest, FactoryOverride) {
 }
 
 // Cache data migration is not used for Fuchsia.
-#if !BUILDFLAG(IS_FUCHSIA)
 class NetworkServiceBrowserCacheResetTest : public NetworkServiceBrowserTest {
  public:
   NetworkServiceBrowserCacheResetTest() {
@@ -719,8 +652,9 @@ class NetworkServiceBrowserCacheResetTest : public NetworkServiceBrowserTest {
     request->site_for_cookies =
         request->trusted_params->isolation_info.site_for_cookies();
 
-    if (load_only_from_cache)
+    if (load_only_from_cache) {
       request->load_flags |= net::LOAD_ONLY_FROM_CACHE;
+    }
     auto loader = network::SimpleURLLoader::Create(
         std::move(request), TRAFFIC_ANNOTATION_FOR_TESTS);
 
@@ -950,17 +884,10 @@ static const base::FilePath::CharType kNetworkSubpath[] =
 
 // Disable the following data migration tests on Android because the data
 // migration logic is disabled and compiled out on this platform.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NetworkServiceDataMigrationBrowserTest \
-  DISABLED_NetworkServiceDataMigrationBrowserTest
-#define MAYBE_NetworkServiceDataMigrationBrowserTestWithFailures \
-  DISABLED_NetworkServiceDataMigrationBrowserTestWithFailures
-#else
 #define MAYBE_NetworkServiceDataMigrationBrowserTest \
   NetworkServiceDataMigrationBrowserTest
 #define MAYBE_NetworkServiceDataMigrationBrowserTestWithFailures \
   NetworkServiceDataMigrationBrowserTestWithFailures
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // A class to test various behavior of network context data migration.
 class MAYBE_NetworkServiceDataMigrationBrowserTest : public ContentBrowserTest {
@@ -1257,8 +1184,9 @@ void MigrationTestInternal(const base::FilePath& tempdir_one,
                                           /*expected_bucket_count=*/1);
       break;
   }
-  if (!cookies_should_work)
+  if (!cookies_should_work) {
     return;
+  }
 
   ASSERT_EQ(1u, cookies.size());
   EXPECT_EQ(kCookieName, cookies[0].Name());
@@ -1581,13 +1509,8 @@ IN_PROC_BROWSER_TEST_F(MAYBE_NetworkServiceDataMigrationBrowserTest,
 
 // Disable instantiation of parametrized tests for disk access sandboxing on
 // Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_InProcess DISABLED_InProcess
-#define MAYBE_OutOfProcess DISABLED_OutOfProcess
-#else
 #define MAYBE_InProcess InProcess
 #define MAYBE_OutOfProcess OutOfProcess
-#endif  // BUILDFLAG(IS_ANDROID)
 
 INSTANTIATE_TEST_SUITE_P(
     MAYBE_InProcess,
@@ -1599,8 +1522,6 @@ INSTANTIATE_TEST_SUITE_P(
     MAYBE_NetworkServiceDataMigrationBrowserTestWithFailures,
     ::testing::Combine(::testing::Values(false),
                        ::testing::ValuesIn(kFailureTypes)));
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 class NetworkServiceInProcessBrowserTest : public ContentBrowserTest {
  public:
@@ -1702,7 +1623,7 @@ class NetworkServiceBoundedNetLogBrowserTest
     : public NetworkServiceNetLogBrowserTest {
  public:
   NetworkServiceBoundedNetLogBrowserTest() {
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_MAC)
     // Network sandboxing disallows the creation of a temp directory needed by
     // bounded net-logs. Disable it for this test.
     scoped_feature_list_.InitAndDisableFeature(
@@ -1726,9 +1647,8 @@ class NetworkServiceBoundedNetLogBrowserTest
     EXPECT_EQ(error, base::File::FILE_OK);
     EXPECT_TRUE(log_file_read.IsValid());
 
-// Skip for Fuchsia. Fuchsia's file size operation isn't fully supported yet,
-// making the file size meaningless and therefore these checks.
-#if !BUILDFLAG(IS_FUCHSIA)
+    // Skip for Fuchsia. Fuchsia's file size operation isn't fully supported
+    // yet, making the file size meaningless and therefore these checks.
     base::File::Info file_info;
     log_file_read.GetInfo(&file_info);
 
@@ -1757,7 +1677,6 @@ class NetworkServiceBoundedNetLogBrowserTest
 
     EXPECT_GT(file_info.size, kMaxSizeLower);
     EXPECT_LT(file_info.size, kMaxSizeUpper);
-#endif
   }
 
   // For testing, have a max log size of 1 MB. 1024*1024 == 2^20 == left shift

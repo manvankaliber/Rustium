@@ -20,10 +20,7 @@
 #include "services/on_device_model/ml/gpu_blocklist.h"
 #include "services/on_device_model/public/mojom/on_device_model.mojom.h"
 #include "services/on_device_model/public/mojom/on_device_model_service.mojom.h"
-
-#if !BUILDFLAG(IS_FUCHSIA)
 #include "services/on_device_model/safety/safety_model_holder.h"
-#endif
 
 namespace on_device_model {
 
@@ -74,10 +71,8 @@ class COMPONENT_EXPORT(ON_DEVICE_MODEL) OnDeviceModelService
       models_;
   scoped_refptr<Backend> backend_;
   mojo::UniqueReceiverSet<mojom::DecisionModel> decision_models_;
-#if !BUILDFLAG(IS_FUCHSIA)
   base::SequenceBound<SafetyModelHolder> safety_model_holder_ =
       SafetyModelHolder::Create();
-#endif
   base::WeakPtrFactory<OnDeviceModelService> weak_factory_{this};
 };
 

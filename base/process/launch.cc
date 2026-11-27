@@ -6,7 +6,7 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK))
+#if BUILDFLAG(IS_MAC)
 #include "base/apple/mach_port_rendezvous.h"
 #endif
 
@@ -20,7 +20,7 @@ LaunchOptions::~LaunchOptions() = default;
 
 LaunchOptions LaunchOptionsForTest() {
   LaunchOptions options;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // To prevent accidental privilege sharing to an untrusted child, processes
   // are started with PR_SET_NO_NEW_PRIVS. Do not set that here, since this
   // new child will be used for testing only.

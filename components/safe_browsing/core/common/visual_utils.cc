@@ -32,23 +32,14 @@ namespace {
 
 // WARNING: The following parameters are highly privacy and performance
 // sensitive. These should not be changed without thorough review.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-const int kPHashDownsampleWidth = 108;
-const int kPHashDownsampleHeight = 192;
-const int kMinWidthForVisualFeatures = 258;
-const int kMinHeightForVisualFeatures = 258;
-#else
 const int kPHashDownsampleWidth = 288;
 const int kPHashDownsampleHeight = 288;
 const int kMinWidthForVisualFeatures = 576;
 const int kMinHeightForVisualFeatures = 576;
-#endif
 const int kPHashBlockSize = 6;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Parameters chosen to ensure privacy is preserved by visual features.
 const float kMaxZoomForVisualFeatures = 2.0;
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 int GetPHashDownsampleWidth() {
   if (base::FeatureList::IsEnabled(kVisualFeaturesSizes)) {
@@ -285,16 +276,10 @@ std::unique_ptr<SkBitmap> BlockMeanAverage(const SkBitmap& image,
   return target;
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-CanExtractVisualFeaturesResult CanExtractVisualFeatures(bool is_user_opted_in,
-                                                        bool is_off_the_record,
-                                                        gfx::Size size) {
-#else
 CanExtractVisualFeaturesResult CanExtractVisualFeatures(bool is_user_opted_in,
                                                         bool is_off_the_record,
                                                         gfx::Size size,
                                                         double zoom_level) {
-#endif
   if (!is_user_opted_in) {
     return CanExtractVisualFeaturesResult::kUserNotOptedIn;
   }
@@ -308,33 +293,14 @@ CanExtractVisualFeaturesResult CanExtractVisualFeatures(bool is_user_opted_in,
     return CanExtractVisualFeaturesResult::kBelowMinFrame;
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (zoom_level > kMaxZoomForVisualFeatures) {
     return CanExtractVisualFeaturesResult::kAboveZoomLevel;
   }
-#endif
   return CanExtractVisualFeaturesResult::kCanExtractVisualFeatures;
 }
 
 SkBitmap GetBitmapForVisualFeatures(const gfx::Image& image) {
-#if BUILDFLAG(IS_IOS)
-  if (image.IsEmpty() || image.Size().IsEmpty()) {
-    return SkBitmap();
-  }
-
-  // Resize the image directly to the target pHash pixel dimensions.
-  //
-  // `gfx::ResizedImage(...).AsBitmap()` is deliberately not used here:
-  // `AsBitmap()` upsamples by the maximum supported resource scale factor, so
-  // that pattern requires pre-dividing the target dimensions by the same
-  // factor. The shrink and the upsample cancel out dimensionally, but the image
-  // ends up rendered at only 1/scale of the pHash resolution and the
-  // interpolated upsample bleeds detail across `kPHashBlockSize` boundaries.
-  return GetResizedImageAsSkBitmap(
-      image, gfx::Size(GetPHashDownsampleWidth(), GetPHashDownsampleHeight()));
-#else
   return image.AsBitmap();
-#endif
 }
 
 std::unique_ptr<VisualFeatures> ExtractVisualFeatures(const SkBitmap& bitmap) {

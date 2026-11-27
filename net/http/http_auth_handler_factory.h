@@ -238,7 +238,7 @@ class NET_EXPORT HttpAuthHandlerRegistryFactory
       HostResolver* host_resolver,
       std::unique_ptr<HttpAuthHandler>* handler) override;
 
-#if BUILDFLAG(USE_KERBEROS) && !BUILDFLAG(IS_ANDROID) && BUILDFLAG(IS_POSIX)
+#if BUILDFLAG(USE_KERBEROS) && BUILDFLAG(IS_POSIX)
   std::optional<std::string> GetNegotiateLibraryNameForTesting() const;
 #endif
 
@@ -248,6 +248,7 @@ class NET_EXPORT HttpAuthHandlerRegistryFactory
   bool IsSchemeAllowedForTesting(const std::string& scheme) const;
 
  private:
+  friend class ConnectionAuthOriginalRegistry;
   bool IsSchemeAllowed(const std::string& scheme) const;
 
   // Retrieve the factory for the specified |scheme|. If no factory exists

@@ -11,8 +11,7 @@ example_value: true
 features:
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 items:
 - caption: Users enrolled in the Advanced Protection program will receive extra protections
   value: true

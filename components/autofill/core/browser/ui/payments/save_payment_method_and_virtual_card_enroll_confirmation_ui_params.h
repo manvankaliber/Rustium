@@ -42,12 +42,10 @@ struct SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams {
   // Static creator methods for the UI params in its various supported states.
   static SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams
   CreateForSaveCardSuccess(bool is_for_save_and_fill);
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   static SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams
   CreateForSaveCardholderNameSuccess();
   static SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams
   CreateForSaveCardholderNameFailure();
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   static SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams
   CreateForVirtualCardSuccess();
   static SavePaymentMethodAndVirtualCardEnrollConfirmationUiParams

@@ -55,42 +55,9 @@ bool StructTraits<cc::mojom::BrowserControlsMetadataDataView,
     SetFailedCheckCrashKey("top_controls_shown_ratio");
     return false;
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  const float bottom_controls_height = data.bottom_controls_height();
-  if (!std::isfinite(bottom_controls_height) || bottom_controls_height < 0.f) {
-    SetFailedCheckCrashKey("bottom_controls_height");
-    return false;
-  }
-  const float bottom_controls_shown_ratio = data.bottom_controls_shown_ratio();
-  if (!std::isfinite(bottom_controls_shown_ratio) ||
-      bottom_controls_shown_ratio < 0.f || bottom_controls_shown_ratio > 1.f) {
-    SetFailedCheckCrashKey("bottom_controls_shown_ratio");
-    return false;
-  }
-  const float top_controls_min_height_offset =
-      data.top_controls_min_height_offset();
-  if (!std::isfinite(top_controls_min_height_offset) ||
-      top_controls_min_height_offset < 0.f) {
-    SetFailedCheckCrashKey("top_controls_min_height_offset");
-    return false;
-  }
-  const float bottom_controls_min_height_offset =
-      data.bottom_controls_min_height_offset();
-  if (!std::isfinite(bottom_controls_min_height_offset) ||
-      bottom_controls_min_height_offset < 0.f) {
-    SetFailedCheckCrashKey("bottom_controls_min_height_offset");
-    return false;
-  }
-#endif
 
   out->top_controls_height = top_controls_height;
   out->top_controls_shown_ratio = top_controls_shown_ratio;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  out->bottom_controls_height = bottom_controls_height;
-  out->bottom_controls_shown_ratio = bottom_controls_shown_ratio;
-  out->top_controls_min_height_offset = top_controls_min_height_offset;
-  out->bottom_controls_min_height_offset = bottom_controls_min_height_offset;
-#endif
 
   return true;
 }
@@ -119,19 +86,6 @@ bool StructTraits<
     SetFailedCheckCrashKey("external_page_scale_factor");
     return false;
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  const float min_page_scale_factor = data.min_page_scale_factor();
-  if (!std::isfinite(min_page_scale_factor) || min_page_scale_factor < 0.f) {
-    SetFailedCheckCrashKey("min_page_scale_factor");
-    return false;
-  }
-  const float max_page_scale_factor = data.max_page_scale_factor();
-  if (!std::isfinite(max_page_scale_factor) || max_page_scale_factor < 0.f ||
-      max_page_scale_factor < min_page_scale_factor) {
-    SetFailedCheckCrashKey("max_page_scale_factor");
-    return false;
-  }
-#endif
 
   out->is_scroll_offset_at_top = data.is_scroll_offset_at_top();
   out->is_mobile_optimized = data.is_mobile_optimized();
@@ -140,12 +94,6 @@ bool StructTraits<
   out->external_page_scale_factor = external_page_scale_factor;
   out->primary_main_frame_item_sequence_number =
       data.primary_main_frame_item_sequence_number();
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  out->min_page_scale_factor = min_page_scale_factor;
-  out->max_page_scale_factor = max_page_scale_factor;
-  out->root_overflow_y_hidden = data.root_overflow_y_hidden();
-  out->has_transparent_background = data.has_transparent_background();
-#endif
 
   if (!data.ReadBrowserControlsMetadata(&out->browser_controls_metadata)) {
     SetFailedCheckCrashKey("browser_controls_metadata");
@@ -163,16 +111,6 @@ bool StructTraits<
     SetFailedCheckCrashKey("delegated_ink_metadata");
     return false;
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  if (!data.ReadScrollableViewportSize(&out->scrollable_viewport_size)) {
-    SetFailedCheckCrashKey("scrollable_viewport_size");
-    return false;
-  }
-  if (!data.ReadRootLayerSize(&out->root_layer_size)) {
-    SetFailedCheckCrashKey("root_layer_size");
-    return false;
-  }
-#endif
   if (!data.ReadTrackedElementRects(&out->tracked_element_rects)) {
     SetFailedCheckCrashKey("tracked_element_rects");
     return false;

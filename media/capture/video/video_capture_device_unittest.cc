@@ -36,6 +36,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <mfcaptureengine.h>
+
 #include "base/win/scoped_com_initializer.h"
 #include "media/capture/video/win/video_capture_device_factory_win.h"
 #include "media/capture/video/win/video_capture_device_mf_win.h"
@@ -45,20 +46,7 @@
 #include "media/capture/video/apple/video_capture_device_factory_apple.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "media/capture/video/android/video_capture_device_android.h"
-#include "media/capture/video/android/video_capture_device_factory_android.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/mojo_service_manager/connection.h"
-#include "media/capture/video/chromeos/camera_buffer_factory.h"
-#include "media/capture/video/chromeos/public/cros_features.h"
-#include "media/capture/video/chromeos/video_capture_device_chromeos_halv3.h"
-#include "media/capture/video/chromeos/video_capture_device_factory_chromeos.h"
-#include "mojo/public/cpp/bindings/pending_receiver.h"
-#endif
 
 #if BUILDFLAG(IS_APPLE)
 // Mac will always give you the size you ask for and this case will fail.
@@ -81,7 +69,7 @@
 
 #define MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease \
   UsingRealWebcam_CheckPhotoCallbackRelease
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 // Windows test bots don't have camera.
 // Linux test bots don't have camera.
 // On Fuchsia the tests run under emulator that doesn't support camera.
@@ -95,27 +83,6 @@
   DISABLED_UsingRealWebcam_CaptureWithSize
 #define MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease \
   DISABLED_UsingRealWebcam_CheckPhotoCallbackRelease
-#elif BUILDFLAG(IS_ANDROID)
-#define MAYBE_UsingRealWebcam_AllocateBadSize UsingRealWebcam_AllocateBadSize
-// This format is not returned by VideoCaptureDeviceFactoryAndroid's
-// GetSupportedFormats
-#define MAYBE_UsingRealWebcam_CaptureMjpeg DISABLED_UsingRealWebcam_CaptureMjpeg
-#define MAYBE_UsingRealWebcam_TakePhoto UsingRealWebcam_TakePhoto
-#define MAYBE_UsingRealWebcam_GetPhotoState UsingRealWebcam_GetPhotoState
-#define MAYBE_UsingRealWebcam_CaptureWithSize UsingRealWebcam_CaptureWithSize
-#define MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease \
-  UsingRealWebcam_CheckPhotoCallbackRelease
-#elif BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_UsingRealWebcam_AllocateBadSize \
-  DISABLED_UsingRealWebcam_AllocateBadSize
-#define MAYBE_UsingRealWebcam_CaptureMjpeg UsingRealWebcam_CaptureMjpeg
-#define MAYBE_UsingRealWebcam_TakePhoto DISABLED_UsingRealWebcam_TakePhoto
-#define MAYBE_UsingRealWebcam_GetPhotoState \
-  DISABLED_UsingRealWebcam_GetPhotoState
-#define MAYBE_UsingRealWebcam_CaptureWithSize \
-  DISABLED_UsingRealWebcam_CaptureWithSize
-#define MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease \
-  UsingRealWebcam_CheckPhotoCallbackRelease
 #else
 #define MAYBE_UsingRealWebcam_AllocateBadSize UsingRealWebcam_AllocateBadSize
 #define MAYBE_UsingRealWebcam_CaptureMjpeg UsingRealWebcam_CaptureMjpeg
@@ -229,9 +196,6 @@ constexpr auto kMainThreadType =
     // Video capture code on MacOSX must run on a CFRunLoop enabled thread
     // for interaction with AVFoundation.
     base::test::TaskEnvironment::MainThreadType::UI;
-#elif BUILDFLAG(IS_FUCHSIA)
-    // FIDL APIs on Fuchsia requires IO thread.
-    base::test::TaskEnvironment::MainThreadType::IO;
 #else
     base::test::TaskEnvironment::MainThreadType::DEFAULT;
 #endif
@@ -281,23 +245,12 @@ class VideoCaptureDeviceTest
 #endif
   }
 
-  void TearDown() override {
-    task_environment_.RunUntilIdle();
-  }
+  void TearDown() override { task_environment_.RunUntilIdle(); }
 
 #if BUILDFLAG(IS_WIN)
   bool UseWinMediaFoundation() {
     return std::get<1>(GetParam()) == WIN_MEDIA_FOUNDATION &&
            VideoCaptureDeviceFactoryWin::PlatformSupportsMediaFoundation();
-  }
-#elif BUILDFLAG(IS_CHROMEOS)
-  void WaitForCameraServiceReady() {
-    if (media::ShouldUseCrosCameraService()) {
-      VideoCaptureDeviceFactoryChromeOS* vcd_factory_chromeos =
-          static_cast<VideoCaptureDeviceFactoryChromeOS*>(
-              video_capture_device_factory_.get());
-      ASSERT_TRUE(vcd_factory_chromeos->WaitForCameraServiceReadyForTesting());
-    }
   }
 #endif
 
@@ -334,8 +287,9 @@ class VideoCaptureDeviceTest
 
   void OnFrameCaptured(const VideoCaptureFormat& format) {
     last_format_ = format;
-    if (run_loop_)
+    if (run_loop_) {
       run_loop_->Quit();
+    }
   }
 
   void WaitForCapturedFrame() {
@@ -366,8 +320,9 @@ class VideoCaptureDeviceTest
 
   std::optional<VideoCaptureDeviceInfo> GetFirstDeviceSupportingPixelFormat(
       const VideoPixelFormat& pixel_format) {
-    if (!FindUsableDevice())
+    if (!FindUsableDevice()) {
       return std::nullopt;
+    }
 
     for (const auto& device : devices_info_) {
       for (const auto& format : device.supported_formats) {
@@ -488,15 +443,13 @@ WRAPPED_TEST_P(VideoCaptureDeviceTest, MAYBE_UsingRealWebcam_CaptureWithSize) {
                      base::Unretained(this)));
 }
 void VideoCaptureDeviceTest::RunCaptureWithSizeTestCase() {
-#if BUILDFLAG(IS_CHROMEOS)
-  WaitForCameraServiceReady();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   const auto device_info = FindUsableDevice();
   ASSERT_TRUE(device_info);
 
   const gfx::Size& size = std::get<0>(GetParam());
-  if (!IsCaptureSizeSupported(*device_info, size))
+  if (!IsCaptureSizeSupported(*device_info, size)) {
     return;
+  }
   const int width = size.width();
   const int height = size.height();
 
@@ -517,8 +470,9 @@ void VideoCaptureDeviceTest::RunCaptureWithSizeTestCase() {
   WaitForCapturedFrame();
   EXPECT_EQ(last_format().frame_size.width(), width);
   EXPECT_EQ(last_format().frame_size.height(), height);
-  if (last_format().pixel_format != PIXEL_FORMAT_MJPEG)
+  if (last_format().pixel_format != PIXEL_FORMAT_MJPEG) {
     EXPECT_EQ(size.GetArea(), last_format().frame_size.GetArea());
+  }
   EXPECT_EQ(last_format().frame_rate, 30);
   device->StopAndDeAllocate();
 }
@@ -566,8 +520,9 @@ void VideoCaptureDeviceTest::RunAllocateBadSizeTestCase() {
   device->StopAndDeAllocate();
   EXPECT_EQ(last_format().frame_size.width(), input_size.width());
   EXPECT_EQ(last_format().frame_size.height(), input_size.height());
-  if (last_format().pixel_format != PIXEL_FORMAT_MJPEG)
+  if (last_format().pixel_format != PIXEL_FORMAT_MJPEG) {
     EXPECT_EQ(input_size.GetArea(), last_format().frame_size.GetArea());
+  }
 }
 
 // Cause hangs on Windows, Linux. Fails Android. https://crbug.com/417824
@@ -589,10 +544,11 @@ void VideoCaptureDeviceTest::RunReAllocateCameraTestCase() {
     ASSERT_TRUE(device_status.ok());
     std::unique_ptr<VideoCaptureDevice> device(device_status.ReleaseDevice());
     gfx::Size resolution;
-    if (i % 2)
+    if (i % 2) {
       resolution = gfx::Size(640, 480);
-    else
+    } else {
       resolution = gfx::Size(1280, 1024);
+    }
 
     VideoCaptureParams capture_params;
     capture_params.requested_format.frame_size = resolution;
@@ -628,13 +584,6 @@ WRAPPED_TEST_P(VideoCaptureDeviceTest, MAYBE_UsingRealWebcam_CaptureMjpeg) {
                              base::Unretained(this)));
 }
 void VideoCaptureDeviceTest::RunCaptureMjpegTestCase() {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (media::ShouldUseCrosCameraService()) {
-    VLOG(1)
-        << "Skipped on Chrome OS device where HAL v3 camera service is used";
-    return;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   auto device_info = GetFirstDeviceSupportingPixelFormat(PIXEL_FORMAT_MJPEG);
   ASSERT_TRUE(device_info);
 
@@ -691,14 +640,12 @@ WRAPPED_TEST_P(VideoCaptureDeviceTest, MAYBE_UsingRealWebcam_TakePhoto) {
                              base::Unretained(this)));
 }
 void VideoCaptureDeviceTest::RunTakePhotoTestCase() {
-#if BUILDFLAG(IS_CHROMEOS)
-  WaitForCameraServiceReady();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   const auto device_info = FindUsableDevice();
   ASSERT_TRUE(device_info);
 
-  if (device_info->supported_formats.empty())
+  if (device_info->supported_formats.empty()) {
     return;
+  }
   const gfx::Size frame_size =
       device_info->supported_formats.front().frame_size;
 
@@ -738,14 +685,12 @@ WRAPPED_TEST_P(VideoCaptureDeviceTest, MAYBE_UsingRealWebcam_GetPhotoState) {
                              base::Unretained(this)));
 }
 void VideoCaptureDeviceTest::RunGetPhotoStateTestCase() {
-#if BUILDFLAG(IS_CHROMEOS)
-  WaitForCameraServiceReady();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   const auto device_info = FindUsableDevice();
   ASSERT_TRUE(device_info);
 
-  if (device_info->supported_formats.empty())
+  if (device_info->supported_formats.empty()) {
     return;
+  }
   const gfx::Size frame_size =
       device_info->supported_formats.front().frame_size;
 
@@ -789,8 +734,9 @@ void VideoCaptureDeviceTest::RunGetPhotoStateTestCase() {
 // Verifies that the photo callback is correctly released by MediaFoundation
 WRAPPED_TEST_P(VideoCaptureDeviceTest,
                MAYBE_UsingRealWebcam_CheckPhotoCallbackRelease) {
-  if (!UseWinMediaFoundation())
+  if (!UseWinMediaFoundation()) {
     return;
+  }
 
   auto device_info = GetFirstDeviceSupportingPixelFormat(PIXEL_FORMAT_MJPEG);
   ASSERT_TRUE(device_info);

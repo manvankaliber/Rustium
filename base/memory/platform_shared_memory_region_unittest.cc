@@ -37,11 +37,6 @@
 #include "base/features.h"
 #include "base/logging.h"
 #include "base/test/scoped_feature_list.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/object.h>
-#include <lib/zx/process.h>
-
-#include "base/fuchsia/fuchsia_logging.h"
 #endif
 
 using base::test::ErrorIs;
@@ -275,7 +270,7 @@ TEST_F(PlatformSharedMemoryRegionTest, TakeOrFailWritable) {
     auto result = PlatformSharedMemoryRegion::TakeOrFail(
         region.PassPlatformHandle(), PlatformSharedMemoryRegion::Mode::kUnsafe,
         region.GetSize(), region.GetGUID());
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
     EXPECT_THAT(
         result,
         ErrorIs(PlatformSharedMemoryRegion::TakeError::kUnexpectedReadOnlyFd));
@@ -326,7 +321,7 @@ TEST_F(PlatformSharedMemoryRegionTest, TakeOrFailUnsafe) {
         region.PassPlatformHandle(),
         PlatformSharedMemoryRegion::Mode::kWritable, region.GetSize(),
         region.GetGUID());
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
     EXPECT_THAT(result,
                 ErrorIs(PlatformSharedMemoryRegion::TakeError::kFcntlFailed));
 #else
@@ -372,7 +367,7 @@ TEST_F(PlatformSharedMemoryRegionTest, MapAtWithOverflowTest) {
   EXPECT_FALSE(mapping.IsValid());
 }
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
 // Tests that the second handle is closed after a conversion to read-only on
 // POSIX.
 TEST_F(PlatformSharedMemoryRegionTest,
@@ -397,7 +392,7 @@ TEST_F(PlatformSharedMemoryRegionTest, ConvertToUnsafeInvalidatesSecondHandle) {
 }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 namespace {
 
 // Returns true if |fd| refers to a memfd. Regions are backed by memfd unless
@@ -500,7 +495,7 @@ TEST_F(PlatformSharedMemoryRegionTest, CreateUnsafeAnonymous) {
   std::ranges::fill(mapping.GetMemoryAsSpan<uint8_t>(), 1);
   EXPECT_FALSE(PlatformSharedMemoryRegion::CreateUnsafeAnonymous(0).IsValid());
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 void CheckReadOnlyMapProtection(void* addr) {
 #if BUILDFLAG(IS_APPLE)
@@ -540,25 +535,16 @@ void CheckReadOnlyMapProtection(void* addr) {
                                  logging::GetLastSystemErrorCode());
   EXPECT_EQ(memory_info.AllocationProtect, static_cast<DWORD>(PAGE_READONLY));
   EXPECT_EQ(memory_info.Protect, static_cast<DWORD>(PAGE_READONLY));
-#elif BUILDFLAG(IS_FUCHSIA)
-// TODO(alexilin): We cannot call zx_object_get_info ZX_INFO_PROCESS_MAPS in
-// this process. Consider to create an auxiliary process that will read the
-// test process maps.
 #endif
 }
 
 bool TryToRestoreWritablePermissions(void* addr, size_t len) {
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_POSIX)
   int result = mprotect(addr, len, PROT_READ | PROT_WRITE);
   return result != -1;
 #elif BUILDFLAG(IS_WIN)
   DWORD old_protection;
   return VirtualProtect(addr, len, PAGE_READWRITE, &old_protection);
-#elif BUILDFLAG(IS_FUCHSIA)
-  zx_status_t status =
-      zx::vmar::root_self()->protect(ZX_VM_PERM_READ | ZX_VM_PERM_WRITE,
-                                     reinterpret_cast<uintptr_t>(addr), len);
-  return status == ZX_OK;
 #else
   return false;
 #endif

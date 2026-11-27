@@ -161,9 +161,7 @@ enum pool_handle : unsigned {
 // When pointer compression is enabled, we cannot use large pools (at most
 // 8GB for each of the glued pools).
 #if PA_BUILDFLAG(HAS_64_BIT_POINTERS)
-#if PA_BUILDFLAG(IS_ANDROID) || PA_BUILDFLAG(IS_IOS) ||             \
-    PA_BUILDFLAG(IS_CHROMEOS) && PA_BUILDFLAG(PA_ARCH_CPU_ARM64) || \
-    PA_BUILDFLAG(ENABLE_POINTER_COMPRESSION)
+#if PA_BUILDFLAG(ENABLE_POINTER_COMPRESSION)
 constexpr size_t kPoolMaxSize = 8 * kGiB;
 #else
 constexpr size_t kPoolMaxSize = 16 * kGiB;

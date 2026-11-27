@@ -83,13 +83,13 @@ NO_ANNOTATION_ID = UniqueId("undefined")
 RESERVED_IDS = TEST_IDS + [MISSING_ID, NO_ANNOTATION_ID]
 
 # Host platforms that support running auditor.py.
-SUPPORTED_PLATFORMS = ["linux", "windows", "android", "chromeos"]
+SUPPORTED_PLATFORMS = ["linux", "windows", ]
 
 # These platforms populate the "os_list" field in annotations.xml for
 # newly-added annotations (i.e., assume they're present on these platforms).
 #
 # ChromeOS isn't completely supported yet, so exclude it for now.
-DEFAULT_OS_LIST = ["linux", "windows", "android"]
+DEFAULT_OS_LIST = ["linux", "windows", ]
 
 # Earliest valid milestone for added_in_milestone in annotations.xml.
 MIN_MILESTONE = 62
@@ -1656,8 +1656,6 @@ class Auditor:
     self.exporter = Exporter(current_platform)
 
     self.accepted_suffixes = [".cc", ".mm", ".h"]
-    if current_platform == "android":
-      self.accepted_suffixes.append(".java")
 
     self.file_filter = FileFilter()
 
@@ -1995,7 +1993,7 @@ class Auditor:
 
   def check_grouping_xml(self) -> List[AuditorError]:
     # TODO(b/203822700): Add grouping.xml for chromeos.
-    if self.exporter._current_platform in ["chromeos", "android"]:
+    if self.exporter._current_platform in []:
       logger.info(
         "Skipping grouping.xml check for {}".format(
           self.exporter._current_platform

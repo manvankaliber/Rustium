@@ -69,18 +69,18 @@ std::string GetServiceMapValue(const ServiceTxtRecordMap& record_map,
                                                          : default_value;
 }
 
-AndroidDeviceManager::DeviceInfo ServiceDescriptionToDeviceInfo(
+RemoteDeviceManager::DeviceInfo ServiceDescriptionToDeviceInfo(
     const ServiceDescription& service_description) {
   std::unique_ptr<ServiceTxtRecordMap> record_map =
       ParseServiceTxtRecord(service_description.metadata);
 
-  AndroidDeviceManager::DeviceInfo device_info;
-  device_info.connected_state = AndroidDeviceManager::DeviceInfo::kConnected;
+  RemoteDeviceManager::DeviceInfo device_info;
+  device_info.connected_state = RemoteDeviceManager::DeviceInfo::kConnected;
   device_info.model = GetServiceMapValue(*record_map, "md", kUnknownCastDevice);
-  AndroidDeviceManager::BrowserInfo browser_info;
+  RemoteDeviceManager::BrowserInfo browser_info;
   browser_info.socket_name = base::NumberToString(kCastInspectPort);
   browser_info.display_name = GetServiceMapValue(*record_map, "fn", "");
-  browser_info.type = AndroidDeviceManager::BrowserInfo::kTypeChrome;
+  browser_info.type = RemoteDeviceManager::BrowserInfo::kTypeChrome;
   device_info.browser_info.push_back(browser_info);
   return device_info;
 }
@@ -89,7 +89,7 @@ AndroidDeviceManager::DeviceInfo ServiceDescriptionToDeviceInfo(
 
 // The purpose of this class is to route lister delegate signals from
 // ServiceDiscoveryDeviceLister (on the UI thread) to CastDeviceProvider (on the
-// DevTools ADB thread). Cancellable callbacks are necessary since
+// DevTools remote thread). Cancellable callbacks are necessary since
 // CastDeviceProvider and ServiceDiscoveryDeviceLister are destroyed on
 // different threads in undefined order.
 //

@@ -48,8 +48,6 @@
 #include "chrome/browser/download/download_core_service_factory.h"
 #include "chrome/browser/extensions/tab_helper.h"
 #include "chrome/browser/first_run/first_run.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
 #include "chrome/browser/lifetime/application_lifetime.h"
 #include "chrome/browser/picture_in_picture/picture_in_picture_window_manager.h"
 #include "chrome/browser/policy/developer_tools_policy_handler.h"
@@ -183,10 +181,6 @@
 #include "ui/base/win/shell.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "chrome/browser/ash/guest_os/guest_os_terminal.h"
-#endif
 
 #if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
 #include "components/captive_portal/content/captive_portal_tab_helper.h"

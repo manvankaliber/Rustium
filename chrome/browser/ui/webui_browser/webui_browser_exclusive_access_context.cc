@@ -83,10 +83,6 @@ void WebUIBrowserExclusiveAccessContext::UpdateExclusiveAccessBubble(
     ExclusiveAccessBubbleHideCallback first_hide_callback) {
   // Whether we should remove the bubble if it exists, or not show the bubble.
   bool should_close_bubble = false;
-#if BUILDFLAG(IS_CHROMEOS)
-  // Trusted pinned mode does not allow to escape. So do not show the bubble.
-  should_close_bubble = platform_util::IsBrowserLockedFullscreen(browser_);
-#endif
   if (!params.has_download) {
     // ...TYPE_NONE indicates deleting the bubble, except when used with
     // download.
@@ -162,11 +158,7 @@ bool WebUIBrowserExclusiveAccessContext::CanUserEnterFullscreen() const {
 }
 
 bool WebUIBrowserExclusiveAccessContext::CanUserExitFullscreen() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  return !platform_util::IsBrowserLockedFullscreen(browser_);
-#else
   return true;
-#endif
 }
 
 bool WebUIBrowserExclusiveAccessContext::IsFullscreen() const {

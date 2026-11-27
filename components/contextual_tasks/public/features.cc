@@ -41,13 +41,7 @@ BASE_FEATURE(kContextualTasksPrivateApiNoAnimation,
 
 // Enables the contextual tasks side panel infrastructure without full product
 // capabilities.
-BASE_FEATURE(kContextualTasksSidePanel,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
-             base::FEATURE_ENABLED_BY_DEFAULT
-#endif
-);
+BASE_FEATURE(kContextualTasksSidePanel, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // Aligns the contextual tasks side panel to the right hand side by default.
 BASE_FEATURE(kContextualTasksSidePanelDefaultRight,
@@ -372,9 +366,6 @@ BASE_FEATURE(kContextualTasksWindowTracking, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kContextualTasksUploadChunking, base::FEATURE_DISABLED_BY_DEFAULT);
 
-BASE_FEATURE(kContextualTasksWebUiVoiceSearchDesktopAndroid,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
 BASE_FEATURE(kABASearchJourneys, base::FEATURE_DISABLED_BY_DEFAULT);
 
 const base::FeatureParam<base::TimeDelta> kABASearchJourneysTtl(
@@ -403,7 +394,7 @@ const base::FeatureParam<size_t> kABASearchJourneysMinWordsWithoutHint(
     0);
 
 bool IsABASearchJourneysEnabled() {
-  return base::FeatureList::IsEnabled(kABASearchJourneys);
+  return false;
 }
 
 base::TimeDelta GetABASearchJourneysTtl() {
@@ -445,8 +436,6 @@ BASE_FEATURE(kContextualTasksEnableSpatialModelToolbarLayout,
 BASE_FEATURE(kContextualSearchContextualCuesHandleEdu,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-BASE_FEATURE(kContextualSearchContextualCuesHandleShopping,
-             base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kContextualTasksRearchitecture, base::FEATURE_DISABLED_BY_DEFAULT);
 
@@ -505,20 +494,6 @@ bool GetIsContextualTasksNonBlockingUrlNavigationEnabled() {
   return base::FeatureList::IsEnabled(kContextualTasksNonBlockingUrlNavigation);
 }
 
-BASE_FEATURE(kAllowSignedOutUserInDesktopAndroid,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-bool IsAllowSignedOutUserInDesktopAndroidEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-  return base::FeatureList::IsEnabled(kAllowSignedOutUserInDesktopAndroid) &&
-         ui::GetDeviceFormFactor() == ui::DEVICE_FORM_FACTOR_DESKTOP;
-#else
-  // Desktop platforms admit signed-out users through Lens side panel
-  // unification instead; this feature must not widen that behaviour.
-  return false;
-#endif
-}
-
 bool GetIsContextualTasksPdfCitationsEnabled() {
   return base::FeatureList::IsEnabled(kContextualTasksPdfCitations);
 }
@@ -541,11 +516,6 @@ bool GetIsContextualTasksWindowTrackingEnabled() {
 
 bool GetIsContextualTasksUploadChunkingEnabled() {
   return base::FeatureList::IsEnabled(kContextualTasksUploadChunking);
-}
-
-bool GetIsContextualTasksWebUiVoiceSearchDesktopAndroidEnabled() {
-  return base::FeatureList::IsEnabled(
-      kContextualTasksWebUiVoiceSearchDesktopAndroid);
 }
 
 bool GetContextualTasksSpatialModelToolbarLayoutEnabled() {
@@ -740,9 +710,6 @@ const base::FeatureParam<std::string> kContextualTasksAiPageUrl{
     &kContextualTasks, "contextual-tasks-ai-page-url",
     "https://www.google.com/search?udm=50&sourceid=chrome&ccb=1"};
 
-const base::FeatureParam<std::string> kContextualTasksGeminiBaseUrl{
-    &kContextualTasks, "contextual-tasks-gemini-base-url",
-    "https://gemini.google.com/app/"};
 
 // The host that any URL loaded in the embedded WebUi page will be routed to.
 const base::FeatureParam<std::string> kContextualTasksForcedEmbeddedPageHost{
@@ -980,11 +947,11 @@ int ContextualTasksInactiveSidePanelKeepInCacheMinutes() {
 }
 
 bool IsContextualTasksPinButtonInToolbarEnabled() {
-  return base::FeatureList::IsEnabled(kEnableContextualTasksPinButtonInToolbar);
+  return false;
 }
 
 bool IsContextualTasksPinningV2Enabled() {
-  return base::FeatureList::IsEnabled(kContextualTasksPinningV2);
+  return false;
 }
 
 bool IsContextualTasksEphemeralPinButtonRefactorEnabled() {
@@ -1038,10 +1005,6 @@ bool ShouldForceCountryCodeUS() {
 
 std::string GetContextualTasksAiPageUrl() {
   return kContextualTasksAiPageUrl.Get();
-}
-
-std::string GetContextualTasksGeminiBaseUrl() {
-  return kContextualTasksGeminiBaseUrl.Get();
 }
 
 std::string GetContextualTasksDisplayUrlScheme() {
@@ -1229,11 +1192,11 @@ bool GetIsWebpageApcComparisonEnabled() {
 }
 
 bool IsContextualTasksRearchitectureEnabled() {
-  return base::FeatureList::IsEnabled(kContextualTasksRearchitecture);
+  return false;
 }
 
 bool IsContextualTasksSidePanelRearchitectureEnabled() {
-  return base::FeatureList::IsEnabled(kContextualTasksSidePanelRearchitecture);
+  return false;
 }
 
 bool IsContextualTasksSidePanelRearchitectureExpandToFullTabEnabled() {
@@ -1269,10 +1232,7 @@ bool IsContextualTasksSingleTabMenuItemEnabled() {
 }
 
 bool IsContextualTasksUIEnabled() {
-  return base::FeatureList::IsEnabled(kContextualTasksSidePanel) ||
-         base::FeatureList::IsEnabled(kContextualTasks) ||
-         base::FeatureList::IsEnabled(kContextualTasksRearchitecture) ||
-         base::FeatureList::IsEnabled(kContextualTasksSidePanelRearchitecture);
+  return false;
 }
 
 namespace flag_descriptions {
@@ -1476,11 +1436,6 @@ const char kABASearchJourneysName[] = "ABA Search Journeys";
 const char kABASearchJourneysDescription[] =
     "Enables offering to reopen a search answer in the Contextual Tasks side "
     "panel.";
-
-const char kAllowSignedOutUserInDesktopAndroidName[] =
-    "Contextual Tasks Allow Signed-Out User In Desktop Android";
-const char kAllowSignedOutUserInDesktopAndroidDescription[] =
-    "Allows signed-out users to use side panel cobrowse on Desktop Android.";
 
 }  // namespace flag_descriptions
 

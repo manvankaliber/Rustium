@@ -49,15 +49,6 @@ export class ManagedFootnoteElement extends ManagedFootnoteElementBase {
         type: Boolean,
       },
 
-      // <if expr="is_chromeos">
-      /**
-       * Whether the device should be indicated as managed rather than the
-       * browser.
-       */
-      showDeviceInfo: {
-        type: Boolean,
-      },
-      // </if>
 
       /**
        * The name of the icon to display in the footer.
@@ -75,9 +66,6 @@ export class ManagedFootnoteElement extends ManagedFootnoteElementBase {
   protected accessor managedByIcon_: string =
       loadTimeData.getString('managedByIcon');
 
-  // <if expr="is_chromeos">
-  accessor showDeviceInfo: boolean = false;
-  // </if>
 
   override firstUpdated() {
     this.addWebUiListener('is-managed-changed', (managed: boolean) => {
@@ -88,11 +76,6 @@ export class ManagedFootnoteElement extends ManagedFootnoteElementBase {
 
   /** @return Message to display to the user. */
   protected getManagementString_(): TrustedHTML {
-    // <if expr="is_chromeos">
-    if (this.showDeviceInfo) {
-      return this.i18nAdvanced('deviceManagedByOrg');
-    }
-    // </if>
     return this.i18nAdvanced('browserManagedByOrg');
   }
 }

@@ -20,7 +20,7 @@
 #include "components/feed/core/proto/v2/wire/stream_structure.pb.h"
 #include "components/feed/core/proto/v2/wire/token.pb.h"
 #include "components/feed/core/v2/feedstore_util.h"
-#include "components/feed/core/v2/ios_shared_experiments_translator.h"
+#include "components/feed/core/v2/experiments_translator.h"
 #include "components/feed/core/v2/metrics_reporter.h"
 #include "components/feed/core/v2/proto_util.h"
 #include "components/feed/feed_feature_list.h"

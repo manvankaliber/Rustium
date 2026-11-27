@@ -41,8 +41,8 @@ BluetoothAdapterFactory* BluetoothAdapterFactory::Get() {
 
 static constexpr bool kBluetoothSupportedByPlatform =
 #if !defined(NO_PLATFORM_BLUETOOTH)
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) ||
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_APPLE);
+    false || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) ||
+    false || BUILDFLAG(IS_APPLE);
 #else
     false;
 #endif
@@ -123,7 +123,7 @@ void BluetoothAdapterFactory::GetClassicAdapter(AdapterCallback callback) {
 #endif  // BUILDFLAG(IS_WIN)
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // static
 void BluetoothAdapterFactory::Shutdown() {
   if (Get()->adapter_)

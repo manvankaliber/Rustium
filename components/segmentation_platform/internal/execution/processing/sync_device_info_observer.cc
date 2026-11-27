@@ -20,7 +20,7 @@
 namespace segmentation_platform::processing {
 
 using OsType = syncer::DeviceInfo::OsType;
-using FormFactor = syncer ::DeviceInfo::FormFactor;
+using FormFactor = syncer::DeviceInfo::FormFactor;
 
 namespace {
 
@@ -64,8 +64,6 @@ const char* ConvertOsTypeToString(OsType os_type) {
       return "ChromeOsAsh";
     case OsType::kChromeOsLacros:
       return "ChromeOsLacros";
-    case OsType::kFuchsia:
-      return "Fuchsia";
     case OsType::kUnknown:
       return "Unknown";
   }
@@ -111,7 +109,8 @@ void SyncDeviceInfoObserver::OnDeviceInfoChange() {
   // Record UMA metrics of device counts by OS types.
   // Record 0 when there are no devices associated with one OS type.
   for (int os_type_idx = static_cast<int>(OsType::kUnknown);
-       os_type_idx <= static_cast<int>(OsType::kFuchsia); ++os_type_idx) {
+       os_type_idx <= static_cast<int>(OsType::kChromeOsLacros);
+       ++os_type_idx) {
     OsType os_type = static_cast<OsType>(os_type_idx);
     int count = count_by_os_type[os_type];
     base::UmaHistogramSparse(

@@ -6172,24 +6172,9 @@ class LayerTreeHostTestElasticOverscroll : public LayerTreeHostTest {
 
   virtual void VerifyOverscroll(const gfx::Vector2dF& stretch_amount,
                                 const gfx::Transform& transform) {
-#if BUILDFLAG(IS_ANDROID)
-    gfx::Vector2dF scale = transform.To2dScale();
-    // On android, overscroll stretches the content. We don't assert the amount
-    // of stretch but there should be some stretch for overscroll and no stretch
-    // without it.
-    if (stretch_amount.x() == 0.f)
-      EXPECT_EQ(1.f, scale.x());
-    else
-      EXPECT_GT(scale.x(), 1.f);
-    if (stretch_amount.y() == 0.f)
-      EXPECT_EQ(1.f, scale.y());
-    else
-      EXPECT_GT(scale.y(), 1.f);
-#else   // BUILDFLAG(IS_ANDROID)
     gfx::Transform expected_draw_transform;
     expected_draw_transform.Translate(-stretch_amount);
     EXPECT_EQ(expected_draw_transform, transform);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   void VerifyInnerViewportIsUnscaled(LayerTreeHostImpl* host_impl) {
@@ -6207,13 +6192,6 @@ class LayerTreeHostTestElasticOverscroll : public LayerTreeHostTest {
 
   virtual void VerifyTilingsUnchanged(
       [[maybe_unused]] FakePictureLayerImpl* content_layer_impl) {
-#if BUILDFLAG(IS_ANDROID)
-    // Elastic overscroll should not cause tilings with new scale to be created.
-    EXPECT_EQ(1u, content_layer_impl->tilings()->num_tilings())
-        << "num_draws:" << num_draws_;
-    EXPECT_EQ(1.f, content_layer_impl->tilings()->GetMaximumContentsScale())
-        << "num_draws_:" << num_draws_;
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   void DrawLayersOnThread(LayerTreeHostImpl* host_impl) override {
@@ -6394,18 +6372,10 @@ class LayerTreeHostTestElasticOverscroll_FixedElementNoTransform
     if (LayerImpl* fixed_impl =
             host_impl->active_tree()->LayerById(fixed_layer_id_)) {
       const gfx::Transform& t = fixed_impl->DrawTransform();
-#if BUILDFLAG(IS_ANDROID)
-      // On Android the overscroll stretch is applied to content; the fixed
-      // element must never scale.
-      gfx::Vector2dF s = t.To2dScale();
-      EXPECT_EQ(1.f, s.x());
-      EXPECT_EQ(1.f, s.y());
-#else
       // Desktop overscroll presents as translation on scroller content; fixed
       // should remain exactly identity.
       gfx::Transform identity;
       EXPECT_EQ(identity, t);
-#endif
     }
 
     // Now run the standard draw path (drives overscroll on the root scroller,
@@ -6487,14 +6457,12 @@ class LayerTreeHostTestElasticOverscroll_ScaledAnimation
   int child_scroller_id_ = 0;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(crbug.com/41102897): Fix the edge case where non-root overscroll
 // finishing on a node with an active animation incorrectly clears the
 // `TransformNode::has_potential_animation` flag. This leads to unnecessary
 // re-rasterization, as demonstrated by this test. Allow this test to run on all
 // platforms once fixed.
 MULTI_THREAD_TEST_F(LayerTreeHostTestElasticOverscroll_ScaledAnimation);
-#endif
 
 struct TestSwapPromiseResult {
   TestSwapPromiseResult()
@@ -9487,9 +9455,6 @@ class LayerTreeHostTestRequestForceSendMetadata
       target_->OnRenderFrameSubmission(render_frame_metadata,
                                        compositor_frame_metadata, force_send);
     }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    void DidEndScroll() override { target_->DidEndScroll(); }
-#endif
 
    private:
     raw_ptr<RenderFrameMetadataObserver> target_ = nullptr;
@@ -9542,9 +9507,6 @@ class LayerTreeHostTestRequestForceSendMetadata
     if (force_send)
       num_force_sends_++;
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void DidEndScroll() override {}
-#endif
 
  private:
   FakeContentLayerClient client_;
@@ -9668,60 +9630,6 @@ class LayerTreeHostTopControlsDeltaTriggersViewportUpdate
 
 MULTI_THREAD_TEST_F(LayerTreeHostTopControlsDeltaTriggersViewportUpdate);
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Tests that custom sequence metrics tracking result is reported to
-// LayerTreeHostDelegate.
-constexpr MutatorHost::TrackedAnimationSequenceId kSequenceId = 1u;
-class LayerTreeHostCustomMetricsTrackerTest : public LayerTreeHostTest {
- public:
-  // Custom sequences are only supported for ChromeOS UI, which is
-  // Single-Threaded.
-  void InitializeSettings(LayerTreeSettings* settings) override {
-    settings->is_layer_tree_for_ui = true;
-  }
-
-  void BeginTest() override { PostSetNeedsCommitToMainThread(); }
-
-  void DidCommit() override {
-    // FrameSequenceTracker typically sees the following sequence:
-    //   e(2,2)b(3)B(0,3)E(3)s(3)S(3)e(3,3)P(3)b(4)B(3,4)E(4)s(4)S(4)e(4,4)P(4)
-    switch (layer_tree_host()->SourceFrameNumber()) {
-      case 1:
-        animation_host()->StartCompositorMetricsTracking(kSequenceId);
-        break;
-      case 3:
-        animation_host()->StopCompositorMetricsTracking(kSequenceId);
-        break;
-      default:
-        break;
-    }
-
-    if (!TestEnded())
-      PostSetNeedsCommitWithForcedRedrawToMainThread();
-  }
-
-  void NotifyCompositorMetricsTrackerResults(
-      CustomTrackerResults results) override {
-    // Check that data for kSequenceId is captured. Ideally, we should get
-    // 2 frame_expected and 2 frame_produced. But on slow bots, it is difficult
-    // to infer the correct numbers. Both frame_expected and frame_produced
-    // could drop to 1 (or even below). So no sanity check on data itself.
-    ASSERT_TRUE(results.contains(kSequenceId));
-
-    EndTest();
-  }
-
-  // FrameSorter only tracks for BeginMainFrame which have provided metrics.
-  std::unique_ptr<BeginMainFrameMetrics> GetBeginMainFrameMetrics() override {
-    std::unique_ptr<BeginMainFrameMetrics> metrics =
-        std::make_unique<BeginMainFrameMetrics>();
-    metrics->should_measure_smoothness = true;
-    return metrics;
-  }
-};
-
-SINGLE_THREAD_TEST_F(LayerTreeHostCustomMetricsTrackerTest);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class LayerTreeHostTestDelegatedInkMetadataBase
     : public LayerTreeHostTest,
@@ -9745,9 +9653,6 @@ class LayerTreeHostTestDelegatedInkMetadataBase
       target_->OnRenderFrameSubmission(render_frame_metadata,
                                        compositor_frame_metadata, force_send);
     }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    void DidEndScroll() override { target_->DidEndScroll(); }
-#endif
 
    private:
     raw_ptr<RenderFrameMetadataObserver> target_ = nullptr;
@@ -9822,9 +9727,6 @@ class LayerTreeHostTestDelegatedInkMetadataBase
     ExpectMetadata(render_frame_metadata.delegated_ink_metadata,
                    compositor_frame_metadata->delegated_ink_metadata.get());
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void DidEndScroll() override {}
-#endif
 
  protected:
   std::optional<gfx::DelegatedInkMetadata> expected_metadata_;
@@ -12058,9 +11960,6 @@ class LayerTreeHostTestDetachInputDelegateAndRenderFrameObserver
         const RenderFrameMetadata& render_frame_metadata,
         viz::CompositorFrameMetadata* compositor_frame_metadata,
         bool force_send) override {}
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    void DidEndScroll() override {}
-#endif
 
    private:
     raw_ptr<LayerTreeHostTestDetachInputDelegateAndRenderFrameObserver> test_;
@@ -12318,9 +12217,6 @@ class LayerTreeHostTestTrackedElementRects
       target_->OnRenderFrameSubmission(render_frame_metadata,
                                        compositor_frame_metadata, force_send);
     }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    void DidEndScroll() override { target_->DidEndScroll(); }
-#endif
 
    private:
     raw_ptr<RenderFrameMetadataObserver> target_ = nullptr;
@@ -12411,9 +12307,6 @@ class LayerTreeHostTestTrackedElementRects
     ExpectRectsOnThread(render_frame_metadata.tracked_element_rects,
                         compositor_frame_metadata->tracked_element_rects);
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void DidEndScroll() override {}
-#endif
 };
 
 SINGLE_AND_MULTI_THREAD_TEST_F(LayerTreeHostTestTrackedElementRects);

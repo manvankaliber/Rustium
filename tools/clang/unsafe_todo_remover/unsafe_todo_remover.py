@@ -68,8 +68,6 @@ BUILDERS = [
   ('tryserver.chromium.android', 'android-cronet-arm-dbg'),
   ('tryserver.chromium.android', 'android-webview-13-x64-dbg'),
   # Fuchsia.
-  ('chromium.fuchsia', 'Deterministic Fuchsia (dbg)'),
-  # Mac.
   ('chromium.mac', 'mac-arm64-dbg'),
   ('chromium.mac', 'mac-arm64-rel'),
   ('tryserver.chromium.mac', 'mac-rel'),
@@ -88,8 +86,6 @@ BUILDERS = [
   ('tryserver.chromium.win', 'win-rel'),
   ('tryserver.chromium.win', 'win_optional_gpu_tests_rel'),
   # Fuchsia cast.
-  ('chromium.fuchsia', 'fuchsia-x64-cast-receiver-rel'),
-  # Android cast.
   ('chromium.android', "android-cast-arm-dbg"),
 ]
 

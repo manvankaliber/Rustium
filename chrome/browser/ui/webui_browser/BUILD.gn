@@ -4,8 +4,6 @@
 
 import("//mojo/public/tools/bindings/mojom.gni")
 
-assert(!is_android)
-
 source_set("headers") {
   sources = [ "webui_browser.h" ]
 }
@@ -154,10 +152,6 @@ source_set("impl") {
     "//ui/webui/tracked_element",
   ]
 
-  if (is_chromeos) {
-    deps += [ "//chrome/browser/ui/ash/system_web_apps" ]
-  }
-
   if (is_mac) {
     deps += [
       "//chrome/browser:global_keyboard_shortcuts_mac",
@@ -189,10 +183,7 @@ source_set("browser_tests") {
 
   sources = []
 
-  # TODO(crbug.com/451876195): Fix and re-enable these tests on CrOS.
-  if (!is_chromeos) {
-    sources += [ "webui_browser_browsertest.cc" ]
-  }
+  sources += [ "webui_browser_browsertest.cc" ]
 
   deps = [
     ":impl",
@@ -215,9 +206,7 @@ source_set("browser_tests") {
     "//ui/gfx/geometry",
   ]
 
-  if (!is_chromeos) {
-    deps += [ "//chrome/browser/ui:browser_tabstrip" ]
-  }
+  deps += [ "//chrome/browser/ui:browser_tabstrip" ]
 }
 
 source_set("interactive_ui_tests") {
@@ -238,8 +227,6 @@ source_set("interactive_ui_tests") {
     "//ui/views:test_support",
   ]
 
-  if (!is_chromeos) {
-    deps += [ "//chrome/browser/ui:browser_window_header" ]
-    sources += [ "webui_browser_interactive_uitest.cc" ]
-  }
+  deps += [ "//chrome/browser/ui:browser_window_header" ]
+  sources += [ "webui_browser_interactive_uitest.cc" ]
 }

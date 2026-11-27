@@ -19,8 +19,8 @@ if (crashpad_is_in_chromium) {
   import("//build/config/sanitizers/sanitizers.gni")
 }
 
-if (crashpad_is_apple && !crashpad_is_tvos) {
-  if (crashpad_is_in_chromium || crashpad_is_in_fuchsia) {
+if (crashpad_is_apple) {
+  if (crashpad_is_in_chromium) {
     import("//build/config/sysroot.gni")
   } else {
     import("$mini_chromium_import_root/build/sysroot.gni")
@@ -39,13 +39,6 @@ if (crashpad_is_apple && !crashpad_is_tvos) {
         "$sysroot/usr/include/mach/mach_exc.defs",
         "$sysroot/usr/include/mach/notify.defs",
         "mach/child_port.defs",
-      ]
-    } else if (crashpad_is_ios) {
-      sources = [
-        # The iOS SDK doesn’t have any .defs files. Get them directly from
-        # xnu.
-        "../third_party/xnu/osfmk/mach/exc.defs",
-        "../third_party/xnu/osfmk/mach/mach_exc.defs",
       ]
     }
 
@@ -146,10 +139,8 @@ if (crashpad_is_apple && !crashpad_is_tvos) {
       "-I" + rebase_path("..", root_build_dir),
       "-I" + rebase_path("../compat/mac", root_build_dir),
     ]
-    if (crashpad_is_ios) {
-      args += [ "-I" + rebase_path("../compat/ios", root_build_dir) ]
-    }
-    if (crashpad_is_mac || crashpad_is_ios) {
+
+    if (crashpad_is_mac) {
       # Needed for mach_exception_raise_*_protected
       args += [
         "-DMACH_EXC_SERVER_TASKIDTOKEN",
@@ -290,7 +281,7 @@ crashpad_static_library("util") {
 
   defines = [ "ZLIB_CONST" ]
 
-  if (crashpad_is_posix || crashpad_is_fuchsia) {
+  if (crashpad_is_posix) {
     sources += [
       "file/directory_reader_posix.cc",
       "file/file_io_posix.cc",
@@ -308,27 +299,25 @@ crashpad_static_library("util") {
       "thread/thread_posix.cc",
     ]
 
-    if (!crashpad_is_fuchsia) {
+    sources += [
+      "posix/close_multiple.cc",
+      "posix/close_multiple.h",
+      "posix/drop_privileges.cc",
+      "posix/drop_privileges.h",
+      "posix/process_info.h",
+
+      # These map signals to and from strings. While Fuchsia defines some of
+      # the common SIGx defines, signals are never raised on Fuchsia, so
+      # there's need to include this mapping code.
+      "posix/symbolic_constants_posix.cc",
+      "posix/symbolic_constants_posix.h",
+    ]
+
+    if (crashpad_is_linux || crashpad_is_mac) {
       sources += [
-        "posix/close_multiple.cc",
-        "posix/close_multiple.h",
-        "posix/drop_privileges.cc",
-        "posix/drop_privileges.h",
-        "posix/process_info.h",
-
-        # These map signals to and from strings. While Fuchsia defines some of
-        # the common SIGx defines, signals are never raised on Fuchsia, so
-        # there's need to include this mapping code.
-        "posix/symbolic_constants_posix.cc",
-        "posix/symbolic_constants_posix.h",
+        "posix/spawn_subprocess.cc",
+        "posix/spawn_subprocess.h",
       ]
-
-      if (crashpad_is_android || crashpad_is_linux || crashpad_is_mac) {
-        sources += [
-          "posix/spawn_subprocess.cc",
-          "posix/spawn_subprocess.h",
-        ]
-      }
     }
   }
 
@@ -346,32 +335,27 @@ crashpad_static_library("util") {
       "synchronization/semaphore_mac.cc",
     ]
 
-    # Exclude files related to Mach exceptions when building for tvOS. Mach
-    # messaging APIs are not available to third-party applications on tvOS so
-    # crashes are handled via POSIX signals.
-    if (!crashpad_is_tvos) {
-      sources += [
-        "mach/composite_mach_message_server.cc",
-        "mach/composite_mach_message_server.h",
-        "mach/exc_client_variants.cc",
-        "mach/exc_client_variants.h",
-        "mach/exc_server_variants.cc",
-        "mach/exc_server_variants.h",
-        "mach/exception_behaviors.cc",
-        "mach/exception_behaviors.h",
-        "mach/exception_ports.cc",
-        "mach/exception_ports.h",
-        "mach/mach_message.cc",
-        "mach/mach_message.h",
-        "mach/mach_message_server.cc",
-        "mach/mach_message_server.h",
-        "mach/symbolic_constants_mach.cc",
-        "mach/symbolic_constants_mach.h",
-      ]
-    }
+    sources += [
+      "mach/composite_mach_message_server.cc",
+      "mach/composite_mach_message_server.h",
+      "mach/exc_client_variants.cc",
+      "mach/exc_client_variants.h",
+      "mach/exc_server_variants.cc",
+      "mach/exc_server_variants.h",
+      "mach/exception_behaviors.cc",
+      "mach/exception_behaviors.h",
+      "mach/exception_ports.cc",
+      "mach/exception_ports.h",
+      "mach/mach_message.cc",
+      "mach/mach_message.h",
+      "mach/mach_message_server.cc",
+      "mach/mach_message_server.h",
+      "mach/symbolic_constants_mach.cc",
+      "mach/symbolic_constants_mach.h",
+    ]
   }
 
-  if (crashpad_is_mac && !crashpad_is_in_fuchsia) {
+  if (crashpad_is_mac) {
     sources += [
       "mac/checked_mach_address_range.h",
       "mac/launchd.h",
@@ -401,44 +385,7 @@ crashpad_static_library("util") {
     ]
   }
 
-  if (crashpad_is_ios) {
-    sources += [
-      "ios/ios_intermediate_dump_data.cc",
-      "ios/ios_intermediate_dump_data.h",
-      "ios/ios_intermediate_dump_format.h",
-      "ios/ios_intermediate_dump_interface.cc",
-      "ios/ios_intermediate_dump_interface.h",
-      "ios/ios_intermediate_dump_list.cc",
-      "ios/ios_intermediate_dump_list.h",
-      "ios/ios_intermediate_dump_map.cc",
-      "ios/ios_intermediate_dump_map.h",
-      "ios/ios_intermediate_dump_object.cc",
-      "ios/ios_intermediate_dump_object.h",
-      "ios/ios_intermediate_dump_reader.cc",
-      "ios/ios_intermediate_dump_reader.h",
-      "ios/ios_intermediate_dump_writer.cc",
-      "ios/ios_intermediate_dump_writer.h",
-      "ios/ios_system_data_collector.h",
-      "ios/ios_system_data_collector.mm",
-      "ios/raw_logging.cc",
-      "ios/raw_logging.h",
-      "ios/scoped_background_task.h",
-      "ios/scoped_background_task.mm",
-      "ios/scoped_vm_map.cc",
-      "ios/scoped_vm_map.h",
-      "ios/scoped_vm_read.cc",
-      "ios/scoped_vm_read.h",
-    ]
-  }
-
-  if (crashpad_is_android) {
-    sources += [
-      "linux/initial_signal_dispositions.cc",
-      "linux/initial_signal_dispositions.h",
-    ]
-  }
-
-  if (crashpad_is_linux || crashpad_is_android) {
+  if (crashpad_is_linux) {
     sources += [
       "linux/address_types.h",
       "linux/auxiliary_vector.cc",
@@ -568,30 +515,9 @@ crashpad_static_library("util") {
     }
   }
 
-  if (crashpad_is_fuchsia) {
-    sources += [
-      "fuchsia/koid_utilities.cc",
-      "fuchsia/koid_utilities.h",
-      "fuchsia/scoped_task_suspend.cc",
-      "fuchsia/scoped_task_suspend.h",
-      "fuchsia/traits.h",
-      "misc/paths_fuchsia.cc",
-      "process/process_memory_fuchsia.cc",
-      "process/process_memory_fuchsia.h",
-    ]
-
-    sources -= [ "misc/capture_context.h" ]
-  }
-
   public_configs = [ "..:crashpad_config" ]
 
-  # Include generated files starting with "util".
-  if (crashpad_is_in_fuchsia) {
-    include_dirs =
-        [ "$root_gen_dir/" + rebase_path(fuchsia_crashpad_root, "//") ]
-  } else {
-    include_dirs = [ "$root_gen_dir/third_party/crashpad/crashpad" ]
-  }
+  include_dirs = [ "$root_gen_dir/third_party/crashpad/crashpad" ]
 
   public_deps = [
     ":no_cfi_icall",
@@ -607,22 +533,16 @@ crashpad_static_library("util") {
     include_dirs += [ "$root_gen_dir" ]
     deps += [ "../build:apple_enable_arc" ]
 
-    if (!crashpad_is_tvos) {
-      deps += [ ":mig_output" ]
-    }
+    deps += [ ":mig_output" ]
   }
 
-  if (crashpad_is_mac && !crashpad_is_in_fuchsia) {
+  if (crashpad_is_mac) {
     libs = [ "bsm" ]
     frameworks = [
       "CoreFoundation.framework",
       "Foundation.framework",
       "IOKit.framework",
     ]
-  }
-
-  if (crashpad_is_ios) {
-    configs += [ "../build:crashpad_is_ios_app_extension" ]
   }
 
   if (crashpad_is_win) {
@@ -643,11 +563,7 @@ crashpad_static_library("util") {
     }
   }
 
-  if (crashpad_is_fuchsia) {
-    public_deps += [ "../third_party/fuchsia" ]
-  }
-
-  if (crashpad_is_android || crashpad_is_linux) {
+  if (crashpad_is_linux) {
     deps += [ "../third_party/lss" ]
   }
 }
@@ -678,11 +594,7 @@ crashpad_static_library("net") {
     deps += [ "../build:apple_enable_arc" ]
   }
 
-  if (crashpad_is_mac && !crashpad_is_in_fuchsia) {
-    sources += [ "net/http_transport_mac.mm" ]
-  }
-
-  if (crashpad_is_ios) {
+  if (crashpad_is_mac) {
     sources += [ "net/http_transport_mac.mm" ]
   }
 
@@ -695,7 +607,7 @@ crashpad_static_library("net") {
     if (crashpad_use_boringssl_for_http_transport_socket) {
       defines = [ "CRASHPAD_USE_BORINGSSL" ]
 
-      if (crashpad_is_in_chromium || crashpad_is_in_fuchsia) {
+      if (crashpad_is_in_chromium) {
         deps += [ "//third_party/boringssl" ]
       } else {
         libs = [
@@ -709,42 +621,42 @@ crashpad_static_library("net") {
   }
 }
 
-if (!crashpad_is_android && !crashpad_is_ios) {
-  crashpad_executable("http_transport_test_server") {
-    testonly = true
-    sources = [ "net/http_transport_test_server.cc" ]
+crashpad_executable("http_transport_test_server") {
+  testonly = true
+  sources = [ "net/http_transport_test_server.cc" ]
 
-    deps = [
-      ":net",
-      ":util",
-      "$mini_chromium_source_parent:base",
-      "../third_party/cpp-httplib",
-      "../third_party/zlib",
-      "../tools:tool_support",
+  deps = [
+    ":net",
+    ":util",
+    "$mini_chromium_source_parent:base",
+    "../third_party/cpp-httplib",
+    "../third_party/zlib",
+    "../tools:tool_support",
+  ]
+
+  # TODO(b/189353575): make these relocatable using $mini_chromium_ variables
+  if (crashpad_is_standalone) {
+    remove_configs = [ "//third_party/mini_chromium/mini_chromium/build/config:Wexit_time_destructors" ]
+  } else if (crashpad_is_external) {
+    remove_configs = [
+      "//../../mini_chromium/mini_chromium/build/config:Wexit_time_destructors",
     ]
+  }
 
-    # TODO(b/189353575): make these relocatable using $mini_chromium_ variables
-    if (crashpad_is_standalone) {
-      remove_configs = [ "//third_party/mini_chromium/mini_chromium/build/config:Wexit_time_destructors" ]
-    } else if (crashpad_is_external) {
-      remove_configs = [ "//../../mini_chromium/mini_chromium/build/config:Wexit_time_destructors" ]
-    }
+  if (crashpad_is_win) {
+    libs = [ "ws2_32.lib" ]
+  }
 
-    if (crashpad_is_win) {
-      libs = [ "ws2_32.lib" ]
-    }
+  if (crashpad_use_boringssl_for_http_transport_socket) {
+    defines = [ "CRASHPAD_USE_BORINGSSL" ]
 
-    if (crashpad_use_boringssl_for_http_transport_socket) {
-      defines = [ "CRASHPAD_USE_BORINGSSL" ]
-
-      if (crashpad_is_in_chromium || crashpad_is_in_fuchsia) {
-        deps += [ "//third_party/boringssl" ]
-      } else {
-        libs = [
-          "crypto",
-          "ssl",
-        ]
-      }
+    if (crashpad_is_in_chromium) {
+      deps += [ "//third_party/boringssl" ]
+    } else {
+      libs = [
+        "crypto",
+        "ssl",
+      ]
     }
   }
 }
@@ -819,19 +731,16 @@ source_set("util_test") {
     "thread/worker_thread_test.cc",
   ]
 
-  if (!crashpad_is_android && !crashpad_is_ios && !crashpad_is_fuchsia) {
-    # Android requires an HTTPTransport implementation.
-    sources += [ "net/http_transport_test.cc" ]
-  }
+  # Android requires an HTTPTransport implementation.
+  sources += [ "net/http_transport_test.cc" ]
 
-  if (crashpad_is_posix || crashpad_is_fuchsia) {
-    if (!crashpad_is_fuchsia && !crashpad_is_ios) {
-      sources += [
-        "posix/process_info_test.cc",
-        "posix/signals_test.cc",
-        "posix/symbolic_constants_posix_test.cc",
-      ]
-    }
+  if (crashpad_is_posix) {
+    sources += [
+      "posix/process_info_test.cc",
+      "posix/signals_test.cc",
+      "posix/symbolic_constants_posix_test.cc",
+    ]
+
     sources += [ "posix/scoped_mmap_test.cc" ]
   }
 
@@ -841,16 +750,14 @@ source_set("util_test") {
       "misc/capture_context_test_util_mac.cc",
     ]
 
-    if (!crashpad_is_tvos) {
-      sources += [
-        "mach/composite_mach_message_server_test.cc",
-        "mach/exc_server_variants_test.cc",
-        "mach/exception_behaviors_test.cc",
-        "mach/mach_extensions_test.cc",
-        "mach/mach_message_test.cc",
-        "mach/symbolic_constants_mach_test.cc",
-      ]
-    }
+    sources += [
+      "mach/composite_mach_message_server_test.cc",
+      "mach/exc_server_variants_test.cc",
+      "mach/exception_behaviors_test.cc",
+      "mach/mach_extensions_test.cc",
+      "mach/mach_message_test.cc",
+      "mach/symbolic_constants_mach_test.cc",
+    ]
   }
 
   if (crashpad_is_mac) {
@@ -872,21 +779,7 @@ source_set("util_test") {
     ]
   }
 
-  if (crashpad_is_ios) {
-    sources += [
-      "ios/ios_intermediate_dump_reader_test.cc",
-      "ios/ios_intermediate_dump_writer_test.cc",
-      "ios/scoped_vm_map_test.cc",
-      "ios/scoped_vm_read_test.cc",
-    ]
-
-    sources -= [
-      "process/process_memory_range_test.cc",
-      "process/process_memory_test.cc",
-    ]
-  }
-
-  if (crashpad_is_linux || crashpad_is_android) {
+  if (crashpad_is_linux) {
     sources += [
       "linux/auxiliary_vector_test.cc",
       "linux/memory_map_test.cc",
@@ -898,13 +791,6 @@ source_set("util_test") {
       "linux/socket_test.cc",
       "misc/capture_context_test_util_linux.cc",
       "process/process_memory_sanitized_test.cc",
-    ]
-  }
-
-  if (crashpad_is_fuchsia) {
-    sources -= [
-      "misc/capture_context_test.cc",
-      "misc/capture_context_test_util.h",
     ]
   }
 
@@ -950,12 +836,10 @@ source_set("util_test") {
     "../third_party/zlib",
   ]
 
-  if (!crashpad_is_android && !crashpad_is_ios && !crashpad_is_fuchsia) {
-    data_deps = [ ":http_transport_test_server" ]
+  data_deps = [ ":http_transport_test_server" ]
 
-    if (crashpad_use_boringssl_for_http_transport_socket) {
-      defines = [ "CRASHPAD_USE_BORINGSSL" ]
-    }
+  if (crashpad_use_boringssl_for_http_transport_socket) {
+    defines = [ "CRASHPAD_USE_BORINGSSL" ]
   }
 
   if (crashpad_is_apple) {
@@ -966,15 +850,11 @@ source_set("util_test") {
     frameworks = [ "Foundation.framework" ]
   }
 
-  if (crashpad_is_ios) {
-    deps += [ ":util_test_bundle_data" ]
-  }
-
-  if (crashpad_is_android || crashpad_is_linux) {
+  if (crashpad_is_linux) {
     deps += [ "../third_party/lss" ]
   }
 
-  if (crashpad_is_in_chromium && (crashpad_is_linux || crashpad_is_android)) {
+  if (crashpad_is_in_chromium && crashpad_is_linux) {
     # TODO(crbug.com/1163794): Disabling MemoryMap tests if PartitionAlloc is
     # used for malloc.
     deps += [ "//base/allocator:buildflags" ]
@@ -990,20 +870,6 @@ source_set("util_test") {
       ":crashpad_util_test_process_info_test_child",
       ":crashpad_util_test_safe_terminate_process_test_child",
     ]
-  }
-}
-
-if (crashpad_is_ios) {
-  bundle_data("util_test_bundle_data") {
-    testonly = true
-
-    sources = [
-      "net/testdata/ascii_http_body.txt",
-      "net/testdata/binary_http_body.dat",
-    ]
-
-    outputs = [ "{{bundle_resources_dir}}/crashpad_test_data/" +
-                "{{source_root_relative_dir}}/{{source_file_part}}" ]
   }
 }
 

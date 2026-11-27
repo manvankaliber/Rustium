@@ -127,9 +127,7 @@ class GPU_GLES2_EXPORT SharedContextState
       scoped_refptr<GpuPersistentCache> persistent_cache = nullptr,
       GpuProcessShmCount* use_shader_cache_shm_count = nullptr,
       gl::ProgressReporter* progress_reporter = nullptr);
-  bool GrContextIsGL() const {
-    return gr_context_type_ == GrContextType::kGL;
-  }
+  bool GrContextIsGL() const { return gr_context_type_ == GrContextType::kGL; }
   bool GrContextIsVulkan() const {
     return gr_context_type_ == GrContextType::kVulkan;
   }
@@ -274,7 +272,7 @@ class GPU_GLES2_EXPORT SharedContextState
   gpu::MemoryTypeTracker* memory_type_tracker() {
     return &memory_type_tracker_;
   }
-#if BUILDFLAG(ENABLE_VULKAN) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA))
+#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_LINUX)
   ExternalSemaphorePool* external_semaphore_pool() {
     return external_semaphore_pool_.get();
   }
@@ -302,21 +300,24 @@ class GPU_GLES2_EXPORT SharedContextState
   }
   sk_sp<SkSurface> GetCachedSkSurface(void* key) {
     auto found = sk_surface_cache_.Get(key);
-    if (found == sk_surface_cache_.end())
+    if (found == sk_surface_cache_.end()) {
       return nullptr;
+    }
     return found->second;
   }
   void EraseCachedSkSurface(void* key) {
     auto found = sk_surface_cache_.Peek(key);
-    if (found != sk_surface_cache_.end())
+    if (found != sk_surface_cache_.end()) {
       sk_surface_cache_.Erase(found);
+    }
   }
   // Supports DCHECKs. OK to be approximate.
   bool CachedSkSurfaceIsUnique(void* key) {
     auto found = sk_surface_cache_.Peek(key);
     // It was purged. Assume it was unique.
-    if (found == sk_surface_cache_.end())
+    if (found == sk_surface_cache_.end()) {
       return true;
+    }
     return found->second->unique();
   }
 
@@ -446,7 +447,7 @@ class GPU_GLES2_EXPORT SharedContextState
   base::Time last_gl_check_graphics_reset_status_;
   bool disable_check_reset_status_throttling_for_test_ = false;
 
-#if BUILDFLAG(ENABLE_VULKAN) && (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_FUCHSIA))
+#if BUILDFLAG(ENABLE_VULKAN) && BUILDFLAG(IS_LINUX)
   std::unique_ptr<ExternalSemaphorePool> external_semaphore_pool_;
 #endif
 

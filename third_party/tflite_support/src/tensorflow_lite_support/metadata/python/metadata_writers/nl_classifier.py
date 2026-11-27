@@ -91,8 +91,7 @@ class MetadataWriter(metadata_writer.MetadataWriter):
     """Creates mandatory metadata for TFLite Support inference.
 
     The parameters required in this method are mandatory when using TFLite
-    Support features, such as Task library and Codegen tool (Android Studio ML
-    Binding). Other metadata fields will be set to default. If other fields need
+    Support features, such as the Task library. Other metadata fields will be set to default. If other fields need
     to be filled, use the method `create_from_metadata_info` to edit them.
 
     Args:

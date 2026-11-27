@@ -98,49 +98,5 @@ IN_PROC_BROWSER_TEST_F(WebXrVrOpenXrBrowserTestBase,
 // the shutdown finishes: OpenXrDevice::RequestSession() CHECKs that it has no
 // session. Only Android shuts a session down asynchronously, while the XR
 // activity finishes, so only there can a request reach the runtime meanwhile.
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(WebXrVrOpenXrBrowserTestBase,
-                       TestRequestWhilePreviousSessionShutsDown) {
-  MockXRDeviceHookBase mock;
-
-  // Tab 1 requests a session later. Its XR service keeps the browser's XR
-  // state alive when tab 2 closes, so its request goes to the runtime that is
-  // shutting down tab 2's session.
-  LoadFileAndAwaitInitialization("generic_webxr_page");
-  content::WebContents* tab_1_contents = GetCurrentWebContents();
-
-  content::WebContentsAddedObserver new_contents_observer;
-  RunJavaScriptOrFail("window.open('about:blank', '_blank');");
-  content::WebContents* tab_2_contents = new_contents_observer.GetWebContents();
-  ASSERT_EQ(tab_2_contents, GetCurrentWebContents());
-  LoadFileAndAwaitInitialization("generic_webxr_page");
-  EnterSessionWithUserGestureOrFail(tab_2_contents);
-
-  // Closing tab 2 ends its session, and the runtime starts shutting it down.
-  mock.HoldSessionShutdown();
-  content::WebContentsDestroyedWatcher destroyed_watcher(tab_2_contents);
-  CloseTab(tab_2_contents);
-  destroyed_watcher.Wait();
-  ASSERT_EQ(tab_1_contents, GetCurrentWebContents());
-  PollJavaScriptBooleanOrFail("document.visibilityState == 'visible'",
-                              kPollTimeoutLong, tab_1_contents);
-
-  // Request a session from tab 1 while the shutdown is held, and give the
-  // request time to get through the renderer and the browser. If the browser
-  // passed it on now, the runtime would get it before it finishes shutting
-  // down.
-  EnterSessionWithUserGesture(tab_1_contents);
-  base::RunLoop run_loop;
-  base::SingleThreadTaskRunner::GetCurrentDefault()->PostDelayedTask(
-      FROM_HERE, run_loop.QuitClosure(), base::Seconds(1));
-  run_loop.Run();
-
-  mock.ReleaseSessionShutdown();
-  PollJavaScriptBooleanOrFail(
-      "sessionInfos[sessionTypes.IMMERSIVE].currentSession != null",
-      kPollTimeoutLong, tab_1_contents);
-  EndSessionOrFail(tab_1_contents);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace vr

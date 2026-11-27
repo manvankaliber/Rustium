@@ -17,7 +17,6 @@
 #include "base/check.h"
 #include "base/containers/fixed_flat_map.h"
 #include "base/feature_list.h"
-#include "base/ios/ios_util.h"
 #include "base/memory/raw_ptr.h"
 #include "base/metrics/statistics_recorder.h"
 #include "base/strings/strcat.h"
@@ -97,13 +96,8 @@
 #include "url/gurl.h"
 #include "url/url_canon.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 #include "components/autofill/core/browser/payments/test_credit_card_fido_authenticator.h"
-#endif
 
 namespace autofill::autofill_metrics {
 namespace {
@@ -571,11 +565,6 @@ TEST_F(AutofillMetricsTest, LogStoredCreditCardWithInvalidCardNumberMetrics) {
 
 // Test that the credit card checkout flow user actions are correctly logged.
 TEST_F(AutofillMetricsTest, CreditCardCheckoutFlowUserActions) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Disable mandatory reauth as it is not part of this test and will
   // interfere with the card retrieval flow.
@@ -648,7 +637,6 @@ TEST_F(AutofillMetricsTest, CreditCardCheckoutFlowUserActions) {
               1);
   }
 
-#if !BUILDFLAG(IS_IOS)
   // Simulate selecting an "Undo autofill" suggestion.
   {
     base::UserActionTester user_action_tester;
@@ -664,7 +652,6 @@ TEST_F(AutofillMetricsTest, CreditCardCheckoutFlowUserActions) {
     EXPECT_EQ(
         user_action_tester.GetActionCount("Autofill_UndoPaymentsAutofill"), 1);
   }
-#endif
 
   // Simulate showing a credit card suggestion polled from "Credit card number"
   // field, this time to submit the form.
@@ -2544,7 +2531,6 @@ TEST_F(AutofillMetricsTest, FrameDoesNotHaveAutocompleteOneTimeCode) {
 
 // ContentAutofillDriver is not visible to TestAutofillDriver on iOS.
 // In addition, WebOTP will not ship on iOS.
-#if !BUILDFLAG(IS_IOS)
 
 // Use <Phone><WebOTP><OTC> as the bit pattern to identify the metrics state.
 enum class PhoneCollectionMetricState {
@@ -2707,7 +2693,6 @@ TEST_F(AutofillMetricsTest, AutocompleteOneTimeCodeFormFilledDuration) {
   }
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(AutofillMetricsTest, OnAutocompleteSuggestionsShown) {
   base::HistogramTester histogram_tester;

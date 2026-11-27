@@ -46,9 +46,6 @@ void AttemptFastKillForDiscard(
   if (web_contents_discard_enabled) {
     allow_skip_unload = true;
   } else if (discard_reason == ::mojom::LifecycleUnitDiscardReason::URGENT) {
-#if BUILDFLAG(IS_CHROMEOS)
-    allow_skip_unload = true;
-#endif
   }
 
   const bool should_ignore_workers = web_contents_discard_enabled;

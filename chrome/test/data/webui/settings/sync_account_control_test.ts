@@ -12,14 +12,12 @@ import {isChildVisible, microtasksFinished} from 'chrome://webui-test/test_util.
 
 import {TestPrefsBrowserProxy} from './test_prefs_browser_proxy.js';
 
-// <if expr="not is_chromeos">
 import {loadTimeData} from 'chrome://settings/settings.js';
 import type {CrActionMenuElement, StoredAccount} from 'chrome://settings/settings.js';
 import {ChromeSigninAccessPoint, Router, routes} from 'chrome://settings/settings.js';
 import {assertEquals, assertFalse} from 'chrome://webui-test/chai_assert.js';
 import {isVisible} from 'chrome://webui-test/test_util.js';
 
-// </if>
 import {simulateStoredAccounts} from './sync_test_util.js';
 import {TestSyncBrowserProxy} from './test_sync_browser_proxy.js';
 // clang-format on
@@ -74,7 +72,6 @@ suite('SyncAccountControl', function() {
     testElement.remove();
   });
 
-  // <if expr="not is_chromeos">
   test('promo header is visible', async function() {
     testElement.syncStatus = {
       signedInState: SignedInState.SIGNED_OUT,
@@ -298,7 +295,6 @@ suite('SyncAccountControl', function() {
         assertTrue(isChildVisible(testElement, '#turn-off'));
         assertFalse(isVisible(testElement.shadowRoot.querySelector('#banner')));
       });
-  // </if>
 
   test(
       'signed in, has passphrase error', async function() {
@@ -312,18 +308,14 @@ suite('SyncAccountControl', function() {
         };
         await microtasksFinished();
 
-        // <if expr="not is_chromeos">
         assertTrue(testElement.shadowRoot
                        .querySelector<HTMLElement>('#sync-icon-container')!
                        .classList.contains('sync-problem'));
         assertTrue(!!testElement.shadowRoot.querySelector(
             '[icon="settings:sync-problem"]'));
-        // </if>
         assertTrue(isChildVisible(testElement, '#sync-error-button'));
-        // <if expr="not is_chromeos">
         assertTrue(isChildVisible(testElement, '#turn-off'));
         assertFalse(isVisible(testElement.shadowRoot.querySelector('#banner')));
-        // </if>
       });
 
   test('signed in, has bookmark limit exceeded error', async function() {
@@ -361,7 +353,6 @@ suite('SyncAccountControl', function() {
         await browserProxy.whenCalled('showSyncPassphraseDialog');
       });
 
-  // <if expr="not is_chromeos">
   test(
       'user in sync paused state', async function() {
         testElement.syncStatus = {
@@ -633,10 +624,8 @@ suite('SyncAccountControl', function() {
         const deleteProfile = await browserProxy.whenCalled('signOut');
         assertFalse(deleteProfile);
       });
-  // </if>
 });
 
-// <if expr="not is_chromeos">
 suite('SyncAccountControlHideBanner', function() {
   let browserProxy: TestSyncBrowserProxy;
   let testElement: SettingsSyncAccountControlElement;
@@ -681,4 +670,3 @@ suite('SyncAccountControlHideBanner', function() {
     assertFalse(isVisible(testElement.shadowRoot.querySelector('#banner')));
   });
 });
-// </if>

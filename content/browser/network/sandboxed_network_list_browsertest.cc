@@ -75,7 +75,7 @@ class SandboxedNetworkListBrowserTest : public ContentBrowserTest {
 
     disabled_features.push_back(features::kNetworkServiceInProcess);
 
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_MAC)
     if (sandbox_enabled) {
       enabled_features.push_back(
           sandbox::policy::features::kNetworkServiceSandbox);
@@ -83,7 +83,7 @@ class SandboxedNetworkListBrowserTest : public ContentBrowserTest {
       disabled_features.push_back(
           sandbox::policy::features::kNetworkServiceSandbox);
     }
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_FUCHSIA)
+#endif
 
 #if BUILDFLAG(IS_WIN)
     if (lpac_enabled) {
@@ -99,12 +99,7 @@ class SandboxedNetworkListBrowserTest : public ContentBrowserTest {
   }
 
  protected:
-#if BUILDFLAG(IS_ANDROID)
-  void SetUp() override {
-    GTEST_SKIP() << "GetNetworkList not yet supported in Android network "
-                    "sandbox. See https://crbug.com/1381381.";
-  }
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   void SetUp() override {
     if (GetTestPreCount() == 3) {
       // Builders that execute content_browsertests directly via runtest.py
@@ -135,7 +130,7 @@ class SandboxedNetworkListBrowserTest : public ContentBrowserTest {
     }
     ContentBrowserTest::SetUp();
   }
-#endif  // BUILDFLAG(IS_ANDROID)
+#endif
 
   void WriteInterfacesToFile(const base::FilePath& path) {
     base::ListValue interfaces_list;

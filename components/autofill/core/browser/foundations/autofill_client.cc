@@ -43,9 +43,6 @@
 #include "ui/gfx/geometry/rect_f.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/autofill/core/browser/ui/autofill_tapjacking_protector.h"
-#endif
 
 namespace autofill {
 
@@ -146,18 +143,6 @@ AutofillComposeDelegate* AutofillClient::GetComposeDelegate() {
 }
 const AutofillComposeDelegate* AutofillClient::GetComposeDelegate() const {
   return const_cast<AutofillClient*>(this)->GetComposeDelegate();
-}
-
-AtMemoryQueryService* AutofillClient::GetAtMemoryQueryService() {
-  return nullptr;
-}
-
-AtMemoryManager* AutofillClient::GetAtMemoryManager() {
-  return nullptr;
-}
-
-const AtMemoryManager* AutofillClient::GetAtMemoryManager() const {
-  return const_cast<AutofillClient*>(this)->GetAtMemoryManager();
 }
 
 personal_context::PersonalContextEligibilityState
@@ -293,38 +278,6 @@ const AutofillAblationStudy& AutofillClient::GetAblationStudy() const {
   return AutofillAblationStudy::disabled_study();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool AutofillClient::ShowAmbientAutofillNotice(
-    base::WeakPtr<TouchToFillAutofillDelegate> delegate) {
-  return false;
-}
-
-bool AutofillClient::ShowPrivateInferenceNoticeBottomSheet(
-    base::WeakPtr<TouchToFillAutofillDelegate> delegate) {
-  return false;
-}
-
-void AutofillClient::HideTouchToFillAutofillNotice() {}
-
-AutofillSnackbarControllerImpl*
-AutofillClient::GetAutofillSnackbarController() {
-  return nullptr;
-}
-
-void AutofillClient::ShowAutofillAiLoadingDialog() {
-  NOTIMPLEMENTED();
-}
-
-void AutofillClient::DismissAutofillAiLoadingDialog() {
-  NOTIMPLEMENTED();
-}
-
-void AutofillClient::ShowTapjackingProtector(
-    AutofillTapjackingProtector::AuthorizationType authorization_type,
-    AutofillTapjackingProtector::AuthorizationCallback callback) {
-  NOTIMPLEMENTED();
-}
-#endif
 
 void AutofillClient::TriggerDeclinedSaveAddressReasonSurvey() {
   NOTIMPLEMENTED();
@@ -333,12 +286,6 @@ void AutofillClient::TriggerDeclinedSaveAddressReasonSurvey() {
 void AutofillClient::TriggerPersonalizationAndTrustSurveys(
     FillingProduct filling_product,
     const HatsSurveyStringData& field_filling_stats_data) {
-  NOTIMPLEMENTED();
-}
-
-void AutofillClient::TriggerAtMemoryPersonalizationAndTrustSurvey(
-    bool is_dismissed,
-    const HatsSurveyStringData& product_specific_data) {
   NOTIMPLEMENTED();
 }
 
@@ -456,11 +403,6 @@ void AutofillClient::ShowAutofillAiFetchEntityFailureNotification() {
   NOTIMPLEMENTED();
 }
 
-void AutofillClient::ShowAtMemoryFetchFailureNotification(
-    std::optional<std::u16string> message_override) {
-  NOTIMPLEMENTED();
-}
-
 void AutofillClient::ShowAutofillAiPreFetchFailureNotification() {
   NOTIMPLEMENTED();
 }
@@ -469,13 +411,11 @@ void AutofillClient::ShowAutofillAiPrivateInferenceNotice() {
   NOTIMPLEMENTED();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void AutofillClient::ShowAutofillAiSuppressionConfirmationDialog(
     const EntityInstance& entity,
     base::OnceCallback<void(bool)> callback) {
   NOTIMPLEMENTED();
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 void AutofillClient::ShowAutofillAiSuggestionRemovedNotification(
     const EntityInstance& entity,
@@ -557,11 +497,6 @@ OtpPhishGuardDelegate* AutofillClient::GetOtpPhishGuardDelegate() {
 }
 
 void AutofillClient::OpenGmailForOtps() {}
-
-void AutofillClient::OpenGeminiInSidebar(const std::u16string& prompt) {
-  // TODO(crbug.com/493824736): Implement opening Gemini in the sidebar.
-  NOTIMPLEMENTED();
-}
 
 bool AutofillClient::IsGlicEnabled() const {
   return false;

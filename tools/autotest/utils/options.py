@@ -28,15 +28,13 @@ class AutotestConfig:
   test_policy_to_pref_mappings_filter: str | None
   dry_run: bool | None
   quiet: bool | None
-  no_try_android_wrappers: bool | None
-  no_fast_local_dev: bool | None
-  no_single_variant: bool | None
+
   no_build: bool | None
   suite: bool | None
   builder: bool | None
   files: tuple[str, ...]
   gemini: bool | None
-  device: str | None
+
   extras: list[str] | None = None  # To hold ctx.args
 
 
@@ -106,7 +104,6 @@ def autotest_options(f):
 
   # Apply the options to the wrapper function
   options = [
-    click.option('-d', '--device', help='Target device serial'),
     click.option(
       '--out-dir',
       '--out_dir',
@@ -203,24 +200,6 @@ def autotest_options(f):
       '-q',
       is_flag=True,
       help='Do not print while building, only print if build fails.',
-    ),
-    click.option(
-      '--no-try-android-wrappers',
-      '--no_try_android_wrappers',
-      is_flag=True,
-      help='Do not try to use Android test wrappers to run tests.',
-    ),
-    click.option(
-      '--no-fast-local-dev',
-      '--no_fast_local_dev',
-      is_flag=True,
-      help='Do not add --fast-local-dev for Android tests.',
-    ),
-    click.option(
-      '--no-single-variant',
-      '--no_single_variant',
-      is_flag=True,
-      help='Do not add --single-variant for Android tests.',
     ),
     click.option(
       '--no-build',

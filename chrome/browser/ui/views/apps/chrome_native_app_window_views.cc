@@ -171,11 +171,6 @@ void ChromeNativeAppWindowViews::InitializeDefaultWindow(
     }
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (create_params.is_ime_window) {
-    return;
-  }
-#endif
 
   // Register accelarators supported by app windows.
   views::FocusManager* focus_manager = GetFocusManager();

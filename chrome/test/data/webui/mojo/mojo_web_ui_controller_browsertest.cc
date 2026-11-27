@@ -32,9 +32,6 @@
 #include "ui/base/resource/resource_bundle.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/base/resource/resource_bundle_android.h"
-#endif
 
 namespace {
 
@@ -168,15 +165,11 @@ class MojoWebUIControllerBrowserTest : public InProcessBrowserTest {
   }
 
   void SetUpOnMainThread() override {
-#if BUILDFLAG(IS_ANDROID)
-    ui::LoadPackFileFromApk("assets/browser_tests.pak", /*split_name=*/"");
-#else
     base::FilePath pak_path;
     ASSERT_TRUE(base::PathService::Get(base::DIR_ASSETS, &pak_path));
     pak_path = pak_path.AppendASCII("browser_tests.pak");
     ui::ResourceBundle::GetSharedInstance().AddDataPackFromPath(
         pak_path, ui::kScaleFactorNone);
-#endif
 
     content::SetBrowserClientForTesting(&test_content_browser_client_);
   }

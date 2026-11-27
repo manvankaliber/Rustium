@@ -7,7 +7,6 @@
 #include "base/containers/enum_set.h"
 #include "base/test/scoped_feature_list.h"
 #include "chrome/browser/dictation/features.h"
-#include "chrome/browser/ttc/core/features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/create_browser_window.h"
@@ -40,9 +39,6 @@ ToastIdEnumSet GetActiveToastIds() {
   for (auto toast_id : kDeprecatedToastIds) {
     result.Remove(static_cast<ToastId>(toast_id));
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  result.Remove(ToastId::kDefaultBrowserUpdateSuccess);
-#endif
 #if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_LINUX)
   result.Remove(ToastId::kScheduledRestartOnIdle);
 #endif
@@ -52,20 +48,6 @@ ToastIdEnumSet GetActiveToastIds() {
 class ToastServiceBrowserTest : public InProcessBrowserTest {
  public:
   void SetUp() override {
-    feature_list_.InitWithFeaturesAndParameters(
-        {{autofill::features::kAutofillAiWalletPrivatePasses, {}},
-         {safe_browsing::kEsbAsASyncedSetting, {}},
-         {data_sharing::features::kDataSharingFeature, {}},
-         {toast_features::kTranslateToast, {}},
-         {features::kGlicActorUi, {{features::kGlicActorUiToastName, "true"}}},
-         {multistep_filter::kMultistepFilter, {}},
-         {features::kIndigo, {}},
-         {autofill::features::kAutofillAmbientAutofill, {}},
-         {autofill::features::kAutofillAmbientAutofillSuppression, {}},
-         {autofill::features::kAutofillAtMemory, {}},
-         {dictation::kDictation, {}},
-         {ttc::kTtc, {}}},
-        /*disabled_features*/ {});
     InProcessBrowserTest::SetUp();
   }
 

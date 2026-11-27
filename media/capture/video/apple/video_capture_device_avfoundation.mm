@@ -38,13 +38,8 @@
 #include "media/capture/video_capture_types.h"
 #include "ui/gfx/geometry/size.h"
 
-#if BUILDFLAG(IS_MAC)
 #import "media/capture/video/mac/video_capture_metrics_mac.h"
-#endif
 
-#if BUILDFLAG(IS_IOS)
-#import <UIKit/UIKit.h>
-#endif
 
 BASE_FEATURE(kAVFoundationCaptureForwardSampleTimestamps,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -211,9 +206,6 @@ AVCaptureDeviceFormat* FindBestCaptureFormat(
   // The following attributes are set via -setCaptureHeight:width:frameRate:.
   float _frameRate;
 
-#if BUILDFLAG(IS_IOS)
-  UIDeviceOrientation _orientation;
-#endif
   int _rotation;
 
   // Usage of GPU memory buffer is controlled by
@@ -326,35 +318,10 @@ AVCaptureDeviceFormat* FindBestCaptureFormat(
     _captureSession = [[AVCaptureSession alloc] init];
     _sampleBufferTransformer = media::SampleBufferTransformer::Create();
 
-#if BUILDFLAG(IS_IOS)
-    _orientation = UIDeviceOrientationUnknown;
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    [[NSNotificationCenter defaultCenter]
-        addObserver:self
-           selector:@selector(orientationChanged:)
-               name:UIDeviceOrientationDidChangeNotification
-             object:[UIDevice currentDevice]];
-#endif
   }
   return self;
 }
 
-#if BUILDFLAG(IS_IOS)
-- (void)orientationChanged:(NSNotification*)note {
-  UIDevice* device = note.object;
-  UIDeviceOrientation deviceOrientation = device.orientation;
-  AVCaptureConnection* captureConnection =
-      [_captureVideoDataOutput connectionWithMediaType:AVMediaTypeVideo];
-  if ([captureConnection isVideoOrientationSupported]) {
-    _orientation = deviceOrientation;
-    AVCaptureDevicePosition camera_position =
-        [[_captureDeviceInput device] position];
-    _rotation =
-        media::MaybeGetVideoRotation(_orientation, camera_position).value_or(0);
-    [self captureConfigurationChanged];
-  }
-}
-#endif
 
 - (void)dealloc {
   // Stopping a running photo output takes `_lock`. To avoid this happening
@@ -445,10 +412,8 @@ AVCaptureDeviceFormat* FindBestCaptureFormat(
     return NO;
   }
 
-#if BUILDFLAG(IS_MAC)
   // TODO(https://crbug.com/461717105): Remove this logging.
   media::LogAVCaptureDeviceInfo(_captureDevice);
-#endif
 
   // Create the capture input associated with the device. Easy peasy.
   NSError* error = nil;
@@ -482,17 +447,6 @@ AVCaptureDeviceFormat* FindBestCaptureFormat(
                       options:0
                       context:(__bridge void*)_captureDevice];
 
-#if BUILDFLAG(IS_IOS)
-  _orientation = [[UIDevice currentDevice] orientation];
-  if (_orientation == UIDeviceOrientationUnknown) {
-    _orientation = UIDeviceOrientationPortrait;
-  }
-
-  AVCaptureDevicePosition camera_position =
-      [[_captureDeviceInput device] position];
-  _rotation =
-      media::MaybeGetVideoRotation(_orientation, camera_position).value_or(0);
-#endif
 
   return YES;
 }
@@ -537,11 +491,9 @@ AVCaptureDeviceFormat* FindBestCaptureFormat(
   // yes/no and preserve aspect ratio yes/no when scaling. Currently we set
   // cropping and preservation.
   NSDictionary* videoSettingsDictionary = @{
-#if BUILDFLAG(IS_MAC)
     (id)kCVPixelBufferWidthKey : @(width),
     (id)kCVPixelBufferHeightKey : @(height),
     AVVideoScalingModeKey : AVVideoScalingModeResizeAspectFill,
-#endif
     (id)kCVPixelBufferPixelFormatTypeKey : @(best_fourcc)
   };
 
@@ -1089,11 +1041,9 @@ AVCaptureDeviceFormat* FindBestCaptureFormat(
     _startTimestamp = pres_timestamp;
   }
   const base::TimeDelta timestamp = pres_timestamp - _startTimestamp;
-#if BUILDFLAG(IS_MAC)
   if (!std::exchange(_capturedFirstFrame, true)) {
     [self logMessageLocked:"First frame received for this capturer instance"];
   }
-#endif
   // Forget the sample timestamp if we're out of the experiment.
   if (!base::FeatureList::IsEnabled(
           kAVFoundationCaptureForwardSampleTimestamps)) {
@@ -1130,20 +1080,8 @@ AVCaptureDeviceFormat* FindBestCaptureFormat(
       return;
     }
 
-#if BUILDFLAG(IS_MAC)
     base::apple::ScopedCFTypeRef<CVPixelBufferRef> final_pixel_buffer =
         pixelBuffer;
-#else
-    // The rotated_pixelBuffer might not be the same size as the source
-    // pixelBuffer as it gets rotated by rotation_angle_. In order to restore
-    // the original size, rotated_pixelBuffer need to scale it to its original
-    // size by transforming it.
-    base::apple::ScopedCFTypeRef<CVPixelBufferRef> rotated_pixelBuffer =
-        _sampleBufferTransformer->Rotate(pixelBuffer.get());
-    base::apple::ScopedCFTypeRef<CVPixelBufferRef> final_pixel_buffer =
-        _sampleBufferTransformer->Transform(rotated_pixelBuffer.get());
-
-#endif
 
     const media::VideoCaptureFormat captureFormat(
         gfx::Size(CVPixelBufferGetWidth(final_pixel_buffer.get()),

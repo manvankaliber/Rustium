@@ -105,12 +105,7 @@ TEST(ClientSharedImageTest,
       mojo::test::SerializeAndDeserialize<gpu::mojom::ExportedSharedImage>(
           exported_si, deserialized_si);
 
-#if BUILDFLAG(IS_FUCHSIA)
-  EXPECT_TRUE(success);
-  EXPECT_EQ(deserialized_si.texture_target_, 0u);
-#else
   EXPECT_FALSE(success);
-#endif
 }
 
 TEST(ClientSharedImageTest,
@@ -462,7 +457,7 @@ TEST(ClientSharedImageTest, GetTextureTarget_MultiplanarFormats) {
   }
 }
 
-#if BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_OZONE)
 // On Ozone/Android, the target for native buffers should be used if a
 // multiplanar format with external sampling is passed.
 TEST(ClientSharedImageTest,
@@ -483,12 +478,8 @@ TEST(ClientSharedImageTest,
 
     // Since the format has external sampling enabled, the platform-specific
     // target for native buffers should be used.
-#if BUILDFLAG(IS_FUCHSIA)
-    EXPECT_EQ(client_si->GetTextureTarget(), 0u);
-#else
     EXPECT_EQ(client_si->GetTextureTarget(),
               static_cast<uint32_t>(GL_TEXTURE_EXTERNAL_OES));
-#endif
   }
 }
 

@@ -15,9 +15,6 @@
 #include "components/sync_preferences/pref_service_syncable.h"
 #include "media/base/media_switches.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
 namespace captions {
 
@@ -27,9 +24,6 @@ namespace {
 std::vector<base::test::FeatureRef> RequiredFeatureFlags() {
   std::vector<base::test::FeatureRef> features = {
       media::kFeatureManagementLiveTranslateCrOS};
-#if BUILDFLAG(IS_CHROMEOS)
-  features.push_back(ash::features::kOnDeviceSpeechRecognition);
-#endif
   return features;
 }
 

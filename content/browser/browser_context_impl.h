@@ -49,9 +49,6 @@ class PermissionControllerImpl;
 class PrefetchService;
 class StoragePartitionImplMap;
 
-#if BUILDFLAG(IS_ANDROID)
-class NavigationEntryScreenshotManager;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace webid {
 class InMemoryFederatedPermissionContext;
@@ -113,9 +110,6 @@ class CONTENT_EXPORT BrowserContextImpl {
   void SetPrefetchServiceForTesting(
       std::unique_ptr<PrefetchService> prefetch_service);
 
-#if BUILDFLAG(IS_ANDROID)
-  NavigationEntryScreenshotManager* GetNavigationEntryScreenshotManager();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   webid::InMemoryFederatedPermissionContext* GetFederatedPermissionContext();
   void ResetFederatedPermissionContext();
@@ -220,10 +214,6 @@ class CONTENT_EXPORT BrowserContextImpl {
   std::unique_ptr<PermissionController> permission_controller_for_testing_;
   scoped_refptr<BackgroundSyncScheduler> background_sync_scheduler_;
   std::unique_ptr<PrefetchService> prefetch_service_;
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<NavigationEntryScreenshotManager>
-      nav_entry_screenshot_manager_;
-#endif  // BUILDFLAG(IS_ANDROID)
   std::unique_ptr<webid::InMemoryFederatedPermissionContext>
       federated_permission_context_;
 
@@ -240,9 +230,6 @@ class CONTENT_EXPORT BrowserContextImpl {
   // removed.
   base::RunLoop btm_cleanup_loop_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  scoped_refptr<storage::ExternalMountPoints> external_mount_points_;
-#endif
 
   // Maps initiator state tokens to InitiatorNavigationStates. There is exactly
   // one InitiatorNavigationState per initiator state token and initiator

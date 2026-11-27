@@ -67,7 +67,6 @@ def headers(os):
     is_ios = os == 'ios'  # noqa: F841
     is_mac = os == 'mac'  # noqa: F841
     is_apple = os == 'mac' or os == 'ios'  # noqa: F841
-    is_fuchsia = os == 'fuchsia'  # noqa: F841
     is_win = os == 'win'
     is_chromeos = os == 'chromeos'  # noqa: F841
 

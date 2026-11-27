@@ -64,9 +64,6 @@
 #include "third_party/skia/include/ports/SkTypeface_mac.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/i18n/android_locale.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #include <hb.h>
 
@@ -208,7 +205,7 @@ const char* GetPlatformColorEmojiFontName() {
   return "Segoe UI Emoji";
 #elif BUILDFLAG(IS_APPLE)
   return "Apple Color Emoji";
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   return "Noto Color Emoji";
 #else
   return nullptr;
@@ -1548,12 +1545,7 @@ void ShapeRunWithFont(const ShapeRunWithFontInput& in,
 }
 
 base::i18n::LanguageTag GetApplicationLocale() {
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(etienneb): Android locale should work the same way than base locale.
-  return base::i18n::GetAndroidDefaultLocale();
-#else
   return base::i18n::GetDefaultIcuLocale();
-#endif
 }
 
 }  // namespace

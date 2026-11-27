@@ -34,11 +34,7 @@
 #include "google_apis/gaia/gaia_id.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/enterprise/reporting/reporting_delegate_factory_android.h"
-#else
 #include "chrome/browser/enterprise/reporting/reporting_delegate_factory_desktop.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/browser/extension_registry.h"
@@ -60,10 +56,8 @@ constexpr char kIdleProfile[] = "IdleProfile";
 constexpr char16_t kIdleProfile16[] = u"IdleProfile";
 constexpr char kFakeProfileId[] = "fake-profile-id";
 
-#if !BUILDFLAG(IS_CHROMEOS)
 constexpr char kAffiliationId1[] = "affiliation-id-1";
 constexpr char kAffiliationId2[] = "affiliation-id-2";
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 constexpr char kExtensionId[] = "abcdefghijklmnopabcdefghijklmnop";
@@ -94,11 +88,7 @@ std::unique_ptr<KeyedService> CreateProfileIdService(
 
 }  // namespace
 
-#if BUILDFLAG(IS_ANDROID)
-typedef ReportingDelegateFactoryAndroid PlatformReportingDelegateFactory;
-#else
 typedef ReportingDelegateFactoryDesktop PlatformReportingDelegateFactory;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class ProfileReportGeneratorTest : public ::testing::Test {
  public:
@@ -364,7 +354,6 @@ TEST_F(ProfileReportGeneratorTest, ProfileIdObfuscateByDefault) {
   EXPECT_NE(report->id(), report3->id());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ProfileReportGeneratorTest, ProfileIdNotObfuscatedInAffiliatedProfile) {
   profile()->GetProfilePolicyConnector()->SetUserAffiliationIdsForTesting(
@@ -404,7 +393,6 @@ TEST_F(ProfileReportGeneratorTest, ProfileIdObfuscatedInUnaffiliatedProfile) {
   EXPECT_TRUE(report->is_detail_available());
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ProfileReportGeneratorTest, PoliciesDisabled) {
   // Users' profile info is collected by default.
@@ -447,7 +435,6 @@ TEST_F(ProfileReportGeneratorTest, ProfileId) {
   EXPECT_EQ(kFakeProfileId, report->profile_id());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ProfileReportGeneratorTest, IsAffiliated) {
   profile()->GetProfilePolicyConnector()->SetUserAffiliationIdsForTesting(
       {kAffiliationId1});
@@ -476,7 +463,6 @@ TEST_F(ProfileReportGeneratorTest, NotAffiliated) {
   EXPECT_EQ(em::AffiliationState_UnaffiliationReason_USER_UNMANAGED,
             report->affiliation().unaffiliation_reason());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 TEST_F(ProfileReportGeneratorTest, PendingRequest) {

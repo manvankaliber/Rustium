@@ -37,11 +37,7 @@
 #include "ui/base/page_transition_types.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/chromeos/policy/dlp/test/mock_dlp_content_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/test/gmock_expected_support.h"
 #include "chrome/browser/ui/web_applications/test/isolated_web_app_test_utils.h"
 #include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_url_info.h"
@@ -54,7 +50,6 @@
 #include "services/data_decoder/public/cpp/test_support/in_process_data_decoder.h"
 #include "services/network/public/cpp/permissions_policy/permissions_policy_declaration.h"
 #include "third_party/blink/public/common/permissions_policy/policy_helper_public.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 #include "base/process/process.h"
@@ -457,136 +452,6 @@ TEST_P(DisplayMediaAccessHandlerActiveRfhTest, ProcessRequest) {
                                       FAILED_DUE_TO_SHUTDOWN_NO_RFH_IN_HANDLER);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(DisplayMediaAccessHandlerTest, DlpRestricted) {
-  const content::DesktopMediaID media_id(content::DesktopMediaID::TYPE_SCREEN,
-                                         content::DesktopMediaID::kFakeId);
-
-  // Setup Data Leak Prevention restriction.
-  policy::MockDlpContentManager mock_dlp_content_manager;
-  policy::ScopedDlpContentObserverForTesting scoped_dlp_content_observer(
-      &mock_dlp_content_manager);
-  EXPECT_CALL(mock_dlp_content_manager, CheckScreenShareRestriction)
-      .WillOnce([](const content::DesktopMediaID& media_id,
-                   const std::u16string& application_title,
-                   base::OnceCallback<void(bool)> callback) {
-        std::move(callback).Run(/*should_proceed=*/false);
-      });
-
-  blink::mojom::MediaStreamRequestResult result =
-      blink::mojom::MediaStreamRequestResult::NOT_SUPPORTED;
-  blink::mojom::StreamDevices devices;
-  ProcessRequest(media_id, &result, devices, /*request_audio=*/false);
-
-  EXPECT_EQ(blink::mojom::MediaStreamRequestResult::DLP_PERMISSION_DENIED,
-            result);
-  EXPECT_EQ(0u, blink::CountDevices(devices));
-}
-
-TEST_F(DisplayMediaAccessHandlerTest, DlpRestrictedWithQueuedRequest) {
-  const content::DesktopMediaID media_id(content::DesktopMediaID::TYPE_SCREEN,
-                                         content::DesktopMediaID::kFakeId);
-  SetTestFlags({{.expect_screens = true,
-                 .expect_windows = true,
-                 .expect_tabs = true,
-                 .expect_current_tab = false,
-                 .expect_audio = false,
-                 .picker_result = media_id},
-                {.expect_screens = true,
-                 .expect_windows = true,
-                 .expect_tabs = true,
-                 .expect_current_tab = false,
-                 .expect_audio = false,
-                 .picker_result =
-                     base::unexpected(blink::mojom::MediaStreamRequestResult::
-                                          PERMISSION_DENIED_BY_USER)}});
-
-  policy::MockDlpContentManager mock_dlp_content_manager;
-  policy::ScopedDlpContentObserverForTesting scoped_dlp_content_observer(
-      &mock_dlp_content_manager);
-  EXPECT_CALL(mock_dlp_content_manager, CheckScreenShareRestriction)
-      .WillOnce([](const content::DesktopMediaID& media_id,
-                   const std::u16string& application_title,
-                   base::OnceCallback<void(bool)> callback) {
-        std::move(callback).Run(/*should_proceed=*/false);
-      });
-
-  base::RunLoop wait_loop1;
-  base::RunLoop wait_loop2;
-  blink::mojom::MediaStreamRequestResult result1 =
-      blink::mojom::MediaStreamRequestResult::NOT_SUPPORTED;
-  blink::mojom::MediaStreamRequestResult result2 =
-      blink::mojom::MediaStreamRequestResult::NOT_SUPPORTED;
-  blink::mojom::StreamDevices devices1;
-  blink::mojom::StreamDevices devices2;
-
-  HandleRequest(MakeRequest(/*request_audio=*/false), &wait_loop1, &result1,
-                devices1);
-  HandleRequest(MakeRequest(/*request_audio=*/false), &wait_loop2, &result2,
-                devices2);
-
-  wait_loop1.Run();
-  wait_loop2.Run();
-
-  EXPECT_EQ(blink::mojom::MediaStreamRequestResult::DLP_PERMISSION_DENIED,
-            result1);
-  EXPECT_EQ(0u, blink::CountDevices(devices1));
-
-  EXPECT_EQ(blink::mojom::MediaStreamRequestResult::PERMISSION_DENIED_BY_USER,
-            result2);
-  EXPECT_EQ(0u, blink::CountDevices(devices2));
-}
-
-TEST_F(DisplayMediaAccessHandlerTest, DlpNotRestricted) {
-  const content::DesktopMediaID media_id(content::DesktopMediaID::TYPE_SCREEN,
-                                         content::DesktopMediaID::kFakeId);
-
-  // Setup Data Leak Prevention restriction.
-  policy::MockDlpContentManager mock_dlp_content_manager;
-  policy::ScopedDlpContentObserverForTesting scoped_dlp_content_manager(
-      &mock_dlp_content_manager);
-  EXPECT_CALL(mock_dlp_content_manager, CheckScreenShareRestriction)
-      .WillOnce([](const content::DesktopMediaID& media_id,
-                   const std::u16string& application_title,
-                   base::OnceCallback<void(bool)> callback) {
-        std::move(callback).Run(/*should_proceed=*/true);
-      });
-
-  blink::mojom::MediaStreamRequestResult result =
-      blink::mojom::MediaStreamRequestResult::NOT_SUPPORTED;
-  blink::mojom::StreamDevices devices;
-  ProcessRequest(media_id, &result, devices, /*request_audio=*/false);
-
-  EXPECT_EQ(blink::mojom::MediaStreamRequestResult::OK, result);
-  EXPECT_EQ(1u, blink::CountDevices(devices));
-}
-
-TEST_F(DisplayMediaAccessHandlerTest, DlpWebContentsDestroyed) {
-  const content::DesktopMediaID media_id(content::DesktopMediaID::TYPE_SCREEN,
-                                         content::DesktopMediaID::kFakeId);
-
-  // Setup Data Leak Prevention restriction.
-  policy::MockDlpContentManager mock_dlp_content_manager;
-  policy::ScopedDlpContentObserverForTesting scoped_dlp_content_manager(
-      &mock_dlp_content_manager);
-  EXPECT_CALL(mock_dlp_content_manager, CheckScreenShareRestriction)
-      .WillOnce([&](const content::DesktopMediaID& media_id,
-                    const std::u16string& application_title,
-                    base::OnceCallback<void(bool)> callback) {
-        DeleteContents();
-        std::move(callback).Run(/*should_proceed=*/true);
-      });
-
-  blink::mojom::MediaStreamRequestResult result =
-      blink::mojom::MediaStreamRequestResult::NOT_SUPPORTED;
-  blink::mojom::StreamDevices devices;
-  ProcessRequest(media_id, &result, devices, /*request_audio=*/false,
-                 /*expect_result=*/false);
-
-  EXPECT_EQ(blink::mojom::MediaStreamRequestResult::NOT_SUPPORTED, result);
-  EXPECT_EQ(0u, blink::CountDevices(devices));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(DisplayMediaAccessHandlerTest, UpdateMediaRequestStateWithClosing) {
   const int render_process_id =
@@ -707,7 +572,6 @@ TEST_F(DisplayMediaAccessHandlerTest, CorrectHostAsksForPermissionsNormalURLs) {
   EXPECT_EQ(u"www.google.com", params.app_name);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(DisplayMediaAccessHandlerTest, IsolatedWebAppNameAsksForPermissions) {
   base::test::ScopedFeatureList scoped_feature_list{features::kIsolatedWebApps};
@@ -787,7 +651,6 @@ TEST_F(DisplayMediaAccessHandlerTest, IsolatedWebAppNameAsksForPermissions) {
       content::MEDIA_REQUEST_STATE_CLOSING);
   EXPECT_EQ(base::UTF8ToUTF16(app_name), params.app_name);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(DisplayMediaAccessHandlerTest, WebContentsDestroyed) {
   SetTestFlags({{true /* expect_screens */, true /* expect_windows*/,
@@ -1009,53 +872,6 @@ TEST_F(DisplayMediaAccessHandlerTest,
       /*expected_number_of_devices=*/2u);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(DisplayMediaAccessHandlerTest, ChangeSourceDlpRestricted) {
-  const content::DesktopMediaID media_id(
-      content::DesktopMediaID::TYPE_WEB_CONTENTS,
-      content::DesktopMediaID::kNullId, GetWebContentsMediaCaptureId());
-
-  // Setup Data Leak Prevention restriction.
-  policy::MockDlpContentManager mock_dlp_content_manager;
-  policy::ScopedDlpContentObserverForTesting scoped_dlp_content_observer(
-      &mock_dlp_content_manager);
-  EXPECT_CALL(mock_dlp_content_manager, CheckScreenShareRestriction)
-      .WillOnce([](const content::DesktopMediaID& media_id,
-                   const std::u16string& application_title,
-                   base::OnceCallback<void(bool)> callback) {
-        std::move(callback).Run(/*should_proceed=*/false);
-      });
-
-  ChangeSourceRequestTest(
-      /*with_audio=*/false,
-      /*expected_result=*/
-      blink::mojom::MediaStreamRequestResult::DLP_PERMISSION_DENIED,
-      /*expected_number_of_devices=*/0u);
-}
-
-TEST_F(DisplayMediaAccessHandlerTest, ChangeSourceDlpNotRestricted) {
-  const content::DesktopMediaID media_id(
-      content::DesktopMediaID::TYPE_WEB_CONTENTS,
-      content::DesktopMediaID::kNullId, GetWebContentsMediaCaptureId());
-
-  // Setup Data Leak Prevention restriction.
-  policy::MockDlpContentManager mock_dlp_content_manager;
-  policy::ScopedDlpContentObserverForTesting scoped_dlp_content_manager(
-      &mock_dlp_content_manager);
-  EXPECT_CALL(mock_dlp_content_manager, CheckScreenShareRestriction)
-      .WillOnce([](const content::DesktopMediaID& media_id,
-                   const std::u16string& application_title,
-                   base::OnceCallback<void(bool)> callback) {
-        std::move(callback).Run(/*should_proceed=*/true);
-      });
-
-  ChangeSourceRequestTest(
-      /*with_audio=*/false,
-      /*expected_result=*/
-      blink::mojom::MediaStreamRequestResult::OK,
-      /*expected_number_of_devices=*/1u);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(DisplayMediaAccessHandlerTest, ChangeSourceWithPendingPickerRequest) {
   SetTestFlags({MakePickerTestFlags(false /*request_audio*/),

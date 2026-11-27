@@ -44,7 +44,7 @@ source_set("notification_cards") {
     deps += [ "//chrome/browser/webauthn" ]
   }
 
-  if ((enable_dice_support || is_chromeos) && is_chrome_branded) {
+  if (enable_dice_support && is_chrome_branded) {
     sources += [ "move_passwords_promo.cc" ]
     public += [ "move_passwords_promo.h" ]
     deps += [ "//chrome/browser/profiles/batch_upload" ]
@@ -97,7 +97,7 @@ source_set("unit_tests") {
     ]
   }
 
-  if ((enable_dice_support || is_chromeos) && is_chrome_branded) {
+  if (enable_dice_support && is_chrome_branded) {
     sources += [ "move_passwords_promo_unittest.cc" ]
     deps += [
       "//chrome/browser/extensions/api/passwords_private",

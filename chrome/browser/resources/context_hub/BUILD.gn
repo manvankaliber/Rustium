@@ -18,8 +18,6 @@ build_webui("build") {
     "app.html.ts",
     "app.ts",
     "icons.html.ts",
-    "memory_bank_chat/memory_bank_chat.html.ts",
-    "memory_bank_chat/memory_bank_chat.ts",
     "memory_banks/memory_banks.html.ts",
     "memory_banks/memory_banks.ts",
     "memory_banks/memory_banks_edit_dialog.html.ts",
@@ -69,7 +67,6 @@ build_webui("build") {
 
   css_files = [
     "app.css",
-    "memory_bank_chat/memory_bank_chat.css",
     "memory_banks/memory_banks.css",
     "memory_banks/memory_banks_edit_dialog.css",
     "memory_banks_palette/memory_banks_palette.css",

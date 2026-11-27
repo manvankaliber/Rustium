@@ -16,7 +16,6 @@
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/search_engines/ai_mode_button_service_factory.h"
 #include "chrome/browser/send_tab_to_self/send_tab_to_self_util.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
 #include "chrome/browser/ui/omnibox/clipboard_utils.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
@@ -452,13 +451,6 @@ void OmniboxContextMenuMixinBase::AddOmniboxSpecificItems(
   // location_bar_view and from this nullptr situation.
   if (lens::features::IsOmniboxEntryPointEnabled() &&
       location_bar_->GetBrowser()) {
-    if (auto* controller = lens::LensOverlayEntryPointController::From(
-            location_bar_->GetBrowser());
-        controller && controller->IsEnabled()) {
-      menu_contents->AddCheckItemWithStringId(
-          IDC_SHOW_GOOGLE_LENS_SHORTCUT,
-          IDS_CONTEXT_MENU_SHOW_GOOGLE_LENS_SHORTCUT);
-    }
   }
 
   if (omnibox::ShouldShowAimContextMenuOption(location_bar_->GetProfile())) {

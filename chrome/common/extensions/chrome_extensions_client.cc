@@ -42,9 +42,6 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/webui/os_feedback_ui/url_constants.h"
-#endif
 
 namespace extensions {
 
@@ -172,9 +169,6 @@ bool ChromeExtensionsClient::IsCapturableURL(const GURL& url,
   // See also https://crbug.com/477664550.
   if (url.SchemeIs(content::kChromeUIScheme) &&
       (url.host() == chrome::kChromeUIFeedbackHost
-#if BUILDFLAG(IS_CHROMEOS)
-       || url.host() == ash::kChromeUIOSFeedbackHost
-#endif
        )) {
     if (error) {
       *error = manifest_errors::kCannotAccessChromeUrl;

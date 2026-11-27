@@ -27,9 +27,6 @@
 #include <wrl.h>
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/gl/gl_bindings.h"
-#endif
 
 namespace gfx {
 class Transform;
@@ -135,10 +132,6 @@ class OpenXrTestHelper {
   const std::vector<Microsoft::WRL::ComPtr<ID3D11Texture2D>>&
   GetSwapchainTextures() const;
 #endif
-#if BUILDFLAG(IS_ANDROID)
-  void SetOpenGLESInfo(EGLDisplay display, EGLContext context);
-  const std::vector<uint32_t>& GetSwapchainTextureIDs(XrSwapchain swapchain);
-#endif
 #if BUILDFLAG(IS_LINUX)
   // Stashed from xrCreateVulkanInstanceKHR so the later Vulkan device calls
   // can resolve functions without the caller passing them back in.
@@ -228,9 +221,6 @@ class OpenXrTestHelper {
       XR_SPACE_LOCATION_ORIENTATION_TRACKED_BIT |
       XR_SPACE_LOCATION_POSITION_TRACKED_BIT;
 
-#if BUILDFLAG(IS_ANDROID)
-  static constexpr int kSwapchainFormat = GL_SRGB8_ALPHA8_EXT;
-#endif
 
  private:
   struct ActionProperties {
@@ -245,12 +235,6 @@ class OpenXrTestHelper {
 #if BUILDFLAG(IS_WIN)
   void CreateTextures(uint32_t width, uint32_t height);
   void CopyTextureDataIntoFrameData(uint32_t x_start, device::ViewData& data);
-#elif BUILDFLAG(IS_ANDROID)
-  void CreateTextures(XrSwapchain swapchain);
-  void CopyTextureDataIntoFrameData(const XrSwapchainSubImage& sub_image,
-                                    device::ViewData& data);
-  SkColor ReadTextureColor(const XrSwapchainSubImage&);
-  std::vector<SkColor> ReadCubeMapFirstPixelColor(XrSwapchain swapchain);
 #elif BUILDFLAG(IS_LINUX)
   struct VulkanFunctions;
   struct VulkanSwapchainImages {
@@ -311,12 +295,6 @@ class OpenXrTestHelper {
   uint32_t acquired_swapchain_texture_ = 0;
   uint32_t released_swapchain_texture_ = 0;
   std::vector<Microsoft::WRL::ComPtr<ID3D11Texture2D>> textures_arr_;
-#elif BUILDFLAG(IS_ANDROID)
-  // Acquired and last released swapchain texture per swapchain.
-  absl::flat_hash_map<XrSwapchain, uint32_t> acquired_swapchain_textures_;
-  absl::flat_hash_map<XrSwapchain, uint32_t> released_swapchain_textures_;
-  absl::flat_hash_map<XrSwapchain, std::vector<uint32_t>>
-      opengl_es_textures_arrays_;
 #elif BUILDFLAG(IS_LINUX)
   PFN_vkGetInstanceProcAddr vulkan_get_instance_proc_addr_ = nullptr;
   VkInstance vulkan_instance_ = VK_NULL_HANDLE;

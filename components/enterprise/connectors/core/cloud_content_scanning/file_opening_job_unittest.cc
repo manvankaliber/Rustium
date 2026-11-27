@@ -33,10 +33,8 @@ class MockFileAnalysisRequestBase : public FileAnalysisRequestBase {
  public:
   using FileAnalysisRequestBase::FileAnalysisRequestBase;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   MOCK_METHOD1(ProcessZipFile, void(Data));
   MOCK_METHOD1(ProcessRarFile, void(Data));
-#endif
 };
 
 class AsyncHashingFileAnalysisRequest : public MockFileAnalysisRequestBase {

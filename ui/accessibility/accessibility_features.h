@@ -177,72 +177,7 @@ AX_BASE_EXPORT BASE_DECLARE_FEATURE(
 AX_BASE_EXPORT bool IsAccessibilityGroupLocationChangeByCommonAncestorEnabled();
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(accessibility): Should this be moved to ash_features.cc?
-AX_BASE_EXPORT bool IsDictationOfflineAvailable();
 
-// Allow context checking with the accessibility Dictation
-// feature.
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(
-    kExperimentalAccessibilityDictationContextChecking);
-AX_BASE_EXPORT bool
-IsExperimentalAccessibilityDictationContextCheckingEnabled();
-
-// Controls whether the shake cursor to locate feature is available.
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAccessibilityShakeToLocate);
-AX_BASE_EXPORT bool IsAccessibilityShakeToLocateEnabled();
-
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAccessibilityManifestV3ChromeVox);
-AX_BASE_EXPORT bool IsAccessibilityManifestV3EnabledForChromeVox();
-
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAccessibilityManifestV3GoogleTts);
-AX_BASE_EXPORT bool IsAccessibilityManifestV3EnabledForGoogleTts();
-
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAccessibilityChromeVoxJapaneseBraille);
-AX_BASE_EXPORT bool IsAccessibilityChromeVoxJapaneseBrailleEnabled();
-
-// Controls whether Google TTS automatically attempts to reconnect.
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAccessibilityGoogleTtsAutomaticReconnect);
-AX_BASE_EXPORT bool IsAccessibilityGoogleTtsAutomaticReconnectEnabled();
-
-// Controls whether the ChromeOS Hover Text accessibility feature is available.
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAccessibilityHoverText);
-AX_BASE_EXPORT bool IsAccessibilityHoverTextEnabled();
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_ANDROID)
-
-// When populating the AccessibilityNodeInfo on Android, Clank will insert Line
-// Separator U+2028 characters in the text to denote soft line breaks.
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAccessibilityInlineLineSeparators);
-AX_BASE_EXPORT bool IsAccessibilityInlineLineSeparatorsEnabled();
-
-// Propagate bounding rectangles of cursor moves and input focus changes to the
-// Android platform to allow Magnification to follow them. For compatibility
-// with older behaviour, Android SDK levels before Baklava 36.1 will only be
-// notified on cursor moves. Feature controls behavior for when a keyboard is
-// attached.
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(
-    kAccessibilityMagnificationFollowsFocusKeyboardAttached);
-
-// Similar to kAccessibilityMagnificationFollowsFocusKeyboardAttached but
-// controls behavior when no keyboard is attached.
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(
-    kAccessibilityMagnificationFollowsFocusNoKeyboard);
-
-// Enables MathML support for Android.
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAccessibilityAndroidMath);
-AX_BASE_EXPORT bool IsAccessibilityAndroidMathEnabled();
-
-// When enabled, web content accessibility runs on a background thread instead
-// of the UI thread. Use `IsAccessibilityAndroidBackgroundThreadEnabled()` to
-// check it. It returns true only when the device runs Android R or later and
-// the feature is enabled.
-AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAccessibilityAndroidBackgroundThread);
-AX_BASE_EXPORT bool IsAccessibilityAndroidBackgroundThreadEnabled();
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Controls the new native C++ implementation for Read Aloud,
 // replacing the previous Speakr service integration.
@@ -256,19 +191,16 @@ AX_BASE_EXPORT bool IsReadAloudNativeEnabled();
 using ax::mojom::features::kReadAloudServerSynthesizer;
 AX_BASE_EXPORT bool IsReadAloudServerSynthesizerEnabled();
 
-#if !BUILDFLAG(IS_ANDROID)
 // Use the AXTree fixing code, which may be an assortment of different
 // tools/methods to fix the AXTree. This is not available on Android.
 AX_BASE_EXPORT BASE_DECLARE_FEATURE(kAXTreeFixing);
 AX_BASE_EXPORT bool IsAXTreeFixingEnabled();
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Shows the Page Colors control in chrome://settings/accessibility, which lets
 // users override the web theme's forced colors independently of the operating
 // system theme. This is not available on Android or ChromeOS.
 AX_BASE_EXPORT BASE_DECLARE_FEATURE(kPageColorsSettings);
 AX_BASE_EXPORT bool IsPageColorsSettingsEnabled();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Identify and annotate the main node of the AXTree where one was not already
 // provided.
@@ -366,7 +298,6 @@ AX_BASE_EXPORT bool IsScreenAIOCREnabled();
 AX_BASE_EXPORT BASE_DECLARE_FEATURE(kScreenAITestMode);
 AX_BASE_EXPORT bool IsScreenAITestModeEnabled();
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_MAC)
 AX_BASE_EXPORT BASE_DECLARE_FEATURE(kMacAccessibilityAPIMigration);

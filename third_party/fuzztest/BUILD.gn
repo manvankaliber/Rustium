@@ -240,11 +240,6 @@ if (use_centipede || enable_fuzztest_fuzz) {
 # Parts of fuzztest internals which are safe to include in all sorts
 # of test-related code, including other fuzzers.
 source_set("fuzztest_internal") {
-  if (defined(android_ndk_major_version) && android_ndk_major_version < 28) {
-    # Android API level 28+ has posix_spawnp
-    defines = [ "FUZZTEST_DISABLE_SUBPROCESS" ]
-  }
-
   sources = [
     # Ideally all files in common/ would live in `:common`, but some files
     # depend on fuzztest/internal.

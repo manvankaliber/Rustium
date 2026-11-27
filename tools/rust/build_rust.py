@@ -688,7 +688,6 @@ def BuildLLVMLibraries(skip_checkout, llvm_force_head_revision):
         build_cmd.append('--skip-checkout')
     if sys.platform.startswith('linux'):
         build_cmd.append('--without-android')
-        build_cmd.append('--without-fuchsia')
     RunCommand(
         build_cmd
         + [

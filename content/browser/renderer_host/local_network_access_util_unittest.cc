@@ -530,12 +530,6 @@ TEST(LocalNetworkAccessUtilTest, CalculateIPAddressSpaceSpecialSchemes) {
                                     /*response_head=*/nullptr,
                                     /*client=*/nullptr),
             AddressSpace::kLoopback);
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(CalculateIPAddressSpace(GURL("externalfile://example"),
-                                    /*response_head=*/nullptr,
-                                    /*client=*/nullptr),
-            AddressSpace::kLoopback);
-#endif
   EXPECT_EQ(CalculateIPAddressSpace(GURL("chrome-untrusted://example"),
                                     /*response_head=*/nullptr,
                                     /*client=*/nullptr),

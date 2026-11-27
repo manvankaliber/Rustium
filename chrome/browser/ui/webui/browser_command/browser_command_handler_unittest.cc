@@ -96,10 +96,6 @@ class TestCommandHandler : public BrowserCommandHandler {
     // cannot be executed in a unittest.
   }
 
-  void OpenGlic() override {
-    // The functionality of opening Glic is removed, as it
-    // cannot be executed in a unittest.
-  }
 
   bool TutorialServiceExists() override { return tutorial_service_exists_; }
 
@@ -228,9 +224,7 @@ class MockCommandHandler : public TestCommandHandler {
 
   MOCK_METHOD(void, ShowCustomizeChromeToolbar, ());
 
-  MOCK_METHOD(void, OpenGlic, ());
 
-  MOCK_METHOD(void, OpenGlicSettings, ());
 
   MOCK_METHOD(void, OpenSplitView, ());
 
@@ -677,27 +671,7 @@ TEST_F(BrowserCommandHandlerTest, OpenPaymentsSettingsCommand) {
   EXPECT_TRUE(ExecuteCommand(Command::kOpenPaymentsSettings, std::move(info)));
 }
 
-TEST_F(BrowserCommandHandlerTest, OpenGlicCommand) {
-  // By default, opening Glic is allowed.
-  EXPECT_TRUE(CanExecuteCommand(Command::kOpenGlic));
-  ClickInfoPtr info = ClickInfo::New();
-  info->middle_button = true;
-  info->meta_key = true;
-  // The OpenGlic command opens glic.
-  EXPECT_CALL(*command_handler_, OpenGlic());
-  EXPECT_TRUE(ExecuteCommand(Command::kOpenGlic, std::move(info)));
-}
 
-TEST_F(BrowserCommandHandlerTest, OpenGlicSettingsCommand) {
-  // The OpenGlicSettings command opens a new settings window
-  // with the Glic settings sub page, and the correct disposition.
-  EXPECT_TRUE(CanExecuteCommand(Command::kOpenGlicSettings));
-  ClickInfoPtr info = ClickInfo::New();
-  info->middle_button = true;
-  info->meta_key = true;
-  EXPECT_CALL(*command_handler_, OpenGlicSettings());
-  EXPECT_TRUE(ExecuteCommand(Command::kOpenGlicSettings, std::move(info)));
-}
 
 TEST_F(BrowserCommandHandlerTest, OpenSplitViewCommand) {
   EXPECT_TRUE(CanExecuteCommand(Command::kOpenSplitView));

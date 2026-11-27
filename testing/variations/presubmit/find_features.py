@@ -29,15 +29,10 @@ RUST_BASE_FEATURE_RE = re.compile(
 # Only search these directories for flags. If your flag is outside these root
 # directories, then add the directory here.
 DIRECTORIES_TO_SEARCH = [
-  'android_webview',
   'apps',
-  'ash',
   'base',
   'cc',
   'chrome',
-  'chromecast',
-  'chromeos',
-  'clank',
   'components',
   'content',
   'courgette',
@@ -45,14 +40,12 @@ DIRECTORIES_TO_SEARCH = [
   'dbus',
   'device',
   'extensions',
-  'fuchsia_web',
   'gin',
   'google_apis',
   'gpu',
   'headless',
   'infra',
   'internal',
-  'ios',
   'ipc',
   'media',
   'mojo',
@@ -134,10 +127,6 @@ def _FindDeclaredFeaturesImpl(repository_root: pathlib.Path) -> Set[str]:
   for extension in ['cc', 'rs']:
     blink_glob = str(root / pathlib.Path(f'third_party/blink/**/*.{extension}'))
     glob_patterns.append(blink_glob)
-
-  # Additional features for iOS can be found in mm files in the ios directory.
-  mm_glob = str(root / pathlib.Path('ios/**/*.mm'))
-  glob_patterns.append(mm_glob)
 
   # Create glob iterators that lazily go over the files to search
   glob_iterators = [

@@ -905,12 +905,7 @@ cc_library(
         "@litert//litert/cc/options:litert_gpu_options",
         "@litert//litert/cc/options:litert_qualcomm_options",
     ] + select({
-        "//mediapipe:android": [
-            "//mediapipe/framework/formats:shared_fd",
-            "//mediapipe/framework/formats:tensor_fd_finished_func",
-            "//mediapipe/framework/formats:unique_fd",
-            "//mediapipe/util:sync_wait",
-        ],
+
         "//mediapipe:apple": [
             "//mediapipe/gpu:MPPMetalHelper",
             "@litert//tflite/delegates/gpu/common:shape",
@@ -1031,7 +1026,7 @@ cc_library(
         "@litert//tflite/delegates/xnnpack:xnnpack_delegate",
     ] + select({
         "//conditions:default": [],
-        "//mediapipe:android": ["@litert//tflite/delegates/nnapi:nnapi_delegate"],
+
     }),
     alwayslink = 1,
 )
@@ -1368,12 +1363,7 @@ cc_library(
     name = "tensor_converter_calculator_gpu_deps",
     visibility = ["//visibility:private"],
     deps = select({
-        "//mediapipe:android": [
-            ":tensor_converter_gl30",
-            ":tensor_converter_gl31",
-            "//mediapipe/gpu:gl_calculator_helper",
-            "//mediapipe/gpu:gpu_buffer",
-        ],
+
         ":platform_apple_with_gpu": [
             "//mediapipe/gpu:MPPMetalHelper",
             "//mediapipe/gpu:MPPMetalUtil",
@@ -1646,14 +1636,12 @@ cc_library(
         "@com_google_absl//absl/strings:string_view",
         "@com_google_absl//absl/types:span",
     ] + select({
-        "//mediapipe:android": [
-            "//mediapipe/util/android/file/base",
-        ],
+
         "//mediapipe:ios": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:emscripten": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//conditions:default": [
             "//mediapipe/framework/port:file_helpers",
@@ -1793,12 +1781,7 @@ cc_library(
     name = "image_to_tensor_calculator_gpu_deps",
     visibility = ["//visibility:private"],
     deps = selects.with_or({
-        "//mediapipe:android": [
-            ":image_to_tensor_converter_gl_buffer",
-            "//mediapipe/gpu:gl_calculator_helper",
-            "//mediapipe/gpu:gpu_buffer",
-            "//mediapipe/gpu:gpu_service",
-        ],
+
         "//mediapipe:emscripten": [
             ":image_to_tensor_converter_gl_texture",
             "//mediapipe/gpu:gl_calculator_helper",
@@ -2195,10 +2178,7 @@ cc_library(
     name = "tensors_to_segmentation_calculator_gpu_deps",
     visibility = ["//visibility:private"],
     deps = selects.with_or({
-        "//mediapipe:android": [
-            ":tensors_to_segmentation_converter_gl_buffer",
-            "//mediapipe/gpu:gl_calculator_helper",
-        ],
+
         "//mediapipe:emscripten": [
             ":tensors_to_segmentation_converter_gl_texture",
             "//mediapipe/gpu:gl_calculator_helper",

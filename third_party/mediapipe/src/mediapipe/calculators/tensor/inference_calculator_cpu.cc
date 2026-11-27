@@ -30,9 +30,6 @@
 #include "mediapipe/framework/calculator_framework.h"
 #include "mediapipe/framework/formats/tensor.h"
 #include "mediapipe/framework/port/ret_check.h"
-#if defined(MEDIAPIPE_ANDROID)
-#include "tensorflow/lite/delegates/nnapi/nnapi_delegate.h"      // from @litert
-#endif                                                  // ANDROID
 
 namespace mediapipe {
 namespace api2 {
@@ -122,27 +119,6 @@ InferenceCalculatorCpuImpl::MaybeCreateDelegate(CalculatorContext* cc) {
     return nullptr;
   }
 
-#if defined(MEDIAPIPE_ANDROID)
-  const bool nnapi_requested = opts_has_delegate ? opts_delegate.has_nnapi()
-                                                 : calculator_opts.use_nnapi();
-  if (nnapi_requested) {
-    // Attempt to use NNAPI.
-    // If not supported, the default CPU delegate will be created and used.
-    tflite::StatefulNnApiDelegate::Options options;
-    const auto& nnapi = opts_delegate.nnapi();
-    options.allow_fp16 = true;
-    // Set up cache_dir and model_token for NNAPI compilation cache.
-    options.cache_dir =
-        nnapi.has_cache_dir() ? nnapi.cache_dir().c_str() : nullptr;
-    options.model_token =
-        nnapi.has_model_token() ? nnapi.model_token().c_str() : nullptr;
-    options.accelerator_name = nnapi.has_accelerator_name()
-                                   ? nnapi.accelerator_name().c_str()
-                                   : nullptr;
-    return TfLiteDelegatePtr(new tflite::StatefulNnApiDelegate(options),
-                             [](TfLiteDelegate*) {});
-  }
-#endif  // MEDIAPIPE_ANDROID
 
   return nullptr;
 }

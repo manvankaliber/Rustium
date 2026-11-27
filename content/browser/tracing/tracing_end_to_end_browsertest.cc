@@ -212,12 +212,12 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, MetadataMultisession) {
   absl::Status status = ttp.StopAndParseTrace();
   ASSERT_TRUE(status.ok()) << status.message();
 
-  base::expected<base::test::TestTraceProcessor::QueryResult,
-    std::string> result;
+  base::expected<base::test::TestTraceProcessor::QueryResult, std::string>
+      result;
 
   std::vector<variations::ActiveGroupId> active_group_ids;
   variations::GetFieldTrialActiveGroupIds(std::string_view(),
-                                            &active_group_ids);
+                                          &active_group_ids);
   if (!active_group_ids.empty()) {
     result = ttp.RunQuery(R"(
       SELECT
@@ -226,24 +226,12 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, MetadataMultisession) {
       WHERE name = 'cr-a-field_trial_hashes'
     )");
     ASSERT_TRUE(result.has_value()) << result.error();
-    EXPECT_THAT(
-        result.value(),
-        ::testing::ElementsAre(std::vector<std::string>{"has_field_trial_hashes"},
-                               std::vector<std::string>{"1"}));
+    EXPECT_THAT(result.value(),
+                ::testing::ElementsAre(
+                    std::vector<std::string>{"has_field_trial_hashes"},
+                    std::vector<std::string>{"1"}));
   }
 
-#if BUILDFLAG(IS_ANDROID) && defined(OFFICIAL_BUILD)
-  result = ttp.RunQuery(R"(
-    SELECT
-      int_value IS NOT NULL AS has_version_code
-    FROM metadata
-    WHERE name = 'cr-a-playstore_version_code'
-  )");
-  ASSERT_TRUE(result.has_value()) << result.error();
-  EXPECT_THAT(result.value(), ::testing::ElementsAre(
-                                  std::vector<std::string>{"has_version_code"},
-                                  std::vector<std::string>{"1"}));
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TaskExecutionEvent) {
@@ -280,11 +268,7 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TaskExecutionEvent) {
 }
 
 // TODO(crbug.com/519488198): Flaky on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_ThreadAndProcessName DISABLED_ThreadAndProcessName
-#else
 #define MAYBE_ThreadAndProcessName ThreadAndProcessName
-#endif
 IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, MAYBE_ThreadAndProcessName) {
   base::test::TestTraceProcessor ttp;
   ttp.StartTrace("foo");
@@ -484,68 +468,6 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest,
                              std::vector<std::string>{"1"}));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest,
-                       PackageNameRecordedTraceLogSet) {
-  tracing::TrackNameRecorder::SetRecordHostAppPackageName(true);
-  base::test::TestTraceProcessor ttp;
-  ttp.StartTrace(base::test::DefaultTraceConfig("foo", false),
-                 perfetto::kCustomBackend);
-
-  {
-    // A simple trace event
-    TRACE_EVENT("foo", "test_event");
-  }
-
-  absl::Status status = ttp.StopAndParseTrace();
-  ASSERT_TRUE(status.ok()) << status.message();
-
-  std::string query =
-      "SELECT "
-      "DISTINCT(EXTRACT_ARG(arg_set_id, \"chrome.host_app_package_name\")) "
-      "AS name "
-      "FROM process "
-      "WHERE "
-      "EXTRACT_ARG(arg_set_id, \"chrome.host_app_package_name\") IS NOT NULL";
-  auto result = ttp.RunQuery(query);
-  ASSERT_TRUE(result.has_value()) << result.error();
-
-  EXPECT_THAT(
-      result.value(),
-      ::testing::ElementsAre(
-          std::vector<std::string>{"name"},
-          std::vector<std::string>{"org.chromium.content_browsertests_apk"}));
-}
-
-IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest,
-                       PackageNameNotRecordedTraceLogNotSet) {
-  tracing::TrackNameRecorder::SetRecordHostAppPackageName(false);
-  base::test::TestTraceProcessor ttp;
-  ttp.StartTrace(base::test::DefaultTraceConfig("foo", false),
-                 perfetto::kCustomBackend);
-
-  {
-    // A simple trace event
-    TRACE_EVENT("foo", "test_event");
-  }
-
-  absl::Status status = ttp.StopAndParseTrace();
-  ASSERT_TRUE(status.ok()) << status.message();
-
-  std::string query =
-      "SELECT "
-      "DISTINCT(EXTRACT_ARG(arg_set_id, \"chrome.host_app_package_name\")) "
-      "AS name "
-      "FROM process "
-      "WHERE "
-      "EXTRACT_ARG(arg_set_id, \"chrome.host_app_package_name\") IS NOT NULL";
-  auto result = ttp.RunQuery(query);
-  ASSERT_TRUE(result.has_value()) << result.error();
-
-  EXPECT_THAT(result.value(),
-              ::testing::ElementsAre(std::vector<std::string>{"name"}));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TwoSessionsSimple) {
   base::test::TestTraceProcessor ttp1, ttp2;
@@ -760,12 +682,12 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TwoSessionsMetadata) {
   absl::Status status = ttp1.StopAndParseTrace();
   ASSERT_TRUE(status.ok()) << status.message();
 
-  base::expected<base::test::TestTraceProcessor::QueryResult,
-    std::string> result;
+  base::expected<base::test::TestTraceProcessor::QueryResult, std::string>
+      result;
 
   std::vector<variations::ActiveGroupId> active_group_ids;
   variations::GetFieldTrialActiveGroupIds(std::string_view(),
-                                            &active_group_ids);
+                                          &active_group_ids);
 
   if (!active_group_ids.empty()) {
     result = ttp1.RunQuery(R"(
@@ -775,24 +697,12 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TwoSessionsMetadata) {
       WHERE name = 'cr-a-field_trial_hashes'
     )");
     ASSERT_TRUE(result.has_value()) << result.error();
-    EXPECT_THAT(
-        result.value(),
-        ::testing::ElementsAre(std::vector<std::string>{"has_field_trial_hashes"},
-                               std::vector<std::string>{"1"}));
+    EXPECT_THAT(result.value(),
+                ::testing::ElementsAre(
+                    std::vector<std::string>{"has_field_trial_hashes"},
+                    std::vector<std::string>{"1"}));
   }
 
-#if BUILDFLAG(IS_ANDROID) && defined(OFFICIAL_BUILD)
-  result = ttp1.RunQuery(R"(
-    SELECT
-      int_value IS NOT NULL AS has_version_code
-    FROM metadata
-    WHERE name = 'cr-a-playstore_version_code'
-  )");
-  ASSERT_TRUE(result.has_value()) << result.error();
-  EXPECT_THAT(result.value(), ::testing::ElementsAre(
-                                  std::vector<std::string>{"has_version_code"},
-                                  std::vector<std::string>{"1"}));
-#endif
 
   status = ttp2.StopAndParseTrace();
   ASSERT_TRUE(status.ok()) << status.message();
@@ -805,24 +715,12 @@ IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, TwoSessionsMetadata) {
       WHERE name = 'cr-a-field_trial_hashes'
     )");
     ASSERT_TRUE(result.has_value()) << result.error();
-    EXPECT_THAT(
-        result.value(),
-        ::testing::ElementsAre(std::vector<std::string>{"has_field_trial_hashes"},
-                               std::vector<std::string>{"1"}));
+    EXPECT_THAT(result.value(),
+                ::testing::ElementsAre(
+                    std::vector<std::string>{"has_field_trial_hashes"},
+                    std::vector<std::string>{"1"}));
   }
 
-#if BUILDFLAG(IS_ANDROID) && defined(OFFICIAL_BUILD)
-  result = ttp2.RunQuery(R"(
-    SELECT
-      int_value IS NOT NULL AS has_version_code
-    FROM metadata
-    WHERE name = 'cr-a-playstore_version_code'
-  )");
-  ASSERT_TRUE(result.has_value()) << result.error();
-  EXPECT_THAT(result.value(), ::testing::ElementsAre(
-                                  std::vector<std::string>{"has_version_code"},
-                                  std::vector<std::string>{"1"}));
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(TracingEndToEndBrowserTest, AddTraceEventWithProcessId) {
@@ -1045,7 +943,7 @@ IN_PROC_BROWSER_TEST_F(SystemTracingEndToEndBrowserTest, SimpleTraceEvent) {
 // The test fails on Android because Renderers can't connect to an
 // arbitrary socket. Flaky on Mac since the renderer doesn't connect on
 // time. crbug.com/324063092
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #define MAYBE_PerformanceMark DISABLED_PerformanceMark
 #else
 #define MAYBE_PerformanceMark PerformanceMark

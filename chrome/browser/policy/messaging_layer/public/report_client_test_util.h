@@ -12,20 +12,17 @@
 #include "components/reporting/storage/storage_module_interface.h"
 #include "components/reporting/storage/test_storage_module.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 #include <string_view>
 
 #include "base/files/file_path.h"
 #include "components/reporting/storage/storage_uploader_interface.h"
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace reporting {
 
 class ReportingClient::TestEnvironment {
  public:
-#if !BUILDFLAG(IS_CHROMEOS)
   // Factory method creates an environment with actual local storage at
   // `reporting_path` location and with encryption support included.
   static std::unique_ptr<TestEnvironment> CreateWithLocalStorage(
@@ -37,7 +34,6 @@ class ReportingClient::TestEnvironment {
   void StartUploader(
       UploaderInterface::UploadReason reason,
       UploaderInterface::UploaderInterfaceResultCb start_uploader_cb);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // Factory method creates an environment with a given storage module
   // (usually it is `test::TestStorageModule`).

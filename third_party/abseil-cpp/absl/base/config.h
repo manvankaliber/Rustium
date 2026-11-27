@@ -320,8 +320,6 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 // symbols:
 //
 //   Linux and Linux-derived           __linux__
-//   Android                           __ANDROID__ (implies __linux__)
-//   Linux (non-Android)               __linux__ && !__ANDROID__
 //   Darwin (macOS and iOS)            __APPLE__
 //   Akaros (http://akaros.org)        __ros__
 //   Windows                           _WIN32
@@ -330,8 +328,6 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 //   Fuchsia                           __Fuchsia__
 //   WebAssembly (WASI)                __wasi__
 //
-// Note that since Android defines both __ANDROID__ and __linux__, one
-// may probe for either Linux or Android by simply testing for __linux__.
 
 // ABSL_HAVE_MMAP
 //
@@ -418,8 +414,6 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 // emscripten doesn't support signals
 #elif defined(__wasi__)
 // WASI doesn't support signals
-#elif defined(__Fuchsia__)
-// Signals don't exist on fuchsia.
 #elif defined(__hexagon__)
 #else
 // other standard libraries
@@ -687,8 +681,6 @@ static_assert(ABSL_INTERNAL_INLINE_NAMESPACE_STR[0] != 'h' ||
 // available.
 #ifdef ABSL_INTERNAL_HAS_CXA_DEMANGLE
 #error ABSL_INTERNAL_HAS_CXA_DEMANGLE cannot be directly set
-#elif defined(OS_ANDROID) && (defined(__i386__) || defined(__x86_64__))
-#undef ABSL_INTERNAL_HAS_CXA_DEMANGLE
 #elif defined(__GNUC__)
 #define ABSL_INTERNAL_HAS_CXA_DEMANGLE 1
 #elif defined(__clang__) && !defined(_MSC_VER)

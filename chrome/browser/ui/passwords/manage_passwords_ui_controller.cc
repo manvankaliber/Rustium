@@ -23,7 +23,6 @@
 #include "base/timer/timer.h"
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/feature_engagement/tracker_factory.h"
 #include "chrome/browser/lifetime/application_lifetime.h"
 #include "chrome/browser/password_manager/chrome_password_change_service.h"
@@ -41,9 +40,6 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
 #include "chrome/browser/ui/chrome_pages.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_trigger_service.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_trigger_service_factory.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promos_utils.h"
 #include "chrome/browser/ui/hats/trust_safety_sentiment_service_factory.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
@@ -541,9 +537,6 @@ void ManagePasswordsUIController::OnPasswordAutofilled(
 
 void ManagePasswordsUIController::OnCredentialLeak(
     password_manager::LeakedPasswordDetails details) {
-  if (passwords_data_.client()->IsActorTaskActive()) {
-    return;
-  }
   // Existing dialog shouldn't be closed.
   if (dialog_controller_) {
     return;
@@ -608,7 +601,7 @@ void ManagePasswordsUIController::OnBiometricAuthenticationForFilling(
       GetState() == password_manager::ui::INACTIVE_STATE) {
     return;
   }
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   const std::string promo_shown_counter =
       password_manager::prefs::kBiometricAuthBeforeFillingPromoShownCounter;
   // Checking GetIfBiometricAuthenticationPromoWasShown() prevents from
@@ -1212,7 +1205,7 @@ void ManagePasswordsUIController::AuthenticateUserWithMessage(
     std::move(callback).Run(true);
     return;
   }
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN)
   std::move(callback).Run(true);
   return;
 #else
@@ -1227,27 +1220,7 @@ void ManagePasswordsUIController::AuthenticateUserWithMessage(
 #endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN)
 }
 
-void ManagePasswordsUIController::MaybeShowIOSPasswordPromo() {
-  BrowserWindowInterface* browser =
-      GlobalBrowserCollection::GetInstance()->FindBrowserWithTab(
-          web_contents());
-  if (!browser) {
-    return;
-  }
 
-  if (MobilePromoOnDesktopTypeEnabled(
-          MobilePromoOnDesktopPromoType::kAutofillPromo)) {
-    IOSPromoTriggerService* service =
-        IOSPromoTriggerServiceFactory::GetForProfile(browser->GetProfile());
-    if (service) {
-      service->NotifyPromoShouldBeShown(
-          desktop_to_mobile_promos::PromoType::kPassword);
-    }
-  } else {
-    ios_promos_utils::VerifyIOSPromoEligibility(
-        desktop_to_mobile_promos::PromoType::kPassword, browser);
-  }
-}
 
 void ManagePasswordsUIController::RelaunchChrome() {
   chrome::AttemptRestart();
@@ -1286,9 +1259,6 @@ void ManagePasswordsUIController::UpdateBubbleAndIconVisibility() {
   }
 
   // If Actor is operating on the tab, suppress all popups.
-  if (passwords_data_.client()->IsActorTaskActive()) {
-    ClearPopUpFlagForBubble();
-  }
 
   BrowserWindowInterface* browser =
       GlobalBrowserCollection::GetInstance()->FindBrowserWithTab(

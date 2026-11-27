@@ -98,16 +98,6 @@ export class CrPolicyIndicatorElement extends CrLitElement {
             CrPolicyStrings.controlledSettingExtension!.replace(
                 '$1', this.indicatorSourceName) :
             CrPolicyStrings.controlledSettingExtensionWithoutName!;
-      // <if expr="is_chromeos">
-      case CrPolicyIndicatorType.PRIMARY_USER:
-        return CrPolicyStrings.controlledSettingShared!.replace(
-            '$1', this.indicatorSourceName);
-      case CrPolicyIndicatorType.OWNER:
-        return this.indicatorSourceName.length > 0 ?
-            CrPolicyStrings.controlledSettingWithOwner!.replace(
-                '$1', this.indicatorSourceName) :
-            CrPolicyStrings.controlledSettingNoOwner!;
-      // </if>
       case CrPolicyIndicatorType.USER_POLICY:
       case CrPolicyIndicatorType.DEVICE_POLICY:
         return CrPolicyStrings.controlledSettingPolicy!;

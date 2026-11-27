@@ -47,10 +47,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/webauthn/android/cred_man_support.h"
-#include "components/webauthn/android/webauthn_cred_man_delegate.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace actor_login {
 
@@ -260,10 +256,6 @@ class ActorLoginCredentialFillerTestBase : public ::testing::Test {
         .WillByDefault(Return(false));
     ON_CALL(mock_client_, GetAffiliationService)
         .WillByDefault(Return(&mock_affiliation_service_));
-#if BUILDFLAG(IS_ANDROID)
-    webauthn::WebAuthnCredManDelegate::override_cred_man_support_for_testing(
-        webauthn::CredManSupport::DISABLED);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   scoped_refptr<MockActorLoginQualityLogger> mqls_logger() {
@@ -810,7 +802,6 @@ TEST_P(ActorLoginCredentialFillerTest, FillsNestedFrameWithSameOrigin) {
 }
 
 // TODO(crbug.com/539923959): Re-enable on iOS.
-#if !BUILDFLAG(IS_IOS)
 
 TEST_P(ActorLoginCredentialFillerTest,
        DoesntFillNestedFrameWithCrossOriginAncestor) {
@@ -892,7 +883,6 @@ TEST_P(ActorLoginCredentialFillerTest, DoesntFillSameSiteNestedIframe) {
   EXPECT_EQ(result.value(), LoginStatusResult::kErrorNoSigninForm);
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_P(ActorLoginCredentialFillerTest,
        FillsSameSiteDirectChildOfPrimaryMainFrame) {

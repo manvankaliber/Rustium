@@ -107,13 +107,11 @@ TEST_F(GeneratedPasswordLeakDetectionPrefTest, NotifyPrefUpdates) {
   EXPECT_EQ(test_observer.GetUpdatedPrefName(),
             kGeneratedPasswordLeakDetectionPref);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Clearing the primary account does not make sense on ChromeOS.
   test_observer.Reset();
   identity_test_env()->ClearPrimaryAccount();
   EXPECT_EQ(test_observer.GetUpdatedPrefName(),
             kGeneratedPasswordLeakDetectionPref);
-#endif  // !defined (OS_CHROMEOS)
 
   // Check the observer fires for source preference updates.
   test_observer.Reset();

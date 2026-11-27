@@ -8,7 +8,6 @@ load("@builtin//struct.star", "module")
 load("./android.star", "android")
 load("./clang_exception.star", "clang_exception")
 load("./clang_unix.star", "clang_unix")
-load("./fuchsia.star", "fuchsia")
 
 def __filegroups(ctx):
     fg = {
@@ -24,8 +23,6 @@ def __filegroups(ctx):
     }
     if android.enabled(ctx):
         fg.update(android.filegroups(ctx))
-    if fuchsia.enabled(ctx):
-        fg.update(fuchsia.filegroups(ctx))
     fg.update(clang_unix.filegroups(ctx))
     return fg
 

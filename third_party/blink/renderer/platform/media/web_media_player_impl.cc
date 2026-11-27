@@ -115,9 +115,6 @@
 #include "media/filters/hls_data_source_provider_impl.h"
 #endif  // BUILDFLAG(ENABLE_HLS_DEMUXER)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "media/base/android/media_codec_util.h"
-#endif
 
 namespace blink {
 
@@ -632,11 +629,6 @@ WebMediaPlayerImpl::WebMediaPlayerImpl(
   // it's not interested in recording these events.
   playback_events_recorder_.reset_on_disconnect();
 
-#if BUILDFLAG(IS_ANDROID)
-  renderer_factory_selector_->SetRemotePlayStateChangeCB(
-      base::BindPostTaskToCurrentDefault(blink::BindRepeating(
-          &WebMediaPlayerImpl::OnRemotePlayStateChange, weak_this_)));
-#endif  // defined (IS_ANDROID)
 }
 
 WebMediaPlayerImpl::~WebMediaPlayerImpl() {
@@ -2824,48 +2816,6 @@ void WebMediaPlayerImpl::RequestMediaRemoting() {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void WebMediaPlayerImpl::FlingingStarted() {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  DCHECK(!disable_pipeline_auto_suspend_);
-  disable_pipeline_auto_suspend_ = true;
-
-  is_flinging_ = true;
-
-  // Capabilities reporting should only be performed for local playbacks.
-  video_decode_stats_reporter_.reset();
-
-  // Requests to restart media pipeline. A flinging renderer will be created via
-  // the `renderer_factory_selector_`.
-  ScheduleRestart();
-}
-
-void WebMediaPlayerImpl::FlingingStopped() {
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-  DCHECK(disable_pipeline_auto_suspend_);
-  disable_pipeline_auto_suspend_ = false;
-
-  is_flinging_ = false;
-
-  CreateVideoDecodeStatsReporter();
-
-  ScheduleRestart();
-}
-
-void WebMediaPlayerImpl::OnRemotePlayStateChange(
-    media::MediaStatus::State state) {
-  DCHECK(is_flinging_);
-  DCHECK(main_task_runner_->BelongsToCurrentThread());
-
-  if (state == media::MediaStatus::State::kPlaying && Paused()) {
-    DVLOG(1) << __func__ << " requesting PLAY.";
-    client_->ResumePlayback();
-  } else if (state == media::MediaStatus::State::kPaused && !Paused()) {
-    DVLOG(1) << __func__ << " requesting PAUSE.";
-    client_->PausePlayback(PauseReason::kRemotePlayStateChange);
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void WebMediaPlayerImpl::SetPoster(const WebURL& poster) {
   has_poster_ = !poster.IsEmpty();
@@ -3002,11 +2952,6 @@ std::unique_ptr<media::Renderer> WebMediaPlayerImpl::CreateRenderer(
     EnableOverlay();
 
   media::RequestOverlayInfoCB request_overlay_info_cb;
-#if BUILDFLAG(IS_ANDROID)
-  request_overlay_info_cb =
-      base::BindPostTaskToCurrentDefault(blink::BindRepeating(
-          &WebMediaPlayerImpl::OnOverlayInfoRequested, weak_this_));
-#endif
 
   if (renderer_type) {
     DVLOG(1) << __func__

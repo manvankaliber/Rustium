@@ -1158,28 +1158,5 @@ TEST_F(BookmarksPageHandlerTest, OpenBookmarkDoesNotLogWhenNoBookmarksOpened) {
       "Bookmarks.LaunchLocation", BookmarkLaunchLocation::kSidePanelFolder, 1);
 }
 
-TEST_F(BookmarksPageHandlerTest,
-       OpenBookmarkPriceTrackingDoesNotLogNavigation) {
-  base::HistogramTester histogram_tester;
-  base::UserActionTester user_action_tester;
-
-  const bookmarks::BookmarkNode* node =
-      model()->AddURL(model()->bookmark_bar_node(), 0, u"Product",
-                      GURL("https://example.com/product"));
-
-  TestBookmarkNavigationWrapper wrapper;
-  bookmarks::BookmarkNavigationWrapper::SetInstanceForTesting(&wrapper);
-  base::ScopedClosureRunner reset_nav_wrapper(base::BindOnce(
-      &bookmarks::BookmarkNavigationWrapper::SetInstanceForTesting, nullptr));
-
-  handler()->OpenBookmark(node->id(), /*parent_folder_depth=*/0,
-                          ui::mojom::ClickModifiers::New(),
-                          side_panel::mojom::ActionSource::kPriceTracking);
-
-  EXPECT_EQ(1u, wrapper.navigate_count());
-  EXPECT_EQ(
-      0, user_action_tester.GetActionCount("SidePanel.Bookmarks.Navigation"));
-  histogram_tester.ExpectTotalCount("Bookmarks.LaunchLocation", 0);
-}
 
 }  // namespace

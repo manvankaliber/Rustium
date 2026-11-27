@@ -199,13 +199,6 @@ OverflowMenu::GetDefaultResponsiveElements(BrowserWindowInterface* browser) {
                kToolbarAvatarButtonElementId, kToolbarAvatarBubbleElementId),
            /*is_section_end=*/false)});
 
-  if (base::FeatureList::IsEnabled(features::kToolbarGlicButtonResizing)) {
-    elements.emplace_back(
-        ElementIdInfo(kGlicButtonElementId,
-                      IDS_GLIC_BUTTON_ENTRYPOINT_ASK_GEMINI_LABEL, nullptr,
-                      kGlicButtonElementId),
-        /*is_section_end=*/false);
-  }
 
   return elements;
 }

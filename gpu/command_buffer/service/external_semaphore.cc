@@ -16,16 +16,15 @@
 
 #define GL_HANDLE_TYPE_OPAQUE_FD_EXT 0x9586
 #define GL_HANDLE_TYPE_OPAQUE_WIN32_EXT 0x9587
-#define GL_HANDLE_TYPE_ZIRCON_VMO_ANGLE 0x93AE
-#define GL_HANDLE_TYPE_ZIRCON_EVENT_ANGLE 0x93AF
 
 namespace gpu {
 
 namespace {
 
 GLuint ImportSemaphoreHandleToGLSemaphore(SemaphoreHandle handle) {
-  if (!handle.is_valid())
+  if (!handle.is_valid()) {
     return 0;
+  }
 
 #if BUILDFLAG(IS_POSIX)
   if (handle.vk_handle_type() !=
@@ -57,20 +56,6 @@ GLuint ImportSemaphoreHandleToGLSemaphore(SemaphoreHandle handle) {
       gl_semaphore, GL_HANDLE_TYPE_OPAQUE_WIN32_EXT, win32_handle.Take());
 
   return gl_semaphore;
-#elif BUILDFLAG(IS_FUCHSIA)
-  if (handle.vk_handle_type() !=
-      VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_ZIRCON_EVENT_BIT_FUCHSIA) {
-    DLOG(ERROR) << "Importing semaphore handle of unexpected type:"
-                << handle.vk_handle_type();
-    return 0;
-  }
-  zx::event event = handle.TakeHandle();
-  gl::GLApi* api = gl::g_current_gl_context;
-  GLuint gl_semaphore;
-  api->glGenSemaphoresEXTFn(1, &gl_semaphore);
-  api->glImportSemaphoreZirconHandleANGLEFn(
-      gl_semaphore, GL_HANDLE_TYPE_ZIRCON_EVENT_ANGLE, event.release());
-  return gl_semaphore;
 #else
 #error Unsupported OS
 #endif
@@ -84,8 +69,9 @@ ExternalSemaphore ExternalSemaphore::Create(
   VkDevice device = context_provider->GetDeviceQueue()->GetVulkanDevice();
 
   VkSemaphore semaphore = CreateVkOpaqueExternalSemaphore(device);
-  if (semaphore == VK_NULL_HANDLE)
+  if (semaphore == VK_NULL_HANDLE) {
     return {};
+  }
 
   auto handle = ExportVkOpaqueExternalSemaphore(device, semaphore);
   if (!handle.is_valid()) {
@@ -101,16 +87,18 @@ ExternalSemaphore ExternalSemaphore::Create(
 ExternalSemaphore ExternalSemaphore::CreateFromHandle(
     VulkanContextProvider* context_provider,
     SemaphoreHandle handle) {
-  if (!handle.is_valid())
+  if (!handle.is_valid()) {
     return {};
+  }
 
   auto* implementation = context_provider->GetVulkanImplementation();
   VkDevice device = context_provider->GetDeviceQueue()->GetVulkanDevice();
 
   VkSemaphore semaphore =
       implementation->ImportSemaphoreHandle(device, handle.Duplicate());
-  if (semaphore == VK_NULL_HANDLE)
+  if (semaphore == VK_NULL_HANDLE) {
     return {};
+  }
 
   return ExternalSemaphore(base::PassKey<ExternalSemaphore>(), context_provider,
                            semaphore, std::move(handle));

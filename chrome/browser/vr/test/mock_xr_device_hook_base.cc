@@ -18,10 +18,6 @@
 #include "device/vr/public/mojom/test/controller_frame_data.h"
 #include "ui/gfx/geometry/decomposed_transform.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/webxr/android/openxr_platform_helper_android.h"
-#include "device/vr/openxr/test/openxr_test_helper.h"
-#endif
 
 MockXRDeviceHookBase::MockXRDeviceHookBase() {
   thread_ = std::make_unique<base::Thread>("MockXRDeviceHookThread");
@@ -38,10 +34,6 @@ MockXRDeviceHookBase::MockXRDeviceHookBase() {
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   content::GetXRDeviceServiceForTesting()->BindHookForTesting(
       receiver_.BindNewPipeAndPassRemote(thread_->task_runner()).PassPipe());
-#elif BUILDFLAG(IS_ANDROID)
-  webxr::OpenXrPlatformHelperAndroid::SetXrHostActivityDisabledForTesting(true);
-  OpenXrTestHelper::Get().SetTestHook(
-      receiver_.BindNewPipeAndPassRemote(thread_->task_runner()));
 #endif
 }
 
@@ -62,11 +54,6 @@ void MockXRDeviceHookBase::StopHooking() {
   // or crossing synchronous Mojo calls from active frames. Instead, resetting
   // `receiver_` below will close the pipe and trigger disconnection handling
   // in the service process's OpenXrTestHelper.
-#if BUILDFLAG(IS_ANDROID)
-  OpenXrTestHelper::Get().SetTestHook(mojo::NullRemote());
-  webxr::OpenXrPlatformHelperAndroid::SetSessionShutdownHookForTesting(
-      base::NullCallback());
-#endif
   // Unretained is safe here because we are going to block until this message
   // has been processed.
   thread_->task_runner()->PostTask(
@@ -79,30 +66,6 @@ void MockXRDeviceHookBase::StopHooking() {
   thread_->FlushForTesting();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void MockXRDeviceHookBase::HoldSessionShutdown() {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(main_sequence_);
-  // Unretained is safe because the XR host activity is disabled in tests, so
-  // the hook runs within PrepareForSessionShutdown(), and StopHooking() removes
-  // it.
-  webxr::OpenXrPlatformHelperAndroid::SetSessionShutdownHookForTesting(
-      base::BindRepeating(
-          [](MockXRDeviceHookBase* self, base::OnceClosure continue_shutdown) {
-            DCHECK_CALLED_ON_VALID_SEQUENCE(self->main_sequence_);
-            self->held_session_shutdown_ = std::move(continue_shutdown);
-          },
-          base::Unretained(this)));
-}
-
-void MockXRDeviceHookBase::ReleaseSessionShutdown() {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(main_sequence_);
-  CHECK(base::test::RunUntil(
-      [&]() { return !held_session_shutdown_.is_null(); }));
-  webxr::OpenXrPlatformHelperAndroid::SetSessionShutdownHookForTesting(
-      base::NullCallback());
-  std::move(held_session_shutdown_).Run();
-}
-#endif
 
 void MockXRDeviceHookBase::WaitNumFrames(uint32_t num_frames) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(main_sequence_);

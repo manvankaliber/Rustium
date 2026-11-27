@@ -8,10 +8,6 @@
 #include <optional>
 
 #include "base/test/scoped_feature_list.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_provider.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
-#include "chrome/browser/glic/test_support/scoped_glic_provider_override.h"
 #include "chrome/browser/personal_context/personal_context_eligibility_service_factory.h"
 #include "chrome/test/base/testing_profile.h"
 #include "components/personal_context/core/personal_context_eligibility_service.h"
@@ -77,15 +73,10 @@ class PersonalContextEligibilityServiceFactoryTest : public testing::Test {
 // A consumer profile isn't made ineligible because of its provider.
 TEST_F(PersonalContextEligibilityServiceFactoryTest, ConsumerProvider) {
   std::unique_ptr<TestingProfile> profile = TestingProfile::Builder().Build();
-  ASSERT_TRUE(glic::GetGlicProviderSpec(profile.get())
-                  .SupportsFeature(glic::GlicFeature::kPersonalContext));
 
   PersonalContextEligibilityService* service =
       PersonalContextEligibilityServiceFactory::GetForProfile(profile.get());
   ASSERT_TRUE(service);
-  EXPECT_NE(service->GetNonEligibilityReason(),
-            std::make_optional(
-                PersonalContextNonEligibilityReason::kUnsupportedGlicProvider));
 }
 
 class PersonalContextEligibilityServiceFactoryGeminiEnterpriseTest
@@ -99,16 +90,12 @@ class PersonalContextEligibilityServiceFactoryGeminiEnterpriseTest
 TEST_F(PersonalContextEligibilityServiceFactoryGeminiEnterpriseTest,
        GeminiEnterpriseProviderIsIneligible) {
   std::unique_ptr<TestingProfile> profile = TestingProfile::Builder().Build();
-  ASSERT_EQ(glic::GetGlicProviderSpec(profile.get()).GetSettingsSectionId(),
-            glic::kGeminiEnterpriseSettingsSectionId);
 
   PersonalContextEligibilityService* service =
       PersonalContextEligibilityServiceFactory::GetForProfile(profile.get());
   ASSERT_TRUE(service);
   EXPECT_EQ(service->GetEligibilityState(),
             PersonalContextEligibilityState::kDisabledNotEligible);
-  EXPECT_EQ(service->GetNonEligibilityReason(),
-            PersonalContextNonEligibilityReason::kUnsupportedGlicProvider);
 }
 
 }  // namespace personal_context

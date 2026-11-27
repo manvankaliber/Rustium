@@ -51,16 +51,12 @@ base::DictValue NetLogParameterChannelBindings(
 // Uses |negotiate_auth_system_factory| to create the auth system, otherwise
 // creates the default auth system for each platform.
 std::unique_ptr<HttpAuthMechanism> CreateAuthSystem(
-#if !BUILDFLAG(IS_ANDROID)
     scoped_refptr<HttpAuthHandlerNegotiate::AuthLibrary> auth_library,
-#endif
     const HttpAuthPreferences* prefs,
     HttpAuthMechanismFactory negotiate_auth_system_factory) {
   if (negotiate_auth_system_factory)
     return negotiate_auth_system_factory.Run(prefs);
-#if BUILDFLAG(IS_ANDROID)
-  return std::make_unique<android::HttpAuthNegotiateAndroid>(prefs);
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   return std::make_unique<HttpAuthSSPI>(std::move(auth_library),
                                         HttpAuth::AUTH_SCHEME_NEGOTIATE);
 #elif BUILDFLAG(IS_POSIX)
@@ -77,12 +73,12 @@ HttpAuthHandlerNegotiate::Factory::Factory(
 
 HttpAuthHandlerNegotiate::Factory::~Factory() = default;
 
-#if !BUILDFLAG(IS_ANDROID) && BUILDFLAG(IS_POSIX)
+#if BUILDFLAG(IS_POSIX)
 const std::string& HttpAuthHandlerNegotiate::Factory::GetLibraryNameForTesting()
     const {
   return auth_library_->GetLibraryNameForTesting();
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && BUILDFLAG(IS_POSIX)
+#endif
 
 int HttpAuthHandlerNegotiate::Factory::CreateAuthHandler(
     HttpAuthChallengeTokenizer* challenge,
@@ -105,29 +101,17 @@ int HttpAuthHandlerNegotiate::Factory::CreateAuthHandler(
           CreateAuthSystem(auth_library_, http_auth_preferences(),
                            negotiate_auth_system_factory_),
           http_auth_preferences(), host_resolver));
-#elif BUILDFLAG(IS_ANDROID)
-  if (is_unsupported_ || !http_auth_preferences() ||
-      http_auth_preferences()->AuthAndroidNegotiateAccountType().empty() ||
-      reason == CREATE_PREEMPTIVE)
-    return ERR_UNSUPPORTED_AUTH_SCHEME;
-  // TODO(cbentzel): Move towards model of parsing in the factory
-  //                 method and only constructing when valid.
-  std::unique_ptr<HttpAuthHandler> tmp_handler(
-      std::make_unique<HttpAuthHandlerNegotiate>(
-          CreateAuthSystem(http_auth_preferences(),
-                           negotiate_auth_system_factory_),
-          http_auth_preferences(), host_resolver));
 #elif BUILDFLAG(IS_POSIX)
   if (is_unsupported_)
     return ERR_UNSUPPORTED_AUTH_SCHEME;
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   // Note: Don't set is_unsupported_ = true here. AllowGssapiLibraryLoad()
   // might change to true during a session.
   if (!http_auth_preferences() ||
       !http_auth_preferences()->AllowGssapiLibraryLoad()) {
     return ERR_UNSUPPORTED_AUTH_SCHEME;
   }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
   if (!auth_library_->Init(net_log)) {
     is_unsupported_ = true;
     return ERR_UNSUPPORTED_AUTH_SCHEME;

@@ -23,10 +23,8 @@
 #include "content/public/browser/render_process_host.h"
 #include "services/resource_coordinator/public/cpp/memory_instrumentation/memory_instrumentation.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
 #include "chrome/browser/resource_coordinator/tab_manager.h"
-#endif
 
 namespace resource_coordinator {
 
@@ -56,7 +54,6 @@ bool ResourceCoordinatorTabHelper::IsLoaded(content::WebContents* contents) {
 }
 
 bool ResourceCoordinatorTabHelper::IsFrozen(content::WebContents* contents) {
-#if !BUILDFLAG(IS_ANDROID)
   if (resource_coordinator::ResourceCoordinatorTabHelper::FromWebContents(
           contents)) {
     auto* tab_lifecycle_unit =
@@ -65,10 +62,6 @@ bool ResourceCoordinatorTabHelper::IsFrozen(content::WebContents* contents) {
     return tab_lifecycle_unit && tab_lifecycle_unit->GetTabState() ==
                                      ::mojom::LifecycleUnitState::FROZEN;
   }
-#else
-  // Android's Tab.isFrozen() state has no WebContents, so it is represented by
-  // the not-loaded histogram variant rather than the page-frozen one.
-#endif
   return false;
 }
 

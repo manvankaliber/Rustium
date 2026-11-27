@@ -28,11 +28,6 @@
 #include "base/trace_event/trace_event.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "base/message_loop/message_pump_apple.h"
-#elif BUILDFLAG(IS_ANDROID)
-#include "base/message_loop/message_pump_android.h"
-#endif
 
 namespace base::sequence_manager::internal {
 namespace {
@@ -737,22 +732,6 @@ MessagePump* ThreadControllerWithMessagePumpImpl::GetBoundMessagePump() const {
   return pump_.get();
 }
 
-#if BUILDFLAG(IS_IOS)
-void ThreadControllerWithMessagePumpImpl::AttachToMessagePump() {
-  static_cast<MessagePumpCFRunLoopBase*>(pump_.get())->Attach(this);
-}
-
-void ThreadControllerWithMessagePumpImpl::DetachFromMessagePump() {
-  static_cast<MessagePumpCFRunLoopBase*>(pump_.get())->Detach();
-}
-#elif BUILDFLAG(IS_ANDROID)
-void ThreadControllerWithMessagePumpImpl::AttachToMessagePump() {
-  CHECK(main_thread_only().work_batch_size == 1);
-  // Aborting the message pump currently relies on the batch size being 1.
-  main_thread_only().can_change_batch_size = false;
-  static_cast<MessagePumpForUI*>(pump_.get())->Attach(this);
-}
-#endif
 
 bool ThreadControllerWithMessagePumpImpl::ShouldQuitRunLoopWhenIdle() {
   if (run_level_tracker_.num_run_levels() == 0) {

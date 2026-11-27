@@ -21,13 +21,7 @@ export function getHtml(this: SettingsIdentityDocsPageElement) {
         label="$i18n{identityDocsOptInToggleLabel}"
         sub-label="$i18n{identityDocsOptInToggleSubLabel}">
     </settings-toggle-button>
-    ${this.showSuggestionsFromGeminiSettings_ ? html`
-      <cr-link-row label="$i18n{autofillPersonalContextSettingsTitle}"
-          sub-label="$i18n{autofillPersonalContextSettingsSubpageSummary}"
-          id="suggestionsFromGeminiLinkRow"
-          @click="${this.onSuggestionsFromGeminiClick_}" class="hr">
-      </cr-link-row>
-    ` : ''}
+    ${''}
     ${this.extensionControlledIndicatorIsVisible_() ? html`
       <div class="cr-row continuation">
         <extension-controlled-indicator class="flex"

@@ -25,10 +25,6 @@
 #include "gpu/ipc/service/image_transport_surface.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "ui/platform_window/fuchsia/initialize_presenter_api_view.h"
-#endif
-
 namespace ui {
 namespace test {
 
@@ -50,10 +46,6 @@ void CompositorTestSuite::Initialize() {
 #if BUILDFLAG(IS_WIN)
   display::win::SetDefaultDeviceScaleFactor(1.0f);
 #endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  ui::fuchsia::IgnorePresentCallsForTest();
-#endif  // BUILDFLAG(IS_FUCHSIA)
 }
 
 }  // namespace test

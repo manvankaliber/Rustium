@@ -14,28 +14,15 @@
 #include "components/gcm_driver/gcm_driver_constants.h"
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 
-#if BUILDFLAG(USE_GCM_FROM_PLATFORM)
-#include "base/task/sequenced_task_runner.h"
-#include "components/gcm_driver/gcm_driver_android.h"
-#else
 #include "base/files/file_path.h"
 #include "base/functional/bind.h"
 #include "base/memory/weak_ptr.h"
 #include "components/gcm_driver/gcm_client_factory.h"
 #include "components/gcm_driver/gcm_desktop_utils.h"
 #include "components/gcm_driver/gcm_driver_desktop.h"
-#endif
 
 namespace gcm {
 
-#if BUILDFLAG(USE_GCM_FROM_PLATFORM)
-GCMProfileService::GCMProfileService(
-    base::FilePath path,
-    scoped_refptr<base::SequencedTaskRunner>& blocking_task_runner) {
-  driver_ = std::make_unique<GCMDriverAndroid>(
-      path.Append(gcm_driver::kGCMStoreDirname), blocking_task_runner);
-}
-#else
 GCMProfileService::GCMProfileService(
     base::FilePath path,
     base::RepeatingCallback<void(
@@ -60,7 +47,6 @@ GCMProfileService::GCMProfileService(
       product_category_for_subtypes, ui_task_runner, io_task_runner,
       blocking_task_runner, os_crypt_async);
 }
-#endif  // BUILDFLAG(USE_GCM_FROM_PLATFORM)
 
 GCMProfileService::GCMProfileService(std::unique_ptr<GCMDriver> gcm_driver)
     : driver_(std::move(gcm_driver)) {}

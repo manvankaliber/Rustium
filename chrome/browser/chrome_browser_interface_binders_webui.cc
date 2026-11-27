@@ -15,7 +15,6 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_post_rearchitecture.h"
 #include "chrome/browser/media/media_engagement_score_details.mojom.h"
 #include "chrome/browser/optimization_guide/optimization_guide_internals_ui.h"
-#include "chrome/browser/ui/webui/actor_internals/actor_internals_ui.h"
 #include "chrome/browser/ui/webui/bluetooth_internals/bluetooth_internals.mojom.h"
 #include "chrome/browser/ui/webui/bluetooth_internals/bluetooth_internals_ui.h"
 #include "chrome/browser/ui/webui/chrome_urls/chrome_urls_ui.h"
@@ -24,25 +23,35 @@
 #include "chrome/browser/ui/webui/content_settings/content_settings_ui.h"
 #include "chrome/browser/ui/webui/context_hub/context_hub.mojom.h"
 #include "chrome/browser/ui/webui/context_hub/context_hub_ui.h"
+#include "chrome/browser/ui/webui/critical_actions/critical_actions.mojom.h"
+#include "chrome/browser/ui/webui/critical_actions/critical_actions_ui.h"
 #include "chrome/browser/ui/webui/data_sharing_internals/data_sharing_internals_ui.h"
 #include "chrome/browser/ui/webui/engagement/site_engagement_ui.h"
+#include "chrome/browser/ui/webui/indigo_internals/indigo_internals.mojom.h"
+#include "chrome/browser/ui/webui/indigo_internals/indigo_internals_ui.h"
 #include "chrome/browser/ui/webui/location_internals/location_internals.mojom.h"
 #include "chrome/browser/ui/webui/location_internals/location_internals_ui.h"
 #include "chrome/browser/ui/webui/media/media_engagement_ui.h"
-#include "chrome/browser/ui/webui/omnibox_internals/aim_eligibility/aim_eligibility.mojom.h"
+#include "chrome/browser/ui/webui/omnibox_everywhere/omnibox_everywhere_ui.h"
 #include "chrome/browser/ui/webui/omnibox_internals/omnibox_internals.mojom.h"
 #include "chrome/browser/ui/webui/omnibox_internals/omnibox_internals_ui.h"
+#include "chrome/browser/ui/webui/omnibox_popup/mojom/omnibox_popup.mojom.h"
+#include "chrome/browser/ui/webui/omnibox_popup/mojom/omnibox_popup_aim.mojom.h"
+#include "chrome/browser/ui/webui/omnibox_popup/omnibox_popup_ui.h"
+#include "chrome/browser/ui/webui/password_manager/password_manager_ui.h"
 #include "chrome/browser/ui/webui/policy/policy_ui.h"
 #include "chrome/browser/ui/webui/segmentation_internals/segmentation_internals_ui.h"
+#include "chrome/browser/ui/webui/side_panel/reading_list/reading_list_ui.h"
+#include "chrome/browser/ui/webui/signin/profile_picker_ui.h"
 #include "chrome/browser/ui/webui/subresource_filter/subresource_filter_internals_ui.h"
 #include "chrome/browser/ui/webui/suggest_internals/suggest_internals.mojom.h"
 #include "chrome/browser/ui/webui/suggest_internals/suggest_internals_ui.h"
 #include "chrome/browser/ui/webui/usb_internals/usb_internals.mojom.h"
 #include "chrome/browser/ui/webui/usb_internals/usb_internals_ui.h"
+#include "chrome/browser/ui/webui/user_education_internals/user_education_internals_ui.h"
+#include "chrome/browser/ui/webui/webnn_internals/webnn_internals.mojom.h"
+#include "chrome/browser/ui/webui/webnn_internals/webnn_internals_ui.h"
 #include "chrome/common/webui_url_constants.h"
-#include "components/actor/public/mojom/actor_internals.mojom.h"
-#include "components/commerce/content/browser/commerce_internals_ui.h"
-#include "components/commerce/core/internals/mojom/commerce_internals.mojom.h"
 #include "components/contextual_tasks/public/features.h"
 #include "components/enterprise/connectors/connectors_internals.mojom.h"
 #include "components/history_clusters/history_clusters_internals/webui/history_clusters_internals_ui.h"
@@ -59,25 +68,6 @@
 #include "ui/webui/resources/js/tracked_element/tracked_element.mojom.h"
 #include "ui/webui/tracked_element/tracked_element_handler.h"
 #include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
-
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/webui/critical_actions/critical_actions.mojom.h"
-#include "chrome/browser/ui/webui/critical_actions/critical_actions_ui.h"
-#include "chrome/browser/ui/webui/indigo_internals/indigo_internals.mojom.h"
-#include "chrome/browser/ui/webui/indigo_internals/indigo_internals_ui.h"
-#include "chrome/browser/ui/webui/omnibox_popup/mojom/omnibox_popup.mojom.h"
-#include "chrome/browser/ui/webui/omnibox_popup/mojom/omnibox_popup_aim.mojom.h"
-#include "chrome/browser/ui/webui/omnibox_popup/omnibox_popup_ui.h"
-#include "chrome/browser/ui/webui/omnibox_everywhere/omnibox_everywhere_ui.h"
-#include "chrome/browser/ui/webui/password_manager/password_manager_ui.h"
-#include "chrome/browser/ui/webui/side_panel/reading_list/reading_list_ui.h"
-#include "chrome/browser/ui/webui/user_education_internals/user_education_internals_ui.h"
-#include "chrome/browser/ui/webui/webnn_internals/webnn_internals.mojom.h"
-#include "chrome/browser/ui/webui/webnn_internals/webnn_internals_ui.h"
-#if !BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/webui/signin/profile_picker_ui.h"
-#endif
-#endif
 
 #if BUILDFLAG(ENABLE_WEBUI_HISTORY)
 #include "chrome/browser/ui/webui/history/history_ui.h"
@@ -113,16 +103,10 @@
 #include "ui/webui/resources/cr_components/search/plural_string_provider.mojom.h"
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_DESKTOP_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/ui/webui/discards/discards.mojom.h"
 #include "chrome/browser/ui/webui/discards/discards_ui.h"
 #include "chrome/browser/ui/webui/discards/site_data.mojom.h"
-#endif
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/webui/skills/skills.mojom.h"
-#include "chrome/browser/ui/webui/skills/skills_ui.h"
 #endif
 
 namespace chrome::internal {
@@ -178,16 +162,12 @@ void BindTrackedElementHandlerRestricted(
       controller->GetAs<NewTabPageUI>() ||
       controller->GetAs<CustomizeChromeUI>() ||
 #endif
-#if !BUILDFLAG(IS_ANDROID)
       controller->GetAs<UserEducationInternalsUI>() ||
       controller->GetAs<ReadingListUI>() ||
       controller->GetAs<PasswordManagerUI>() ||
       controller->GetAs<OmniboxEverywhereUI>() ||
       controller->GetAs<OmniboxPopupUI>() ||
-#if !BUILDFLAG(IS_CHROMEOS)
       controller->GetAs<ProfilePickerUI>() ||
-#endif  // !BUILDFLAG(IS_CHROMEOS)
-#endif  // !BUILDFLAG(IS_ANDROID)
       controller->GetAs<ContextualTasksUI>() ||
       controller
           ->GetAs<contextual_tasks::ContextualTasksUIPostRearchitecture>();
@@ -215,7 +195,6 @@ void PopulateChromeWebUIFrameBindersPartsAllPlatforms(
       media::mojom::MediaEngagementScoreDetailsProvider, MediaEngagementUI>(
       map);
 
-#if !BUILDFLAG(IS_ANDROID)
   RegisterWebUIControllerInterfaceBinder<
       critical_actions::mojom::PageHandlerFactory,
       critical_actions::CriticalActionsUI>(map);
@@ -227,12 +206,8 @@ void PopulateChromeWebUIFrameBindersPartsAllPlatforms(
       indigo_internals::mojom::PageHandlerFactory, IndigoInternalsUI>(map);
   RegisterWebUIControllerInterfaceBinder<
       webnn_internals::mojom::PageHandlerFactory, WebNNInternalsUI>(map);
-#endif
   RegisterWebUIControllerInterfaceBinder<::mojom::OmniboxInternalsPageHandler,
                                          OmniboxInternalsUI>(map);
-
-  RegisterWebUIControllerInterfaceBinder<
-      aim_eligibility::mojom::PageHandlerFactory, OmniboxInternalsUI>(map);
 
   RegisterWebUIControllerInterfaceBinder<
       site_engagement::mojom::SiteEngagementDetailsProvider, SiteEngagementUI>(
@@ -253,9 +228,6 @@ void PopulateChromeWebUIFrameBindersPartsAllPlatforms(
       segmentation_internals::mojom::PageHandlerFactory,
       SegmentationInternalsUI>(map);
 
-  RegisterWebUIControllerInterfaceBinder<
-      commerce::mojom::CommerceInternalsHandlerFactory,
-      commerce::CommerceInternalsUI>(map);
 
   RegisterWebUIControllerInterfaceBinder<chrome_urls::mojom::PageHandlerFactory,
                                          chrome_urls::ChromeUrlsUI>(map);
@@ -271,8 +243,6 @@ void PopulateChromeWebUIFrameBindersPartsAllPlatforms(
   RegisterWebUIControllerInterfaceBinder<::mojom::LocationInternalsHandler,
                                          LocationInternalsUI>(map);
 
-  RegisterWebUIControllerInterfaceBinder<
-      actor_internals::mojom::PageHandlerFactory, ActorInternalsUI>(map);
 
   if (base::FeatureList::IsEnabled(
           policy::features::kPolicyPageMojoMigration)) {
@@ -318,14 +288,9 @@ void PopulateChromeWebUIFrameBindersPartsAllPlatforms(
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
   content::RegisterWebUIControllerInterfaceBinder<
       new_tab_page::mojom::PageHandlerFactory, NewTabPageUI>(map);
-#if BUILDFLAG(IS_ANDROID)
-  content::RegisterWebUIControllerInterfaceBinder<
-      most_visited::mojom::MostVisitedPageHandlerFactory, NewTabPageUI>(map);
-#else
   content::RegisterWebUIControllerInterfaceBinder<
       most_visited::mojom::MostVisitedPageHandlerFactory, NewTabPageUI,
       OmniboxEverywhereUI>(map);
-#endif  // BUILDFLAG(IS_ANDROID)
   content::RegisterWebUIControllerInterfaceBinder<
       customize_buttons::mojom::CustomizeButtonsHandlerFactory, NewTabPageUI>(
       map);
@@ -356,73 +321,7 @@ void PopulateChromeWebUIFrameBindersPartsAllPlatforms(
       base::BindRepeating(&BindColorChangeListener));
 
 // TODO(b/502297163): Implement for Android.
-#if BUILDFLAG(ENABLE_WEBUI_NTP) && BUILDFLAG(IS_ANDROID)
-  // A variant of these exist in
-  // chrome_browser_interface_binders_webui_parts_desktop.cc:
-  // that enables them for more pages.
-  content::RegisterWebUIControllerInterfaceBinder<
-      searchbox::mojom::PageHandlerFactory, NewTabPageUI>(map);
-#endif  // BUILDFLAG(ENABLE_WEBUI_NTP) && BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID) &&                                \
-    (BUILDFLAG(ENABLE_WEBUI_NTP) ||                         \
-     BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX) || \
-     BUILDFLAG(ENABLE_WEBUI_HISTORY))
-#if BUILDFLAG(ENABLE_WEBUI_NTP) || \
-    BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX)
-  RegisterWebUIControllerInterfaceBinder<composebox::mojom::PageHandlerFactory
-#if BUILDFLAG(ENABLE_WEBUI_NTP)
-                                         ,
-                                         NewTabPageUI
-#endif
-#if BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX)
-                                         ,
-                                         ContextualTasksUI
-#endif
-                                         >(map);
-  RegisterWebUIControllerInterfaceBinder<
-      plural_string::mojom::PluralStringProvider
-#if BUILDFLAG(ENABLE_WEBUI_NTP)
-      ,
-      NewTabPageUI
-#endif
-#if BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX)
-      ,
-      ContextualTasksUI
-#endif
-      >(map);
-#endif  // BUILDFLAG(ENABLE_WEBUI_NTP) ||
-        // BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX)
-
-  RegisterWebUIControllerInterfaceBinder<
-      help_bubble::mojom::HelpBubbleHandlerFactory
-#if BUILDFLAG(ENABLE_WEBUI_NTP)
-      ,
-      NewTabPageUI, CustomizeChromeUI
-#endif
-#if BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX)
-      ,
-      ContextualTasksUI, contextual_tasks::ContextualTasksUIPostRearchitecture
-#endif
-#if BUILDFLAG(ENABLE_WEBUI_HISTORY)
-      ,
-      HistoryUI
-#endif
-      >(map);
-#if BUILDFLAG(ENABLE_WEBUI_NTP)
-  // Variants of these exist in
-  // chrome_browser_interface_binders_webui_parts_desktop.cc that also register
-  // desktop-specific controllers (e.g. ProfileCustomizationUI,
-  // FeatureShowcaseUI).
-  RegisterWebUIControllerInterfaceBinder<
-      customize_color_scheme_mode::mojom::
-          CustomizeColorSchemeModeHandlerFactory,
-      CustomizeChromeUI>(map);
-  RegisterWebUIControllerInterfaceBinder<
-      theme_color_picker::mojom::ThemeColorPickerHandlerFactory,
-      CustomizeChromeUI>(map);
-#endif
-#endif  // BUILDFLAG(IS_ANDROID) && (BUILDFLAG(ENABLE_WEBUI_NTP) ||
         // BUILDFLAG(ENABLE_WEBUI_CONTEXTUAL_TASKS_COMPOSEBOX) ||
         // BUILDFLAG(ENABLE_WEBUI_HISTORY))
 
@@ -441,18 +340,10 @@ void PopulateChromeWebUIFrameBinders(
   PopulateChromeWebUIFrameBindersPartsAllPlatforms(map, render_frame_host);
   PopulateChromeWebUIFrameBindersPartsFeatures(map, render_frame_host);
 
-#if BUILDFLAG(IS_ANDROID)
-  PopulateChromeWebUIFrameBindersPartsAndroid(map, render_frame_host);
-#else
   PopulateChromeWebUIFrameBindersPartsDesktop(map, render_frame_host);
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  PopulateChromeWebUIFrameBindersPartsCros(map, render_frame_host);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_DESKTOP_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   RegisterWebUIControllerInterfaceBinder<discards::mojom::DetailsProvider,
                                          DiscardsUI>(map);
 
@@ -463,13 +354,6 @@ void PopulateChromeWebUIFrameBinders(
                                          DiscardsUI>(map);
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
-  RegisterWebUIControllerInterfaceBinder<skills::mojom::PageHandlerFactory,
-                                         skills::SkillsUI>(map);
-  RegisterWebUIControllerInterfaceBinder<skills::mojom::SkillsPageHandler,
-                                         skills::SkillsUI>(map);
-#endif
 
   // When possible, please one one of the Parts functions above and avoid making
   // this function longer.
@@ -479,15 +363,8 @@ void PopulateTrustedChromeWebUIFrameInterfaceBrokers(
     content::WebUIBrowserInterfaceBrokerRegistry& registry) {
   // This function is broken up into sections based on WebUI types.
 
-#if BUILDFLAG(IS_CHROMEOS)
-  PopulateChromeWebUIFrameInterfaceBrokersTrustedPartsCros(registry);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID)
   PopulateChromeWebUIFrameInterfaceBrokersTrustedPartsDesktop(registry);
-#else
-  PopulateChromeWebUIFrameInterfaceBrokersTrustedPartsAndroid(registry);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_WEBUI_NTP)
   registry.ForWebUI<NewTabPageThirdPartyUI>()
@@ -509,13 +386,8 @@ void PopulateUntrustedChromeWebUIFrameInterfaceBrokers(
     content::WebUIBrowserInterfaceBrokerRegistry& registry) {
   PopulateChromeWebUIFrameInterfaceBrokersUntrustedPartsFeatures(registry);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  PopulateChromeWebUIFrameInterfaceBrokersUntrustedPartsCros(registry);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID)
   PopulateChromeWebUIFrameInterfaceBrokersUntrustedPartsDesktop(registry);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   registry.AddGlobal<color_change_listener::mojom::PageHandler>(
       base::BindRepeating(&BindColorChangeListener));

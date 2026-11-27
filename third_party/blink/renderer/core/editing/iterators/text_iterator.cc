@@ -313,7 +313,7 @@ void TextIteratorAlgorithm<Strategy>::Advance() {
     // TODO(crbug.com/1296290): Disable this DCHECK as it's troubling CrOS engs.
     // TODO(crbug.com/421311110): Disable this DCHECK as it's troubling android
     // engs.
-#if DCHECK_IS_ON() && !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
+#if DCHECK_IS_ON()
     // |node_| shouldn't be after |past_end_node_|.
     if (past_end_node_) {
       DCHECK_LE(PositionTemplate<Strategy>(node_, 0),
@@ -482,11 +482,9 @@ void TextIteratorAlgorithm<Strategy>::Advance() {
           // sibling shadow root, if any.
           const auto* shadow_root = DynamicTo<ShadowRoot>(node_);
           if (!shadow_root) {
-#if !BUILDFLAG(IS_ANDROID)
             // TODO(crbug.com/421311110): Hits at chrome://extensions,
             // chrome://flags, etc.
             NOTREACHED();
-#endif  // !BUILDFLAG(IS_ANDROID)
             should_stop_ = true;
             return;
           }

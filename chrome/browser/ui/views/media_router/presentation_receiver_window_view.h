@@ -38,9 +38,6 @@ namespace views {
 class WebView;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class FullscreenWindowObserver;
-#endif
 
 // This class implements the View portion of PresentationReceiverWindow.  It
 // contains a WebView for displaying the receiver page and a LocationBarView for
@@ -176,9 +173,6 @@ class PresentationReceiverWindowView final
   std::unique_ptr<MixedContentSettingsTabHelper>
       mixed_content_settings_tab_helper_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<FullscreenWindowObserver> window_observer_;
-#endif
 };
 
 #endif  // CHROME_BROWSER_UI_VIEWS_MEDIA_ROUTER_PRESENTATION_RECEIVER_WINDOW_VIEW_H_

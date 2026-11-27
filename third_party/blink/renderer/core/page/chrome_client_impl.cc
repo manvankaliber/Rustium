@@ -277,7 +277,6 @@ void ChromeClientImpl::ResizeWindowTo(const gfx::Size& requested_size,
   web_view_->MainFrameViewWidget()->ResizeWindowTo(size);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void ChromeClientImpl::Minimize(LocalFrame&,
                                 WindowingControlsChangeCallback callback) {
   DCHECK(web_view_);
@@ -302,7 +301,6 @@ void ChromeClientImpl::SetResizable(bool resizable,
   DCHECK(web_view_);
   web_view_->SetResizable(resizable, std::move(callback));
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 gfx::Rect ChromeClientImpl::RootWindowRect(LocalFrame& frame) {
   // The WindowRect() for each WebFrameWidget will be the same rect of the top
@@ -811,12 +809,7 @@ ColorChooser* ChromeClientImpl::OpenColorChooser(
     controller = MakeGarbageCollected<ColorChooserPopupUIController>(
         frame, this, chooser_client);
   } else {
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     NOTREACHED() << "Page popups should be enabled on all but Android or iOS";
-#else
-    controller =
-        MakeGarbageCollected<ColorChooserUIController>(frame, chooser_client);
-#endif
   }
   controller->OpenUI();
   return controller;
@@ -829,12 +822,10 @@ DateTimeChooser* ChromeClientImpl::OpenDateTimeChooser(
   NotifyPopupOpeningObservers();
   // Android does not support PagePopup, so we must always use the native
   // picker.
-#if !BUILDFLAG(IS_ANDROID)
   if (RuntimeEnabledFeatures::InputMultipleFieldsUIEnabled()) {
     return MakeGarbageCollected<DateTimeChooserImpl>(frame, picker_client,
                                                      parameters);
   }
-#endif
 
   // JavaScript may try to open a date time chooser while one is already open.
   if (external_date_time_chooser_ &&

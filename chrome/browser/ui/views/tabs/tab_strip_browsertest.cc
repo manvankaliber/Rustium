@@ -54,11 +54,6 @@
 #include "ui/views/test/mock_activation_controller.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "chrome/common/chrome_features.h"
-#endif
 
 namespace {
 ui::MouseEvent GetDummyEvent() {
@@ -1598,65 +1593,6 @@ IN_PROC_BROWSER_TEST_F(TabStripBrowsertest, NavigateSplitTabUKMLogged) {
           entries[1], ukm::builders::SplitView_Updated::kSplitEventIdName));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class TabStripOnTaskBrowsertest : public TabStripBrowsertest,
-                                  public testing::WithParamInterface<bool> {
- public:
-  TabStripOnTaskBrowsertest() {
-    scoped_feature_list_.InitWithFeatureState(
-        features::kUseUnifiedLockedStateController, GetParam());
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_P(TabStripOnTaskBrowsertest,
-                       CloseButtonHiddenWhenLockedForOnTask) {
-  if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-    chromeos::LockedStateController::From(browser())->Lock(
-        chromeos::LockedState::kOnTaskPrepared);
-  } else {
-    ash::boca::OnTaskLockedController::From(browser())->set_locked_for_on_task(
-        true);
-  }
-
-  AppendTab();
-  AppendTab();
-  tab_strip_model()->ActivateTabAt(1);
-  ASSERT_EQ(3, tab_strip_model()->count());
-  TabStrip* const tab_strip = BrowserView::GetBrowserViewForBrowser(browser())
-                                  ->horizontal_tab_strip_for_testing();
-
-  Tab* const tab0 = tab_strip->tab_at(0);
-  ASSERT_FALSE(tab0->IsActive());
-  EXPECT_FALSE(tab0->showing_close_button_for_testing());
-
-  Tab* const tab1 = tab_strip->tab_at(1);
-  ASSERT_TRUE(tab1->IsActive());
-  EXPECT_FALSE(tab1->showing_close_button_for_testing());
-
-  Tab* tab2 = tab_strip->tab_at(2);
-  ASSERT_FALSE(tab2->IsActive());
-  EXPECT_FALSE(tab2->showing_close_button_for_testing());
-
-  // Switch tabs and confirm close button remains hidden for all opened tabs.
-  // tab_strip_->SelectTab(tab2, dummy_event_);
-  tab_strip_model()->ActivateTabAt(2);
-  ASSERT_TRUE(tab2->IsActive());
-  EXPECT_FALSE(tab0->showing_close_button_for_testing());
-  EXPECT_FALSE(tab1->showing_close_button_for_testing());
-  EXPECT_FALSE(tab2->showing_close_button_for_testing());
-
-  // Closing a tab should not alter tab close button visibility either.
-  tab_strip->CloseTab(tab2, CloseTabSource::kFromMouse);
-  tab2 = nullptr;
-  EXPECT_FALSE(tab0->showing_close_button_for_testing());
-  EXPECT_FALSE(tab1->showing_close_button_for_testing());
-}
-
-INSTANTIATE_TEST_SUITE_P(All, TabStripOnTaskBrowsertest, testing::Bool());
-#endif
 
 class TabStripSaveBrowsertest : public TabStripBrowsertest {
  public:

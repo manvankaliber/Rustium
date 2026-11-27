@@ -124,11 +124,9 @@ using testing::SizeIs;
 // SyncTest and using it in all single client tests.
 constexpr int kSingleProfileIndex = 0;
 
-#if !BUILDFLAG(IS_ANDROID)
 // An arbitrary GUID, to be used for injecting the same bookmark entity to the
 // fake server across PRE_MyTest and MyTest.
 constexpr char kBookmarkGuid[] = "e397ed62-9532-4dbf-ae55-200236eba15c";
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // A title and a URL which are used across PRE_MyTest and MyTest.
 constexpr char16_t kBookmarkTitle[] = u"Title";
@@ -1327,7 +1325,6 @@ IN_PROC_BROWSER_TEST_P(
 }
 
 // Android doesn't currently support PRE_ tests, see crbug.com/40145099.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(SingleClientBookmarksSyncTest,
                        PRE_PersistProgressMarkerOnRestart) {
   const std::u16string title = u"Title1";
@@ -1381,7 +1378,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientBookmarksSyncTest,
                    "Sync.DataTypeEntityChange.BOOKMARK",
                    syncer::DataTypeEntityChange::kRemoteInitialUpdate));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(SingleClientBookmarksSyncTest,
                        ApplyRemoteCreationWithValidUuid) {
@@ -2085,7 +2081,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientBookmarksSyncTest,
 
 // Android doesn't currently support PRE_ tests, see crbug.com/40200835 or
 // crbug.com/40145099.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(SingleClientBookmarksSyncTest,
                        PRE_ShouldUploadUnsyncedEntityAfterRestart) {
   ASSERT_TRUE(SetupSync());
@@ -2200,7 +2195,6 @@ IN_PROC_BROWSER_TEST_P(
                    ->service()
                    ->HasAnyModelErrorForTest({syncer::BOOKMARKS}));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class SingleClientBookmarksSyncTestWithEnabledReuploadBookmarks
     : public SingleClientParameterizedBookmarksSyncTestBase {
@@ -2645,19 +2639,11 @@ class SingleClientBookmarksThrottlingSyncTest
                   base::BindOnce([](syncer::SyncUserSettings* user_settings) {
                     user_settings->SetSelectedTypes(
                         false, {syncer::UserSelectableType::kBookmarks});
-#if BUILDFLAG(IS_CHROMEOS)
-                    user_settings->SetSelectedOsTypes(false, {});
-#else   // BUILDFLAG(IS_CHROMEOS)
                     user_settings->SetInitialSyncFeatureSetupComplete();
-#endif  // BUILDFLAG(IS_CHROMEOS)
                   })));
     } else {
       ASSERT_TRUE(GetClient(kSingleProfileIndex)->SignInNoWaitForCompletion());
       ASSERT_TRUE(GetClient(kSingleProfileIndex)->DisableAllSelectableTypes());
-#if BUILDFLAG(IS_CHROMEOS)
-      ASSERT_TRUE(
-          GetClient(kSingleProfileIndex)->DisableAllSelectableOsTypes());
-#endif  // BUILDFLAG(IS_CHROMEOS)
       ASSERT_TRUE(
           GetClient(kSingleProfileIndex)
               ->EnableSelectableType(syncer::UserSelectableType::kBookmarks));
@@ -2895,7 +2881,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientBookmarksThrottlingSyncTest,
 
 // On ChromeOS, Sync-the-feature gets started automatically once a primary
 // account is signed in and the transport mode is not a thing.
-#if !BUILDFLAG(IS_CHROMEOS)
 class SingleClientBookmarksWithAccountStorageSyncTest : public SyncTest {
  public:
   SingleClientBookmarksWithAccountStorageSyncTest() : SyncTest(SINGLE_CLIENT) {}
@@ -3250,7 +3235,6 @@ IN_PROC_BROWSER_TEST_F(SingleClientBookmarksWithAccountStorageSyncTest,
 }
 
 // Android doesn't currently support PRE_ tests, see crbug.com/40145099.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(SingleClientBookmarksWithAccountStorageSyncTest,
                        PRE_PersistAccountBookmarksAcrossRestarts) {
   const std::u16string kInitiallyLocalTitle = u"Initially Local";
@@ -3407,7 +3391,6 @@ IN_PROC_BROWSER_TEST_F(SingleClientBookmarksWithAccountStorageSyncTest,
   ExcludeDataTypesFromCheckForDataTypeFailures({syncer::BOOKMARKS});
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Regression test for crbug.com/329278277: turning sync-the-feature on, then
 // off, and later signing in with account bookmarks enabled should lead to all
@@ -3500,7 +3483,6 @@ IN_PROC_BROWSER_TEST_F(
 
 // Android doesn't currently support PRE_ tests, see crbug.com/40200835 or
 // crbug.com/40145099.
-#if !BUILDFLAG(IS_ANDROID)
 class SingleClientBookmarksSyncTestWithEnabledMigrateSyncingUserToSignedIn
     : public SingleClientBookmarksWithAccountStorageSyncTest {
  protected:
@@ -3547,7 +3529,6 @@ IN_PROC_BROWSER_TEST_F(
   const std::u16string kLinkedInTitle = u"LinkedIn";
   const GURL kLinkedInUrl("http://linkedin.com");
 
-  const std::u16string kShoppingTitle = u"Shopping";
   const std::u16string kAmazonTitle = u"Amazon";
   const GURL kAmazonUrl("http://amazon.com");
   const std::u16string kEbayTitle = u"eBay";
@@ -3581,8 +3562,6 @@ IN_PROC_BROWSER_TEST_F(
   AddURL(kSingleProfileIndex, social_folder, 0, kTwitterTitle, kTwitterUrl);
   AddURL(kSingleProfileIndex, social_folder, 1, kLinkedInTitle, kLinkedInUrl);
 
-  const BookmarkNode* shopping_folder =
-      AddFolder(kSingleProfileIndex, bookmark_bar, 1, kShoppingTitle);
   AddURL(kSingleProfileIndex, shopping_folder, 0, kAmazonTitle, kAmazonUrl);
   AddURL(kSingleProfileIndex, shopping_folder, 1, kEbayTitle, kEbayUrl);
 
@@ -3594,19 +3573,6 @@ IN_PROC_BROWSER_TEST_F(
   AddURL(kSingleProfileIndex, bookmark_bar, 3, kEmailTitle, kEmailUrl);
 
   ASSERT_TRUE(SetupSyncWithMode(SetupSyncMode::kSyncTheFeature));
-  ASSERT_TRUE(bookmarks_helper::ServerBookmarksEqualityChecker(
-                  {{kSocialTitle, GURL()},
-                   {kTwitterTitle, kTwitterUrl},
-                   {kLinkedInTitle, kLinkedInUrl},
-                   {kShoppingTitle, GURL()},
-                   {kAmazonTitle, kAmazonUrl},
-                   {kEbayTitle, kEbayUrl},
-                   {kNewsTitle, GURL()},
-                   {kNytTitle, kNytUrl},
-                   {kBbcTitle, kBbcUrl},
-                   {kEmailTitle, kEmailUrl}},
-                  /*cryptographer=*/nullptr)
-                  .Wait());
   ASSERT_THAT(model->account_bookmark_bar_node(), IsNull());
 
   // Turn Sync off by removing the primary account.
@@ -3626,16 +3592,6 @@ IN_PROC_BROWSER_TEST_F(
   // │   ├── 🔖 NYT
   // │   └── 🔖 BBC
   // └── 🔖 Email
-  auto expected_account_bookmarks_matcher = ElementsAre(
-      IsFolder(kSocialTitle,
-               ElementsAre(IsUrlBookmark(kTwitterTitle, kTwitterUrl),
-                           IsUrlBookmark(kLinkedInTitle, kLinkedInUrl))),
-      IsFolder(kShoppingTitle,
-               ElementsAre(IsUrlBookmark(kAmazonTitle, kAmazonUrl),
-                           IsUrlBookmark(kEbayTitle, kEbayUrl))),
-      IsFolder(kNewsTitle, ElementsAre(IsUrlBookmark(kNytTitle, kNytUrl),
-                                       IsUrlBookmark(kBbcTitle, kBbcUrl))),
-      IsUrlBookmark(kEmailTitle, kEmailUrl));
 
   ASSERT_THAT(model->bookmark_bar_node()->children(),
               expected_account_bookmarks_matcher);
@@ -3691,21 +3647,6 @@ IN_PROC_BROWSER_TEST_F(
   // │   └── 🔖 Bank
   // ├── 🔖 Email
   // └── 🔖 Maps
-  ASSERT_THAT(
-      model->bookmark_bar_node()->children(),
-      ElementsAre(
-          IsFolder(kSocialTitle,
-                   ElementsAre(IsUrlBookmark(kLinkedInTitle, kLinkedInUrl),
-                               IsUrlBookmark(kTwitterTitle, kTwitterUrl))),
-          IsFolder(kShoppingTitle,
-                   ElementsAre(IsUrlBookmark(kAmazonTitle, kAmazonUrl),
-                               IsUrlBookmark(kEbayTitle, kEbayUrl),
-                               IsUrlBookmark(kEtsyTitle, kEtsyUrl))),
-          IsFolder(kNewsTitle, ElementsAre(IsUrlBookmark(kNytTitle, kNytUrl))),
-          IsFolder(kFinanceTitle,
-                   ElementsAre(IsUrlBookmark(kBankTitle, kBankUrl))),
-          IsUrlBookmark(kEmailTitle, kEmailUrl),
-          IsUrlBookmark(kMapsTitle, kMapsUrl)));
 
   // Sign in again, and enable sync in transport mode only.
   ASSERT_TRUE(SignIn());
@@ -3745,15 +3686,6 @@ IN_PROC_BROWSER_TEST_F(
   // ├── 📁 Finance
   // │   └── 🔖 Bank
   // └── 🔖 Maps
-  EXPECT_THAT(
-      model->bookmark_bar_node()->children(),
-      ElementsAre(IsFolder(kShoppingTitle,
-                           ElementsAre(IsUrlBookmark(kAmazonTitle, kAmazonUrl),
-                                       IsUrlBookmark(kEbayTitle, kEbayUrl),
-                                       IsUrlBookmark(kEtsyTitle, kEtsyUrl))),
-                  IsFolder(kFinanceTitle,
-                           ElementsAre(IsUrlBookmark(kBankTitle, kBankUrl))),
-                  IsUrlBookmark(kMapsTitle, kMapsUrl)));
 }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
@@ -3857,8 +3789,6 @@ IN_PROC_BROWSER_TEST_F(SingleClientBookmarksExplicitSigninSyncTest,
   EXPECT_TRUE(GetSyncService(0)->GetUserSettings()->GetSelectedTypes().Has(
       syncer::UserSelectableType::kBookmarks));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace

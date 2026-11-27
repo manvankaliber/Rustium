@@ -88,7 +88,6 @@ export class SettingsPeoplePageIndexElement extends
           this.$.viewManager.switchView(
               'googleServices', 'no-animation', 'no-animation');
           break;
-        // <if expr="not is_chromeos">
         case routes.IMPORT_DATA:
         case routes.SIGN_OUT:
           // Switch to settings-people-page since these dialogs reside
@@ -100,7 +99,6 @@ export class SettingsPeoplePageIndexElement extends
           this.$.viewManager.switchView(
               'manageProfile', 'no-animation', 'no-animation');
           break;
-        // </if>
         default:
           // Nothing to do. Other parent elements are responsible for updating
           // the displayed contents.

@@ -42,15 +42,11 @@ class WorkDelegate : public WorkerThread::Delegate {
     }
   }
 
-  void SetDesiredWorkCount(int times) {
-    waiting_for_count_ = times;
-  }
+  void SetDesiredWorkCount(int times) { waiting_for_count_ = times; }
 
   //! \brief Suspends the calling thread until the DoWork() has been called
   //!     the number of times specified by SetDesiredWorkCount().
-  void WaitForWorkCount() {
-    semaphore_.Wait();
-  }
+  void WaitForWorkCount() { semaphore_.Wait(); }
 
   int work_count() const { return work_count_; }
 
@@ -74,16 +70,12 @@ TEST(WorkerThread, DoWork) {
   thread.Stop();
   EXPECT_FALSE(thread.is_running());
 
-// Fuchsia's scheduler is very antagonistic. The assumption that the two work
-// items complete in some particular amount of time is strictly incorrect, but
-// also somewhat useful. The expected time "should" be ~40-50ms with a work
-// interval of 0.05s, but on Fuchsia, 1200ms was observed. So, on Fuchsia, use a
-// much larger timeout. See https://crashpad.chromium.org/bug/231.
-#if BUILDFLAG(IS_FUCHSIA)
-  constexpr uint64_t kUpperBoundTime = 10;
-#else
+  // Fuchsia's scheduler is very antagonistic. The assumption that the two work
+  // items complete in some particular amount of time is strictly incorrect, but
+  // also somewhat useful. The expected time "should" be ~40-50ms with a work
+  // interval of 0.05s, but on Fuchsia, 1200ms was observed. So, on Fuchsia, use
+  // a much larger timeout. See https://crashpad.chromium.org/bug/231.
   constexpr uint64_t kUpperBoundTime = 1;
-#endif
   EXPECT_GE(kUpperBoundTime * kNanosecondsPerSecond,
             ClockMonotonicNanoseconds() - start);
 }

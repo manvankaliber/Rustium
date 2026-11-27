@@ -64,30 +64,6 @@ const char* CreateFallbackImageResultToString(
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(SKIA_USE_DAWN)
-bool DawnYCbCrVkDescriptorsAreCompatible(const wgpu::YCbCrVkDescriptor& left,
-                                         const wgpu::YCbCrVkDescriptor& right) {
-  // NOTE: We deliberately do not compare the swizzle components as those
-  // components are not plumbed through the Chrome-level information and thus
-  // could cause spurious equality failures. By the Vulkan spec, those
-  // components should not be set for external formats, but some drivers do not
-  // adhere to the spec here.
-  // Mismatch of model, range and chroma fields happens often enough to be
-  // problematic if we skip drawing the video for those frames. While the video
-  // may not draw 100% correctly it will still be better than not drawing it at
-  // all.
-  if (left.vkFormat != right.vkFormat) {
-    return false;
-  }
-  if (left.forceExplicitReconstruction != right.forceExplicitReconstruction) {
-    return false;
-  }
-  if (left.externalFormat != right.externalFormat) {
-    return false;
-  }
-  return true;
-}
-#endif
 
 SkColor4f GetFallbackColorForPlane(viz::SharedImageFormat format,
                                    int plane_index) {
@@ -428,39 +404,6 @@ bool ImageContextImpl::BeginAccessIfNecessaryInternal(
 
 bool ImageContextImpl::ValidateYCbCrInfo(
     gpu::SharedContextState* context_state) {
-#if BUILDFLAG(IS_ANDROID)
-  if (context_state->IsGraphiteDawn()) {
-#if BUILDFLAG(SKIA_USE_DAWN)
-    // In the case of video decoding, it is possible for there to be a
-    // mismatch between the YCbCr info passed to Viz at the time of creating
-    // the promise texture and that computed at the time of fulfilling the
-    // promise texture. Detect such mismatches and error out, as Skia/Dawn
-    // will raise errors.
-    skgpu::graphite::DawnTextureInfo fulfillment_texture_info;
-    CHECK(skgpu::graphite::TextureInfos::GetDawnTextureInfo(
-        representation_scoped_read_access_->graphite_texture(0).info(),
-        &fulfillment_texture_info));
-    wgpu::YCbCrVkDescriptor fulfillment_texture_ycbcr_desc =
-        fulfillment_texture_info.fYcbcrVkDescriptor;
-
-    wgpu::YCbCrVkDescriptor promise_texture_ycbcr_desc = {};
-    if (ycbcr_info()) {
-      promise_texture_ycbcr_desc =
-          gpu::ToDawnYCbCrVkDescriptor(ycbcr_info().value());
-    }
-
-    if (!DawnYCbCrVkDescriptorsAreCompatible(promise_texture_ycbcr_desc,
-                                             fulfillment_texture_ycbcr_desc)) {
-      return false;
-    }
-#endif  // BUILDFLAG(SKIA_USE_DAWN)
-  } else if (context_state->IsGraphiteVulkan()) {
-#if BUILDFLAG(SKIA_USE_GRAPHITE_VULKAN)
-    // TODO(crbug.com/55295190): Implement YCbCr compatibility check.
-    return true;
-#endif  // BUILDFLAG(SKIA_USE_GRAPHITE_VULKAN)
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return true;
 }

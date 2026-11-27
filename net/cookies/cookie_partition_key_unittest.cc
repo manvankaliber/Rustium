@@ -56,16 +56,6 @@ TEST(CookiePartitionKeyTest, TestFromStorage) {
     EXPECT_EQ(tc.expected_output, got) << got.ToString();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  {
-    base::AutoReset<bool> reset =
-        CookiePartitionKey::DisablePartitioningInScopeForTesting();
-    EXPECT_FALSE(
-        CookiePartitionKey::FromStorage("https://toplevelsite.com",
-                                        /*has_cross_site_ancestor=*/true)
-            .has_value());
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 TEST(CookiePartitionKeyTest, TestFromUntrustedInput) {
@@ -109,16 +99,6 @@ TEST(CookiePartitionKeyTest, TestFromUntrustedInput) {
     }
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  {
-    base::AutoReset<bool> reset =
-        CookiePartitionKey::DisablePartitioningInScopeForTesting();
-    EXPECT_FALSE(
-        CookiePartitionKey::FromUntrustedInput("https://toplevelsite.com",
-                                               /*has_cross_site_ancestor=*/true)
-            .has_value());
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 TEST(CookiePartitionKeyTest, Serialization) {

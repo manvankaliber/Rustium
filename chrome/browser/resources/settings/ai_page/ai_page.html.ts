@@ -31,22 +31,6 @@ export function getHtml(this: SettingsAiPageElement) {
         role-description="$i18n{subpageArrowRoleDescription}"
         @click="${this.onAiSuggestionsRowClick_}">
     </cr-link-row>
-    <cr-link-row id="inlineCueMenuRow" class="hr"
-        ?hidden="${!this.showInlineCueMenuControl_}"
-        start-icon="settings20:text-select-end"
-        label="$i18n{siteSettingsInlineCueMenu}"
-        sub-label="$i18n{siteSettingsInlineCueMenuDescription}"
-        role-description="$i18n{subpageArrowRoleDescription}"
-        @click="${this.onInlineCueMenuRowClick_}">
-    </cr-link-row>
-    <cr-link-row id="skillsRow" class="hr"
-        ?hidden="${!this.showSkillsSettingPage_}"
-        start-icon="settings20:flash-on-filled"
-        label="$i18n{skillsSettingLabel}"
-        sub-label="$i18n{skillsSettingSublabel}"
-        role-description="$i18n{subpageArrowRoleDescription}"
-        @click="${this.onSkillsRowClick_}">
-    </cr-link-row>
     <cr-link-row id="dictationRow" class="hr"
         ?hidden="${!this.showDictationControl_}" start-icon="privacy:mic"
         label="$i18n{dictationSettingLabel}"
@@ -58,13 +42,6 @@ export function getHtml(this: SettingsAiPageElement) {
         start-icon="${this.getIndigoStartIcon_()}" label="$i18n{indigoLabel}"
         sub-label="$i18n{indigoSublabel}" @click="${this.onIndigoRowClick_}"
         external>
-    </cr-link-row>
-    <cr-link-row id="googleSearchAiModeWorkspaceRow" class="hr"
-        ?hidden="${!this.showGoogleSearchAiModeWorkspaceControl_}"
-        start-icon="settings20:apps"
-        label="$i18n{googleSearchAiModeWorkspaceLabel}"
-        sub-label="$i18n{googleSearchAiModeWorkspaceSublabel}"
-        @click="${this.onGoogleSearchAiModeWorkspaceRowClick_}" external>
     </cr-link-row>
   </div>
 </settings-section>

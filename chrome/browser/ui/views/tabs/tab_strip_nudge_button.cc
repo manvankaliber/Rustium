@@ -8,6 +8,7 @@
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "chrome/browser/ui/views/tabs/tab_strip_control_button.h"
 #include "chrome/grit/generated_resources.h"
+#include "components/strings/grit/components_strings.h"
 #include "components/vector_icons/vector_icons.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/metadata/metadata_impl_macros.h"
@@ -148,7 +149,7 @@ void TabStripNudgeButton::SetCloseButton(PressedCallback pressed_callback) {
   auto close_button =
       std::make_unique<views::LabelButton>(std::move(pressed_callback));
   close_button->SetTooltipText(
-      l10n_util::GetStringUTF16(IDS_TOOLTIP_GLIC_CLOSE));
+      l10n_util::GetStringUTF16(IDS_CLOSE));
 
   const ui::ImageModel icon_image_model = ui::ImageModel::FromVectorIcon(
       features::IsRoundedIconsEnabled()

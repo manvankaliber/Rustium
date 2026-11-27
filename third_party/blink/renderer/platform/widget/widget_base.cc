@@ -68,18 +68,11 @@
 #include "ui/gfx/geometry/dip_util.h"
 #include "ui/gfx/presentation_feedback.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/blink/renderer/platform/widget/compositing/android_webview/synchronous_layer_tree_frame_sink.h"
-#endif
 
 namespace blink {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-// Unique identifier for each output surface created.
-uint32_t g_next_layer_tree_frame_sink_id = 1;
-#endif
 
 // Used for renderer compositor thread context, WebGL (when high priority is
 // not requested by workaround), canvas, etc.
@@ -99,11 +92,6 @@ void OnDidPresentForceDrawFrame(
 bool ShouldUpdateCompositorMemoryPolicyOnScreenChange(
     const display::ScreenInfo& previous,
     const display::ScreenInfo& current) {
-#if BUILDFLAG(IS_ANDROID)
-  if (Platform::Current()->IsSynchronousCompositingEnabledForAndroidWebView()) {
-    return false;
-  }
-#endif
   return (previous.rect.size() != current.rect.size() ||
           previous.device_scale_factor != current.device_scale_factor) &&
          base::FeatureList::IsEnabled(
@@ -351,10 +339,6 @@ void WidgetBase::Shutdown(bool delay_release) {
         base::SingleThreadTaskRunner::GetCurrentDefault();
     base::TimeDelta task_delay(base::Seconds(0));
     if (delay_release) {
-#if BUILDFLAG(IS_ANDROID)
-      CHECK(!Platform::Current()
-                 ->IsSynchronousCompositingEnabledForAndroidWebView());
-#endif
       CHECK(base::FeatureList::IsEnabled(
           blink::features::kDelayLayerTreeViewDeletionOnLocalSwap));
       task_delay =
@@ -424,10 +408,6 @@ void WidgetBase::DisconnectLayerTreeView(WidgetBase* new_widget,
     new_widget->layer_tree_view_ = std::move(layer_tree_view_);
     layer_tree_view_ = nullptr;
   } else if (delay_release) {
-#if BUILDFLAG(IS_ANDROID)
-    CHECK(!Platform::Current()
-               ->IsSynchronousCompositingEnabledForAndroidWebView());
-#endif
     CHECK(base::FeatureList::IsEnabled(
         blink::features::kDelayLayerTreeViewDeletionOnLocalSwap));
     // Detach the LayerTreeView now without attaching it to anything else. The
@@ -959,41 +939,6 @@ void WidgetBase::FinishRequestNewLayerTreeFrameSink(
       GURL(params.url), automatic_flushes, support_locking, limits,
       viz::command_buffer_metrics::ContextType::RENDERER_COMPOSITOR);
 
-#if BUILDFLAG(IS_ANDROID)
-  if (Platform::Current()->IsSynchronousCompositingEnabledForAndroidWebView() &&
-      !is_embedded_) {
-    // TODO(ericrk): Collapse with non-webview registration below.
-    if (::features::IsUsingVizFrameSubmissionForWebView() &&
-        !has_initial_sink) {
-      widget_host_->CreateFrameSink(
-          std::move(params.compositor_frame_sink_receiver),
-          std::move(params.compositor_frame_sink_client),
-          viz_input_receiver_.BindNewPipeAndPassRemote(task_runner_));
-    }
-    widget_host_->RegisterRenderFrameMetadataObserver(
-        std::move(params.render_frame_metadata_observer_client_receiver),
-        std::move(params.render_frame_metadata_observer_remote));
-
-    std::move(params.callback)
-        .Run(
-            std::make_unique<SynchronousLayerTreeFrameSink>(
-                std::move(context_provider), std::move(worker_context_provider),
-                Platform::Current()->CompositorThreadTaskRunner(),
-                g_next_layer_tree_frame_sink_id++,
-                std::move(params.embedder_params->synthetic_begin_frame_source),
-                widget_input_handler_manager_
-                    ->GetSynchronousCompositorRegistry(),
-                CrossVariantMojoRemote<
-                    viz::mojom::blink::CompositorFrameSinkInterfaceBase>(
-                    std::move(params.embedder_params->pipes
-                                  .compositor_frame_sink_remote)),
-                CrossVariantMojoReceiver<
-                    viz::mojom::blink::CompositorFrameSinkClientInterfaceBase>(
-                    std::move(params.embedder_params->pipes.client_receiver))),
-            std::move(params.render_frame_metadata_observer));
-    return;
-  }
-#endif
   if (!has_initial_sink) {
     widget_host_->CreateFrameSink(
         std::move(params.compositor_frame_sink_receiver),
@@ -1373,30 +1318,7 @@ void WidgetBase::UpdateTextInputStateInternal(bool show_virtual_keyboard,
         return;
       }
     }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    if (next_previous_flags_ == kInvalidNextPreviousFlagsValue) {
-      // Due to a focus change, values will be reset by the frame.
-      // That case we only need fresh NEXT/PREVIOUS information.
-      // Also we won't send WidgetHostMsg_TextInputStateChanged if next/previous
-      // focusable status is changed.
-      if (frame_widget) {
-        const int32_t next_previous_flags =
-            frame_widget->ComputeWebTextInputNextPreviousFlags();
-        // Computing focus navigation flags can potentially result in widget
-        // destruction. Ensure WidgetBase is still alive before proceeding.
-        if (!weak_this) {
-          return;
-        }
-        next_previous_flags_ = next_previous_flags;
-      } else {
-        // For safety in case GetInputMethodController() is null, because -1 is
-        // invalid value to send to browser process.
-        next_previous_flags_ = 0;
-      }
-    }
-#else
     next_previous_flags_ = 0;
-#endif
     params->flags |= next_previous_flags_;
     params->value = new_info.value;
     params->selection =
@@ -1435,16 +1357,6 @@ void WidgetBase::UpdateTextInputStateInternal(bool show_virtual_keyboard,
       }
     }
 
-#if BUILDFLAG(IS_ANDROID)
-    // If we send a new TextInputStateChanged message, we must also deliver a
-    // new RenderFrameMetadata, as the IME will need this info to be updated.
-    // TODO(ericrk): Consider folding the above IPC into RenderFrameMetadata.
-    // https://crbug.com/912309
-    // Compositing might not be initialized but input can still be dispatched
-    // to non-composited widgets so LayerTreeHost may be null.
-    if (layer_tree_view_)
-      LayerTreeHost()->RequestForceSendMetadata();
-#endif
   }
 }
 
@@ -1459,26 +1371,14 @@ void WidgetBase::ClearTextInputState() {
 
 void WidgetBase::ShowVirtualKeyboardOnElementFocus() {
   base::WeakPtr<WidgetBase> weak_this = weak_ptr_factory_.GetWeakPtr();
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_IOS_TVOS)
-  // On ChromeOS, virtual keyboard is triggered only when users leave the
-  // mouse button or the finger and a text input element is focused at that
-  // time. Focus event itself shouldn't trigger virtual keyboard.
-  // On tvOS, the system keyboard takes the entire screen, so we want to show
-  // it only when an input field is explicitly tapped rather than when an
-  // element is focused.
-  UpdateTextInputState();
-#else
   ShowVirtualKeyboard();
-#endif
   if (!weak_this) {
     return;
   }
 
 // TODO(rouslan): Fix ChromeOS and Windows 8 behavior of autofill popup with
 // virtual keyboard.
-#if !BUILDFLAG(IS_ANDROID)
   client_->FocusChangeComplete();
-#endif
 }
 
 void WidgetBase::ProcessTouchAction(cc::TouchAction touch_action) {
@@ -1557,14 +1457,6 @@ void WidgetBase::UpdateCompositionInfo(bool immediate_request) {
 }
 
 void WidgetBase::ForceTextInputStateUpdate() {
-#if BUILDFLAG(IS_ANDROID)
-  base::WeakPtr<WidgetBase> weak_this = weak_ptr_factory_.GetWeakPtr();
-  UpdateSelectionBounds();
-  if (!weak_this) {
-    return;
-  }
-  UpdateTextInputStateInternal(false, true /* reply_to_request */);
-#endif
 }
 
 void WidgetBase::RequestCompositionUpdates(bool immediate_request,
@@ -1867,16 +1759,6 @@ void WidgetBase::OnImeEventGuardFinish(ImeEventGuard* guard) {
   // are ignored. These must explicitly be updated once finished handling the
   // ime event.
   UpdateSelectionBounds();
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  if (!guard->IsValid()) {
-    return;
-  }
-  if (guard->show_virtual_keyboard()) {
-    ShowVirtualKeyboard();
-  } else {
-    UpdateTextInputState();
-  }
-#endif
 }
 
 void WidgetBase::RequestAnimationAfterDelay(cc::BeginMainFrameReason reason,

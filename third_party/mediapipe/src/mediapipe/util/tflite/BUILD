@@ -128,9 +128,7 @@ cc_library(
                ],
            }) +
            select({
-               "//mediapipe:android": [
-                   "@litert//tflite/delegates/gpu/cl:api",
-               ],
+
                "//conditions:default": [],
            }) + [
         "//mediapipe/framework:port",

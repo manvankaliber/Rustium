@@ -41,7 +41,6 @@ std::string_view ChromeColorIdToCSSColorId(ui::ColorId color_id) {
 }
 
 color_utils::HSL GetThemeTint(int id, const ui::ColorProviderKey& key) {
-#if !BUILDFLAG(IS_ANDROID)
   color_utils::HSL hsl;
   if (key.custom_theme && key.custom_theme->GetTint(id, &hsl)) {
     return hsl;
@@ -55,9 +54,6 @@ color_utils::HSL GetThemeTint(int id, const ui::ColorProviderKey& key) {
       id, false,
       key.color_mode == ui::ColorProviderKey::ColorMode::kDark &&
           !is_custom_theme);
-#else
-  return {-1, -1, -1};
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 SkColor GetToolbarTopSeparatorColor(SkColor toolbar_color,

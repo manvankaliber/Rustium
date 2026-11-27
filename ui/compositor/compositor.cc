@@ -83,14 +83,12 @@ ContextFactory::GetCompositorTaskRunner() {
   return base::SingleThreadTaskRunner::GetCurrentDefault();
 }
 
-#if !BUILDFLAG(IS_IOS)
 Compositor::PendingBeginFrameArgs::PendingBeginFrameArgs(
     const viz::BeginFrameArgs& args,
     base::OnceCallback<void(const viz::BeginFrameAck&)> callback)
     : args(args), callback(std::move(callback)) {}
 
 Compositor::PendingBeginFrameArgs::~PendingBeginFrameArgs() = default;
-#endif
 
 Compositor::Compositor(const viz::FrameSinkId& frame_sink_id,
                        ui::ContextFactory* context_factory,
@@ -377,9 +375,6 @@ void Compositor::SetLayerTreeFrameSink(
                                                   vsync_interval_);
     }
     display_private_->SetMaxVSyncAndVrr(max_vsync_interval_, vrr_state_);
-#if BUILDFLAG(IS_CHROMEOS)
-    display_private_->SetSupportedRefreshRates(seamless_refresh_rates_);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   MaybeUpdateObserveBeginFrame();
@@ -391,14 +386,9 @@ void Compositor::SetExternalBeginFrameController(
   CHECK(use_external_begin_frame_control(), base::NotFatalUntil::M163);
   external_begin_frame_controller_ = std::move(external_begin_frame_controller);
   if (pending_begin_frame_args_) {
-#if BUILDFLAG(IS_IOS)
-    external_begin_frame_controller_->IssueExternalBeginFrameNoAck(
-        *pending_begin_frame_args_);
-#else
     external_begin_frame_controller_->IssueExternalBeginFrame(
         pending_begin_frame_args_->args,
         std::move(pending_begin_frame_args_->callback));
-#endif
     pending_begin_frame_args_.reset();
   }
 }
@@ -755,17 +745,6 @@ bool Compositor::HasAnimationObserver(
   return animation_observer_list_.HasObserver(observer);
 }
 
-#if BUILDFLAG(IS_IOS)
-void Compositor::IssueExternalBeginFrameNoAck(const viz::BeginFrameArgs& args) {
-  if (!external_begin_frame_controller_) {
-    // It's ok to call this repeatedly until |external_begin_frame_controller_|
-    // is ready - we'll just update the |pending_begin_frame_args_|.
-    pending_begin_frame_args_.emplace(args);
-    return;
-  }
-  external_begin_frame_controller_->IssueExternalBeginFrameNoAck(args);
-}
-#else
 void Compositor::IssueExternalBeginFrame(
     const viz::BeginFrameArgs& args,
     base::OnceCallback<void(const viz::BeginFrameAck&)> callback) {
@@ -781,7 +760,6 @@ void Compositor::IssueExternalBeginFrame(
   external_begin_frame_controller_->IssueExternalBeginFrame(
       args, std::move(callback));
 }
-#endif
 
 CompositorMetricsTracker Compositor::RequestNewCompositorMetricsTracker() {
   return CompositorMetricsTracker(next_compositor_metrics_tracker_id_++,
@@ -872,13 +850,7 @@ void Compositor::DidCommit(int source_frame_number,
 
 std::unique_ptr<cc::BeginMainFrameMetrics>
 Compositor::GetBeginMainFrameMetrics() {
-#if BUILDFLAG(IS_CHROMEOS)
-  auto metrics_data = std::make_unique<cc::BeginMainFrameMetrics>();
-  metrics_data->should_measure_smoothness = true;
-  return metrics_data;
-#else
   return nullptr;
-#endif
 }
 
 void Compositor::NotifyCompositorMetricsTrackerResults(
@@ -1077,21 +1049,6 @@ void Compositor::MaybeUpdateObserveBeginFrame() {
       host_begin_frame_observer_->GetBoundRemote());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void Compositor::SetSeamlessRefreshRates(
-    const std::vector<float>& seamless_refresh_rates) {
-  seamless_refresh_rates_ = seamless_refresh_rates;
-
-  if (display_private_) {
-    display_private_->SetSupportedRefreshRates(seamless_refresh_rates);
-  }
-}
-
-void Compositor::OnSetPreferredRefreshRate(float refresh_rate) {
-  observer_list_.Notify(&CompositorObserver::OnSetPreferredRefreshRate, this,
-                        refresh_rate);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 Compositor::ScopedKeepSurfaceAliveCallback
 Compositor::TakeScopedKeepSurfaceAliveCallback(

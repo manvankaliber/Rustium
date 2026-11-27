@@ -21,11 +21,9 @@
 #include "extensions/common/constants.h"
 #include "extensions/common/extension.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_extension_handler.h"
 #include "chrome/browser/ui/webui/cr_components/searchbox/plural_string_provider.h"
 #include "ui/webui/resources/js/tracked_element/tracked_element.mojom.h"
-#endif
 
 namespace contextual_tasks {
 
@@ -82,7 +80,6 @@ void ContextualTasksExtensionBinderProvider::PopulateFrameBinders(
     mojo::BinderMapWithContext<content::RenderFrameHost*>& binder_map,
     content::RenderFrameHost* render_frame_host,
     const extensions::Extension& extension) {
-#if !BUILDFLAG(IS_ANDROID)
   if (base::FeatureList::IsEnabled(
           contextual_tasks::kContextualTasksRearchitecture)) {
     binder_map.Add<contextual_tasks::mojom::ExtensionPageHandlerFactory>(
@@ -121,7 +118,6 @@ void ContextualTasksExtensionBinderProvider::PopulateFrameBinders(
             PluralStringProvider::Create(std::move(receiver),
                                          GetSearchboxPluralStringIds());
           }));
-#endif
 }
 
 void ContextualTasksExtensionBinderProvider::PopulateServiceWorkerBinders(

@@ -124,10 +124,6 @@ class TestOverlayImageRepresentation : public OverlayImageRepresentation {
   bool BeginReadAccess(gfx::GpuFenceHandle& acquire_fence) override;
   void EndReadAccess(gfx::GpuFenceHandle release_fence) override;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<base::android::ScopedHardwareBufferFenceSync>
-  GetAHardwareBufferFenceSync() override;
-#endif
 
 #if BUILDFLAG(IS_APPLE)
   void MarkBackingInUse(bool in_use) {
@@ -157,9 +153,6 @@ class TestVideoImageRepresentation : public VideoImageRepresentation {
   D3D11TextureAndArrayIndex GetD3D11Texture() const override;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  AHardwareBuffer* GetAHardwareBuffer() const override;
-#endif
 
 #if BUILDFLAG(IS_APPLE)
   gfx::ScopedIOSurface GetIOSurface() const override;

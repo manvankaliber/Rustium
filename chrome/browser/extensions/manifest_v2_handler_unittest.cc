@@ -17,10 +17,6 @@
 #include "extensions/common/extension_builder.h"
 #include "extensions/common/mojom/manifest.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/account_id/account_id.h"
-#include "components/user_manager/user.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace extensions {
 
@@ -37,13 +33,6 @@ class ManifestV2HandlerUnitTest : public ExtensionServiceUserTestBase {
     // testing PrefService.
     InitializeExtensionService(ExtensionServiceInitParams{});
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // Log in the user on CrOS. This is necessary for the profile to be
-    // considered one that can install extensions, which itself is
-    // necessary for metrics testing.
-    ASSERT_NO_FATAL_FAILURE(LoginChromeOSUser(
-        GetFakeUserManager()->AddUser(account_id_), account_id_));
-#endif
 
     handler_ = ManifestV2Handler::Get(profile());
   }

@@ -80,7 +80,6 @@ export function getHtml(this: SettingsMenuElement) {
             <span class="menu-label">$i18n{searchPageTitle}</span>
             <cr-ripple></cr-ripple>
           </a>
-<if expr="not is_chromeos">
           <a role="menuitem" id="defaultBrowser" class="cr-nav-menu-item"
               href="/defaultBrowser"
               ?hidden="${this.shouldHideMenuItem_(
@@ -89,7 +88,6 @@ export function getHtml(this: SettingsMenuElement) {
             <span class="menu-label">$i18n{defaultBrowser}</span>
             <cr-ripple></cr-ripple>
           </a>
-</if>
           <a role="menuitem" id="onStartup" href="/onStartup"
               class="cr-nav-menu-item"
               ?hidden="${this.shouldHideMenuItem_(
@@ -140,7 +138,6 @@ export function getHtml(this: SettingsMenuElement) {
             <cr-ripple></cr-ripple>
           </a>
         ` : html`
-<if expr="not is_chromeos">
           <a role="menuitem" id="system" href="/system" class="cr-nav-menu-item"
               ?hidden="${this.shouldHideMenuItem_(
                   this.pageVisibility_?.system)}">
@@ -148,7 +145,6 @@ export function getHtml(this: SettingsMenuElement) {
             <span class="menu-label">$i18n{systemPageTitle}</span>
             <cr-ripple></cr-ripple>
           </a>
-</if>
           <a role="menuitem" id="reset" href="/reset"
               ?hidden="${this.shouldHideMenuItem_(this.pageVisibility_?.reset)}"
               class="cr-nav-menu-item">

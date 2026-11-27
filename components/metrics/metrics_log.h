@@ -143,14 +143,6 @@ class MetricsLog {
       const std::string& package_name,
       SystemProfileProto* system_profile);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Increments the global foreground/background ID. Must be called on the main
-  // thread.
-  static void IncrementFgBgId();
-
-  // Clears/unsets the log's `fg_bg_id` system profile field.
-  void ClearFgBgId();
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   // Assign a unique finalized record id to this log.
   void AssignFinalizedRecordId(PrefService* local_state);
@@ -216,11 +208,6 @@ class MetricsLog {
       std::optional<ChromeUserMetricsExtension::RealLocalTime> close_time,
       std::string* encoded_log);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Assigns a user ID to the log. This should be called immediately after
-  // consotruction if it should be applied.
-  void SetUserId(const std::string& user_id);
-#endif
 
   LogType log_type() const { return log_type_; }
 

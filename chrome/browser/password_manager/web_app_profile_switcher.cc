@@ -7,7 +7,7 @@
 #include <memory>
 #include <optional>
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/command_line.h"
 #include "base/files/file_path.h"
 #include "base/functional/callback_helpers.h"
@@ -69,7 +69,7 @@ void WebAppProfileSwitcher::SwitchToProfile(
       weak_factory_.GetWeakPtr());
   profiles::LoadProfileAsync(profile_to_open, std::move(open_web_app_callback));
 
-  if (app_id_ == ash::kPasswordManagerAppId) {
+  if (app_id_ == webapps::kPasswordManagerAppId) {
     base::UmaHistogramEnumeration(
         "PasswordManager.ShortcutMetric",
         password_manager::metrics_util::PasswordManagerShortcutMetric::

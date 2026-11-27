@@ -104,10 +104,6 @@ std::string GetLogUploadProduct(WebRtcLogUploadSite site) {
 #else
   const char product[] = "Chrome_Linux_ASan";
 #endif
-#elif BUILDFLAG(IS_ANDROID)
-  const char product[] = "Chrome_Android";
-#elif BUILDFLAG(IS_CHROMEOS)
-  const char product[] = "Chrome_ChromeOS";
 #else
 #error Platform not supported.
 #endif

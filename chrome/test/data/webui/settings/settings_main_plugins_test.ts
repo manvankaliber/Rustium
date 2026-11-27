@@ -65,27 +65,15 @@ suite('SettingsMain', function() {
       {route: routes.PERFORMANCE, pluginTag: 'settings-performance-page-index'},
       {route: routes.APPEARANCE, pluginTag: 'settings-appearance-page-index'},
       {route: routes.SEARCH, pluginTag: 'settings-search-page-index'},
-      // <if expr="not is_chromeos">
       {
         route: routes.DEFAULT_BROWSER,
         pluginTag: 'settings-default-browser-page',
       },
-      // </if>
       {route: routes.ON_STARTUP, pluginTag: 'settings-on-startup-page'},
-      // <if expr="is_chromeos">
-      {
-        route: routes.LANGUAGES,
-        pluginTag: 'settings-languages-page-index-cros',
-      },
-      // </if>
-      // <if expr="not is_chromeos">
       {route: routes.LANGUAGES, pluginTag: 'settings-languages-page-index'},
-      // </if>
       {route: routes.DOWNLOADS, pluginTag: 'settings-downloads-page'},
       {route: routes.ACCESSIBILITY, pluginTag: 'settings-a11y-page-index'},
-      // <if expr="not is_chromeos">
       {route: routes.SYSTEM, pluginTag: 'settings-system-page'},
-      // </if>
       {route: routes.RESET, pluginTag: 'settings-reset-page'},
       {route: routes.ABOUT, pluginTag: 'settings-about-page'},
     ];
@@ -134,9 +122,7 @@ suite('SettingsMain', function() {
         'a11y', 'about', 'appearance', 'downloads', 'languages', 'onStartup',
         'people', 'performance', 'reset', 'search',
 
-        // <if expr='not is_chromeos'>
         'defaultBrowser', 'system',
-        // </if>
       ];
 
       for (const id of viewIds) {
@@ -195,10 +181,8 @@ suite('SettingsMain', function() {
       assertFalse(!!queryView('onStartup'));
       assertFalse(!!queryView('people'));
       assertFalse(!!queryView('reset'));
-      // <if expr="not is_chromeos">
       assertFalse(!!queryView('defaultBrowser'));
       assertFalse(!!queryView('system'));
-      // </if>
     }
 
     // Case1: Default (non-guest mode)
@@ -241,12 +225,7 @@ suite('SettingsMain', function() {
     active = settingsMain.$.switcher.querySelector<HTMLElement>(
         '.active[slot=view]');
     assertTrue(!!active);
-    // <if expr="not is_chromeos">
     assertEquals('search', active.id);
-    // </if>
-    // <if expr="is_chromeos">
-    assertEquals('privacy', active.id);
-    // </if>
   });
 
   test('SettingsRefresh2026Views', async function() {

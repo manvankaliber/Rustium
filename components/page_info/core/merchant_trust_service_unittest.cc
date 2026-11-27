@@ -15,7 +15,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "base/test/simple_test_clock.h"
 #include "base/test/task_environment.h"
-#include "components/commerce/core/proto/merchant_trust.pb.h"
 #include "components/optimization_guide/core/hints/mock_optimization_guide_decider.h"
 #include "components/optimization_guide/core/hints/optimization_guide_decision.h"
 #include "components/optimization_guide/core/hints/optimization_metadata.h"
@@ -46,14 +45,6 @@ using MerchantTrustStatus = merchant_trust_validation::MerchantTrustStatus;
 namespace {
 const char kTestSummary[] = "This is a test summary.";
 
-commerce::MerchantTrustSignalsV2 CreateValidProto() {
-  commerce::MerchantTrustSignalsV2 proto;
-  proto.set_merchant_star_rating(3.8);
-  proto.set_merchant_count_rating(45);
-  proto.set_merchant_details_page_url("https://page_url.com");
-  proto.set_shopper_voice_summary(kTestSummary);
-  return proto;
-}
 
 OptimizationMetadata BuildMerchantTrustResponse() {
   OptimizationMetadata meta;
@@ -248,7 +239,6 @@ TEST_F(MerchantTrustServiceTest, NoResult) {
 TEST_F(MerchantTrustServiceTest, InvalidProto) {
   base::HistogramTester t;
 
-  commerce::MerchantTrustSignalsV2 proto = CreateValidProto();
   proto.clear_merchant_details_page_url();
   OptimizationMetadata metadata;
   metadata.set_any_metadata(AnyWrapProto(proto));
@@ -279,7 +269,6 @@ TEST_F(MerchantTrustServiceTest, ValidProtoMissingReviewsSummary) {
       kMerchantTrust, {{kMerchantTrustWithoutSummaryName, "true"}});
   base::HistogramTester t;
 
-  commerce::MerchantTrustSignalsV2 proto = CreateValidProto();
   proto.clear_shopper_voice_summary();
   OptimizationMetadata metadata;
   metadata.set_any_metadata(AnyWrapProto(proto));
@@ -313,7 +302,6 @@ TEST_F(MerchantTrustServiceTest, ValidProtoMissingReviewsSummaryNoData) {
       kMerchantTrust, {{kMerchantTrustWithoutSummaryName, "false"}});
   base::HistogramTester t;
 
-  commerce::MerchantTrustSignalsV2 proto = CreateValidProto();
   proto.clear_shopper_voice_summary();
   OptimizationMetadata metadata;
   metadata.set_any_metadata(AnyWrapProto(proto));

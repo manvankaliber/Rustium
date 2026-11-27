@@ -25,16 +25,13 @@
 #include "components/autofill/core/browser/payments/offer_notification_options.h"
 #include "components/autofill/core/common/autofill_clock.h"
 #include "components/autofill/core/common/autofill_payments_features.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/strings/grit/components_strings.h"
 #include "components/tabs/public/tab_interface.h"
 #include "content/public/browser/navigation_handle.h"
 #include "ui/actions/actions.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/page_action/page_action_controller.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace autofill {
 
@@ -165,7 +162,6 @@ void OfferNotificationBubbleControllerImpl::OnVisibilityChanged(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::optional<actions::ActionId>
 OfferNotificationBubbleControllerImpl::GetActionIdForPageAction() {
   return kActionOffersAndRewardsForPage;
@@ -174,7 +170,6 @@ OfferNotificationBubbleControllerImpl::GetActionIdForPageAction() {
 bool OfferNotificationBubbleControllerImpl::ShouldShowPageAction() {
   return IsIconVisible();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void OfferNotificationBubbleControllerImpl::DoShowBubble() {
   is_icon_visible_ = true;
@@ -241,7 +236,6 @@ void OfferNotificationBubbleControllerImpl::HideBubbleAndClearTimestamp(
 // page action and no other bubble overrides it.
 void OfferNotificationBubbleControllerImpl::UpdatePageActionIcon() {
   // Page action icons do not exist for Android.
-#if !BUILDFLAG(IS_ANDROID)
   AutofillBubbleControllerBase::UpdatePageActionIcon();
 
   if (web_contents()->IsBeingDestroyed()) {
@@ -258,7 +252,6 @@ void OfferNotificationBubbleControllerImpl::UpdatePageActionIcon() {
   auto* action = actions::ActionManager::Get().FindAction(
       action_id, BrowserActions::From(browser)->root_action_item());
   action->SetEnabled(ShouldShowPageAction());
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 WEB_CONTENTS_USER_DATA_KEY_IMPL(OfferNotificationBubbleControllerImpl);

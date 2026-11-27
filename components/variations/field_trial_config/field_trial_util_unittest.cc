@@ -169,19 +169,15 @@ TEST_F(FieldTrialUtilTest,
        AssociateParamsFromFieldTrialConfigWithEachPlatform) {
   const Study::Platform all_platforms[] = {
       Study::PLATFORM_ANDROID,  // Comment to prevent clang format bin packing.
-      Study::PLATFORM_ANDROID_DESKTOP,
-      Study::PLATFORM_ANDROID_WEBVIEW,
-      Study::PLATFORM_CHROMEOS,
-      Study::PLATFORM_FUCHSIA,
-      Study::PLATFORM_IOS,
-      Study::PLATFORM_LINUX,
-      Study::PLATFORM_MAC,
+      Study::PLATFORM_ANDROID_DESKTOP, Study::PLATFORM_ANDROID_WEBVIEW,
+      Study::PLATFORM_CHROMEOS,        Study::PLATFORM_IOS,
+      Study::PLATFORM_LINUX,           Study::PLATFORM_MAC,
       Study::PLATFORM_WINDOWS,
   };
 
   // Break if platforms are added without updating |all_platforms|.
-  // Study::Platform has 2 reserved enum values (8 and 9).
-  static_assert(std::size(all_platforms) == Study::Platform_ARRAYSIZE - 2,
+  // Study::Platform has 3 reserved enum values (7, 8, and 9).
+  static_assert(std::size(all_platforms) == Study::Platform_ARRAYSIZE - 3,
                 "|all_platforms| must include all platforms.");
 
   for (Study::Platform platform : all_platforms) {
@@ -681,177 +677,6 @@ TEST_F(FieldTrialUtilTest, TestEscapeValue) {
   EXPECT_EQ(str, base::UnescapeValue(escaped_str));
 }
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-TEST_F(FieldTrialUtilTest,
-       AssociateParamsFromFieldTrialConfigWithHardwareClassMatch) {
-  std::string hardware_class = ClientFilterableState::GetHardwareClass();
-  std::string unmatched_hardware_class = hardware_class + "foo";
 
-  Study::Platform platform = Study::PLATFORM_CHROMEOS;
-  base::FeatureList feature_list;
-  AssociateParamsFromFieldTrialConfig(
-      {.studies =
-           {{.name = "TestTrial",
-             .experiments =
-                 {{.name = "TestGroup",
-                   .platforms = {platform},
-                   .hardware_classes = {hardware_class.c_str(),
-                                        unmatched_hardware_class.c_str()}}}}}},
-      platform, variation_service_client_.GetCurrentFormFactor(),
-      &feature_list);
-
-  EXPECT_EQ("TestGroup", base::FieldTrialList::FindFullName("TestTrial"));
-}
-
-TEST_F(FieldTrialUtilTest,
-       AssociateParamsFromFieldTrialConfigWithHardwareClassMismatch) {
-  std::string hardware_class = ClientFilterableState::GetHardwareClass();
-  std::string unmatched_hardware_class = hardware_class + "foo";
-
-  Study::Platform platform = Study::PLATFORM_CHROMEOS;
-  base::FeatureList feature_list;
-  AssociateParamsFromFieldTrialConfig(
-      {.studies =
-           {{.name = "TestTrial",
-             .experiments =
-                 {{.name = "TestGroup",
-                   .platforms = {platform},
-                   .hardware_classes = {unmatched_hardware_class.c_str()}}}}}},
-      platform, variation_service_client_.GetCurrentFormFactor(),
-      &feature_list);
-
-  EXPECT_EQ("", base::FieldTrialList::FindFullName("TestTrial"));
-}
-
-TEST_F(FieldTrialUtilTest,
-       AssociateParamsFromFieldTrialConfigWithExcludHardwareClassMatch) {
-  std::string hardware_class = ClientFilterableState::GetHardwareClass();
-  std::string unmatched_hardware_class = hardware_class + "foo";
-
-  Study::Platform platform = Study::PLATFORM_CHROMEOS;
-  base::FeatureList feature_list;
-  AssociateParamsFromFieldTrialConfig(
-      {.studies =
-           {{.name = "TestTrial",
-             .experiments = {{.name = "TestGroup",
-                              .platforms = {platform},
-                              .exclude_hardware_classes =
-                                  {hardware_class.c_str(),
-                                   unmatched_hardware_class.c_str()}}}}}},
-      platform, variation_service_client_.GetCurrentFormFactor(),
-      &feature_list);
-
-  EXPECT_EQ("", base::FieldTrialList::FindFullName("TestTrial"));
-}
-
-TEST_F(FieldTrialUtilTest,
-       AssociateParamsFromFieldTrialConfigWithExcludHardwareClassMismatch) {
-  std::string hardware_class = ClientFilterableState::GetHardwareClass();
-  std::string unmatched_hardware_class = hardware_class + "foo";
-
-  Study::Platform platform = Study::PLATFORM_CHROMEOS;
-  base::FeatureList feature_list;
-  AssociateParamsFromFieldTrialConfig(
-      {.studies =
-           {{.name = "TestTrial",
-             .experiments = {{.name = "TestGroup",
-                              .platforms = {platform},
-                              .exclude_hardware_classes =
-                                  {unmatched_hardware_class.c_str()}}}}}},
-      platform, variation_service_client_.GetCurrentFormFactor(),
-      &feature_list);
-
-  EXPECT_EQ("TestGroup", base::FieldTrialList::FindFullName("TestTrial"));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(FieldTrialUtilTest,
-       AssociateParamsFromFieldTrialConfigWithHardwareManufacturerMatch) {
-  std::string hardware_manufacturer =
-      ClientFilterableState::GetHardwareManufacturer();
-  std::string unmatched_hardware_manufacturer = hardware_manufacturer + "foo";
-
-  base::FeatureList feature_list;
-  AssociateParamsFromFieldTrialConfig(
-      {.studies = {{.name = "TestTrial",
-                    .experiments =
-                        {{.name = "TestGroup",
-                          .platforms = {Study::PLATFORM_ANDROID,
-                                        Study::PLATFORM_ANDROID_WEBVIEW},
-                          .hardware_manufacturers =
-                              {hardware_manufacturer.c_str(),
-                               unmatched_hardware_manufacturer.c_str()}}}}}},
-      Study::PLATFORM_ANDROID_WEBVIEW,
-      variation_service_client_.GetCurrentFormFactor(), &feature_list);
-
-  EXPECT_EQ("TestGroup", base::FieldTrialList::FindFullName("TestTrial"));
-}
-
-TEST_F(FieldTrialUtilTest,
-       AssociateParamsFromFieldTrialConfigWithHardwareManufacturerMismatch) {
-  std::string hardware_manufacturer =
-      ClientFilterableState::GetHardwareManufacturer();
-  std::string unmatched_hardware_manufacturer = hardware_manufacturer + "foo";
-
-  base::FeatureList feature_list;
-  AssociateParamsFromFieldTrialConfig(
-      {.studies = {{.name = "TestTrial",
-                    .experiments =
-                        {{.name = "TestGroup",
-                          .platforms = {Study::PLATFORM_ANDROID,
-                                        Study::PLATFORM_ANDROID_WEBVIEW},
-                          .hardware_manufacturers =
-                              {unmatched_hardware_manufacturer.c_str()}}}}}},
-      Study::PLATFORM_ANDROID_WEBVIEW,
-      variation_service_client_.GetCurrentFormFactor(), &feature_list);
-
-  EXPECT_EQ("", base::FieldTrialList::FindFullName("TestTrial"));
-}
-
-TEST_F(FieldTrialUtilTest,
-       AssociateParamsFromFieldTrialConfigWithExcludHardwareManufacturerMatch) {
-  std::string hardware_manufacturer =
-      ClientFilterableState::GetHardwareManufacturer();
-  std::string unmatched_hardware_manufacturer = hardware_manufacturer + "foo";
-
-  base::FeatureList feature_list;
-  AssociateParamsFromFieldTrialConfig(
-      {.studies = {{.name = "TestTrial",
-                    .experiments =
-                        {{.name = "TestGroup",
-                          .platforms = {Study::PLATFORM_ANDROID,
-                                        Study::PLATFORM_ANDROID_WEBVIEW},
-                          .exclude_hardware_manufacturers =
-                              {hardware_manufacturer.c_str(),
-                               unmatched_hardware_manufacturer.c_str()}}}}}},
-      Study::PLATFORM_ANDROID_WEBVIEW,
-      variation_service_client_.GetCurrentFormFactor(), &feature_list);
-
-  EXPECT_EQ("", base::FieldTrialList::FindFullName("TestTrial"));
-}
-
-TEST_F(
-    FieldTrialUtilTest,
-    AssociateParamsFromFieldTrialConfigWithExcludHardwareManufacturerMismatch) {
-  std::string hardware_manufacturer =
-      ClientFilterableState::GetHardwareManufacturer();
-  std::string unmatched_hardware_manufacturer = hardware_manufacturer + "foo";
-
-  base::FeatureList feature_list;
-  AssociateParamsFromFieldTrialConfig(
-      {.studies = {{.name = "TestTrial",
-                    .experiments =
-                        {{.name = "TestGroup",
-                          .platforms = {Study::PLATFORM_ANDROID,
-                                        Study::PLATFORM_ANDROID_WEBVIEW},
-                          .exclude_hardware_manufacturers =
-                              {unmatched_hardware_manufacturer.c_str()}}}}}},
-      Study::PLATFORM_ANDROID_WEBVIEW,
-      variation_service_client_.GetCurrentFormFactor(), &feature_list);
-
-  EXPECT_EQ("TestGroup", base::FieldTrialList::FindFullName("TestTrial"));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace variations

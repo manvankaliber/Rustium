@@ -127,12 +127,12 @@ impl super::ThreadParkerT for ThreadParker {
 
 impl ThreadParker {
     /// Initializes the condvar to use CLOCK_MONOTONIC instead of CLOCK_REALTIME.
-    #[cfg(any(target_vendor = "apple", target_os = "android", target_os = "espidf"))]
+    #[cfg(any(target_vendor = "apple", target_os = "espidf"))]
     #[inline]
     unsafe fn init(&self) {}
 
     /// Initializes the condvar to use CLOCK_MONOTONIC instead of CLOCK_REALTIME.
-    #[cfg(not(any(target_vendor = "apple", target_os = "android", target_os = "espidf")))]
+    #[cfg(not(any(target_vendor = "apple", target_os = "espidf")))]
     #[inline]
     unsafe fn init(&self) {
         let mut attr = MaybeUninit::<libc::pthread_condattr_t>::uninit();
@@ -200,13 +200,7 @@ fn timespec_now() -> libc::timespec {
 #[inline]
 fn timespec_now() -> libc::timespec {
     let mut now = MaybeUninit::<libc::timespec>::uninit();
-    let clock = if cfg!(target_os = "android") {
-        // Android doesn't support pthread_condattr_setclock, so we need to
-        // specify the timeout in CLOCK_REALTIME.
-        libc::CLOCK_REALTIME
-    } else {
-        libc::CLOCK_MONOTONIC
-    };
+    let clock = libc::CLOCK_MONOTONIC;
     let r = unsafe { libc::clock_gettime(clock, now.as_mut_ptr()) };
     debug_assert_eq!(r, 0);
     // SAFETY: We know `libc::clock_gettime` has initialized the value.

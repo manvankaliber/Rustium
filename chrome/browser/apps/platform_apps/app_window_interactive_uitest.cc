@@ -339,8 +339,7 @@ IN_PROC_BROWSER_TEST_F(AppWindowInteractiveTest,
 // Those tests should be disabled on Linux GTK when they are enabled on the
 // other platforms, see http://crbug.com/41080386.
 // Flaky failures on Windows; see https://crbug.com/40551480.
-#if ((BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(USE_AURA)) || \
-    BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) && defined(USE_AURA) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #define MAYBE_TestCreate DISABLED_TestCreate
 #else
 #define MAYBE_TestCreate TestCreate
@@ -358,8 +357,7 @@ IN_PROC_BROWSER_TEST_F(AppWindowInteractiveTest, MAYBE_TestCreate) {
 // ::Show() because of Cocoa conventions. See http://crbug.com/40344232
 // Those tests should be disabled on Linux GTK when they are enabled on the
 // other platforms, see http://crbug.com/41080386
-#if ((BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(USE_AURA)) || \
-    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) && defined(USE_AURA) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #define MAYBE_TestShow DISABLED_TestShow
 #else
 #define MAYBE_TestShow TestShow
@@ -420,7 +418,7 @@ IN_PROC_BROWSER_TEST_F(AppWindowInteractiveTest, MAYBE_TestFullscreen) {
 }
 
 // Only Linux and Windows use keep-alive to determine when to shut down.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 
 // In general, hidden windows should not keep Chrome alive. The exception is
 // when windows are created hidden, we allow the app some time to show the

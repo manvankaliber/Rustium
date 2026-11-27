@@ -74,18 +74,6 @@ FetcherConfig GetFetcherConfig(
       << "Kids API not available to users outside of Family Link parental "
          "controls";
   return kClassifyUrlConfigBestEffort;
-#elif BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(kSupervisedUserVerificationPageOnAndroid)) {
-    // Supervised users on Android might get into a state where their
-    // credentials are not available (e.g. remote sign out), so best-effort
-    // access mode is a fallback here for Family Link supervised users.
-    return is_subject_to_family_link_parental_controls
-               ? kClassifyUrlConfigBestEffort
-               : kClassifyUrlConfigWithoutCredentials;
-  }
-  return is_subject_to_family_link_parental_controls
-             ? kClassifyUrlConfigWaitUntilAccessTokenAvailable
-             : kClassifyUrlConfigWithoutCredentials;
 #else
   // Other platforms use default configuration, which strictly requires
   // immediately available access token.

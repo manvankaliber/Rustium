@@ -300,24 +300,6 @@ class PLATFORM_EXPORT WebMediaPlayerImpl
   void RequestRemotePlaybackDisabled(bool disabled) override;
   void RequestMediaRemoting() override;
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/41387054): Rename Flinging[Started/Stopped] to
-  // RemotePlayback[Started/Stopped] once the other RemotePlayback methods have
-  // been removed
-  void FlingingStarted() override;
-  void FlingingStopped() override;
-
-  // Called when the play/pause state of media playing on a remote cast device
-  // changes, and WMPI wasn't the originator of that change (e.g. a phone on the
-  // same network paused the cast device via the casting notification).
-  // This is only used by the FlingingRenderer/FlingingRendererClient, when we
-  // are flinging media (a.k.a. RemotePlayback).
-  // The consistency between the WMPI state and the cast device state is not
-  // guaranteed, and it a best effort, which can always be fixed by the user by
-  // tapping play/pause once. Attempts to enfore stronger consistency guarantees
-  // have lead to unstable states, and a worse user experience.
-  void OnRemotePlayStateChange(media::MediaStatus::State state);
-#endif
 
   // media::MediaObserverClient implementation.
   void SwitchToRemoteRenderer(

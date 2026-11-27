@@ -166,11 +166,6 @@ cr-icon-button {
   background-color:  var(--audio-icon-color);
 }
 
-#mediaAlert[class = 'glic-accessing'] {
-  -webkit-mask-image: url(alert_indicators/tab_media_glic_active.svg);
-  background-color:  var(--glic-active-icon-color);
-}
-
 #iconContainer {
   align-items: center;
   background: var(--tab-search-favicon-background,

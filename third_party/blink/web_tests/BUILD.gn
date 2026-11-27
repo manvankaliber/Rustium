@@ -162,20 +162,14 @@ group("expectations") {
     data += [ "OptimizationGuideExpectations" ]
   }
 
-  if (is_win || is_linux || is_fuchsia) {
+  if (is_win || is_linux) {
     data += [
       "platform/win/",
       "platform/win10/",
       "platform/win11-arm64/",
     ]
-    if (is_linux || is_fuchsia) {
+    if (is_linux) {
       data += [ "platform/linux/" ]
-    }
-    if (is_fuchsia) {
-      data += [
-        "platform/fuchsia/",
-        "$root_gen_dir/package_metadata/content_shell.meta",
-      ]
     }
   } else if (is_mac) {
     data += [
@@ -187,15 +181,6 @@ group("expectations") {
       "platform/mac-mac15/",
       "platform/mac-mac15-arm64/",
       "platform/mac-mac26-arm64/",
-    ]
-  } else if (is_android) {
-    # The dependent target usually only needs one of `android/` (Clank) or
-    # `webview/`. However, both directories are small enough that it's ok to
-    # always include both.
-    data += [
-      "platform/linux/",
-      "platform/webview/",
-      "platform/android/",
     ]
   }
 

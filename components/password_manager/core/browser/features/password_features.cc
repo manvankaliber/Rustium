@@ -10,33 +10,17 @@
 #include "components/password_manager/core/browser/password_manager_buildflags.h"
 
 namespace password_manager::features {
-#if !BUILDFLAG(IS_IOS)  // Desktop and Android
 BASE_FEATURE(kActorLogin, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kActorLoginConflictingPermissionCleanup,
              base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kActorLoginLocalClassificationModel,
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_IOS)  // iOS
-BASE_FEATURE(kActorLogin, base::FEATURE_DISABLED_BY_DEFAULT);
-BASE_FEATURE(kActorLoginConflictingPermissionCleanup,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-BASE_FEATURE(kActorLoginLocalClassificationModel,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_IOS)
 
 BASE_FEATURE(kActorLoginSyncsPasswordPermissions,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kActorLoginPermissionsUi, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kAndroidSelectPasswordContextMenu,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 BASE_FEATURE(kApplyClientsideModelPredictionsForPasswordTypes,
              base::FEATURE_DISABLED_BY_DEFAULT);
@@ -56,7 +40,7 @@ BASE_FEATURE(kCheckIfSubmittedFormIdenticalToObserved,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kClearUndecryptablePasswords,
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT
@@ -65,18 +49,15 @@ BASE_FEATURE(kClearUndecryptablePasswords,
 
 BASE_FEATURE(kClearUndecryptablePasswordsOnSync,
              "ClearUndecryptablePasswordsInSync",
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_IOS) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT
 #endif
 );
 
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)  // Desktop
 // Enabled by default in M157. Remove in or after M163.
 BASE_FEATURE(kCredentialManagementUnifiedUi, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 BASE_FEATURE(kDeviceAuthenticatorWinCancel, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -84,45 +65,25 @@ BASE_FEATURE(kDeviceAuthenticatorWinCancel, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kDeviceReauthRefactor, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)  // Desktop
 BASE_FEATURE(kEnablePasswordManagerMojoApiPhase2,
              base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_RUNTIME_MUTABLE_FEATURE(kPasskeyUnlockPromo,
                              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 BASE_FEATURE(kFallbackNoPreviewForCrossDomainCredentials,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kFetchChangePasswordUrlForPasswordChange,
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
              // Desktop only since password change is not available on mobile.
              base::FEATURE_ENABLED_BY_DEFAULT
-#else
-             base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kFillOnAccountSelect,
              "fill-on-account-select",
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_IOS)
-BASE_FEATURE(kIosCleanupHangingPasswordFormExtractionRequests,
-             base::FEATURE_ENABLED_BY_DEFAULT);
 
-const base::FeatureParam<int> kIosPasswordFormExtractionRequestsTimeoutMs = {
-    &kIosCleanupHangingPasswordFormExtractionRequests,
-    /*name=*/"period-ms", /*default_value=*/250};
-
-BASE_FEATURE(kIOSProactivePasswordGenerationBottomSheet,
-             "kIOSProactivePasswordGenerationBottomSheet",
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // IS_IOS
-
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 BASE_FEATURE(kTrustedVaultDesktopUnlock, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 BASE_FEATURE(kMarkAllCredentialsAsLeaked, base::FEATURE_DISABLED_BY_DEFAULT);
 
@@ -130,18 +91,9 @@ BASE_FEATURE(kOtpPhishGuard, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kPasswordBlockOpaqueOrigins, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kPassDeletionOriginToAndroidBackend,
-             base::FEATURE_ENABLED_BY_DEFAULT);
 
-const base::FeatureParam<int> kPassDeletionOriginMinGmsVersion = {
-    &kPassDeletionOriginToAndroidBackend, "min_gms_version", 261630000};
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 BASE_FEATURE(kPasswordCompromiseWarningInDetailsCard,
              base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Enables the actor PasswordChangeTool.
 BASE_FEATURE(kChangePasswordTool, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -150,11 +102,7 @@ BASE_FEATURE(kChangePasswordTool, base::FEATURE_DISABLED_BY_DEFAULT);
 BASE_FEATURE(kPasswordDateLastFilled, base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kPasswordFormClientsideClassifier,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kPasswordGenerationDropFullscreenAndCheckPointerLock,
@@ -172,21 +120,10 @@ BASE_FEATURE(kPasswordManualFallbackSkipOpaqueOrigins,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kPasswordSaveInContextErrorResolution,
-#if BUILDFLAG(IS_IOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
-#if BUILDFLAG(IS_ANDROID)
-const base::FeatureParam<int>
-    kPasswordSaveInContextErrorResolutionMinGmsVersion = {
-        &kPasswordSaveInContextErrorResolution, "min_gms_version",
-        kMinGmsVersionForInFlowZuulRecovery};
-#endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 BASE_FEATURE(kPasswordSignInInContextErrorResolution,
              base::FEATURE_DISABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
@@ -213,9 +150,6 @@ BASE_FEATURE(kRestartToGainAccessToKeychain,
 BASE_FEATURE(kShowTabWithPasswordChangeOnSuccess,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kSkipChromeReauthForCredMan, base::FEATURE_ENABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 BASE_FEATURE(kSkipUndecryptablePasswords,
 #if BUILDFLAG(IS_WIN)

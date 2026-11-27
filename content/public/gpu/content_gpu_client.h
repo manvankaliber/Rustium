@@ -58,16 +58,6 @@ class CONTENT_EXPORT ContentGpuClient {
   virtual void PostDisplayCompositorGpuThreadCreated(
       base::SingleThreadTaskRunner* task_runner) {}
 
-#if BUILDFLAG(IS_ANDROID)
-  // Allows client to supply these object instances instead of having content
-  // internally create one.
-  virtual gpu::SyncPointManager* GetSyncPointManager();
-  virtual gpu::SharedImageManager* GetSharedImageManager();
-  virtual gpu::Scheduler* GetScheduler();
-  virtual viz::VizCompositorThreadRunner* GetVizCompositorThreadRunner();
-  virtual const gpu::SharedContextState::GrContextOptionsProvider*
-  GetGrContextOptionsProvider();
-#endif
 };
 
 }  // namespace content

@@ -229,8 +229,7 @@ constexpr TestCase kInvalidTestCases[] = {
         u"Error at ProxyOverrideRules[0].Conditions[0].Host: \"://\" is not a "
         u"valid value.",
     },
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     {
         R"([
              {
@@ -327,8 +326,7 @@ TEST_F(ProxyOverrideRulesPolicyHandlerTest, UnaffiliatedUserPolicyRejected) {
                                         base::JSON_ALLOW_TRAILING_COMMAS),
                  nullptr);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   // Scenario 1: Unaffiliated user
   policy_map.SetDeviceAffiliationIds({"device_id"});
   policy_map.SetUserAffiliationIds({"user_id"});
@@ -372,8 +370,7 @@ TEST_F(ProxyOverrideRulesPolicyHandlerTest, UnaffiliatedUserPolicyRejected) {
 #endif
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(ProxyOverrideRulesPolicyHandlerTest, PlatformManagedDeviceWithoutCbcm) {
   base::test::ScopedFeatureList feature_list(
       enterprise_net::kEnforceProxyAffiliationOnPlatformManagedDevices);

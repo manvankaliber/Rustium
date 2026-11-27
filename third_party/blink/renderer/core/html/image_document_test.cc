@@ -324,11 +324,7 @@ TEST_F(ImageDocumentTest, ImageStyleDoesNotContainTransitionForAnimatedImage) {
   EXPECT_FALSE(style.contains("transition:"));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE(test) DISABLED_##test
-#else
 #define MAYBE(test) test
-#endif
 
 TEST_F(ImageDocumentTest, MAYBE(ImageCenteredAtDeviceScaleFactor)) {
   SetWindowToViewportScalingFactor(1.5f);

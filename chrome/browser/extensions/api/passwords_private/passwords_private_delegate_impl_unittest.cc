@@ -12,7 +12,7 @@
 #include <utility>
 #include <vector>
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/functional/bind.h"
 #include "base/functional/callback_helpers.h"
 #include "base/i18n/icubridge/date_time_formatter.h"
@@ -154,7 +154,7 @@ MATCHER_P(PasswordUiEntryDataEquals, expected, "") {
 
 void ExpectAuthentication(scoped_refptr<PasswordsPrivateDelegateImpl> delegate,
                           bool successful) {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   auto biometric_authenticator =
       std::make_unique<device_reauth::MockDeviceAuthenticator>();
 
@@ -963,7 +963,7 @@ TEST_F(PasswordsPrivateDelegateImplTest, IsAccountStorageActive) {
   EXPECT_FALSE(delegate->IsAccountStorageActive());
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(PasswordsPrivateDelegateImplTest, TestCopyPasswordCallbackResultFail) {
   base::HistogramTester histogram_tester;
   SetUpPasswordStores({CreateSampleForm()});
@@ -1038,7 +1038,7 @@ TEST_F(PasswordsPrivateDelegateImplTest, TestPassedReauthOnView) {
       password_manager::metrics_util::ACCESS_PASSWORD_VIEWED, 1);
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(PasswordsPrivateDelegateImplTest, TestFailedReauthOnView) {
   base::HistogramTester histogram_tester;
   SetUpPasswordStores({CreateSampleForm()});
@@ -1207,7 +1207,7 @@ TEST_F(PasswordsPrivateDelegateImplTest, VerifyCastingOfImportResultsStatus) {
                 int{password_manager::ImportResults::Status::CONFLICTS});
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(PasswordsPrivateDelegateImplTest,
        SwitchBiometricAuthBeforeFillingState) {
   base::MockCallback<
@@ -1345,7 +1345,7 @@ TEST_F(PasswordsPrivateDelegateImplTest, PasswordManagerAppInstalled) {
   base::HistogramTester histogram_tester;
   scoped_refptr<PasswordsPrivateDelegateImpl> delegate = CreateDelegate();
   static_cast<web_app::WebAppInstallManagerObserver*>(delegate.get())
-      ->OnWebAppInstalledWithOsHooks(ash::kPasswordManagerAppId);
+      ->OnWebAppInstalledWithOsHooks(webapps::kPasswordManagerAppId);
 
   EXPECT_THAT(histogram_tester.GetAllSamples("PasswordManager.ShortcutMetric"),
               base::BucketsAre(base::Bucket(1, 1)));
@@ -1952,7 +1952,7 @@ TEST_F(PasswordsPrivateDelegateImplTest,
             expected_reason);
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(PasswordsPrivateDelegateImplTest, DeleteAllDataWithReauthFailed) {
   scoped_refptr<PasswordsPrivateDelegateImpl> delegate = CreateDelegate();
   PasswordForm form_profile =

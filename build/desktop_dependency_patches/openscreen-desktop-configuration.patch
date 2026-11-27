@@ -1,0 +1,123 @@
+--- a/gni/openscreen.gni
++++ b/gni/openscreen.gni
+@@ -5,7 +5,7 @@
+ import("//build/config/chrome_build.gni")
+ import("//build/config/compiler/pgo/pgo.gni")
+ import("//build/config/gclient_args.gni")
+-import("//build/config/ios/config.gni")
++
+ import("//build/config/sanitizers/sanitizers.gni")
+ import("//build/rust/rust_executable.gni")
+ import("//build/rust/rust_macro.gni")
+@@ -48,7 +48,7 @@
+   openscreen_remove_configs +=
+       [ "//build/config/compiler:default_optimization" ]
+ 
+-  if (((is_posix && !is_android) || is_win) && !using_sanitizer) {
++  if ((is_posix || is_win) && !using_sanitizer) {
+     openscreen_add_configs += [ "//build/config/compiler:optimize_speed" ]
+   } else {
+     openscreen_add_configs += [ "//build/config/compiler:optimize_max" ]
+@@ -66,6 +66,7 @@
+   } else {
+     link_target_type = "source_set"
+   }
++
+   target(link_target_type, target_name) {
+     forward_variables_from(invoker,
+                            "*",
+@@ -108,62 +109,29 @@
+ }
+ 
+ template("openscreen_executable") {
+-  if (is_ios) {
+-    import("//build/config/ios/rules.gni")
+-
+-    ios_app_bundle(target_name) {
+-      forward_variables_from(invoker,
+-                             "*",
+-                             [
+-                               "configs",
+-                               "public_configs",
+-                               "remove_configs",
+-                             ])
+-      configs -= openscreen_remove_configs
+-      configs += openscreen_add_configs
+-      if (defined(invoker.remove_configs)) {
+-        configs -= invoker.remove_configs
+-      }
+-      configs += invoker.configs
+-
+-      public_configs = openscreen_add_public_configs
+-      if (defined(invoker.public_configs)) {
+-        public_configs += invoker.public_configs
+-      }
+-
+-      # Provide sensible defaults in case invoker did not define any of those
+-      # required variables.
+-      if (!defined(info_plist) && !defined(info_plist_target)) {
+-        info_plist = openscreen_path_prefix + "/gni/Info.plist"
+-      }
+-
+-      bundle_identifier = "$ios_app_bundle_id_prefix.chrome.unittests.dev"
+-    }
+-  } else {
+-    executable(target_name) {
+-      forward_variables_from(invoker,
+-                             "*",
+-                             [
+-                               "configs",
+-                               "public_configs",
+-                               "remove_configs",
+-                             ])
+-      configs -= openscreen_remove_configs
+-      configs += openscreen_add_configs
+-      if (defined(invoker.remove_configs)) {
+-        configs -= invoker.remove_configs
+-      }
+-      if (defined(invoker.configs)) {
+-        configs += invoker.configs
+-      }
+-      public_configs = openscreen_add_public_configs
+-      if (defined(invoker.public_configs)) {
+-        public_configs += invoker.public_configs
+-      }
+-      if (is_linux || is_chromeos) {
+-        # For enabling ASLR.
+-        ldflags = [ "-pie" ]
+-      }
++  executable(target_name) {
++    forward_variables_from(invoker,
++                           "*",
++                           [
++                             "configs",
++                             "public_configs",
++                             "remove_configs",
++                           ])
++    configs -= openscreen_remove_configs
++    configs += openscreen_add_configs
++    if (defined(invoker.remove_configs)) {
++      configs -= invoker.remove_configs
++    }
++    if (defined(invoker.configs)) {
++      configs += invoker.configs
++    }
++    public_configs = openscreen_add_public_configs
++    if (defined(invoker.public_configs)) {
++      public_configs += invoker.public_configs
++    }
++    if (is_linux) {
++      # For enabling ASLR.
++      ldflags = [ "-pie" ]
+     }
+   }
+ }
+@@ -263,7 +231,7 @@
+     if (defined(invoker.public_configs)) {
+       public_configs += invoker.public_configs
+     }
+-    if (is_linux || is_chromeos) {
++    if (is_linux) {
+       # For enabling ASLR.
+       ldflags = [ "-pie" ]
+     }

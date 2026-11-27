@@ -25,9 +25,6 @@
 #include "content/public/test/browser_test_utils.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/apps/intent_helper/preferred_apps_test_util.h"
-#endif
 
 namespace apps::test {
 namespace {
@@ -99,9 +96,6 @@ base::expected<void, std::string> EnableLinkCapturingByUser(
     Profile* profile,
     const webapps::AppId& app_id) {
   CHECK_IS_TEST();
-#if BUILDFLAG(IS_CHROMEOS)
-  apps_util::SetSupportedLinksPreferenceAndWait(profile, app_id);
-#else
   web_app::WebAppProvider* provider =
       web_app::WebAppProvider::GetForTest(profile);
   base::test::TestFuture<void> preference_set;
@@ -110,7 +104,6 @@ base::expected<void, std::string> EnableLinkCapturingByUser(
   if (!preference_set.Wait()) {
     return base::unexpected("Enable link capturing command never completed.");
   }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   return base::ok();
 }
 
@@ -118,9 +111,6 @@ base::expected<void, std::string> DisableLinkCapturingByUser(
     Profile* profile,
     const webapps::AppId& app_id) {
   CHECK_IS_TEST();
-#if BUILDFLAG(IS_CHROMEOS)
-  apps_util::RemoveSupportedLinksPreferenceAndWait(profile, app_id);
-#else
   web_app::WebAppProvider* provider =
       web_app::WebAppProvider::GetForTest(profile);
   base::test::TestFuture<void> preference_set;
@@ -129,7 +119,6 @@ base::expected<void, std::string> DisableLinkCapturingByUser(
   if (!preference_set.Wait()) {
     return base::unexpected("Disable link capturing command never completed.");
   }
-#endif  // BUILDFLAG(IS_CHROMEOS)
   return base::ok();
 }
 

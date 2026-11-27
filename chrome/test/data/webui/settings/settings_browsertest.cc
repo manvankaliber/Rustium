@@ -6,15 +6,8 @@
 #include "build/branding_buildflags.h"
 #include "build/build_config.h"
 #include "build/config/coverage/buildflags.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/enterprise/browser_management/management_service_factory.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/test_support/glic_test_environment.h"
-#include "chrome/browser/glic/test_support/glic_test_util.h"
 #include "chrome/browser/policy/profile_policy_connector.h"
 #include "chrome/browser/preloading/preloading_features.h"
 #include "chrome/browser/profiles/profile.h"
@@ -53,9 +46,7 @@
 #include "third_party/blink/public/public_buildflags.h"
 #include "ui/compositor/compositor_switches.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/toasts/toast_features.h"  // nogncheck
-#endif
 
 #if BUILDFLAG(IS_WIN) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/browser/browser_features.h"
@@ -68,15 +59,8 @@
 class SettingsBrowserTest : public WebUIMochaBrowserTest {
  protected:
   SettingsBrowserTest() {
-    scoped_feature_list_.InitAndDisableFeature(
-        features::kGlicDefaultTabContextSetting);
     set_test_loader_host(chrome::kChromeUISettingsHost);
   }
-
- private:
-  glic::GlicTestEnvironment glic_test_environment_{
-      {.force_signin_and_glic_capability = false}};
-  base::test::ScopedFeatureList scoped_feature_list_;
 };
 
 using SettingsTest = SettingsBrowserTest;
@@ -109,12 +93,10 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, AppearancePageIndex) {
   RunTest("settings/appearance_page_index_test.js", "mocha.run()");
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // TODO(crbug.com/40856240) Test is flaky on ChromeOS
 IN_PROC_BROWSER_TEST_F(SettingsTest, AppearancePage) {
   RunTest("settings/appearance_page_test.js", "mocha.run()");
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, ContactInfoAddressValidation) {
   RunTest("settings/contact_info_page_address_validation_test.js",
@@ -193,11 +175,9 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, CrPolicyPrefIndicator) {
   RunTest("settings/cr_policy_pref_indicator_test.js", "mocha.run()");
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(SettingsTest, DefaultBrowser) {
   RunTest("settings/default_browser_test.js", "mocha.run()");
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, DoNotTrackToggle) {
   RunTest("settings/do_not_track_toggle_test.js", "mocha.run()");
@@ -211,7 +191,7 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, DropdownMenu) {
   RunTest("settings/dropdown_menu_test.js", "mocha.run()");
 }
 
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_F(SettingsTest, EditDictionaryPage) {
   RunTest("settings/edit_dictionary_page_test.js",
           "runMochaSuite('EditDictionaryPage')");
@@ -234,14 +214,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, AiPage) {
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, AiInfoCard) {
   RunTest("settings/ai_info_card_test.js", "mocha.run()");
-}
-
-IN_PROC_BROWSER_TEST_F(SettingsTest, AiModeSearchPage) {
-  RunTest("settings/ai_mode_search_page_test.js", "mocha.run()");
-}
-
-IN_PROC_BROWSER_TEST_F(SettingsTest, InlineCueMenuPage) {
-  RunTest("settings/inline_cue_menu_page_test.js", "mocha.run()");
 }
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, DictationPage) {
@@ -304,7 +276,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, ListPropertyUpdateMixin) {
   RunTest("settings/list_property_update_mixin_test.js", "mocha.run()");
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(SettingsTest, ImportDataDialog) {
   RunTest("settings/import_data_dialog_test.js", "mocha.run()");
 }
@@ -320,7 +291,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, LiveCaption) {
 IN_PROC_BROWSER_TEST_F(SettingsTest, LiveTranslate) {
   RunTest("settings/live_translate_test.js", "mocha.run()");
 }
-#endif
 
 // Copied from Polymer 2 version of tests:
 // Times out on Windows Tests (dbg). See https://crbug.com/41278078.
@@ -331,7 +301,7 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, DISABLED_MainPage) {
 }
 
 // TODO(crbug.com/454213441): Flaky on Linux builds and debug ChromeOS builds.
-#if BUILDFLAG(IS_LINUX) || (BUILDFLAG(IS_CHROMEOS) && !defined(NDEBUG))
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_SettingsMain DISABLED_SettingsMain
 #else
 #define MAYBE_SettingsMain SettingsMain
@@ -340,7 +310,7 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, MAYBE_SettingsMain) {
   RunTest("settings/settings_main_plugins_test.js", "mocha.run()");
 }
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 IN_PROC_BROWSER_TEST_F(SettingsTest, MetricsReporting) {
   RunTest("settings/metrics_reporting_test.js",
           "runMochaSuite('MetricsReporting')");
@@ -416,17 +386,10 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, PeoplePageIndex) {
   RunTest("settings/people_page_index_test.js", "mocha.run()");
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(SettingsTest, PeoplePageChromeOS) {
-  RunTest("settings/people_page_test_cros.js", "mocha.run()");
-}
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(SettingsTest, PeoplePageManageProfile) {
   RunTest("settings/people_page_manage_profile_test.js", "mocha.run()");
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, PeoplePageSyncControls) {
   RunTest("settings/people_page_sync_controls_test.js", "mocha.run()");
@@ -438,7 +401,7 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, PrivacyPageIndex) {
 }
 
 // TODO(crbug.com/533057215): Flaky on Linux and ChromeOS debug builds.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_PrivacyPageIndexSiteSettings DISABLED_PrivacyPageIndexSiteSettings
 #else
 #define MAYBE_PrivacyPageIndexSiteSettings PrivacyPageIndexSiteSettings
@@ -468,9 +431,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, ProtectedContentPage) {
   RunTest("settings/protected_content_page_test.js", "mocha.run()");
 }
 
-IN_PROC_BROWSER_TEST_F(SettingsTest, GlicPage) {
-  RunTest("settings/glic_page_test.js", "runMochaSuite('GlicPage Default')");
-}
 
 // TODO(crbug.com/568786600): Flaky on Linux.
 #if BUILDFLAG(IS_LINUX)
@@ -478,72 +438,18 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, GlicPage) {
 #else
 #define MAYBE_GlicSubpage GlicSubpage
 #endif
-IN_PROC_BROWSER_TEST_F(SettingsTest, MAYBE_GlicSubpage) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage Default')");
-}
 
-IN_PROC_BROWSER_TEST_F(SettingsTest,
-                       GlicSubpageMediaUnderstandingToggleVisible) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage MediaUnderstandingToggleVisible')");
-}
 
-IN_PROC_BROWSER_TEST_F(SettingsTest, GlicSubpageExperimentalTriggeringToggle) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage ExperimentalTriggeringToggle')");
-}
 
-IN_PROC_BROWSER_TEST_F(SettingsTest, GlicSubpageWebActuation) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage WebActuationSettingFeatureEnabled')");
-}
 
-class SettingsGlicShakeTriggerEnabledTest : public SettingsBrowserTest {
- public:
-  SettingsGlicShakeTriggerEnabledTest() {
-    scoped_feature_list_.InitAndEnableFeature(features::kGlicShakeTrigger);
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicShakeTriggerEnabledTest,
-                       GlicSubpageShakeTriggerEnabled) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage ShakeTriggerToggleEnabled')");
-}
 
-IN_PROC_BROWSER_TEST_F(SettingsTest, GlicSubpageShakeTriggerHidden) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage ShakeTriggerToggleHidden')");
-}
 
-class SettingsGlicHotkeyLocalScopeEnabledTest : public SettingsBrowserTest {
- public:
-  SettingsGlicHotkeyLocalScopeEnabledTest() {
-    scoped_feature_list_.InitAndEnableFeature(features::kGlicHotkeyLocalScope);
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicHotkeyLocalScopeEnabledTest,
-                       GlicSubpageHotkeyLocalScopeEnabled) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage HotkeyLocalScopeEnabled')");
-}
 
-IN_PROC_BROWSER_TEST_F(SettingsTest, GlicSubpageHotkeyLocalScopeDisabled) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage HotkeyLocalScopeDisabled')");
-}
 
-IN_PROC_BROWSER_TEST_F(SettingsTest, GlicLoginPermissionsPage) {
-  RunTest("settings/glic_login_permissions_page_test.js", "mocha.run()");
-}
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, GmailOtpDisclaimerDialog) {
   RunTest("settings/gmail_otp_disclaimer_dialog_test.js", "mocha.run()");
@@ -567,26 +473,8 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, ActiveTimer) {
   RunTest("settings/active_timer_test.js", "mocha.run()");
 }
 
-class SettingsGlicSubpageLearnMoreTest : public SettingsBrowserTest {
- public:
-  SettingsGlicSubpageLearnMoreTest() {
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        {{features::kGlicLearnMoreURLConfig,
-          {
-              {"glic-shortcuts-learn-more-url", "https://google.com/"},
-          }}},
-        /*disabled_features=*/{});
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubpageLearnMoreTest,
-                       GlicSettingsLearnMoreEnabled) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage LearnMoreEnabled')");
-}
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, GeicSubpage) {
   RunTest("settings/geic_subpage_test.js",
@@ -596,13 +484,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, GeicSubpage) {
 class SettingsGeicSubpageLearnMoreTest : public SettingsBrowserTest {
  public:
   SettingsGeicSubpageLearnMoreTest() {
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        {{features::kGlicLearnMoreURLConfig,
-          {
-              {"geic-default-tab-access-toggle-learn-more-url",
-               "https://google.com/"},
-          }}},
-        /*disabled_features=*/{});
   }
 
  private:
@@ -615,163 +496,30 @@ IN_PROC_BROWSER_TEST_F(SettingsGeicSubpageLearnMoreTest,
           "runMochaSuite('GeicSubpage LearnMoreEnabled')");
 }
 
-class SettingsGlicPageHeaderLearnMoreTest : public SettingsBrowserTest {
- public:
-  SettingsGlicPageHeaderLearnMoreTest() {
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        {{features::kGlicLearnMoreURLConfig,
-          {
-              {"glic-settings-page-learn-more-url", "https://google.com/"},
-          }}},
-        /*disabled_features=*/{});
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicPageHeaderLearnMoreTest,
-                       HeaderLearnMoreEnabled) {
-  RunTest("settings/glic_page_test.js",
-          "runMochaSuite('GlicPage HeaderLearnMoreEnabled')");
-}
 
-class SettingsGlicSubpageLauncherToggleLearnMoreTest
-    : public SettingsBrowserTest {
- public:
-  SettingsGlicSubpageLauncherToggleLearnMoreTest() {
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        {{features::kGlicLearnMoreURLConfig,
-          {
-              {"glic-shortcuts-launcher-toggle-learn-more-url",
-               "https://google.com/"},
-          }}},
-        /*disabled_features=*/{});
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubpageLauncherToggleLearnMoreTest,
-                       GlicSettingsLauncherToggleLearnMoreEnabled) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage LauncherToggleLearnMoreEnabled')");
-}
 
-class SettingsGlicSubpageLocationToggleLearnMoreTest
-    : public SettingsBrowserTest {
- public:
-  SettingsGlicSubpageLocationToggleLearnMoreTest() {
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        {{features::kGlicLearnMoreURLConfig,
-          {
-              {"glic-shortcuts-location-toggle-learn-more-url",
-               "https://google.com/"},
-          }}},
-        /*disabled_features=*/{});
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubpageLocationToggleLearnMoreTest,
-                       GlicSettingsLocationToggleLearnMoreEnabled) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage LocationToggleLearnMoreEnabled')");
-}
 
-class SettingsGlicSubpageKeepSidepanelOpenOnNewTabsToggleTest
-    : public SettingsBrowserTest {
- public:
-  SettingsGlicSubpageKeepSidepanelOpenOnNewTabsToggleTest() {
-    scoped_feature_list_.InitWithFeatures({features::kGlicDaisyChainNewTabs},
-                                          /*disabled_features=*/{});
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(
-    SettingsGlicSubpageKeepSidepanelOpenOnNewTabsToggleTest,
-    SettingsGlicSubpageKeepSidepanelOpenOnNewTabsToggleEnabled) {
-  RunTest(
-      "settings/glic_subpage_test.js",
-      "runMochaSuite('GlicSubpage KeepSidepanelOpenOnNewTabsToggleEnabled')");
-}
 
-class SettingsGlicSubPageDefaultTabContextToggleTest
-    : public SettingsBrowserTest {
- public:
-  SettingsGlicSubPageDefaultTabContextToggleTest() {
-    scoped_feature_list_.InitWithFeatures(
-        {features::kGlicDefaultTabContextSetting},
-        /*disabled_features=*/{});
-  }
 
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubPageDefaultTabContextToggleTest,
-                       SettingsGlicSubPageDefaultTabContextToggleEnabled) {
-  RunTest(
-      "settings/glic_subpage_test.js",
-      "runMochaSuite('GlicSubpage DefaultTabContextSettingFeatureEnabled')");
-}
 
-class SettingsGlicSubPageTestBase : public SettingsBrowserTest {
- protected:
-  void SigninAndEnableAccountCapability() {
-    glic::SigninWithPrimaryAccount(GetProfile());
 
-    auto* const identity_manager =
-        IdentityManagerFactory::GetForProfile(GetProfile());
-    AccountInfo primary_account =
-        identity_manager->FindExtendedAccountInfoByAccountId(
-            identity_manager->GetPrimaryAccountId(
-                signin::ConsentLevel::kSignin));
 
-    AccountCapabilitiesTestMutator mutator(&primary_account);
-    mutator.set_can_use_model_execution_features(true);
 
-    signin::UpdateAccountInfoForAccount(identity_manager, primary_account);
-  }
-};
 
-class SettingsGlicSubPageClosedCaptionsToggleTest
-    : public SettingsGlicSubPageTestBase {};
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubPageClosedCaptionsToggleTest,
-                       ToggleHiddenForUserWithoutAccountCapability) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage ClosedCaptionsToggleHidden')");
-}
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubPageClosedCaptionsToggleTest,
-                       ToggleVisibleForUserWithAccountCapability) {
-  SigninAndEnableAccountCapability();
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage ClosedCaptionsToggleVisible')");
-}
 
-class SettingsGlicSubPageMicrophoneToggleTest
-    : public SettingsGlicSubPageTestBase {};
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubPageMicrophoneToggleTest,
-                       ToggleHiddenForUserWithoutAccountCapability) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage MicrophoneToggleHidden')");
-}
 
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubPageMicrophoneToggleTest,
-                       ToggleVisibleForUserWithAccountCapability) {
-  SigninAndEnableAccountCapability();
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage MicrophoneToggleVisible')");
-}
 
 struct WebActuationTestParams {
   std::string test_name;
@@ -804,305 +552,22 @@ struct WebActuationTestParams {
   std::string expected_suite;
 };
 
-class SettingsGlicSubPageWebActuationToggleTestBase
-    : public SettingsGlicSubPageTestBase {
- protected:
-  void SetUserTier(int32_t tier) {
-    GetProfile()->GetPrefs()->SetInteger(
-        subscription_eligibility::prefs::kAiSubscriptionTier, tier);
-  }
-};
 
-class SettingsGlicSubPageWebActuationTableTest
-    : public SettingsGlicSubPageWebActuationToggleTestBase,
-      public testing::WithParamInterface<WebActuationTestParams> {
- public:
-  SettingsGlicSubPageWebActuationTableTest() {
-    const WebActuationTestParams& p = GetParam();
 
-    std::vector<base::test::FeatureRefAndParams> enabled;
-    std::vector<base::test::FeatureRef> disabled;
 
-    if (p.force_show_switch) {
-      base::CommandLine::ForCurrentProcess()->AppendSwitch(
-          ::switches::kGlicAlwaysShowWebActuationToggle);
-    }
-    if (p.setting_feature_enabled) {
-      enabled.push_back({features::kGlicWebActuationSetting, {}});
-    } else {
-      disabled.emplace_back(features::kGlicWebActuationSetting);
-    }
-    if (p.toggle_feature_enabled) {
-      enabled.push_back({features::kGlicWebActuationSettingsToggle, {}});
-    } else {
-      disabled.emplace_back(features::kGlicWebActuationSettingsToggle);
-    }
 
-    if (p.policy_control_exemption) {
-      enabled.push_back({features::kGlicActorPolicyControlExemption, {}});
-    } else {
-      disabled.emplace_back(features::kGlicActorPolicyControlExemption);
-    }
-    enabled.push_back(
-        {features::kGlicActor,
-         {{features::kGlicActorEligibleTiers.name, p.eligible_tiers}}});
-    scoped_feature_list_.InitWithFeaturesAndParameters(enabled, disabled);
-  }
-
-  // Register the Mock Policy Provider
-  void SetUpInProcessBrowserTestFixture() override {
-    policy_provider_.SetDefaultReturns(
-        /*is_initialization_complete_return=*/true,
-        /*is_first_policy_load_complete_return=*/true);
-    policy::BrowserPolicyConnector::SetPolicyProviderForTesting(
-        &policy_provider_);
-  }
-
-  void SetUpOnMainThread() override {
-    // Setup Policy Service
-    policy_provider_.SetupPolicyServiceForPolicyUpdates(
-        GetProfile()->GetProfilePolicyConnector()->policy_service());
-
-    SettingsBrowserTest::SetUpOnMainThread();
-    const WebActuationTestParams& p = GetParam();
-
-    // Simulate Managed Browser (Identity/Platform Management)
-    if (p.is_managed_browser) {
-      scoped_management_service_override_ =
-          std::make_unique<policy::ScopedManagementServiceOverrideForTesting>(
-              policy::ManagementServiceFactory::GetForProfile(GetProfile()),
-              policy::EnterpriseManagementAuthority::CLOUD);
-    }
-
-    // Apply Enterprise Policy
-    if (p.policy_value != -1) {
-      policy::PolicyMap policies;
-      policies.Set(policy::key::kGeminiActOnWebSettings,
-                   policy::POLICY_LEVEL_MANDATORY, policy::POLICY_SCOPE_USER,
-                   policy::POLICY_SOURCE_ENTERPRISE_DEFAULT,
-                   base::Value(p.policy_value), nullptr);
-      policy_provider_.UpdateChromePolicy(policies);
-    }
-
-    // Standard Account & Tier Setup
-    if (p.has_account_capability) {
-      SigninAndEnableAccountCapability();
-    } else {
-      // Just sign in.
-      glic::SigninWithPrimaryAccount(GetProfile());
-    }
-
-    SetUserTier(p.user_tier);
-    if (p.consent_pref_set) {
-      glic::GlicKeyedService::Get(GetProfile())
-          ->enabling()
-          .SetUserEnabledActuationOnWeb(true);
-    }
-    if (p.is_dogfooder) {
-      auto* variations_service = g_browser_process->variations_service();
-      CHECK(variations_service);
-      variations_service->SetIsLikelyDogfoodClientForTesting(true);
-    }
-  }
-
-  void TearDownOnMainThread() override {
-    // Clean up policy overrides
-    scoped_management_service_override_.reset();
-    policy_provider_.SetupPolicyServiceForPolicyUpdates(nullptr);
-    SettingsBrowserTest::TearDownOnMainThread();
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-  testing::NiceMock<policy::MockConfigurationPolicyProvider> policy_provider_;
-  std::unique_ptr<policy::ScopedManagementServiceOverrideForTesting>
-      scoped_management_service_override_;
-};
-
-IN_PROC_BROWSER_TEST_P(SettingsGlicSubPageWebActuationTableTest,
-                       ToggleVisibilityLogic) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('" + GetParam().expected_suite + "')");
-}
 
 std::string GenerateWebActuationSettingsToggleTestName(
     const testing::TestParamInfo<WebActuationTestParams>& info) {
   return info.param.test_name;
 }
 
-INSTANTIATE_TEST_SUITE_P(
-    All,
-    SettingsGlicSubPageWebActuationTableTest,
-    testing::Values(
-        // --- 1. GATEKEEPERS (Top-level overrides) ---
-        WebActuationTestParams{
-            .test_name = "SwitchOverride_ForcesVisible",
-            .force_show_switch = true,
-            .setting_feature_enabled = false,  // Even if feature is off
-            .expected_suite = "GlicSubpage WebActuationToggleVisible"},
 
-        WebActuationTestParams{
-            .test_name = "FeatureDisabled_ForcesHidden",
-            .setting_feature_enabled = false,
-            .expected_suite = "GlicSubpage WebActuationToggleHidden"},
 
-        // --- 2. CAPABILITY (Hard security gate) ---
-        WebActuationTestParams{
-            .test_name = "IneligibleCapability_Hidden",
-            .has_account_capability = false,
-            .expected_suite = "GlicSubpage WebActuationToggleHidden"},
 
-        // --- 3. ENFORCEMENT (New Rollout: toggle_feature_on = true) ---
-        WebActuationTestParams{
-            .test_name = "Enforced_TierEligible_Visible",
-            .toggle_feature_enabled = true,
-            .user_tier = 100,
-            .expected_suite = "GlicSubpage WebActuationToggleVisible"},
 
-        // Stored preference keeps the toggle visible.
-        WebActuationTestParams{
-            .test_name = "Enforced_TierDisallowed_WithPref_Visible",
-            .toggle_feature_enabled = true,
-            .user_tier = 999,
-            .consent_pref_set = true,
-            .expected_suite = "GlicSubpage WebActuationToggleVisible"},
 
-        WebActuationTestParams{
-            .test_name = "Enforced_NoTiersConfigured_Hidden",
-            .eligible_tiers = "",  // Empty allowed list
-            .consent_pref_set = true,
-            .expected_suite = "GlicSubpage WebActuationToggleHidden"},
 
-        // --- 4. LEGACY / MIGRATION (toggle_feature_on = false) ---
-        WebActuationTestParams{
-            .test_name = "Legacy_WithPref_Visible",
-            .toggle_feature_enabled = false,
-            .user_tier = 999,  // Tier ignored in legacy mode
-            .consent_pref_set = true,
-            .expected_suite = "GlicSubpage WebActuationToggleVisible"},
-
-        WebActuationTestParams{
-            .test_name = "Legacy_NoPref_Hidden",
-            .toggle_feature_enabled = false,
-            .user_tier = 100,  // Valid tier but no pref = hidden
-            .consent_pref_set = false,
-            .expected_suite = "GlicSubpage WebActuationToggleHidden"},
-
-        WebActuationTestParams{
-            .test_name = "Legacy_NoTiersConfigured_Hidden",
-            .toggle_feature_enabled = false,
-            .eligible_tiers = "",  // Empty allowed list
-            .consent_pref_set = true,
-            .expected_suite = "GlicSubpage WebActuationToggleHidden"},
-
-        // --- 5. EDGE CASES ---
-        WebActuationTestParams{
-            .test_name = "SimulateCanActOnWebOnAndOff",
-            .policy_control_exemption = true,
-            .consent_pref_set = true,
-            .expected_suite = "GlicSubpage SimulateCanActOnWebOnAndOff"},
-
-        WebActuationTestParams{
-            .test_name = "TierAllowed_ButCapabilityMissing_Hidden",
-            .user_tier = 100,
-            .has_account_capability = false,
-            .expected_suite = "GlicSubpage WebActuationToggleHidden"},
-
-        WebActuationTestParams{
-            .test_name = "SmokeTest_DefaultState_Hidden",
-            .toggle_feature_enabled = false,
-            .user_tier = 0,
-            .consent_pref_set = false,
-            .expected_suite = "GlicSubpage WebActuationToggleHidden"},
-
-        // --- 6. ENTERPRISE CASES ---
-        WebActuationTestParams{
-            .test_name = "Managed_PolicyEnabled_Visible",
-            .user_tier = 100,
-            .is_managed_browser = true,
-            .policy_value = 0,  // kEnabled
-            .expected_suite = "GlicSubpage WebActuationToggleVisible"},
-
-        WebActuationTestParams{
-            .test_name = "Managed_PolicyDisabled_Hidden",
-            .user_tier = 100,
-            .is_managed_browser = true,
-            .policy_value = 1,  // kDisabled
-            .expected_suite = "GlicSubpage WebActuationToggleVisibleLocked"},
-        // TODO(crbug.com/482100275): Update this test at M148 when the policy
-        // pref default value changes.
-        WebActuationTestParams{
-            .test_name = "Managed_PolicyUnset_DefaultBehavior",
-            .user_tier = 100,
-            .is_managed_browser = true,
-            .policy_value = -1,  // Unset
-            .expected_suite = "GlicSubpage WebActuationToggleVisibleLocked"},
-        // --- DOGFOOD BYPASS CASES ---
-        WebActuationTestParams{
-            .test_name = "Dogfooder_BypassesStrictTierCheck_Visible",
-            .toggle_feature_enabled = true,
-            .user_tier = 999,
-            .is_dogfooder = true,
-            .expected_suite = "GlicSubpage WebActuationToggleVisible"},
-
-        WebActuationTestParams{
-            .test_name = "NonDogfooder_FailsStrictTierCheck_Hidden",
-            .toggle_feature_enabled = true,
-            .user_tier = 999,
-            .is_dogfooder = false,
-            .expected_suite = "GlicSubpage WebActuationToggleHidden"}),
-    GenerateWebActuationSettingsToggleTestName);
-
-class SettingsGlicSubageDataProtectionTest : public SettingsBrowserTest {
- public:
-  SettingsGlicSubageDataProtectionTest() {
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        {{features::kGlicUserStatusCheck, {}},
-         {features::kGlicLearnMoreURLConfig,
-          {
-              {features::kGlicTabAccessToggleLearnMoreURL.name,
-               "https://example.com/tab-access"},
-              {features::kGlicTabAccessToggleLearnMoreURLDataProtected.name,
-               "https://example.com/data-protection"},
-          }}},
-        {});
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_F(SettingsGlicSubageDataProtectionTest, Strings) {
-  RunTest("settings/glic_subpage_test.js",
-          "runMochaSuite('GlicSubpage DataProtection_UserStatusCheckEnabled')");
-}
-
-class SettingsGlicSubageDataProtectionTest_UserStatusCheckDisabled
-    : public SettingsBrowserTest {
- public:
-  SettingsGlicSubageDataProtectionTest_UserStatusCheckDisabled() {
-    scoped_feature_list_.InitWithFeaturesAndParameters(
-        {{features::kGlicLearnMoreURLConfig,
-          {
-              {features::kGlicTabAccessToggleLearnMoreURL.name,
-               "https://example.com/tab-access"},
-              {features::kGlicTabAccessToggleLearnMoreURLDataProtected.name,
-               "https://example.com/data-protection"},
-          }}},
-        {features::kGlicUserStatusCheck});
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_F(
-    SettingsGlicSubageDataProtectionTest_UserStatusCheckDisabled,
-    Strings) {
-  RunTest(
-      "settings/glic_subpage_test.js",
-      "runMochaSuite('GlicSubpage DataProtection_UserStatusCheckDisabled')");
-}
 
 // Timeout on Linux dbg bots: https://crbug.com/40881745
 #if !(BUILDFLAG(IS_LINUX) && !defined(NDEBUG))
@@ -1143,11 +608,9 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, RecentSitePermissions) {
   RunTest("settings/recent_site_permissions_test.js", "mocha.run()");
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(SettingsTest, RelaunchConfirmationDialog) {
   RunTest("settings/relaunch_confirmation_dialog_test.js", "mocha.run()");
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, ResetPage) {
   RunTest("settings/reset_page_test.js", "mocha.run()");
@@ -1292,12 +755,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, SiteFavicon) {
   RunTest("settings/site_favicon_test.js", "mocha.run()");
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Copied from Polymer 2 test. TODO(crbug.com/41439813): flaky, fix.
-IN_PROC_BROWSER_TEST_F(SettingsTest, DISABLED_SiteListChromeOS) {
-  RunTest("settings/site_list_tests_cros.js", "mocha.run()");
-}
-#endif
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, SiteListEntry) {
   RunTest("settings/site_list_entry_test.js", "mocha.run()");
@@ -1319,11 +776,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, Slider) {
   RunTest("settings/settings_slider_test.js", "mocha.run()");
 }
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-IN_PROC_BROWSER_TEST_F(SettingsTest, SmartCardReadersPage) {
-  RunTest("settings/smart_card_readers_page_test.js", "mocha.run()");
-}
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
 
 IN_PROC_BROWSER_TEST_F(SettingsTest, SpeedPage) {
   RunTest("settings/speed_page_test.js", "runMochaSuite('SpeedPage')");
@@ -1409,7 +861,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, ZoomLevels) {
   RunTest("settings/zoom_levels_test.js", "runMochaSuite('ZoomLevels')");
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class SettingsSystemPageTest : public SettingsBrowserTest {
  private:
 #if BUILDFLAG(IS_WIN) && BUILDFLAG(GOOGLE_CHROME_BRANDING)
@@ -1421,7 +872,6 @@ class SettingsSystemPageTest : public SettingsBrowserTest {
 IN_PROC_BROWSER_TEST_F(SettingsSystemPageTest, SystemPage) {
   RunTest("settings/system_page_test.js", "mocha.run()");
 }
-#endif  //! BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 using SettingsAiPageOfficialTest = SettingsBrowserTest;
@@ -1465,13 +915,11 @@ IN_PROC_BROWSER_TEST_F(SettingsTest, PrivacyGuidePromoVisibility) {
 
 using SettingsClearBrowsingDataTest = SettingsBrowserTest;
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(SettingsClearBrowsingDataTest,
                        DeleteBrowsingDataAccountIndicator) {
   RunTest("settings/clear_browsing_data_account_indicator_test.js",
           "runMochaSuite('DeleteBrowsingDataAccountIndicator')");
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(SettingsClearBrowsingDataTest,
                        DeleteBrowsingDataDialog) {
@@ -1531,7 +979,6 @@ IN_PROC_BROWSER_TEST_F(SettingsWithPixelOutputTest,
   RunTest("settings/security/fingerprint_progress_arc_test.js", "mocha.run()");
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 using SettingsLanguagePageTest = SettingsBrowserTest;
 
 IN_PROC_BROWSER_TEST_F(SettingsLanguagePageTest, AddLanguagesDialog) {
@@ -1547,7 +994,6 @@ IN_PROC_BROWSER_TEST_F(SettingsLanguagePageTest, LanguageMenu) {
 IN_PROC_BROWSER_TEST_F(SettingsLanguagePageTest, MetricsBrowser) {
   RunTest("settings/languages_page_metrics_test_browser.js", "mocha.run()");
 }
-#endif
 
 using SettingsPerformancePageTest = SettingsBrowserTest;
 
@@ -1684,9 +1130,6 @@ class SettingsPrivacyPageTest : public SettingsBrowserTest {
   SettingsPrivacyPageTest() {
     scoped_feature_list1_.InitWithFeatures(
         {
-#if BUILDFLAG(IS_CHROMEOS)
-            blink::features::kWebPrinting,
-#endif
         },
         {});
     scoped_feature_list2_.InitAndEnableFeatureWithParameters(
@@ -1762,7 +1205,7 @@ IN_PROC_BROWSER_TEST_F(SettingsRouteTest, SafetyHub) {
 
 // Copied from Polymer 2 test:
 // Failing on ChromiumOS dbg. https://crbug.com/263415119
-#if (BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)) && !defined(NDEBUG)
+#if BUILDFLAG(IS_WIN) && !defined(NDEBUG)
 #define MAYBE_NonExistentRoute DISABLED_NonExistentRoute
 #else
 #define MAYBE_NonExistentRoute NonExistentRoute
@@ -1841,7 +1284,6 @@ IN_PROC_BROWSER_TEST_F(SettingsSecurityPageTest, SafeBrowsingRadio) {
           "runMochaSuite('SafeBrowsingRadio')");
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 using SettingsSpellCheckPageTest = SettingsBrowserTest;
 
 IN_PROC_BROWSER_TEST_F(SettingsSpellCheckPageTest, AllBuilds) {
@@ -1872,7 +1314,6 @@ IN_PROC_BROWSER_TEST_F(SettingsSpellCheckPageTest, OfficialBuild) {
           "runMochaSuite('SpellCheck OfficialBuild')");
 }
 #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 class SettingsSiteDetailsTest : public SettingsBrowserTest {};
 
@@ -1985,7 +1426,6 @@ IN_PROC_BROWSER_TEST_F(SettingsSiteSettingsPageTest, SoundPage) {
   RunTest("settings/sound_page_test.js", "runMochaSuite('SoundPage')");
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 using SettingsTranslatePageTest = SettingsBrowserTest;
 
 IN_PROC_BROWSER_TEST_F(SettingsTranslatePageTest, TranslateSettings) {
@@ -2006,7 +1446,6 @@ IN_PROC_BROWSER_TEST_F(SettingsTranslatePageTest, NeverTranslateDialog) {
 IN_PROC_BROWSER_TEST_F(SettingsTranslatePageTest, MetricsBrowser) {
   RunTest("settings/translate_page_metrics_test_browser.js", "mocha.run()");
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 using YourSavedInfoTest = SettingsBrowserTest;
 
@@ -2036,13 +1475,6 @@ IN_PROC_BROWSER_TEST_F(YourSavedInfoTest, IdentityDocsPageTest) {
   RunTest("settings/identity_docs_page_test.js", "mocha.run()");
 }
 
-IN_PROC_BROWSER_TEST_F(YourSavedInfoTest, ShoppingPageTest) {
-  RunTest("settings/shopping_page_test.js", "mocha.run()");
-}
-
-IN_PROC_BROWSER_TEST_F(YourSavedInfoTest, SuggestionsFromGeminiPage) {
-  RunTest("settings/suggestions_from_gemini_page_test.js", "mocha.run()");
-}
 
 IN_PROC_BROWSER_TEST_F(YourSavedInfoTest, TravelPageTest) {
   RunTest("settings/travel_page_test.js", "mocha.run()");

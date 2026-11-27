@@ -72,8 +72,9 @@ class FileLockImpl : public mojom::FileLock {
   }
 
   ~FileLockImpl() override {
-    if (file_.IsValid())
+    if (file_.IsValid()) {
       GetLockTable().RemoveLock(path_);
+    }
   }
 
   // mojom::FileLock implementation:
@@ -83,11 +84,7 @@ class FileLockImpl : public mojom::FileLock {
       return;
     }
 
-#if BUILDFLAG(IS_FUCHSIA)
-    std::move(callback).Run(base::File::FILE_OK);
-#else
     std::move(callback).Run(file_.Unlock());
-#endif
     GetLockTable().RemoveLock(path_);
     file_.Close();
   }
@@ -132,8 +129,9 @@ void FilesystemImpl::GetEntries(const base::FilePath& path,
   for (const auto& entry : result) {
     std::vector<base::FilePath::StringType> components = entry.GetComponents();
     base::FilePath relative_path;
-    for (size_t i = num_components_to_strip; i < components.size(); ++i)
+    for (size_t i = num_components_to_strip; i < components.size(); ++i) {
       relative_path = relative_path.Append(components[i]);
+    }
     entries.push_back(std::move(relative_path));
   }
   std::move(callback).Run(base::File::FILE_OK, entries);
@@ -196,8 +194,9 @@ void FilesystemImpl::OpenFile(const base::FilePath& path,
   const base::FilePath full_path = MakeAbsolute(path);
   base::File file(full_path, flags);
   base::File::Error error = base::File::FILE_OK;
-  if (!file.IsValid())
+  if (!file.IsValid()) {
     error = file.error_details();
+  }
   std::move(callback).Run(error, std::move(file));
 }
 
@@ -216,10 +215,11 @@ void FilesystemImpl::DeleteFile(const base::FilePath& path,
 void FilesystemImpl::GetFileInfo(const base::FilePath& path,
                                  GetFileInfoCallback callback) {
   base::File::Info info;
-  if (base::GetFileInfo(MakeAbsolute(path), &info))
+  if (base::GetFileInfo(MakeAbsolute(path), &info)) {
     std::move(callback).Run(std::move(info));
-  else
+  } else {
     std::move(callback).Run(std::nullopt);
+  }
 }
 
 void FilesystemImpl::GetDiskSpaceInfo(const base::FilePath& path,
@@ -278,8 +278,9 @@ base::FileErrorOr<base::File> FilesystemImpl::LockFileLocal(
   DCHECK(path.IsAbsolute());
   base::File file(path, base::File::FLAG_OPEN_ALWAYS | base::File::FLAG_READ |
                             base::File::FLAG_WRITE);
-  if (!file.IsValid())
+  if (!file.IsValid()) {
     return base::unexpected(file.error_details());
+  }
 
   if (!GetLockTable().AddLock(path)) {
     if (same_process_failure) {
@@ -288,13 +289,11 @@ base::FileErrorOr<base::File> FilesystemImpl::LockFileLocal(
     return base::unexpected(base::File::FILE_ERROR_IN_USE);
   }
 
-#if !BUILDFLAG(IS_FUCHSIA)
   base::File::Error error = file.Lock(base::File::LockMode::kExclusive);
   if (error != base::File::FILE_OK) {
     UnlockFileLocal(path);
     return base::unexpected(error);
   }
-#endif
 
   return file;
 }
@@ -313,10 +312,11 @@ mojom::PathAccessInfoPtr FilesystemImpl::GetPathAccessLocal(
   if (attributes != INVALID_FILE_ATTRIBUTES) {
     info = mojom::PathAccessInfo::New();
     info->can_read = true;
-    if ((attributes & FILE_ATTRIBUTE_READONLY) == 0)
+    if ((attributes & FILE_ATTRIBUTE_READONLY) == 0) {
       info->can_write = true;
+    }
   }
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   const char* const c_path = path.value().c_str();
   if (!access(c_path, F_OK)) {
     info = mojom::PathAccessInfo::New();
@@ -333,8 +333,9 @@ FilesystemImpl::GetDirectoryEntries(const base::FilePath& path,
                                     mojom::GetEntriesMode mode) {
   DCHECK(path.IsAbsolute());
   int file_types = base::FileEnumerator::FILES;
-  if (mode == mojom::GetEntriesMode::kFilesAndDirectories)
+  if (mode == mojom::GetEntriesMode::kFilesAndDirectories) {
     file_types |= base::FileEnumerator::DIRECTORIES;
+  }
   base::FileEnumerator enumerator(
       path, /*recursive=*/false, file_types,
       /*pattern=*/base::FilePath::StringType(),
@@ -345,8 +346,9 @@ FilesystemImpl::GetDirectoryEntries(const base::FilePath& path,
        entry = enumerator.Next()) {
     entries.push_back(entry);
   }
-  if (enumerator.GetError() != base::File::FILE_OK)
+  if (enumerator.GetError() != base::File::FILE_OK) {
     return base::unexpected(enumerator.GetError());
+  }
   return entries;
 }
 

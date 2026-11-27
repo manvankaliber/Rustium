@@ -45,10 +45,6 @@ constexpr char kPlatform[] = "LINUX";
 constexpr char kPlatform[] = "WINDOWS";
 #elif BUILDFLAG(IS_MAC)
 constexpr char kPlatform[] = "MAC_OS";
-#elif BUILDFLAG(IS_CHROMEOS)
-constexpr char kPlatform[] = "CHROME_OS";
-#elif BUILDFLAG(IS_ANDROID)
-constexpr char kPlatform[] = "ANDROID";
 #else
 constexpr char kPlatform[] = "UNSPECIFIED_PLATFORM";
 #endif

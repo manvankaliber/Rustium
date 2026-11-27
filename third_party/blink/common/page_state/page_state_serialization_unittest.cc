@@ -315,29 +315,13 @@ class PageStateSerializationTest : public testing::Test {
     EXPECT_TRUE(
         base::Base64Decode(trimmed_file_contents, &saved_encoded_state));
 
-#if BUILDFLAG(IS_ANDROID)
-    // Because version 11 of the file format unfortunately bakes in the device
-    // scale factor on Android, perform this test by assuming a preset device
-    // scale factor, ignoring the device scale factor of the current device.
-    const float kPresetDeviceScaleFactor = 2.0f;
-    EXPECT_TRUE(DecodePageStateWithDeviceScaleFactorForTesting(
-        saved_encoded_state, kPresetDeviceScaleFactor, page_state));
-#else
     EXPECT_EQ(version,
               DecodePageStateForTesting(saved_encoded_state, page_state));
-#endif
   }
 
   void TestBackwardsCompat(int version) {
     std::string suffix = base::StringPrintf("v%d", version);
 
-#if BUILDFLAG(IS_ANDROID)
-    // Unfortunately, the format of version 11 is different on Android, so we
-    // need to use a special reference file.
-    if (version == 11) {
-      suffix = std::string("v11_android");
-    }
-#endif
 
     ExplodedPageState decoded_state;
     ExplodedPageState expected_state;
@@ -630,13 +614,11 @@ TEST_F(PageStateSerializationTest, DumpExpectedPageStateForBackwardsCompat) {
 }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 // TODO(darin): Re-enable for Android once this test accounts for systems with
 //              a device scale factor not equal to 2.
 TEST_F(PageStateSerializationTest, BackwardsCompat_v11) {
   TestBackwardsCompat(11);
 }
-#endif
 
 TEST_F(PageStateSerializationTest, BackwardsCompat_v12) {
   TestBackwardsCompat(12);

@@ -410,7 +410,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientSessionsSyncTest, SessionStartTime) {
   EXPECT_TRUE(found_header);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Regression test for crbug.com/361256057.
 IN_PROC_BROWSER_TEST_P(SingleClientSessionsSyncTest, UpdateSessionTag) {
   ASSERT_TRUE(SetupSync(SyncTestAccount::kConsumerAccount1));
@@ -450,7 +449,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientSessionsSyncTest, UpdateSessionTag) {
                                        SessionHeader(second_cache_guid)))
                   .Wait());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(SingleClientSessionsSyncTest, NavigateInTab) {
   ASSERT_TRUE(SetupSync());

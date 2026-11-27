@@ -5,6 +5,7 @@
 """check_no_neon.py - Check modules do not contain ARM Neon instructions."""
 
 import argparse
+from pathlib import Path
 import os
 import sys
 
@@ -12,8 +13,6 @@ REPOSITORY_ROOT = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, os.pardir)
 )
 
-sys.path.insert(0, os.path.join(REPOSITORY_ROOT, 'build/android/gyp'))
-from util import build_utils  # noqa: E402
 
 
 def main(args):
@@ -33,7 +32,7 @@ def main(args):
 
     # Non-zero exit code means no neon.
     if ret and opts.stamp:
-        build_utils.Touch(opts.stamp)
+        Path(opts.stamp).touch()
     return ret
 
 

@@ -46,7 +46,7 @@ class LockThreadAffinity {
   bool affinity_set_ok_;
 #if BUILDFLAG(IS_WIN)
   DWORD_PTR old_affinity_;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   cpu_set_t old_cpuset_;
 #endif
 };

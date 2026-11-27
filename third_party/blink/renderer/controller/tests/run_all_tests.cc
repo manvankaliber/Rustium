@@ -19,12 +19,3 @@ int main(int argc, char** argv) {
       argc, argv,
       base::BindOnce(&base::TestSuite::Run, base::Unretained(&test_suite)));
 }
-
-#if BUILDFLAG(IS_IOS)
-// Required by content/app/ios/appex/child_process_bridge.mm when linking
-// against content for iOS device builds. blink_unittests doesn't spawn
-// child processes, so this is just a stub.
-extern "C" int ChildProcessMain(int argc, const char** argv) {
-  return 0;
-}
-#endif

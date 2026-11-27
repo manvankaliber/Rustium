@@ -6,7 +6,7 @@
 
 #include "build/build_config.h"
 
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_APPLE)
 
 namespace quarantine {
 
@@ -21,4 +21,4 @@ void QuarantineFile(const base::FilePath& file,
 
 }  // namespace quarantine
 
-#endif  // !WIN && !MAC && !CHROMEOS
+#endif

@@ -58,15 +58,9 @@ TEST(HashRealTimeUtilsTest, TestIsHashDetailRelevant) {
       create_hash_detail(V5::ThreatType::SOCIAL_ENGINEERING, std::nullopt)));
   EXPECT_TRUE(hash_realtime_utils::IsHashDetailRelevant(
       create_hash_detail(V5::ThreatType::UNWANTED_SOFTWARE, std::nullopt)));
-#if BUILDFLAG(IS_IOS)
-  EXPECT_FALSE(hash_realtime_utils::IsHashDetailRelevant(create_hash_detail(
-      V5::ThreatType::SOCIAL_ENGINEERING,
-      std::vector<V5::ThreatAttribute>({V5::ThreatAttribute::CANARY}))));
-#else
   EXPECT_TRUE(hash_realtime_utils::IsHashDetailRelevant(create_hash_detail(
       V5::ThreatType::SOCIAL_ENGINEERING,
       std::vector<V5::ThreatAttribute>({V5::ThreatAttribute::CANARY}))));
-#endif
   EXPECT_FALSE(hash_realtime_utils::IsHashDetailRelevant(create_hash_detail(
       V5::ThreatType::MALWARE,
       std::vector<V5::ThreatAttribute>({V5::ThreatAttribute::CANARY}))));
@@ -168,19 +162,10 @@ TEST(HashRealTimeUtilsTest,
 
 TEST(HashRealTimeUtilsTest, TestDetermineHashRealTimeSelection) {
   hash_realtime_utils::HashRealTimeSelection enabled_selection =
-#if BUILDFLAG(IS_ANDROID)
-      hash_realtime_utils::HashRealTimeSelection::kDatabaseManager;
-#else
       hash_realtime_utils::HashRealTimeSelection::kHashRealTimeService;
-#endif
   hash_realtime_utils::HashRealTimeSelection enabled_background_selection =
-#if BUILDFLAG(IS_ANDROID)
-      hash_realtime_utils::HashRealTimeSelection::
-          kDatabaseManagerBackgroundOnly;
-#else
       hash_realtime_utils::HashRealTimeSelection::
           kHashRealTimeServiceBackgroundOnly;
-#endif
   struct TestCase {
     SafeBrowsingState safe_browsing_state =
         SafeBrowsingState::STANDARD_PROTECTION;

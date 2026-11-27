@@ -40,13 +40,12 @@ logging.basicConfig(
   '  %(module)s.%(funcName)s:%(lineno)d  %(message)s',
 )
 
-path_util.AddAndroidPylibToPath()
 path_util.AddBuildUtilToPath()
 
 try:
   from lib.common import google_storage_helper
 
-  from pylib.utils import logdog_helper
+  from lib.common import logdog_helper
 except ImportError:
   pass
 

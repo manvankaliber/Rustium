@@ -35,9 +35,6 @@
 #include "mojo/public/cpp/bindings/callback_helpers.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/tab_android.h"
-#endif
 
 namespace {
 

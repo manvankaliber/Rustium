@@ -24,11 +24,7 @@ BASE_FEATURE(kProfileSeparationDomainExceptionListRetroactive,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kEnhancedSecurityEventFields,
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#else
              base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 bool IsEnhancedSecurityEventFieldsEnabled() {
   if (!base::FeatureList::IsEnabled(kEnhancedSecurityEventFields)) {
@@ -48,10 +44,6 @@ BASE_FEATURE(kUseCECFlagInPolicyData, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kUserPolicyCacheSizeLimit2MB, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kInitializePoliciesForSignedInUserInNewEntryPoints,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 // Enables a configurable delay for policy registration.
 BASE_FEATURE(kCustomPolicyRegistrationDelay, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -61,12 +53,6 @@ const base::FeatureParam<base::TimeDelta> kPolicyRegistrationDelay{
 // Used to add a captive portal check in SafeSitesNavigationThrottle.
 BASE_FEATURE(kSafeSitesCaptivePortalCheck, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-// A blocklist of policies to be blocked/ignored on Desktop Android.
-BASE_FEATURE(kDesktopAndroidPolicy, base::FEATURE_DISABLED_BY_DEFAULT);
-const base::FeatureParam<std::string> kDesktopAndroidPolicyBlocklist{
-    &kDesktopAndroidPolicy, "blocklist", ""};
-#endif  // BUILDFLAG(IS_DESKTOP_ANDROID)
 
 // Used to enable extension install policy support.
 BASE_FEATURE(kEnableExtensionInstallPolicyFetching,

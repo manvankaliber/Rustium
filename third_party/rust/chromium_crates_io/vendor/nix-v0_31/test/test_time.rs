@@ -1,4 +1,4 @@
-#[cfg(any(freebsdlike, linux_android, target_os = "emscripten"))]
+#[cfg(any(freebsdlike, linux, target_os = "emscripten"))]
 use nix::time::clock_getcpuclockid;
 use nix::time::{clock_gettime, ClockId};
 
@@ -13,7 +13,7 @@ pub fn test_clock_gettime() {
     clock_gettime(ClockId::CLOCK_REALTIME).expect("assertion failed");
 }
 
-#[cfg(any(freebsdlike, linux_android, target_os = "emscripten"))]
+#[cfg(any(freebsdlike, linux, target_os = "emscripten"))]
 #[test]
 pub fn test_clock_getcpuclockid() {
     let clock_id = clock_getcpuclockid(nix::unistd::Pid::this()).unwrap();
@@ -31,7 +31,7 @@ pub fn test_clock_id_now() {
     ClockId::CLOCK_REALTIME.now().unwrap();
 }
 
-#[cfg(any(freebsdlike, linux_android, target_os = "emscripten"))]
+#[cfg(any(freebsdlike, linux, target_os = "emscripten"))]
 #[test]
 pub fn test_clock_id_pid_cpu_clock_id() {
     ClockId::pid_cpu_clock_id(nix::unistd::Pid::this())
@@ -41,7 +41,7 @@ pub fn test_clock_id_pid_cpu_clock_id() {
 }
 
 #[cfg(any(
-    linux_android,
+    linux,
     solarish,
     freebsdlike,
     target_os = "netbsd",

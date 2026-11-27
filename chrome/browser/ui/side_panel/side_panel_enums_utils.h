@@ -62,10 +62,6 @@ inline std::string ToString(SidePanelOpenTrigger trigger) {
       return "ReadAnythingTogglePresentationButton";
     case SidePanelOpenTrigger::kReadAnythingKeyboardShortcut:
       return "ReadAnythingKeyboardShortcut";
-#if BUILDFLAG(IS_ANDROID)
-    case SidePanelOpenTrigger::kWindowResized:
-      return "WindowResized";
-#endif
     case SidePanelOpenTrigger::kGlicOpened:
       return "GlicOpened";
     case SidePanelOpenTrigger::kContextualTasks:
@@ -104,10 +100,6 @@ inline std::string ToString(SidePanelEntryHideReason reason) {
       return "Replaced";
     case SidePanelEntryHideReason::kBackgrounded:
       return "Backgrounded";
-#if BUILDFLAG(IS_ANDROID)
-    case SidePanelEntryHideReason::kWindowResized:
-      return "WindowResized";
-#endif
   }
   NOTREACHED();
 }

@@ -28,12 +28,7 @@ namespace {
 // On pixel mismatch, output a HTML-based diff page containing both images,
 // instead of the base64-encoded actual and expected images separately.
 BASE_FEATURE(kCcPixelTestHtmlDiffPage,
-#if BUILDFLAG(IS_ANDROID)
-             // Android test runners don't have access to the diff page.
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
              base::FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 std::string GetImageDiffUrl(const SkBitmap& left, const SkBitmap& right) {

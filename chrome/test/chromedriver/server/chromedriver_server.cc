@@ -178,7 +178,7 @@ void StartServerOnIOThread(
 // Currently, the network layer provides no way for us to control dual-protocol
 // bind option, or to query the current setting of that option, so we do our
 // best to determine the current setting. See https://crbug.com/41398711.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     // On Linux, dual-protocol bind is controlled by a system file.
     // ChromeOS builds also have OS_LINUX defined, so the code below applies.
     std::string bindv6only;
@@ -247,8 +247,7 @@ void RunServer(uint16_t port,
                bool allow_remote,
                const std::vector<net::IPAddress>& allowed_ips,
                const std::vector<std::string>& allowed_origins,
-               const std::string& url_base,
-               int adb_port) {
+               const std::string& url_base) {
   base::Thread io_thread(
       base::StringPrintf("%s IO", kChromeDriverProductShortName));
   CHECK(io_thread.StartWithOptions(
@@ -257,7 +256,7 @@ void RunServer(uint16_t port,
   base::SingleThreadTaskExecutor main_task_executor;
   base::RunLoop cmd_run_loop;
   HttpHandler handler(cmd_run_loop.QuitClosure(), io_thread.task_runner(),
-                      main_task_executor.task_runner(), url_base, adb_port);
+                      main_task_executor.task_runner(), url_base);
   HttpRequestHandlerFunc handle_request_func =
       base::BindRepeating(&HandleRequestOnCmdThread, handler.WeakPtr());
 
@@ -287,7 +286,7 @@ int main(int argc, char *argv[]) {
   base::AtExitManager at_exit;
   base::CommandLine* cmd_line = base::CommandLine::ForCurrentProcess();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Select the locale from the environment by passing an empty string instead
   // of the default "C" locale. This is particularly needed for the keycode
   // conversion code to work.
@@ -296,7 +295,6 @@ int main(int argc, char *argv[]) {
 
   // Parse command line flags.
   uint16_t port = 0;
-  int adb_port = 5037;
   bool allow_remote = false;
   std::vector<net::IPAddress> allowed_ips;
   std::vector<std::string> allowed_origins;
@@ -308,8 +306,6 @@ int main(int argc, char *argv[]) {
     const auto kOptionAndDescriptions = std::to_array<const char*>({
         "port=PORT",
         "port to listen on",
-        "adb-port=PORT",
-        "adb server port",
         "log-path=FILE",
         "write server log to file instead of stderr, "
         "increases log level to INFO",
@@ -389,13 +385,7 @@ int main(int argc, char *argv[]) {
   if (cmd_line->HasSwitch("ignore-explicit-port")) {
     port = 0;
   }
-  if (cmd_line->HasSwitch("adb-port")) {
-    if (!base::StringToInt(cmd_line->GetSwitchValueASCII("adb-port"),
-                           &adb_port)) {
-      printf("Invalid adb-port. Exiting...\n");
-      return 1;
-    }
-  }
+
   if (cmd_line->HasSwitch("url-base"))
     url_base = cmd_line->GetSwitchValueASCII("url-base");
   if (url_base.empty() || url_base.front() != '/')
@@ -487,8 +477,7 @@ int main(int argc, char *argv[]) {
   base::ThreadPoolInstance::CreateAndStartWithDefaultParams(
       kChromeDriverProductShortName);
 
-  RunServer(port, allow_remote, allowed_ips, allowed_origins, url_base,
-            adb_port);
+  RunServer(port, allow_remote, allowed_ips, allowed_origins, url_base);
 
   // clean up
   base::ThreadPoolInstance::Get()->Shutdown();

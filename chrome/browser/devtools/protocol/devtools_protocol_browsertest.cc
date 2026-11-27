@@ -99,18 +99,7 @@
 #include "ui/gfx/codec/png_codec.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/test/run_until.h"
-#include "chrome/browser/android/tab_android.h"
-#include "chrome/browser/devtools/protocol/browser_handler_android.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_test_helper.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_interface_iterator.h"
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/functional/callback_helpers.h"
 #include "base/task/sequenced_task_runner.h"
 #include "chrome/browser/devtools/chrome_devtools_manager_delegate.h"
@@ -141,7 +130,6 @@
 #include "content/public/browser/devtools_agent_host_client.h"
 #include "content/public/browser/devtools_manager_delegate.h"
 #include "content/public/test/browser_test_utils.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/browser/extensions/extension_util.h"
@@ -172,7 +160,6 @@ using testing::Not;
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
                        VisibleSecurityStateChangedNeutralState) {
   ASSERT_TRUE(content::NavigateToURL(
@@ -496,7 +483,6 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, CreateTargetWithFocus) {
   EXPECT_EQ(4, browser()->tab_strip_model()->count());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // `ProfileManager::GetLastUsedProfile()` returns nullptr if the last used
 // profile can't be loaded, in which case Chrome's UI falls back to the profile
 // picker. The Target domain must report an error rather than crash in this
@@ -554,9 +540,8 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
   EXPECT_FALSE(error());
   EXPECT_EQ(2, browser()->tab_strip_model()->count());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 // On ChromeOS and MacOS, the tabs are not backgrounded and unloaded in the same way as
 // on other platforms.
 #define MAYBE_AutoAttachToUnloadedTab DISABLED_AutoAttachToUnloadedTab
@@ -718,339 +703,7 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, MAYBE_AutoAttachToUnloadedTab) {
   ASSERT_EQ(3, evaluate_result2->FindIntByDottedPath("result.value"));
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(
-    DevToolsProtocolTest,
-    CreateWindowTargetRemainsAvailableWithoutMultiInstanceSupport) {
-  if (base::android::android_info::sdk_int() >=
-      base::android::android_info::SDK_VERSION_S) {
-    GTEST_SKIP() << "This test covers the pre-Android S fallback";
-  }
-
-  AttachToBrowserTarget();
-  const base::DictValue* create_result = SendCommandSync(
-      "Target.createTarget",
-      base::DictValue().Set("url", "about:blank").Set("newWindow", true));
-
-  ASSERT_FALSE(error());
-  ASSERT_TRUE(create_result);
-  EXPECT_TRUE(create_result->FindString("targetId"));
-}
-
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
-                       AutoAttachedWindowTargetCanQueryPendingBrowserWindow) {
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_S) {
-    GTEST_SKIP() << "Pending browser windows require Android S+";
-  }
-
-  AttachToBrowserTarget();
-
-  // A normal Android browser window requires an existing Activity to launch
-  // from. Wait for the test's initial window to finish registering before
-  // exercising creation of a second, pending window.
-  ASSERT_TRUE(base::test::RunUntil(
-      [] { return !GetAllBrowserWindowInterfaces().empty(); }));
-
-  SendCommandSync("Target.setAutoAttach",
-                  base::DictValue()
-                      .Set("autoAttach", true)
-                      .Set("waitForDebuggerOnStart", false)
-                      .Set("flatten", true));
-  ASSERT_TRUE(result());
-  ClearNotifications();
-
-  SendCommandAsync(
-      "Target.createTarget",
-      base::DictValue().Set("url", "about:blank").Set("newWindow", true));
-
-  // The target is exposed during command dispatch, before Android can finish
-  // creating and globally registering its Activity-backed browser window.
-  auto is_page_target = [](const base::DictValue& params) {
-    const std::string* type = params.FindStringByDottedPath("targetInfo.type");
-    return type && *type == "page";
-  };
-  ASSERT_TRUE(HasExistingNotificationMatching(
-      [&is_page_target](const base::DictValue& notification) {
-        const std::string* method = notification.FindString("method");
-        const base::DictValue* params = notification.FindDict("params");
-        return method && *method == "Target.attachedToTarget" && params &&
-               is_page_target(*params);
-      }));
-  const base::DictValue attached = WaitForMatchingNotification(
-      "Target.attachedToTarget", base::BindRepeating(is_page_target));
-  const std::string* target_id =
-      attached.FindStringByDottedPath("targetInfo.targetId");
-  ASSERT_TRUE(target_id);
-
-  const base::DictValue* window_result =
-      SendCommandSync("Browser.getWindowForTarget",
-                      base::DictValue().Set("targetId", *target_id));
-  ASSERT_TRUE(window_result);
-  const std::optional<int> window_id = window_result->FindInt("windowId");
-  ASSERT_TRUE(window_id.has_value());
-  const base::DictValue* bounds = window_result->FindDict("bounds");
-  ASSERT_TRUE(bounds);
-  EXPECT_TRUE(bounds->FindInt("left").has_value());
-  EXPECT_TRUE(bounds->FindInt("top").has_value());
-  EXPECT_TRUE(bounds->FindInt("width").has_value());
-  EXPECT_TRUE(bounds->FindInt("height").has_value());
-  EXPECT_TRUE(bounds->FindString("windowState"));
-
-  EXPECT_EQ(nullptr,
-            BrowserHandlerAndroid::FindBrowserWindowById(window_id.value()));
-}
-
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
-                       CreateTargetUsesDefaultBrowserContext) {
-  AttachToBrowserTarget();
-
-  content::WebContents* initial_web_contents =
-      chrome_test_utils::GetActiveWebContents(this);
-  ASSERT_TRUE(initial_web_contents);
-
-  base::DictValue params;
-  params.Set("url", "about:blank");
-  params.Set("newWindow", false);
-  const base::DictValue* result =
-      SendCommandSync("Target.createTarget", std::move(params));
-  ASSERT_TRUE(result);
-  const std::string* target_id = result->FindString("targetId");
-  ASSERT_TRUE(target_id);
-  const std::string created_target_id = *target_id;
-
-  scoped_refptr<content::DevToolsAgentHost> agent_host =
-      content::DevToolsAgentHost::GetForId(created_target_id);
-  ASSERT_TRUE(agent_host);
-  content::WebContents* web_contents = agent_host->GetWebContents();
-  ASSERT_TRUE(web_contents);
-  EXPECT_EQ(initial_web_contents->GetBrowserContext(),
-            web_contents->GetBrowserContext());
-
-  TabAndroid* tab = TabAndroid::FromWebContents(web_contents);
-  ASSERT_TRUE(tab);
-  EXPECT_EQ(web_contents->GetBrowserContext(), tab->profile());
-
-  params = base::DictValue();
-  params.Set("targetId", created_target_id);
-  ASSERT_TRUE(SendCommandSync("Target.closeTarget", std::move(params)));
-}
-
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
-                       CreateTargetUsesRequestedBrowserContext) {
-  AttachToBrowserTarget();
-
-  const base::DictValue* result =
-      SendCommandSync("Target.createBrowserContext");
-  ASSERT_TRUE(result);
-  const std::string* browser_context_id =
-      result->FindString("browserContextId");
-  ASSERT_TRUE(browser_context_id);
-  const std::string context_id = *browser_context_id;
-
-  base::DictValue params;
-  params.Set("url", "about:blank");
-  params.Set("newWindow", true);
-  params.Set("browserContextId", context_id);
-  result = SendCommandSync("Target.createTarget", std::move(params));
-  ASSERT_TRUE(result);
-  const std::string* target_id_value = result->FindString("targetId");
-  ASSERT_TRUE(target_id_value);
-  const std::string target_id = *target_id_value;
-
-  scoped_refptr<content::DevToolsAgentHost> agent_host =
-      content::DevToolsAgentHost::GetForId(target_id);
-  ASSERT_TRUE(agent_host);
-  content::WebContents* web_contents = agent_host->GetWebContents();
-  ASSERT_TRUE(web_contents);
-  EXPECT_EQ(context_id, web_contents->GetBrowserContext()->UniqueId());
-  TabAndroid* tab = TabAndroid::FromWebContents(web_contents);
-  ASSERT_TRUE(tab);
-  EXPECT_EQ(web_contents->GetBrowserContext(), tab->profile());
-
-  result = SendCommandSync("Target.getTargets");
-  ASSERT_TRUE(result);
-  const base::ListValue* target_infos = result->FindList("targetInfos");
-  ASSERT_TRUE(target_infos);
-
-  const base::Value* created_target_info = nullptr;
-  for (const auto& target : *target_infos) {
-    const std::string* listed_target_id =
-        target.GetDict().FindString("targetId");
-    if (listed_target_id && *listed_target_id == target_id) {
-      created_target_info = &target;
-      break;
-    }
-  }
-
-  ASSERT_TRUE(created_target_info);
-  const std::string* listed_browser_context_id =
-      created_target_info->GetDict().FindString("browserContextId");
-  ASSERT_TRUE(listed_browser_context_id);
-  EXPECT_EQ(context_id, *listed_browser_context_id);
-
-  params = base::DictValue();
-  params.Set("browserContextId", context_id);
-  ASSERT_TRUE(
-      SendCommandSync("Target.disposeBrowserContext", std::move(params)));
-  EXPECT_FALSE(agent_host->GetWebContents());
-}
-
-// TODO(https://crbug.com/580985658): Re-enable after fixing OwningTestTabModel
-// outliving the disposed OTR Profile.
-IN_PROC_BROWSER_TEST_F(
-    DevToolsProtocolTest,
-    DISABLED_DisposeBrowserContextClosesFrozenTabsAcrossTabModelRemoval) {
-  AttachToBrowserTarget();
-
-  const base::DictValue* result =
-      SendCommandSync("Target.createBrowserContext");
-  ASSERT_TRUE(result);
-  const std::string* browser_context_id =
-      result->FindString("browserContextId");
-  ASSERT_TRUE(browser_context_id);
-  const std::string context_id = *browser_context_id;
-
-  base::DictValue params;
-  params.Set("url", "about:blank");
-  params.Set("newWindow", true);
-  params.Set("browserContextId", context_id);
-  result = SendCommandSync("Target.createTarget", std::move(params));
-  ASSERT_TRUE(result);
-  const std::string* target_id_value = result->FindString("targetId");
-  ASSERT_TRUE(target_id_value);
-  const std::string target_id = *target_id_value;
-
-  scoped_refptr<content::DevToolsAgentHost> agent_host =
-      content::DevToolsAgentHost::GetForId(target_id);
-  ASSERT_TRUE(agent_host);
-  content::WebContents* web_contents = agent_host->GetWebContents();
-  ASSERT_TRUE(web_contents);
-  TabAndroid* context_tab = TabAndroid::FromWebContents(web_contents);
-  ASSERT_TRUE(context_tab);
-  Profile* context_profile = context_tab->profile();
-  ASSERT_TRUE(context_profile);
-
-  TabModel* context_model = TabModelList::GetTabModelForTabAndroid(context_tab);
-  ASSERT_TRUE(context_model);
-  ASSERT_EQ(1, context_model->GetTabCount());
-  ASSERT_EQ(context_model, TabModelList::models().back());
-  const size_t model_count = TabModelList::models().size();
-
-  OwningTestTabModel later_model_a(context_profile);
-  OwningTestTabModel later_model_b(context_profile);
-
-  ASSERT_TRUE(later_model_a.AddEmptyTab(0, /*select=*/true));
-  TabAndroid* frozen_tab_a = later_model_a.AddEmptyTab(1, /*select=*/false);
-  ASSERT_TRUE(frozen_tab_a);
-  ASSERT_TRUE(later_model_b.AddEmptyTab(0, /*select=*/true));
-  TabAndroid* frozen_tab_b = later_model_b.AddEmptyTab(1, /*select=*/false);
-  ASSERT_TRUE(frozen_tab_b);
-
-  ASSERT_EQ(context_profile, frozen_tab_a->profile());
-  ASSERT_EQ(context_profile, frozen_tab_b->profile());
-  ASSERT_TRUE(frozen_tab_a->web_contents());
-  ASSERT_TRUE(frozen_tab_b->web_contents());
-  frozen_tab_a->DestroyWebContents();
-  frozen_tab_b->DestroyWebContents();
-  ASSERT_FALSE(frozen_tab_a->web_contents());
-  ASSERT_FALSE(frozen_tab_b->web_contents());
-  ASSERT_EQ(context_profile, frozen_tab_a->profile());
-  ASSERT_EQ(context_profile, frozen_tab_b->profile());
-  ASSERT_EQ(2, later_model_a.GetTabCount());
-  ASSERT_EQ(2, later_model_b.GetTabCount());
-
-  params = base::DictValue();
-  params.Set("browserContextId", context_id);
-  ASSERT_TRUE(
-      SendCommandSync("Target.disposeBrowserContext", std::move(params)));
-
-  EXPECT_EQ(0, later_model_a.GetTabCount());
-  EXPECT_EQ(0, later_model_b.GetTabCount());
-  EXPECT_FALSE(agent_host->GetWebContents());
-  EXPECT_EQ(model_count + 1, TabModelList::models().size());
-
-  result = SendCommandSync("Target.getBrowserContexts");
-  ASSERT_TRUE(result);
-  const base::ListValue* browser_context_ids =
-      result->FindList("browserContextIds");
-  ASSERT_TRUE(browser_context_ids);
-  EXPECT_FALSE(browser_context_ids->contains(context_id));
-}
-
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
-                       CreateTargetRejectsUnknownBrowserContext) {
-  AttachToBrowserTarget();
-
-  base::DictValue params;
-  params.Set("url", "about:blank");
-  params.Set("browserContextId", "unknown");
-  SendCommandSync("Target.createTarget", std::move(params));
-
-  ASSERT_TRUE(error());
-  EXPECT_EQ("Failed to find browser context with id unknown",
-            *error()->FindString("message"));
-}
-
-IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, CreateListDisposeBrowserContext) {
-  AttachToBrowserTarget();
-
-  const base::DictValue* result =
-      SendCommandSync("Target.createBrowserContext");
-  ASSERT_TRUE(result);
-  const std::string* browser_context_id =
-      result->FindString("browserContextId");
-  ASSERT_TRUE(browser_context_id);
-  const std::string first_context_id = *browser_context_id;
-
-  result = SendCommandSync("Target.createBrowserContext");
-  ASSERT_TRUE(result);
-  browser_context_id = result->FindString("browserContextId");
-  ASSERT_TRUE(browser_context_id);
-  const std::string second_context_id = *browser_context_id;
-  EXPECT_NE(first_context_id, second_context_id);
-
-  result = SendCommandSync("Target.getBrowserContexts");
-  ASSERT_TRUE(result);
-  const base::ListValue* browser_context_ids =
-      result->FindList("browserContextIds");
-  ASSERT_TRUE(browser_context_ids);
-  EXPECT_TRUE(browser_context_ids->contains(first_context_id));
-  EXPECT_TRUE(browser_context_ids->contains(second_context_id));
-  const std::string* default_context_id =
-      result->FindString("defaultBrowserContextId");
-  ASSERT_TRUE(default_context_id);
-  EXPECT_NE(first_context_id, *default_context_id);
-  EXPECT_NE(second_context_id, *default_context_id);
-
-  base::DictValue params;
-  params.Set("browserContextId", first_context_id);
-  ASSERT_TRUE(
-      SendCommandSync("Target.disposeBrowserContext", std::move(params)));
-
-  result = SendCommandSync("Target.getBrowserContexts");
-  ASSERT_TRUE(result);
-  browser_context_ids = result->FindList("browserContextIds");
-  ASSERT_TRUE(browser_context_ids);
-  EXPECT_FALSE(browser_context_ids->contains(first_context_id));
-  EXPECT_TRUE(browser_context_ids->contains(second_context_id));
-
-  params = base::DictValue();
-  params.Set("browserContextId", second_context_id);
-  ASSERT_TRUE(
-      SendCommandSync("Target.disposeBrowserContext", std::move(params)));
-
-  result = SendCommandSync("Target.getBrowserContexts");
-  ASSERT_TRUE(result);
-  browser_context_ids = result->FindList("browserContextIds");
-  ASSERT_TRUE(browser_context_ids);
-  EXPECT_FALSE(browser_context_ids->contains(first_context_id));
-  EXPECT_FALSE(browser_context_ids->contains(second_context_id));
-}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
                        NoInputEventsSentToBrowserWhenDisallowed) {
@@ -1196,7 +849,6 @@ IN_PROC_BROWSER_TEST_F(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(
     DevToolsProtocolTest,
     NoPendingUrlShownWhenAttachedToBrowserInitiatedFailedNavigation) {
@@ -1778,7 +1430,6 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
   }
   EXPECT_EQ(manager->infobars().size(), 1u);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, UntrustedClient) {
   SetIsTrusted(false);
@@ -1827,15 +1478,12 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest, SetRemoteLocations) {
   SetIsTrusted(true);
   Attach();
   EXPECT_TRUE(SendCommandSync("Target.setRemoteLocations", std::move(params)));
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(version_request_received.Wait());
-#endif  // !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(
       SendCommandSync("Target.setRemoteLocations",
                       base::DictValue().Set("locations", base::ListValue())));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class DevToolsProtocolScreenshotTest : public DevToolsProtocolTest {
  protected:
   void SetUp() override {
@@ -1872,7 +1520,6 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolScreenshotTest, ScreenshotInactiveTab) {
   SkColor pixel_color = bitmap.getColor(100, 100);
   EXPECT_EQ(SK_ColorBLUE, pixel_color);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 class ExtensionProtocolTest : public DevToolsProtocolTest {
@@ -1926,7 +1573,6 @@ class ExtensionProtocolTest : public DevToolsProtocolTest {
     return extension;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // Android does not support Chrome Apps.
   void LaunchApp(const std::string& app_id) {
     apps::AppLaunchParams params(app_id,
@@ -1938,7 +1584,6 @@ class ExtensionProtocolTest : public DevToolsProtocolTest {
         ->BrowserAppLauncher()
         ->LaunchAppWithParamsForTesting(std::move(params));
   }
-#endif
 
   void ReloadExtension(const std::string& extension_id) {
     extensions::TestExtensionRegistryObserver observer(extension_registry_);
@@ -2034,314 +1679,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionProtocolTest,
 
 // TODO(https://crbug.com/501442926): The following tests use guest view in a
 // Chrome App, which is only supported on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-
-// Accepts a list of URL predicates and allows awaiting for all matching
-// WebContents to load.
-class WebContentsBarrier {
- public:
-  using Predicate = base::FunctionRef<bool(const GURL& url)>;
-
-  WebContentsBarrier(std::initializer_list<Predicate> predicates)
-      : predicates_(predicates) {}
-
-  std::vector<raw_ptr<content::WebContents, VectorExperimental>> Await() {
-    if (!IsReady()) {
-      base::RunLoop run_loop;
-      ready_callback_ = run_loop.QuitClosure();
-      run_loop.Run();
-      CHECK(IsReady());
-    }
-    return std::move(ready_web_contents_);
-  }
-
- private:
-  class LoadObserver : public content::WebContentsObserver {
-   public:
-    LoadObserver(content::WebContents& wc, WebContentsBarrier& owner)
-        : WebContentsObserver(&wc), owner_(owner) {}
-
-   private:
-    void DidFinishLoad(content::RenderFrameHost* host,
-                       const GURL& url) override {
-      if (host != web_contents()->GetPrimaryMainFrame()) {
-        return;
-      }
-      owner_->OnWebContentsLoaded(web_contents(), url);
-    }
-    const raw_ref<WebContentsBarrier> owner_;
-  };
-
-  bool IsReady() const { return !pending_contents_count_; }
-
-  void OnWebContentsCreated(content::WebContents* wc) {
-    observers_.push_back(std::make_unique<LoadObserver>(*wc, *this));
-  }
-
-  void OnWebContentsLoaded(content::WebContents* wc, const GURL& url) {
-    CHECK(!IsReady());
-    for (size_t i = 0; i < predicates_.size(); ++i) {
-      if (!predicates_[i](url)) {
-        continue;
-      }
-      CHECK(!ready_web_contents_[i])
-          << " predicate #" << i << " matches "
-          << ready_web_contents_[i]->GetLastCommittedURL() << " and " << url;
-      ready_web_contents_[i] = wc;
-      --pending_contents_count_;
-    }
-    if (IsReady() && ready_callback_) {
-      std::move(ready_callback_).Run();
-    }
-  }
-
-  const std::vector<Predicate> predicates_;
-
-  std::vector<raw_ptr<content::WebContents, VectorExperimental>>
-      ready_web_contents_{predicates_.size(), nullptr};
-  size_t pending_contents_count_{predicates_.size()};
-  base::CallbackListSubscription creation_subscription_{
-      content::RegisterWebContentsCreationCallback(
-          base::BindRepeating(&WebContentsBarrier::OnWebContentsCreated,
-                              base::Unretained(this)))};
-  std::vector<std::unique_ptr<LoadObserver>> observers_;
-  base::OnceClosure ready_callback_;
-};
-
-// TODO(crbug.com/40202416): Remove this when we remove the inner WebContents
-// implementation for guests.
-class ExtensionProtocolTestWithGuestViewInnerWebContents
-    : public ExtensionProtocolTest {
- public:
-  ExtensionProtocolTestWithGuestViewInnerWebContents() {
-    scoped_feature_list_.InitAndDisableFeature(features::kGuestViewMPArch);
-  }
-  ~ExtensionProtocolTestWithGuestViewInnerWebContents() override = default;
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-  guest_view::TestGuestViewManagerFactory guest_view_manager_factory_;
-};
-
-IN_PROC_BROWSER_TEST_F(ExtensionProtocolTestWithGuestViewInnerWebContents,
-                       TabTargetWithGuestView) {
-  ASSERT_FALSE(base::FeatureList::IsEnabled(features::kGuestViewMPArch));
-  base::FilePath extension_path =
-      base::PathService::CheckedGet(chrome::DIR_TEST_DATA)
-          .AppendASCII("devtools")
-          .AppendASCII("extensions")
-          .AppendASCII("app_with_webview");
-  auto* extension = LoadExtensionOrApp(extension_path);
-  ASSERT_THAT(extension, testing::NotNull());
-
-  WebContentsBarrier barrier(
-      {[](const GURL& url) -> bool {
-         return base::EndsWith(url.GetPath(), "host.html");
-       },
-       [](const GURL& url) -> bool { return url.SchemeIs(url::kDataScheme); }});
-
-  LaunchApp(extension->id());
-
-  std::vector<raw_ptr<content::WebContents, VectorExperimental>> wcs =
-      barrier.Await();
-  ASSERT_THAT(wcs, testing::SizeIs(2));
-  EXPECT_NE(wcs[0], wcs[1]);
-  // Assure host and view have different DevTools hosts.
-  EXPECT_NE(content::DevToolsAgentHost::GetOrCreateForTab(wcs[0]),
-            content::DevToolsAgentHost::GetOrCreateForTab(wcs[1]));
-  // Assure host does not auto-attach view.
-  AttachToTabTarget(wcs[0]);
-  base::DictValue command_params;
-  command_params = base::DictValue();
-  command_params.Set("autoAttach", true);
-  command_params.Set("waitForDebuggerOnStart", false);
-  command_params.Set("flatten", true);
-  SendCommandSync("Target.setAutoAttach", std::move(command_params));
-  EXPECT_FALSE(
-      HasExistingNotificationMatching([](const base::DictValue& notification) {
-        if (*notification.FindString("method") != "Target.attachedToTarget") {
-          return false;
-        }
-        const std::string* url =
-            notification.FindStringByDottedPath("params.targetInfo.url");
-        return url && base::StartsWith(*url, "data:");
-      }));
-}
-
-class ExtensionProtocolTestWithGuestViewMPArch : public ExtensionProtocolTest {
- public:
-  ExtensionProtocolTestWithGuestViewMPArch() {
-    scoped_feature_list_.InitAndEnableFeature(features::kGuestViewMPArch);
-  }
-  ~ExtensionProtocolTestWithGuestViewMPArch() override = default;
-
-  guest_view::TestGuestViewManager* GetGuestViewManager() {
-    return guest_view_manager_factory_.GetOrCreateTestGuestViewManager(
-        chrome_test_utils::GetProfile(this),
-        extensions::ExtensionsAPIClient::Get()
-            ->CreateGuestViewManagerDelegate());
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-  guest_view::TestGuestViewManagerFactory guest_view_manager_factory_;
-};
-
-IN_PROC_BROWSER_TEST_F(ExtensionProtocolTestWithGuestViewMPArch,
-                       TabTargetDoesNotAutoAttachGuestView) {
-  ASSERT_TRUE(base::FeatureList::IsEnabled(features::kGuestViewMPArch));
-  base::FilePath extension_path =
-      base::PathService::CheckedGet(chrome::DIR_TEST_DATA)
-          .AppendASCII("devtools")
-          .AppendASCII("extensions")
-          .AppendASCII("app_with_webview");
-  auto* extension = LoadExtensionOrApp(extension_path);
-  ASSERT_THAT(extension, testing::NotNull());
-
-  WebContentsBarrier barrier({[](const GURL& url) -> bool {
-    return base::EndsWith(url.GetPath(), "host.html");
-  }});
-  LaunchApp(extension->id());
-  std::vector<raw_ptr<content::WebContents, VectorExperimental>> wcs =
-      barrier.Await();
-  ASSERT_THAT(wcs, testing::SizeIs(1));
-
-  auto* guest_view = GetGuestViewManager()->WaitForSingleGuestViewCreated();
-  ASSERT_TRUE(guest_view);
-  GetGuestViewManager()->WaitUntilAttached(guest_view);
-
-  // Assure tab-target does not auto-attach view.
-  AttachToTabTarget(wcs[0]);
-  auto command_params = base::DictValue()
-                            .Set("autoAttach", true)
-                            .Set("waitForDebuggerOnStart", false)
-                            .Set("flatten", true);
-  SendCommandSync("Target.setAutoAttach", std::move(command_params));
-  EXPECT_FALSE(
-      HasExistingNotificationMatching([](const base::DictValue& notification) {
-        if (*notification.FindString("method") != "Target.attachedToTarget") {
-          return false;
-        }
-        const std::string* url =
-            notification.FindStringByDottedPath("params.targetInfo.url");
-        return url && base::StartsWith(*url, "data:");
-      }));
-}
-
-IN_PROC_BROWSER_TEST_F(ExtensionProtocolTestWithGuestViewMPArch,
-                       PrimaryMainFrameTargetAutoAttachesGuestView) {
-  ASSERT_TRUE(base::FeatureList::IsEnabled(features::kGuestViewMPArch));
-  base::FilePath extension_path =
-      base::PathService::CheckedGet(chrome::DIR_TEST_DATA)
-          .AppendASCII("devtools")
-          .AppendASCII("extensions")
-          .AppendASCII("app_with_webview");
-  auto* extension = LoadExtensionOrApp(extension_path);
-  ASSERT_THAT(extension, testing::NotNull());
-
-  WebContentsBarrier barrier({[](const GURL& url) -> bool {
-    return base::EndsWith(url.GetPath(), "host.html");
-  }});
-  LaunchApp(extension->id());
-  std::vector<raw_ptr<content::WebContents, VectorExperimental>> wcs =
-      barrier.Await();
-  ASSERT_EQ(wcs.size(), 1u);
-
-  auto* guest_view = GetGuestViewManager()->WaitForSingleGuestViewCreated();
-  const std::string devtools_frame_token =
-      guest_view->GetGuestMainFrame()->GetDevToolsFrameToken().ToString();
-  ASSERT_TRUE(guest_view);
-  GetGuestViewManager()->WaitUntilAttached(guest_view);
-
-  AttachToWebContents(wcs[0]);
-  auto command_params = base::DictValue()
-                            .Set("autoAttach", true)
-                            .Set("waitForDebuggerOnStart", false)
-                            .Set("flatten", true);
-  SendCommand("Target.setAutoAttach", std::move(command_params));
-  base::DictValue params =
-      WaitForNotification("Target.attachedToTarget", /*allow_existing=*/true);
-
-  EXPECT_EQ("webview", *params.FindStringByDottedPath("targetInfo.type"));
-  EXPECT_EQ(devtools_frame_token,
-            *params.FindStringByDottedPath("targetInfo.targetId"));
-  EXPECT_EQ(wcs[0]->GetPrimaryMainFrame()->GetDevToolsFrameToken().ToString(),
-            content::DevToolsAgentHost::GetForId(devtools_frame_token)
-                ->GetParentId());
-}
-
-IN_PROC_BROWSER_TEST_F(ExtensionProtocolTestWithGuestViewMPArch,
-                       GuestViewIframeContentFrameUpdatedAfterAttach) {
-  ASSERT_TRUE(base::FeatureList::IsEnabled(features::kGuestViewMPArch));
-  base::FilePath extension_path =
-      base::PathService::CheckedGet(chrome::DIR_TEST_DATA)
-          .AppendASCII("devtools")
-          .AppendASCII("extensions")
-          .AppendASCII("app_with_webview");
-  auto* extension = LoadExtensionOrApp(extension_path);
-  ASSERT_THAT(extension, testing::NotNull());
-
-  WebContentsBarrier barrier({[](const GURL& url) -> bool {
-    return base::EndsWith(url.GetPath(), "host.html");
-  }});
-  LaunchApp(extension->id());
-  std::vector<raw_ptr<content::WebContents, VectorExperimental>> wcs =
-      barrier.Await();
-  ASSERT_EQ(wcs.size(), 1u);
-
-  auto* guest_view = GetGuestViewManager()->WaitForSingleGuestViewCreated();
-  ASSERT_TRUE(guest_view);
-  GetGuestViewManager()->WaitUntilAttached(guest_view);
-
-  AttachToWebContents(wcs[0]);
-
-  // Get the document's NodeId.
-  const base::DictValue* result = SendCommandSync("DOM.getDocument");
-  ASSERT_TRUE(result);
-  int document_node_id = result->FindIntByDottedPath("root.nodeId").value();
-
-  // Get the <webview>'s nodeId (by searching for it using querySelector).
-  auto params = base::DictValue()
-                    .Set("nodeId", document_node_id)
-                    .Set("selector", "webview");
-  result = SendCommandSync("DOM.querySelector", std::move(params));
-  ASSERT_TRUE(result);
-  int web_view_node_id = result->FindInt("nodeId").value();
-
-  // Get the <webview> shadow tree (using its nodeId), and retrieve its
-  // placeholder <iframe>'s frameId. The result from "DOM.describeNode" will
-  // look something like:
-  // {"node": {
-  //    ...,
-  //    "shadowRoots": [{
-  //      ...,
-  //      "children": [{
-  //        ...,
-  //        "frameId": "...."
-  //       }]
-  //    }]
-  // }
-  params = base::DictValue()
-               .Set("nodeId", web_view_node_id)
-               .Set("depth", 2)
-               .Set("pierce", true);
-  result = SendCommandSync("DOM.describeNode", std::move(params));
-  ASSERT_TRUE(result);
-  auto* frame_id = result->FindListByDottedPath("node.shadowRoots")
-                       ->front()
-                       .GetDict()
-                       .FindList("children")
-                       ->front()
-                       .GetDict()
-                       .FindString("frameId");
-  ASSERT_TRUE(frame_id);
-  // The frameId (i.e. the placeholder RemoteFrame's devtools_frame_token)
-  // should match the devtools_frame_token of the guest's main frame.
-  EXPECT_EQ(
-      *frame_id,
-      guest_view->GetGuestMainFrame()->GetDevToolsFrameToken().ToString());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
@@ -2409,7 +1746,6 @@ IN_PROC_BROWSER_TEST_F(PrerenderDataSaverProtocolTest,
       /*PrerenderFinalStatus::kDataSaverEnabled=*/38, 1);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class PrivacySandboxAttestationsOverrideTest
     : public InProcessBrowserTestMixinHostSupport<DevToolsProtocolTest> {
  public:
@@ -3129,9 +2465,7 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolTest,
   EXPECT_EQ(group_id.ToString(),
             *second_get_target_info_data.FindString("tabGroupId"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 class DevToolsProtocolTest_OpensDevTools : public DevToolsProtocolTest {
  public:
   std::string GetCurrentPageTargetId() {
@@ -3655,6 +2989,5 @@ IN_PROC_BROWSER_TEST_F(DevToolsProtocolWebMCPTest,
   EXPECT_THAT(GetScriptToolNames(), testing::ElementsAre("regular_tool"));
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace

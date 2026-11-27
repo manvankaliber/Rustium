@@ -9,8 +9,7 @@ example_value: ${user_home}/Chrome_cache
 features:
   dynamic_refresh: false
   per_profile: false
-future_on:
-- fuchsia
+future_on: []
 label: Set disk cache directory
 owners:
 - file://components/policy/OWNERS

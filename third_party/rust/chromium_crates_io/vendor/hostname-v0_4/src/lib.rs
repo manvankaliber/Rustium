@@ -117,7 +117,6 @@ hostname::set("potato")?;
 ///
 /// ## Compatibility
 ///
-/// * Will fail with a linkage error for Android API < 23 (see [#9](https://github.com/djc/hostname/issues/9#issuecomment-563991112))
 #[cfg(feature = "set")]
 #[cfg_attr(docsrs, doc(cfg(feature = "set")))]
 pub fn set<T>(hostname: T) -> io::Result<()>

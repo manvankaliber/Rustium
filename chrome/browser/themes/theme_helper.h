@@ -79,7 +79,6 @@ class ThemeHelper {
   }
 
   // Omitted on Android for binary size; see ui/base/theme_provider.h.
-#if !BUILDFLAG(IS_ANDROID)
   scoped_refptr<base::RefCountedMemory> GetRawData(
       int id,
       const CustomThemeSupplier* theme_supplier,
@@ -95,7 +94,6 @@ class ThemeHelper {
   // Implementation for ui::ThemeProvider.
   virtual bool ShouldUseNativeFrame(
       const CustomThemeSupplier* theme_supplier) const;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
  private:
   friend class theme_service_internal::ThemeServiceTest;
@@ -103,12 +101,10 @@ class ThemeHelper {
   // Whether dark default colors/tints should be used, if available.
   static bool UseDarkModeColors(const CustomThemeSupplier* theme_supplier);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Returns a cross platform image for an id.
   gfx::Image GetImageNamed(int id,
                            bool incognito,
                            const CustomThemeSupplier* theme_supplier) const;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   SEQUENCE_CHECKER(sequence_checker_);
 };

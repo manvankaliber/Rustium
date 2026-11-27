@@ -176,14 +176,7 @@
         81
       </message>
 
-      <if expr="is_chromeos">
-        <message name="IDS_FACTORY_RESET_HELP_URL" translateable="false">
-          https://support.google.com/chromebook/answer/183084?hl=[GRITLANGCODE]
-        </message>
-        <message name="IDS_SANITIZE_HELP_URL" translateable="false">
-          https://support.google.com/chromebook/answer/183084?hl=[GRITLANGCODE]
-        </message>
-      </if>
+
 
     </messages>
   </release>

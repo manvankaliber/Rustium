@@ -50,7 +50,7 @@ struct DeepScanDebugData {
 };
 #endif  //  BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 
-#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(SAFE_BROWSING_DOWNLOAD_PROTECTION)
 // Local override of a download TailoredVerdict.
 struct TailoredVerdictOverrideData {
   // Identifies the SafeBrowsingUIHandler it was set from, it is derived from
@@ -109,7 +109,7 @@ struct ClientPhishingRequestAndToken {
   std::string token;
 };
 
-#if BUILDFLAG(SAFE_BROWSING_DB_LOCAL) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(SAFE_BROWSING_DB_LOCAL)
 
 std::string UserReadableTimeFromMillisSinceEpoch(int64_t time_in_milliseconds);
 void AddStoreInfo(
@@ -149,13 +149,6 @@ std::string SerializeDownloadUrlChecked(const std::vector<GURL>& urls,
 std::string SerializeJson(base::ValueView value);
 base::DictValue SerializePGEvent(const sync_pb::UserEventSpecifics& event);
 base::DictValue SerializeSecurityEvent(const sync_pb::GaiaPasswordReuse& event);
-#if BUILDFLAG(IS_ANDROID)
-// This serializes the internal::ReferringAppInfo struct (not to be confused
-// with the protobuf message ReferringAppInfo), which contains intermediate
-// information obtained from Java.
-base::DictValue SerializeReferringAppInfo(
-    const internal::ReferringAppInfo& info);
-#endif
 std::string SerializePGPing(
     const LoginReputationClientRequestAndToken& request_and_token);
 std::string SerializePGResponse(const LoginReputationClientResponse& response);

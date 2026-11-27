@@ -26,10 +26,6 @@ This PyPI package includes the Python bindings for following features:
  into the json format. See the [Metadata
  documentation](https://www.tensorflow.org/lite/convert/metadata) for more
  information.
- - Android Codegen tool: generates the Java model interface used in Android for
- a particular model. See the [Codegen tool
- documentation](https://www.tensorflow.org/lite/inference_with_metadata/codegen)
- for more information.
 """
 
 from __future__ import absolute_import
@@ -77,7 +73,6 @@ if '--project_name' in sys.argv:
 DOCLINES = __doc__.split('\n')
 
 CONSOLE_SCRIPTS = [
-    'tflite_codegen = tensorflow_lite_support.codegen.python.codegen:main',
 ]
 
 
@@ -112,7 +107,7 @@ matches = []
 for path in so_lib_paths:
   matches.extend(['../' + x for x in find_files('*', path) if '.py' not in x])
 
-EXTENSIONS = ['codegen/_pywrap_codegen.so']
+EXTENSIONS = []
 
 headers = ()
 

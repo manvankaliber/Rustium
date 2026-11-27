@@ -79,18 +79,6 @@ class BLINK_PLATFORM_EXPORT WebThreadScheduler
   // constructed. Must be called on the main thread.
   virtual void SetRendererBackgrounded(bool backgrounded);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Android WebView has very strange WebView.pauseTimers/resumeTimers API.
-  // It's very old and very inconsistent. The API promises that this
-  // "pauses all layout, parsing, and JavaScript timers for all WebViews".
-  // Also CTS tests expect that loading tasks continue to run.
-  // We should change it to something consistent (e.g. stop all javascript)
-  // but changing WebView and CTS is a slow and painful process, so for
-  // the time being we're doing our best.
-  // DO NOT USE FOR ANYTHING EXCEPT ANDROID WEBVIEW API IMPLEMENTATION.
-  virtual void PauseTimersForAndroidWebView();
-  virtual void ResumeTimersForAndroidWebView();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // IPC::Channel::UrgentMessageDelegate implementation:
   void OnUrgentMessageReceived() override;

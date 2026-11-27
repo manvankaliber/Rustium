@@ -89,20 +89,7 @@ include!("macros.rs");
         any(target_feature = "lse2", portable_atomic_target_feature = "lse2"),
     )),
 ))]
-#[cfg(any(
-    all(
-        target_os = "linux",
-        any(
-            target_env = "gnu",
-            all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")),
-            target_env = "ohos",
-            all(target_env = "uclibc", not(target_feature = "crt-static")),
-            portable_atomic_outline_atomics,
-        ),
-    ),
-    target_os = "android",
-    target_os = "freebsd",
-))]
+#[cfg(any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd"))]
 #[path = "../detect/auxv.rs"]
 mod detect;
 #[cfg(not(portable_atomic_no_outline_atomics))]
@@ -127,11 +114,7 @@ mod detect;
 #[cfg(target_os = "illumos")]
 #[path = "../detect/aarch64_illumos.rs"]
 mod detect;
-#[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(test, not(any(target_feature = "lse", portable_atomic_target_feature = "lse"))))]
-#[cfg(target_os = "fuchsia")]
-#[path = "../detect/aarch64_fuchsia.rs"]
-mod detect;
+
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(
     test,
@@ -158,7 +141,7 @@ mod detect;
 #[cfg(test)] // test-only (we use auxv.rs instead)
 #[cfg(not(valgrind))]
 #[cfg(not(portable_atomic_no_outline_atomics))]
-#[cfg(any(target_os = "linux", target_os = "android", target_os = "freebsd"))]
+#[cfg(any(target_os = "linux", target_os = "freebsd"))]
 #[path = "../detect/aarch64_aa64reg.rs"]
 mod test_detect_aa64reg;
 #[cfg(test)] // test-only (we use aarch64_aa64reg.rs instead)
@@ -183,32 +166,7 @@ use crate::utils::{Pair, U128};
 #[rustfmt::skip]
 macro_rules! debug_assert_lse {
     () => {
-        #[cfg(all(
-            not(portable_atomic_no_outline_atomics),
-            any(
-                all(
-                    target_os = "linux",
-                    any(
-                        target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
-                        target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
-                        portable_atomic_outline_atomics,
-                    ),
-                ),
-                target_os = "android",
-                target_os = "freebsd",
-                target_os = "netbsd",
-                target_os = "openbsd",
-                target_os = "illumos",
-                target_os = "fuchsia",
-                target_vendor = "apple",
-                windows,
-            ),
-        ))]
+        #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", target_vendor = "apple", windows)))]
         #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
         {
             debug_assert!(detect::detect().lse());
@@ -223,33 +181,9 @@ macro_rules! debug_assert_lse {
 #[rustfmt::skip]
 macro_rules! debug_assert_lse2 {
     () => {
-        #[cfg(all(
-            not(portable_atomic_no_outline_atomics),
-            any(
-                all(
-                    target_os = "linux",
-                    any(
-                        target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
-                        target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
-                        portable_atomic_outline_atomics,
-                    ),
-                ),
-                target_os = "android",
-                target_os = "freebsd",
-                target_os = "netbsd",
-                target_os = "openbsd",
-                target_os = "illumos",
-                // These don't support detection of FEAT_LSE2.
-                // target_os = "fuchsia",
-                target_vendor = "apple",
-                windows,
-            ),
-        ))]
+        #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LSE2.
+                //
+                target_vendor = "apple", windows)))]
         #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
         {
             debug_assert!(detect::detect().lse2());
@@ -267,33 +201,9 @@ macro_rules! debug_assert_lse2 {
 #[rustfmt::skip]
 macro_rules! debug_assert_lse128 {
     () => {
-        #[cfg(all(
-            not(portable_atomic_no_outline_atomics),
-            any(
-                all(
-                    target_os = "linux",
-                    any(
-                        target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
-                        target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
-                        portable_atomic_outline_atomics,
-                    ),
-                ),
-                target_os = "android",
-                target_os = "freebsd",
-                target_os = "netbsd",
-                target_os = "openbsd",
-                target_os = "illumos",
-                // These don't support detection of FEAT_LSE128.
-                // target_os = "fuchsia",
-                target_vendor = "apple",
-                windows,
-            ),
-        ))]
+        #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LSE128.
+                //
+                target_vendor = "apple", windows)))]
         #[cfg(not(any(target_feature = "lse128", portable_atomic_target_feature = "lse128")))]
         {
             debug_assert!(detect::detect().lse128());
@@ -311,33 +221,9 @@ macro_rules! debug_assert_lse128 {
 #[rustfmt::skip]
 macro_rules! debug_assert_rcpc3 {
     () => {
-        #[cfg(all(
-            not(portable_atomic_no_outline_atomics),
-            any(
-                all(
-                    target_os = "linux",
-                    any(
-                        target_env = "gnu",
-                        all(
-                            target_env = "musl",
-                            any(not(target_feature = "crt-static"), feature = "std"),
-                        ),
-                        target_env = "ohos",
-                        all(target_env = "uclibc", not(target_feature = "crt-static")),
-                        portable_atomic_outline_atomics,
-                    ),
-                ),
-                target_os = "android",
-                target_os = "freebsd",
-                target_os = "netbsd",
-                target_os = "openbsd",
-                target_os = "illumos",
-                // These don't support detection of FEAT_LRCPC3.
-                // target_os = "fuchsia",
-                target_vendor = "apple",
-                windows,
-            ),
-        ))]
+        #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LRCPC3.
+                //
+                target_vendor = "apple", windows)))]
         #[cfg(not(any(target_feature = "rcpc3", portable_atomic_target_feature = "rcpc3")))]
         {
             debug_assert!(detect::detect().rcpc3());
@@ -349,23 +235,23 @@ macro_rules! debug_assert_rcpc3 {
 //
 // This is similar to #[target_feature(enable = "lse")], except that there are
 // no compiler guarantees regarding (un)inlining, and the scope is within an asm
-// block rather than a function. We use this directive because #[target_feature(enable = "lse")]
-// is unstable on pre-1.61 rustc and incompatible with rustc_codegen_cranelift:
-// https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400#issuecomment-1774599775
+// block rather than a function. We use this directive because
+// #[target_feature(enable = "lse")] is unstable on pre-1.61 rustc and
+// incompatible with rustc_codegen_cranelift: https://github.com/rust-lang/rustc_codegen_cranelift/issues/1400#issuecomment-1774599775
 //
-// The .arch_extension directive in asm! is effective until the end of the assembly block and
-// is not propagated to subsequent code, so the end_lse macro is unneeded.
-// https://godbolt.org/z/o6EPndP94
+// The .arch_extension directive in asm! is effective until the end of the
+// assembly block and is not propagated to subsequent code, so the end_lse macro
+// is unneeded. https://godbolt.org/z/o6EPndP94
 // https://github.com/torvalds/linux/commit/e0d5896bd356cd577f9710a02d7a474cdf58426b
 // https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
 // (It seems GCC effectively ignores this directive and always allow FEAT_LSE instructions: https://godbolt.org/z/W9W6rensG)
 // Note that the .arch_extension directive in global_asm!/naked_asm! which are
 // not used in this crate has different behavior: https://github.com/rust-lang/rust/pull/137720#discussion_r1973608259
-// Note that this directive currently cannot be used correctly with global_asm!/naked_asm!
-// due to LLVM bug: https://github.com/rust-lang/rust/pull/137720#discussion_r2014505753
+// Note that this directive currently cannot be used correctly with
+// global_asm!/naked_asm! due to LLVM bug: https://github.com/rust-lang/rust/pull/137720#discussion_r2014505753
 //
-// The .arch directive has a similar effect, but we don't use it due to the following issue:
-// https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
+// The .arch directive has a similar effect, but we don't use it due to the
+// following issue: https://github.com/torvalds/linux/commit/dd1f6308b28edf0452dd5dc7877992903ec61e69
 //
 // Note: If FEAT_LSE is not available at compile-time, we must guarantee that
 // the function that uses it is not inlined into a function where it is not
@@ -373,8 +259,9 @@ macro_rules! debug_assert_rcpc3 {
 // FEAT_LSE is available at run-time) optimizations that reorder its
 // instructions across the if condition might introduce undefined behavior.
 // (see also https://rust-lang.github.io/rfcs/2045-target-feature.html#safely-inlining-target_feature-functions-on-more-contexts)
-// However, our code uses the ifunc helper macro that works with function pointers,
-// so we don't have to worry about this unless calling without helper macro.
+// However, our code uses the ifunc helper macro that works with function
+// pointers, so we don't have to worry about this unless calling without helper
+// macro.
 #[cfg(any(
     target_feature = "lse",
     portable_atomic_target_feature = "lse",
@@ -437,8 +324,8 @@ macro_rules! atomic_rmw {
             Ordering::Acquire => $op!("a", "", ""),
             Ordering::Release => $op!("", "l", ""),
             Ordering::AcqRel => $op!("a", "l", ""),
-            // In MSVC environments, SeqCst stores/writes by non-LSE* instructions needs fences after writes.
-            // https://reviews.llvm.org/D141748
+            // In MSVC environments, SeqCst stores/writes by non-LSE* instructions
+            // needs fences after writes. https://reviews.llvm.org/D141748
             // https://github.com/llvm/llvm-project/commit/1ea201d73be2fdf03347e9c6be09ebed5f8e0e00
             #[cfg(target_env = "msvc")]
             Ordering::SeqCst if $write == Ordering::SeqCst => $op!("a", "l", "dmb ish"),
@@ -467,8 +354,8 @@ macro_rules! atomic_rmw_inst {
             Ordering::Acquire => $op!("a", ""), // "a"
             Ordering::Release => $op!("6", ""), // "l"
             Ordering::AcqRel => $op!("e", ""),  // "al"
-            // In MSVC environments, SeqCst stores/writes by non-LSE* instructions needs fences after writes.
-            // https://reviews.llvm.org/D141748
+            // In MSVC environments, SeqCst stores/writes by non-LSE* instructions
+            // needs fences after writes. https://reviews.llvm.org/D141748
             // https://github.com/llvm/llvm-project/commit/1ea201d73be2fdf03347e9c6be09ebed5f8e0e00
             #[cfg(target_env = "msvc")]
             Ordering::SeqCst if $write == Ordering::SeqCst => $op!("e", "dmb ish"),
@@ -515,33 +402,9 @@ cfg_sel!({
         use self::_atomic_load_ldp as atomic_load;
     }
     // if platform_supports_detection_of(FEAT_LSE2):
-    #[cfg(all(
-        not(portable_atomic_no_outline_atomics),
-        any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics,
-                ),
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            target_os = "illumos",
-            // These don't support detection of FEAT_LSE2.
-            // target_os = "fuchsia",
-            target_vendor = "apple",
-            windows,
-        ),
-    ))]
+    #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LSE2.
+            //
+            target_vendor = "apple", windows)))]
     {
         #[inline]
         unsafe fn atomic_load(src: *mut u128, order: Ordering) -> u128 {
@@ -639,7 +502,8 @@ cfg_sel!({
 });
 // If CPU supports FEAT_LSE2, LDP/LDIAPP is single-copy atomic reads,
 // otherwise it is two single-copy atomic reads.
-// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
+// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A
+// architecture profile
 #[cfg(any(
     target_feature = "lse2",
     portable_atomic_target_feature = "lse2",
@@ -735,8 +599,8 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
                     out_lo = lateout(reg) out_lo,
                     options(nostack, preserves_flags),
                 );
-                // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use .inst directive on old LLVM.
-                // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
+                // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use
+                // .inst directive on old LLVM. https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
                 #[cfg(portable_atomic_pre_llvm_16)]
                 asm!(
                     // ldiapp x0, x1, [x0] // atomic { out_lo:out_hi = *src }
@@ -761,8 +625,8 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
                     tmp = out(reg) _,
                     options(nostack, preserves_flags),
                 );
-                // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use .inst directive on old LLVM.
-                // https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
+                // LLVM supports FEAT_LRCPC3 instructions on LLVM 16+, so use
+                // .inst directive on old LLVM. https://github.com/llvm/llvm-project/commit/a6aaa969f7caec58a994142f8d855861cf3a1463
                 #[cfg(portable_atomic_pre_llvm_16)]
                 asm!(
                     // ldar (or dmb ishld) is required to prevent reordering with preceding stlxp.
@@ -782,7 +646,8 @@ unsafe fn _atomic_load_ldiapp(src: *mut u128, order: Ordering) -> u128 {
         U128 { pair: Pair { lo: out_lo, hi: out_hi } }.whole
     }
 }
-// Do not use _atomic_compare_exchange_casp because it needs extra MOV to implement load.
+// Do not use _atomic_compare_exchange_casp because it needs extra MOV to
+// implement load.
 #[cfg(any(test, not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2"))))]
 #[cfg(any(target_feature = "lse", portable_atomic_target_feature = "lse"))]
 #[inline]
@@ -897,33 +762,9 @@ cfg_sel!({
         use self::_atomic_store_stp as atomic_store;
     }
     // if platform_supports_detection_of(FEAT_LSE2):
-    #[cfg(all(
-        not(portable_atomic_no_outline_atomics),
-        any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics,
-                ),
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            target_os = "illumos",
-            // These don't support detection of FEAT_LSE2.
-            // target_os = "fuchsia",
-            target_vendor = "apple",
-            windows,
-        ),
-    ))]
+    #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", // These don't support detection of FEAT_LSE2.
+            //
+            target_vendor = "apple", windows)))]
     {
         #[inline]
         unsafe fn atomic_store(dst: *mut u128, val: u128, order: Ordering) {
@@ -962,7 +803,8 @@ cfg_sel!({
                 atomic_store_no_lse2_seqcst = atomic_store_no_lse2(Ordering::SeqCst);
             }
             // SAFETY: the caller must uphold the safety contract.
-            // and we've checked if FEAT_LSE2/FEAT_LRCPC3/FEAT_LSE128 is available.
+            // and we've checked if FEAT_LSE2/FEAT_LRCPC3/FEAT_LSE128 is
+            // available.
             unsafe {
                 match order {
                     Ordering::Relaxed => {
@@ -1031,8 +873,8 @@ cfg_sel!({
 #[cfg(not(any(target_feature = "lse2", portable_atomic_target_feature = "lse2")))]
 cfg_sel!({
     // if compile_time(FEAT_LSE) && not(ll_sc_rmw) => casp
-    // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw cfg is not set,
-    // we use CAS-based atomic RMW.
+    // If FEAT_LSE is available at compile-time and portable_atomic_ll_sc_rmw
+    // cfg is not set, we use CAS-based atomic RMW.
     #[cfg(all(
         any(target_feature = "lse", portable_atomic_target_feature = "lse"),
         not(portable_atomic_ll_sc_rmw),
@@ -1055,7 +897,8 @@ cfg_sel!({
 });
 // If CPU supports FEAT_LSE2, STP/STILP is single-copy atomic writes,
 // otherwise it is two single-copy atomic writes.
-// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A architecture profile
+// Refs: B2.2.1 of the Arm Architecture Reference Manual Armv8, for Armv8-A
+// architecture profile
 #[cfg(any(
     target_feature = "lse2",
     portable_atomic_target_feature = "lse2",
@@ -1177,17 +1020,19 @@ unsafe fn _atomic_store_stilp(dst: *mut u128, val: u128, order: Ordering) {
         match order {
             Ordering::Release => atomic_store!(""),
             // TODO: in atomicsabi64, seqcst store is the same as release store
-            // LLVM uses store-release (dmb ish; stp); dmb ish, GCC (libatomic) and Atomics ABI Standard
-            // uses store-release (stilp) without fence for SeqCst store
-            // (https://github.com/gcc-mirror/gcc/commit/7107574958e2bed11d916a1480ef1319f15e5ffe).
+            // LLVM uses store-release (dmb ish; stp); dmb ish, GCC (libatomic)
+            // and Atomics ABI Standard uses store-release (stilp) without fence
+            // for SeqCst store (https://github.com/gcc-mirror/gcc/commit/7107574958e2bed11d916a1480ef1319f15e5ffe).
             // Considering https://reviews.llvm.org/D141748, LLVM's lowering seems
-            // to be the safer option here (I'm not convinced that the libatomic's implementation is wrong).
+            // to be the safer option here (I'm not convinced that the
+            // libatomic's implementation is wrong).
             Ordering::SeqCst => atomic_store!("dmb ish"),
             _ => unreachable!(),
         }
     }
 }
-// Do not use _atomic_swap_ldxp_stxp because it needs extra registers to implement store.
+// Do not use _atomic_swap_ldxp_stxp because it needs extra registers to
+// implement store.
 #[cfg(any(
     test,
     not(all(
@@ -1249,32 +1094,7 @@ unsafe fn atomic_compare_exchange(
     // cfg guarantee that the CPU supports FEAT_LSE.
     let prev = unsafe { _atomic_compare_exchange_casp(dst, old, new, success, failure) };
     // if platform_supports_detection_of(FEAT_LSE):
-    #[cfg(all(
-        not(portable_atomic_no_outline_atomics),
-        any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics,
-                ),
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            target_os = "illumos",
-            target_os = "fuchsia",
-            target_vendor = "apple",
-            windows,
-        ),
-    ))]
+    #[cfg(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", target_vendor = "apple", windows)))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     let prev = {
         fn_alias! {
@@ -1306,9 +1126,9 @@ unsafe fn atomic_compare_exchange(
             atomic_compare_exchange_ldxp_stxp_seqcst
                 = _atomic_compare_exchange_ldxp_stxp(Ordering::SeqCst, Ordering::SeqCst);
         }
-        // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-        // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-        // and we've checked if FEAT_LSE is available.
+        // SAFETY: the caller must guarantee that `dst` is valid for both writes
+        // and reads, 16-byte aligned, that there are no concurrent non-atomic
+        // operations, and we've checked if FEAT_LSE is available.
         unsafe {
             let success = crate::utils::upgrade_success_ordering(success, failure);
             match success {
@@ -1345,8 +1165,8 @@ unsafe fn atomic_compare_exchange(
                         }
                     })
                 }
-                // AcqRel and SeqCst RMWs are equivalent in both implementations in non-MSVC environments
-                // or LSE* instructions is used.
+                // AcqRel and SeqCst RMWs are equivalent in both implementations
+                // in non-MSVC environments or LSE* instructions is used.
                 #[cfg(not(target_env = "msvc"))]
                 Ordering::AcqRel | Ordering::SeqCst => {
                     ifunc!(unsafe fn(dst: *mut u128, old: u128, new: u128) -> u128 {
@@ -1388,36 +1208,15 @@ unsafe fn atomic_compare_exchange(
         }
     };
     // else => ldxp_stxp
-    #[cfg(not(all(
-        not(portable_atomic_no_outline_atomics),
-        any(
-            all(
-                target_os = "linux",
-                any(
-                    target_env = "gnu",
-                    all(
-                        target_env = "musl",
-                        any(not(target_feature = "crt-static"), feature = "std"),
-                    ),
-                    target_env = "ohos",
-                    all(target_env = "uclibc", not(target_feature = "crt-static")),
-                    portable_atomic_outline_atomics,
-                ),
-            ),
-            target_os = "android",
-            target_os = "freebsd",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            target_os = "illumos",
-            target_os = "fuchsia",
-            target_vendor = "apple",
-            windows,
-        ),
-    )))]
+    #[cfg(not(all(not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(target_env = "gnu", all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), target_os = "freebsd", target_os = "netbsd", target_os = "openbsd", target_os = "illumos", target_vendor = "apple", windows))))]
     #[cfg(not(any(target_feature = "lse", portable_atomic_target_feature = "lse")))]
     // SAFETY: the caller must uphold the safety contract.
     let prev = unsafe { _atomic_compare_exchange_ldxp_stxp(dst, old, new, success, failure) };
-    if prev == old { Ok(prev) } else { Err(prev) }
+    if prev == old {
+        Ok(prev)
+    } else {
+        Err(prev)
+    }
 }
 #[cfg(any(
     target_feature = "lse",
@@ -1437,8 +1236,8 @@ unsafe fn _atomic_compare_exchange_casp(
     let order = crate::utils::upgrade_success_ordering(success, failure);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-    // and the CPU supports FEAT_LSE.
+    // reads, 16-byte aligned, that there are no concurrent non-atomic
+    // operations, and the CPU supports FEAT_LSE.
     //
     // Refs: https://developer.arm.com/documentation/ddi0602/2025-06/Base-Instructions/CASP--CASPA--CASPAL--CASPL--Compare-and-swap-pair-of-words-or-doublewords-in-memory-
     unsafe {
@@ -1478,7 +1277,8 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
     let order = crate::utils::upgrade_success_ordering(success, failure);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-    // reads, 16-byte aligned, and that there are no concurrent non-atomic operations.
+    // reads, 16-byte aligned, and that there are no concurrent non-atomic
+    // operations.
     //
     // Refs:
     // - LDXP: https://developer.arm.com/documentation/ddi0602/2025-06/Base-Instructions/LDXP--Load-exclusive-pair-of-registers-
@@ -1486,11 +1286,11 @@ unsafe fn _atomic_compare_exchange_ldxp_stxp(
     // - STXP: https://developer.arm.com/documentation/ddi0602/2025-06/Base-Instructions/STXP--Store-exclusive-pair-of-registers-
     // - STLXP: https://developer.arm.com/documentation/ddi0602/2025-06/Base-Instructions/STLXP--Store-release-exclusive-pair-of-registers-
     //
-    // Note: Load-Exclusive pair (by itself) does not guarantee atomicity; to complete an atomic
-    // operation (even load/store), a corresponding Store-Exclusive pair must succeed.
-    // See Arm Architecture Reference Manual for A-profile architecture
-    // Section B2.2.1 "Requirements for single-copy atomicity", and
-    // Section B2.9 "Synchronization and semaphores" for more.
+    // Note: Load-Exclusive pair (by itself) does not guarantee atomicity; to
+    // complete an atomic operation (even load/store), a corresponding
+    // Store-Exclusive pair must succeed. See Arm Architecture Reference Manual
+    // for A-profile architecture Section B2.2.1 "Requirements for single-copy
+    // atomicity", and Section B2.9 "Synchronization and semaphores" for more.
     unsafe {
         let old = U128 { whole: old };
         let new = U128 { whole: new };
@@ -1587,8 +1387,8 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
     debug_assert_lse128!();
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-    // and the CPU supports FEAT_LSE128.
+    // reads, 16-byte aligned, that there are no concurrent non-atomic
+    // operations, and the CPU supports FEAT_LSE128.
     //
     // Refs: https://developer.arm.com/documentation/ddi0602/2025-06/Base-Instructions/SWPP--SWPPA--SWPPAL--SWPPL--Swap-quadword-in-memory-
     unsafe {
@@ -1609,8 +1409,8 @@ unsafe fn _atomic_swap_swpp(dst: *mut u128, val: u128, order: Ordering) -> u128 
         }
         #[cfg(not(portable_atomic_pre_llvm_16))]
         atomic_rmw!(swap, order);
-        // LLVM supports FEAT_LSE128 instructions on LLVM 16+, so use .inst directive on old LLVM.
-        // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
+        // LLVM supports FEAT_LSE128 instructions on LLVM 16+, so use .inst
+        // directive on old LLVM. https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
         #[cfg(portable_atomic_pre_llvm_16)]
         macro_rules! swap {
             ($order:tt, $_msvc_fence:tt) => {
@@ -2000,8 +1800,8 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst.addr() % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-    // and the CPU supports FEAT_LSE128.
+    // reads, 16-byte aligned, that there are no concurrent non-atomic
+    // operations, and the CPU supports FEAT_LSE128.
     //
     // Refs: https://developer.arm.com/documentation/ddi0602/2025-06/Base-Instructions/LDCLRP--LDCLRPA--LDCLRPAL--LDCLRPL--Atomic-bit-clear-on-quadword-in-memory-
     unsafe {
@@ -2022,8 +1822,8 @@ unsafe fn atomic_and(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         }
         #[cfg(not(portable_atomic_pre_llvm_16))]
         atomic_rmw!(clear, order);
-        // LLVM supports FEAT_LSE128 instructions on LLVM 16+, so use .inst directive on old LLVM.
-        // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
+        // LLVM supports FEAT_LSE128 instructions on LLVM 16+, so use .inst
+        // directive on old LLVM. https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
         #[cfg(portable_atomic_pre_llvm_16)]
         macro_rules! clear {
             ($order:tt, $_msvc_fence:tt) => {
@@ -2076,8 +1876,8 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
     debug_assert!(dst.addr() % 16 == 0);
 
     // SAFETY: the caller must guarantee that `dst` is valid for both writes and
-    // reads, 16-byte aligned, that there are no concurrent non-atomic operations,
-    // and the CPU supports FEAT_LSE128.
+    // reads, 16-byte aligned, that there are no concurrent non-atomic
+    // operations, and the CPU supports FEAT_LSE128.
     //
     // Refs: https://developer.arm.com/documentation/ddi0602/2025-06/Base-Instructions/LDSETP--LDSETPA--LDSETPAL--LDSETPL--Atomic-bit-set-on-quadword-in-memory-
     unsafe {
@@ -2098,8 +1898,8 @@ unsafe fn atomic_or(dst: *mut u128, val: u128, order: Ordering) -> u128 {
         }
         #[cfg(not(portable_atomic_pre_llvm_16))]
         atomic_rmw!(or, order);
-        // LLVM supports FEAT_LSE128 instructions on LLVM 16+, so use .inst directive on old LLVM.
-        // https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
+        // LLVM supports FEAT_LSE128 instructions on LLVM 16+, so use .inst
+        // directive on old LLVM. https://github.com/llvm/llvm-project/commit/7fea6f2e0e606e5339c3359568f680eaf64aa306
         #[cfg(portable_atomic_pre_llvm_16)]
         macro_rules! or {
             ($order:tt, $_msvc_fence:tt) => {

@@ -14,9 +14,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/resources/grit/ui_resources.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/chromeos/resources/grit/ui_chromeos_resources.h"
-#endif
 
 TEST(ResourcesUtil, SpotCheckIds) {
   struct Cases {
@@ -24,18 +21,12 @@ TEST(ResourcesUtil, SpotCheckIds) {
     int id;
   };
   const auto kCases = std::to_array<Cases>({
-#if !BUILDFLAG(IS_ANDROID)
       // IDRs from chrome/app/theme/webui_theme_resources.grd should be valid.
       {"IDR_PROFILE_AVATAR_0", IDR_PROFILE_AVATAR_0},
-#endif
       // IDRs from components_scaled_resources should be valid.
       {"IDR_ERROR_NETWORK_GENERIC", IDR_ERROR_NETWORK_GENERIC},
       // IDRs from ui/resources/ui_resources.grd should be valid.
       {"IDR_DEFAULT_FAVICON", IDR_DEFAULT_FAVICON},
-#if BUILDFLAG(IS_CHROMEOS)
-      // Check IDRs from ui/chromeos/resources/ui_chromeos_resources.grd.
-      {"IDR_LOGIN_DEFAULT_USER", IDR_LOGIN_DEFAULT_USER},
-#endif
       // Unknown names should be invalid and return -1.
       {"foobar", -1},
       {"backstar", -1},

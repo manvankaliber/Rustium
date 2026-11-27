@@ -92,25 +92,6 @@ void SupervisedUserErrorPageController::RequestUrlAccessLocal() {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void SupervisedUserErrorPageController::LearnMore() {
-  if (delegate_) {
-    delegate_->LearnMore(base::BindOnce(
-        &SupervisedUserErrorPageController::OnLearnMore,
-        gin::WrapPersistent(weak_factory_.GetWeakCell(
-            v8::Isolate::GetCurrent()->GetCppHeap()->GetAllocationHandle()))));
-  }
-}
-
-void SupervisedUserErrorPageController::OnLearnMore() {
-  // Navigate to the learn more resource from the error page in the same tab,
-  // while also allowing the user to go back.
-  std::string js =
-      base::StrCat({"window.location.href = '",
-                    supervised_user::kDeviceFiltersHelpCenterUrl, "';"});
-  render_frame_->ExecuteJavaScript(base::ASCIIToUTF16(js));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void SupervisedUserErrorPageController::OnRequestUrlAccessRemote(bool success) {
   std::string result = base::ToString(success);
@@ -133,9 +114,6 @@ SupervisedUserErrorPageController::GetObjectTemplateBuilder(
               "requestUrlAccessRemote")
           .SetMethod<&SupervisedUserErrorPageController::RequestUrlAccessLocal>(
               "requestUrlAccessLocal")
-#if BUILDFLAG(IS_ANDROID)
-          .SetMethod<&SupervisedUserErrorPageController::LearnMore>("learnMore")
-#endif  // BUILDFLAG(IS_ANDROID)
       ;
 }
 

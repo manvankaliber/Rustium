@@ -79,9 +79,7 @@ class DesktopQueryContextualizerDelegateTest
   void SetUp() override {
     ChromeRenderViewHostTestHarness::SetUp();
 
-#if !BUILDFLAG(IS_ANDROID)
     InitializeActionIdStringMapping();
-#endif
 
     ContextualSearchServiceFactory::GetInstance()->SetTestingFactory(
         profile(),
@@ -194,9 +192,7 @@ class DesktopQueryContextualizerDelegateTest
     mock_service_.reset();
     browser_window_weak_ptr_factory_.reset();
     browser_window_.reset();
-#if !BUILDFLAG(IS_ANDROID)
     actions::ActionIdMap::ResetMapsForTesting();
-#endif
     ChromeRenderViewHostTestHarness::TearDown();
   }
 

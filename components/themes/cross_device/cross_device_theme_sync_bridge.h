@@ -22,7 +22,7 @@
 #include "components/sync/model/metadata_batch.h"
 #include "components/sync/model/model_error.h"
 #include "components/sync/protocol/entity_data.h"
-#include "components/sync/protocol/theme_android_specifics.pb.h"
+#include "components/sync/protocol/theme_mobile_specifics.pb.h"
 #include "components/sync/protocol/theme_ios_specifics.pb.h"
 #include "components/sync/protocol/theme_specifics.pb.h"
 #include "components/themes/cross_device/cross_device_theme_tracker.h"

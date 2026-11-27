@@ -12,14 +12,13 @@
 #include "base/task/sequenced_task_runner.h"
 #include "chrome/browser/contextual_cueing/contextual_cueing_controller.h"
 #include "chrome/browser/contextual_cueing/cue_target.h"
-#include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
-#include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/browser/indigo/indigo_metrics.h"
 #include "chrome/browser/indigo/indigo_page_action_controller.h"
 #include "chrome/browser/indigo/indigo_service.h"
 #include "chrome/browser/indigo/indigo_service_factory.h"
 #include "chrome/browser/indigo/resources/grit/indigo_strings.h"
 #include "chrome/common/chrome_features.h"
+#include "components/vector_icons/vector_icons.h"
 #include "components/tabs/public/tab_interface.h"
 #include "content/public/browser/web_contents.h"
 #include "ui/base/l10n/l10n_util.h"
@@ -162,15 +161,12 @@ void IndigoCueTarget::OnEditPrompt(contextual_cueing::CueActionData data) {
 }
 
 ui::ImageModel IndigoCueTarget::GetAnchoredMessageIcon() const {
-  gfx::ImageSkia* icon =
-      ui::ResourceBundle::GetSharedInstance().GetImageSkiaNamed(
-          IDR_GLIC_BUTTON_ALT_ICON);
-  return icon ? ui::ImageModel::FromImageSkia(*icon) : ui::ImageModel();
+  return GetOmniboxChipIcon();
 }
 
 ui::ImageModel IndigoCueTarget::GetOmniboxChipIcon() const {
   return ui::ImageModel::FromVectorIcon(
-      glic::GlicVectorIconManager::GetVectorIcon(IDR_GLIC_BUTTON_VECTOR_ICON),
+      vector_icons::kButtonMagicIcon,
       ui::kColorSysOnSurface, 16);
 }
 

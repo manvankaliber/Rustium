@@ -29,15 +29,9 @@ class UserDelegateImpl : public device_signals::UserDelegate {
   UserDelegateImpl& operator=(const UserDelegateImpl&) = delete;
 
   // UserDelegate:
-#if BUILDFLAG(IS_CHROMEOS)
-  bool IsSigninContext() const override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   bool IsAffiliated() const override;
   bool IsManagedUser() const override;
   bool IsSameUser(const GaiaId& gaia_id) const override;
-#if BUILDFLAG(IS_ANDROID)
-  GaiaId GetPrimaryAccountGaiaId() const override;
-#endif  // BUILDFLAG(IS_ANDROID)
   std::set<policy::PolicyScope> GetPolicyScopesNeedingSignals() const override;
   bool IsCollectSignalsConsentRequired() const override;
 

@@ -74,8 +74,6 @@ using PinnedURLs = std::vector<URL>;
 int TabSelectModifier() {
 #if BUILDFLAG(IS_MAC)
   return ui_controls::kCommand;
-#elif BUILDFLAG(IS_CHROMEOS)
-  return ui_controls::kShift;
 #else
   return ui_controls::kControl;
 #endif
@@ -687,12 +685,8 @@ IN_PROC_BROWSER_TEST_P(TabDragTest, DragWithinUnpinnedContainer) {
 
 // This test uses an experimental API to replace mouse events with touch events.
 // It is currently only supported on Ash Chrome.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_DragWithinUnpinnedContainerTouch DragWithinUnpinnedContainerTouch
-#else
 #define MAYBE_DragWithinUnpinnedContainerTouch \
   DISABLED_DragWithinUnpinnedContainerTouch
-#endif
 IN_PROC_BROWSER_TEST_P(TabDragTest, MAYBE_DragWithinUnpinnedContainerTouch) {
   TabStripModel* tab_strip_model = browser()->GetTabStripModel();
   ASSERT_NE(nullptr, tab_strip_model);
@@ -729,50 +723,6 @@ IN_PROC_BROWSER_TEST_P(TabDragTest, MAYBE_DragWithinUnpinnedContainerTouch) {
       }));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_P(TabDragTest, TouchTapSelectsTab) {
-  TabStripModel* tab_strip_model = browser()->GetTabStripModel();
-  ASSERT_NE(nullptr, tab_strip_model);
-  RunTestSequence(
-      AddInstrumentedTab(kSecondTab, GURL(chrome::kChromeUIBookmarksURL), 1),
-      Do([&]() {
-        tab_strip_model->ActivateTabAt(0);
-        views::test::RunScheduledLayout(&GetBrowserView());
-      }),
-      CheckResult([&]() { return tab_strip_model->active_index(); }, 0),
-      Do([&]() {
-        views::View* tab1_view = GetTabViewAt(1);
-        ASSERT_NE(nullptr, tab1_view);
-        gfx::Point tap_point = tab1_view->GetBoundsInScreen().CenterPoint();
-
-        // Simulate realistic finger touch with radius and slight movement
-        // exceeding ChromeOS 6px touch slop.
-        ui::test::EventGenerator generator(
-            views::GetRootWindow(GetBrowserView().GetWidget()),
-            GetBrowserView().GetNativeWindow());
-        generator.SetTouchRadius(15, 15);
-        generator.PressTouch(tap_point);
-        generator.MoveTouchBy(10, 0);
-        generator.ReleaseTouch();
-      }),
-      CheckResult([&]() { return tab_strip_model->active_index(); }, 1),
-      Do([&]() {
-        views::View* tab0_view = GetTabViewAt(0);
-        ASSERT_NE(nullptr, tab0_view);
-        gfx::Point tap_point = tab0_view->GetBoundsInScreen().CenterPoint();
-
-        // Simulate stylus/pen tap with slight movement exceeding touch slop.
-        ui::test::EventGenerator generator(
-            views::GetRootWindow(GetBrowserView().GetWidget()),
-            GetBrowserView().GetNativeWindow());
-        generator.SetTouchPointerType(ui::EventPointerType::kPen);
-        generator.PressTouch(tap_point);
-        generator.MoveTouchBy(8, 0);
-        generator.ReleaseTouch();
-      }),
-      CheckResult([&]() { return tab_strip_model->active_index(); }, 0));
-}
-#endif
 
 IN_PROC_BROWSER_TEST_P(TabDragTest, CancelDragWithinUnpinnedContainer) {
   TabStripModel* tab_strip_model = browser()->GetTabStripModel();

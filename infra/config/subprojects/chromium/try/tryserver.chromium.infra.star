@@ -42,7 +42,7 @@ try_.builder(
             "platform": "linux-amd64",
             "package_prefix": "chromium_3pp",
             "gclient_config": "chromium",
-            "gclient_apply_config": ["android"],
+            "gclient_apply_config": [],
         },
     },
 )

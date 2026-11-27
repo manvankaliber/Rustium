@@ -29,14 +29,8 @@ constexpr std::string_view kOs =
     "mac";
 #elif BUILDFLAG(IS_WIN)
     "win";
-#elif BUILDFLAG(IS_ANDROID)
-    "android";
-#elif BUILDFLAG(IS_CHROMEOS)
-    "cros";
 #elif BUILDFLAG(IS_LINUX)
     "linux";
-#elif BUILDFLAG(IS_FUCHSIA)
-    "fuchsia";
 #elif BUILDFLAG(IS_OPENBSD)
     "openbsd";
 #else
@@ -57,7 +51,7 @@ constexpr std::string_view kArch =
 #elif defined(ARCH_CPU_MIPSEL)
     "mipsel";
 #elif defined(__powerpc64__)
-    "ppc64";
+        "ppc64";
 #elif defined(ARCH_CPU_LOONGARCH32)
         "loongarch32";
 #elif defined(ARCH_CPU_LOONGARCH64)

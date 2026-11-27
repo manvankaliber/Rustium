@@ -89,11 +89,6 @@ void AccountsCookieMutatorImpl::TriggerCookieJarUpdate() {
   gaia_cookie_manager_service_->TriggerListAccounts();
 }
 
-#if BUILDFLAG(IS_IOS)
-void AccountsCookieMutatorImpl::ForceTriggerOnCookieChange() {
-  gaia_cookie_manager_service_->ForceOnCookieChangeProcessing();
-}
-#endif
 
 void AccountsCookieMutatorImpl::LogOutAllAccounts(
     gaia::GaiaSource source,

@@ -55,15 +55,8 @@ inline constexpr char kCredentialsEnableService[] =
 inline constexpr char kCredentialsEnablePasskeys[] =
     "credentials_enable_passkeys";
 
-#if BUILDFLAG(IS_IOS)
-// The value of this preference determines whether the user had enabled the
-// credential provider in their iOS settings at startup.
-inline constexpr char kCredentialProviderEnabledOnStartup[] =
-    "credential_provider_enabled_on_startup";
-#endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Boolean pref controlled by the DeletingUndecryptablePasswordsEnabled policy.
 // If set to false it blocks deleting undecryptable passwords, otherwise the
 // deletion can happen.
@@ -71,26 +64,6 @@ inline constexpr char kDeletingUndecryptablePasswordsEnabled[] =
     "password_manager.deleteting_undecryptable_passwords_enabled";
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-
-// Boolean controlling whether the password manager allows automatic signing in
-// through Credential Management API. This pref is not synced. Its value is set
-// by fetching the latest value from Google Mobile Services. Except for
-// migration steps, it should not be modified in Chrome.
-inline constexpr char kAutoSignInEnabledGMS[] =
-    "profile.auto_sign_in_enabled_gms";
-
-// Boolean controlling whether the password manager offers to save passwords.
-// If false, the password manager will not save credentials, but it will still
-// fill previously saved ones. This pref is not synced. Its value is set
-// by fetching the latest value from Google Mobile Services. Except for
-// migration steps, it should not be modified in Chrome.
-//
-// This pref doesn't have a policy mapped to it directly, instead, the policy
-// mapped to `kCredentialEnableService` will be applied.
-inline constexpr char kOfferToSavePasswordsEnabledGMS[] =
-    "profile.save_passwords_enabed_gms";
-#endif
 
 // The total amount of passwords available in Password Manager account store.
 inline constexpr char kTotalPasswordsAvailableForAccount[] =
@@ -112,14 +85,6 @@ inline constexpr char kPasswordRemovalReasonForAccount[] =
 inline constexpr char kPasswordRemovalReasonForProfile[] =
     "password_removal_reason_for_profile";
 
-#if BUILDFLAG(IS_ANDROID)
-// Timestamp at which the last UPM error message was shown to the user in
-// milliseconds since UNIX epoch (used in Java).
-// This is needed to ensure that the UI is prompted only once per given
-// time interval (currently 24h).
-inline constexpr char kUPMErrorUIShownTimestamp[] =
-    "profile.upm_error_ui_shown_timestamp";
-#endif
 
 // Maintains a list of password hashes of enterprise passwords. This pref
 // differs from |kPasswordHashDataList| in two ways: it only stores password
@@ -128,12 +93,6 @@ inline constexpr char kUPMErrorUIShownTimestamp[] =
 inline constexpr char kLocalPasswordHashDataList[] =
     "local.password_hash_data_list";
 
-#if BUILDFLAG(IS_ANDROID)
-// How many times the password generation bottom sheet was dismissed by the user
-// in a row. The counter resets when the user applies password generation.
-inline constexpr char kPasswordGenerationBottomSheetDismissCount[] =
-    "password_generation_bottom_sheet_dismiss_count";
-#endif
 
 #if BUILDFLAG(IS_WIN)
 // Whether the password was blank, only valid if OS password was last changed
@@ -166,14 +125,12 @@ inline constexpr char kWasAutoSignInFirstRunExperienceShown[] =
 inline constexpr char kWereOldGoogleLoginsRemoved[] =
     "profile.were_old_google_logins_removed";
 
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 // Deprecated 01/2025.
 // A dictionary of account-storage-related settings that exist per Gaia account
 // (e.g. whether that user has opted in). It maps from hash of Gaia ID to
 // dictionary of key-value pairs.
 inline constexpr char kObsoleteAccountStoragePerAccountSettings[] =
     "profile.password_account_storage_settings";
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
 
 // Timestamp of the last time on-device encryption state for passkeys was
 // reported to UMA.
@@ -239,7 +196,7 @@ inline constexpr char kProfileStoreDateLastUsedForFilling[] =
 inline constexpr char kAccountStoreDateLastUsedForFilling[] =
     "password_manager.account_store_date_last_used_for_filling";
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Integer indicating how many times user saw biometric authentication before
 // filling promo.
 inline constexpr char kBiometricAuthBeforeFillingPromoShownCounter[] =
@@ -254,21 +211,18 @@ inline constexpr char kHadBiometricsAvailable[] =
     "password_manager.had_biometrics_available";
 #endif
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Boolean indicating whether user enabled biometric authentication before
 // filling.
 inline constexpr char kBiometricAuthenticationBeforeFilling[] =
     "password_manager.biometric_authentication_filling";
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)  // Desktop
 // A list of available promo cards with related information which are displayed
 // in the Password Manager UI.
 inline constexpr char kPasswordManagerPromoCardsList[] =
     "password_manager.password_promo_cards_list";
-#endif
 
 // Boolean pref indicating whether the user has accepted the privacy notice
 // agreement for starting the password change flow with private inference.
@@ -286,12 +240,10 @@ inline constexpr char kRelaunchChromeBubbleDismissedCounter[] =
     "password_manager.relaunch_chrome_bubble_dismissed_counter";
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 // Boolean pref indicating if the user is in one of the groups of the
 // kClearUndecryptablePasswords experiment.
 inline constexpr char kClearingUndecryptablePasswords[] =
     "password_manager.clearing_undecryptable_passwords";
-#endif
 
 // Boolean pref indicating if passwords were migrated to OSCryptAsync. Two for
 // each store.
@@ -312,18 +264,13 @@ inline constexpr char kProfileStoreBackupPasswordCleaningLastTimestamp[] =
 inline constexpr char kLastNegativePasswordChangeTimestamp[] =
     "password_manager.last_negative_password_change_timestamp";
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 // List of urls for which password manager is disabled/blocked.
 inline constexpr char kPasswordManagerBlocklist[] =
     "password_manager.password_manager_blocklist";
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) ||
+#endif
         // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-inline constexpr char kPinAuthenticationAvailableOnChromeOS[] =
-    "password_manager.pin_authentication_available_on_chrome_os";
-#endif
 
 }  // namespace password_manager::prefs
 

@@ -40,9 +40,6 @@ void ReportGenerator::CreateBasicRequest(
     std::unique_ptr<ReportRequest> basic_request,
     ReportType report_type,
     ReportCallback callback) {
-#if BUILDFLAG(IS_CHROMEOS)
-  delegate_->SetAndroidAppInfos(basic_request.get());
-#else
   basic_request->GetDeviceReportRequest().set_computer_name(
       this->GetMachineName());
   basic_request->GetDeviceReportRequest().set_os_user_name(GetOSUserName());
@@ -52,22 +49,8 @@ void ReportGenerator::CreateBasicRequest(
   basic_request->GetDeviceReportRequest()
       .set_allocated_browser_device_identifier(
           policy::GetBrowserDeviceIdentifier().release());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // 1. Async function base::SysInfo::SetHardwareInfo is called.
-  // 2. ReportGenerator::SetHardwareInfo fills basic_report
-  // 3. ReportGenerator::GenerateReport is called
-
-  base::SysInfo::GetHardwareInfo(
-      base::BindOnce(&ReportGenerator::SetHardwareInfo,
-                     weak_ptr_factory_.GetWeakPtr(), std::move(basic_request),
-                     base::BindOnce(&ReportGenerator::GenerateReport,
-                                    weak_ptr_factory_.GetWeakPtr(), report_type,
-                                    std::move(callback))));
-#else
   GenerateReport(report_type, std::move(callback), std::move(basic_request));
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 }
 
 std::string ReportGenerator::GetMachineName() {
@@ -124,11 +107,6 @@ void ReportGenerator::SetHardwareInfo(
     std::unique_ptr<ReportRequest> basic_request,
     base::OnceCallback<void(std::unique_ptr<ReportRequest>)> callback,
     base::SysInfo::HardwareInfo hardware_info) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  basic_request->GetDeviceReportRequest().set_brand_name(
-      hardware_info.manufacturer);
-  basic_request->GetDeviceReportRequest().set_device_model(hardware_info.model);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   std::move(callback).Run(std::move(basic_request));
 }

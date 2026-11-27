@@ -70,11 +70,7 @@
   <message name="IDS_AI_MODE_ENTRYPOINT_ACC_FOCUSED" desc="Accessibility announcement when the omnibox AI Mode entrypoint gains focus.">
     <ph name="AI_ENGINE_NAME">$1<ex>AI Mode</ex></ph> button, press Enter to ask <ph name="AI_ENGINE_NAME">$1<ex>AI Mode</ex></ph>
   </message>
-  <if expr="is_ios">
-    <message name="IDS_AI_MODE_ENTRYPOINT_ACC_LABEL" desc="Accessibility label for the AI Mode entrypoint.">
-      Ask <ph name="AI_ENGINE_NAME">$1<ex>AI Mode</ex></ph>
-    </message>
-  </if>
+
   <if expr="use_titlecase">
     <message name="IDS_AI_MODE_ENTRYPOINT_CONTEXT_MENU_SHOW" desc="In Title Case: Text label for the omnibox context menu option to toggle showing the omnibox AI Mode entrypoint.">
       Always Show <ph name="AI_ENGINE_NAME">$1<ex>AI Mode</ex></ph>
@@ -143,7 +139,7 @@
   <message name="IDS_OFFLINE_VERBOSE_STATE" desc="Text for the Offline Omnibox Verbose state. Displayed when the current page is loaded from a previously-downloaded cache.">
     Offline
   </message>
-  <if expr="is_ios or is_android or enable_vr">
+  <if expr="enable_vr">
     <message name="IDS_OMNIBOX_EMPTY_HINT" desc="The text displayed in the omnibox when it is empty." formatter_data="android_java">
       Search or type URL
     </message>
@@ -153,7 +149,7 @@
     <message name="IDS_OMNIBOX_EMPTY_ASK_HINT_WITH_DSE_NAME" desc="Alternative text displayed in the omnibox when it is empty, prompting the user to ask. Includes Default Search Engine name." formatter_data="android_java">
       Ask <ph name="ENGINE_NAME">$1<ex>Yahoo</ex></ph> or type URL
     </message>
-    <if expr="is_android or enable_vr">
+    <if expr="enable_vr">
       <message name="IDS_OMNIBOX_NAVATTACH_GALLERY" desc="The text displayed in the omnibox attachments popup. When clicked - opens image gallery." formatter_data="android_java">
         Gallery
       </message>
@@ -186,22 +182,18 @@
       </message>
     </if>
   </if>
-  <if expr="is_android">
-    <message name="IDS_OMNIBOX_EMPTY_ASK_HINT_SHORT_WITH_DSE_NAME" desc="Alternative text displayed in the omnibox when it is empty, prompting the user to ask. Includes Default Search Engine name." formatter_data="android_java">
-      Ask <ph name="ENGINE_NAME">$1<ex>Google</ex></ph>
-    </message>
-  </if>
+
   <message name="IDS_OMNIBOX_ADDITIONAL_TEXT_DASH_TEMPLATE" desc="The omnibox text when there is both traditional text (i.e., user text + inline autocompletion) and additional text (i.e. the default suggestion's URL when rich autocompleting a title) to display.">
     <ph name="TRADITIONAL_TEXT">$1</ph> - <ph name="ADDITIONAL_TEXT">$2</ph>
   </message>
   <message name="IDS_OMNIBOX_TAB_SUGGEST_HINT" desc="The button text contents to say that this suggestion will switch to another tab.">
     Switch to this tab
   </message>
-  <if expr="not is_ios and not is_android">
+
     <message name="IDS_OMNIBOX_HISTORY_EMBEDDING_HINT" desc="The chip text shown on the omnibox popup suggestions that were generated using history embeddings.">
       AI Best Match
     </message>
-  </if>
+
   <message name="IDS_OMNIBOX_FILE" desc="Text shown in the omnibox to indicate a user is viewing a file.">
     File
   </message>

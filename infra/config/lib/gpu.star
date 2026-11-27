@@ -32,13 +32,6 @@ _common_location_filters = [
     cq.location_filter(exclude = True, path_regexp = ".*\\.md"),
 ]
 
-_android_specific_location_filters = [
-    # Inclusion filters.
-    cq.location_filter(path_regexp = "cc/.+"),
-    cq.location_filter(path_regexp = "components/viz/.+"),
-    cq.location_filter(path_regexp = "services/viz/.+"),
-]
-
 _linux_specific_location_filters = []
 
 _mac_specific_location_filters = [
@@ -70,7 +63,6 @@ def _append_to_common_filters_and_sort(additional_location_filters):
     return sorted(_common_location_filters + additional_location_filters, key = _location_filter_to_sort_key)
 
 _optional_trybot_location_filters = struct(
-    ANDROID = _append_to_common_filters_and_sort(_android_specific_location_filters),
     LINUX = _append_to_common_filters_and_sort(_linux_specific_location_filters),
     MAC = _append_to_common_filters_and_sort(_mac_specific_location_filters),
     WINDOWS = _append_to_common_filters_and_sort(_windows_specific_location_filters),

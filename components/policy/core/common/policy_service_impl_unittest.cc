@@ -47,14 +47,10 @@ const std::string kUrl1 = "example.com";
 const std::string kUrl2 = "gmail.com";
 const std::string kUrl3 = "google.com";
 
-#if !BUILDFLAG(IS_IOS)
 const std::string kUrl4 = "youtube.com";
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 const std::string kAffiliationId1 = "abc";
 const std::string kAffiliationId2 = "def";
-#endif
 
 // Helper to compare the arguments to an EXPECT_CALL of OnPolicyUpdated() with
 // their expected values.
@@ -1484,7 +1480,7 @@ TEST_F(PolicyServiceTest, IsFirstPolicyLoadComplete) {
   policy_service_->RemoveObserver(POLICY_DOMAIN_EXTENSION_INSTALL, &observer);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(ENABLE_EXTENSIONS_CORE)
+#if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 TEST_F(PolicyServiceTest, DictionaryPoliciesMerging) {
   const PolicyNamespace chrome_namespace(POLICY_DOMAIN_CHROME, std::string());
 
@@ -1702,7 +1698,7 @@ TEST_F(PolicyServiceTest, DictionaryPoliciesMerging_PrecedenceChange) {
 
   EXPECT_TRUE(VerifyPolicies(chrome_namespace, expected_chrome));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(ENABLE_EXTENSIONS_CORE)
+#endif
 
 TEST_F(PolicyServiceTest, ListsPoliciesMerging) {
   const PolicyNamespace chrome_namespace(POLICY_DOMAIN_CHROME, std::string());
@@ -1822,7 +1818,6 @@ TEST_F(PolicyServiceTest, ListsPoliciesMerging_InvalidType) {
   EXPECT_TRUE(VerifyPolicies(chrome_namespace, expected_chrome));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 // The cloud user policy merging metapolicy is not applicable in Chrome OS.
 TEST_F(PolicyServiceTest, ListsPoliciesMerging_CloudMetapolicy) {
   const PolicyNamespace chrome_namespace(POLICY_DOMAIN_CHROME, std::string());
@@ -1914,7 +1909,6 @@ TEST_F(PolicyServiceTest, ListsPoliciesMerging_CloudMetapolicy) {
 
   EXPECT_TRUE(VerifyPolicies(chrome_namespace, expected_chrome));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 TEST_F(PolicyServiceTest, GroupPoliciesMergingDisabledForCloudUsers) {
@@ -2073,7 +2067,6 @@ TEST_F(PolicyServiceTest, GroupPoliciesMergingEnabled) {
 }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 TEST_F(PolicyServiceTest, CloudUserListPolicyMerge_Successful) {
   const PolicyNamespace chrome_namespace(POLICY_DOMAIN_CHROME, std::string());
 
@@ -2821,7 +2814,6 @@ TEST_F(PolicyServiceMergeMetricsTest, DictionaryMergeRecorded) {
                                        1);
 }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS)
 
 // Expected histogram names and suffixes are spelled out as literals matching
 // tools/metrics/histograms/metadata/enterprise/histograms.xml. They are

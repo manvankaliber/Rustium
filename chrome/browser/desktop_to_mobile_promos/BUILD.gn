@@ -28,27 +28,25 @@ source_set("utils") {
   ]
 }
 
-if (!is_android) {
-  source_set("unit_tests") {
-    testonly = true
+source_set("unit_tests") {
+  testonly = true
 
-    sources = [ "promos_utils_unittest.cc" ]
+  sources = [ "promos_utils_unittest.cc" ]
 
-    deps = [
-      ":utils",
-      "//base",
-      "//base/test:test_support",
-      "//chrome/common:constants",
-      "//chrome/test:test_support",
-      "//chrome/test/base:testing_browser_process",
-      "//components/desktop_to_mobile_promos",
-      "//components/feature_engagement/public",
-      "//components/prefs",
-      "//components/segmentation_platform/embedder/default_model",
-      "//components/sync:test_support",
-      "//components/sync_preferences:test_support",
-      "//content/test:test_support",
-      "//testing/gtest",
-    ]
-  }
+  deps = [
+    ":utils",
+    "//base",
+    "//base/test:test_support",
+    "//chrome/common:constants",
+    "//chrome/test:test_support",
+    "//chrome/test/base:testing_browser_process",
+    "//components/desktop_to_mobile_promos",
+    "//components/feature_engagement/public",
+    "//components/prefs",
+    "//components/segmentation_platform/embedder/default_model",
+    "//components/sync:test_support",
+    "//components/sync_preferences:test_support",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
 }

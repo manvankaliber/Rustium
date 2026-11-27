@@ -13,11 +13,6 @@
 #include "base/test/bind.h"
 #include "base/test/test_future.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_proto_conversion.h"
-#include "chrome/browser/actor/actor_test_util.h"
-#include "chrome/browser/actor/tools/click_tool_request.h"
-#include "chrome/browser/actor/tools/navigate_tool_request.h"
 #include "chrome/browser/ai/ai_data_keyed_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_tabstrip.h"
@@ -86,9 +81,6 @@ class AiDataKeyedServiceBrowserTest : public InProcessBrowserTest {
         browser()->GetProfile());
   }
 
-  actor::ActorKeyedService& actor_service() {
-    return *actor::ActorKeyedService::Get(browser()->GetProfile());
-  }
 
   content::WebContents* web_contents() {
     return browser()->tab_strip_model()->GetActiveWebContents();
@@ -370,7 +362,6 @@ IN_PROC_BROWSER_TEST_F(AiDataKeyedServiceBrowserTest, SpecifierOff) {
   EXPECT_EQ(ai_data->site_engagement().entries().size(), 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(AiDataKeyedServiceBrowserTest,
                        GetFormDataByFieldGlobalIdForModelPrototyping) {
   LoadSimplePage();
@@ -412,7 +403,6 @@ IN_PROC_BROWSER_TEST_F(AiDataKeyedServiceBrowserTest,
   EXPECT_EQ(actual_form.fields(0).field_label(), "Field 1");
   EXPECT_EQ(actual_form.fields(1).field_label(), "Field 2");
 }
-#endif
 
 class AiDataKeyedServiceBrowserTestWithBlocklistedExtensions
     : public AiDataKeyedServiceBrowserTest {

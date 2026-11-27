@@ -29,9 +29,7 @@
 #include "ui/native_theme/native_theme_observer.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/theme_service_observer.h"
-#endif
 
 class InstantServiceObserver;
 class Profile;
@@ -57,10 +55,8 @@ class InstantService : public KeyedService,
                        public ntp_tiles::MostVisitedSites::Observer,
                        public ui::NativeThemeObserver
 // TODO(b/562623656): Support ThemeService for on Desktop Android.
-#if !BUILDFLAG(IS_ANDROID)
     ,
                        public ThemeServiceObserver
-#endif
 {
  public:
   explicit InstantService(Profile* profile);
@@ -95,10 +91,8 @@ class InstantService : public KeyedService,
   // items.
   void OnNewTabPageOpened();
 
-#if !BUILDFLAG(IS_ANDROID)
   // ThemeServiceObserver implementation.
   void OnThemeChanged() override;
-#endif
 
   // Most visited item APIs.
   //

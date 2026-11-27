@@ -91,20 +91,6 @@ bool IsCustomTab(OEP::PageClassification classification) {
          classification == OEP::OTHER_ON_CCT;
 }
 
-bool IsAndroidHubOrTabSearch(OEP::PageClassification classification) {
-  return classification == OEP::ANDROID_HUB ||
-         IsAndroidTabSearch(classification);
-}
-
-bool IsAndroidTabSearch(OEP::PageClassification classification) {
-  return classification == OEP::ANDROID_TAB_SEARCH_OVERLAY;
-}
-
-bool IsAndroidWidget(OEP::PageClassification classification) {
-  return (classification == OEP::ANDROID_SHORTCUTS_WIDGET ||
-          classification == OEP::ANDROID_SEARCH_WIDGET);
-}
-
 // FEATURE SUPPORT
 bool SupportsMostVisitedSites(OEP::PageClassification classification) {
   if (omnibox_feature_configs::OmniboxUrlSuggestionsOnFocus::Get().enabled) {
@@ -118,6 +104,5 @@ bool SupportsMostVisitedSites(OEP::PageClassification classification) {
          classification == OEP::ANDROID_SEARCH_WIDGET ||
          classification == OEP::ANDROID_SHORTCUTS_WIDGET;
 }
-
 
 }  // namespace omnibox

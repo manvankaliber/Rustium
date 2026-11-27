@@ -4,8 +4,6 @@
 
 import("//mojo/public/tools/bindings/mojom.gni")
 
-assert(!is_android)
-
 mojom("mojo_bindings") {
   sources = [ "drive_picker_host.mojom" ]
   webui_module_path = "/"
@@ -75,8 +73,4 @@ source_set("unit_tests") {
     "//testing/gmock",
     "//testing/gtest",
   ]
-
-  if (is_chromeos) {
-    deps += [ "//chromeos/ash/components/network:test_support" ]
-  }
 }

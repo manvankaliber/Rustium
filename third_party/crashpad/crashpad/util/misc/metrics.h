@@ -20,9 +20,6 @@
 #include "build/build_config.h"
 #include "util/file/file_io.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "util/ios/ios_intermediate_dump_format.h"
-#endif
 
 namespace crashpad {
 
@@ -213,7 +210,7 @@ class Metrics {
   //! This is currently only reported on Windows.
   static void HandlerCrashed(uint32_t exception_code);
 
-#if BUILDFLAG(IS_IOS) || DOXYGEN
+#if DOXYGEN
   //! \brief Records a missing key from an intermediate dump.
   static void MissingIntermediateDumpKey(
       const internal::IntermediateDumpKey& key);

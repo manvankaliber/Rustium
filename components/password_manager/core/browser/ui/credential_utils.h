@@ -14,9 +14,7 @@
 #include "components/password_manager/core/browser/password_string.h"
 #include "components/password_manager/core/browser/ui/credential_ui_entry.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/password_manager/core/browser/leak_detection/bulk_leak_check.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace password_manager {
 
@@ -36,11 +34,9 @@ struct CanonicalizedCredential {
       : canonicalized_username(CanonicalizeUsername(credential.username)),
         password(std::move(credential.password)) {}
 
-#if !BUILDFLAG(IS_ANDROID)
   CanonicalizedCredential(const LeakCheckCredential& credential)  // NOLINT
       : canonicalized_username(CanonicalizeUsername(credential.username())),
         password(credential.password()) {}
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   friend bool operator==(const CanonicalizedCredential&,
                          const CanonicalizedCredential&) = default;

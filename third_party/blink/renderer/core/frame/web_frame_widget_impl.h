@@ -542,10 +542,6 @@ class CORE_EXPORT WebFrameWidgetImpl
       const gfx::Rect& focus_widget_rect_in_dips,
 #endif  // BUILDFLAG(IS_WIN)
       OnStartStylusWritingCallback callback) override;
-#if BUILDFLAG(IS_ANDROID)
-  void PassImeRenderWidgetHost(
-      mojo::PendingRemote<mojom::blink::ImeRenderWidgetHost>) override;
-#endif
   void NotifyClearedDisplayedGraphics() override;
 
   // mojom::blink::UnboundedSurfaceClient overrides:
@@ -822,11 +818,6 @@ class CORE_EXPORT WebFrameWidgetImpl
   // compositor submits a frame.
   void PropagateHistorySequenceNumberToCompositor();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Calculate and cache the most up to date line bounding boxes in the document
-  // coordinate space.
-  Vector<gfx::Rect> CalculateVisibleLineBoundsOnScreen();
-#endif  // BUILDFLAG(IS_ANDROID)
   // Returns true if this widget corresponds to a frame which is being replaced.
   // The compositor for the widget has been detached and passed to the new
   // widget.
@@ -849,7 +840,6 @@ class CORE_EXPORT WebFrameWidgetImpl
 
   WidgetBase* widget_base_for_testing() const { return widget_base_.get(); }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   enum class WindowShowStateChangeType {
     kMaximize,
     kMinimize,
@@ -871,7 +861,6 @@ class CORE_EXPORT WebFrameWidgetImpl
   void OnWindowShowStateChanged(ui::mojom::blink::WindowShowState old_state,
                                 ui::mojom::blink::WindowShowState new_state);
   void OnResizableChanged(bool new_resizable);
-#endif
 
  protected:
   // WidgetBaseClient overrides:
@@ -1051,14 +1040,6 @@ class CORE_EXPORT WebFrameWidgetImpl
       WaitForPageScaleAnimationForTestingCallback callback) override;
   void MoveCaret(const gfx::Point& point_in_dips) override;
 
-#if BUILDFLAG(IS_IOS)
-  void StartAutoscrollForSelectionToPoint(
-      const gfx::PointF& point_in_dips) override;
-  void StopAutoscroll() override;
-
-  void RectForEditFieldChars(const gfx::Range& range,
-                             RectForEditFieldCharsCallback callback) override;
-#endif  // BUILDFLAG(IS_IOS)
 
   void SelectAroundCaret(mojom::blink::SelectionGranularity granularity,
                          bool should_show_handle,
@@ -1177,7 +1158,6 @@ class CORE_EXPORT WebFrameWidgetImpl
   // Triggers onmove event for window.
   void EnqueueMoveEvent();
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   bool HandleWindowShowStateChangeRequest(
       WindowShowStateChangeType type,
       WindowingControlsChangeCallback callback);
@@ -1185,7 +1165,6 @@ class CORE_EXPORT WebFrameWidgetImpl
   struct MainFrameData;
   void RejectAWCPromise(uint64_t id);
   void HandleWindowShowStateChangeCallbackWith(WindowShowStateChangeType type);
-#endif
 
   // Let latched scroller know to unpin its selected scroll-marker.
   void NotifyLatchedScrollMarkerGroup(
@@ -1386,7 +1365,6 @@ class CORE_EXPORT WebFrameWidgetImpl
     // contents") like a <webview>. If false, the widget is the top level
     // widget.
     bool is_for_nested_main_frame = false;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     struct WindowShowStateCallbackData {
       uint64_t id;
       WindowShowStateChangeType requested_action;
@@ -1401,7 +1379,6 @@ class CORE_EXPORT WebFrameWidgetImpl
       WindowingControlsChangeCallback callback;
     };
     std::optional<SetResizableCallbackData> set_resizable_change_callback;
-#endif
   } main_frame_data_;
 
   MainFrameData& main_data() {

@@ -58,9 +58,9 @@ source_set("types") {
 
 source_set("public") {
   sources = [
-    "skills_constants.h",
     "skill_data_type_controller.cc",
     "skill_data_type_controller.h",
+    "skills_constants.h",
     "skills_features.cc",
     "skills_features.h",
     "skills_prefs.cc",
@@ -104,15 +104,6 @@ source_set("metrics") {
   deps = [ "//components/skills:features" ]
 }
 
-if (is_ios) {
-  bundle_data("skills_metrics_test_bundle_data") {
-    testonly = true
-    sources = [ "//tools/metrics/histograms/metadata/skills/histograms.xml" ]
-
-    outputs = [ "{{bundle_resources_dir}}/{{source_root_relative_dir}}/{{source_file_part}}" ]
-  }
-}
-
 source_set("unit_tests") {
   testonly = true
 
@@ -131,10 +122,6 @@ source_set("unit_tests") {
   ]
 
   data = [ "//tools/metrics/histograms/metadata/skills/histograms.xml" ]
-
-  if (is_ios) {
-    deps += [ ":skills_metrics_test_bundle_data" ]
-  }
 
   visibility = [ "//components/skills:unit_tests" ]
 }

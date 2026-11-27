@@ -25,27 +25,6 @@ const char kPeerConnectionHtml[] = "/media/peerconnection-call.html";
 
 // Disable these test cases for Android since in some bots, there exists only
 // the loopback interface.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_WebRtcIPPermissionGrantedTest \
-  DISABLED_WebRtcIPPermissionGrantedTest
-#define MAYBE_WebRtcIPPermissionDeniedTest DISABLED_WebRtcIPPermissionDeniedTest
-#define MAYBE_WebRtcIPPolicyPublicAndPrivateInterfacesTest \
-  DISABLED_WebRtcIPPolicyPublicAndPrivateInterfacesTest
-#define MAYBE_WebRtcIPPolicyPublicInterfaceOnlyTest \
-  DISABLED_WebRtcIPPolicyPublicInterfaceOnlyTest
-#define MAYBE_WebRtcIPPolicyDisableUdpTest DISABLED_WebRtcIPPolicyDisableUdpTest
-#elif BUILDFLAG(IS_FUCHSIA)
-// This test is mysteriously failing on Fuchsia starting from
-// https://ci.chromium.org/b/8700182931583028385
-#define MAYBE_WebRtcIPPermissionDeniedTest DISABLED_WebRtcIPPermissionDeniedTest
-
-#define MAYBE_WebRtcIPPermissionGrantedTest WebRtcIPPermissionGrantedTest
-#define MAYBE_WebRtcIPPolicyPublicAndPrivateInterfacesTest \
-  WebRtcIPPolicyPublicAndPrivateInterfacesTest
-#define MAYBE_WebRtcIPPolicyPublicInterfaceOnlyTest \
-  WebRtcIPPolicyPublicInterfaceOnlyTest
-#define MAYBE_WebRtcIPPolicyDisableUdpTest WebRtcIPPolicyDisableUdpTest
-#else
 #define MAYBE_WebRtcIPPermissionGrantedTest WebRtcIPPermissionGrantedTest
 #define MAYBE_WebRtcIPPermissionDeniedTest WebRtcIPPermissionDeniedTest
 #define MAYBE_WebRtcIPPolicyPublicAndPrivateInterfacesTest \
@@ -53,7 +32,6 @@ const char kPeerConnectionHtml[] = "/media/peerconnection-call.html";
 #define MAYBE_WebRtcIPPolicyPublicInterfaceOnlyTest \
   WebRtcIPPolicyPublicInterfaceOnlyTest
 #define MAYBE_WebRtcIPPolicyDisableUdpTest WebRtcIPPolicyDisableUdpTest
-#endif
 
 // This class tests the scenario when permission to access mic or camera is
 // denied.

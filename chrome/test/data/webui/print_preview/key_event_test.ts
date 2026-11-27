@@ -4,7 +4,7 @@
 
 import type {PrintPreviewAppElement} from 'chrome://print/print_preview.js';
 import {NativeLayerImpl, PluginProxyImpl} from 'chrome://print/print_preview.js';
-import {isChromeOS, isMac, isWindows} from 'chrome://resources/js/platform.js';
+import {isMac, isWindows} from 'chrome://resources/js/platform.js';
 import {assertEquals, assertTrue} from 'chrome://webui-test/chai_assert.js';
 import {keyEventOn} from 'chrome://webui-test/keyboard_mock_interactions.js';
 import type {ModifiersParam} from 'chrome://webui-test/keyboard_mock_interactions.js';
@@ -145,11 +145,7 @@ suite('KeyEventTest', function() {
   // Tests that Ctrl+Shift+P opens the system dialog.
   test('CtrlShiftPOpensSystemDialog', function() {
     let promise: Promise<void>;
-    if (isChromeOS) {
-      // Chrome OS doesn't have a system dialog. Just make sure the key
-      // event does not trigger a crash.
-      promise = Promise.resolve();
-    } else if (isWindows) {
+    if (isWindows) {
       promise = nativeLayer.whenCalled('doPrint').then((printTicket) => {
         assertTrue(JSON.parse(printTicket).showSystemDialog);
       });

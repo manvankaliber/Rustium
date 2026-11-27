@@ -16,12 +16,10 @@
 #include "content/public/browser/web_ui.h"
 #include "content/public/browser/web_ui_data_source.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/grit/chrome_unscaled_resources.h"
 #else
 #include "chrome/grit/password_manager_resources.h"
-#endif
 #endif
 
 PasswordManagerInternalsUI::PasswordManagerInternalsUI(content::WebUI* web_ui)
@@ -30,9 +28,7 @@ PasswordManagerInternalsUI::PasswordManagerInternalsUI(content::WebUI* web_ui)
       Profile::FromWebUI(web_ui),
       chrome::kChromeUIPasswordManagerInternalsHost);
   static constexpr std::optional<int> kLogoResourceId =
-#if BUILDFLAG(IS_ANDROID)
-      std::nullopt;
-#elif BUILDFLAG(GOOGLE_CHROME_BRANDING)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
       IDR_CHROME_PASSWORD_MANAGER_LOGO;
 #else
       IDR_PASSWORD_MANAGER_IMAGES_PASSWORD_MANAGER_LOGO_SVG;

@@ -993,7 +993,6 @@ DEFINE_TEST_CLIENT_TEST_WITH_PIPE(MultiprocessReceiverClient,
 }
 
 // iOS doesn't have the ability to fork processes yet.
-#if !BUILDFLAG(IS_IOS)
 TEST_F(MultiprocessReceiverTest, MultiprocessReceiver) {
   // Regression test for https://crbug.com/1371860.
   //
@@ -1031,7 +1030,6 @@ TEST_F(MultiprocessReceiverTest, MultiprocessReceiver) {
     }
   });
 }
-#endif  // BUILDFLAG(USE_BLINK)
 
 }  // namespace receiver_unittest
 }  // namespace test

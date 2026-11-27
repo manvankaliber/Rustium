@@ -9,11 +9,9 @@
 
 namespace content {
 
-#if !BUILDFLAG(IS_ANDROID)
 base::flat_map<std::string, std::string>
 SpeechRecognitionManagerDelegate::GetRoutingParams(const url::Origin& origin) {
   return {};
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace content

@@ -54,7 +54,7 @@ class ProfileSignalsCollector : public BaseSignalsCollector {
   const raw_ptr<policy::CloudPolicyManager, DisableDanglingPtrDetection> policy_manager_;
   const raw_ptr<policy::ProfilePolicyConnector, DisableDanglingPtrDetection>
       profile_policy_connector_;
-#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENTERPRISE_CLOUD_CONTENT_ANALYSIS)
   const raw_ptr<enterprise_connectors::ConnectorsService, DisableDanglingPtrDetection> connectors_service_;
 #endif
   const raw_ptr<enterprise::ProfileIdService, DisableDanglingPtrDetection> profile_id_service_;

@@ -331,21 +331,6 @@ struct CertificateSignalsResponse : BaseSignalResponse {
   bool truncated_certificates = false;
 };
 
-#if BUILDFLAG(IS_ANDROID)
-struct VerifyAppsSignalsResponse : BaseSignalResponse {
-  VerifyAppsSignalsResponse();
-
-  VerifyAppsSignalsResponse(const VerifyAppsSignalsResponse&);
-  VerifyAppsSignalsResponse& operator=(const VerifyAppsSignalsResponse&);
-
-  bool operator==(const VerifyAppsSignalsResponse&) const;
-
-  ~VerifyAppsSignalsResponse() override;
-
-  std::optional<bool> has_potentially_harmful_apps = std::nullopt;
-  std::optional<bool> verified_apps_enabled = std::nullopt;
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Request struct containing properties that will be used by the
 // SignalAggregator to validate signals access permissions while delegating
@@ -417,10 +402,6 @@ struct SignalsAggregationResponse {
   std::optional<CertificateSignalsResponse> certificate_signals_response =
       std::nullopt;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::optional<VerifyAppsSignalsResponse> verify_apps_signals_response =
-      std::nullopt;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace device_signals

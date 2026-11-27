@@ -49,10 +49,8 @@
 #include "ui/base/interaction/interaction_sequence.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/download/download_display.h"
 #include "chrome/browser/ui/views/download/bubble/download_toolbar_ui_controller.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace metrics {
 
@@ -375,7 +373,6 @@ class RealCriticalUserJourneyServiceInteractiveTest
   }
 
   // The Download Bubble UI is not used on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
   // A helper function to trigger a real download and wait for it to complete.
   auto DownloadTestFile() {
     return Steps(Do([this]() {
@@ -392,10 +389,8 @@ class RealCriticalUserJourneyServiceInteractiveTest
       observer->WaitForFinished();
     }));
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(RealCriticalUserJourneyServiceInteractiveTest,
                        DownloadJourneyCompletion) {
@@ -497,7 +492,6 @@ IN_PROC_BROWSER_TEST_F(RealCriticalUserJourneyServiceInteractiveTest,
       result, CriticalUserJourneySession::JourneyResult::kCompleted, 1);
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(RealCriticalUserJourneyServiceInteractiveTest,
                        ClearBrowsingHistoryViaAppMenu) {

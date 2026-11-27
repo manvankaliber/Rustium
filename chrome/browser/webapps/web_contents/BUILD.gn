@@ -21,7 +21,5 @@ source_set("browser_tests") {
     "//testing/gtest",
   ]
 
-  if (!is_android) {
-    deps += [ "//chrome/test/base:platform_browser_test" ]
-  }
+  deps += [ "//chrome/test/base:platform_browser_test" ]
 }

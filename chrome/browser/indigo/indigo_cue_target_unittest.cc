@@ -19,7 +19,6 @@
 #include "chrome/browser/indigo/indigo_service.h"
 #include "chrome/browser/indigo/indigo_service_factory.h"
 #include "chrome/browser/indigo/resources/grit/indigo_strings.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/ui/page_action/test_support/fake_tab_interface.h"
 #include "chrome/browser/ui/page_action/test_support/mock_page_action_controller.h"
 #include "chrome/common/chrome_features.h"
@@ -61,9 +60,6 @@ class IndigoCueTargetTest : public testing::Test {
     controller_ = std::make_unique<IndigoPageActionController>(
         *tab_interface_, *page_action_controller_);
 
-    mock_skills_service_ =
-        static_cast<testing::NiceMock<skills::MockSkillsService>*>(
-            skills::SkillsServiceFactory::GetForProfile(profile_.get()));
 
     service_ = IndigoServiceFactory::GetForProfile(profile_.get());
     ASSERT_TRUE(service_);
@@ -92,7 +88,6 @@ class IndigoCueTargetTest : public testing::Test {
   std::unique_ptr<testing::NiceMock<page_actions::MockPageActionController>>
       page_action_controller_;
   std::unique_ptr<IndigoPageActionController> controller_;
-  raw_ptr<testing::NiceMock<skills::MockSkillsService>> mock_skills_service_;
   raw_ptr<IndigoService> service_;
   std::unique_ptr<IndigoCueTarget> cue_target_;
 };

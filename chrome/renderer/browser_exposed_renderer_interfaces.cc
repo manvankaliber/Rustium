@@ -21,9 +21,6 @@
 #include "components/spellcheck/renderer/spellcheck.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/allocator/buildflags.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 #include "chrome/renderer/font_prewarmer.h"

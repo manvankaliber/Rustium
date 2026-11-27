@@ -24,6 +24,9 @@
 
 namespace net {
 
+struct HttpAuthCacheRustServices;
+struct HttpAuthCacheRustTestPeer;
+
 // HttpAuthCache stores HTTP authentication identities and challenge info.
 // For each (scheme_host_port, realm, scheme) triple the cache stores a
 // HttpAuthCache::Entry, which holds:
@@ -47,21 +50,15 @@ class NET_EXPORT HttpAuthCache {
     const std::string& realm() const { return realm_; }
 
     // The authentication scheme of the challenge.
-    HttpAuth::Scheme scheme() const {
-      return scheme_;
-    }
+    HttpAuth::Scheme scheme() const { return scheme_; }
 
     // The authentication challenge.
     const std::string& auth_challenge() const { return auth_challenge_; }
 
     // The login credentials.
-    const AuthCredentials& credentials() const {
-      return credentials_;
-    }
+    const AuthCredentials& credentials() const { return credentials_; }
 
-    int IncrementNonceCount() {
-      return ++nonce_count_;
-    }
+    int IncrementNonceCount();
 
     void UpdateStaleChallenge(const std::string& auth_challenge);
 
@@ -71,6 +68,9 @@ class NET_EXPORT HttpAuthCache {
 
    private:
     friend class HttpAuthCache;
+    friend class ConnectionAuthOriginalCache;
+    friend struct HttpAuthCacheRustServices;
+    friend struct HttpAuthCacheRustTestPeer;
     FRIEND_TEST_ALL_PREFIXES(HttpAuthCacheTest, AddPath);
     FRIEND_TEST_ALL_PREFIXES(HttpAuthCacheTest, AddToExistingEntry);
 
@@ -244,14 +244,18 @@ class NET_EXPORT HttpAuthCache {
   }
 
  private:
+  friend class ConnectionAuthOriginalCache;
+  friend struct HttpAuthCacheRustServices;
+  friend struct HttpAuthCacheRustTestPeer;
+
   struct EntryMapKey {
-    EntryMapKey(const url::SchemeHostPort& scheme_host_port,
+    NET_EXPORT_PRIVATE EntryMapKey(const url::SchemeHostPort& scheme_host_port,
                 HttpAuth::Target target,
                 const NetworkAnonymizationKey& network_anonymization_key,
-                bool key_server_entries_by_network_anonymization_key);
-    ~EntryMapKey();
+                bool use_network_anonymization_key);
+    NET_EXPORT_PRIVATE ~EntryMapKey();
 
-    bool operator<(const EntryMapKey& other) const;
+    NET_EXPORT_PRIVATE bool operator<(const EntryMapKey& other) const;
 
     url::SchemeHostPort scheme_host_port;
     HttpAuth::Target target;
@@ -266,15 +270,6 @@ class NET_EXPORT HttpAuthCache {
   raw_ptr<const base::TickClock> tick_clock_ =
       base::DefaultTickClock::GetInstance();
   raw_ptr<const base::Clock> clock_ = base::DefaultClock::GetInstance();
-
-  EntryMap::iterator LookupEntryIt(
-      const url::SchemeHostPort& scheme_host_port,
-      HttpAuth::Target target,
-      const std::string& realm,
-      HttpAuth::Scheme scheme,
-      const NetworkAnonymizationKey& network_anonymization_key);
-
-  void EvictLeastRecentlyUsedEntry();
 
   bool key_server_entries_by_network_anonymization_key_;
 

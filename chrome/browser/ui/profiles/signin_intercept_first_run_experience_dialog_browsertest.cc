@@ -90,10 +90,8 @@ class SigninInterceptFirstRunExperienceDialogBrowserTestBase : public TestBase {
   void SetUpInProcessBrowserTestFixture() override {
     TestBase::SetUpInProcessBrowserTestFixture();
 
-#if !BUILDFLAG(IS_CHROMEOS)
     base::CommandLine::ForCurrentProcess()->AppendSwitch(
         switches::kEnableChromeBrowserCloudManagement);
-#endif
     policy_provider_.SetDefaultReturns(
         /*is_initialization_complete_return=*/true,
         /*is_first_policy_load_complete_return=*/true);

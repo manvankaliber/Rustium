@@ -40,11 +40,9 @@ void CountryComboboxModel::SetCountries(
 
   countries_.push_back(
       std::make_unique<AutofillCountry>(default_country_code, app_locale));
-#if !BUILDFLAG(IS_ANDROID)
   // The separator item. On Android, there are separators after all items, so
   // this is unnecessary.
   countries_.push_back(nullptr);
-#endif
 
   // Filter out the countries that do not have rules for address input and
   // validation.

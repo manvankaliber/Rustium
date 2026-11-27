@@ -119,29 +119,6 @@ class MediaRecorderBrowserTest : public ContentBrowserTest {
   std::unique_ptr<MediaRecorder> recorder_;
 };
 
-#if BUILDFLAG(IS_ANDROID)
-// Checks that Android rejects a display capture instead of launching the
-// device, which needs a MediaProjection grant from the user, and that it does
-// not show the UI.
-IN_PROC_BROWSER_TEST_F(MediaRecorderBrowserTest, DisplayCaptureNotSupported) {
-  FakeMediaStreamUIState state;
-  bool answered = false;
-  bool started = false;
-  recorder()->StartDisplayCapture(
-      WindowId(), shell()->web_contents(),
-      std::make_unique<FakeMediaStreamUI>(&state), /*audio=*/false,
-      /*max_width=*/800, /*max_height=*/600, /*frame_rate=*/30,
-      base::BindLambdaForTesting([&](Response response) {
-        answered = true;
-        started = response.IsSuccess();
-      }));
-  EXPECT_TRUE(answered);
-  EXPECT_FALSE(started);
-  EXPECT_TRUE(recorder()->GetStream().empty());
-  EXPECT_FALSE(state.started);
-  EXPECT_TRUE(state.destroyed);
-}
-#else
 // Checks that a display capture creates the stream, that the start fails
 // when the device fails to launch before the first frame, and that Stop()
 // still returns the stream.
@@ -303,7 +280,6 @@ IN_PROC_BROWSER_TEST_F(MediaRecorderBrowserTest,
   EXPECT_EQ(1, state.device_stopped_count);
   EXPECT_EQ(state.label, state.device_stopped_label);
 }
-#endif  // BUILDFLAG(IS_ANDROID)
 #endif  // BUILDFLAG(ENABLE_LIBAOM)
 
 }  // namespace content::protocol

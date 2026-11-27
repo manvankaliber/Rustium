@@ -146,7 +146,6 @@ TEST_F(WidgetBaseKillSwitchTest, ReleasingLayerTreeViewDoesNotFlushGpuChannel) {
   EXPECT_EQ(platform_->flush_count(), 0);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(WidgetBaseTest, UpdateScreenInfoUpdatesLayerTreeHostMemoryPolicy) {
   display::ScreenInfo external_screen_info;
   external_screen_info.rect = gfx::Rect(0, 0, 3008, 1692);
@@ -258,7 +257,6 @@ TEST_F(WidgetBaseMemoryPolicyKillSwitchTest,
 
   widget_base_->Shutdown(/*delay_release=*/false);
 }
-#endif
 
 }  // namespace
 }  // namespace blink

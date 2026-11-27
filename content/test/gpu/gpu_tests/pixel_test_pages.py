@@ -25,7 +25,6 @@ CRASH_TYPE_GPU = 'gpu-process'
 CRASH_TYPE_RENDERER = 'renderer'
 
 EXPECTED_CRASHES_PLATFORM_DEFAULT = ''
-EXPECTED_CRASHES_PLATFORM_FUCHSIA = 'fuchsia'
 
 SHORT_GLOBAL_TIMEOUT = 30
 
@@ -228,10 +227,6 @@ def RequiresFullScreenOSScreenshot() -> bool:
   return True
 
 
-def CaptureFullScreenshotOnFuchsia(browser: browser_module.Browser) -> bool:
-  return browser.platform.GetOSName() == 'fuchsia'
-
-
 class PixelTestPages:
   @staticmethod
   def DefaultPages(base_name: str) -> list[PixelTestPage]:
@@ -258,7 +253,6 @@ class PixelTestPages:
         crop_action=ca.FixedRectCropAction(20, 20, 370, 370),
         # Small Fuchsia screens result in an incomplete capture
         # without this.
-        should_capture_full_screenshot_func=CaptureFullScreenshotOnFuchsia,
         matching_algorithm=ROUNDING_ERROR_ALGO,
       ),
       PixelTestPage(
@@ -337,9 +331,7 @@ class PixelTestPages:
           # (looking for minidumps). The method for crashing the GPU
           # process in this test is recorded as a crash but does not
           # generate a minidump.
-          EXPECTED_CRASHES_PLATFORM_FUCHSIA: {
-            CRASH_TYPE_GPU: 1,
-          },
+
         },
       ),
       PixelTestPage(
@@ -359,9 +351,7 @@ class PixelTestPages:
           # (looking for minidumps). The method for crashing the GPU
           # process in this test is recorded as a crash but does not
           # generate a minidump.
-          EXPECTED_CRASHES_PLATFORM_FUCHSIA: {
-            CRASH_TYPE_GPU: 2,
-          },
+
         },
       ),
       PixelTestPage(
@@ -380,8 +370,7 @@ class PixelTestPages:
         crop_action=ca.FixedRectCropAction(500, 500, 600, 600),
         # Small Fuchsia screens result in an incomplete capture
         # without this.
-        should_capture_full_screenshot_func=CaptureFullScreenshotOnFuchsia,
-      ),
+        ),
       PixelTestPage(
         'pixel_video_mp4.html?width=240&height=135&use_timer=1',
         base_name + '_Video_MP4',
@@ -702,7 +691,6 @@ class PixelTestPages:
         crop_action=ca.FixedRectCropAction(500, 500, 600, 600),
         # Small Fuchsia screens result in an incomplete capture
         # without this.
-        should_capture_full_screenshot_func=(CaptureFullScreenshotOnFuchsia),
         browser_args=['--enable-features=TreesInViz'],
       ),
       # TODO(crbug.com/431824747): Re-enable once the issue with TreesInViz
@@ -1106,8 +1094,7 @@ class PixelTestPages:
         ),
         # Small Fuchsia screens result in an incomplete capture
         # without this.
-        should_capture_full_screenshot_func=CaptureFullScreenshotOnFuchsia,
-      ),
+        ),
     ]
 
   # Pages that should be run with experimental canvas features.

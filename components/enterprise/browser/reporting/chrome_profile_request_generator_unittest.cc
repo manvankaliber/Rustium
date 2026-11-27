@@ -51,16 +51,7 @@ const char kFakeFirstHotfix[] = "hotfix_1";
 const char kFakeSecondHotfix[] = "hotfix_2";
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-const bool kFakeHasHarmfulApps = false;
-const bool kFakeVerifiedAppsEnabled = true;
 
-const int64_t kFakeSecurityPatchLevel = 1735689600000;
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_IOS)
-constexpr char kFakeVendorId[] = "fake-vendor-id";
-#endif  // BUILDFLAG(IS_IOS)
 
 constexpr char kFakeCertData[] = "fake_cert_data";
 constexpr char kFakeSignature[] = "fake_signature";
@@ -88,13 +79,7 @@ device_signals::SignalsAggregationResponse CreateFilledResponse(
   os_signals.mac_addresses = {kFakeSignalMacAddr1, kFakeSignalMacAddr2,
                               kFakeSignalMacAddr3};
 
-#if BUILDFLAG(IS_ANDROID)
-  os_signals.security_patch_ms = kFakeSecurityPatchLevel;
-#endif
 
-#if BUILDFLAG(IS_IOS)
-  os_signals.vendor_id = kFakeVendorId;
-#endif  // BUILDFLAG(IS_IOS)
 
   response.os_signals_response = os_signals;
 
@@ -149,12 +134,6 @@ device_signals::SignalsAggregationResponse CreateFilledResponse(
 
   response.profile_signals_response = profile_signals;
 
-#if BUILDFLAG(IS_ANDROID)
-  device_signals::VerifyAppsSignalsResponse verify_apps_signals;
-  verify_apps_signals.has_potentially_harmful_apps = kFakeHasHarmfulApps;
-  verify_apps_signals.verified_apps_enabled = kFakeVerifiedAppsEnabled;
-  response.verify_apps_signals_response = verify_apps_signals;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return response;
 }
@@ -191,9 +170,6 @@ class ChromeProfileRequestGeneratorTest
       const base::ListValue& cert_selectors = {}) const {
     device_signals::SignalsAggregationRequest request;
     request.signal_names.emplace(device_signals::SignalName::kOsSignals);
-#if BUILDFLAG(IS_ANDROID)
-    request.signal_names.emplace(device_signals::SignalName::kVerifyApps);
-#endif  // BUILDFLAG(IS_ANDROID)
     request.signal_names.emplace(
         device_signals::SignalName::kBrowserContextSignals);
 
@@ -296,23 +272,9 @@ class ChromeProfileRequestGeneratorTest
       EXPECT_EQ(os_report.mac_addresses(1), kFakeSignalMacAddr2);
       EXPECT_EQ(os_report.mac_addresses(2), kFakeSignalMacAddr3);
 
-#if BUILDFLAG(IS_ANDROID)
-      EXPECT_TRUE(os_report.has_has_potentially_harmful_apps());
-      EXPECT_TRUE(os_report.has_verified_apps_enabled());
-
-      EXPECT_EQ(os_report.has_potentially_harmful_apps(), kFakeHasHarmfulApps);
-      EXPECT_EQ(os_report.verified_apps_enabled(), kFakeVerifiedAppsEnabled);
-      EXPECT_EQ(os_report.security_patch_ms(), kFakeSecurityPatchLevel);
-#else
       EXPECT_FALSE(os_report.has_has_potentially_harmful_apps());
       EXPECT_FALSE(os_report.has_verified_apps_enabled());
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_IOS)
-      ASSERT_TRUE(os_report.has_ios_specific_attributes());
-      EXPECT_EQ(os_report.ios_specific_attributes().vendor_id(),
-                kFakeVendorId);
-#endif  // BUILDFLAG(IS_IOS)
 
       if (agent_collection_enabled) {
         EXPECT_EQ(os_report.detected_agents(0), em::Agent::CROWDSTRIKE_FALCON);
@@ -342,13 +304,6 @@ class ChromeProfileRequestGeneratorTest
       EXPECT_EQ(0, os_report.antivirus_info_size());
       EXPECT_EQ(0, os_report.hotfixes_size());
 #endif  // BUILDFLAG(IS_WIN)
-#if BUILDFLAG(IS_ANDROID)
-      EXPECT_FALSE(os_report.has_has_potentially_harmful_apps());
-      EXPECT_FALSE(os_report.has_verified_apps_enabled());
-#endif  // BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_IOS)
-      EXPECT_FALSE(os_report.has_ios_specific_attributes());
-#endif  // BUILDFLAG(IS_IOS)
     }
 
     EXPECT_EQ(

@@ -60,11 +60,6 @@ class PrimaryAccountManagerTest : public testing::Test,
                                   public PrimaryAccountManager::Observer {
  public:
   PrimaryAccountManagerTest() : test_signin_client_(&user_prefs_) {
-#if BUILDFLAG(IS_ANDROID)
-    // Mock AccountManagerFacade in java code for tests that require its
-    // initialization.
-    signin::SetUpFakeAccountManagerFacade();
-#endif
     AccountTrackerService::RegisterPrefs(user_prefs_.registry());
     ProfileOAuth2TokenService::RegisterProfilePrefs(user_prefs_.registry());
     PrimaryAccountManager::RegisterProfilePrefs(user_prefs_.registry());
@@ -184,11 +179,6 @@ class PrimaryAccountManagerTest : public testing::Test,
     }
   }
 
-#if BUILDFLAG(IS_IOS)
-  void OnEndBatchOfPrimaryAccountChanges() override {
-    num_end_batch_of_primary_account_changes_++;
-  }
-#endif  // BUILDFLAG(IS_IOS)
 
   base::test::TaskEnvironment task_environment_;
   sync_preferences::TestingPrefServiceSyncable user_prefs_;
@@ -203,12 +193,8 @@ class PrimaryAccountManagerTest : public testing::Test,
   int num_successful_signins_{0};
   int num_successful_signouts_{0};
   int num_unconsented_account_changed_{0};
-#if BUILDFLAG(IS_IOS)
-  int num_end_batch_of_primary_account_changes_{0};
-#endif  // BUILDFLAG(IS_IOS)
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(PrimaryAccountManagerTest, SignOut) {
   CreatePrimaryAccountManager();
   CoreAccountId main_account_id =
@@ -352,48 +338,6 @@ TEST_F(PrimaryAccountManagerTest, UnconsentedSignOutWhileProhibited) {
                       .sign_out = signin_metrics::ProfileSignout::kTest});
 }
 
-#if BUILDFLAG(IS_IOS)
-// Tests `OnEndBatchOfPrimaryAccountChanges()` with
-// `StartBatchOfPrimaryAccountChanges()`.
-TEST_F(PrimaryAccountManagerTest, BatchOfPrimaryAccountChanges) {
-  CreatePrimaryAccountManager();
-  CoreAccountId account_id1 =
-      AddToAccountTracker(GaiaId("gaia_id1"), "user1@gmail.com");
-  CoreAccountId account_id2 =
-      AddToAccountTracker(GaiaId("gaia_id2"), "user2@gmail.com");
-
-  manager_->SetPrimaryAccountInfo(
-      account_tracker()->GetAccountInfo(account_id1).GetCoreAccountInfo(),
-      ConsentLevel::kSignin, AccessPoint::kStartPage);
-  EXPECT_EQ(1, num_unconsented_account_changed_);
-  EXPECT_EQ(1, num_end_batch_of_primary_account_changes_);
-  EXPECT_FALSE(manager_->IsBatchOfPrimaryAccountChangesInProgress());
-
-  base::ScopedClosureRunner scoped_closure_runner =
-      manager_->StartBatchOfPrimaryAccountChanges();
-  EXPECT_TRUE(manager_->IsBatchOfPrimaryAccountChangesInProgress());
-
-  manager_->ClearPrimaryAccount(signin_metrics::ProfileSignout::kTest);
-  EXPECT_EQ(2, num_unconsented_account_changed_);
-  EXPECT_EQ(1, num_end_batch_of_primary_account_changes_);
-
-  manager_->SetPrimaryAccountInfo(
-      account_tracker()->GetAccountInfo(account_id2).GetCoreAccountInfo(),
-      ConsentLevel::kSignin, AccessPoint::kStartPage);
-  EXPECT_EQ(3, num_unconsented_account_changed_);
-  EXPECT_EQ(1, num_end_batch_of_primary_account_changes_);
-
-  scoped_closure_runner.RunAndReset();
-  EXPECT_FALSE(manager_->IsBatchOfPrimaryAccountChangesInProgress());
-  EXPECT_EQ(3, num_unconsented_account_changed_);
-  EXPECT_EQ(2, num_end_batch_of_primary_account_changes_);
-
-  manager_->ClearPrimaryAccount(signin_metrics::ProfileSignout::kTest);
-  EXPECT_EQ(4, num_unconsented_account_changed_);
-  EXPECT_EQ(3, num_end_batch_of_primary_account_changes_);
-}
-#endif  // BUILDFLAG(IS_IOS)
-#endif
 
 TEST_F(PrimaryAccountManagerTest, RevokeSyncConsentAllowedSignoutProhibited) {
   CreatePrimaryAccountManager();
@@ -425,13 +369,11 @@ TEST_F(PrimaryAccountManagerTest, RevokeSyncConsentAllowedSignoutProhibited) {
   EXPECT_FALSE(manager_->HasPrimaryAccount(ConsentLevel::kSync));
   EXPECT_TRUE(manager_->HasPrimaryAccount(ConsentLevel::kSignin));
 
-#if !BUILDFLAG(IS_CHROMEOS)
   manager_->ClearPrimaryAccount(signin_metrics::ProfileSignout::kTest);
   EXPECT_TRUE(manager_->HasPrimaryAccount(ConsentLevel::kSignin));
   CheckSigninMetrics({.sign_in = AccessPoint::kStartPage,
                       .sync_opt_in = AccessPoint::kStartPage,
                       .turn_off_sync = signin_metrics::ProfileSignout::kTest});
-#endif
 }
 
 // Regression test for https://crbug.com/1155519.
@@ -523,74 +465,6 @@ TEST_F(PrimaryAccountManagerTest,
                       .sync_opt_in = AccessPoint::kSettings});
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(PrimaryAccountManagerTest, GaiaIdMigration) {
-  ASSERT_EQ(AccountTrackerService::MIGRATION_DONE,
-            account_tracker()->GetMigrationState());
-  std::string email = "user@gmail.com";
-  GaiaId gaia_id("account_gaia_id");
-
-  PrefService* client_prefs = signin_client()->GetPrefs();
-  client_prefs->SetInteger(prefs::kAccountIdMigrationState,
-                           AccountTrackerService::MIGRATION_NOT_STARTED);
-  ScopedListPrefUpdate update(client_prefs, prefs::kAccountInfo);
-  update->clear();
-  base::DictValue dict;
-  dict.Set("account_id", email);
-  dict.Set("email", email);
-  dict.Set("gaia", gaia_id.ToString());
-  update->Append(std::move(dict));
-
-  // Re-create account tracker to trigger migration.
-  account_tracker_ =
-      std::make_unique<AccountTrackerService>(&user_prefs_, base::FilePath());
-
-  client_prefs->SetString(prefs::kGoogleServicesAccountId, email);
-  client_prefs->SetBoolean(prefs::kGoogleServicesConsentedToSync, true);
-
-  CreatePrimaryAccountManager();
-
-  EXPECT_EQ(CoreAccountId::FromGaiaId(gaia_id),
-            manager_->GetPrimaryAccountId(ConsentLevel::kSync));
-  EXPECT_EQ(gaia_id.ToString(),
-            user_prefs_.GetString(prefs::kGoogleServicesAccountId));
-}
-
-TEST_F(PrimaryAccountManagerTest, GaiaIdMigrationCrashInTheMiddle) {
-  ASSERT_EQ(AccountTrackerService::MIGRATION_DONE,
-            account_tracker()->GetMigrationState());
-  std::string email = "user@gmail.com";
-  GaiaId gaia_id("account_gaia_id");
-
-  PrefService* client_prefs = signin_client()->GetPrefs();
-  client_prefs->SetInteger(prefs::kAccountIdMigrationState,
-                           AccountTrackerService::MIGRATION_NOT_STARTED);
-  ScopedListPrefUpdate update(client_prefs, prefs::kAccountInfo);
-  update->clear();
-  base::DictValue dict;
-  dict.Set("account_id", email);
-  dict.Set("email", email);
-  dict.Set("gaia", gaia_id.ToString());
-  update->Append(std::move(dict));
-
-  // Re-create account tracker to trigger migration.
-  account_tracker_ =
-      std::make_unique<AccountTrackerService>(&user_prefs_, base::FilePath());
-
-  client_prefs->SetString(prefs::kGoogleServicesAccountId, gaia_id.ToString());
-  client_prefs->SetBoolean(prefs::kGoogleServicesConsentedToSync, true);
-
-  CreatePrimaryAccountManager();
-  EXPECT_EQ(CoreAccountId::FromGaiaId(gaia_id),
-            manager_->GetPrimaryAccountId(ConsentLevel::kSync));
-  EXPECT_EQ(gaia_id.ToString(),
-            user_prefs_.GetString(prefs::kGoogleServicesAccountId));
-
-  base::RunLoop().RunUntilIdle();
-  EXPECT_EQ(AccountTrackerService::MIGRATION_DONE,
-            account_tracker()->GetMigrationState());
-}
-#endif
 
 TEST_F(PrimaryAccountManagerTest, RestoreFromPrefsConsented) {
   CoreAccountId account_id =
@@ -653,10 +527,8 @@ TEST_F(PrimaryAccountManagerTest, SetPrimaryAccountInfoWithSigninConsent) {
             manager_->GetPrimaryAccountInfo(ConsentLevel::kSync));
   EXPECT_EQ(user_prefs_.GetString(prefs::kGoogleServicesLastSignedInUsername),
             "user@gmail.com");
-#if !BUILDFLAG(IS_IOS)
   EXPECT_EQ(user_prefs_.GetString(prefs::kGoogleServicesLastSyncingUsername),
             std::string());
-#endif  // !BUILDFLAG(IS_IOS)
   CheckSigninMetrics({.sign_in = AccessPoint::kSettings});
 
   // The primary account info and metrics should be changed synchronously, only
@@ -720,10 +592,8 @@ TEST_F(PrimaryAccountManagerTest, SetPrimaryAccountInfoWithSyncConsent) {
   EXPECT_EQ(account_info, manager_->GetPrimaryAccountInfo(ConsentLevel::kSync));
   EXPECT_EQ(user_prefs_.GetString(prefs::kGoogleServicesLastSignedInUsername),
             "user@gmail.com");
-#if !BUILDFLAG(IS_IOS)
   EXPECT_EQ(user_prefs_.GetString(prefs::kGoogleServicesLastSyncingUsername),
             "user@gmail.com");
-#endif  // !BUILDFLAG(IS_IOS)
   CheckSigninMetrics({.sign_in = AccessPoint::kSettings,
                       .sync_opt_in = AccessPoint::kSettings});
 
@@ -777,7 +647,6 @@ TEST_F(PrimaryAccountManagerTest, RevokeSyncConsent) {
             manager_->GetPrimaryAccountInfo(ConsentLevel::kSignin).account_id);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(PrimaryAccountManagerTest, ClearPrimaryAccount) {
   CreatePrimaryAccountManager();
   CoreAccountId account_id =
@@ -792,9 +661,7 @@ TEST_F(PrimaryAccountManagerTest, ClearPrimaryAccount) {
   EXPECT_FALSE(manager_->HasPrimaryAccount(ConsentLevel::kSync));
   EXPECT_FALSE(manager_->HasPrimaryAccount(ConsentLevel::kSignin));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(PrimaryAccountManagerTest, RestoreSyncAccountInfo) {
   user_prefs_.SetString(prefs::kGoogleServicesLastSyncingUsername,
                         "user@gmail.com");
@@ -853,7 +720,6 @@ TEST_F(PrimaryAccountManagerTest, RestoreFailedLastSyncEmailMissing) {
       PrimaryAccountManager::InitializeAccountInfoState::
           kEmptyAccountInfo_RestoreFailedNoLastSyncEmail);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(PrimaryAccountManagerTest, RestoreFailedNotSyncing) {
   CoreAccountId account_id = account_tracker()->PickAccountIdForAccount(
@@ -890,12 +756,10 @@ TEST_F(PrimaryAccountManagerTest, ExplicitSigninPref) {
   EXPECT_FALSE(prefs()->GetBoolean(prefs::kExplicitBrowserSignin));
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Clearing signin.
   manager_->ClearPrimaryAccount(signin_metrics::ProfileSignout::kTest);
 
   EXPECT_FALSE(prefs()->GetBoolean(prefs::kExplicitBrowserSignin));
-#endif
 }
 
 TEST_F(PrimaryAccountManagerTest, ImplicitSigninDoesNotSetExplicitSigninPref) {
@@ -1033,12 +897,10 @@ TEST_F(PrimaryAccountManagerTest, AccountStoragePrefNewUser) {
       prefs::kPrefsThemesSearchEnginesAccountStorageEnabled));
 
 // ChromeOS does not support signing out.
-#if !BUILDFLAG(IS_CHROMEOS)
   // Signout does not clear the pref.
   manager_->ClearPrimaryAccount(signin_metrics::ProfileSignout::kTest);
   EXPECT_TRUE(prefs()->GetBoolean(
       prefs::kPrefsThemesSearchEnginesAccountStorageEnabled));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 // Explicit sign-in prefs for bookmarks and extensions are only used on Dice
@@ -1117,7 +979,6 @@ TEST_F(PrimaryAccountManagerTest,
 }
 #endif  // BUILDFLAG(ENABLE_DICE_SUPPORT)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(PrimaryAccountManagerTest, PerProfileMetrics) {
   // First PrimaryAccountManager with `context1`, records metric for both
   // `Profile1` and non-profile specific.
@@ -1239,7 +1100,6 @@ TEST_F(PrimaryAccountManagerTest, PerProfileMetricsSync) {
   histogram_tester_.ExpectUniqueSample("Signin.SyncTurnOff.Completed.Profile2",
                                        ProfileSignout::kTest, 1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 // Test that the extensions explicit signin pref is set if the user signs in

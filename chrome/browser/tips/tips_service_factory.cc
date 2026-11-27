@@ -9,12 +9,6 @@
 #include "chrome/browser/segmentation_platform/segmentation_platform_service_factory.h"
 #include "chrome/browser/tips/core/tips_service.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/tips/features/bottom_omnibox_tip.h"
-#include "chrome/browser/tips/features/enhanced_safe_browsing_tip.h"
-#include "chrome/browser/tips/features/google_lens_tip.h"
-#include "chrome/browser/tips/features/quick_delete_tip.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace tips {
 
@@ -52,12 +46,6 @@ TipsServiceFactory::BuildServiceInstanceForBrowserContext(
       profile->GetPrefs(),
       segmentation_platform::SegmentationPlatformServiceFactory::GetForProfile(
           profile));
-#if BUILDFLAG(IS_ANDROID)
-  service->RegisterFeature(std::make_unique<EnhancedSafeBrowsingTip>());
-  service->RegisterFeature(std::make_unique<QuickDeleteTip>());
-  service->RegisterFeature(std::make_unique<GoogleLensTip>());
-  service->RegisterFeature(std::make_unique<BottomOmniboxTip>());
-#endif  // BUILDFLAG(IS_ANDROID)
   return service;
 }
 

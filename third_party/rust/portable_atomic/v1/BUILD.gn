@@ -34,7 +34,6 @@ cargo_crate("lib") {
     "//third_party/rust/chromium_crates_io/vendor/portable-atomic-v1/src/imp/core_atomic.rs",
     "//third_party/rust/chromium_crates_io/vendor/portable-atomic-v1/src/imp/detect/aarch64_aa64reg.rs",
     "//third_party/rust/chromium_crates_io/vendor/portable-atomic-v1/src/imp/detect/aarch64_apple.rs",
-    "//third_party/rust/chromium_crates_io/vendor/portable-atomic-v1/src/imp/detect/aarch64_fuchsia.rs",
     "//third_party/rust/chromium_crates_io/vendor/portable-atomic-v1/src/imp/detect/aarch64_illumos.rs",
     "//third_party/rust/chromium_crates_io/vendor/portable-atomic-v1/src/imp/detect/aarch64_windows.rs",
     "//third_party/rust/chromium_crates_io/vendor/portable-atomic-v1/src/imp/detect/auxv.rs",

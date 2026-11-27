@@ -17,7 +17,6 @@
 #include "cc/trees/layer_tree_impl.h"
 #include "components/viz/test/test_in_process_context_provider.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace cc {
 namespace {
@@ -136,7 +135,7 @@ TEST_P(LayerTreeHostScrollbarsPixelTest, TransformScale) {
 
 // Disabled on TSan due to frequent timeouts. crbug.com/848994
 // TODO(crbug.com/40256786): currently do not pass on iOS.
-#if defined(THREAD_SANITIZER) || BUILDFLAG(IS_IOS)
+#if defined(THREAD_SANITIZER)
 #define MAYBE_HugeTransformScale DISABLED_HugeTransformScale
 #else
 #define MAYBE_HugeTransformScale HugeTransformScale
@@ -301,5 +300,3 @@ TEST_P(LayerTreeHostOverlayScrollbarsPixelTest, NinePatchScrollbarScaledDown) {
 
 }  // namespace
 }  // namespace cc
-
-#endif  // BUILDFLAG(IS_ANDROID)

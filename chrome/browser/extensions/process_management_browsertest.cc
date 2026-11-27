@@ -61,7 +61,6 @@ class ProcessManagementTest : public ExtensionBrowserTest {
         {}, {
                 features::kBackForwardCache,
                 features::kProcessPerSiteUpToMainFrameThreshold,
-#if !BUILDFLAG(IS_ANDROID)
                 // TODO(crbug.com/531575122): Remove this once the organizer
                 // panel is also created in TopChromeWebUIProfile. With
                 // kTopChromeWebUISharedRenderer, only the WebUI toolbar is,
@@ -69,7 +68,6 @@ class ProcessManagementTest : public ExtensionBrowserTest {
                 // process, which adds a renderer process at startup that
                 // ExtensionAndWebProcessOverflow uses to set the process limit.
                 features::kTopChromeWebUISharedRenderer,
-#endif  // !BUILDFLAG(IS_ANDROID)
             });
   }
 

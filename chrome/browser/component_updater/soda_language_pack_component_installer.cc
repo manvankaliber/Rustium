@@ -126,7 +126,6 @@ void SodaLanguagePackComponentInstallerPolicy::ComponentReady(
   VLOG(1) << "Component ready, version " << version.GetString() << " in "
           << install_dir.value();
 
-#if !BUILDFLAG(IS_ANDROID)
   // The component updater may post ready tasks during shutdown. Confirm that the
   // `BrowserProcess` is still valid before setting the pref.
   if (g_browser_process) {
@@ -134,7 +133,6 @@ void SodaLanguagePackComponentInstallerPolicy::ComponentReady(
         language_config_.config_path_pref,
         install_dir.Append(speech::kSodaLanguagePackDirectoryRelativePath));
   }
-#endif  //! BUILDFLAG(IS_ANDROID)
 
   if (on_ready_callback_) {
     std::move(on_ready_callback_).Run(language_config_.language_code);

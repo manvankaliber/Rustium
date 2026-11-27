@@ -317,7 +317,6 @@ TEST_F(EntryPointEligibilityManagerTest, NotifyEntryPointEligibilityChanged) {
         .gaia_id = account_info.GetGaiaId()}});
   EXPECT_EQ(notified_eligibility, true);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // 2. Test OnPrimaryAccountChanged: Clear primary account.
   // Skipped on ChromeOS since signin::ClearPrimaryAccount() is not supported
   // without a restart.
@@ -334,7 +333,6 @@ TEST_F(EntryPointEligibilityManagerTest, NotifyEntryPointEligibilityChanged) {
       {{.email = std::string(account_info.GetEmail()),
         .gaia_id = account_info.GetGaiaId()}});
   EXPECT_EQ(notified_eligibility, true);
-#endif
 
   // 3. Test OnRefreshTokenUpdatedForAccount:
   // Change IsSignedIn expectation to false to simulate invalid credentials.

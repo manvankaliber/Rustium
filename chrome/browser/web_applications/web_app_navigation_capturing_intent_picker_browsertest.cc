@@ -336,9 +336,7 @@ class IsolatedWebAppNavigationCapturingIntentPickerBrowserTest
   IsolatedWebAppNavigationCapturingIntentPickerBrowserTest() {
     scoped_feature_list_.InitWithFeatures(
         {blink::features::kWebAppEnableScopeExtensionsForIsolatedWebApps,
-#if !BUILDFLAG(IS_CHROMEOS)
          features::kIsolatedWebApps
-#endif  // !BUILDFLAG(IS_CHROMEOS)
         },
         {});
   }

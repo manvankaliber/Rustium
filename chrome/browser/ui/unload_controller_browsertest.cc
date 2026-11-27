@@ -4,7 +4,6 @@
 
 #include "chrome/browser/ui/unload_controller.h"
 
-#include "ash/constants/web_app_id_constants.h"
 #include "base/callback_list.h"
 #include "base/functional/bind.h"
 #include "base/json/json_reader.h"
@@ -60,11 +59,6 @@
 #include "ui/views/window/dialog_delegate.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "chrome/common/chrome_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 constexpr char kCalculatorAppUrl[] = "https://calculator.apps.chrome/";
@@ -84,11 +78,7 @@ constexpr char kCalculatorForceInstalled[] = R"([
   }
 ])";
 
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr bool kShouldPreventClose = true;
-#else
 constexpr bool kShouldPreventClose = false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -243,77 +233,6 @@ INSTANTIATE_TEST_SUITE_P(
       }
     });
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-// Browser tests for verifying `UnloadController` behavior for apps when locked
-// (and not locked) for OnTask. Only relevant for non-web browser scenarios.
-class UnloadControllerWithOnTaskTest
-    : public InProcessBrowserTest,
-      public testing::WithParamInterface<bool> {
- public:
-  UnloadControllerWithOnTaskTest() {
-    scoped_feature_list_.InitWithFeatureState(
-        features::kUseUnifiedLockedStateController, GetParam());
-  }
-
- protected:
-  webapps::AppId InstallMockApp() {
-    return web_app::test::InstallDummyWebApp(
-        browser()->GetProfile(), /*app_name=*/"Mock app",
-        /*app_url=*/GURL("https://www.example.com/"));
-  }
-
-  void SetLockedForOnTask(BrowserWindowInterface* app_browser, bool locked) {
-    if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-      auto* controller = chromeos::LockedStateController::From(app_browser);
-      if (locked) {
-        controller->Lock(chromeos::LockedState::kOnTaskPrepared);
-      } else {
-        controller->Unlock(chromeos::LockedState::kOnTaskLocked);
-      }
-    } else {
-      ash::boca::OnTaskLockedController::From(app_browser)
-          ->set_locked_for_on_task(locked);
-    }
-  }
-
- private:
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_P(UnloadControllerWithOnTaskTest,
-                       PreventCloseWhenLockedForOnTask) {
-  // Install and launch app.
-  webapps::AppId app_id = InstallMockApp();
-  BrowserWindowInterface* const app_browser =
-      web_app::LaunchWebAppBrowser(browser()->GetProfile(), app_id);
-  SetLockedForOnTask(app_browser, true);
-
-  // Verify tab cannot be closed.
-  content::WebContents* const active_web_contents =
-      app_browser->GetTabStripModel()->GetWebContentsAt(0);
-  UnloadController* unload_controller = UnloadController::From(app_browser);
-  EXPECT_FALSE(unload_controller->CanCloseContents(active_web_contents));
-}
-
-IN_PROC_BROWSER_TEST_P(UnloadControllerWithOnTaskTest,
-                       AllowCloseWhenNotLockedForOnTask) {
-  // Install and launch app.
-  webapps::AppId app_id = InstallMockApp();
-  BrowserWindowInterface* const app_browser =
-      web_app::LaunchWebAppBrowser(browser()->GetProfile(), app_id);
-  SetLockedForOnTask(app_browser, false);
-
-  // Verify tab can be closed.
-  content::WebContents* const active_web_contents =
-      app_browser->GetTabStripModel()->GetWebContentsAt(0);
-  UnloadController* unload_controller = UnloadController::From(app_browser);
-  EXPECT_TRUE(unload_controller->CanCloseContents(active_web_contents));
-}
-
-INSTANTIATE_TEST_SUITE_P(All, UnloadControllerWithOnTaskTest, testing::Bool());
-
-#endif
 
 using UnloadControllerBrowserTest = InProcessBrowserTest;
 
@@ -352,7 +271,7 @@ IN_PROC_BROWSER_TEST_F(UnloadControllerBrowserTest,
 
 // On Mac and ChromeOS, in-progress downloads of regular profiles don't block
 // window close, so the download warning dialog is never shown.
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC)
 
 class UnloadControllerDownloadBrowserTest : public InProcessBrowserTest {
  protected:
@@ -433,4 +352,4 @@ IN_PROC_BROWSER_TEST_F(UnloadControllerDownloadBrowserTest,
   EXPECT_EQ(download::DownloadItem::IN_PROGRESS, downloads[0]->GetState());
 }
 
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#endif

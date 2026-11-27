@@ -51,7 +51,6 @@ export const RelaunchMixinLit = <T extends Constructor<CrLitElement>>(
       }
     }
 
-    // <if expr="not is_chromeos">
     private async performRestartForNonChromeOs_(
         restartType: RestartType, alwaysShowDialog: boolean) {
       const shouldShowDialog =
@@ -64,7 +63,6 @@ export const RelaunchMixinLit = <T extends Constructor<CrLitElement>>(
 
       this.shouldShowRelaunchDialog = true;
     }
-    // </if>
 
     /**
      * This either performs restart or relaunch depending on the function
@@ -84,13 +82,8 @@ export const RelaunchMixinLit = <T extends Constructor<CrLitElement>>(
         alwaysShowDialog = false;
       }
 
-      // <if expr="is_chromeos">
-      this.performRestartInternal_(restartType);
-      // </if>
 
-      // <if expr="not is_chromeos">
       this.performRestartForNonChromeOs_(restartType, alwaysShowDialog);
-      // </if>
     }
   }
   return RelaunchMixinLit;

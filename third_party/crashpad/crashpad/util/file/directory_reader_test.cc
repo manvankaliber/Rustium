@@ -43,8 +43,6 @@ TEST(DirectoryReader, BadPaths) {
       reader.Open(temp_dir.path().Append(FILE_PATH_LITERAL("doesntexist"))));
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
-
 TEST(DirectoryReader, BadPaths_SymbolicLinks) {
   if (!CanCreateSymbolicLinks()) {
     GTEST_SKIP();
@@ -63,8 +61,6 @@ TEST(DirectoryReader, BadPaths_SymbolicLinks) {
   ASSERT_TRUE(LoggingRemoveFile(file));
   EXPECT_FALSE(reader.Open(link));
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST(DirectoryReader, EmptyDirectory) {
   ScopedTempDir temp_dir;
@@ -104,8 +100,6 @@ void TestFilesAndDirectories(bool symbolic_links) {
   ASSERT_TRUE(
       CreateFile(temp_dir.path().Append(directory).Append(nested_file)));
 
-#if !BUILDFLAG(IS_FUCHSIA)
-
   if (symbolic_links) {
     base::FilePath link(FILE_PATH_LITERAL("link"));
     ASSERT_TRUE(CreateSymbolicLink(temp_dir.path().Append(file),
@@ -118,8 +112,6 @@ void TestFilesAndDirectories(bool symbolic_links) {
                            temp_dir.path().Append(dangling)));
     EXPECT_TRUE(expected_files.insert(dangling).second);
   }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   std::set<base::FilePath> files;
   DirectoryReader reader;
@@ -139,8 +131,6 @@ TEST(DirectoryReader, FilesAndDirectories) {
   TestFilesAndDirectories(false);
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
-
 TEST(DirectoryReader, FilesAndDirectories_SymbolicLinks) {
   if (!CanCreateSymbolicLinks()) {
     GTEST_SKIP();
@@ -148,8 +138,6 @@ TEST(DirectoryReader, FilesAndDirectories_SymbolicLinks) {
 
   TestFilesAndDirectories(true);
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 }  // namespace
 }  // namespace test

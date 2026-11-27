@@ -29,8 +29,7 @@
 #endif  // PA_CONFIG(HAS_LINUX_KERNEL)
 
 #if !PA_CONFIG(HAS_LINUX_KERNEL) && !PA_BUILDFLAG(IS_WIN) && \
-    !PA_BUILDFLAG(IS_APPLE) && !PA_BUILDFLAG(IS_POSIX) &&    \
-    !PA_BUILDFLAG(IS_FUCHSIA)
+    !PA_BUILDFLAG(IS_APPLE) && !PA_BUILDFLAG(IS_POSIX)
 #include "partition_alloc/partition_alloc_base/threading/platform_thread.h"
 
 #if PA_BUILDFLAG(IS_POSIX)
@@ -311,9 +310,9 @@ void SpinningMutex::LockSlow() {
 typedef uint32_t os_unfair_lock_options_t;
 
 extern "C" {
-void __attribute__((weak))
-os_unfair_lock_lock_with_options(os_unfair_lock* lock,
-                                 os_unfair_lock_options_t);
+void __attribute__((weak)) os_unfair_lock_lock_with_options(
+    os_unfair_lock* lock,
+    os_unfair_lock_options_t);
 }
 
 void SpinningMutex::LockSlow() {
@@ -332,12 +331,6 @@ void SpinningMutex::LockSlow() {
 void SpinningMutex::LockSlow() {
   int retval = pthread_mutex_lock(&lock_);
   PA_DCHECK(retval == 0);
-}
-
-#elif PA_BUILDFLAG(IS_FUCHSIA)
-
-void SpinningMutex::LockSlow() {
-  sync_mutex_lock(&lock_);
 }
 
 #else

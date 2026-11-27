@@ -3,6 +3,8 @@
 // found in the LICENSE file.
 
 #include "net/dns/host_resolver_manager.h"
+#include "net/dns/dns_resolution_policy_ffi.h"
+#include "net/dns/dns_client_rust_services.h"
 
 #include <algorithm>
 #include <cmath>
@@ -131,18 +133,13 @@
 #include "net/base/winsock_init.h"
 #endif
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include <net/if.h>
 
 #include "net/base/sys_addrinfo.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include <ifaddrs.h>
-#endif  // !BUILDFLAG(IS_ANDROID)
-#endif  // BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace net {
 
@@ -163,23 +160,35 @@ const uint8_t kIPv6ProbeAddress[] = {0x20, 0x01, 0x48, 0x60, 0x48, 0x60,
 
 // True if |hostname| ends with either ".local" or ".local.".
 bool ResemblesMulticastDNSName(std::string_view hostname) {
-  return hostname.ends_with(".local") || hostname.ends_with(".local.");
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bytes(hostname); }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 46, native_service);
+  return rust_reply.a!=0;
 }
 
 bool ConfigureAsyncDnsNoFallbackFieldTrial() {
-  const bool kDefault = false;
+  using RWords = DnsResolutionWords;
 
-  // Configure the AsyncDns field trial as follows:
-  // groups AsyncDnsNoFallbackA and AsyncDnsNoFallbackB: return true,
-  // groups AsyncDnsA and AsyncDnsB: return false,
-  // groups SystemDnsA and SystemDnsB: return false,
-  // otherwise (trial absent): return default.
-  std::string group_name = base::FieldTrialList::FindFullName("AsyncDns");
-  if (!group_name.empty()) {
-    return base::StartsWith(group_name, "AsyncDnsNoFallback",
-                            base::CompareCase::INSENSITIVE_ASCII);
-  }
-  return kDefault;
+std::string group;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { group=base::FieldTrialList::FindFullName("AsyncDns");
+        return {}; }
+      case 2: { return RWords::Bytes(group); }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 47, native_service);
+  return rust_reply.a!=0;
 }
 
 base::DictValue NetLogIPv6AvailableParams(bool ipv6_available, bool cached) {
@@ -199,54 +208,34 @@ const size_t kDefaultMaxSystemTasks = 64u;
 
 PrioritizedDispatcher::Limits GetDispatcherLimits(
     const HostResolver::ManagerOptions& options) {
-  PrioritizedDispatcher::Limits limits(NUM_PRIORITIES,
-                                       options.max_concurrent_resolves);
+  using RWords = DnsResolutionWords;
 
-  // If not using default, do not use the field trial.
-  if (limits.total_jobs != HostResolver::ManagerOptions::kDefaultParallelism)
-    return limits;
+std::optional<PrioritizedDispatcher::Limits> limits;std::string group;
 
-  // Default, without trial is no reserved slots.
-  limits.total_jobs = kDefaultMaxSystemTasks;
-
-  // Parallelism is determined by the field trial.
-  std::string group =
-      base::FieldTrialList::FindFullName("HostResolverDispatch");
-
-  if (group.empty())
-    return limits;
-
-  // The format of the group name is a list of non-negative integers separated
-  // by ':'. Each of the elements in the list corresponds to an element in
-  // |reserved_slots|, except the last one which is the |total_jobs|.
-  std::vector<std::string_view> group_parts = base::SplitStringPiece(
-      group, ":", base::TRIM_WHITESPACE, base::SPLIT_WANT_ALL);
-  if (group_parts.size() != NUM_PRIORITIES + 1) {
-    NOTREACHED();
-  }
-
-  std::vector<size_t> parsed(group_parts.size());
-  for (size_t i = 0; i < group_parts.size(); ++i) {
-    if (!base::StringToSizeT(group_parts[i], &parsed[i])) {
-      NOTREACHED();
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { limits.emplace(NUM_PRIORITIES,options.max_concurrent_resolves);
+        return {}; }
+      case 2: { return RWords::Unsigned(static_cast<uint64_t>(limits->total_jobs)); }
+      case 3: { return RWords::Unsigned(static_cast<uint64_t>(HostResolver::ManagerOptions::kDefaultParallelism)); }
+      case 4: { limits->total_jobs=args.a;
+        return {}; }
+      case 5: { group=base::FieldTrialList::FindFullName("HostResolverDispatch");
+        return {}; }
+      case 6: { return RWords::Bytes(group); }
+      case 7: { return RWords::Unsigned(static_cast<uint64_t>(NUM_PRIORITIES)); }
+      case 8: { NOTREACHED(); }
+      case 9: { size_t value=0;bool ok=base::StringToSizeT(std::string_view(group).substr(args.a,args.b),&value);return {.a=value,.b=ok}; }
+      case 10: { return RWords::Unsigned(static_cast<uint64_t>(MINIMUM_PRIORITY)); }
+      case 11: { limits->reserved_slots.clear();
+        return {}; }
+      case 12: { limits->reserved_slots.push_back(args.a);
+        return {}; }
+      default: NOTREACHED();
     }
-  }
-
-  const size_t total_jobs = parsed.back();
-  parsed.pop_back();
-
-  const size_t total_reserved_slots =
-      std::accumulate(parsed.begin(), parsed.end(), size_t{0});
-
-  // There must be some unreserved slots available for the all priorities.
-  if (total_reserved_slots > total_jobs ||
-      (total_reserved_slots == total_jobs && parsed[MINIMUM_PRIORITY] == 0)) {
-    NOTREACHED();
-  }
-
-  limits.total_jobs = total_jobs;
-  limits.reserved_slots = parsed;
-  return limits;
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 54, native_service);
+  return std::move(limits).value();
 }
 
 base::DictValue NetLogResults(const HostCache::Entry& results) {
@@ -257,42 +246,69 @@ base::DictValue NetLogResults(const HostCache::Entry& results) {
 
 base::DictValue NetLogResults(
     const std::set<std::unique_ptr<HostResolverInternalResult>>& results) {
-  auto list = base::ListValue::with_capacity(results.size());
-  for (const std::unique_ptr<HostResolverInternalResult>& result : results) {
-    list.Append(result->ToValue());
-  }
+  using RWords = DnsResolutionWords;
 
-  base::DictValue dict;
-  dict.Set("results", std::move(list));
+std::optional<base::ListValue> list;base::DictValue dict;decltype(results.begin()) it;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { list.emplace(base::ListValue::with_capacity(results.size()));
+        return {}; }
+      case 2: { it=results.begin();
+        return {}; }
+      case 3: { return RWords::Bool(it!=results.end()); }
+      case 4: { list->Append((*it)->ToValue());
+        return {}; }
+      case 5: { ++it;
+        return {}; }
+      case 6: { dict.Set("results",std::move(*list));
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 49, native_service);
   return dict;
 }
 
 std::vector<IPEndPoint> FilterAddresses(std::vector<IPEndPoint> addresses,
                                         DnsQueryTypeSet query_types) {
-  DCHECK(!query_types.Has(DnsQueryType::UNSPECIFIED));
-  DCHECK(!query_types.empty());
+  using RWords = DnsResolutionWords;
 
-  const AddressFamily want_family =
-      HostResolver::DnsQueryTypeSetToAddressFamily(query_types);
 
-  if (want_family == ADDRESS_FAMILY_UNSPECIFIED)
-    return addresses;
 
-  // Keep only the endpoints that match `want_family`.
-  auto removed = std::ranges::remove_if(
-      addresses,
-      [want_family](AddressFamily family) { return family != want_family; },
-      &IPEndPoint::GetFamily);
-  addresses.erase(removed.begin(), removed.end());
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(!query_types.Has(DnsQueryType::UNSPECIFIED));DCHECK(!query_types.empty());
+        return {}; }
+      case 2: { DCHECK(HasAddressType(query_types));return {.a=query_types.Has(DnsQueryType::A),.b=query_types.Has(DnsQueryType::AAAA)}; }
+      case 3: { return RWords::Signed(static_cast<int64_t>(ADDRESS_FAMILY_UNSPECIFIED)); }
+      case 4: { return RWords::Unsigned(static_cast<uint64_t>(addresses.size())); }
+      case 5: { return RWords::Signed(static_cast<int64_t>(addresses.at(args.a).GetFamily())); }
+      case 6: { addresses.at(args.a)=std::move(addresses.at(args.b));
+        return {}; }
+      case 7: { addresses.erase(addresses.begin()+base::checked_cast<ptrdiff_t>(args.a),addresses.end());
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 50, native_service);
   return addresses;
 }
 
 int GetPortForGloballyReachableCheck() {
-  if (!base::FeatureList::IsEnabled(
-          features::kUseAlternativePortForGloballyReachableCheck)) {
-    return 443;
-  }
-  return features::kAlternativePortForGloballyReachableCheck.Get();
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bool(base::FeatureList::IsEnabled(features::kUseAlternativePortForGloballyReachableCheck)); }
+      case 2: { return RWords::Signed(static_cast<int64_t>(features::kAlternativePortForGloballyReachableCheck.Get())); }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 43, native_service);
+  return static_cast<int>(rust_reply.x);
 }
 
 // These values are persisted to logs. Entries should not be renumbered and
@@ -309,25 +325,25 @@ enum class DnsClientCapability {
 // LINT.ThenChange(/tools/metrics/histograms/metadata/net/enums.xml:DnsClientCapability)
 
 void RecordDnsClientCapabilityMetrics(const DnsClient* dns_client) {
-  if (!dns_client) {
-    return;
-  }
-  DnsClientCapability capability;
-  if (dns_client->CanUseSecureDnsTransactions()) {
-    if (dns_client->CanUseInsecureDnsTransactions(/*ech_mode=*/std::nullopt)) {
-      capability = DnsClientCapability::kSecureEnabledInsecureEnabled;
-    } else {
-      capability = DnsClientCapability::kSecureEnabledInsecureDisabled;
+  using RWords = DnsResolutionWords;
+
+
+std::unique_ptr<DnsClientRustServices> client_frame;uint32_t client_frame_depth=0;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bool(dns_client!=nullptr); }
+      case 2: { return RWords::Bool(dns_client->CanUseSecureDnsTransactions()); }
+      case 3: { return RWords::Bool(dns_client->CanUseInsecureDnsTransactions(std::nullopt)); }
+      case 4: { base::UmaHistogramEnumeration("Net.DNS.DnsConfig.DnsClientCapability",static_cast<DnsClientCapability>(args.a));
+        return {}; }
+      case 9000: { if(client_frame_depth==0){const auto* owner=(dns_client);if(owner)client_frame=owner->MakeRustPolicyServices(nullptr);}++client_frame_depth;return RWords::Bool(client_frame!=nullptr);}
+      case 9001: CHECK_GT(client_frame_depth,0u);if(--client_frame_depth==0)client_frame.reset();return {};
+      default: if(operation>=10000 && client_frame) return client_frame->Dispatch(operation-10000,args); NOTREACHED();
     }
-  } else {
-    if (dns_client->CanUseInsecureDnsTransactions(/*ech_mode=*/std::nullopt)) {
-      capability = DnsClientCapability::kSecureDisabledInsecureEnabled;
-    } else {
-      capability = DnsClientCapability::kSecureDisabledInsecureDisabled;
-    }
-  }
-  base::UmaHistogramEnumeration("Net.DNS.DnsConfig.DnsClientCapability",
-                                capability);
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 44, native_service);
+  (void)rust_reply;
 }
 }  // namespace
 
@@ -335,14 +351,24 @@ void RecordDnsClientCapabilityMetrics(const DnsClient* dns_client) {
 
 bool ResolveLocalHostname(std::string_view host,
                           std::vector<IPEndPoint>* address_list) {
-  address_list->clear();
-  if (!IsLocalHostname(host))
-    return false;
+  using RWords = DnsResolutionWords;
 
-  address_list->emplace_back(IPAddress::IPv6Localhost(), 0);
-  address_list->emplace_back(IPAddress::IPv4Localhost(), 0);
 
-  return true;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { address_list->clear();
+        return {}; }
+      case 2: { return RWords::Bool(IsLocalHostname(host)); }
+      case 3: { address_list->emplace_back(IPAddress::IPv6Localhost(),0);
+        return {}; }
+      case 4: { address_list->emplace_back(IPAddress::IPv4Localhost(),0);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 45, native_service);
+  return rust_reply.a!=0;
 }
 
 class HostResolverManager::ProbeRequestImpl
@@ -357,23 +383,44 @@ class HostResolverManager::ProbeRequestImpl
   ProbeRequestImpl& operator=(const ProbeRequestImpl&) = delete;
 
   ~ProbeRequestImpl() override {
-    // Ensure that observers are deregistered to avoid wasting memory.
-    if (context_)
-      context_->UnregisterDohStatusObserver(this);
-  }
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bool(context_.get()!=nullptr); }
+      case 2: { context_->UnregisterDohStatusObserver(this);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 56, native_service);
+  (void)rust_reply;
+}
 
   int Start() override {
-    DCHECK(resolver_);
-    DCHECK(!runner_);
+  using RWords = DnsResolutionWords;
 
-    if (!context_)
-      return ERR_CONTEXT_SHUT_DOWN;
 
-    context_->RegisterDohStatusObserver(this);
 
-    StartRunner(false /* network_change */);
-    return ERR_IO_PENDING;
-  }
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(resolver_);DCHECK(!runner_);
+        return {}; }
+      case 2: { return RWords::Bool(context_.get()!=nullptr); }
+      case 3: { return RWords::Signed(static_cast<int64_t>(ERR_CONTEXT_SHUT_DOWN)); }
+      case 4: { context_->RegisterDohStatusObserver(this);
+        return {}; }
+      case 5: { StartRunner(false);
+        return {}; }
+      case 6: { return RWords::Signed(static_cast<int64_t>(ERR_IO_PENDING)); }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 51, native_service);
+  return static_cast<int>(rust_reply.x);
+}
 
   // ResolveContext::DohStatusObserver
   void OnSessionChanged() override { CancelRunner(); }
@@ -389,32 +436,45 @@ class HostResolverManager::ProbeRequestImpl
 
  private:
   void StartRunner(bool network_change) {
-    DCHECK(resolver_);
-    DCHECK(!resolver_->invalidation_in_progress_);
+  using RWords = DnsResolutionWords;
 
-    if (!context_)
-      return;  // Reachable if the context ends before a posted task runs.
 
-    if (!runner_)
-      runner_ = resolver_->CreateDohProbeRunner(context_.get());
-    if (runner_)
-      runner_->Start(network_change);
-  }
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(resolver_);DCHECK(!resolver_->invalidation_in_progress_);
+        return {}; }
+      case 2: { return RWords::Bool(context_.get()!=nullptr); }
+      case 3: { return RWords::Bool(runner_!=nullptr); }
+      case 4: { runner_=resolver_->CreateDohProbeRunner(context_.get());
+        return {}; }
+      case 5: { runner_->Start(network_change);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 52, native_service);
+  (void)rust_reply;
+}
 
   void CancelRunner() {
-    if (runner_) {
-      // Destroy the runner asynchronously to prevent its destructor from
-      // causing reentrant modifications to HostResolverManager::jobs_
-      // during InvalidateCaches().
-      base::SequencedTaskRunner::GetCurrentDefault()->DeleteSoon(
-          FROM_HERE, std::move(runner_));
-    }
+  using RWords = DnsResolutionWords;
 
-    // Synchronously invalidate WeakPtrs to ensure that any previously posted
-    // asynchronous StartRunner() tasks (e.g., from the old session) are
-    // cancelled and do not execute unexpectedly in the new session.
-    weak_ptr_factory_.InvalidateWeakPtrs();
-  }
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bool(runner_!=nullptr); }
+      case 2: { base::SequencedTaskRunner::GetCurrentDefault()->DeleteSoon(FROM_HERE,std::move(runner_));
+        return {}; }
+      case 3: { weak_ptr_factory_.InvalidateWeakPtrs();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 53, native_service);
+  (void)rust_reply;
+}
 
   base::WeakPtr<ResolveContext> context_;
 
@@ -456,66 +516,86 @@ HostResolverManager::HostResolverManager(
           options.https_svcb_options
               ? *options.https_svcb_options
               : HostResolver::HttpsSvcbOptions::FromFeatures()) {
-  PrioritizedDispatcher::Limits job_limits = GetDispatcherLimits(options);
-  dispatcher_ = std::make_unique<PrioritizedDispatcher>(job_limits);
-  max_queued_jobs_ = job_limits.total_jobs * 100u;
+  using RWords = DnsResolutionWords;
 
-  DCHECK_GE(dispatcher_->num_priorities(), static_cast<size_t>(NUM_PRIORITIES));
+std::optional<PrioritizedDispatcher::Limits> limits;NetworkChangeNotifier::ConnectionType connection_type=NetworkChangeNotifier::CONNECTION_UNKNOWN;
 
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { limits.emplace(GetDispatcherLimits(options));
+        return {}; }
+      case 2: { dispatcher_=std::make_unique<PrioritizedDispatcher>(*limits);
+        return {}; }
+      case 3: { max_queued_jobs_=limits->total_jobs*100u;
+        return {}; }
+      case 4: { DCHECK_GE(dispatcher_->num_priorities(),static_cast<size_t>(NUM_PRIORITIES));
+        return {}; }
+      case 5: {
 #if BUILDFLAG(IS_WIN)
-  EnsureWinsockInit();
+EnsureWinsockInit();
 #endif
-#if (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)) || \
-    BUILDFLAG(IS_FUCHSIA)
-  RunLoopbackProbeJob();
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
+RunLoopbackProbeJob();
 #endif
-  // Network-bound HostResolverManagers don't need to act on network changes.
-  if (!IsBoundToNetwork()) {
-    NetworkChangeNotifier::AddIPAddressObserver(this);
-    NetworkChangeNotifier::AddConnectionTypeObserver(this);
-  }
-  if (system_dns_config_notifier_)
-    system_dns_config_notifier_->AddObserver(this);
-  EnsureSystemHostResolverCallReady();
-
-  auto connection_type =
-      IsBoundToNetwork()
-          ? NetworkChangeNotifier::GetNetworkConnectionType(target_network)
-          : NetworkChangeNotifier::GetConnectionType();
-  UpdateConnectionType(connection_type);
-
+        return {}; }
+      case 6: { return RWords::Bool(IsBoundToNetwork()); }
+      case 7: { NetworkChangeNotifier::AddIPAddressObserver(this);
+        return {}; }
+      case 8: { NetworkChangeNotifier::AddConnectionTypeObserver(this);
+        return {}; }
+      case 9: { return RWords::Bool(system_dns_config_notifier_!=nullptr); }
+      case 10: { system_dns_config_notifier_->AddObserver(this);
+        return {}; }
+      case 11: { EnsureSystemHostResolverCallReady();
+        return {}; }
+      case 12: { connection_type=NetworkChangeNotifier::GetNetworkConnectionType(target_network);
+        return {}; }
+      case 13: { connection_type=NetworkChangeNotifier::GetConnectionType();
+        return {}; }
+      case 14: { UpdateConnectionType(connection_type);
+        return {}; }
+      case 15: {
 #if defined(ENABLE_BUILT_IN_DNS)
-  CHECK((options.insecure_dns_mode != InsecureDnsMode::kEnabledPlatform &&
-         options.insecure_dns_mode !=
-             InsecureDnsMode::kEnabledPlatformNoSystem) ||
-        features::IsDnsPlatformSupported());
-
-  dns_client_ = DnsClient::CreateClient(net_log_);
-  dns_client_->SetInsecureEnabled(
-      options.insecure_dns_mode,
-      options.additional_types_via_insecure_dns_enabled);
-  dns_client_->SetConfigOverrides(options.dns_config_overrides);
+CHECK((options.insecure_dns_mode!=InsecureDnsMode::kEnabledPlatform&&options.insecure_dns_mode!=InsecureDnsMode::kEnabledPlatformNoSystem)||features::IsDnsPlatformSupported());dns_client_=DnsClient::CreateClient(net_log_);dns_client_->SetInsecureEnabled(options.insecure_dns_mode,options.additional_types_via_insecure_dns_enabled);dns_client_->SetConfigOverrides(options.dns_config_overrides);
 #else
-  DCHECK(options.dns_config_overrides == DnsConfigOverrides());
+DCHECK(options.dns_config_overrides==DnsConfigOverrides());
 #endif
-
-  allow_fallback_to_systemtask_ = !ConfigureAsyncDnsNoFallbackFieldTrial();
+        return {}; }
+      case 16: { allow_fallback_to_systemtask_=!ConfigureAsyncDnsNoFallbackFieldTrial();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 55, native_service);
+  (void)rust_reply;
 }
 
 HostResolverManager::~HostResolverManager() {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  // Prevent the dispatcher from starting new jobs.
-  dispatcher_->SetLimitsToZero();
-  // It's now safe for Jobs to call KillDnsTask on destruction, because
-  // OnJobComplete will not start any new jobs.
-  jobs_.clear();
+  using RWords = DnsResolutionWords;
 
-  if (target_network_ == handles::kInvalidNetworkHandle) {
-    NetworkChangeNotifier::RemoveIPAddressObserver(this);
-    NetworkChangeNotifier::RemoveConnectionTypeObserver(this);
-  }
-  if (system_dns_config_notifier_)
-    system_dns_config_notifier_->RemoveObserver(this);
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+        return {}; }
+      case 2: { dispatcher_->SetLimitsToZero();
+        return {}; }
+      case 3: { jobs_.clear();
+        return {}; }
+      case 4: { return RWords::Signed(static_cast<int64_t>(target_network_)); }
+      case 5: { NetworkChangeNotifier::RemoveIPAddressObserver(this);
+        return {}; }
+      case 6: { NetworkChangeNotifier::RemoveConnectionTypeObserver(this);
+        return {}; }
+      case 7: { return RWords::Bool(system_dns_config_notifier_!=nullptr); }
+      case 8: { system_dns_config_notifier_->RemoveObserver(this);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 37, native_service);
+  (void)rust_reply;
 }
 
 // static
@@ -524,15 +604,8 @@ HostResolverManager::CreateNetworkBoundHostResolverManager(
     const HostResolver::ManagerOptions& options,
     handles::NetworkHandle target_network,
     NetLog* net_log) {
-#if BUILDFLAG(IS_ANDROID)
-  DCHECK(NetworkChangeNotifier::AreNetworkHandlesSupported());
-  return std::make_unique<HostResolverManager>(
-      PassKey(), options, nullptr /* system_dns_config_notifier */,
-      target_network, net_log);
-#else   // !BUILDFLAG(IS_ANDROID)
   NOTIMPLEMENTED();
   return nullptr;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::unique_ptr<HostResolver::ResolveHostRequest>
@@ -591,22 +664,25 @@ HostResolverManager::CreateDohProbeRequest(ResolveContext* context) {
 std::unique_ptr<HostResolver::MdnsListener>
 HostResolverManager::CreateMdnsListener(const HostPortPair& host,
                                         DnsQueryType query_type) {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  DCHECK_NE(DnsQueryType::UNSPECIFIED, query_type);
+  using RWords = DnsResolutionWords;
 
-  auto listener =
-      std::make_unique<HostResolverMdnsListenerImpl>(host, query_type);
+std::unique_ptr<HostResolverMdnsListenerImpl> listener;MDnsClient* client=nullptr;
 
-  MDnsClient* client;
-  int rv = GetOrCreateMdnsClient(&client);
-
-  if (rv == OK) {
-    std::unique_ptr<net::MDnsListener> inner_listener = client->CreateListener(
-        DnsQueryTypeToQtype(query_type), host.host(), listener.get());
-    listener->set_inner_listener(std::move(inner_listener));
-  } else {
-    listener->set_initialization_error(rv);
-  }
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);DCHECK_NE(DnsQueryType::UNSPECIFIED,query_type);
+        return {}; }
+      case 2: { listener=std::make_unique<HostResolverMdnsListenerImpl>(host,query_type);
+        return {}; }
+      case 3: { return RWords::Signed(static_cast<int64_t>(GetOrCreateMdnsClient(&client))); }
+      case 4: { listener->set_inner_listener(client->CreateListener(DnsQueryTypeToQtype(query_type),host.host(),listener.get()));
+        return {}; }
+      case 5: { listener->set_initialization_error(static_cast<int>(args.x));
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 40, native_service);
   return listener;
 }
 
@@ -618,100 +694,128 @@ HostResolverManager::CreateServiceEndpointRequest(
     NetLogWithSource net_log,
     ResolveHostParameters parameters,
     ResolveContext* resolve_context) {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  DCHECK(!invalidation_in_progress_);
-  DCHECK_EQ(resolve_context->GetTargetNetwork(), target_network_);
-  if (resolve_context) {
-    DCHECK(registered_contexts_.HasObserver(resolve_context));
-  }
+  using RWords = DnsResolutionWords;
 
-  // Multi-network support for Cronet and CCT was originally implemented by
-  // creating multiple URLRequestContexts/HostResolverManagers. Until this
-  // historical artifact is removed, make sure these two mechanisms are not used
-  // at the same time.
-  // TODO(crbug.com/495684670): Clean this up once multi-network Cronet and CCT
-  // no longer depend on network-bound URLRequestContexts.
-  CHECK(target_network_ == handles::kInvalidNetworkHandle ||
-        target_network == handles::kInvalidNetworkHandle);
+base::WeakPtr<ResolveContext> context;std::unique_ptr<ServiceEndpointRequestImpl> result;
 
-  return std::make_unique<ServiceEndpointRequestImpl>(
-      std::move(host), std::move(network_anonymization_key), target_network,
-      std::move(net_log), std::move(parameters),
-      resolve_context ? resolve_context->GetWeakPtr() : nullptr,
-      weak_ptr_factory_.GetWeakPtr(), tick_clock_);
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);DCHECK(!invalidation_in_progress_);DCHECK_EQ(resolve_context->GetTargetNetwork(),target_network_);
+        return {}; }
+      case 2: { return RWords::Bool(resolve_context!=nullptr); }
+      case 3: { DCHECK(registered_contexts_.HasObserver(resolve_context));
+        return {}; }
+      case 4: { context=resolve_context->GetWeakPtr();
+        return {}; }
+      case 5: { CHECK(target_network_==handles::kInvalidNetworkHandle || target_network==handles::kInvalidNetworkHandle);
+        return {}; }
+      case 6: { result=std::make_unique<ServiceEndpointRequestImpl>(std::move(host),std::move(network_anonymization_key),target_network,std::move(net_log),std::move(parameters),context,weak_ptr_factory_.GetWeakPtr(),tick_clock_);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 57, native_service);
+  return result;
 }
 
 void HostResolverManager::SetInsecureDnsClientEnabled(
     InsecureDnsMode mode,
     bool additional_dns_types_enabled) {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  CHECK((mode != InsecureDnsMode::kEnabledPlatform &&
-         mode != InsecureDnsMode::kEnabledPlatformNoSystem) ||
-        features::IsDnsPlatformSupported());
+  using RWords = DnsResolutionWords;
 
-  if (!dns_client_)
-    return;
 
-  bool enabled_before =
-      dns_client_->CanUseInsecureDnsTransactions(/*ech_mode=*/std::nullopt);
-  bool additional_types_before =
-      enabled_before && dns_client_->CanQueryAdditionalTypesViaInsecureDns(
-                            /*ech_mode=*/std::nullopt);
-  dns_client_->SetInsecureEnabled(mode, additional_dns_types_enabled);
+std::unique_ptr<DnsClientRustServices> client_frame;uint32_t client_frame_depth=0;
 
-  // Abort current tasks if `CanUseInsecureDnsTransactions()` changes or if
-  // insecure transactions are enabled and
-  // `CanQueryAdditionalTypesViaInsecureDns()` changes. Changes to allowing
-  // additional types don't matter if insecure transactions are completely
-  // disabled.
-  if (dns_client_->CanUseInsecureDnsTransactions(/*ech_mode=*/std::nullopt) !=
-          enabled_before ||
-      (dns_client_->CanUseInsecureDnsTransactions(/*ech_mode=*/std::nullopt) &&
-       dns_client_->CanQueryAdditionalTypesViaInsecureDns(
-           /*ech_mode=*/std::nullopt) != additional_types_before)) {
-    AbortInsecureDnsTasks(ERR_NETWORK_CHANGED, false /* fallback_only */);
-  }
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK_CALLED_ON_VALID_THREAD(thread_checker_); CHECK((mode != InsecureDnsMode::kEnabledPlatform && mode != InsecureDnsMode::kEnabledPlatformNoSystem) || features::IsDnsPlatformSupported());
+        return {}; }
+      case 2: { return RWords::Bool(dns_client_ != nullptr); }
+      case 3: { return RWords::Bool(dns_client_->CanUseInsecureDnsTransactions(std::nullopt)); }
+      case 4: { return RWords::Bool(dns_client_->CanQueryAdditionalTypesViaInsecureDns(std::nullopt)); }
+      case 5: { dns_client_->SetInsecureEnabled(mode, additional_dns_types_enabled);
+        return {}; }
+      case 6: { AbortInsecureDnsTasks(ERR_NETWORK_CHANGED, false);
+        return {}; }
+      case 9000: { if(client_frame_depth==0){const auto* owner=(dns_client_.get());if(owner)client_frame=owner->MakeRustPolicyServices(nullptr);}++client_frame_depth;return RWords::Bool(client_frame!=nullptr);}
+      case 9001: CHECK_GT(client_frame_depth,0u);if(--client_frame_depth==0)client_frame.reset();return {};
+      default: if(operation>=10000 && client_frame) return client_frame->Dispatch(operation-10000,args); NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 5, native_service);
+  (void)rust_reply;
 }
 
 base::DictValue HostResolverManager::GetDnsConfigAsValue() const {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  return dns_client_ ? dns_client_->GetDnsConfigAsValueForNetLog()
-                     : base::DictValue();
+  using RWords = DnsResolutionWords;
+
+base::DictValue result;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+        return {}; }
+      case 2: { return RWords::Bool(dns_client_!=nullptr); }
+      case 3: { result=dns_client_->GetDnsConfigAsValueForNetLog();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 38, native_service);
+  return result;
 }
 
 void HostResolverManager::SetDnsConfigOverrides(DnsConfigOverrides overrides) {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+  using RWords = DnsResolutionWords;
 
-  if (!dns_client_ && overrides == DnsConfigOverrides())
-    return;
 
-  // Not allowed to set overrides if compiled without DnsClient.
-  DCHECK(dns_client_);
+std::unique_ptr<DnsClientRustServices> client_frame;uint32_t client_frame_depth=0;
 
-  bool transactions_allowed_before =
-      dns_client_->CanUseSecureDnsTransactions() ||
-      dns_client_->CanUseInsecureDnsTransactions(/*ech_mode=*/std::nullopt);
-  bool changed = dns_client_->SetConfigOverrides(std::move(overrides));
-
-  if (changed) {
-    NetworkChangeNotifier::TriggerNonSystemDnsChange();
-
-    // Only invalidate cache if new overrides have resulted in a config change.
-    InvalidateCaches();
-
-    // Need to update jobs iff transactions were previously allowed because
-    // in-progress jobs may be running using a now-invalid configuration.
-    if (transactions_allowed_before) {
-      UpdateJobsForChangedConfig();
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
+        return {}; }
+      case 2: { return RWords::Bool(dns_client_ != nullptr); }
+      case 3: { return RWords::Bool(overrides == DnsConfigOverrides()); }
+      case 4: { DCHECK(dns_client_);
+        return {}; }
+      case 5: { return RWords::Bool(dns_client_->CanUseSecureDnsTransactions()); }
+      case 6: { return RWords::Bool(dns_client_->CanUseInsecureDnsTransactions(std::nullopt)); }
+      case 7: { return RWords::Bool(dns_client_->SetConfigOverrides(std::move(overrides))); }
+      case 8: { NetworkChangeNotifier::TriggerNonSystemDnsChange();
+        return {}; }
+      case 9: { InvalidateCaches();
+        return {}; }
+      case 10: { UpdateJobsForChangedConfig();
+        return {}; }
+      case 9000: { if(client_frame_depth==0){const auto* owner=(dns_client_.get());if(owner)client_frame=owner->MakeRustPolicyServices(nullptr);}++client_frame_depth;return RWords::Bool(client_frame!=nullptr);}
+      case 9001: CHECK_GT(client_frame_depth,0u);if(--client_frame_depth==0)client_frame.reset();return {};
+      default: if(operation>=10000 && client_frame) return client_frame->Dispatch(operation-10000,args); NOTREACHED();
     }
-  }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 6, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::RegisterResolveContext(ResolveContext* context) {
-  registered_contexts_.AddObserver(context);
-  context->InvalidateCachesAndPerSessionData(
-      dns_client_ ? dns_client_->GetCurrentSession() : nullptr,
-      false /* network_change */);
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { registered_contexts_.AddObserver(context);
+        return {}; }
+      case 2: { return RWords::Bool(dns_client_!=nullptr); }
+      case 3: { context->InvalidateCachesAndPerSessionData(dns_client_->GetCurrentSession(),false);
+        return {}; }
+      case 4: { context->InvalidateCachesAndPerSessionData(nullptr,false);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 39, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::DeregisterResolveContext(
@@ -747,11 +851,22 @@ void HostResolverManager::SetMaxQueuedJobsForTesting(size_t value) {
 }
 
 void HostResolverManager::SetHaveOnlyLoopbackAddresses(bool result) {
-  if (result) {
-    additional_resolver_flags_ |= HOST_RESOLVER_LOOPBACK_ONLY;
-  } else {
-    additional_resolver_flags_ &= ~HOST_RESOLVER_LOOPBACK_ONLY;
-  }
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Unsigned(static_cast<uint64_t>(additional_resolver_flags_)); }
+      case 2: { return RWords::Unsigned(static_cast<uint64_t>(HOST_RESOLVER_LOOPBACK_ONLY)); }
+      case 3: { return RWords::Bool(result); }
+      case 4: { additional_resolver_flags_ = static_cast<HostResolverFlags>(args.a);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 4, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::SetMdnsSocketFactoryForTesting(
@@ -767,15 +882,29 @@ void HostResolverManager::SetMdnsClientForTesting(
 
 void HostResolverManager::SetDnsClientForTesting(
     std::unique_ptr<DnsClient> dns_client) {
-  DCHECK(dns_client);
-  if (dns_client_) {
-    if (!dns_client->GetSystemConfigForTesting())
-      dns_client->SetSystemConfig(dns_client_->GetSystemConfigForTesting());
-    dns_client->SetConfigOverrides(dns_client_->GetConfigOverridesForTesting());
-  }
-  dns_client_ = std::move(dns_client);
-  // Inform `registered_contexts_` of the new `DnsClient`.
-  InvalidateCaches();
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(dns_client);
+        return {}; }
+      case 2: { return RWords::Bool(dns_client_ != nullptr); }
+      case 3: { return RWords::Bool(dns_client->GetSystemConfigForTesting().has_value()); }
+      case 4: { dns_client->SetSystemConfig(dns_client_->GetSystemConfigForTesting());
+        return {}; }
+      case 5: { dns_client->SetConfigOverrides(dns_client_->GetConfigOverridesForTesting());
+        return {}; }
+      case 6: { dns_client_ = std::move(dns_client);
+        return {}; }
+      case 7: { InvalidateCaches();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 10, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::SetLastIPv6ProbeResultForTesting(
@@ -785,16 +914,35 @@ void HostResolverManager::SetLastIPv6ProbeResultForTesting(
 
 // static
 bool HostResolverManager::IsLocalTask(TaskType task) {
-  switch (task) {
-    case TaskType::SECURE_CACHE_LOOKUP:
-    case TaskType::INSECURE_CACHE_LOOKUP:
-    case TaskType::CACHE_LOOKUP:
-    case TaskType::CONFIG_PRESET:
-    case TaskType::HOSTS:
-      return true;
-    default:
-      return false;
-  }
+  using RWords = DnsResolutionWords;
+static_assert(static_cast<int>(TaskType::SYSTEM)==0);
+static_assert(static_cast<int>(TaskType::DNS)==1);
+static_assert(static_cast<int>(TaskType::SECURE_DNS)==2);
+static_assert(static_cast<int>(TaskType::MDNS)==3);
+static_assert(static_cast<int>(TaskType::CACHE_LOOKUP)==4);
+static_assert(static_cast<int>(TaskType::INSECURE_CACHE_LOOKUP)==5);
+static_assert(static_cast<int>(TaskType::SECURE_CACHE_LOOKUP)==6);
+static_assert(static_cast<int>(TaskType::CONFIG_PRESET)==7);
+static_assert(static_cast<int>(TaskType::NAT64)==8);
+static_assert(static_cast<int>(TaskType::HOSTS)==9);
+static_assert(static_cast<int>(TaskType::DNS_PLATFORM)==10);
+static_assert(static_cast<int>(SecureDnsMode::kOff)==0 && static_cast<int>(SecureDnsMode::kAutomatic)==1 && static_cast<int>(SecureDnsMode::kSecure)==2);
+static_assert(static_cast<int>(InsecureDnsMode::kDisabled)==0 && static_cast<int>(InsecureDnsMode::kEnabledBuiltIn)==1 && static_cast<int>(InsecureDnsMode::kEnabledPlatform)==2 && static_cast<int>(InsecureDnsMode::kEnabledPlatformNoSystem)==3);
+static_assert(static_cast<int>(SecureDnsPolicy::kAllow)==0 && static_cast<int>(SecureDnsPolicy::kDisable)==1 && static_cast<int>(SecureDnsPolicy::kBootstrap)==2);
+static_assert(static_cast<int>(ResolveHostParameters::CacheUsage::ALLOWED)==0 && static_cast<int>(ResolveHostParameters::CacheUsage::STALE_ALLOWED)==1 && static_cast<int>(ResolveHostParameters::CacheUsage::STALE_ALLOWED_WHILE_REFRESHING)==2 && static_cast<int>(ResolveHostParameters::CacheUsage::DISALLOWED)==3);
+static_assert(static_cast<int>(DnsQueryType::UNSPECIFIED)==0 && static_cast<int>(EchMode::kDisabled)==0 && static_cast<int>(EchMode::kOpportunistic)==1 && static_cast<int>(EchMode::kStrict)==2);
+static_assert(kMaxHostLength==4096 && kIPv6ProbePeriodMs==1000 && kDefaultMaxSystemTasks==64);
+static_assert(ADDRESS_FAMILY_UNSPECIFIED==0 && ADDRESS_FAMILY_IPV4==1 && ADDRESS_FAMILY_IPV6==2);
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Unsigned(static_cast<uint64_t>(task)); }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 1, native_service);
+  return rust_reply.a != 0;
 }
 
 void HostResolverManager::InitializeJobKeyAndIPAddress(
@@ -803,58 +951,49 @@ void HostResolverManager::InitializeJobKeyAndIPAddress(
     const NetLogWithSource& source_net_log,
     JobKey& out_job_key,
     IPAddress& out_ip_address) {
-  out_job_key.network_anonymization_key = network_anonymization_key;
-  out_job_key.source = parameters.source;
+  using RWords = DnsResolutionWords;
 
-  const bool is_ip = out_ip_address.AssignFromIPLiteral(
-      out_job_key.host.GetHostnameWithoutBrackets());
+DnsQueryTypeSet effective_types;const DnsConfig* config=nullptr;
 
-  out_job_key.secure_dns_mode =
-      GetEffectiveSecureDnsMode(parameters.secure_dns_policy);
-  out_job_key.flags = HostResolver::ParametersToHostResolverFlags(parameters) |
-                      additional_resolver_flags_;
-
-  if (parameters.dns_query_type != DnsQueryType::UNSPECIFIED) {
-    out_job_key.query_types = {parameters.dns_query_type};
-    return;
-  }
-
-  DnsQueryTypeSet effective_types = {DnsQueryType::A, DnsQueryType::AAAA};
-
-  // Disable AAAA queries when we cannot do anything with the results.
-  bool use_local_ipv6 = true;
-  if (dns_client_) {
-    const DnsConfig& config = dns_client_->GetEffectiveConfig();
-    if (!config.nameservers.empty() || !config.doh_config.servers().empty()) {
-      use_local_ipv6 = config.use_local_ipv6;
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { out_job_key.network_anonymization_key=network_anonymization_key; out_job_key.source=parameters.source;
+        return {}; }
+      case 2: { return RWords::Bool(out_ip_address.AssignFromIPLiteral(out_job_key.host.GetHostnameWithoutBrackets())); }
+      case 3: { out_job_key.secure_dns_mode=GetEffectiveSecureDnsMode(parameters.secure_dns_policy);
+        return {}; }
+      case 4: { return RWords::Unsigned(static_cast<uint64_t>(parameters.dns_query_type)); }
+      case 5: { out_job_key.query_types={static_cast<DnsQueryType>(args.a)};
+        return {}; }
+      case 6: { effective_types={DnsQueryType::A,DnsQueryType::AAAA};
+        return {}; }
+      case 7: { return RWords::Bool(dns_client_ != nullptr); }
+      case 8: { return RWords::Bool(!config->nameservers.empty()); }
+      case 9: { return RWords::Bool(!config->doh_config.servers().empty()); }
+      case 10: { return RWords::Bool(config->use_local_ipv6); }
+      case 11: { return RWords::Bool(last_ipv6_probe_result_); }
+      case 12: { return RWords::Bool(ipv6_reachability_override_); }
+      case 13: { return RWords::Signed(static_cast<int64_t>(out_job_key.GetTargetNetwork())); }
+      case 14: { out_job_key.flags|=HOST_RESOLVER_DEFAULT_FAMILY_SET_DUE_TO_NO_IPV6; effective_types.Remove(DnsQueryType::AAAA);
+        return {}; }
+      case 15: { return RWords::Bool(base::FeatureList::IsEnabled(features::kUseDnsHttpsSvcb)); }
+      case 16: { return RWords::Bool(out_job_key.host.HasScheme()); }
+      case 17: { return RWords::Bool(out_job_key.host.GetScheme()==url::kHttpScheme || out_job_key.host.GetScheme()==url::kHttpsScheme || out_job_key.host.GetScheme()==url::kWsScheme || out_job_key.host.GetScheme()==url::kWssScheme); }
+      case 18: { effective_types.Put(DnsQueryType::HTTPS);
+        return {}; }
+      case 19: { out_job_key.query_types=effective_types;
+        return {}; }
+      case 20: { config=&dns_client_->GetEffectiveConfig();
+        return {}; }
+      case 21: { return {.a=parameters.include_canonical_name,.b=parameters.loopback_only,.x=parameters.avoid_multicast_resolution,.y=additional_resolver_flags_}; }
+      case 22: { return {.a=HOST_RESOLVER_CANONNAME,.b=HOST_RESOLVER_LOOPBACK_ONLY,.x=HOST_RESOLVER_AVOID_MULTICAST}; }
+      case 23: { out_job_key.flags=static_cast<HostResolverFlags>(args.a);
+        return {}; }
+      default: NOTREACHED();
     }
-  }
-  // When resolving IPv4 literals, there's no need to probe for IPv6. When
-  // resolving IPv6 literals, there's no benefit to artificially limiting our
-  // resolution based on a probe. Prior logic ensures that this is an automatic
-  // query, so the code requesting the resolution should be amenable to
-  // receiving an IPv6 resolution.
-  if (!use_local_ipv6 && !is_ip && !last_ipv6_probe_result_ &&
-      !ipv6_reachability_override_ &&
-      // TODO(crbug.com/519138300): Until we support non-default network
-      // IPv6 connectivity checks, always assume IPv6 connectivity.
-      out_job_key.GetTargetNetwork() == handles::kInvalidNetworkHandle) {
-    out_job_key.flags |= HOST_RESOLVER_DEFAULT_FAMILY_SET_DUE_TO_NO_IPV6;
-    effective_types.Remove(DnsQueryType::AAAA);
-  }
-
-  // Optimistically enable HTTPS record. It may be skipped at a later point.
-  if (base::FeatureList::IsEnabled(features::kUseDnsHttpsSvcb) &&
-      out_job_key.host.HasScheme()) {
-    static constexpr std::string_view kSchemesForHttpsQuery[] = {
-        url::kHttpScheme, url::kHttpsScheme, url::kWsScheme, url::kWssScheme};
-    if (std::ranges::contains(kSchemesForHttpsQuery,
-                              out_job_key.host.GetScheme())) {
-      effective_types.Put(DnsQueryType::HTTPS);
-    }
-  }
-
-  out_job_key.query_types = effective_types;
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 13, native_service);
+  (void)rust_reply;
 }
 
 HostCache::Entry HostResolverManager::ResolveLocally(
@@ -869,146 +1008,97 @@ HostCache::Entry HostResolverManager::ResolveLocally(
     std::deque<TaskType>* out_tasks,
     std::optional<HostCache::EntryStaleness>* out_stale_info,
     bool record_metrics) {
-  DCHECK(out_stale_info);
-  *out_stale_info = std::nullopt;
+  using RWords = DnsResolutionWords;
 
-  CreateTaskSequence(job_key, cache_usage, secure_dns_policy, out_tasks);
-  source_net_log.AddEvent(
-      NetLogEventType::HOST_RESOLVER_MANAGER_TASK_SEQUENCE_CREATED, [&] {
-        base::ListValue tasks_list;
-        for (TaskType task : *out_tasks) {
-          tasks_list.Append(static_cast<int>(task));
-        }
-        return base::DictValue().Set("tasks", std::move(tasks_list));
-      });
+std::optional<HostCache::Entry> resolved; std::set<std::unique_ptr<HostResolverInternalResult>> host_results;std::string validation_hostname;
 
-  if (!ip_address.IsValid()) {
-    // Check that the caller supplied a valid hostname to resolve. For
-    // MULTICAST_DNS, we are less restrictive.
-    // TODO(ericorth): Control validation based on an explicit flag rather
-    // than implicitly based on |source|.
-    const bool is_valid_hostname =
-        job_key.source == HostResolverSource::MULTICAST_DNS
-            ? dns_names_util::IsValidDnsName(job_key.host.GetHostname())
-            : IsCanonicalizedHostCompliant(job_key.host.GetHostname());
-    if (!is_valid_hostname) {
-      return HostCache::Entry(ERR_NAME_NOT_RESOLVED,
-                              HostCache::Entry::SOURCE_UNKNOWN);
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(out_stale_info); *out_stale_info=std::nullopt;
+        return {}; }
+      case 2: { CreateTaskSequence(job_key,cache_usage,secure_dns_policy,out_tasks);
+        return {}; }
+      case 3: { source_net_log.AddEvent(NetLogEventType::HOST_RESOLVER_MANAGER_TASK_SEQUENCE_CREATED,[&]{ base::ListValue list; for(TaskType t:*out_tasks) list.Append(static_cast<int>(t)); return base::DictValue().Set("tasks",std::move(list));});
+        return {}; }
+      case 4: { return RWords::Bool(ip_address.IsValid()); }
+      case 5: { return RWords::Unsigned(static_cast<uint64_t>(job_key.source)); }
+      case 6: { validation_hostname=job_key.host.GetHostname();return RWords::Bytes(validation_hostname); }
+      case 7: { return RWords::Bool(IsCanonicalizedHostCompliant(job_key.host.GetHostname())); }
+      case 8: { resolved.emplace(ERR_NAME_NOT_RESOLVED,HostCache::Entry::SOURCE_UNKNOWN);
+        return {}; }
+      case 9: { return RWords::Unsigned(static_cast<uint64_t>(job_key.host.GetHostname().size())); }
+      case 10: { return {.a=static_cast<uint64_t>((job_key.flags&HOST_RESOLVER_DEFAULT_FAMILY_SET_DUE_TO_NO_IPV6)!=0),.b=ip_address.IsIPv4(),.x=ip_address.IsLoopback(),.y=static_cast<int64_t>(source)}; }
+      case 11: { return RWords::Bool(only_ipv6_reachable); }
+      case 12: { out_tasks->push_front(TaskType::NAT64); resolved.emplace(ERR_DNS_CACHE_MISS,HostCache::Entry::SOURCE_UNKNOWN);
+        return {}; }
+      case 13: { resolved=ResolveAsIP(job_key.query_types,job_key.flags & HOST_RESOLVER_CANONNAME,ip_address);
+        return {}; }
+      case 14: { resolved=ServeLocalhost(job_key.host.GetHostname(),job_key.query_types,job_key.flags & HOST_RESOLVER_DEFAULT_FAMILY_SET_DUE_TO_NO_IPV6);
+        return {}; }
+      case 15: { return RWords::Bool(resolved.has_value()); }
+      case 16: { return RWords::Unsigned(static_cast<uint64_t>(out_tasks->size())); }
+      case 17: { return RWords::Unsigned(static_cast<uint64_t>(out_tasks->front())); }
+      case 18: { out_tasks->pop_front();
+        return {}; }
+      case 19: { resolved=MaybeServeFromCache(cache,job_key.ToCacheKey(args.a!=0),cache_usage,args.b!=0,source_net_log,out_stale_info,record_metrics);
+        return {}; }
+      case 20: { DCHECK(out_stale_info->has_value()); source_net_log.AddEvent(NetLogEventType::HOST_RESOLVER_MANAGER_CACHE_HIT,[&]{return NetLogResults(*resolved);});
+        return {}; }
+      case 21: { DCHECK(!out_stale_info->has_value());
+        return {}; }
+      case 22: { resolved=MaybeReadFromConfig(job_key);
+        return {}; }
+      case 23: { source_net_log.AddEvent(NetLogEventType::HOST_RESOLVER_MANAGER_CONFIG_PRESET_MATCH,[&]{return NetLogResults(*resolved);});
+        return {}; }
+      case 24: { StartBootstrapFollowup(job_key,cache,source_net_log);
+        return {}; }
+      case 25: { host_results=ServeFromHosts(job_key.host.GetHostname(),job_key.query_types,job_key.flags & HOST_RESOLVER_DEFAULT_FAMILY_SET_DUE_TO_NO_IPV6,*out_tasks);
+        return {}; }
+      case 26: { return RWords::Unsigned(static_cast<uint64_t>(host_results.size())); }
+      case 27: { return RWords::Bool((*std::next(host_results.begin(),args.a))->type()==HostResolverInternalResult::Type::kData); }
+      case 28: { source_net_log.AddEvent(NetLogEventType::HOST_RESOLVER_MANAGER_HOSTS_HIT,[&]{return NetLogResults(host_results);});
+        return {}; }
+      case 29: { resolved.emplace(host_results,base::Time::Now(),tick_clock_->NowTicks(),HostCache::Entry::SOURCE_HOSTS);
+        return {}; }
+      case 30: { NOTREACHED(); }
+      case 31: { resolved.emplace(ERR_DNS_CACHE_MISS,HostCache::Entry::SOURCE_UNKNOWN);
+        return {}; }
+      case 32: { std::string().swap(validation_hostname);
+        return {}; }
+      default: NOTREACHED();
     }
-  }
-
-  bool resolve_canonname = job_key.flags & HOST_RESOLVER_CANONNAME;
-  bool default_family_due_to_no_ipv6 =
-      job_key.flags & HOST_RESOLVER_DEFAULT_FAMILY_SET_DUE_TO_NO_IPV6;
-
-  // The result of |getaddrinfo| for empty hosts is inconsistent across systems.
-  // On Windows it gives the default interface's address, whereas on Linux it
-  // gives an error. We will make it fail on all platforms for consistency.
-  if (job_key.host.GetHostname().empty() ||
-      job_key.host.GetHostname().size() > kMaxHostLength) {
-    return HostCache::Entry(ERR_NAME_NOT_RESOLVED,
-                            HostCache::Entry::SOURCE_UNKNOWN);
-  }
-
-  if (ip_address.IsValid()) {
-    // Use NAT64Task for IPv4 literal when the network is IPv6 only.
-    if (HostResolver::MayUseNAT64ForIPv4Literal(job_key.flags, source,
-                                                ip_address) &&
-        only_ipv6_reachable) {
-      out_tasks->push_front(TaskType::NAT64);
-      return HostCache::Entry(ERR_DNS_CACHE_MISS,
-                              HostCache::Entry::SOURCE_UNKNOWN);
-    }
-
-    return ResolveAsIP(job_key.query_types, resolve_canonname, ip_address);
-  }
-
-  // Special-case localhost names, as per the recommendations in
-  // https://tools.ietf.org/html/draft-west-let-localhost-be-localhost.
-  std::optional<HostCache::Entry> resolved =
-      ServeLocalhost(job_key.host.GetHostname(), job_key.query_types,
-                     default_family_due_to_no_ipv6);
-  if (resolved)
-    return resolved.value();
-
-  // Do initial cache lookups.
-  while (!out_tasks->empty() && IsLocalTask(out_tasks->front())) {
-    TaskType task = out_tasks->front();
-    out_tasks->pop_front();
-    if (task == TaskType::SECURE_CACHE_LOOKUP ||
-        task == TaskType::INSECURE_CACHE_LOOKUP ||
-        task == TaskType::CACHE_LOOKUP) {
-      bool secure = task == TaskType::SECURE_CACHE_LOOKUP;
-      HostCache::Key key = job_key.ToCacheKey(secure);
-
-      bool ignore_secure = task == TaskType::CACHE_LOOKUP;
-      resolved =
-          MaybeServeFromCache(cache, key, cache_usage, ignore_secure,
-                              source_net_log, out_stale_info, record_metrics);
-      if (resolved) {
-        // |MaybeServeFromCache()| will update |*out_stale_info| as needed.
-        DCHECK(out_stale_info->has_value());
-        source_net_log.AddEvent(
-            NetLogEventType::HOST_RESOLVER_MANAGER_CACHE_HIT,
-            [&] { return NetLogResults(resolved.value()); });
-
-        // TODO(crbug.com/40178456): Call StartBootstrapFollowup() if the Secure
-        // DNS Policy is kBootstrap and the result is not secure.  Note: A naive
-        // implementation could cause an infinite loop if |resolved| always
-        // expires or is evicted before the followup runs.
-        return resolved.value();
-      }
-      DCHECK(!out_stale_info->has_value());
-    } else if (task == TaskType::CONFIG_PRESET) {
-      resolved = MaybeReadFromConfig(job_key);
-      if (resolved) {
-        source_net_log.AddEvent(
-            NetLogEventType::HOST_RESOLVER_MANAGER_CONFIG_PRESET_MATCH,
-            [&] { return NetLogResults(resolved.value()); });
-        StartBootstrapFollowup(job_key, cache, source_net_log);
-        return resolved.value();
-      }
-    } else if (task == TaskType::HOSTS) {
-      std::set<std::unique_ptr<HostResolverInternalResult>> results =
-          ServeFromHosts(job_key.host.GetHostname(), job_key.query_types,
-                         default_family_due_to_no_ipv6, *out_tasks);
-
-      if (!results.empty() &&
-          std::ranges::any_of(results, [](const auto& result) {
-            return result->type() == HostResolverInternalResult::Type::kData;
-          })) {
-        source_net_log.AddEvent(
-            NetLogEventType::HOST_RESOLVER_MANAGER_HOSTS_HIT,
-            [&] { return NetLogResults(results); });
-        return HostCache::Entry(results, base::Time::Now(),
-                                tick_clock_->NowTicks(),
-                                HostCache::Entry::SOURCE_HOSTS);
-      }
-    } else {
-      NOTREACHED();
-    }
-  }
-
-  return HostCache::Entry(ERR_DNS_CACHE_MISS, HostCache::Entry::SOURCE_UNKNOWN);
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 14, native_service);
+  return std::move(resolved).value();
 }
 
 void HostResolverManager::CreateAndStartJob(JobKey key,
                                             std::deque<TaskType> tasks,
                                             RequestImpl* request) {
-  DCHECK(!tasks.empty());
+  using RWords = DnsResolutionWords;
 
-  auto jobit = jobs_.find(key);
-  Job* job;
-  if (jobit == jobs_.end()) {
-    job = AddJobWithoutRequest(key, request->parameters().cache_usage,
-                               request->host_cache(), std::move(tasks),
-                               request->priority(), request->source_net_log());
-    job->AddRequest(request);
-    job->RunNextTask();
-  } else {
-    job = jobit->second.get();
-    job->AddRequest(request);
-  }
+JobMap::iterator it;Job* job=nullptr;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(!tasks.empty());
+        return {}; }
+      case 2: { it=jobs_.find(key);
+        return {}; }
+      case 3: { return RWords::Bool(it==jobs_.end()); }
+      case 4: { job=AddJobWithoutRequest(key,request->parameters().cache_usage,request->host_cache(),std::move(tasks),request->priority(),request->source_net_log());
+        return {}; }
+      case 5: { job=it->second.get();
+        return {}; }
+      case 6: { job->AddRequest(request);
+        return {}; }
+      case 7: { job->RunNextTask();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 18, native_service);
+  (void)rust_reply;
 }
 
 HostResolverManager::Job* HostResolverManager::AddJobWithoutRequest(
@@ -1035,41 +1125,56 @@ void HostResolverManager::CreateAndStartJobForServiceEndpointRequest(
     JobKey key,
     std::deque<TaskType> tasks,
     ServiceEndpointRequestImpl* request) {
-  CHECK(!tasks.empty());
+  using RWords = DnsResolutionWords;
 
-  auto jobit = jobs_.find(key);
-  if (jobit == jobs_.end()) {
-    Job* job = AddJobWithoutRequest(key, request->parameters().cache_usage,
-                                    request->host_cache(), std::move(tasks),
-                                    request->priority(), request->net_log());
-    job->AddServiceEndpointRequest(request);
-    job->RunNextTask();
-  } else {
-    jobit->second->AddServiceEndpointRequest(request);
-  }
+JobMap::iterator it;Job* job=nullptr;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { CHECK(!tasks.empty());
+        return {}; }
+      case 2: { it=jobs_.find(key);
+        return {}; }
+      case 3: { return RWords::Bool(it==jobs_.end()); }
+      case 4: { job=AddJobWithoutRequest(key,request->parameters().cache_usage,request->host_cache(),std::move(tasks),request->priority(),request->net_log());
+        return {}; }
+      case 5: { job=it->second.get();
+        return {}; }
+      case 6: { job->AddServiceEndpointRequest(request);
+        return {}; }
+      case 7: { job->RunNextTask();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 19, native_service);
+  (void)rust_reply;
 }
 
 HostCache::Entry HostResolverManager::ResolveAsIP(DnsQueryTypeSet query_types,
                                                   bool resolve_canonname,
                                                   const IPAddress& ip_address) {
-  DCHECK(ip_address.IsValid());
-  DCHECK(!query_types.Has(DnsQueryType::UNSPECIFIED));
+  using RWords = DnsResolutionWords;
 
-  // IP literals cannot resolve unless the query type is an address query that
-  // allows addresses with the same address family as the literal. E.g., don't
-  // return IPv6 addresses for IPv4 queries or anything for a non-address query.
-  AddressFamily family = GetAddressFamily(ip_address);
-  if (!query_types.Has(AddressFamilyToDnsQueryType(family))) {
-    return HostCache::Entry(ERR_NAME_NOT_RESOLVED,
-                            HostCache::Entry::SOURCE_UNKNOWN);
-  }
+base::flat_set<std::string> aliases;std::optional<HostCache::Entry> result;
 
-  base::flat_set<std::string> aliases;
-  if (resolve_canonname) {
-    aliases = {ip_address.ToString()};
-  }
-  return HostCache::Entry(OK, {IPEndPoint(ip_address, 0)}, std::move(aliases),
-                          HostCache::Entry::SOURCE_UNKNOWN);
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(ip_address.IsValid());DCHECK(!query_types.Has(DnsQueryType::UNSPECIFIED));
+        return {}; }
+      case 2: { return RWords::Bool(query_types.Has(AddressFamilyToDnsQueryType(GetAddressFamily(ip_address)))); }
+      case 3: { result.emplace(ERR_NAME_NOT_RESOLVED,HostCache::Entry::SOURCE_UNKNOWN);
+        return {}; }
+      case 4: { return RWords::Bool(resolve_canonname); }
+      case 5: { aliases={ip_address.ToString()};
+        return {}; }
+      case 6: { result.emplace(OK,std::vector<IPEndPoint>{IPEndPoint(ip_address,0)},std::move(aliases),HostCache::Entry::SOURCE_UNKNOWN);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 15, native_service);
+  return std::move(result).value();
 }
 
 std::optional<HostCache::Entry> HostResolverManager::MaybeServeFromCache(
@@ -1080,91 +1185,88 @@ std::optional<HostCache::Entry> HostResolverManager::MaybeServeFromCache(
     const NetLogWithSource& source_net_log,
     std::optional<HostCache::EntryStaleness>* out_stale_info,
     bool record_metrics) {
-  DCHECK(out_stale_info);
-  *out_stale_info = std::nullopt;
+  using RWords = DnsResolutionWords;
 
-  if (!cache)
-    return std::nullopt;
+std::optional<HostCache::Key> effective_key; const std::pair<const HostCache::Key, HostCache::Entry>* cache_result = nullptr; HostCache::EntryStaleness staleness; std::optional<HostCache::Entry> result;
 
-  if (cache_usage == ResolveHostParameters::CacheUsage::DISALLOWED)
-    return std::nullopt;
-
-  // Local-only requests search the cache for non-local-only results.
-  HostCache::Key effective_key = key;
-  if (effective_key.host_resolver_source == HostResolverSource::LOCAL_ONLY)
-    effective_key.host_resolver_source = HostResolverSource::ANY;
-
-  const std::pair<const HostCache::Key, HostCache::Entry>* cache_result;
-  HostCache::EntryStaleness staleness;
-  if (cache_usage == ResolveHostParameters::CacheUsage::STALE_ALLOWED) {
-    cache_result =
-        cache->LookupStale(effective_key, tick_clock_->NowTicks(), &staleness,
-                           ignore_secure, record_metrics);
-  } else {
-    // If the cache usage is STALE_ALLOWED_WHILE_REFRESHING, the request
-    // allows a stale result. However, stale results are checked and served
-    // synchronously before the background Job is created. When this method is
-    // called from a Job (e.g., as part of an insecure cache lookup fallback),
-    // we must only look for fresh results. Thus, treat it similarly to
-    // ALLOWED.
-    DCHECK(
-        cache_usage == ResolveHostParameters::CacheUsage::ALLOWED ||
-        cache_usage ==
-            ResolveHostParameters::CacheUsage::STALE_ALLOWED_WHILE_REFRESHING);
-    cache_result = cache->Lookup(effective_key, tick_clock_->NowTicks(),
-                                 ignore_secure, record_metrics);
-    staleness = HostCache::kNotStale;
-  }
-  if (cache_result) {
-    *out_stale_info = std::move(staleness);
-    source_net_log.AddEvent(
-        NetLogEventType::HOST_RESOLVER_MANAGER_CACHE_HIT,
-        [&] { return NetLogResults(cache_result->second); });
-    return cache_result->second;
-  }
-  return std::nullopt;
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(out_stale_info); *out_stale_info = std::nullopt;
+        return {}; }
+      case 2: { return RWords::Bool(cache != nullptr); }
+      case 3: { return RWords::Unsigned(static_cast<uint64_t>(cache_usage)); }
+      case 4: { effective_key.emplace(key);
+        return {}; }
+      case 5: { return RWords::Unsigned(static_cast<uint64_t>(effective_key->host_resolver_source)); }
+      case 6: { effective_key->host_resolver_source = HostResolverSource::ANY;
+        return {}; }
+      case 7: { cache_result = cache->LookupStale(*effective_key, tick_clock_->NowTicks(), &staleness, ignore_secure, record_metrics);
+        return {}; }
+      case 8: { DCHECK(cache_usage == ResolveHostParameters::CacheUsage::ALLOWED || cache_usage == ResolveHostParameters::CacheUsage::STALE_ALLOWED_WHILE_REFRESHING); cache_result = cache->Lookup(*effective_key, tick_clock_->NowTicks(), ignore_secure, record_metrics); staleness = HostCache::kNotStale;
+        return {}; }
+      case 9: { return RWords::Bool(cache_result != nullptr); }
+      case 10: { *out_stale_info = std::move(staleness); source_net_log.AddEvent(NetLogEventType::HOST_RESOLVER_MANAGER_CACHE_HIT, [&] { return NetLogResults(cache_result->second); }); result = cache_result->second;
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 7, native_service);
+  return result;
 }
 
 std::optional<HostCache::Entry> HostResolverManager::MaybeReadFromConfig(
     const JobKey& key) {
-  DCHECK(HasAddressType(key.query_types));
-  if (!key.host.HasScheme()) {
-    return std::nullopt;
-  }
-  std::optional<std::vector<IPEndPoint>> preset_addrs =
-      dns_client_->GetPresetAddrs(key.host.AsSchemeHostPort());
-  if (!preset_addrs)
-    return std::nullopt;
+  using RWords = DnsResolutionWords;
 
-  std::vector<IPEndPoint> filtered_addresses =
-      FilterAddresses(std::move(*preset_addrs), key.query_types);
-  if (filtered_addresses.empty())
-    return std::nullopt;
+std::optional<std::vector<IPEndPoint>> preset;std::vector<IPEndPoint> filtered;std::optional<HostCache::Entry> result;
 
-  if (base::FeatureList::IsEnabled(
-          features::kEnableBootstrapIPRandomizationForDoh)) {
-    base::RandomShuffle(filtered_addresses.begin(), filtered_addresses.end());
-  }
-
-  return HostCache::Entry(OK, std::move(filtered_addresses), /*aliases=*/{},
-                          HostCache::Entry::SOURCE_CONFIG);
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(HasAddressType(key.query_types));
+        return {}; }
+      case 2: { return RWords::Bool(key.host.HasScheme()); }
+      case 3: { preset=dns_client_->GetPresetAddrs(key.host.AsSchemeHostPort());
+        return {}; }
+      case 4: { return RWords::Bool(preset.has_value()); }
+      case 5: { filtered=FilterAddresses(std::move(*preset),key.query_types);
+        return {}; }
+      case 6: { return RWords::Unsigned(static_cast<uint64_t>(filtered.size())); }
+      case 7: { return RWords::Bool(base::FeatureList::IsEnabled(features::kEnableBootstrapIPRandomizationForDoh)); }
+      case 8: { base::RandomShuffle(filtered.begin(),filtered.end());
+        return {}; }
+      case 9: { result.emplace(OK,std::move(filtered),base::flat_set<std::string>{},HostCache::Entry::SOURCE_CONFIG);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 16, native_service);
+  return result;
 }
 
 void HostResolverManager::StartBootstrapFollowup(
     JobKey key,
     HostCache* host_cache,
     const NetLogWithSource& source_net_log) {
-  DCHECK_EQ(SecureDnsMode::kOff, key.secure_dns_mode);
-  DCHECK(host_cache);
+  using RWords = DnsResolutionWords;
 
-  key.secure_dns_mode = SecureDnsMode::kSecure;
-  if (jobs_.count(key) != 0)
-    return;
+Job* job=nullptr;
 
-  Job* job = AddJobWithoutRequest(
-      key, ResolveHostParameters::CacheUsage::ALLOWED, host_cache,
-      {TaskType::SECURE_DNS}, RequestPriority::LOW, source_net_log);
-  job->RunNextTask();
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK_EQ(SecureDnsMode::kOff,key.secure_dns_mode);DCHECK(host_cache);
+        return {}; }
+      case 2: { key.secure_dns_mode=SecureDnsMode::kSecure;
+        return {}; }
+      case 3: { return RWords::Unsigned(static_cast<uint64_t>(jobs_.count(key))); }
+      case 4: { job=AddJobWithoutRequest(key,ResolveHostParameters::CacheUsage::ALLOWED,host_cache,{TaskType::SECURE_DNS},RequestPriority::LOW,source_net_log);
+        return {}; }
+      case 5: { job->RunNextTask();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 17, native_service);
+  (void)rust_reply;
 }
 
 std::set<std::unique_ptr<HostResolverInternalResult>>
@@ -1172,124 +1274,101 @@ HostResolverManager::ServeFromHosts(std::string_view hostname,
                                     DnsQueryTypeSet query_types,
                                     bool default_family_due_to_no_ipv6,
                                     const std::deque<TaskType>& tasks) {
-  DCHECK(!query_types.Has(DnsQueryType::UNSPECIFIED));
-  // Don't attempt a HOSTS lookup if there is no DnsConfig or the HOSTS lookup
-  // is going to be done next as part of a system lookup.
-  if (!dns_client_ || !HasAddressType(query_types) ||
-      (!tasks.empty() && tasks.front() == TaskType::SYSTEM)) {
-    return {};
-  }
-  const DnsHosts* hosts = dns_client_->GetHosts();
+  using RWords = DnsResolutionWords;
 
-  if (!hosts || hosts->empty()) {
-    return {};
-  }
+const DnsHosts* hosts=nullptr;DnsHosts::const_iterator selected;std::string effective;std::unique_ptr<HostResolverInternalResult> ipv4,ipv6;std::set<std::unique_ptr<HostResolverInternalResult>> result;
 
-  // HOSTS lookups are case-insensitive.
-  std::string effective_hostname = base::ToLowerASCII(hostname);
-
-  std::unique_ptr<HostResolverInternalResult> ipv6_result;
-  if (query_types.Has(DnsQueryType::AAAA)) {
-    auto it = hosts->find(DnsHostsKey(effective_hostname, ADDRESS_FAMILY_IPV6));
-    if (it == hosts->end()) {
-      ipv6_result = std::make_unique<HostResolverInternalErrorResult>(
-          std::string(hostname), DnsQueryType::AAAA,
-          /*expiration=*/std::nullopt, /*timed_expiration=*/std::nullopt,
-          HostResolverInternalErrorResult::Source::kHosts,
-          ERR_NAME_NOT_RESOLVED);
-    } else {
-      // HOSTS results are currently only for immediate use, so set the
-      // expiration to `Now()` to immediately expire.
-      ipv6_result = std::make_unique<HostResolverInternalDataResult>(
-          std::string(hostname), DnsQueryType::AAAA,
-          /*expiration=*/tick_clock_->NowTicks(),
-          /*timed_expiration=*/base::Time::Now(),
-          HostResolverInternalResult::Source::kHosts,
-          /*endpoints=*/std::vector<IPEndPoint>{{it->second, 0}},
-          /*strings=*/std::vector<std::string>{},
-          /*hosts=*/std::vector<HostPortPair>{});
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(!query_types.Has(DnsQueryType::UNSPECIFIED));
+        return {}; }
+      case 2: { return RWords::Bool(dns_client_!=nullptr); }
+      case 3: { return {.a=query_types.Has(DnsQueryType::A),.b=query_types.Has(DnsQueryType::AAAA)}; }
+      case 4: { return RWords::Unsigned(static_cast<uint64_t>(tasks.size())); }
+      case 5: { return RWords::Unsigned(static_cast<uint64_t>(tasks.front())); }
+      case 6: { hosts=dns_client_->GetHosts();
+        return {}; }
+      case 7: { return RWords::Bool(hosts!=nullptr); }
+      case 8: { return RWords::Unsigned(static_cast<uint64_t>(hosts->size())); }
+      case 9: { effective=base::ToLowerASCII(hostname);
+        return {}; }
+      case 10: { return RWords::Bool(query_types.Has(args.a?DnsQueryType::AAAA:DnsQueryType::A)); }
+      case 11: { selected=hosts->find(DnsHostsKey(effective,args.a?ADDRESS_FAMILY_IPV6:ADDRESS_FAMILY_IPV4));
+        return {}; }
+      case 12: { return RWords::Bool(selected!=hosts->end()); }
+      case 13: { auto item=std::make_unique<HostResolverInternalDataResult>(std::string(hostname),args.a?DnsQueryType::AAAA:DnsQueryType::A,tick_clock_->NowTicks(),base::Time::Now(),HostResolverInternalResult::Source::kHosts,std::vector<IPEndPoint>{{selected->second,0}},std::vector<std::string>{},std::vector<HostPortPair>{}); (args.a?ipv6:ipv4)=std::move(item);
+        return {}; }
+      case 14: { auto item=std::make_unique<HostResolverInternalErrorResult>(std::string(hostname),args.a?DnsQueryType::AAAA:DnsQueryType::A,std::nullopt,std::nullopt,HostResolverInternalResult::Source::kHosts,ERR_NAME_NOT_RESOLVED);(args.a?ipv6:ipv4)=std::move(item);
+        return {}; }
+      case 15: { return RWords::Bool(default_family_due_to_no_ipv6); }
+      case 16: { return RWords::Bool(ipv4!=nullptr); }
+      case 17: { return RWords::Unsigned(ipv4->type()==HostResolverInternalResult::Type::kError?1:0); }
+      case 18: { return RWords::Unsigned(static_cast<uint64_t>(ipv4->AsData().endpoints().size())); }
+      case 19: { return RWords::Bool(ipv4->AsData().endpoints().at(args.a).address().IsLoopback()); }
+      case 20: { CHECK(!ipv6);query_types.Put(DnsQueryType::AAAA);
+        return {}; }
+      case 21: { result=ServeFromHosts(hostname,query_types,false,tasks);
+        return {}; }
+      case 22: { return RWords::Bool(ipv6!=nullptr); }
+      case 23: { result.insert(std::move(ipv6));
+        return {}; }
+      case 24: { result.insert(std::move(ipv4));
+        return {}; }
+      default: NOTREACHED();
     }
-  }
-
-  std::unique_ptr<HostResolverInternalResult> ipv4_result;
-  if (query_types.Has(DnsQueryType::A)) {
-    auto it = hosts->find(DnsHostsKey(effective_hostname, ADDRESS_FAMILY_IPV4));
-    if (it == hosts->end()) {
-      ipv4_result = std::make_unique<HostResolverInternalErrorResult>(
-          std::string(hostname), DnsQueryType::A,
-          /*expiration=*/std::nullopt, /*timed_expiration=*/std::nullopt,
-          HostResolverInternalErrorResult::Source::kHosts,
-          ERR_NAME_NOT_RESOLVED);
-    } else {
-      // HOSTS results are currently only for immediate use, so set the
-      // expiration to `Now()` to immediately expire.
-      ipv4_result = std::make_unique<HostResolverInternalDataResult>(
-          std::string(hostname), DnsQueryType::A,
-          /*expiration=*/tick_clock_->NowTicks(),
-          /*timed_expiration=*/base::Time::Now(),
-          HostResolverInternalResult::Source::kHosts,
-          /*endpoints=*/std::vector<IPEndPoint>{{it->second, 0}},
-          /*strings=*/std::vector<std::string>{},
-          /*hosts=*/std::vector<HostPortPair>{});
-    }
-  }
-
-  // If got only loopback addresses (or no addresses) and the family was
-  // restricted, resolve again, without restrictions. See SystemHostResolverCall
-  // for rationale.
-  if (default_family_due_to_no_ipv6 && ipv4_result &&
-      (ipv4_result->type() == HostResolverInternalResult::Type::kError ||
-       (ipv4_result->type() == HostResolverInternalResult::Type::kData &&
-        std::ranges::all_of(ipv4_result->AsData().endpoints(),
-                            &IPAddress::IsLoopback, &IPEndPoint::address)))) {
-    CHECK(!ipv6_result) << "Requesting AAAA is incompatible with "
-                           "`default_family_due_to_no_ipv6`.";
-    query_types.Put(DnsQueryType::AAAA);
-    return ServeFromHosts(hostname, query_types,
-                          /*default_family_due_to_no_ipv6=*/false, tasks);
-  }
-
-  std::set<std::unique_ptr<HostResolverInternalResult>> results;
-  if (ipv6_result) {
-    results.insert(std::move(ipv6_result));
-  }
-  if (ipv4_result) {
-    results.insert(std::move(ipv4_result));
-  }
-  return results;
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 21, native_service);
+  return result;
 }
 
 std::optional<HostCache::Entry> HostResolverManager::ServeLocalhost(
     std::string_view hostname,
     DnsQueryTypeSet query_types,
     bool default_family_due_to_no_ipv6) {
-  DCHECK(!query_types.Has(DnsQueryType::UNSPECIFIED));
+  using RWords = DnsResolutionWords;
 
-  std::vector<IPEndPoint> resolved_addresses;
-  if (!HasAddressType(query_types) ||
-      !ResolveLocalHostname(hostname, &resolved_addresses)) {
-    return std::nullopt;
-  }
+std::vector<IPEndPoint> addresses;std::optional<HostCache::Entry> result;
 
-  if (default_family_due_to_no_ipv6 && query_types.Has(DnsQueryType::A) &&
-      !query_types.Has(DnsQueryType::AAAA)) {
-    // The caller disabled the AAAA query due to lack of detected IPv6 support.
-    // (See SystemHostResolverCall for rationale).
-    query_types.Put(DnsQueryType::AAAA);
-  }
-  std::vector<IPEndPoint> filtered_addresses =
-      FilterAddresses(std::move(resolved_addresses), query_types);
-  return HostCache::Entry(OK, std::move(filtered_addresses), /*aliases=*/{},
-                          HostCache::Entry::SOURCE_UNKNOWN);
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(!query_types.Has(DnsQueryType::UNSPECIFIED));
+        return {}; }
+      case 2: { return {.a=query_types.Has(DnsQueryType::A),.b=query_types.Has(DnsQueryType::AAAA)}; }
+      case 3: { return RWords::Bool(ResolveLocalHostname(hostname,&addresses)); }
+      case 4: { return RWords::Bool(default_family_due_to_no_ipv6); }
+      case 5: { return RWords::Bool(query_types.Has(DnsQueryType::A)); }
+      case 6: { return RWords::Bool(query_types.Has(DnsQueryType::AAAA)); }
+      case 7: { query_types.Put(DnsQueryType::AAAA);
+        return {}; }
+      case 8: { result.emplace(OK,FilterAddresses(std::move(addresses),query_types),base::flat_set<std::string>{},HostCache::Entry::SOURCE_UNKNOWN);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 20, native_service);
+  return result;
 }
 
 void HostResolverManager::CacheResult(HostCache* cache,
                                       const HostCache::Key& key,
                                       const HostCache::Entry& entry,
                                       base::TimeDelta ttl) {
-  // Don't cache an error unless it has a positive TTL.
-  if (cache && (entry.error() == OK || ttl.is_positive()))
-    cache->Set(key, entry, tick_clock_->NowTicks(), ttl);
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bool(cache != nullptr); }
+      case 2: { return RWords::Signed(static_cast<int64_t>(entry.error())); }
+      case 3: { return RWords::Bool(ttl.is_positive()); }
+      case 4: { cache->Set(key, entry, tick_clock_->NowTicks(), ttl);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 3, native_service);
+  (void)rust_reply;
 }
 
 std::unique_ptr<HostResolverManager::Job> HostResolverManager::RemoveJob(
@@ -1308,34 +1387,39 @@ std::unique_ptr<HostResolverManager::Job> HostResolverManager::RemoveJob(
 
 SecureDnsMode HostResolverManager::GetEffectiveSecureDnsMode(
     SecureDnsPolicy secure_dns_policy) {
-  // Use switch() instead of if() to ensure that all policies are handled.
-  switch (secure_dns_policy) {
-    case SecureDnsPolicy::kDisable:
-    case SecureDnsPolicy::kBootstrap:
-      return SecureDnsMode::kOff;
-    case SecureDnsPolicy::kAllow:
-      break;
-  }
+  using RWords = DnsResolutionWords;
 
-  if (dns_client_) {
-    return dns_client_->GetEffectiveConfig().secure_dns_mode;
-  }
-  return SecureDnsMode::kOff;
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Unsigned(static_cast<uint64_t>(secure_dns_policy)); }
+      case 2: { return RWords::Bool(dns_client_ != nullptr); }
+      case 3: { return RWords::Unsigned(static_cast<uint64_t>(dns_client_->GetEffectiveConfig().secure_dns_mode)); }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 2, native_service);
+  return static_cast<SecureDnsMode>(rust_reply.a);
 }
 
 bool HostResolverManager::ShouldForceSystemResolverDueToTestOverride() const {
-  // If tests have provided a catch-all DNS block and then disabled it, check
-  // that we are not at risk of sending queries beyond the local network.
-  if (HostResolverProc::GetDefault() && system_resolver_disabled_for_testing_) {
-    DCHECK(dns_client_);
-    DCHECK(std::ranges::none_of(dns_client_->GetEffectiveConfig().nameservers,
-                                &IPAddress::IsPubliclyRoutable,
-                                &IPEndPoint::address))
-        << "Test could query a publicly-routable address.";
-  }
-  return !host_resolver_system_params_.resolver_proc &&
-         HostResolverProc::GetDefault() &&
-         !system_resolver_disabled_for_testing_;
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bool(HostResolverProc::GetDefault()!=nullptr); }
+      case 2: { return RWords::Bool(system_resolver_disabled_for_testing_); }
+      case 3: { DCHECK(dns_client_);DCHECK(std::ranges::none_of(dns_client_->GetEffectiveConfig().nameservers,&IPAddress::IsPubliclyRoutable,&IPEndPoint::address));
+        return {}; }
+      case 4: { return RWords::Bool(host_resolver_system_params_.resolver_proc.get()!=nullptr); }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 41, native_service);
+  return rust_reply.a!=0;
 }
 
 // static
@@ -1349,78 +1433,36 @@ void HostResolverManager::PushDnsTasks(const DnsClient& dns_client,
                                        bool prioritize_local_lookups,
                                        ResolveContext* resolve_context,
                                        std::deque<TaskType>* out_tasks) {
+  using RWords = DnsResolutionWords;
 
-  // If a catch-all DNS block has been set for unit tests, we shouldn't send
-  // DnsTasks. It is still necessary to call this method, however, so that the
-  // correct cache tasks for the secure dns mode are added.
-  const bool insecure_tasks_allowed =
-      (insecure_dns_mode != InsecureDnsMode::kDisabled);
-  const TaskType dns_task_type =
-      (insecure_dns_mode == InsecureDnsMode::kEnabledPlatform ||
-       insecure_dns_mode == InsecureDnsMode::kEnabledPlatformNoSystem)
-          ? TaskType::DNS_PLATFORM
-          : TaskType::DNS;
-  // Upgrade the insecure DnsTask depending on the secure dns mode.
-  switch (secure_dns_mode) {
-    case SecureDnsMode::kSecure:
-      DCHECK(!allow_cache ||
-             out_tasks->front() == TaskType::SECURE_CACHE_LOOKUP);
-      // Policy misconfiguration can put us in secure DNS mode without any DoH
-      // servers to query. See https://crbug.com/1326526.
-      if (dns_tasks_allowed && dns_client.CanUseSecureDnsTransactions()) {
-        out_tasks->push_back(TaskType::SECURE_DNS);
-      }
-      break;
-    case SecureDnsMode::kAutomatic:
-      DCHECK(!allow_cache || out_tasks->front() == TaskType::CACHE_LOOKUP);
-      if (dns_client.FallbackFromSecureTransactionPreferred(resolve_context)) {
-        // Don't run a secure DnsTask if there are no available DoH servers.
-        if (dns_tasks_allowed && insecure_tasks_allowed)
-          out_tasks->push_back(dns_task_type);
-      } else if (prioritize_local_lookups) {
-        // If local lookups are prioritized, the cache should be checked for
-        // both secure and insecure results prior to running a secure DnsTask.
-        // The task sequence should already contain the appropriate cache task.
-        if (dns_tasks_allowed) {
-          out_tasks->push_back(TaskType::SECURE_DNS);
-          if (insecure_tasks_allowed)
-            out_tasks->push_back(dns_task_type);
-        }
-      } else {
-        if (allow_cache) {
-          // Remove the initial cache lookup task so that the secure and
-          // insecure lookups can be separated.
-          out_tasks->pop_front();
-          out_tasks->push_back(TaskType::SECURE_CACHE_LOOKUP);
-        }
-        if (dns_tasks_allowed)
-          out_tasks->push_back(TaskType::SECURE_DNS);
-        if (allow_cache)
-          out_tasks->push_back(TaskType::INSECURE_CACHE_LOOKUP);
-        if (dns_tasks_allowed && insecure_tasks_allowed)
-          out_tasks->push_back(dns_task_type);
-      }
-      break;
-    case SecureDnsMode::kOff:
-      DCHECK(!allow_cache || IsLocalTask(out_tasks->front()));
-      if (dns_tasks_allowed && insecure_tasks_allowed)
-        out_tasks->push_back(dns_task_type);
-      break;
-    default:
-      NOTREACHED();
-  }
 
-  constexpr TaskType kBuiltinTasks[] = {TaskType::DNS, TaskType::SECURE_DNS,
-                                        TaskType::DNS_PLATFORM};
-  const bool no_builtin_tasks =
-      std::ranges::find_first_of(*out_tasks, kBuiltinTasks) == out_tasks->end();
-  // The system resolver can be used as a fallback for a non-existent or
-  // failing builtin resolver task, if allowed by the request parameters.
-  if (system_task_allowed &&
-      insecure_dns_mode != InsecureDnsMode::kEnabledPlatformNoSystem &&
-      (no_builtin_tasks || allow_fallback_to_systemtask)) {
-    out_tasks->push_back(TaskType::SYSTEM);
-  }
+std::unique_ptr<DnsClientRustServices> client_frame;uint32_t client_frame_depth=0;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { out_tasks->push_front(static_cast<TaskType>(args.a));
+        return {}; }
+      case 2: { out_tasks->push_back(static_cast<TaskType>(args.a));
+        return {}; }
+      case 3: { out_tasks->pop_front();
+        return {}; }
+      case 4: { return RWords::Unsigned(static_cast<uint64_t>(out_tasks->front())); }
+      case 5: { return RWords::Bool(dns_client.CanUseSecureDnsTransactions()); }
+      case 6: { return RWords::Bool(dns_client.FallbackFromSecureTransactionPreferred(resolve_context)); }
+      case 7: { DCHECK_EQ(static_cast<uint64_t>(out_tasks->front()), args.a);DCHECK(args.b==0||args.x!=0);
+        return {}; }
+      case 8: { return RWords::Unsigned(static_cast<uint64_t>(out_tasks->size())); }
+      case 9: { return RWords::Unsigned(static_cast<uint64_t>(out_tasks->at(args.a))); }
+      case 10: { NOTREACHED(); }
+      case 11: { return {.a=dns_tasks_allowed, .b=allow_fallback_to_systemtask, .x=system_task_allowed, .y=static_cast<int64_t>(secure_dns_mode)}; }
+      case 12: { return {.a=static_cast<uint64_t>(insecure_dns_mode), .b=allow_cache, .x=prioritize_local_lookups}; }
+      case 9000: { if(client_frame_depth==0){const auto* owner=(&dns_client);if(owner)client_frame=owner->MakeRustPolicyServices(resolve_context);}++client_frame_depth;return RWords::Bool(client_frame!=nullptr);}
+      case 9001: CHECK_GT(client_frame_depth,0u);if(--client_frame_depth==0)client_frame.reset();return {};
+      default: if(operation>=10000 && client_frame) return client_frame->Dispatch(operation-10000,args); NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 11, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::CreateTaskSequence(
@@ -1428,128 +1470,80 @@ void HostResolverManager::CreateTaskSequence(
     ResolveHostParameters::CacheUsage cache_usage,
     SecureDnsPolicy secure_dns_policy,
     std::deque<TaskType>* out_tasks) {
-  DCHECK(out_tasks->empty());
+  using RWords = DnsResolutionWords;
 
-  EchMode ech_mode = job_key.GetEchMode();
+EchMode ech=EchMode::kOpportunistic;
+std::unique_ptr<DnsClientRustServices> client_frame;uint32_t client_frame_depth=0;
 
-  // A cache lookup should generally be performed first. For jobs involving a
-  // DnsTask, this task may be replaced.
-  bool allow_cache =
-      cache_usage != ResolveHostParameters::CacheUsage::DISALLOWED;
-  if (secure_dns_policy == SecureDnsPolicy::kBootstrap) {
-    DCHECK_EQ(SecureDnsMode::kOff, job_key.secure_dns_mode);
-    if (allow_cache)
-      out_tasks->push_front(TaskType::INSECURE_CACHE_LOOKUP);
-    out_tasks->push_front(TaskType::CONFIG_PRESET);
-    if (allow_cache)
-      out_tasks->push_front(TaskType::SECURE_CACHE_LOOKUP);
-  } else if (allow_cache) {
-    if (job_key.secure_dns_mode == SecureDnsMode::kSecure) {
-      out_tasks->push_front(TaskType::SECURE_CACHE_LOOKUP);
-    } else {
-      out_tasks->push_front(TaskType::CACHE_LOOKUP);
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { out_tasks->push_front(static_cast<TaskType>(args.a));
+        return {}; }
+      case 2: { out_tasks->push_back(static_cast<TaskType>(args.a));
+        return {}; }
+      case 3: { out_tasks->pop_front();
+        return {}; }
+      case 4: { return RWords::Unsigned(static_cast<uint64_t>(out_tasks->front())); }
+      case 5: { return RWords::Bool(dns_client_->CanUseSecureDnsTransactions()); }
+      case 6: { return RWords::Bool(dns_client_->FallbackFromSecureTransactionPreferred(&*job_key.resolve_context)); }
+      case 7: { DCHECK_EQ(static_cast<uint64_t>(out_tasks->front()), args.a);DCHECK(args.b==0||args.x!=0);
+        return {}; }
+      case 8: { return RWords::Unsigned(static_cast<uint64_t>(out_tasks->size())); }
+      case 9: { return RWords::Unsigned(static_cast<uint64_t>(out_tasks->at(args.a))); }
+      case 10: { NOTREACHED(); }
+      case 11: { DCHECK(out_tasks->empty());
+        return {}; }
+      case 12: { ech=job_key.GetEchMode();return RWords::Unsigned(static_cast<uint64_t>(ech)); }
+      case 13: { return RWords::Unsigned(static_cast<uint64_t>(cache_usage)); }
+      case 14: { return RWords::Unsigned(static_cast<uint64_t>(job_key.secure_dns_mode)); }
+      case 15: { return RWords::Unsigned(static_cast<uint64_t>(secure_dns_policy)); }
+      case 16: { DCHECK_EQ(SecureDnsMode::kOff, job_key.secure_dns_mode);
+        return {}; }
+      case 17: { return {.a=job_key.query_types.Has(DnsQueryType::A),.b=job_key.query_types.Has(DnsQueryType::AAAA)}; }
+      case 18: { return RWords::Unsigned(static_cast<uint64_t>(job_key.source)); }
+      case 19: { RecordDnsClientCapabilityMetrics(dns_client_.get());
+        return {}; }
+      case 20: { return RWords::Bool((job_key.flags & HOST_RESOLVER_CANONNAME) != 0); }
+      case 21: { return RWords::Bool(ResemblesMulticastDNSName(job_key.host.GetHostname())); }
+      case 22: { return RWords::Bool(dns_client_ != nullptr); }
+      case 23: { return RWords::Bool(dns_client_->CanUseInsecureDnsTransactions(ech)); }
+      case 24: { return RWords::Bool(dns_client_->FallbackFromInsecureTransactionPreferred(ech)); }
+      case 25: { return RWords::Bool(dns_client_->CanQueryAdditionalTypesViaInsecureDns(ech)); }
+      case 26: { return RWords::Unsigned(static_cast<uint64_t>(dns_client_->GetInsecureDnsMode(ech))); }
+      case 27: { return RWords::Bool(ShouldForceSystemResolverDueToTestOverride()); }
+      case 28: { return RWords::Bool(allow_fallback_to_systemtask_); }
+      case 29: { DCHECK(std::ranges::find(*out_tasks, TaskType::DNS) == out_tasks->end()); DCHECK(std::ranges::find(*out_tasks, TaskType::DNS_PLATFORM) == out_tasks->end()); DCHECK(std::ranges::find(*out_tasks, TaskType::MDNS) == out_tasks->end());
+        return {}; }
+      case 30: { base::UmaHistogramEnumeration("Net.DNS.DnsConfig.DnsClientCapability",static_cast<DnsClientCapability>(args.a));
+        return {}; }
+      case 31: { return RWords::Bool(dns_client_->CanUseInsecureDnsTransactions(std::nullopt)); }
+      case 9000: { if(client_frame_depth==0){const auto* owner=(dns_client_.get());if(owner)client_frame=owner->MakeRustPolicyServices(job_key.resolve_context.get());}++client_frame_depth;return RWords::Bool(client_frame!=nullptr);}
+      case 9001: CHECK_GT(client_frame_depth,0u);if(--client_frame_depth==0)client_frame.reset();return {};
+      default: if(operation>=10000 && client_frame) return client_frame->Dispatch(operation-10000,args); NOTREACHED();
     }
-  }
-  out_tasks->push_back(TaskType::HOSTS);
-
-  // Determine what type of task a future Job should start.
-  bool prioritize_local_lookups =
-      cache_usage ==
-      HostResolver::ResolveHostParameters::CacheUsage::STALE_ALLOWED;
-
-  const bool has_address_type = HasAddressType(job_key.query_types);
-
-  switch (job_key.source) {
-    case HostResolverSource::ANY:
-      // Records DnsClient capability metrics, only when `source` is ANY. This
-      // is to avoid the metrics being skewed by mechanical requests of other
-      // source types.
-      RecordDnsClientCapabilityMetrics(dns_client_.get());
-      // Force address queries with canonname to use HostResolverSystemTask to
-      // counter poor CNAME support in DnsTask. See https://crbug.com/872665
-      //
-      // Otherwise, default to DnsTask (with allowed fallback to
-      // HostResolverSystemTask for address queries). But if hostname appears to
-      // be an MDNS name (ends in *.local), go with HostResolverSystemTask for
-      // address queries and MdnsTask for non- address queries.
-      if ((job_key.flags & HOST_RESOLVER_CANONNAME) && has_address_type) {
-        out_tasks->push_back(TaskType::SYSTEM);
-      } else if (!ResemblesMulticastDNSName(job_key.host.GetHostname())) {
-        bool system_task_allowed =
-            has_address_type &&
-            job_key.secure_dns_mode != SecureDnsMode::kSecure &&
-            ech_mode != EchMode::kStrict;
-        if (dns_client_) {
-          InsecureDnsMode insecure_dns_mode = InsecureDnsMode::kDisabled;
-          if (dns_client_->CanUseInsecureDnsTransactions(ech_mode) &&
-              !dns_client_->FallbackFromInsecureTransactionPreferred(
-                  ech_mode) &&
-              (has_address_type ||
-               dns_client_->CanQueryAdditionalTypesViaInsecureDns(ech_mode))) {
-            insecure_dns_mode = dns_client_->GetInsecureDnsMode(ech_mode);
-          }
-          PushDnsTasks(
-              *dns_client_, !ShouldForceSystemResolverDueToTestOverride(),
-              allow_fallback_to_systemtask_, system_task_allowed,
-              job_key.secure_dns_mode, insecure_dns_mode, allow_cache,
-              prioritize_local_lookups, &*job_key.resolve_context, out_tasks);
-        } else if (system_task_allowed) {
-          out_tasks->push_back(TaskType::SYSTEM);
-        }
-      } else if (has_address_type) {
-        // For *.local address queries, try the system resolver even if the
-        // secure dns mode is SECURE. Public recursive resolvers aren't expected
-        // to handle these queries.
-        out_tasks->push_back(TaskType::SYSTEM);
-      } else {
-        out_tasks->push_back(TaskType::MDNS);
-      }
-      break;
-    case HostResolverSource::SYSTEM:
-      out_tasks->push_back(TaskType::SYSTEM);
-      break;
-    case HostResolverSource::DNS:
-      if (dns_client_) {
-        InsecureDnsMode insecure_dns_mode = InsecureDnsMode::kDisabled;
-        if (dns_client_->CanUseInsecureDnsTransactions(ech_mode) &&
-            (has_address_type ||
-             dns_client_->CanQueryAdditionalTypesViaInsecureDns(ech_mode))) {
-          insecure_dns_mode = dns_client_->GetInsecureDnsMode(ech_mode);
-        }
-        PushDnsTasks(
-            *dns_client_, !ShouldForceSystemResolverDueToTestOverride(),
-            allow_fallback_to_systemtask_, false /* system_task_allowed */,
-            job_key.secure_dns_mode, insecure_dns_mode, allow_cache,
-            prioritize_local_lookups, &*job_key.resolve_context, out_tasks);
-      }
-      break;
-    case HostResolverSource::MULTICAST_DNS:
-      out_tasks->push_back(TaskType::MDNS);
-      break;
-    case HostResolverSource::LOCAL_ONLY:
-      // If no external source allowed, a job should not be created or started
-      break;
-  }
-
-  // `HOST_RESOLVER_CANONNAME` is only supported through system resolution.
-  if (job_key.flags & HOST_RESOLVER_CANONNAME) {
-    DCHECK(std::ranges::find(*out_tasks, TaskType::DNS) == out_tasks->end());
-    DCHECK(std::ranges::find(*out_tasks, TaskType::DNS_PLATFORM) ==
-           out_tasks->end());
-    DCHECK(std::ranges::find(*out_tasks, TaskType::MDNS) == out_tasks->end());
-  }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 12, native_service);
+  (void)rust_reply;
 }
 
 namespace {
 
 bool RequestWillUseWiFi(handles::NetworkHandle network) {
-  NetworkChangeNotifier::ConnectionType connection_type;
-  if (network == handles::kInvalidNetworkHandle)
-    connection_type = NetworkChangeNotifier::GetConnectionType();
-  else
-    connection_type = NetworkChangeNotifier::GetNetworkConnectionType(network);
+  using RWords = DnsResolutionWords;
 
-  return connection_type == NetworkChangeNotifier::CONNECTION_WIFI;
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Signed(static_cast<int64_t>(network)); }
+      case 2: { return RWords::Signed(static_cast<int64_t>(NetworkChangeNotifier::GetConnectionType())); }
+      case 3: { return RWords::Signed(static_cast<int64_t>(NetworkChangeNotifier::GetNetworkConnectionType(network))); }
+      case 4: { return RWords::Signed(static_cast<int64_t>(NetworkChangeNotifier::CONNECTION_WIFI)); }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 48, native_service);
+  return rust_reply.a!=0;
 }
 
 }  // namespace
@@ -1557,15 +1551,28 @@ bool RequestWillUseWiFi(handles::NetworkHandle network) {
 void HostResolverManager::FinishIPv6ReachabilityCheck(
     CompletionOnceCallback callback,
     int rv) {
-  SetLastIPv6ProbeResult(rv == OK);
-  std::move(callback).Run(OK);
-  if (!ipv6_request_callbacks_.empty()) {
-    std::vector<CompletionOnceCallback> tmp_request_callbacks;
-    ipv6_request_callbacks_.swap(tmp_request_callbacks);
-    for (auto& request_callback : tmp_request_callbacks) {
-      std::move(request_callback).Run(OK);
+  using RWords = DnsResolutionWords;
+
+std::vector<CompletionOnceCallback> callbacks;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { SetLastIPv6ProbeResult(args.a!=0);
+        return {}; }
+      case 2: { return RWords::Signed(static_cast<int64_t>(rv)); }
+      case 3: { std::move(callback).Run(OK);
+        return {}; }
+      case 4: { return RWords::Unsigned(static_cast<uint64_t>(ipv6_request_callbacks_.size())); }
+      case 5: { ipv6_request_callbacks_.swap(callbacks);
+        return {}; }
+      case 6: { return RWords::Unsigned(static_cast<uint64_t>(callbacks.size())); }
+      case 7: { std::move(callbacks.at(args.a)).Run(OK);
+        return {}; }
+      default: NOTREACHED();
     }
-  }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 34, native_service);
+  (void)rust_reply;
 }
 
 int HostResolverManager::StartIPv6ReachabilityCheck(
@@ -1573,74 +1580,57 @@ int HostResolverManager::StartIPv6ReachabilityCheck(
     const NetLogWithSource& net_log,
     ClientSocketFactory* client_socket_factory,
     CompletionOnceCallback callback) {
-  // Multi-network support for Cronet and CCT was originally implemented by
-  // creating multiple URLRequestContexts/HostResolverManagers. Until this
-  // historical artifact is removed, make sure these two mechanisms are not used
-  // at the same time.
-  // TODO(crbug.com/495684670): Clean this up once multi-network Cronet and CCT
-  // no longer depend on network-bound URLRequestContexts.
-  CHECK(target_network_ == handles::kInvalidNetworkHandle ||
-        target_network == handles::kInvalidNetworkHandle);
+  using RWords = DnsResolutionWords;
 
-  if (target_network != handles::kInvalidNetworkHandle) {
-    // TODO(crbug.com/519138300): Start caching results for non-default
-    // networks. Until then, we don't run the probe because we have no way to
-    // store or use the result without clobbering the default network cache.
-    // Instead, always assume IPv6 connectivity.
-    return OK;
-  }
 
-  // Don't bother checking if the request will use WiFi and IPv6 is assumed to
-  // not work on WiFi.
-  if (!check_ipv6_on_wifi_ &&
-      // TODO(crbug.com/519138300): Once results for non-default networks are
-      // correctly cached, pass `target_network` instead.
-      RequestWillUseWiFi(target_network_)) {
-    probing_ipv6_ = false;
-    last_ipv6_probe_result_ = false;
-    last_ipv6_probe_time_ = base::TimeTicks();
-    return OK;
-  }
 
-  if (probing_ipv6_) {
-    ipv6_request_callbacks_.push_back(std::move(callback));
-    return ERR_IO_PENDING;
-  }
-  // Cache the result for kIPv6ProbePeriodMs (measured from after
-  // StartGloballyReachableCheck() completes).
-  int rv = OK;
-  bool cached = true;
-  if (last_ipv6_probe_time_.is_null() ||
-      (tick_clock_->NowTicks() - last_ipv6_probe_time_).InMilliseconds() >
-          kIPv6ProbePeriodMs) {
-    probing_ipv6_ = true;
-    rv = StartGloballyReachableCheck(
-        IPAddress(kIPv6ProbeAddress),
-        // This intentionally passes `target_network` instead of
-        // `target_network_`. This codepath should only be used by the new way
-        // of doing multi-networking (i.e., with a single URLRequestContext).
-        // TODO(crbug.com/519138300): remove this comment once the old way
-        // of doing multi-networking is no longer supported.
-        target_network, net_log, client_socket_factory,
-        base::BindOnce(&HostResolverManager::FinishIPv6ReachabilityCheck,
-                       weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
-    if (rv != ERR_IO_PENDING) {
-      SetLastIPv6ProbeResult(rv == OK);
-      rv = OK;
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { CHECK(target_network_==handles::kInvalidNetworkHandle || target_network==handles::kInvalidNetworkHandle);
+        return {}; }
+      case 2: { return RWords::Signed(static_cast<int64_t>(target_network)); }
+      case 3: { return RWords::Bool(check_ipv6_on_wifi_); }
+      case 4: { return RWords::Bool(RequestWillUseWiFi(target_network_)); }
+      case 5: { probing_ipv6_=false;last_ipv6_probe_result_=false;last_ipv6_probe_time_=base::TimeTicks();
+        return {}; }
+      case 6: { return RWords::Bool(probing_ipv6_); }
+      case 7: { ipv6_request_callbacks_.push_back(std::move(callback));
+        return {}; }
+      case 8: { return RWords::Signed(static_cast<int64_t>(ERR_IO_PENDING)); }
+      case 9: { return RWords::Bool(last_ipv6_probe_time_.is_null()); }
+      case 10: { return RWords::Signed(static_cast<int64_t>((tick_clock_->NowTicks()-last_ipv6_probe_time_).InMilliseconds())); }
+      case 11: { probing_ipv6_=true;
+        return {}; }
+      case 12: { return RWords::Signed(StartGloballyReachableCheck(IPAddress(kIPv6ProbeAddress),target_network,net_log,client_socket_factory,base::BindOnce(&HostResolverManager::FinishIPv6ReachabilityCheck,weak_ptr_factory_.GetWeakPtr(),std::move(callback)))); }
+      case 13: { SetLastIPv6ProbeResult(args.a!=0);
+        return {}; }
+      case 14: { net_log.AddEvent(NetLogEventType::HOST_RESOLVER_MANAGER_IPV6_REACHABILITY_CHECK,[&]{return NetLogIPv6AvailableParams(last_ipv6_probe_result_,args.a!=0);});
+        return {}; }
+      default: NOTREACHED();
     }
-    cached = false;
-  }
-  net_log.AddEvent(
-      NetLogEventType::HOST_RESOLVER_MANAGER_IPV6_REACHABILITY_CHECK, [&] {
-        return NetLogIPv6AvailableParams(last_ipv6_probe_result_, cached);
-      });
-  return rv;
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 35, native_service);
+  return static_cast<int>(rust_reply.x);
 }
 
 void HostResolverManager::SetLastIPv6ProbeResult(bool last_ipv6_probe_result) {
-  probing_ipv6_ = false;
-  last_ipv6_probe_result_ = last_ipv6_probe_result;
-  last_ipv6_probe_time_ = tick_clock_->NowTicks();
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { probing_ipv6_=false;
+        return {}; }
+      case 2: { last_ipv6_probe_result_=last_ipv6_probe_result;
+        return {}; }
+      case 3: { last_ipv6_probe_time_=tick_clock_->NowTicks();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 33, native_service);
+  (void)rust_reply;
 }
 
 int HostResolverManager::StartGloballyReachableCheck(
@@ -1649,51 +1639,44 @@ int HostResolverManager::StartGloballyReachableCheck(
     const NetLogWithSource& net_log,
     ClientSocketFactory* client_socket_factory,
     CompletionOnceCallback callback) {
-  std::unique_ptr<DatagramClientSocket> probing_socket =
-      client_socket_factory->CreateDatagramClientSocket(
-          DatagramSocket::DEFAULT_BIND, target_network, net_log.net_log(),
-          net_log.source());
-  DatagramClientSocket* probing_socket_ptr = probing_socket.get();
-  auto refcounted_socket = base::MakeRefCounted<
-      base::RefCountedData<std::unique_ptr<DatagramClientSocket>>>(
-      std::move(probing_socket));
-  int rv = probing_socket_ptr->ConnectAsync(
-      IPEndPoint(dest, GetPortForGloballyReachableCheck()),
-      base::BindOnce(&HostResolverManager::RunFinishGloballyReachableCheck,
-                     weak_ptr_factory_.GetWeakPtr(), refcounted_socket,
-                     std::move(callback)));
-  if (rv != ERR_IO_PENDING) {
-    rv = FinishGloballyReachableCheck(probing_socket_ptr, rv) ? OK : ERR_FAILED;
-  }
-  return rv;
+  using RWords = DnsResolutionWords;
+
+std::unique_ptr<DatagramClientSocket> probing_socket;DatagramClientSocket* socket=nullptr;scoped_refptr<base::RefCountedData<std::unique_ptr<DatagramClientSocket>>> refcounted_socket;int last_rv=0;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { probing_socket=client_socket_factory->CreateDatagramClientSocket(DatagramSocket::DEFAULT_BIND,target_network,net_log.net_log(),net_log.source());socket=probing_socket.get();refcounted_socket=base::MakeRefCounted<base::RefCountedData<std::unique_ptr<DatagramClientSocket>>>(std::move(probing_socket));
+        return {}; }
+      case 2: { last_rv=socket->ConnectAsync(IPEndPoint(dest,GetPortForGloballyReachableCheck()),base::BindOnce(&HostResolverManager::RunFinishGloballyReachableCheck,weak_ptr_factory_.GetWeakPtr(),refcounted_socket,std::move(callback)));return RWords::Signed(last_rv); }
+      case 3: { return RWords::Signed(static_cast<int64_t>(ERR_IO_PENDING)); }
+      case 4: { return RWords::Bool(FinishGloballyReachableCheck(socket,static_cast<int>(last_rv))); }
+      case 5: { return RWords::Signed(static_cast<int64_t>(ERR_FAILED)); }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 36, native_service);
+  return static_cast<int>(rust_reply.x);
 }
 
 bool HostResolverManager::FinishGloballyReachableCheck(
     DatagramClientSocket* socket,
     int rv) {
-  if (rv != OK) {
-    return false;
-  }
-  IPEndPoint endpoint;
-  rv = socket->GetLocalAddress(&endpoint);
+  using RWords = DnsResolutionWords;
 
-  if (rv != OK) {
-    return false;
-  }
-  const IPAddress& address = endpoint.address();
+IPEndPoint endpoint;
 
-  if (address.IsLinkLocal()) {
-    return false;
-  }
-
-  if (address.IsIPv6()) {
-    const uint8_t kTeredoPrefix[] = {0x20, 0x01, 0, 0};
-    if (IPAddressStartsWith(address, kTeredoPrefix)) {
-      return false;
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Signed(static_cast<int64_t>(rv)); }
+      case 2: { return RWords::Signed(static_cast<int64_t>(socket->GetLocalAddress(&endpoint))); }
+      case 3: { return RWords::Bool(endpoint.address().IsLinkLocal()); }
+      case 4: { return RWords::Bool(endpoint.address().IsIPv6()); }
+      case 5: { const uint8_t prefix[]={0x20,0x01,0,0};return RWords::Bool(IPAddressStartsWith(endpoint.address(),prefix)); }
+      default: NOTREACHED();
     }
-  }
-
-  return true;
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 32, native_service);
+  return rust_reply.a!=0;
 }
 
 void HostResolverManager::RunFinishGloballyReachableCheck(
@@ -1701,8 +1684,20 @@ void HostResolverManager::RunFinishGloballyReachableCheck(
         socket,
     CompletionOnceCallback callback,
     int rv) {
-  bool is_reachable = FinishGloballyReachableCheck(socket->data.get(), rv);
-  std::move(callback).Run(is_reachable ? OK : ERR_FAILED);
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bool(FinishGloballyReachableCheck(socket->data.get(),rv)); }
+      case 2: { std::move(callback).Run(args.a?OK:ERR_FAILED);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 42, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::RunLoopbackProbeJob() {
@@ -1712,109 +1707,147 @@ void HostResolverManager::RunLoopbackProbeJob() {
 }
 
 void HostResolverManager::RemoveAllJobs(const ResolveContext* context) {
-  // Job destructor can re-enter jobs_.erase() (e.g., via HostResolverNat64Task
-  // destructor destroying a nested RequestImpl whose CancelRequest
-  // synchronously removes a different Job). Collect the Jobs first and destroy
-  // them after the iteration loop to prevent iterator invalidation.
-  std::vector<std::unique_ptr<Job>> jobs_to_destroy;
-  for (auto it = jobs_.begin(); it != jobs_.end();) {
-    const JobKey& key = it->first;
-    if (&*key.resolve_context == context) {
-      jobs_to_destroy.push_back(RemoveJob(it++));
-    } else {
-      ++it;
+  using RWords = DnsResolutionWords;
+
+std::vector<std::unique_ptr<Job>> jobs_to_destroy;JobMap::iterator it;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { it=jobs_.begin();
+        return {}; }
+      case 2: { return RWords::Bool(it!=jobs_.end()); }
+      case 3: { return RWords::Bool(&*it->first.resolve_context==context); }
+      case 4: { jobs_to_destroy.push_back(RemoveJob(it++));
+        return {}; }
+      case 5: { ++it;
+        return {}; }
+      case 6: { jobs_to_destroy.clear();
+        return {}; }
+      default: NOTREACHED();
     }
-  }
-  jobs_to_destroy.clear();
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 22, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::AbortJobsWithoutTargetNetwork(bool in_progress_only) {
-  // In Abort, a Request callback could spawn new Jobs with matching keys, so
-  // first collect and remove all running jobs from `jobs_`.
-  std::vector<std::unique_ptr<Job>> jobs_to_abort;
-  for (auto it = jobs_.begin(); it != jobs_.end();) {
-    Job* job = it->second.get();
-    if (!job->HasTargetNetwork() && (!in_progress_only || job->is_running())) {
-      jobs_to_abort.push_back(RemoveJob(it++));
-    } else {
-      ++it;
+  using RWords = DnsResolutionWords;
+
+std::vector<std::unique_ptr<Job>> jobs_to_abort;JobMap::iterator it;std::optional<PrioritizedDispatcher::Limits> limits;base::WeakPtr<HostResolverManager> self;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { it=jobs_.begin();
+        return {}; }
+      case 2: { return RWords::Bool(it!=jobs_.end()); }
+      case 3: { return RWords::Bool(it->second->HasTargetNetwork()); }
+      case 4: { return RWords::Bool(in_progress_only); }
+      case 5: { return RWords::Bool(it->second->is_running()); }
+      case 6: { jobs_to_abort.push_back(RemoveJob(it++));
+        return {}; }
+      case 7: { ++it;
+        return {}; }
+      case 8: { limits.emplace(dispatcher_->GetLimits());
+        return {}; }
+      case 9: { dispatcher_->SetLimits(PrioritizedDispatcher::Limits(limits->reserved_slots.size(),0));
+        return {}; }
+      case 10: { self=weak_ptr_factory_.GetWeakPtr();
+        return {}; }
+      case 11: { return RWords::Bool(self.get()!=nullptr); }
+      case 12: { return RWords::Unsigned(static_cast<uint64_t>(jobs_to_abort.size())); }
+      case 13: { jobs_to_abort.at(args.a)->Abort();
+        return {}; }
+      case 14: { dispatcher_->SetLimits(*limits);
+        return {}; }
+      default: NOTREACHED();
     }
-  }
-
-  // Pause the dispatcher so it won't start any new dispatcher jobs while
-  // aborting the old ones.  This is needed so that it won't start the second
-  // DnsTransaction for a job in `jobs_to_abort` if the DnsConfig just became
-  // invalid.
-  PrioritizedDispatcher::Limits limits = dispatcher_->GetLimits();
-  dispatcher_->SetLimits(
-      PrioritizedDispatcher::Limits(limits.reserved_slots.size(), 0));
-
-  // Life check to bail once `this` is deleted.
-  base::WeakPtr<HostResolverManager> self = weak_ptr_factory_.GetWeakPtr();
-
-  // Then Abort them.
-  for (size_t i = 0; self.get() && i < jobs_to_abort.size(); ++i) {
-    jobs_to_abort[i]->Abort();
-  }
-
-  if (self)
-    dispatcher_->SetLimits(limits);
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 23, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::AbortInsecureDnsTasks(int error, bool fallback_only) {
-  // Aborting jobs potentially modifies |jobs_| and may even delete some jobs.
-  // Create safe closures of all current jobs.
-  std::vector<base::OnceClosure> job_abort_closures;
-  for (auto& job : jobs_) {
-    job_abort_closures.push_back(
-        job.second->GetAbortInsecureDnsTaskClosure(error, fallback_only));
-  }
+  using RWords = DnsResolutionWords;
 
-  // Pause the dispatcher so it won't start any new dispatcher jobs while
-  // aborting the old ones.  This is needed so that it won't start the second
-  // DnsTransaction for a job if the DnsConfig just changed.
-  PrioritizedDispatcher::Limits limits = dispatcher_->GetLimits();
-  dispatcher_->SetLimits(
-      PrioritizedDispatcher::Limits(limits.reserved_slots.size(), 0));
+std::vector<base::OnceClosure> closures;JobMap::iterator it;std::optional<PrioritizedDispatcher::Limits> limits;
 
-  for (base::OnceClosure& closure : job_abort_closures)
-    std::move(closure).Run();
-
-  dispatcher_->SetLimits(limits);
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { it=jobs_.begin();
+        return {}; }
+      case 2: { return RWords::Bool(it!=jobs_.end()); }
+      case 3: { closures.push_back(it->second->GetAbortInsecureDnsTaskClosure(error,fallback_only));
+        return {}; }
+      case 4: { ++it;
+        return {}; }
+      case 5: { limits.emplace(dispatcher_->GetLimits());
+        return {}; }
+      case 6: { dispatcher_->SetLimits(PrioritizedDispatcher::Limits(limits->reserved_slots.size(),0));
+        return {}; }
+      case 7: { return RWords::Unsigned(static_cast<uint64_t>(closures.size())); }
+      case 8: { std::move(closures.at(args.a)).Run();
+        return {}; }
+      case 9: { dispatcher_->SetLimits(*limits);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 24, native_service);
+  (void)rust_reply;
 }
 
 // TODO(crbug.com/40641277): Consider removing this and its usage.
 void HostResolverManager::TryServingAllJobsFromHosts() {
-  if (!dns_client_)
-    return;
+  using RWords = DnsResolutionWords;
 
-  // TODO(szym): Do not do this if nsswitch.conf instructs not to.
-  // http://crbug.com/117655
+base::WeakPtr<HostResolverManager> self;JobMap::iterator it;Job* job=nullptr;
 
-  // Life check to bail once |this| is deleted.
-  base::WeakPtr<HostResolverManager> self = weak_ptr_factory_.GetWeakPtr();
-
-  for (auto it = jobs_.begin(); self.get() && it != jobs_.end();) {
-    Job* job = it->second.get();
-    ++it;
-    // This could remove |job| from |jobs_|, but iterator will remain valid.
-    job->ServeFromHosts();
-  }
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bool(dns_client_!=nullptr); }
+      case 2: { self=weak_ptr_factory_.GetWeakPtr();
+        return {}; }
+      case 3: { it=jobs_.begin();
+        return {}; }
+      case 4: { return RWords::Bool(self.get()!=nullptr); }
+      case 5: { return RWords::Bool(it!=jobs_.end()); }
+      case 6: { job=it->second.get();++it;
+        return {}; }
+      case 7: { job->ServeFromHosts();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 25, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::OnIPAddressChanged(
     NetworkChangeNotifier::IPAddressChangeType change_type) {
-  DCHECK(!IsBoundToNetwork());
-  last_ipv6_probe_time_ = base::TimeTicks();
-  // Abandon all ProbeJobs.
-  probe_weak_ptr_factory_.InvalidateWeakPtrs();
-  InvalidateCaches();
-#if (BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)) || \
-    BUILDFLAG(IS_FUCHSIA)
-  RunLoopbackProbeJob();
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(!IsBoundToNetwork());last_ipv6_probe_time_=base::TimeTicks();
+        return {}; }
+      case 2: { probe_weak_ptr_factory_.InvalidateWeakPtrs();
+        return {}; }
+      case 3: { InvalidateCaches();
+        return {}; }
+      case 4: {
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
+RunLoopbackProbeJob();
 #endif
-  AbortJobsWithoutTargetNetwork(true /* in_progress_only */);
-  // `this` may be deleted inside AbortJobsWithoutTargetNetwork().
+        return {}; }
+      case 5: { AbortJobsWithoutTargetNetwork(true);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 29, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::OnConnectionTypeChanged(
@@ -1824,144 +1857,192 @@ void HostResolverManager::OnConnectionTypeChanged(
 }
 
 void HostResolverManager::OnSystemDnsConfigChanged(const DnsConfig& config) {
-  DCHECK(!IsBoundToNetwork());
-  // If tests have provided a catch-all DNS block and then disabled it, check
-  // that we are not at risk of sending queries beyond the local network.
-  if (HostResolverProc::GetDefault() && system_resolver_disabled_for_testing_) {
-    DCHECK(std::ranges::none_of(config.nameservers,
-                                &IPAddress::IsPubliclyRoutable,
-                                &IPEndPoint::address))
-        << "Test could query a publicly-routable address.";
-  }
+  using RWords = DnsResolutionWords;
 
-  bool changed = false;
-  bool transactions_allowed_before = false;
-  if (dns_client_) {
-    transactions_allowed_before =
-        dns_client_->CanUseSecureDnsTransactions() ||
-        dns_client_->CanUseInsecureDnsTransactions(/*ech_mode=*/std::nullopt);
-    changed = dns_client_->SetSystemConfig(config);
-  }
 
-  // Always invalidate cache, even if no change is seen.
-  InvalidateCaches();
+std::unique_ptr<DnsClientRustServices> client_frame;uint32_t client_frame_depth=0;
 
-  if (changed) {
-    // Need to update jobs iff transactions were previously allowed because
-    // in-progress jobs may be running using a now-invalid configuration.
-    if (transactions_allowed_before)
-      UpdateJobsForChangedConfig();
-  }
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(!IsBoundToNetwork());if(HostResolverProc::GetDefault()&&system_resolver_disabled_for_testing_){DCHECK(std::ranges::none_of(config.nameservers,&IPAddress::IsPubliclyRoutable,&IPEndPoint::address));}
+        return {}; }
+      case 2: { return RWords::Bool(dns_client_!=nullptr); }
+      case 3: { return RWords::Bool(dns_client_->CanUseSecureDnsTransactions()); }
+      case 4: { return RWords::Bool(dns_client_->CanUseInsecureDnsTransactions(std::nullopt)); }
+      case 5: { return RWords::Bool(dns_client_->SetSystemConfig(config)); }
+      case 6: { InvalidateCaches();
+        return {}; }
+      case 7: { UpdateJobsForChangedConfig();
+        return {}; }
+      case 9000: { if(client_frame_depth==0){const auto* owner=(dns_client_.get());if(owner)client_frame=owner->MakeRustPolicyServices(nullptr);}++client_frame_depth;return RWords::Bool(client_frame!=nullptr);}
+      case 9001: CHECK_GT(client_frame_depth,0u);if(--client_frame_depth==0)client_frame.reset();return {};
+      default: if(operation>=10000 && client_frame) return client_frame->Dispatch(operation-10000,args); NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 26, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::UpdateJobsForChangedConfig() {
-  // Life check to bail once `this` is deleted.
-  base::WeakPtr<HostResolverManager> self = weak_ptr_factory_.GetWeakPtr();
+  using RWords = DnsResolutionWords;
 
-  // Existing jobs that were set up using the nameservers and secure dns mode
-  // from the original config need to be aborted (does not apply to jobs
-  // targeting a specific network).
-  AbortJobsWithoutTargetNetwork(false /* in_progress_only */);
+base::WeakPtr<HostResolverManager> self;
 
-  // `this` may be deleted inside AbortJobsWithoutTargetNetwork().
-  if (self.get())
-    TryServingAllJobsFromHosts();
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { self = weak_ptr_factory_.GetWeakPtr();
+        return {}; }
+      case 2: { AbortJobsWithoutTargetNetwork(false);
+        return {}; }
+      case 3: { return RWords::Bool(self.get() != nullptr); }
+      case 4: { TryServingAllJobsFromHosts();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 9, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::OnFallbackResolve(int dns_task_error) {
-  DCHECK(dns_client_);
-  DCHECK_NE(OK, dns_task_error);
+  using RWords = DnsResolutionWords;
 
-  // Nothing to do if DnsTask is already not preferred.
-  if (dns_client_->FallbackFromInsecureTransactionPreferred(
-          /*ech_mode=*/std::nullopt)) {
-    return;
-  }
 
-  dns_client_->IncrementInsecureFallbackFailures();
+std::unique_ptr<DnsClientRustServices> client_frame;uint32_t client_frame_depth=0;
 
-  // If DnsClient became not preferred, fallback all fallback-allowed insecure
-  // DnsTasks to HostResolverSystemTasks.
-  if (dns_client_->FallbackFromInsecureTransactionPreferred(
-          /*ech_mode=*/std::nullopt)) {
-    AbortInsecureDnsTasks(ERR_FAILED, true /* fallback_only */);
-  }
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(dns_client_); DCHECK_NE(OK, dns_task_error);
+        return {}; }
+      case 2: { return RWords::Bool(dns_client_->FallbackFromInsecureTransactionPreferred(std::nullopt)); }
+      case 3: { dns_client_->IncrementInsecureFallbackFailures();
+        return {}; }
+      case 4: { AbortInsecureDnsTasks(ERR_FAILED, true);
+        return {}; }
+      case 9000: { if(client_frame_depth==0){const auto* owner=(dns_client_.get());if(owner)client_frame=owner->MakeRustPolicyServices(nullptr);}++client_frame_depth;return RWords::Bool(client_frame!=nullptr);}
+      case 9001: CHECK_GT(client_frame_depth,0u);if(--client_frame_depth==0)client_frame.reset();return {};
+      default: if(operation>=10000 && client_frame) return client_frame->Dispatch(operation-10000,args); NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 8, native_service);
+  (void)rust_reply;
 }
 
 int HostResolverManager::GetOrCreateMdnsClient(MDnsClient** out_client) {
+  using RWords = DnsResolutionWords;
 #if BUILDFLAG(ENABLE_MDNS)
-  if (!mdns_client_) {
-    if (!mdns_socket_factory_)
-      mdns_socket_factory_ = std::make_unique<MDnsSocketFactoryImpl>(net_log_);
-    mdns_client_ = MDnsClient::CreateDefault();
-  }
 
-  int rv = OK;
-  if (!mdns_client_->IsListening())
-    rv = mdns_client_->StartListening(mdns_socket_factory_.get());
 
-  DCHECK_NE(ERR_IO_PENDING, rv);
-  DCHECK(rv != OK || mdns_client_->IsListening());
-  if (rv == OK)
-    *out_client = mdns_client_.get();
-  return rv;
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Bool(mdns_client_!=nullptr); }
+      case 2: { return RWords::Bool(mdns_socket_factory_!=nullptr); }
+      case 3: { mdns_socket_factory_=std::make_unique<MDnsSocketFactoryImpl>(net_log_);
+        return {}; }
+      case 4: { mdns_client_=MDnsClient::CreateDefault();
+        return {}; }
+      case 5: { return RWords::Bool(mdns_client_->IsListening()); }
+      case 6: { return RWords::Signed(static_cast<int64_t>(mdns_client_->StartListening(mdns_socket_factory_.get()))); }
+      case 7: { DCHECK_NE(ERR_IO_PENDING,args.x);DCHECK(args.x!=OK || mdns_client_->IsListening());
+        return {}; }
+      case 8: { *out_client=mdns_client_.get();
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 31, native_service);
+  return static_cast<int>(rust_reply.x);
 #else
-  // Should not request MDNS resoltuion unless MDNS is enabled.
-  NOTREACHED();
+NOTREACHED();
 #endif
 }
 
 void HostResolverManager::InvalidateCaches(bool network_change) {
-  DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
-  DCHECK(!invalidation_in_progress_);
+  using RWords = DnsResolutionWords;
 
+std::optional<decltype(registered_contexts_.begin())> it;
 #if DCHECK_IS_ON()
-  base::WeakPtr<HostResolverManager> self_ptr = weak_ptr_factory_.GetWeakPtr();
-  size_t num_jobs = jobs_.size();
+base::WeakPtr<HostResolverManager> self_ptr;size_t num_jobs=0;
 #endif
 
-  invalidation_in_progress_ = true;
-  for (auto& context : registered_contexts_) {
-    context.InvalidateCachesAndPerSessionData(
-        dns_client_ ? dns_client_->GetCurrentSession() : nullptr,
-        network_change);
-  }
-  invalidation_in_progress_ = false;
-
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);DCHECK(!invalidation_in_progress_);
 #if DCHECK_IS_ON()
-  // Sanity checks that invalidation does not have reentrancy issues.
-  DCHECK(self_ptr);
-  DCHECK_EQ(num_jobs, jobs_.size());
+self_ptr=weak_ptr_factory_.GetWeakPtr();num_jobs=jobs_.size();
 #endif
+        return {}; }
+      case 2: { invalidation_in_progress_=true;
+        return {}; }
+      case 3: { it.emplace(registered_contexts_.begin());
+        return {}; }
+      case 4: { return RWords::Bool(*it!=registered_contexts_.end()); }
+      case 5: { return RWords::Bool(dns_client_!=nullptr); }
+      case 6: { (**it).InvalidateCachesAndPerSessionData(dns_client_->GetCurrentSession(),network_change);
+        return {}; }
+      case 7: { (**it).InvalidateCachesAndPerSessionData(nullptr,network_change);
+        return {}; }
+      case 8: { ++*it;
+        return {}; }
+      case 9: { invalidation_in_progress_=false;
+        return {}; }
+      case 10: {
+#if DCHECK_IS_ON()
+DCHECK(self_ptr);DCHECK_EQ(num_jobs,jobs_.size());
+#endif
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 28, native_service);
+  (void)rust_reply;
 }
 
 void HostResolverManager::UpdateConnectionType(
     NetworkChangeNotifier::ConnectionType type) {
-  host_resolver_system_params_.unresponsive_delay =
-      GetTimeDeltaForConnectionTypeFromFieldTrialOrDefault(
-          "DnsUnresponsiveDelayMsByConnectionType",
-          HostResolverSystemTask::Params::kDnsDefaultUnresponsiveDelay, type);
+  using RWords = DnsResolutionWords;
 
-  // Note that NetworkChangeNotifier always sends a CONNECTION_NONE notification
-  // before non-NONE notifications. This check therefore just ensures each
-  // connection change notification is handled once and has nothing to do with
-  // whether the change is to offline or online.
-  if (type == NetworkChangeNotifier::CONNECTION_NONE && dns_client_) {
-    dns_client_->ReplaceCurrentSession();
-    InvalidateCaches(true /* network_change */);
-  }
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { host_resolver_system_params_.unresponsive_delay=GetTimeDeltaForConnectionTypeFromFieldTrialOrDefault("DnsUnresponsiveDelayMsByConnectionType",HostResolverSystemTask::Params::kDnsDefaultUnresponsiveDelay,type);
+        return {}; }
+      case 2: { return RWords::Bool(type==NetworkChangeNotifier::CONNECTION_NONE); }
+      case 3: { return RWords::Bool(dns_client_!=nullptr); }
+      case 4: { dns_client_->ReplaceCurrentSession();
+        return {}; }
+      case 5: { InvalidateCaches(true);
+        return {}; }
+      default: NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 27, native_service);
+  (void)rust_reply;
 }
 
 std::unique_ptr<DnsProbeRunner> HostResolverManager::CreateDohProbeRunner(
     ResolveContext* resolve_context) {
-  DCHECK(resolve_context);
-  DCHECK(registered_contexts_.HasObserver(resolve_context));
-  if (!dns_client_ || !dns_client_->CanUseSecureDnsTransactions()) {
-    return nullptr;
-  }
+  using RWords = DnsResolutionWords;
 
-  return dns_client_->GetTransactionFactory()->CreateDohProbeRunner(
-      resolve_context);
+std::unique_ptr<DnsProbeRunner> runner;
+std::unique_ptr<DnsClientRustServices> client_frame;uint32_t client_frame_depth=0;
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK(resolve_context);DCHECK(registered_contexts_.HasObserver(resolve_context));
+        return {}; }
+      case 2: { return RWords::Bool(dns_client_!=nullptr); }
+      case 3: { return RWords::Bool(dns_client_->CanUseSecureDnsTransactions()); }
+      case 4: { runner=dns_client_->GetTransactionFactory()->CreateDohProbeRunner(resolve_context);
+        return {}; }
+      case 9000: { if(client_frame_depth==0){const auto* owner=(dns_client_.get());if(owner)client_frame=owner->MakeRustPolicyServices(nullptr);}++client_frame_depth;return RWords::Bool(client_frame!=nullptr);}
+      case 9001: CHECK_GT(client_frame_depth,0u);if(--client_frame_depth==0)client_frame.reset();return {};
+      default: if(operation>=10000 && client_frame) return client_frame->Dispatch(operation-10000,args); NOTREACHED();
+    }
+  };
+  [[maybe_unused]] const RWords rust_reply = DnsResolutionRun(1, 30, native_service);
+  return runner;
 }
 
 }  // namespace net

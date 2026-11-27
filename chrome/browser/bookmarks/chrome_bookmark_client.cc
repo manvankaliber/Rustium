@@ -10,7 +10,6 @@
 #include "base/time/time.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
-#include "chrome/browser/commerce/shopping_service_factory.h"
 #include "chrome/browser/favicon/favicon_service_factory.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
@@ -20,16 +19,13 @@
 #include "components/bookmarks/common/bookmark_pref_names.h"
 #include "components/bookmarks/managed/managed_bookmark_service.h"
 #include "components/bookmarks/managed/managed_bookmark_util.h"
-#include "components/commerce/core/commerce_feature_list.h"
-#include "components/commerce/core/price_tracking_utils.h"
-#include "components/commerce/core/shopping_service.h"
 #include "components/favicon/core/favicon_util.h"
 #include "components/favicon_base/favicon_types.h"
 #include "components/history/core/browser/history_service.h"
 #include "components/history/core/browser/url_database.h"
 #include "components/offline_pages/buildflags/buildflags.h"
+#include "components/prefs/pref_service.h"
 #include "components/os_crypt/async/browser/os_crypt_async.h"
-#include "components/power_bookmarks/core/suggested_save_location_provider.h"
 #include "components/signin/public/base/persistent_repeating_timer.h"
 #include "components/sync/base/features.h"
 #include "components/sync_bookmarks/bookmark_model_view.h"
@@ -40,56 +36,10 @@
 #include "chrome/browser/offline_pages/offline_page_bookmark_observer.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#else
 #include "base/memory/scoped_refptr.h"
 #include "chrome/browser/bookmarks/bookmark_merged_surface_service.h"
 #include "chrome/browser/bookmarks/bookmark_merged_surface_service_factory.h"
 #include "components/os_crypt/async/common/encryptor.h"
-#endif  // BUILDFLAG(IS_ANDROID)
-
-namespace {
-
-class ShoppingCollectionProvider
-    : public power_bookmarks::SuggestedSaveLocationProvider {
- public:
-  ShoppingCollectionProvider(bookmarks::BookmarkModel* model, Profile* profile)
-      : model_(model), profile_(profile) {}
-  ShoppingCollectionProvider(const ShoppingCollectionProvider&) = delete;
-  ShoppingCollectionProvider& operator=(const ShoppingCollectionProvider&) =
-      delete;
-  ~ShoppingCollectionProvider() override = default;
-
-  const bookmarks::BookmarkNode* GetSuggestion(const GURL& url) override {
-    commerce::ShoppingService* service =
-        commerce::ShoppingServiceFactory::GetForBrowserContext(profile_);
-    if (!service || !service->GetAvailableProductInfoForUrl(url).has_value()) {
-      return nullptr;
-    }
-    return commerce::GetShoppingCollectionBookmarkFolder(model_.get(), true);
-  }
-
-  base::TimeDelta GetBackoffTime() override {
-    // TODO(b:291326480): Make this configurable.
-    return base::Hours(2);
-  }
-
-  std::string GetFeatureNameForMetrics() override {
-    return "ShoppingCollection";
-  }
-
-  void OnSuggestionRejected() override {
-    base::RecordAction(base::UserMetricsAction(
-        "Commerce.PriceTracking.ShoppingCollection.RejectedSuggestion"));
-  }
-
- private:
-  raw_ptr<bookmarks::BookmarkModel> model_;
-  raw_ptr<Profile> profile_;
-};
-
-}  // namespace
 
 ChromeBookmarkClient::ChromeBookmarkClient(
     Profile* profile,
@@ -110,11 +60,7 @@ ChromeBookmarkClient::ChromeBookmarkClient(
       profile_->GetPrefs()->GetBoolean(bookmarks::prefs::kShowBookmarkBar));
 }
 
-ChromeBookmarkClient::~ChromeBookmarkClient() {
-  if (shopping_save_location_provider_) {
-    RemoveSuggestedSaveLocationProvider(shopping_save_location_provider_.get());
-  }
-}
+ChromeBookmarkClient::~ChromeBookmarkClient() = default;
 
 void ChromeBookmarkClient::Init(bookmarks::BookmarkModel* model) {
   BookmarkClientBase::Init(model);
@@ -123,10 +69,7 @@ void ChromeBookmarkClient::Init(bookmarks::BookmarkModel* model) {
   }
   model_ = model;
 
-  shopping_save_location_provider_ =
-      std::make_unique<ShoppingCollectionProvider>(model, profile_);
 
-  AddSuggestedSaveLocationProvider(shopping_save_location_provider_.get());
 
 #if BUILDFLAG(ENABLE_OFFLINE_PAGES)
   offline_page_observer_ =
@@ -137,7 +80,6 @@ void ChromeBookmarkClient::Init(bookmarks::BookmarkModel* model) {
   model_observation_->Observe(model);
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   // Ensure `BookmarkMergedSurfaceService` is created all the time when
   // `BookmarkModel` is created and before the `BookmarkModel` completes loading
   // to catch if `ids_reassigned`. Posting a task is required as
@@ -152,7 +94,6 @@ void ChromeBookmarkClient::Init(bookmarks::BookmarkModel* model) {
             }
           },
           profile_->GetWeakPtr()));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 base::CancelableTaskTracker::TaskId
@@ -218,13 +159,7 @@ bool ChromeBookmarkClient::IsNodeManaged(const bookmarks::BookmarkNode* node) {
 }
 
 bookmarks::BookmarkFormFactor ChromeBookmarkClient::GetBookmarkFormFactor() {
-#if BUILDFLAG(IS_ANDROID)
-  return base::android::device_info::is_desktop()
-             ? bookmarks::BookmarkFormFactor::kDesktop
-             : bookmarks::BookmarkFormFactor::kMobile;
-#else
   return bookmarks::BookmarkFormFactor::kDesktop;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::string ChromeBookmarkClient::EncodeLocalOrSyncableBookmarkSyncMetadata() {

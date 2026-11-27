@@ -43,9 +43,7 @@ template <typename Result>
 base::OnceCallback<Result(Result)> ReportMetricsForResultCallback(
     MethodName method_name) {
   PasswordStoreBackendMetricsRecorder metrics_reporter(
-      BackendInfix("BuiltInBackend"), method_name,
-      PasswordStoreBackendMetricsRecorder::PasswordStoreAndroidBackendType::
-          kNone);
+      BackendInfix("BuiltInBackend"), method_name);
   return base::BindOnce(
       [](PasswordStoreBackendMetricsRecorder reporter,
          Result result) -> Result {
@@ -86,13 +84,7 @@ bool ShouldForwardSyncErrorToStore(
     case SyncError::kTrustedVaultRecoverabilityDegradedForPasswords:
     case SyncError::kTrustedVaultRecoverabilityDegradedForEverything:
     case SyncError::kBookmarksLimitExceeded:
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
     case SyncError::kPasskeysLocked:
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_IOS)
-    case SyncError::kDeviceManagementError:
-      // TODO(crbug.com/539816393): Update this case if it needs to block saving
-#endif  // BUILDFLAG(IS_IOS)
 
       return false;  // These errors aren't directly actionable (yet).
     case SyncError::kNone:
@@ -100,13 +92,8 @@ bool ShouldForwardSyncErrorToStore(
     case SyncError::kSignInNeedsUpdate:
     case SyncError::kNeedsTrustedVaultKeyForPasswords:
     case SyncError::kNeedsTrustedVaultKeyForEverything:
-#if !BUILDFLAG(IS_IOS)
     case SyncError::kNeedsSettingsConfirmation:
     case SyncError::kUnrecoverableError:
-#endif  // !BUILDFLAG(IS_IOS)
-#if BUILDFLAG(IS_ANDROID)
-    case SyncError::kNeedsUPMBackendUpgrade:
-#endif  // BUILDFLAG(IS_ANDROID)
     case SyncError::kNeedsClientUpgrade:
       // Errors that aren't categorized will block saving.
       return true;
@@ -123,12 +110,7 @@ SyncErrorToBackendError(syncer::SyncService::UserActionableError error) {
     case SyncError::kBookmarksLimitExceeded:
     case SyncError::kTrustedVaultRecoverabilityDegradedForPasswords:
     case SyncError::kTrustedVaultRecoverabilityDegradedForEverything:
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
     case SyncError::kPasskeysLocked:
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_IOS)
-    case SyncError::kDeviceManagementError:
-#endif  // BUILDFLAG(IS_IOS)
 
       return std::nullopt;  // These errors aren't directly actionable (yet).
     case SyncError::kNeedsPassphrase:
@@ -141,13 +123,8 @@ SyncErrorToBackendError(syncer::SyncService::UserActionableError error) {
     case SyncError::kNeedsTrustedVaultKeyForEverything:
       return base::unexpected(
           PasswordStoreBackendError(BackendError::kKeyRetrievalRequired));
-#if !BUILDFLAG(IS_IOS)
     case SyncError::kNeedsSettingsConfirmation:
     case SyncError::kUnrecoverableError:
-#endif  // !BUILDFLAG(IS_IOS)
-#if BUILDFLAG(IS_ANDROID)
-    case SyncError::kNeedsUPMBackendUpgrade:
-#endif
     case SyncError::kNeedsClientUpgrade:
       // Errors that aren't categorized will block saving.
       return base::unexpected(
@@ -170,22 +147,12 @@ ActionableError SyncErrorToActionableError(
       return ActionableError::kTrustedVaultKeyNeeded;
     case SyncError::kTrustedVaultRecoverabilityDegradedForPasswords:
     case SyncError::kTrustedVaultRecoverabilityDegradedForEverything:
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
     case SyncError::kPasskeysLocked:
-#endif  // !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
       return ActionableError::kNoError;
-#if !BUILDFLAG(IS_IOS)
     case SyncError::kNeedsSettingsConfirmation:
     case SyncError::kUnrecoverableError:
-#endif  // !BUILDFLAG(IS_IOS)
-#if BUILDFLAG(IS_ANDROID)
-    case SyncError::kNeedsUPMBackendUpgrade:
-#endif
     case SyncError::kNeedsClientUpgrade:
     case SyncError::kBookmarksLimitExceeded:
-#if BUILDFLAG(IS_IOS)
-    case SyncError::kDeviceManagementError:
-#endif  // BUILDFLAG(IS_IOS)
       return ActionableError::kInactionable;
   }
 }
@@ -467,13 +434,6 @@ PasswordStoreBuiltInBackend::CreateSyncControllerDelegate() {
 void PasswordStoreBuiltInBackend::OnSyncServiceInitialized(
     syncer::SyncService* sync_service) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-#if BUILDFLAG(IS_IOS)
-  // On iOS, the profile store is local-only, so no need to observe sync.
-  // TODO(crbug.com/464228247): Expand this to other platforms.
-  if (!is_account_store_.value()) {
-    return;
-  }
-#endif
 
   sync_observation_.Reset();
   last_user_actionable_error_ = syncer::SyncService::UserActionableError::kNone;
@@ -485,12 +445,6 @@ void PasswordStoreBuiltInBackend::OnSyncServiceInitialized(
 
 void PasswordStoreBuiltInBackend::OnStateChanged(syncer::SyncService* sync) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-#if BUILDFLAG(IS_IOS)
-  // On iOS, sync is not observed for the profile store.
-  if (!is_account_store_.value()) {
-    return;
-  }
-#endif
 
   CHECK(sync_observation_.IsObservingSource(sync));
 
@@ -520,12 +474,6 @@ void PasswordStoreBuiltInBackend::OnStateChanged(syncer::SyncService* sync) {
 
 void PasswordStoreBuiltInBackend::OnSyncShutdown(syncer::SyncService* sync) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-#if BUILDFLAG(IS_IOS)
-  // On iOS, sync is not observed for the profile store.
-  if (!is_account_store_.value()) {
-    return;
-  }
-#endif
 
   CHECK(sync_observation_.IsObservingSource(sync));
   sync_observation_.Reset();

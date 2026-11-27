@@ -223,9 +223,6 @@ class SharedDictionaryManagerOnDiskTest : public ::testing::Test {
           shared_dictionary::kDictionaryMaxCountPerNetworkContext) {
     return SharedDictionaryManager::CreateOnDisk(
         database_path_, cache_directory_path_, cache_max_size, cache_max_count,
-#if BUILDFLAG(IS_ANDROID)
-        disk_cache::ApplicationStatusListenerGetter(),
-#endif  // BUILDFLAG(IS_ANDROID)
         /*file_operations_factory=*/nullptr);
   }
   const std::map<
@@ -945,7 +942,6 @@ TEST_F(SharedDictionaryManagerOnDiskTest, GetDictionary) {
                         dict->size()));
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // Test that corruptted disk cache doesn't cause crash.
 // CorruptDiskCache() doesn't work on Fuchsia. So disabling the following tests
 // on Fuchsia.
@@ -1036,7 +1032,6 @@ TEST_F(SharedDictionaryManagerOnDiskTest, CorruptedDiskCacheAndGetData) {
     EXPECT_TRUE(GetOnDiskDictionaryMap(storage.get()).empty());
   }
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(SharedDictionaryManagerOnDiskTest, CorruptedDatabase) {
   net::SharedDictionaryIsolationKey isolation_key(url::Origin::Create(kUrl),

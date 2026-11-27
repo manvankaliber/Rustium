@@ -39,9 +39,6 @@
 #include "third_party/webrtc/modules/video_coding/codecs/h264/include/h264.h"
 #include "third_party/webrtc/video/null_video_decoder.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "media/base/android/media_codec_util.h"
-#endif
 
 namespace blink {
 

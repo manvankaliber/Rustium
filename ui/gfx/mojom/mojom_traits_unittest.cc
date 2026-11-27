@@ -35,10 +35,6 @@
 #include "ui/gfx/native_ui_types.h"
 #include "ui/gfx/selection_bound.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "base/fuchsia/koid.h"
-#endif
-
 namespace gfx {
 
 namespace {
@@ -54,18 +50,12 @@ gfx::AcceleratedWidget CastToAcceleratedWidget(int i) {
 // Used by the GpuMemoryBufferHandle test to produce a valid object handle to
 // embed in a NativePixmapPlane object, so that the test isn't sending an
 // invalid FD/vmo object where the mojom requires a valid one.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 base::ScopedFD CreateValidLookingBufferHandle() {
   return base::UnsafeSharedMemoryRegion::TakeHandleForSerialization(
              base::UnsafeSharedMemoryRegion::Create(1024))
       .PassPlatformHandle()
       .fd;
-}
-#elif BUILDFLAG(IS_FUCHSIA)
-zx::vmo CreateValidLookingBufferHandle() {
-  return base::UnsafeSharedMemoryRegion::TakeHandleForSerialization(
-             base::UnsafeSharedMemoryRegion::Create(1024))
-      .PassPlatformHandle();
 }
 #endif
 
@@ -278,7 +268,7 @@ TEST_F(StructTraitsTest, AcceleratedWidget) {
   EXPECT_EQ(input, output);
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(StructTraitsTest, NativePixmapHandle) {
   // Test with a large offset that would trigger sign-extension if treated as
   // int.
@@ -322,21 +312,12 @@ TEST_F(StructTraitsTest, GpuMemoryBufferHandle) {
   base::UnsafeSharedMemoryRegion output_memory = std::move(output).region();
   EXPECT_TRUE(output_memory.Map().IsValid());
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_OZONE)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_OZONE)
   gfx::NativePixmapHandle native_pixmap_handle;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   const uint64_t kModifier = 2;
   base::ScopedFD buffer_handle = CreateValidLookingBufferHandle();
   native_pixmap_handle.modifier = kModifier;
-#elif BUILDFLAG(IS_FUCHSIA)
-  zx::vmo buffer_handle = CreateValidLookingBufferHandle();
-  zx::eventpair client_handle, service_handle;
-  auto status = zx::eventpair::create(0, &client_handle, &service_handle);
-  DCHECK_EQ(status, ZX_OK);
-  zx_koid_t handle_koid = base::GetKoid(client_handle).value();
-  native_pixmap_handle.buffer_collection_handle = std::move(client_handle);
-  native_pixmap_handle.buffer_index = 4;
-  native_pixmap_handle.ram_coherency = true;
 #endif
   const uint64_t kSize = kOffset + kStride;
   native_pixmap_handle.planes.emplace_back(kOffset, kStride, kSize,
@@ -346,15 +327,8 @@ TEST_F(StructTraitsTest, GpuMemoryBufferHandle) {
   handle2.stride = kStride;
   remote->EchoGpuMemoryBufferHandle(std::move(handle2), &output);
   EXPECT_EQ(gfx::NATIVE_PIXMAP, output.type);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_EQ(kModifier, output.native_pixmap_handle().modifier);
-#elif BUILDFLAG(IS_FUCHSIA)
-  EXPECT_EQ(
-      handle_koid,
-      base::GetKoid(output.native_pixmap_handle().buffer_collection_handle)
-          .value());
-  EXPECT_EQ(4U, output.native_pixmap_handle().buffer_index);
-  EXPECT_EQ(true, output.native_pixmap_handle().ram_coherency);
 #endif
   ASSERT_EQ(1u, output.native_pixmap_handle().planes.size());
   EXPECT_EQ(kSize, output.native_pixmap_handle().planes.back().size);

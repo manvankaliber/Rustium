@@ -102,43 +102,6 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(
 // enabled as part of the FLEDGE origin trial.
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAllowURNsInIframes);
 
-#if BUILDFLAG(IS_ANDROID)
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidDesktopWebPrefsLargeDisplays);
-
-// If enabled, renders styling similar to Android native UI for spelling and
-// grammar errors in textboxes.
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidSpellcheckNativeUi);
-
-// If enabled, provides API support for custom spell check menus that are
-// rendered by Android applications.
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidSpellcheckFullApiBlink);
-
-// If enabled, the platform in the User-Agent metadata for Android desktop will
-// be "Android" instead of "Linux".
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidDesktopUAPlatform);
-
-// If enabled, the user agent platform will be ChromeOS instead of Linux for
-// desktop Android devices, when kAndroidDesktopUAPlatform is disabled.
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidDesktopUASpoofAsChromeOS);
-
-// If enabled, the architecture in the User-Agent client hints for Android
-// desktop will report the actual device CPU architecture instead of "x86".
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidDesktopUACPUArch);
-
-// If enabled, the Sec-CH-UA-Model client hint for Android desktop will report
-// the device model instead of an empty string. See https://crbug.com/572021036.
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidDesktopUAModel);
-
-// Gated prewarming of system fonts on Android to background threads.
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidSystemFontPrewarming);
-
-// Opens PDFs in iframe in standalone tabs on Android.
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidHandlePdfInIframe);
-
-// Enables keyboard-triggered web context menus (Shift+F10 and Context Menu key)
-// on Android.
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kAndroidKeyboardContextMenu);
-#endif
 
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(
     kDisplayWarningDeprecateURNIframesUseFencedFrames);
@@ -566,9 +529,6 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kFreezeSharedWorker);
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(
     kFrequencyCappingForOverlayPopupDetection);
 
-#if BUILDFLAG(IS_ANDROID)
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kGateMemoryMetricsOnVisibility);
-#endif
 
 // If enabled, disables subsampling of GlobalPrivacyControl histogram entries.
 // Used in tests that verifies sampling in Renderer thread.
@@ -598,12 +558,10 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kImageLoadingPrioritizationFix);
 // If enabled, allows the browser to render new content in place of an image.
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kImageReplacement);
 
-#if !BUILDFLAG(IS_ANDROID)
 // If enabled, the initial WebUI will not interact with extensions. This feature
 // intends to optimize performance by reducting extension related tasks.
 // See crbug.com/450192387.
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kInitialWebUIWithoutExtensions);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // If enabled, the initial WebUI surface will sync with the browser without
 // deferring the browser view show.
@@ -1138,9 +1096,6 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kLightweightNoStatePrefetch);
 
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kLoadingTasksUnfreezable);
 
-#if BUILDFLAG(IS_ANDROID)
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kLowLatencyUsageSupportedForCanvas);
-#endif
 
 // If enabled, async scripts will be run on a lower priority task queue.
 // See https://crbug.com/1348467.
@@ -1349,11 +1304,6 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kPaintHolding);
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(
     kPaintTimingIngnoreOutOfLifecyclePaints);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE_PARAM(
-    bool,
-    kPartialLowEndModeExcludeCanvasFontCache);
-#endif
 
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kDedicatedWorkerAblationStudyEnabled);
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE_PARAM(int,
@@ -1394,7 +1344,7 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kPrecompileInlineScripts);
 
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kPreferCompositingToLCDText);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 // If enabled, font lookup tables will be prefetched on renderer startup.
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kPrefetchFontLookupTables);
 #endif
@@ -1798,9 +1748,6 @@ BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE_PARAM(
 // Feature flag for driving encoding with the Metronome by VSyncs.
 BLINK_COMMON_EXPORT BASE_DECLARE_FEATURE(kVSyncEncoding);
 
-#if BUILDFLAG(IS_ANDROID)
-BLINK_COMMON_EXPORT bool IsVirtualKeyboardGeometryAndInsetFixesEnabled();
-#endif
 
 // Server-side kill switch for applying the local VisualViewport transform
 // (page scale + visual viewport location) when mapping visual rects into

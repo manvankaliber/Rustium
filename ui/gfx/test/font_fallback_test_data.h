@@ -205,7 +205,7 @@ inline constexpr auto kGetFontFallbackTests = std::to_array<
     {USCRIPT_YI, "yi", u"\uA000\uA001", {"Microsoft Yi Baiti"}},
 });
 
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 
 // A list of script and the fallback font on the linux test environment.
 // On linux, font-config configuration and fonts are mock. The config

@@ -2,8 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-assert(!is_android)
-
 source_set("live_caption") {
   public = [
     "live_caption_controller_factory.h",
@@ -56,13 +54,6 @@ source_set("impl") {
     "//components/sync_preferences",
     "//ui/accessibility",
   ]
-
-  if (is_chromeos) {
-    deps += [
-      "//chrome/browser/ash/accessibility",
-      "//chrome/browser/ash/profiles",
-    ]
-  }
 
   if (is_win) {
     # live_caption_unavailability_notifier.cc includes

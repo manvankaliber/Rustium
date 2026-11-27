@@ -39,9 +39,7 @@
 #include "ui/gfx/paint_vector_icon.h"
 #include "ui/native_theme/native_theme.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/theme_properties.h"  // nogncheck crbug.com/40147906
-#endif
 
 namespace {
 
@@ -119,7 +117,6 @@ const char ProfileAttributesEntry::kIsUsingDefaultAvatarKey[] =
     "is_using_default_avatar";
 const char ProfileAttributesEntry::kUseGAIAPictureKey[] = "use_gaia_picture";
 const char ProfileAttributesEntry::kAccountIdKey[] = "account_id_key";
-const char ProfileAttributesEntry::kIsGlicEligible[] = "is_glic_eligible";
 const char ProfileAttributesEntry::kAiSubscriptionKey[] =
     "ai_subscription_tier";
 
@@ -378,16 +375,13 @@ ProfileAttributesEntry::GetAvatarIconWithType(
     }
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   // TODO(crbug.com/40138086): After launch, remove the treatment of placeholder
   // avatars from GetHighResAvatar() and from any other places.
   if (GetAvatarIconIndex() == profiles::GetPlaceholderAvatarIndex()) {
     return {GetPlaceholderAvatarIcon(size_for_placeholder_avatar, icon_params),
             AvatarIconType::kPlaceholder};
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID)
   // Use the high resolution version of the avatar if it exists. Mobile doesn't
   // need the high resolution version so no need to fetch it.
   if (use_high_res_file) {
@@ -395,7 +389,6 @@ ProfileAttributesEntry::GetAvatarIconWithType(
       return {*image, AvatarIconType::kNonPlaceholder};
     }
   }
-#endif
 
   const int icon_index = GetAvatarIconIndex();
 #if BUILDFLAG(IS_WIN)
@@ -565,16 +558,11 @@ ProfileAttributesEntry::GetProfileThemeColorsIfSet() const {
 }
 
 ProfileThemeColors ProfileAttributesEntry::GetProfileThemeColors() const {
-#if BUILDFLAG(IS_ANDROID)
-  // Profile theme colors shouldn't be queried on Android.
-  NOTREACHED();
-#else
   std::optional<ProfileThemeColors> theme_colors = GetProfileThemeColorsIfSet();
   if (theme_colors)
     return *theme_colors;
 
   return GetDefaultProfileThemeColors();
-#endif
 }
 
 size_t ProfileAttributesEntry::GetMetricsBucketIndex() {
@@ -645,20 +633,11 @@ std::string ProfileAttributesEntry::GetAccountIdKey() const {
   return GetString(kAccountIdKey);
 }
 
-bool ProfileAttributesEntry::IsGlicEligible() const {
-  return GetBool(kIsGlicEligible);
-}
 
 int ProfileAttributesEntry::GetAiSubscriptionTier() const {
   return GetInteger(kAiSubscriptionKey);
 }
 
-void ProfileAttributesEntry::SetIsGlicEligible(bool value) {
-  if (SetBool(kIsGlicEligible, value)) {
-    profile_attributes_storage_->NotifyProfileIsGlicEligibleChanged(
-        profile_path_);
-  }
-}
 
 void ProfileAttributesEntry::SetAiSubscriptionTier(int tier) {
   int old_value = GetAiSubscriptionTier();

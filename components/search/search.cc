@@ -15,14 +15,7 @@ namespace search {
 
 bool IsInstantExtendedAPIEnabled() {
 // See exception on b/532190074 for WebUI NTP on Desktop Android.
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-  return base::FeatureList::IsEnabled(
-      ntp_features::kNtpEnableInstantApiAndroid);
-#elif BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   return true;
-#endif
 }
 
 bool DefaultSearchProviderIsGoogle(

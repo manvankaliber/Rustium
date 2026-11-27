@@ -71,7 +71,6 @@
 #include "url/origin.h"
 
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-#include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/grit/webui_theme_resources.h"
 #endif
 

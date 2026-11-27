@@ -348,26 +348,6 @@ absl::Status GlContext::CreateContext(EGLDisplay display,
 }
 
 void GlContext::DestroyContext() {
-#ifdef __ANDROID__
-  if (HasContext()) {
-    // Detach the current program to work around b/166322604.
-    auto detach_program = [this] {
-      GlContext::ContextBinding saved_context;
-      GetCurrentContextBinding(&saved_context);
-      // Note: cannot use ThisContextBinding because it calls shared_from_this,
-      // which is not available during destruction.
-      if (eglMakeCurrent(display_, surface_, surface_, context_)) {
-        glUseProgram(0);
-      } else {
-        ABSL_LOG(ERROR) << "eglMakeCurrent() returned error " << std::showbase
-                        << std::hex << eglGetError();
-      }
-      return SetCurrentContextBinding(saved_context);
-    };
-    auto status = thread_ ? thread_->Run(detach_program) : detach_program();
-    ABSL_LOG_IF(ERROR, !status.ok()) << status;
-  }
-#endif  // __ANDROID__
 
   if (thread_) {
     // Delete thread-local storage.
@@ -412,12 +392,6 @@ void GlContext::DestroyContext() {
   // using it.
   // However, Android implements non-standard reference-counted semantics for
   // eglInitialize/eglTerminate, so we should call it on that platform.
-#ifdef __ANDROID__
-  // TODO: this is removed for now since it caused issues on
-  // YouTube. But in theory we _should_ be calling it. Needs more
-  // investigation.
-  // eglTerminate(display_);
-#endif  // __ANDROID__
 }
 
 GlContext::ContextBinding GlContext::ThisContextBindingPlatform() {

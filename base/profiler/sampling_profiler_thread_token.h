@@ -11,9 +11,9 @@
 #include "base/threading/platform_thread.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 #include <pthread.h>
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 #include <stdint.h>
 #elif BUILDFLAG(IS_WIN)
 #include <stdint.h>
@@ -33,9 +33,9 @@ struct BASE_EXPORT SamplingProfilerThreadToken {
   SamplingProfilerThreadToken Clone() const;
 
   PlatformThreadId id;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
   pthread_t pthread_id;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   // Due to the sandbox, we can only retrieve the stack base address for the
   // current thread. We must grab it during
   // GetSamplingProfilerCurrentThreadToken() and not try to get it later.

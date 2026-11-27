@@ -245,7 +245,7 @@ class IdlSchemaTest(unittest.TestCase):
       ]
     )
 
-  def testChromeOSPlatformsNamespace(self):
+  def testLegacyPlatformAvailabilityNamespace(self):
     schema = idl_schema.Load('test/idl_namespace_chromeos.idl')[0]
     self.assertEqual('idl_namespace_chromeos', schema['namespace'])
     expected = ['chromeos']
@@ -284,7 +284,7 @@ class IdlSchemaTest(unittest.TestCase):
     expected = 'idl_namespace_specific_implement.idl'
     self.assertEqual(expected, schema['compiler_options']['implemented_in'])
 
-  def testSpecificImplementOnChromeOSNamespace(self):
+  def testSpecificImplementWithLegacyPlatformAvailability(self):
     schema = idl_schema.Load(
       'test/idl_namespace_specific_implement_chromeos.idl'
     )[0]

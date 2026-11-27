@@ -13,13 +13,11 @@
 
 namespace password_manager::features {
 
-#if !BUILDFLAG(IS_ANDROID)
 BASE_DECLARE_FEATURE(kRemoteActorCredentialSharing);
 BASE_DECLARE_FEATURE(kRemoteActorCredentialSharingSearch);
 
 BASE_DECLARE_FEATURE_PARAM(std::string, kRemoteActorGeminiConfigJson);
 BASE_DECLARE_FEATURE_PARAM(std::string, kRemoteActorSearchConfigJson);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Returns whether remote actor credential sharing is enabled for at least one
 // actor (`kRemoteActorCredentialSharing` or

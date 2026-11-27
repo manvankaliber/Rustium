@@ -127,25 +127,8 @@ ${this.variant === TodoItemVariant.TAB ?
               </cr-button>
             </div>
           ` : html`
-            ${this.canActOnWeb_ ? html`
-              <div class="split-button">
-                <cr-button class="tonal-button split-main-button"
-                    @click="${this.onOpenTabClick_}">
-                  Open tab
-                </cr-button>
-                <cr-button class="tonal-button split-dropdown-button"
-                    id="taskDropdownButton"
-                    aria-label="More task actions"
-                    title="More task actions"
-                    aria-haspopup="menu"
-                    @click="${this.onTaskMenuClick_}">
-                  <cr-icon icon="cr:arrow-drop-down"></cr-icon>
-                </cr-button>
-              </div>
-            ` : html`
               <cr-button class="tonal-button"
                   @click="${this.onOpenTabClick_}">Open tab</cr-button>
-            `}
           `}
           <div class="thumb-group">
             <cr-icon-button id="thumbsUp"
@@ -171,24 +154,8 @@ ${this.variant === TodoItemVariant.TAB ?
             @click="${this.onContinueInTabsClick_}">
           Continue in tabs
         </button>
-        <button class="dropdown-item"
-            disabled
-            @click="${this.onContinueInGeminiClick_}">
-          Continue in Gemini
-        </button>
       </cr-action-menu>
-    ` : html`
-      ${this.canActOnWeb_ ? html`
-        <cr-action-menu id="taskMenu">
-          <button class="dropdown-item" @click="${this.onOpenTabClick_}">
-            Open tab
-          </button>
-          <button class="dropdown-item" @click="${this.onRunTaskClick_}">
-            Run task
-          </button>
-        </cr-action-menu>
-      ` : ''}
-    `}
+    ` : ''}
     ${
           this.expanded_ ? html`
       <div class="expanded-content">

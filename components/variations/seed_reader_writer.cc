@@ -30,7 +30,7 @@
 // ZSTD is not supported on Android due to binary size increase. See
 // crbug.com/40196713.
 // Note: When changing this, seed file migration logic will need to be added.
-#define USE_ZSTD_FOR_SEEDS !BUILDFLAG(IS_ANDROID)
+#define USE_ZSTD_FOR_SEEDS 1
 
 #if USE_ZSTD_FOR_SEEDS
 #include "third_party/zstd/src/lib/zstd.h"  // nogncheck
@@ -234,15 +234,8 @@ void SetUpSeedFileTrial(
   // Launch seed files on desktop. Continue the experiment on
   // Android Chrome and iOS: 50% enabled on pre-Stable and 10%
   // enabled on Stable.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  base::FieldTrial::Probability control_probability =
-      channel == version_info::Channel::STABLE ? 10 : 50;
-  base::FieldTrial::Probability seed_files_probability =
-      channel == version_info::Channel::STABLE ? 10 : 50;
-#else
   base::FieldTrial::Probability control_probability = 0;
   base::FieldTrial::Probability seed_files_probability = 100;
-#endif
 
   scoped_refptr<base::FieldTrial> trial(
       base::FieldTrialList::FactoryGetFieldTrial(
@@ -1056,8 +1049,6 @@ bool SeedReaderWriter::ShouldUseSeedFile() const {
   return seed_writer_ &&
          base::FieldTrialList::FindFullName(kSeedFileTrial) == kSeedFilesGroup;
 }
-
-
 
 void SeedReaderWriter::ProcessStoredSeedDataAndRunCallback(
     ReadSeedDataCallback done_callback,

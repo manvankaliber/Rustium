@@ -108,10 +108,8 @@
 #include "url/gurl.h"
 #include "url/url_constants.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/new_tab_page/new_tab_page_util.h"  // nogncheck
 #include "chrome/browser/ui/tabs/tab_strip_model.h"         // nogncheck
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "extensions/common/constants.h"  // nogncheck
@@ -525,12 +523,6 @@ base::DictValue SearchboxHandler::GetProfileIndependentWebUIDataSourceDict(
     dict.Set(entry.name, l10n_util::GetStringUTF16(entry.id));
   }
 
-  int lens_search_hint_id = IDS_GOOGLE_SEARCH_BOX_EMPTY_HINT_CONTEXTUAL;
-  if (base::FeatureList::IsEnabled(omnibox::kWebUIOmniboxAskGAboutThisPage) &&
-      omnibox::kAskGLensSearchHintText.Get()) {
-    lens_search_hint_id = IDS_TIPS_NOTIFICATIONS_GOOGLE_LENS_TITLE;
-  }
-  dict.Set("lensSearchHint", l10n_util::GetStringUTF16(lens_search_hint_id));
 
   dict.Set("searchboxComposePlaceholder", ntp_composebox::FeatureConfig::Get()
                                               .config.composebox()
@@ -554,9 +546,6 @@ base::DictValue SearchboxHandler::GetProfileIndependentWebUIDataSourceDict(
   dict.Set("realboxVirtualFocusNavigation",
            base::FeatureList::IsEnabled(
                ntp_features::kRealboxVirtualFocusNavigation));
-  dict.Set("lensOverlayVirtualFocusNavigation",
-           base::FeatureList::IsEnabled(
-               features::kLensOverlayVirtualFocusNavigation));
   dict.Set("omniboxEverywhereVirtualFocusNavigation",
            base::FeatureList::IsEnabled(
                features::kOmniboxEverywhereVirtualFocusNavigation));
@@ -638,17 +627,11 @@ base::DictValue SearchboxHandler::GetProfileDependentWebUIDataSourceDict(
   dict.Set("composeboxContextDragAndDropEnabled",
            options.session_allows_drag_and_drop);
 
-#if !BUILDFLAG(IS_ANDROID)
   const auto& composebox_config = ntp_composebox::FeatureConfig::Get().config;
   dict.Set("searchboxShowComposeAnimation",
            profile->GetPrefs()->GetInteger(
                prefs::kNtpComposeButtonShownCountPrefName) <
                composebox_config.entry_point().num_page_load_animations());
-#else
-  // TODO(b/509722915): Implement NTP compose button shown count pref on
-  // Android.
-  dict.Set("searchboxShowComposeAnimation", false);
-#endif
   dict.Set("composeboxSmartTabSharingVisible",
            options.is_lens ? false
                            : contextual_tasks::ContextualTasksContextService::
@@ -1123,11 +1106,6 @@ SearchboxHandler::CreateAutocompleteMatch(
   if (!match.from_keyword) {
     for (const auto& action : match.actions) {
 // TODO(b/544764632): Implement Pedals for Android.
-#if BUILDFLAG(IS_ANDROID)
-      if (action->ActionId() == OmniboxActionId::PEDAL) {
-        continue;
-      }
-#endif
       std::string icon_path;
       if (action->GetIconImage().IsEmpty()) {
         icon_path = AutocompleteIconToResourceName(action->GetVectorIcon());
@@ -1581,13 +1559,6 @@ void SearchboxHandler::QueryAutocomplete(
   autocomplete_input.set_allow_exact_keyword_match(is_keyword_selected);
   autocomplete_input.set_in_keyword_mode(is_keyword_selected);
   // Set the lens overlay suggest inputs, if available.
-  if (std::optional<lens::proto::LensOverlaySuggestInputs> suggest_inputs =
-          client()->GetLensOverlaySuggestInputs()) {
-    // Don't set lens params if in "Create Image" with an image present or in
-    // "Canvas" mode. This prevents the contextual client from being used in
-    // this tool mode.
-    autocomplete_input.set_lens_overlay_suggest_inputs(*suggest_inputs);
-  }
   if (client()->GetContextualInputData().has_value()) {
     auto context_data = client()->GetContextualInputData().value();
     if (context_data.page_title.has_value() &&
@@ -2315,7 +2286,6 @@ void SearchboxHandler::OnDefaultSearchExtensionDialogDone(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void SearchboxHandler::SetSmartTabSharingActive(bool active) {}
 
 void SearchboxHandler::GetSmartTabSharingActive(
@@ -2327,7 +2297,6 @@ void SearchboxHandler::ResetSmartTabSharing(
     ResetSmartTabSharingCallback callback) {
   std::move(callback).Run(false);
 }
-#endif
 
 void SearchboxHandler::StartScreenshare(bool prefer_entire_screen,
                                         StartScreenshareCallback callback) {

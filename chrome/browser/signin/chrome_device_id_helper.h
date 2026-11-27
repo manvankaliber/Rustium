@@ -18,12 +18,5 @@ class Profile;
 //     signin::GetSigninScopedDeviceId(profile->GetPrefs());
 std::string GetSigninScopedDeviceIdForProfile(Profile* profile);
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-// Moves any existing device ID out of the pref service into the UserManager,
-// and creates a new ID if it is empty.
-void MigrateSigninScopedDeviceId(Profile* profile);
-
-#endif
 
 #endif  // CHROME_BROWSER_SIGNIN_CHROME_DEVICE_ID_HELPER_H_

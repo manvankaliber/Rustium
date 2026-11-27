@@ -20,7 +20,6 @@ export function ensureLazyLoaded(): Promise<void> {
                             'avatar-button',
                             'battery-saver-button',
                             'webui-toolbar-extensions',
-                            'glic-button',
                             'location-bar',
                             'media-button',
                             'overflow-button',

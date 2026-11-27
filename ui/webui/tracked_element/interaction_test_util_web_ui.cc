@@ -11,11 +11,9 @@
 #include "ui/webui/tracked_element/tracked_element_handler.h"
 #include "ui/webui/tracked_element/tracked_element_web_ui.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "ui/views/bubble/bubble_dialog_delegate_view.h"
 #include "ui/views/controls/webview/webview.h"
 #include "ui/views/widget/widget.h"
-#endif
 
 namespace ui {
 
@@ -46,7 +44,6 @@ ui::test::ActionResult InteractionTestUtilSimulatorWebUI::PressButton(
     ui::TrackedElement* element,
     InputType input_type) {
   if (auto* webui_el = element->AsA<TrackedElementWebUI>()) {
-#if !BUILDFLAG(IS_ANDROID)
     // `ClickElement()` synthesizes DOM events in the renderer without
     // transferring native widget activation to the WebView. If an active
     // close-on-deactivate bubble is anchored to this element, close it with
@@ -62,18 +59,15 @@ ui::test::ActionResult InteractionTestUtilSimulatorWebUI::PressButton(
         active_anchored_dialog_widget = dialog->GetWidget()->GetWeakPtr();
       }
     }
-#endif
     if (webui_el->handler()->ClickElement(
             *webui_el, ToMojomInputType(input_type),
             base::PassKey<InteractionTestUtilSimulatorWebUI>())) {
-#if !BUILDFLAG(IS_ANDROID)
       if (active_anchored_dialog_widget &&
           !active_anchored_dialog_widget->IsClosed() &&
           active_anchored_dialog_widget->IsActive()) {
         active_anchored_dialog_widget->CloseWithReason(
             views::Widget::ClosedReason::kLostFocus);
       }
-#endif
       return ui::test::ActionResult::kSucceeded;
     }
     return ui::test::ActionResult::kFailed;
@@ -170,11 +164,9 @@ ui::test::ActionResult InteractionTestUtilSimulatorWebUI::EnterText(
 ui::test::ActionResult InteractionTestUtilSimulatorWebUI::FocusElement(
     ui::TrackedElement* element) {
   if (auto* webui_el = element->AsA<TrackedElementWebUI>()) {
-#if !BUILDFLAG(IS_ANDROID)
     if (auto* web_view = webui_el->GetWebView()) {
       web_view->RequestFocus();
     }
-#endif
     if (webui_el->handler()->FocusElement(
             *webui_el, base::PassKey<InteractionTestUtilSimulatorWebUI>())) {
       return ui::test::ActionResult::kSucceeded;

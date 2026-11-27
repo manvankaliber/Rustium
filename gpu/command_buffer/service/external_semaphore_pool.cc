@@ -15,14 +15,7 @@
 namespace gpu {
 namespace {
 
-#if BUILDFLAG(IS_FUCHSIA)
-// On Fuchsia semaphores are passed to scenic as zx::event. Scenic doesn't reset
-// them after waiting, so they would have to be reset explicitly to be reused.
-// OTOH new semaphores are cheap, so reuse doesn't provide significant benefits.
-constexpr size_t kMaxSemaphoresInPool = 0;
-#else
 constexpr size_t kMaxSemaphoresInPool = 16;
-#endif
 
 }  // namespace
 
@@ -44,8 +37,9 @@ ExternalSemaphore ExternalSemaphorePool::GetOrCreateSemaphore() {
 
 void ExternalSemaphorePool::ReturnSemaphore(ExternalSemaphore semaphore) {
   DCHECK(semaphore);
-  if (semaphores_.size() < kMaxSemaphoresInPool)
+  if (semaphores_.size() < kMaxSemaphoresInPool) {
     semaphores_.push_back(std::move(semaphore));
+  }
 }
 
 void ExternalSemaphorePool::ReturnSemaphores(
@@ -59,23 +53,27 @@ void ExternalSemaphorePool::ReturnSemaphores(
     semaphores.pop_back();
   }
 
-  if (semaphores.empty())
+  if (semaphores.empty()) {
     return;
+  }
 
   // Need a GL context current for releasing semaphores.
-  if (!gl::GLContext::GetCurrent())
+  if (!gl::GLContext::GetCurrent()) {
     shared_context_state_->MakeCurrent(/*surface=*/nullptr, /*needs_gl=*/true);
+  }
 }
 
 void ExternalSemaphorePool::ReturnSemaphoresWithFenceHelper(
     std::vector<ExternalSemaphore> semaphores) {
 #if DCHECK_IS_ON()
-  for (auto& semaphore : semaphores)
+  for (auto& semaphore : semaphores) {
     DCHECK(semaphore);
+  }
 #endif
 
-  if (semaphores.empty())
+  if (semaphores.empty()) {
     return;
+  }
 
   auto* fence_helper = shared_context_state_->vk_context_provider()
                            ->GetDeviceQueue()
@@ -84,8 +82,9 @@ void ExternalSemaphorePool::ReturnSemaphoresWithFenceHelper(
       [](base::WeakPtr<ExternalSemaphorePool> pool,
          std::vector<ExternalSemaphore> semaphores,
          VulkanDeviceQueue* device_queue, bool device_lost) {
-        if (pool)
+        if (pool) {
           pool->ReturnSemaphores(std::move(semaphores));
+        }
       },
       weak_ptr_factory_.GetWeakPtr(), std::move(semaphores)));
 }

@@ -547,8 +547,7 @@ class PrefProxyConfigOverrideRulesTest : public PrefProxyConfigTrackerImplTest {
   void SetOverrideRulesInternal(const std::string& pref,
                                 bool is_extension = false,
                                 bool is_valid = true) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     pref_service_->SetInteger(
         proxy_config::prefs::kEnableProxyOverrideRulesForAllUsers, 1);
 #endif
@@ -1424,8 +1423,7 @@ TEST_F(PrefProxyConfigOverrideRulesTest,
       net::PacResultElementToProxyChain("HTTPS ext-proxy.example.com:443"));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Verifies that `PrefProxyConfigTrackerImpl` dynamically re-evaluates and
 // applies or removes `ProxyOverrideRules` from the active proxy configuration
 // when `kEnableProxyOverrideRulesForAllUsers` or user affiliation status in
@@ -1461,7 +1459,6 @@ TEST_F(PrefProxyConfigOverrideRulesTest,
             proxy_config_service_->GetLatestProxyConfig(&actual_config));
   EXPECT_EQ(actual_config.value().proxy_override_rules().size(), 1u);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Dynamically disabling kEnableProxyOverrideRulesForAllUsers for an
   // unaffiliated user should remove the override rules from the active config.
   RunAndWaitForProxyConfigChange([&] {
@@ -1490,7 +1487,6 @@ TEST_F(PrefProxyConfigOverrideRulesTest,
   EXPECT_EQ(net::ProxyConfigService::CONFIG_VALID,
             proxy_config_service_->GetLatestProxyConfig(&actual_config));
   EXPECT_TRUE(actual_config.value().proxy_override_rules().empty());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) ||
         // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)

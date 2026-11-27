@@ -67,7 +67,7 @@ def pytest_addoption(parser: pytest.Parser):
 
 
 def setup_java_path(src_dir: str):
-  sys.path.append(os.path.join(src_dir, 'build', 'android'))
+  sys.path.append(os.path.join(src_dir, 'build'))
   import java_home  # pylint: disable=import-outside-toplevel
 
   java_bin = os.path.join(java_home.JAVA_HOME, 'bin')

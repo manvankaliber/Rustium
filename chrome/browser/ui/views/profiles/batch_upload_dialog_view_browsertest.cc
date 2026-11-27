@@ -266,7 +266,6 @@ IN_PROC_BROWSER_TEST_F(BatchUploadDialogViewBrowserTest,
 #define MAYBE_OpenBatchUploadDialogViewClosesOnSignout \
   OpenBatchUploadDialogViewClosesOnSignout
 #endif
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(BatchUploadDialogViewBrowserTest,
                        MAYBE_OpenBatchUploadDialogViewClosesOnSignout) {
   SigninWithFullInfo();
@@ -307,7 +306,6 @@ IN_PROC_BROWSER_TEST_F(BatchUploadDialogViewBrowserTest,
   histogram_tester().ExpectUniqueSample("Sync.BatchUpload.NoUpload",
                                         entry_point, 1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Fails on Mac only.  http://crbug.com/372194892
 #if BUILDFLAG(IS_MAC)

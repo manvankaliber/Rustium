@@ -15,9 +15,6 @@
 #include "content/public/common/content_switches.h"
 #include "content/shell/common/shell_switches.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/shell/android/shell_descriptors.h"
-#endif
 
 namespace content {
 
@@ -29,10 +26,6 @@ base::FilePath GetCrashDumpLocationInternal() {
     return command_line->GetSwitchValuePath(switches::kCrashDumpsDir);
   }
   base::FilePath default_dir;
-#if BUILDFLAG(IS_IOS)
-  CHECK(base::PathService::Get(base::DIR_CACHE, &default_dir));
-  default_dir = default_dir.Append("Crashpad");
-#endif  // BUILDFLAG(IS_IOS)
   return default_dir;
 }
 

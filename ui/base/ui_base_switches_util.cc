@@ -5,17 +5,13 @@
 #include "ui/base/ui_base_switches_util.h"
 
 #include "build/build_config.h"
-#include "build/is_android_web_view.h"
 #include "ui/base/ui_base_features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 
 namespace switches {
 
 bool IsElasticOverscrollEnabledOnRoot() {
-  return IsElasticOverscrollSupported() && !build::IsAndroidWebView();
+  return IsElasticOverscrollSupported();
 }
 
 bool IsElasticOverscrollSupported() {
@@ -23,10 +19,6 @@ bool IsElasticOverscrollSupported() {
 // but the system default is true.
 #if BUILDFLAG(IS_APPLE)
   return true;
-#elif BUILDFLAG(IS_ANDROID)
-  return base::android::android_info::sdk_int() >=
-             base::android::android_info::SDK_VERSION_S &&
-         base::FeatureList::IsEnabled(features::kElasticOverscroll);
 #else
   return base::FeatureList::IsEnabled(features::kElasticOverscroll);
 #endif

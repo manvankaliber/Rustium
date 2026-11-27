@@ -225,15 +225,11 @@ int AnchorElementMetricsSender::EffectiveSamplingPeriod() const {
   if (int period = features::kRandomAnchorSamplingPeriod.Get(); period > 0) {
     return period;
   }
-#if BUILDFLAG(IS_ANDROID)
-  return 1;
-#else
   const Document& document = *GetSupplementable();
   return (ShouldRunModerateMobileViewportHeuristic(document) ||
           ShouldRunEagerMobileViewportHeuristic(document))
              ? 1
              : 100;
-#endif
 }
 
 bool AnchorElementMetricsSender::AssociateInterface() {

@@ -29,14 +29,14 @@
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/geometry/size.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <linux/kcmp.h>
 #include <sys/syscall.h>
 
 #include "base/posix/eintr_wrapper.h"
 #include "base/process/process.h"
 #include "media/mojo/mojom/buffer_handle_test_util.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 namespace media {
 
@@ -191,40 +191,6 @@ TEST_F(VideoFrameStructTraitsTest, MappableVideoFrame) {
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(VideoFrameStructTraitsTest, MappableVideoFrameMJPEG) {
-  constexpr VideoPixelFormat format = PIXEL_FORMAT_MJPEG;
-  constexpr gfx::Size kCodedSize(100, 100);
-  constexpr gfx::Rect kVisibleRect(kCodedSize);
-  constexpr gfx::Size kNaturalSize = kCodedSize;
-  constexpr base::TimeDelta kTimestamp = base::Seconds(100);
-
-  const size_t kPlaneOffset = 1024;
-  const size_t kPlaneSize = 50000;
-  const size_t kAggregateSize = kPlaneOffset + kPlaneSize;
-
-  auto region = base::ReadOnlySharedMemoryRegion::Create(kAggregateSize);
-  ASSERT_TRUE(region.IsValid());
-
-  std::vector<ColorPlaneLayout> planes = {{0, kPlaneOffset, kPlaneSize}};
-
-  auto layout = VideoFrameLayout::CreateWithPlanes(format, kCodedSize, planes);
-  ASSERT_TRUE(layout.has_value());
-
-  auto mapping_span = region.mapping.GetMemoryAsSpan<uint8_t>();
-  auto frame = media::VideoFrame::WrapExternalDataWithLayout(
-      *layout, kVisibleRect, kNaturalSize, mapping_span, kTimestamp);
-  ASSERT_TRUE(frame);
-
-  frame->BackWithSharedMemory(&region.region);
-
-  ASSERT_TRUE(RoundTrip(&frame));
-  ASSERT_TRUE(frame);
-  EXPECT_EQ(frame->format(), format);
-  ASSERT_EQ(frame->storage_type(), VideoFrame::STORAGE_SHMEM);
-  EXPECT_TRUE(frame->shm_region()->IsValid());
-}
-#else
 TEST_F(VideoFrameStructTraitsTest, MappableVideoFrameMJPEG) {
   constexpr VideoPixelFormat format = PIXEL_FORMAT_MJPEG;
   constexpr gfx::Size kCodedSize(100, 100);
@@ -254,7 +220,6 @@ TEST_F(VideoFrameStructTraitsTest, MappableVideoFrameMJPEG) {
 
   EXPECT_TRUE(RoundTripFails(std::move(frame)));
 }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(VideoFrameStructTraitsTest, InvalidOffsets) {
   constexpr auto kFormat = PIXEL_FORMAT_I420;
@@ -484,7 +449,7 @@ TEST_F(VideoFrameStructTraitsTest, SharedImageVideoFrameMismatchedColorSpace) {
                                                          &new_frame));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(VideoFrameStructTraitsTest, DmabufsVideoFrame) {
   constexpr gfx::Size kCodedSize = gfx::Size(256, 256);
   constexpr gfx::Rect kVisibleRect(kCodedSize);
@@ -732,7 +697,7 @@ TEST_F(VideoFrameStructTraitsTest, DmabufsVideoFrameTooSmall) {
   // Ensure deserialization fails instead of crashing.
   EXPECT_TRUE(RoundTripFails(std::move(frame)));
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 TEST_F(VideoFrameStructTraitsTest, MappableSharedImageVideoFrame) {
   auto test_sii = base::MakeRefCounted<gpu::TestSharedImageInterface>();
@@ -765,7 +730,7 @@ TEST_F(VideoFrameStructTraitsTest, MappableSharedImageVideoFrame) {
   ASSERT_EQ(frame->shared_image()->mailbox(), shared_image->mailbox());
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 TEST_F(VideoFrameStructTraitsTest,
        MappableSharedImageWithoutNativePixmapFails) {
   auto si_size = gfx::Size(100, 100);
@@ -798,6 +763,6 @@ TEST_F(VideoFrameStructTraitsTest,
   EXPECT_FALSE(mojom::VideoFrame::DeserializeFromMessage(std::move(message),
                                                          &new_frame));
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 }  // namespace media

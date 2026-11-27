@@ -45,7 +45,7 @@
 #include "third_party/blink/renderer/platform/wtf/text/string_hash.h"
 #include "third_party/blink/renderer/platform/wtf/text/string_hasher.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include "third_party/blink/renderer/platform/fonts/font_cache.h"
 #endif
 
@@ -311,7 +311,7 @@ FontCacheKey FontDescription::CacheKey(
       static_cast<uint32_t>(fields_.orientation_) << 1 |            // bit 2-3
       static_cast<uint32_t>(fields_.subpixel_text_position_);       // bit 1
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   float device_scale_factor_for_key = FontCache::DeviceScaleFactor();
 #else
   float device_scale_factor_for_key = 1.0f;
@@ -321,12 +321,6 @@ FontCacheKey FontDescription::CacheKey(
                          device_scale_factor_for_key, size_adjust_,
                          variation_settings_, font_palette_,
                          font_variant_alternates_, is_unique_match);
-#if BUILDFLAG(IS_ANDROID)
-  if (const LayoutLocale* locale = Locale()) {
-    if (FontCache::GetLocaleSpecificFamilyName(creation_params.Family()))
-      cache_key.SetLocale(AtomicString(locale->LocaleForSkFontMgr()));
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   return cache_key;
 }
 

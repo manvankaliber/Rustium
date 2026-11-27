@@ -38,10 +38,6 @@
 #include "third_party/abseil-cpp/absl/container/flat_hash_set.h"
 #elif BUILDFLAG(IS_APPLE)
 #include "net/base/network_change_notifier_apple.h"
-#elif BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-#include "net/base/network_change_notifier_passive.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include "net/base/network_change_notifier_fuchsia.h"
 #endif
 
 namespace net {
@@ -133,7 +129,8 @@ class NetworkChangeNotifier::NetworkChangeCalculator
     DCHECK(thread_checker_.CalledOnValidThread());
     pending_connection_type_ = GetConnectionType();
     base::TimeDelta delay = last_announced_connection_type_ == CONNECTION_NONE
-        ? params_.ip_address_offline_delay_ : params_.ip_address_online_delay_;
+                                ? params_.ip_address_offline_delay_
+                                : params_.ip_address_online_delay_;
     // Cancels any previous timer.
     timer_.Start(FROM_HERE, delay, this, &NetworkChangeCalculator::Notify);
   }
@@ -143,8 +140,8 @@ class NetworkChangeNotifier::NetworkChangeCalculator
     DCHECK(thread_checker_.CalledOnValidThread());
     pending_connection_type_ = type;
     base::TimeDelta delay = last_announced_connection_type_ == CONNECTION_NONE
-        ? params_.connection_type_offline_delay_
-        : params_.connection_type_online_delay_;
+                                ? params_.connection_type_offline_delay_
+                                : params_.connection_type_online_delay_;
     // Cancels any previous timer.
     timer_.Start(FROM_HERE, delay, this, &NetworkChangeCalculator::Notify);
   }
@@ -172,8 +169,9 @@ class NetworkChangeNotifier::NetworkChangeCalculator
     last_announced_connection_type_ = pending_connection_type_;
     // Immediately before sending out an online signal, send out an offline
     // signal to perform any destructive actions before constructive actions.
-    if (pending_connection_type_ != CONNECTION_NONE)
+    if (pending_connection_type_ != CONNECTION_NONE) {
       NetworkChangeNotifier::NotifyObserversOfNetworkChange(CONNECTION_NONE);
+    }
     NetworkChangeNotifier::NotifyObserversOfNetworkChange(
         pending_connection_type_);
   }
@@ -270,8 +268,7 @@ NetworkChangeNotifierFactory* NetworkChangeNotifier::GetFactory() {
 }
 
 // static
-void NetworkChangeNotifier::SetFactory(
-    NetworkChangeNotifierFactory* factory) {
+void NetworkChangeNotifier::SetFactory(NetworkChangeNotifierFactory* factory) {
   CHECK(!g_network_change_notifier_factory);
   g_network_change_notifier_factory = factory;
 }
@@ -282,8 +279,9 @@ std::unique_ptr<NetworkChangeNotifier> NetworkChangeNotifier::CreateIfNeeded(
     ConnectionSubtype initial_subtype) {
   {
     base::AutoLock auto_lock(NetworkChangeNotifierCreationLock());
-    if (g_network_change_notifier)
+    if (g_network_change_notifier) {
       return nullptr;
+    }
   }
 
   if (g_network_change_notifier_factory) {
@@ -296,23 +294,11 @@ std::unique_ptr<NetworkChangeNotifier> NetworkChangeNotifier::CreateIfNeeded(
       std::make_unique<NetworkChangeNotifierWin>();
   network_change_notifier->WatchForAddressChange();
   return network_change_notifier;
-#elif BUILDFLAG(IS_ANDROID)
-  // Fallback to use NetworkChangeNotifierPassive if
-  // NetworkChangeNotifierFactory is not set. Currently used for tests and when
-  // running network service in a separate process.
-  return std::make_unique<NetworkChangeNotifierPassive>(initial_type,
-                                                        initial_subtype);
-#elif BUILDFLAG(IS_CHROMEOS)
-  return std::make_unique<NetworkChangeNotifierPassive>(initial_type,
-                                                        initial_subtype);
 #elif BUILDFLAG(IS_LINUX)
   return std::make_unique<NetworkChangeNotifierLinux>(
       absl::flat_hash_set<std::string>());
 #elif BUILDFLAG(IS_APPLE)
   return std::make_unique<NetworkChangeNotifierApple>();
-#elif BUILDFLAG(IS_FUCHSIA)
-  return std::make_unique<NetworkChangeNotifierFuchsia>(
-      /*require_wlan=*/false);
 #else
   NOTIMPLEMENTED();
   return nullptr;
@@ -330,9 +316,9 @@ NetworkChangeNotifier::GetConnectionCost() {
 // static
 NetworkChangeNotifier::ConnectionType
 NetworkChangeNotifier::GetConnectionType() {
-  return g_network_change_notifier ?
-      g_network_change_notifier->GetCurrentConnectionType() :
-      CONNECTION_UNKNOWN;
+  return g_network_change_notifier
+             ? g_network_change_notifier->GetCurrentConnectionType()
+             : CONNECTION_UNKNOWN;
 }
 
 // static
@@ -472,15 +458,17 @@ handles::NetworkHandle NetworkChangeNotifier::GetDefaultNetwork() {
 // static
 SystemDnsConfigChangeNotifier*
 NetworkChangeNotifier::GetSystemDnsConfigNotifier() {
-  if (g_network_change_notifier)
+  if (g_network_change_notifier) {
     return g_network_change_notifier->GetCurrentSystemDnsConfigNotifier();
+  }
   return nullptr;
 }
 
 // static
 bool NetworkChangeNotifier::IsDefaultNetworkActive() {
-  if (g_network_change_notifier)
+  if (g_network_change_notifier) {
     return g_network_change_notifier->IsDefaultNetworkActiveInternal();
+  }
   // Assume true as a "default" to avoid batching indefinitely.
   return true;
 }
@@ -525,24 +513,14 @@ base::cstring_view NetworkChangeNotifier::IPAddressChangeTypeToString(
   return kChangeTypeNames[type];
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // static
 AddressMapOwnerLinux* NetworkChangeNotifier::GetAddressMapOwner() {
   return g_network_change_notifier
              ? g_network_change_notifier->GetAddressMapOwnerInternal()
              : nullptr;
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_FUCHSIA)
-// static
-const internal::NetworkInterfaceCache*
-NetworkChangeNotifier::GetNetworkInterfaceCache() {
-  return g_network_change_notifier
-             ? g_network_change_notifier->GetNetworkInterfaceCacheInternal()
-             : nullptr;
-}
-#endif  // BUILDFLAG(IS_FUCHSIA)
+#endif
 
 // static
 bool NetworkChangeNotifier::IsOffline() {
@@ -557,7 +535,7 @@ bool NetworkChangeNotifier::IsConnectionCellular(ConnectionType type) {
     case CONNECTION_3G:
     case CONNECTION_4G:
     case CONNECTION_5G:
-      is_cellular =  true;
+      is_cellular = true;
       break;
     case CONNECTION_UNKNOWN:
     case CONNECTION_ETHERNET:
@@ -570,18 +548,16 @@ bool NetworkChangeNotifier::IsConnectionCellular(ConnectionType type) {
   return is_cellular;
 }
 
-#if !BUILDFLAG(IS_IOS)
 // static
 NetworkChangeNotifier::ConnectionType
 NetworkChangeNotifier::ConnectionTypeFromInterfaces() {
   NetworkInterfaceList interfaces;
-  if (!GetNetworkList(&interfaces, EXCLUDE_HOST_SCOPE_VIRTUAL_INTERFACES))
+  if (!GetNetworkList(&interfaces, EXCLUDE_HOST_SCOPE_VIRTUAL_INTERFACES)) {
     return CONNECTION_UNKNOWN;
+  }
   return ConnectionTypeFromInterfaceList(interfaces);
 }
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 // static
 NetworkChangeNotifier::ConnectionType
 NetworkChangeNotifier::ConnectionTypeFromInterfaceList(
@@ -590,15 +566,18 @@ NetworkChangeNotifier::ConnectionTypeFromInterfaceList(
   ConnectionType result = CONNECTION_NONE;
   for (const auto& network_interface : interfaces) {
 #if BUILDFLAG(IS_WIN)
-    if (network_interface.friendly_name == "Teredo Tunneling Pseudo-Interface")
+    if (network_interface.friendly_name ==
+        "Teredo Tunneling Pseudo-Interface") {
       continue;
+    }
 #endif
 #if BUILDFLAG(IS_APPLE)
     // Ignore link-local addresses as they aren't globally routable.
     // Mac assigns these to disconnected interfaces like tunnel interfaces
     // ("utun"), airdrop interfaces ("awdl"), and ethernet ports ("en").
-    if (network_interface.address.IsLinkLocal())
+    if (network_interface.address.IsLinkLocal()) {
       continue;
+    }
 #endif
 
     // Remove VMware network interfaces as they're internal and should not be
@@ -616,15 +595,15 @@ NetworkChangeNotifier::ConnectionTypeFromInterfaceList(
   }
   return result;
 }
-#endif
 
 // static
 std::unique_ptr<NetworkChangeNotifier>
 NetworkChangeNotifier::CreateMockIfNeeded() {
   {
     base::AutoLock auto_lock(NetworkChangeNotifierCreationLock());
-    if (g_network_change_notifier)
+    if (g_network_change_notifier) {
       return nullptr;
+    }
   }
   // Use an empty noop SystemDnsConfigChangeNotifier to disable actual system
   // DNS configuration notifications.
@@ -819,29 +798,33 @@ void NetworkChangeNotifier::TriggerNonSystemDnsChange() {
 // static
 void NetworkChangeNotifier::NotifyObserversOfIPAddressChangeForTests(
     IPAddressChangeType change_type) {
-  if (g_network_change_notifier)
+  if (g_network_change_notifier) {
     g_network_change_notifier->NotifyObserversOfIPAddressChangeImpl(
         change_type);
+  }
 }
 
 // static
 void NetworkChangeNotifier::NotifyObserversOfConnectionTypeChangeForTests(
     ConnectionType type) {
-  if (g_network_change_notifier)
+  if (g_network_change_notifier) {
     g_network_change_notifier->NotifyObserversOfConnectionTypeChangeImpl(type);
+  }
 }
 
 // static
 void NetworkChangeNotifier::NotifyObserversOfDNSChangeForTests() {
-  if (g_network_change_notifier)
+  if (g_network_change_notifier) {
     g_network_change_notifier->NotifyObserversOfDNSChangeImpl();
+  }
 }
 
 // static
 void NetworkChangeNotifier::NotifyObserversOfNetworkChangeForTests(
     ConnectionType type) {
-  if (g_network_change_notifier)
+  if (g_network_change_notifier) {
     g_network_change_notifier->NotifyObserversOfNetworkChangeImpl(type);
+  }
 }
 
 // static
@@ -864,14 +847,16 @@ void NetworkChangeNotifier::NotifyObserversOfMaxBandwidthChangeForTests(
 // static
 void NetworkChangeNotifier::NotifyObserversOfConnectionCostChangeForTests(
     ConnectionCost cost) {
-  if (g_network_change_notifier)
+  if (g_network_change_notifier) {
     g_network_change_notifier->NotifyObserversOfConnectionCostChangeImpl(cost);
+  }
 }
 
 // static
 void NetworkChangeNotifier::NotifyObserversOfDefaultNetworkActiveForTests() {
-  if (g_network_change_notifier)
+  if (g_network_change_notifier) {
     g_network_change_notifier->NotifyObserversOfDefaultNetworkActiveImpl();
+  }
 }
 
 // static
@@ -906,15 +891,8 @@ NetworkChangeNotifier::NetworkChangeNotifier(
   }
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 AddressMapOwnerLinux* NetworkChangeNotifier::GetAddressMapOwnerInternal() {
-  return nullptr;
-}
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-const internal::NetworkInterfaceCache*
-NetworkChangeNotifier::GetNetworkInterfaceCacheInternal() const {
   return nullptr;
 }
 #endif
@@ -1060,8 +1038,9 @@ void NetworkChangeNotifier::NotifyObserversOfDefaultNetworkActive() {
 }
 
 void NetworkChangeNotifier::StopSystemDnsConfigNotifier() {
-  if (!system_dns_config_notifier_)
+  if (!system_dns_config_notifier_) {
     return;
+  }
 
   system_dns_config_notifier_->RemoveObserver(
       system_dns_config_observer_.get());

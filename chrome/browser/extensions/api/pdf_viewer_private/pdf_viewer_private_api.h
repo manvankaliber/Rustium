@@ -111,23 +111,7 @@ class PdfViewerPrivateSetPdfPluginAttributesFunction
   ResponseAction Run() override;
 };
 
-class PdfViewerPrivateGlicSummarizeFunction : public ExtensionFunction {
- public:
-  DECLARE_EXTENSION_FUNCTION("pdfViewerPrivate.glicSummarize",
-                             PDFVIEWERPRIVATE_GLICSUMMARIZE)
 
-  PdfViewerPrivateGlicSummarizeFunction();
-  PdfViewerPrivateGlicSummarizeFunction(
-      const PdfViewerPrivateGlicSummarizeFunction&) = delete;
-  PdfViewerPrivateGlicSummarizeFunction& operator=(
-      const PdfViewerPrivateGlicSummarizeFunction&) = delete;
-
- protected:
-  ~PdfViewerPrivateGlicSummarizeFunction() override;
-
-  // Override from ExtensionFunction:
-  ResponseAction Run() override;
-};
 
 }  // namespace extensions
 

@@ -282,15 +282,6 @@ void OmniboxAimPopupWebUIContent::SendShow(OmniboxPopupAimHandler& handler) {
   if (!context) {
     context = std::make_unique<SearchboxContextData::Context>();
   }
-  // Synchronize the invocation source on any pre-existing/warm session handle
-  // with this invocation (or reset to default).
-  if (auto* webui_controller = contents_wrapper()->GetWebUIController()) {
-    if (auto* session_handle =
-            webui_controller->GetOrCreateContextualSessionHandle()) {
-      session_handle->set_invocation_source(context->invocation_source.value_or(
-          lens::LensOverlayInvocationSource::kOmniboxContextualQuery));
-    }
-  }
   // TODO (crbug.com/502961786): Fix flickering of previous text on a new
   // instance of composebox.
   if (!controller()->edit_model()->CurrentTextIsURL()) {

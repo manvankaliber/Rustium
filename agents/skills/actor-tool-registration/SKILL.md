@@ -56,8 +56,7 @@ Follow the 1:1 `ToolRequest` → `ToolDefinition` exemplar in
   `"tool_schema_builder.h"` if referencing format constants or building
   non-empty schemas).
 - Define `k<Name>ToolDescription` and `k<Param>ParamDescription` in the
-  anonymous namespace. Match existing descriptions in
-  `chrome/browser/ttc/core/tool_controller.cc` or `tools.mojom` verbatim.
+  anonymous namespace. Match existing descriptions in sibling tool request definitions.
 - Build and return the definition:
   ```cpp
   // static

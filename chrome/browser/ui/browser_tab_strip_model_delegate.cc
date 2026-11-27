@@ -13,8 +13,6 @@
 #include "base/functional/callback_helpers.h"
 #include "base/metrics/user_metrics.h"
 #include "build/build_config.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/service/glic_instance_coordinator.h"
 #include "chrome/browser/lifetime/browser_shutdown.h"
 #include "chrome/browser/platform_util.h"
 #include "chrome/browser/profiles/profile.h"
@@ -64,10 +62,6 @@
 #include "content/public/browser/web_contents_delegate.h"
 #include "ui/base/mojom/window_show_state.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "chrome/common/chrome_features.h"
-#endif
 
 namespace {
 
@@ -102,13 +96,6 @@ BrowserTabStripModelDelegate::BrowserTabStripModelDelegate(
 
 BrowserTabStripModelDelegate::~BrowserTabStripModelDelegate() = default;
 
-void BrowserTabStripModelDelegate::GlicUnpinTabsFromAllConversations(
-    base::span<const tabs::TabHandle> tab_handles) {
-  auto* service = glic::GlicKeyedServiceFactory::GetGlicKeyedService(
-      browser_->GetProfile());
-  service->instance_coordinator().UnpinTabsFromAllInstances(
-      tab_handles, glic::GlicUnpinTrigger::kContextMenu);
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // BrowserTabStripModelDelegate, TabStripModelDelegate implementation:
@@ -441,19 +428,6 @@ void BrowserTabStripModelDelegate::CloseTab(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Tabs cannot be closed when the app is in locked fullscreen, which is
-  // available only on ChromeOS.
-  if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-    if (!chromeos::LockedStateController::From(browser_)
-             ->GetCapabilities()
-             .allow_tab_modification) {
-      return;
-    }
-  } else if (platform_util::IsBrowserLockedFullscreen(browser_)) {
-    return;
-  }
-#endif
 
   if (base::FeatureList::IsEnabled(
           contextual_tasks::kContextualTasksCloseTabExpandsSidePanel)) {

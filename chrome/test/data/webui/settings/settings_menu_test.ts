@@ -131,13 +131,9 @@ suite('SettingsMenu', function() {
     function assertPagesHidden(expectedHidden: boolean) {
       const ids = [
         'accessibility', 'appearance',
-        // <if expr="not is_chromeos">
         'defaultBrowser',
-        // </if>
         'downloads', 'languages', 'onStartup', 'people', 'performance', 'reset',
-        // <if expr="not is_chromeos">
         'system',
-        // </if>
       ];
 
       for (const id of ids) {
@@ -297,7 +293,6 @@ suite('SettingsMenu', function() {
         action: 'SettingsMenu_AboutClicked',
         route: routes.ABOUT,
       },
-      // <if expr="not is_chromeos">
       {
         selector: '#defaultBrowser',
         action: 'SettingsMenu_DefaultBrowserClicked',
@@ -308,7 +303,6 @@ suite('SettingsMenu', function() {
         action: 'SettingsMenu_SystemClicked',
         route: routes.SYSTEM,
       },
-      // </if>
     ];
 
     for (const testCase of testCases) {

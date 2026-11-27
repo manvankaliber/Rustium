@@ -207,9 +207,6 @@ class AccessTokenFetcherTest
 
  private:
   std::unique_ptr<AccountTrackerService> CreateAccountTrackerService() {
-#if BUILDFLAG(IS_ANDROID)
-    SetUpFakeAccountManagerFacade();
-#endif
     return std::make_unique<AccountTrackerService>(&pref_service_,
                                                    base::FilePath());
   }

@@ -450,14 +450,14 @@ absl::Status BoxTrackerCalculator::GetContract(CalculatorContract* cc) {
     cc->Outputs().Tag(kRaBoxesTag).Set<TimedBoxProtoList>();
   }
 
-#if defined(__ANDROID__) || defined(__APPLE__) || defined(__EMSCRIPTEN__)
+#if defined(__APPLE__) || defined(__EMSCRIPTEN__)
   RET_CHECK(!cc->InputSidePackets().HasTag(kInitialPosTag))
       << "Unsupported on mobile";
 #else
   if (cc->InputSidePackets().HasTag(kInitialPosTag)) {
     cc->InputSidePackets().Tag(kInitialPosTag).Set<std::string>();
   }
-#endif  // defined(__ANDROID__) || defined(__APPLE__) || defined(__EMSCRIPTEN__)
+#endif
 
   if (cc->InputSidePackets().HasTag(kCacheDirTag)) {
     cc->InputSidePackets().Tag(kCacheDirTag).Set<std::string>();
@@ -486,7 +486,7 @@ absl::Status BoxTrackerCalculator::Open(CalculatorContext* cc) {
     initial_pos_ = options_.initial_position();
   }
 
-#if !defined(__ANDROID__) && !defined(__APPLE__) && !defined(__EMSCRIPTEN__)
+#if !defined(__APPLE__) && !defined(__EMSCRIPTEN__)
   if (cc->InputSidePackets().HasTag(kInitialPosTag)) {
     ABSL_LOG(INFO)
         << "Parsing: "
@@ -494,7 +494,7 @@ absl::Status BoxTrackerCalculator::Open(CalculatorContext* cc) {
     initial_pos_ = ParseTextProtoOrDie<TimedBoxProtoList>(
         cc->InputSidePackets().Tag(kInitialPosTag).Get<std::string>());
   }
-#endif  // !defined(__ANDROID__) && !defined(__APPLE__) &&
+#endif
         // !defined(__EMSCRIPTEN__)
 
   // Compile list of ids to be tracked.

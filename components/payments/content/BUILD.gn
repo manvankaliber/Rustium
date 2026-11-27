@@ -4,12 +4,6 @@
 
 static_library("content") {
   sources = [
-    "android_app_communication.cc",
-    "android_app_communication.h",
-    "android_payment_app.cc",
-    "android_payment_app.h",
-    "android_payment_app_factory.cc",
-    "android_payment_app_factory.h",
     "has_enrolled_instrument_query_factory.cc",
     "has_enrolled_instrument_query_factory.h",
     "initialization_task.cc",
@@ -89,45 +83,24 @@ static_library("content") {
     "//url",
   ]
 
-  if (is_chromeos) {
-    sources += [
-      "android_app_communication_ash.cc",
-      "android_app_communication_helpers.cc",
-      "android_app_communication_helpers.h",
-    ]
+  sources += []
 
-    deps += [
-      "//chromeos/ash/experiences/arc",
-      "//chromeos/components/payments/mojom",
-    ]
-  } else {
-    sources += [ "android_app_communication_stub.cc" ]
-  }
-
-  if (is_android) {
-    sources += [ "secure_payment_confirmation_view_stub.cc" ]
-    deps += [
-      "//components/payments/content/android/spc:browser_binding_jni",
-      "//components/webauthn/android",
-    ]
-  } else {
-    sources += [
-      "content_payment_request_delegate.cc",
-      "content_payment_request_delegate.h",
-      "payment_request.cc",
-      "payment_request.h",
-      "payment_request_dialog.h",
-      "payment_request_display_manager.cc",
-      "payment_request_display_manager.h",
-      "payment_request_state.cc",
-      "payment_request_state.h",
-      "payment_response_helper.cc",
-      "payment_response_helper.h",
-      "secure_payment_confirmation_controller.cc",
-      "secure_payment_confirmation_controller.h",
-    ]
-    deps += [ "//components/webauthn/content/browser" ]
-  }
+  sources += [
+    "content_payment_request_delegate.cc",
+    "content_payment_request_delegate.h",
+    "payment_request.cc",
+    "payment_request.h",
+    "payment_request_dialog.h",
+    "payment_request_display_manager.cc",
+    "payment_request_display_manager.h",
+    "payment_request_state.cc",
+    "payment_request_state.h",
+    "payment_response_helper.cc",
+    "payment_response_helper.h",
+    "secure_payment_confirmation_controller.cc",
+    "secure_payment_confirmation_controller.h",
+  ]
+  deps += [ "//components/webauthn/content/browser" ]
 }
 
 # Files used by content and utility.
@@ -215,11 +188,8 @@ group("unit_tests") {
     ":payment_content_unit_tests",
     "//components/payments/content/browser_binding:passkey_browser_binder_unittests",
   ]
-  if (is_android) {
-    deps +=
-        [ "//components/payments/content/browser_binding:android_unittests" ]
-  }
-  if (is_mac || is_win || is_linux || is_chromeos) {
+
+  if (is_mac || is_win || is_linux) {
     deps +=
         [ "//components/payments/content/browser_binding:desktop_unittests" ]
   }
@@ -228,13 +198,7 @@ group("unit_tests") {
 source_set("payment_content_unit_tests") {
   testonly = true
   sources = [
-    "android_app_communication_test_support.h",
-    "android_app_communication_unittest.cc",
-    "android_payment_app_factory_unittest.cc",
-    "android_payment_app_unittest.cc",
     "installable_payment_app_crawler_unittest.cc",
-    "mock_android_app_communication.cc",
-    "mock_android_app_communication.h",
     "mock_payment_app_factory_delegate.cc",
     "mock_payment_app_factory_delegate.h",
     "mock_secure_payment_confirmation_credential_finder.cc",
@@ -250,26 +214,24 @@ source_set("payment_content_unit_tests") {
     "service_worker_payment_app_finder_unittest.cc",
   ]
 
-  if (!is_android) {
-    sources += [
-      "mock_content_payment_request_delegate.cc",
-      "mock_content_payment_request_delegate.h",
-      "payment_app_unittest.cc",
-      "payment_request_display_manager_unittest.cc",
-      "payment_request_spec_unittest.cc",
-      "payment_request_state_unittest.cc",
-      "payment_request_unittest.cc",
-      "payment_request_web_contents_manager_unittest.cc",
-      "payment_response_helper_unittest.cc",
-      "secure_payment_confirmation_controller_unittest.cc",
-      "secure_payment_confirmation_view_stub.cc",
-      "service_worker_payment_app_unittest.cc",
-      "test_content_payment_request_delegate.cc",
-      "test_content_payment_request_delegate.h",
-      "test_payment_app.cc",
-      "test_payment_app.h",
-    ]
-  }
+  sources += [
+    "mock_content_payment_request_delegate.cc",
+    "mock_content_payment_request_delegate.h",
+    "payment_app_unittest.cc",
+    "payment_request_display_manager_unittest.cc",
+    "payment_request_spec_unittest.cc",
+    "payment_request_state_unittest.cc",
+    "payment_request_unittest.cc",
+    "payment_request_web_contents_manager_unittest.cc",
+    "payment_response_helper_unittest.cc",
+    "secure_payment_confirmation_controller_unittest.cc",
+    "secure_payment_confirmation_view_stub.cc",
+    "service_worker_payment_app_unittest.cc",
+    "test_content_payment_request_delegate.cc",
+    "test_content_payment_request_delegate.h",
+    "test_payment_app.cc",
+    "test_payment_app.h",
+  ]
 
   deps = [
     ":content",
@@ -302,23 +264,7 @@ source_set("payment_content_unit_tests") {
     "//third_party/libaddressinput:test_support",
   ]
 
-  if (is_chromeos) {
-    sources += [
-      "android_app_communication_test_support_ash.cc",
-      "android_app_communication_test_support_chrome_os.cc",
-      "android_app_communication_test_support_chrome_os.h",
-    ]
-    deps += [
-      "//chromeos/ash/experiences/arc",
-      "//chromeos/ash/experiences/arc:arc_test_support",
-      "//chromeos/ash/experiences/arc/intent_helper",
-      "//chromeos/ash/experiences/arc/mojom",
-      "//chromeos/components/payments:test_support",
-      "//chromeos/components/payments/mojom",
-    ]
-  } else {
-    sources += [ "android_app_communication_test_support_stub.cc" ]
-  }
+  sources += []
 
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
   # enable the diagnostic by removing this line.

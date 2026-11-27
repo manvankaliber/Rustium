@@ -34,9 +34,6 @@ cc_test(
         "@org_tensorflow//tensorflow/lite/c:common",
         "@org_tensorflow//tensorflow/lite/kernels:builtin_ops",
     ] + select({
-        "@org_tensorflow//tensorflow:android": [
-            "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
-        ],
         "@org_tensorflow//tensorflow:ios": [
             "@org_tensorflow//tensorflow/core:portable_tensorflow_lib_lite",
         ],

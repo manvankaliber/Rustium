@@ -40,8 +40,6 @@ namespace network {
 class TransitionalURLLoaderFactoryOwner;
 }
 
-class Adb;
-class DeviceManager;
 class URLRequestContextGetter;
 class WrapperURLLoaderFactory;
 
@@ -79,8 +77,7 @@ class HttpHandler {
   HttpHandler(const base::RepeatingClosure& quit_func,
               const scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
               const scoped_refptr<base::SingleThreadTaskRunner> cmd_task_runner,
-              const std::string& url_base,
-              int adb_port);
+              const std::string& url_base);
 
   HttpHandler(const HttpHandler&) = delete;
   HttpHandler& operator=(const HttpHandler&) = delete;
@@ -217,8 +214,6 @@ class HttpHandler {
   SessionConnectionMap session_connection_map_;
   ConnectionSessionMap connection_session_map_;
   std::unique_ptr<CommandMap> command_map_;
-  std::unique_ptr<Adb> adb_;
-  std::unique_ptr<DeviceManager> device_manager_;
   std::map<std::string, Command> static_bidi_command_map_;
   std::map<std::string, Command> session_bidi_command_map_;
   Command forward_session_command_;

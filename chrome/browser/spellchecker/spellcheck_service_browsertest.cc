@@ -54,9 +54,6 @@
 #include "mojo/public/cpp/bindings/receiver.h"
 #include "mojo/public/cpp/bindings/remote.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
 #if BUILDFLAG(IS_WIN) && BUILDFLAG(USE_BROWSER_SPELLCHECKER)
 #include "components/spellcheck/common/spellcheck_features.h"
@@ -385,16 +382,6 @@ IN_PROC_BROWSER_TEST_F(SpellcheckServiceBrowserTest,
 #endif  // BUILDFLAG(IS_MAC)
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Removing a spellcheck language from accept languages should not remove it
-// from spellcheck languages list on CrOS.
-IN_PROC_BROWSER_TEST_F(SpellcheckServiceBrowserTest,
-                       RemoveSpellcheckLanguageFromAcceptLanguages) {
-  InitSpellcheck(true, "", "en-US,fr");
-  SetAcceptLanguages("en-US,es,ru");
-  EXPECT_EQ("en-US,fr", GetMultilingualDictionaries());
-}
-#else
 // Removing a spellcheck language from accept languages should remove it from
 // spellcheck languages list as well.
 IN_PROC_BROWSER_TEST_F(SpellcheckServiceBrowserTest,
@@ -403,7 +390,6 @@ IN_PROC_BROWSER_TEST_F(SpellcheckServiceBrowserTest,
   SetAcceptLanguages("en-US,es,ru");
   EXPECT_EQ("en-US", GetMultilingualDictionaries());
 }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Keeping spellcheck languages in accept languages should not alter spellcheck
 // languages list.

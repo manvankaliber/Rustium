@@ -4,9 +4,6 @@
 
 // clang-format off
 import {COLORS_CSS_SELECTOR, ColorChangeUpdater} from 'chrome://resources/cr_components/color_change_listener/colors_css_updater.js';
-// <if expr="is_chromeos">
-import {COLOR_PROVIDER_CHANGED} from 'chrome://resources/cr_components/color_change_listener/colors_css_updater.js';
-// </if>
 
 import {getTrustedHTML} from 'chrome://resources/js/static_types.js';
 import {assertEquals, assertFalse, assertNotEquals, assertTrue} from 'chrome://webui-test/chai_assert.js';
@@ -111,21 +108,4 @@ suite('ColorChangeListenerTest', () => {
     assertEquals(1, document.querySelectorAll(COLORS_CSS_SELECTOR).length);
   });
 
-  // <if expr="is_chromeos">
-  test('AddAndRemoveColorProviderChangedListener', async () => {
-    let listenerCalledTimes = 0;
-    const listener = () => listenerCalledTimes++;
-    updater.eventTarget.addEventListener(COLOR_PROVIDER_CHANGED, listener);
-
-    // Emulate a color change event from the mojo pipe.
-    await updater.onColorProviderChanged();
-    assertEquals(listenerCalledTimes, 1);
-
-    updater.eventTarget.removeEventListener(COLOR_PROVIDER_CHANGED, listener);
-
-    // Emulate a color change event from the mojo pipe.
-    await updater.onColorProviderChanged();
-    assertEquals(listenerCalledTimes, 1);
-  });
-  // </if>
 });

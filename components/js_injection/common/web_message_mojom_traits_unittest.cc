@@ -41,29 +41,5 @@ TEST(WebMessageMojomTraitsTest, ArrayBufferRoundTrip) {
   EXPECT_EQ(kArrayBuffer, output_vector);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST(WebMessageMojomTraitsTest, SharedArrayBufferRoundTrip) {
-  base::UnsafeSharedMemoryRegion region =
-      base::UnsafeSharedMemoryRegion::Create(1024);
-  ASSERT_TRUE(region.IsValid());
-  base::WritableSharedMemoryMapping mapping = region.Map();
-  ASSERT_TRUE(mapping.IsValid());
-  mapping.GetMemoryAsSpan<uint8_t>()[0] = 42;
-
-  blink::WebMessagePayload payload = std::move(region);
-
-  blink::WebMessagePayload output;
-  EXPECT_TRUE(mojo::test::SerializeAndDeserialize<mojom::JsWebMessage>(payload,
-                                                                       output));
-
-  ASSERT_TRUE(std::holds_alternative<base::UnsafeSharedMemoryRegion>(output));
-  base::UnsafeSharedMemoryRegion output_region =
-      std::get<base::UnsafeSharedMemoryRegion>(std::move(output));
-  ASSERT_TRUE(output_region.IsValid());
-  base::WritableSharedMemoryMapping output_mapping = output_region.Map();
-  ASSERT_TRUE(output_mapping.IsValid());
-  EXPECT_EQ(42, output_mapping.GetMemoryAsSpan<uint8_t>()[0]);
-}
-#endif
 
 }  // namespace js_injection

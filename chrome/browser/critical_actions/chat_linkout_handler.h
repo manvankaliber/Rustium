@@ -23,11 +23,6 @@ class ChatLinkoutHandler {
 
   // Handles navigation/presentation for a critical action's source context,
   // relative to the initiating `web_contents`.
-  virtual void OpenConversation(
-      content::WebContents* web_contents,
-      const CriticalActionEntry& entry,
-      glic::mojom::InvocationSource source,
-      base::OnceCallback<void(OpenConversationResult)> callback) = 0;
 };
 
 }  // namespace critical_actions

@@ -15,16 +15,12 @@
 #include "chrome/grit/browser_resources.h"
 #include "ui/accessibility/accessibility_features.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "base/command_line.h"
 #include "chrome/browser/component_updater/wasm_tts_engine_component_installer.h"
 #include "content/public/common/content_switches.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 const base::FilePath::CharType kManifestV3FileName[] =
     FILE_PATH_LITERAL("wasm_tts_manifest_v3.json");
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 ReadAnythingService::ReadAnythingService() = default;
 ReadAnythingService::~ReadAnythingService() = default;
@@ -38,12 +34,9 @@ ReadAnythingService* ReadAnythingService::Get(Profile* profile) {
 void ReadAnythingService::OnReadAnythingShown() {
 // The TTS download extension should only be installed on non-ChromeOS devices
 // when the Read Aloud flag is enabled.
-#if !BUILDFLAG(IS_CHROMEOS)
   SetupDesktopEngine();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void ReadAnythingService::SetupDesktopEngine() {
   const base::CommandLine* command_line =
       base::CommandLine::ForCurrentProcess();
@@ -75,10 +68,8 @@ void ReadAnythingService::SetupDesktopEngine() {
         GetWasmTTSEngineDirectory(base::BindOnce(InstallComponent));
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 void ReadAnythingService::RemoveTtsDownloadExtension() {
-#if !BUILDFLAG(IS_CHROMEOS)
   // Remove the legacy TTS extension for all profiles.
 
   // This code for removing the extension installed in the legacy way
@@ -87,10 +78,8 @@ void ReadAnythingService::RemoveTtsDownloadExtension() {
   EmbeddedA11yExtensionLoader::GetInstance()->Init();
   EmbeddedA11yExtensionLoader::GetInstance()->RemoveExtensionWithId(
       extension_misc::kTTSEngineExtensionId);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void ReadAnythingService::InstallComponent(const base::FilePath& new_dir) {
   RecordEngineVersion(new_dir.BaseName());
   EmbeddedA11yExtensionLoader::GetInstance()->Init();
@@ -136,4 +125,3 @@ void ReadAnythingService::RecordEngineVersion(
         "Accessibility.ReadAnything.ReadAloud.EngineVersion", version_number);
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)

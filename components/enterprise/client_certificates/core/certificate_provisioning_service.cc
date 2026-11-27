@@ -257,18 +257,6 @@ void CertificateProvisioningServiceImpl::OnPolicyUpdated() {
         std::move(pending_callback).Run(std::nullopt);
       }
     }
-#if BUILDFLAG(IS_CHROMEOS)
-    // On ChromeOS, also delete any leftover managed key material from the
-    // store. Whether anything was actually provisioned is the store's concern:
-    // it exits early when nothing is persisted, so we always delegate to it.
-    // This also catches a policy that was removed while Chrome was not running.
-    // Log the cleanup outcome so a persistently failing deletion is visible.
-    DeleteManagedIdentities(base::BindOnce(
-        [](std::string logging_context, bool success) {
-          LogManagedIdentityDeletion(logging_context, success);
-        },
-        GetLoggingContext()));
-#endif  // BUILDFLAG(IS_CHROMEOS)
     return;
   }
 

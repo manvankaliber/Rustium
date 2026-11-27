@@ -34,29 +34,22 @@ KNOWN_ISOLATED_SCRIPT_TEST_RUNNERS = {'run_web_tests.py', 'run_webgpu_cts.py'}
 # TODO(dpranke): Detect if the wrapped test suite uses typ better.
 KNOWN_TYP_TEST_RUNNERS = {
   'metrics_python_tests.py',
-  'monochrome_python_tests.py',
   'run_blinkpy_tests.py',
   'run_mac_signing_tests.py',
   'run_mini_installer_tests.py',
   'run_webui_resources_tools_tests.py',
   'test_suite_all.py',  # //tools/grit:grit_python_unittests
-  'run_gn2bp_unittest.py',
 }
 
 KNOWN_TYP_VPYTHON3_TEST_RUNNERS = {
-  'monochrome_python_tests.py',
   'run_polymer_tools_tests.py',
   'test_suite_all.py',  # //tools/grit:grit_python_unittests
-  'run_gn2bp_unittest.py',
 }
 
 
 class BareScriptTestAdapter(common.BaseIsolatedScriptArgsAdapter):
   def __init__(self):
     super().__init__()
-    # Arguments that are ignored, but added here because it's easier to ignore
-    # them than to update bot configs to not pass them.
-    common.add_emulator_args(self._parser)
 
 
 class IsolatedScriptTestAdapter(common.BaseIsolatedScriptArgsAdapter):

@@ -224,15 +224,6 @@
 #include "net/cert/x509_util_nss.h"
 #endif  // BUILDFLAG(USE_NSS_CERTS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "base/path_service.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/browser/policy/profile_policy_connector.h"
-#include "chrome/browser/policy/profile_policy_connector_builder.h"
-#include "components/policy/core/common/policy_namespace.h"
-#include "components/policy/core/common/policy_service.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using content::WebContents;
 namespace AuthState = ssl_test_util::AuthState;
@@ -1548,7 +1539,7 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestServiceWorkerRequestsUseClientCertStore) {
 // Tests that if an extension service worker requests a resource where a
 // client cert is optional (not required) and there are no client certs, the
 // request will continue without a certificate (as opposed to abort).
-#if BUILDFLAG(ENABLE_EXTENSIONS) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
 IN_PROC_BROWSER_TEST_F(
     SSLUITest,
     TestExtensionServiceWorkerCanContinueWithoutACertificate) {
@@ -1993,7 +1984,7 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestUnsafeContents) {
 
 // Visits a page with insecure content loaded by JS (after the initial page
 // load).
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // flaky http://crbug.com/40375913
 #define MAYBE_TestDisplaysInsecureContentLoadedFromJS \
   DISABLED_TestDisplaysInsecureContentLoadedFromJS
@@ -2225,7 +2216,7 @@ IN_PROC_BROWSER_TEST_F(SSLUITest, TestRefNavigation) {
 // crash the browser (crbug.com/40979342).
 // TODO(crbug.com/40714131, crbug.com/40848837): Test is flaky on Linux and
 // Chrome OS.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_TestCloseTabWithUnsafePopup DISABLED_TestCloseTabWithUnsafePopup
 #else
 #define MAYBE_TestCloseTabWithUnsafePopup TestCloseTabWithUnsafePopup
@@ -3335,7 +3326,6 @@ IN_PROC_BROWSER_TEST_F(SSLUITestIgnoreCertErrors, TestWSS) {
 // Visit a page and establish a WebSocket connection over bad https with
 // --ignore-certificate-errors-spki-list. The connection should be established
 // without interstitial page showing.
-#if !BUILDFLAG(IS_CHROMEOS)  // Chrome OS does not support the flag.
 IN_PROC_BROWSER_TEST_F(SSLUITestIgnoreCertErrorsBySPKIWSS, TestWSSExpired) {
   ASSERT_TRUE(wss_server_expired_.Start());
 
@@ -3355,11 +3345,9 @@ IN_PROC_BROWSER_TEST_F(SSLUITestIgnoreCertErrorsBySPKIWSS, TestWSSExpired) {
   const std::u16string result = watcher.WaitAndGetTitle();
   EXPECT_TRUE(base::EqualsCaseInsensitiveASCII(result, "pass"));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Test that HTTPS pages with a bad certificate don't show an interstitial if
 // the public key matches a value from --ignore-certificate-errors-spki-list.
-#if !BUILDFLAG(IS_CHROMEOS)  // Chrome OS does not support the flag.
 IN_PROC_BROWSER_TEST_F(SSLUITestIgnoreCertErrorsBySPKIHTTPS, TestHTTPS) {
   ASSERT_TRUE(https_server_mismatched_.Start());
 
@@ -3376,11 +3364,9 @@ IN_PROC_BROWSER_TEST_F(SSLUITestIgnoreCertErrorsBySPKIHTTPS, TestHTTPS) {
   ui_test_utils::GetCurrentTabTitle(browser(), &title);
   EXPECT_EQ(title, u"This script has loaded");
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Test subresources from an origin with a bad certificate are loaded if the
 // public key matches a value from --ignore-certificate-errors-spki-list.
-#if !BUILDFLAG(IS_CHROMEOS)  // Chrome OS does not support the flag.
 IN_PROC_BROWSER_TEST_F(SSLUITestIgnoreCertErrorsBySPKIHTTPS,
                        TestInsecureSubresource) {
   ASSERT_TRUE(https_server_.Start());
@@ -3400,7 +3386,6 @@ IN_PROC_BROWSER_TEST_F(SSLUITestIgnoreCertErrorsBySPKIHTTPS,
   // The actual image (Google logo) is 276 pixels wide.
   EXPECT_GT(content::EvalJs(tab, "ImageWidth();"), 200);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Verifies that the interstitial can proceed, even if JavaScript is disabled.
 IN_PROC_BROWSER_TEST_F(SSLUITest, TestInterstitialJavaScriptProceeds) {

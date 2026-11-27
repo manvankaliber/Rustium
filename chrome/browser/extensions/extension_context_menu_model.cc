@@ -78,16 +78,12 @@
 #include "ui/base/ui_base_features.h"
 #include "ui/color/color_id.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/extensions/extension_site_settings_android.h"
-#else
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/extensions/extensions_container.h"
 #include "chrome/browser/ui/interaction/browser_elements.h"
 #include "ui/base/interaction/element_identifier.h"
 #include "ui/base/interaction/element_tracker.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -560,7 +556,6 @@ void ExtensionContextMenuModel::ExecuteCommand(int command_id,
       RecordUkmForExtension(extension->url(),
                             visible ? ExtensionUsageAction::kPinned
                                     : ExtensionUsageAction::kUnpinned);
-#if !BUILDFLAG(IS_ANDROID)
       if (visible) {
         ui::ElementContext context =
             BrowserElements::From(browser_)->GetContext();
@@ -572,7 +567,6 @@ void ExtensionContextMenuModel::ExecuteCommand(int command_id,
               browser_element, kExtensionsMenuPinExtensionsEventId);
         }
       }
-#endif
       break;
     }
     case UNINSTALL: {
@@ -625,8 +619,6 @@ void ExtensionContextMenuModel::ExecuteCommand(int command_id,
     case VIEW_WEB_PERMISSIONS:
 #if BUILDFLAG(ENABLE_EXTENSIONS)
       chrome::ShowSiteSettings(browser_, extension->url());
-#elif BUILDFLAG(IS_ANDROID)
-      ShowExtensionSiteSettings(GetActiveWebContents(), extension->id());
 #else
       NOTIMPLEMENTED();
 #endif
@@ -703,10 +695,8 @@ void ExtensionContextMenuModel::MenuClosed(ui::SimpleMenuModel* menu) {
   // `action_taken_` can be deleted when the extensions toggle menu is closed.
   if (action_taken_) {
     ContextMenuAction action = *action_taken_;
-#if !BUILDFLAG(IS_ANDROID)
     bool was_side_panel_action_taken =
         action_taken_ == ContextMenuAction::kToggleSidePanelVisibility;
-#endif
     UMA_HISTOGRAM_ENUMERATION("Extensions.ContextMenuAction", action);
 
     // If the "Rate it" item was shown, records whether it was clicked for this
@@ -731,14 +721,12 @@ void ExtensionContextMenuModel::MenuClosed(ui::SimpleMenuModel* menu) {
     // menu.
     action_taken_ = std::nullopt;
 
-#if !BUILDFLAG(IS_ANDROID)
     if (source_ == ContextMenuSource::kMenuItem &&
         was_side_panel_action_taken) {
       ExtensionsContainer::From(*browser_)->CloseExtensionsMenuIfOpen();
       // WARNING: The extensions menu was the parent for this menu, so it's
       // possible `this` is now deleted.
     }
-#endif
   }
 }
 

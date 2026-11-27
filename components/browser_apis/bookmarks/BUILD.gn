@@ -13,8 +13,6 @@ mojom("mojom") {
   ]
 
   webui_module_path = "/"
-
-  generate_java = true
 }
 
 source_set("bookmarks") {

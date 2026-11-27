@@ -24,12 +24,7 @@ def SysPath(path, position=None):
 
 def GetChromiumSrcDir():
   return os.path.abspath(
-    os.path.join(os.path.dirname(__file__), '..', '..', '..')
-  )
-
-
-def GetAndroidDeviceInteractionToPath():
-  return os.path.join(GetChromiumSrcDir(), 'third_party', 'catapult', 'devil')
+      os.path.join(os.path.dirname(__file__), '..', '..', '..'))
 
 
 def GetBuildUtilDir():
@@ -37,9 +32,8 @@ def GetBuildUtilDir():
 
 
 def GetTelemetryDir():
-  return os.path.join(
-    GetChromiumSrcDir(), 'third_party', 'catapult', 'telemetry'
-  )
+  return os.path.join(GetChromiumSrcDir(), 'third_party', 'catapult',
+                      'telemetry')
 
 
 def GetTracingDir():
@@ -47,9 +41,8 @@ def GetTracingDir():
 
 
 def GetPyUtilsDir():
-  return os.path.join(
-    GetChromiumSrcDir(), 'third_party', 'catapult', 'common', 'py_utils'
-  )
+  return os.path.join(GetChromiumSrcDir(), 'third_party', 'catapult', 'common',
+                      'py_utils')
 
 
 def GetCrossBenchDir():
@@ -72,24 +65,13 @@ def GetContribDir():
   return os.path.join(GetPerfDir(), 'contrib')
 
 
-def GetAndroidPylibDir():
-  return os.path.join(GetChromiumSrcDir(), 'build', 'android')
-
-
 def GetVariationsDir():
   return os.path.join(GetChromiumSrcDir(), 'tools', 'variations')
 
 
 def GetDashboardDir():
-  return os.path.join(
-    GetChromiumSrcDir(), 'third_party', 'catapult', 'dashboard'
-  )
-
-
-def AddAndroidDeviceInteractionToPath():
-  device_interaction_path = GetAndroidDeviceInteractionToPath()
-  if device_interaction_path not in sys.path:
-    sys.path.insert(1, device_interaction_path)
+  return os.path.join(GetChromiumSrcDir(), 'third_party', 'catapult',
+                      'dashboard')
 
 
 def AddBuildUtilToPath():
@@ -114,12 +96,6 @@ def AddPyUtilsToPath():
   py_utils_dir = GetPyUtilsDir()
   if py_utils_dir not in sys.path:
     sys.path.insert(1, py_utils_dir)
-
-
-def AddAndroidPylibToPath():
-  android_pylib_path = GetAndroidPylibDir()
-  if android_pylib_path not in sys.path:
-    sys.path.insert(1, android_pylib_path)
 
 
 def AddDashboardToPath():

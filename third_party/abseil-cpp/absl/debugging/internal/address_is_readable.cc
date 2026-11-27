@@ -21,7 +21,7 @@
 
 #include "absl/base/config.h"
 
-#if !defined(__linux__) || defined(__ANDROID__)
+#if !defined(__linux__)
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -34,7 +34,7 @@ bool AddressIsReadable(const void* /* addr */) { return true; }
 ABSL_NAMESPACE_END
 }  // namespace absl
 
-#else  // __linux__ && !__ANDROID__
+#else
 
 #include <stdint.h>
 #include <syscall.h>
@@ -99,4 +99,4 @@ bool AddressIsReadable(const void *addr) {
 ABSL_NAMESPACE_END
 }  // namespace absl
 
-#endif  // __linux__ && !__ANDROID__
+#endif

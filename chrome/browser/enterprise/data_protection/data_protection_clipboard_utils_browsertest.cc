@@ -226,9 +226,6 @@ class DataControlsClipboardUtilsBrowserTestBase
   }
 
   void SetupDMToken() {
-#if BUILDFLAG(IS_CHROMEOS)
-    policy::SetDMTokenForTesting(policy::DMToken::CreateValidToken("dm_token"));
-#else
     if (machine_scope()) {
       policy::SetDMTokenForTesting(
           policy::DMToken::CreateValidToken("dm_token"));
@@ -242,7 +239,6 @@ class DataControlsClipboardUtilsBrowserTestBase
                                                        "dm_token");
       }
     }
-#endif
   }
 
   virtual bool machine_scope() const = 0;
@@ -833,7 +829,6 @@ IN_PROC_BROWSER_TEST_P(DataControlsClipboardUtilsDismissTest,
 // ChromeOS requires extra boilerplate to run this test, and since copy-pasting
 // between profiles on ChromeOS isn't a meaningful test it is simply omitted
 // from running this.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(DataControlsClipboardUtilsBrowserTest,
                        PasteBlockedByDataControls_SourceRule) {
   active_user_test_mixin_->SetFakeCookieValue();
@@ -1165,7 +1160,6 @@ IN_PROC_BROWSER_TEST_P(DataControlsClipboardUtilsBrowserTest,
     report_run_loop.Run();
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(DataControlsClipboardUtilsBrowserTest,
                        PasteReportedByDataControls_DestinationRule) {
@@ -1239,7 +1233,6 @@ IN_PROC_BROWSER_TEST_P(DataControlsClipboardUtilsBrowserTest,
 // ChromeOS requires extra boilerplate to run this test, and since copy-pasting
 // between profiles on ChromeOS isn't a meaningful test it is simply omitted
 // from running this.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(DataControlsClipboardUtilsBrowserTest,
                        PasteReportedByDataControls_SourceRule) {
   active_user_test_mixin_->SetFakeCookieValue();
@@ -1333,7 +1326,6 @@ IN_PROC_BROWSER_TEST_P(DataControlsClipboardUtilsBrowserTest,
     report_run_loop.Run();
   }
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(DataControlsClipboardUtilsBrowserTest, CopyAllowed) {
   auto event_validator = event_report_validator_helper_->CreateValidator();

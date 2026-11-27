@@ -288,14 +288,6 @@ class NetworkContextConfigurationBrowserTest
       incognito_ = CreateIncognitoBrowser();
     SimulateNetworkServiceCrashIfNecessary();
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // On ChromeOS the connection type comes from a fake Shill service, which
-    // is configured with a fake ethernet connection asynchronously. Wait for
-    // the connection type to be available to avoid getting notified of the
-    // connection change halfway through the test.
-    ConnectionTypeWaiter().Wait(
-        net::NetworkChangeNotifier::ConnectionType::CONNECTION_ETHERNET);
-#endif
   }
 
   // Returns true if the NetworkContext being tested is associated with an
@@ -1338,7 +1330,7 @@ IN_PROC_BROWSER_TEST_P(NetworkContextConfigurationBrowserTest,
 }
 
 // Disabled due to flakiness. See crbug.com/40755205.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 #define MAYBE_UserAgentAndLanguagePrefs DISABLED_UserAgentAndLanguagePrefs
 #else
 #define MAYBE_UserAgentAndLanguagePrefs UserAgentAndLanguagePrefs
@@ -1546,7 +1538,7 @@ IN_PROC_BROWSER_TEST_P(NetworkContextConfigurationBrowserTest,
 }
 
 // Disabled due to flakiness. See https://crbug.com/40718681.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_PRE_ThirdPartyCookiesBlocked DISABLED_PRE_ThirdPartyCookiesBlocked
 #define MAYBE_ThirdPartyCookiesBlocked DISABLED_ThirdPartyCookiesBlocked
 #else
@@ -1801,7 +1793,6 @@ IN_PROC_BROWSER_TEST_P(NetworkContextConfigurationHttpPacBrowserTest, HttpPac) {
 }
 
 // TODO(crbug.com/494643383): Fails on some desktop Android bots.
-#if !BUILDFLAG(IS_ANDROID)
 // Make sure the system URLRequestContext can handle fetching PAC scripts from
 // file URLs.
 class NetworkContextConfigurationFilePacBrowserTest
@@ -1839,7 +1830,6 @@ IN_PROC_BROWSER_TEST_P(NetworkContextConfigurationFilePacBrowserTest, FilePac) {
     return;
   TestProxyConfigured(false);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Make sure the system URLRequestContext can handle fetching PAC scripts from
 // data URLs.
@@ -1964,14 +1954,14 @@ class NetworkContextConfigurationProxySettingsBrowserTest
   void RunMaxConnectionsPerProxyTest() {
     // TODO(crbug.com/540592485): There's a linux specific issue with this test permutation.
     // It's unclear why and ideally we would fix the flake.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
     if ((GetParam().network_context_type ==
              NetworkContextType::kOnDiskAppWithIncognitoProfile ||
          GetParam().network_context_type == NetworkContextType::kInMemoryApp) &&
         GetParam().network_service_state == NetworkServiceState::kEnabled) {
       return;
     }
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
+#endif
 
     // At this point in the test, we've set up a proxy that points to our
     // embedded test server. We've also set things up to hang all incoming
@@ -2425,10 +2415,8 @@ INSTANTIATE_TEST_CASES_FOR_TEST_FIXTURE(
     NetworkContextConfigurationProxyOnStartBrowserTest);
 INSTANTIATE_TEST_CASES_FOR_TEST_FIXTURE(
     NetworkContextConfigurationHttpPacBrowserTest);
-#if !BUILDFLAG(IS_ANDROID)
 INSTANTIATE_TEST_CASES_FOR_TEST_FIXTURE(
     NetworkContextConfigurationFilePacBrowserTest);
-#endif
 INSTANTIATE_TEST_CASES_FOR_TEST_FIXTURE(
     NetworkContextConfigurationDataPacBrowserTest);
 INSTANTIATE_TEST_CASES_FOR_TEST_FIXTURE(

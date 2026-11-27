@@ -50,10 +50,6 @@ INSTANTIATE_TEST_SUITE_P(
             .test_name = "ChromeOS",
             .platform_switch = "chromeos",
             .expected_platform = Study::PLATFORM_CHROMEOS},
-        PlatformOverrideTestParams{
-            .test_name = "Fuchsia",
-            .platform_switch = "fuchsia",
-            .expected_platform = Study::PLATFORM_FUCHSIA},
         PlatformOverrideTestParams{.test_name = "Linux",
                                    .platform_switch = "linux",
                                    .expected_platform = Study::PLATFORM_LINUX},
@@ -89,16 +85,8 @@ TEST(ClientFilterableStateTest, IgnoreInvalidFakePlatformSwitch) {
   Study::Platform actual_platform;
 #if BUILDFLAG(IS_WIN)
   actual_platform = Study::PLATFORM_WINDOWS;
-#elif BUILDFLAG(IS_IOS)
-  actual_platform = Study::PLATFORM_IOS;
 #elif BUILDFLAG(IS_MAC)
   actual_platform = Study::PLATFORM_MAC;
-#elif BUILDFLAG(IS_CHROMEOS)
-  actual_platform = Study::PLATFORM_CHROMEOS;
-#elif BUILDFLAG(IS_ANDROID)
-  actual_platform = Study::PLATFORM_ANDROID;
-#elif BUILDFLAG(IS_FUCHSIA)
-  actual_platform = Study::PLATFORM_FUCHSIA;
 #elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_BSD) || BUILDFLAG(IS_SOLARIS)
   // Default BSD and SOLARIS to Linux to not break those builds, although these
   // platforms are not officially supported by Chrome.
@@ -135,13 +123,8 @@ TEST(ClientFilterableStateTest, GoogleGroups) {
 
 TEST(ClientFilterableStateTest, GetHardwareManufacturer) {
   std::string manufacturer = ClientFilterableState::GetHardwareManufacturer();
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, the value is not hardcoded, but it should not be empty.
-  EXPECT_FALSE(manufacturer.empty());
-#else
   // For all other platforms, we expect the empty string fallback.
   EXPECT_TRUE(manufacturer.empty());
-#endif
 }
 
 TEST(ClientFilterableStateTest, EnterpriseGroups) {

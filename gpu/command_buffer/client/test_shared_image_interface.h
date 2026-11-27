@@ -102,14 +102,6 @@ class TestSharedImageInterface : public SharedImageInterface {
   bool AddGpuChannelLostObserver(GpuChannelLostObserver* observer) override;
   void RemoveGpuChannelLostObserver(GpuChannelLostObserver* observer) override;
 
-#if BUILDFLAG(IS_FUCHSIA)
-  void RegisterSysmemBufferCollection(zx::eventpair service_handle,
-                                      zx::channel sysmem_token,
-                                      const viz::SharedImageFormat& format,
-                                      gfx::BufferUsage usage,
-                                      bool register_with_image_pipe) override;
-#endif  // BUILDFLAG(IS_FUCHSIA)
-
   SyncToken GenVerifiedSyncToken() override;
   SyncToken GenUnverifiedSyncToken() override;
   void VerifySyncToken(SyncToken& sync_token) override;
@@ -133,13 +125,13 @@ class TestSharedImageInterface : public SharedImageInterface {
       bool premapped,
       const ClientSharedImage::AsyncMapInvokedCallback& callback);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Creates a mappable SI backed by a NativePixmapHandle.
   scoped_refptr<ClientSharedImage> CreateNativePixmapBackedSharedImage(
       const SharedImageInfo& si_info,
       SurfaceHandle surface_handle,
       gfx::BufferUsage buffer_usage);
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   void CreateSharedImagePool(
       const SharedImagePoolId& pool_id,
@@ -213,10 +205,6 @@ class TestSharedImageInterface : public SharedImageInterface {
   absl::flat_hash_set<Mailbox> shared_images_;
   bool emulate_client_provided_native_buffer_ = false;
 
-#if BUILDFLAG(IS_FUCHSIA)
-  absl::flat_hash_map<zx_koid_t, std::unique_ptr<TestBufferCollection>>
-      sysmem_buffer_collections_;
-#endif
   SharedImageCapabilities shared_image_capabilities_;
   bool fail_shared_image_creation_with_buffer_usage_ = false;
 

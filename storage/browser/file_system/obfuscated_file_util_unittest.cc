@@ -140,8 +140,9 @@ FileSystemURL FileSystemURLAppend(const FileSystemURL& url,
                                   const base::FilePath::StringType& child) {
   FileSystemURL new_url = FileSystemURL::CreateForTest(
       url.storage_key(), url.mount_type(), url.virtual_path().Append(child));
-  if (url.bucket().has_value())
+  if (url.bucket().has_value()) {
     new_url.SetBucket(url.bucket().value());
+  }
   return new_url;
 }
 
@@ -150,8 +151,9 @@ FileSystemURL FileSystemURLAppendUTF8(const FileSystemURL& url,
   FileSystemURL new_url = FileSystemURL::CreateForTest(
       url.storage_key(), url.mount_type(),
       url.virtual_path().Append(base::FilePath::FromUTF8Unsafe(child)));
-  if (url.bucket().has_value())
+  if (url.bucket().has_value()) {
     new_url.SetBucket(url.bucket().value());
+  }
   return new_url;
 }
 
@@ -159,8 +161,9 @@ FileSystemURL FileSystemURLDirName(const FileSystemURL& url) {
   FileSystemURL new_url =
       FileSystemURL::CreateForTest(url.storage_key(), url.mount_type(),
                                    VirtualPath::DirName(url.virtual_path()));
-  if (url.bucket().has_value())
+  if (url.bucket().has_value()) {
     new_url.SetBucket(url.bucket().value());
+  }
   return new_url;
 }
 
@@ -301,13 +304,15 @@ class ObfuscatedFileUtilTest : public testing::Test,
 
     change_observers_ = MockFileChangeObserver::CreateList(&change_observer_);
 
-    if (is_incognito())
+    if (is_incognito()) {
       incognito_leveldb_environment_ = leveldb_chrome::NewMemEnv("FileSystem");
+    }
   }
 
   void TearDown() override {
-    if (is_incognito())
+    if (is_incognito()) {
       ASSERT_TRUE(IsDirectoryEmpty(data_dir_.GetPath()));
+    }
 
     quota_manager_ = nullptr;
     task_environment_.RunUntilIdle();
@@ -330,10 +335,11 @@ class ObfuscatedFileUtilTest : public testing::Test,
       SandboxFileSystemTestHelper* file_system) {
     change_observer()->ResetCount();
     std::unique_ptr<FileSystemOperationContext> context;
-    if (file_system)
+    if (file_system) {
       context = file_system->NewOperationContext();
-    else
+    } else {
       context = sandbox_file_system_.NewOperationContext();
+    }
     // Setting allowed_bytes_growth big enough for all tests.
     context->set_allowed_bytes_growth(1024 * 1024);
     context->set_change_observers(change_observers());
@@ -418,8 +424,9 @@ class ObfuscatedFileUtilTest : public testing::Test,
                        quota_manager_, &sandbox_file_system_));
     base::FileErrorOr<base::FilePath> path =
         sandbox_file_system_.GetUsageCachePath();
-    if (path.has_value())
+    if (path.has_value()) {
       usage_cache()->Delete(path.value());
+    }
   }
 
   int64_t SizeByQuotaUtil() { return sandbox_file_system_.GetCachedUsage(); }
@@ -464,15 +471,17 @@ class ObfuscatedFileUtilTest : public testing::Test,
 
   FileSystemURL CreateURL(const base::FilePath& path) {
     FileSystemURL test_url = sandbox_file_system_.CreateURL(path);
-    if (is_non_default_bucket())
+    if (is_non_default_bucket()) {
       test_url.SetBucket(custom_bucket_);
+    }
     return test_url;
   }
 
   FileSystemURL CreateURLFromUTF8(const std::string& path) {
     FileSystemURL test_url = sandbox_file_system_.CreateURLFromUTF8(path);
-    if (is_non_default_bucket())
+    if (is_non_default_bucket()) {
       test_url.SetBucket(custom_bucket_);
+    }
     return test_url;
   }
 
@@ -516,8 +525,9 @@ class ObfuscatedFileUtilTest : public testing::Test,
     }
 
     base::File::Info file_info1;
-    if (!is_incognito())
+    if (!is_incognito()) {
       EXPECT_EQ(length, GetLocalFileSize(data_path));
+    }
     EXPECT_EQ(length, GetPathSize(url));
     context = NewContext(nullptr);
     EXPECT_EQ(base::File::FILE_OK,
@@ -704,8 +714,9 @@ class ObfuscatedFileUtilTest : public testing::Test,
     EXPECT_EQ(base::File::FILE_OK,
               ofu()->GetFileInfo(context.get(), url, &file_info, &local_path));
     EXPECT_EQ(file_info.last_modified.ToTimeT(), last_modified_time.ToTimeT());
-    if (is_file)  // Directories in OFU don't support atime.
+    if (is_file) {  // Directories in OFU don't support atime.
       EXPECT_EQ(file_info.last_accessed.ToTimeT(), last_access_time.ToTimeT());
+    }
   }
 
   void TestCopyInForeignFileHelper(bool overwrite) {
@@ -825,10 +836,11 @@ class ObfuscatedFileUtilTest : public testing::Test,
               ofu()->CopyOrMoveFile(context.get(), src_file_url, dest_file_url,
                                     FileSystemOperation::CopyOrMoveOptionSet(),
                                     copy));
-    if (copy)
+    if (copy) {
       EXPECT_EQ(base::Time(), GetModifiedTime(src_dir_url));
-    else
+    } else {
       EXPECT_NE(base::Time(), GetModifiedTime(src_dir_url));
+    }
     EXPECT_NE(base::Time(), GetModifiedTime(dest_dir_url));
   }
 
@@ -866,8 +878,9 @@ class ObfuscatedFileUtilTest : public testing::Test,
     storage_policy_->AddIsolated(origin().GetURL());
     FileSystemURL url = FileSystemURL::CreateForTest(
         storage_key(), kFileSystemTypePersistent, base::FilePath());
-    if (is_non_default_bucket())
+    if (is_non_default_bucket()) {
       url.SetBucket(custom_bucket_);
+    }
 
     // Create DirectoryDatabase for isolated origin.
     SandboxDirectoryDatabase* db =
@@ -886,8 +899,9 @@ class ObfuscatedFileUtilTest : public testing::Test,
     FileSystemURL url = FileSystemURL::CreateForTest(
         blink::StorageKey::CreateFirstParty(origin()),
         kFileSystemTypePersistent, base::FilePath());
-    if (is_non_default_bucket())
+    if (is_non_default_bucket()) {
       url.SetBucket(custom_bucket_);
+    }
 
     // Create DirectoryDatabase for isolated origin.
     SandboxDirectoryDatabase* db =
@@ -918,8 +932,9 @@ class ObfuscatedFileUtilTest : public testing::Test,
   void CheckFileSize(FileSystemURL& url,
                      base::FilePath& local_path,
                      int64_t expected_size) {
-    if (!is_incognito())
+    if (!is_incognito()) {
       EXPECT_EQ(expected_size, GetLocalFileSize(local_path));
+    }
     EXPECT_EQ(expected_size, GetPathSize(url));
   }
 
@@ -1381,7 +1396,6 @@ TEST_P(ObfuscatedFileUtilTest, TestReadDirectoryOnFile) {
 // which breaks this test that relies on it. Since PPAPI is being deprecated,
 // this test is excluded from the Fuchsia build.
 // See https://crbug.com/1077456 for details.
-#if !BUILDFLAG(IS_FUCHSIA)
 TEST_P(ObfuscatedFileUtilTest, TestTouch) {
   FileSystemURL url = CreateURLFromUTF8("file");
   std::unique_ptr<FileSystemOperationContext> context = NewContext(nullptr);
@@ -1411,7 +1425,6 @@ TEST_P(ObfuscatedFileUtilTest, TestTouch) {
             ofu()->CreateDirectory(context.get(), url, exclusive, recursive));
   TestTouchHelper(url, false);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_P(ObfuscatedFileUtilTest, TestPathQuotas) {
   FileSystemURL url = CreateURLFromUTF8("fake/file");
@@ -1789,8 +1802,9 @@ TEST_P(ObfuscatedFileUtilTest, TestStorageKeyEnumerator) {
                  << enumerator_storage_key->origin().Serialize());
     bool found = false;
     for (const auto& record : kOriginEnumerationTestRecords) {
-      if (enumerator_storage_key->origin().GetURL() != record.origin_url)
+      if (enumerator_storage_key->origin().GetURL() != record.origin_url) {
         continue;
+      }
       found = true;
       EXPECT_EQ(record.has_temporary,
                 HasFileSystemType(enumerator.get(), kFileSystemTypeTemporary));
@@ -2190,8 +2204,9 @@ TEST_P(ObfuscatedFileUtilTest, TestFileEnumeratorTimestamp) {
     base::File::Info file_info;
     FileSystemURL new_url = FileSystemURL::CreateForTest(
         dir.storage_key(), dir.mount_type(), file_path_each);
-    if (dir.bucket().has_value())
+    if (dir.bucket().has_value()) {
       new_url.SetBucket(dir.bucket().value());
+    }
     EXPECT_EQ(base::File::FILE_OK, ofu()->GetFileInfo(context.get(), new_url,
                                                       &file_info, &file_path));
     EXPECT_EQ(file_info.is_directory, file_enum->IsDirectory());
@@ -2475,8 +2490,9 @@ TEST_P(ObfuscatedFileUtilTest, TestQuotaOnOpen) {
   // TODO(crbug.com/41444071): After CreateOrOpen is modified to return
   // file error instead of file, the in-memory test can proceed through the next
   // steps.
-  if (is_incognito())
+  if (is_incognito()) {
     return;
+  }
 
   // Opening it with CREATE_ALWAYS flag, which should truncate the file size.
   base::File file = ofu()->CreateOrOpen(

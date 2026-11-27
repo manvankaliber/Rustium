@@ -15,10 +15,6 @@
 #include "services/viz/public/mojom/compositing/transferable_resource.mojom-shared.h"
 #include "skia/public/mojom/image_info_mojom_traits.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "gpu/ipc/common/vulkan_ycbcr_info_mojom_traits.h"
-#include "gpu/vulkan/vulkan_ycbcr_info.h"
-#endif
 
 namespace mojo {
 
@@ -77,14 +73,8 @@ struct StructTraits<viz::mojom::TransferableResourceDataView,
     return resource.synchronization_type;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  static bool is_backed_by_surface_view(
-      const viz::TransferableResource& resource) {
-    return resource.is_backed_by_surface_view;
-  }
-#endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   static bool wants_promotion_hint(const viz::TransferableResource& resource) {
     return resource.wants_promotion_hint;
   }
@@ -99,12 +89,6 @@ struct StructTraits<viz::mojom::TransferableResourceDataView,
     return resource.needs_detiling;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  static const std::optional<gpu::VulkanYCbCrInfo>& ycbcr_info(
-      const viz::TransferableResource& resource) {
-    return resource.ycbcr_info;
-  }
-#endif
 
   static viz::TransferableResource::ResourceSource resource_source(
       const viz::TransferableResource& resource) {

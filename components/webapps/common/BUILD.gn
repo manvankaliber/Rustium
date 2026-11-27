@@ -11,6 +11,7 @@ source_set("common") {
     "manifest_id.cc",
     "manifest_id.h",
     "manifest_id_constants.h",
+    "preinstalled_app_ids.h",
     "web_app_id.h",
   ]
   deps = [ "//url" ]

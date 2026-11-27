@@ -18,11 +18,6 @@
 #include <unistd.h>
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/vmar.h>
-#include <zircon/rights.h>
-#endif
-
 #if BUILDFLAG(IS_APPLE)
 #include <mach/vm_map.h>
 #endif
@@ -42,11 +37,7 @@ static const size_t kDataSize = 1024;
 static bool CheckReadOnlySharedMemoryFdPosix(int fd) {
 // Note that the error on Android is EPERM, unlike other platforms where
 // it will be EACCES.
-#if BUILDFLAG(IS_ANDROID)
-  const int kExpectedErrno = EPERM;
-#else
   const int kExpectedErrno = EACCES;
-#endif
   errno = 0;
   void* address =
       mmap(nullptr, kDataSize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
@@ -65,27 +56,7 @@ static bool CheckReadOnlySharedMemoryFdPosix(int fd) {
 }
 #endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
 
-#if BUILDFLAG(IS_FUCHSIA)
-// Fuchsia specific implementation.
-bool CheckReadOnlySharedMemoryFuchsiaHandle(zx::unowned_vmo handle) {
-  const uint32_t flags = ZX_VM_PERM_READ | ZX_VM_PERM_WRITE;
-  uintptr_t addr;
-  const zx_status_t status =
-      zx::vmar::root_self()->map(flags, 0, *handle, 0U, kDataSize, &addr);
-  if (status == ZX_OK) {
-    LOG(ERROR) << "zx_vmar_map() should have failed!";
-    zx::vmar::root_self()->unmap(addr, kDataSize);
-    return false;
-  }
-  if (status != ZX_ERR_ACCESS_DENIED) {
-    LOG(ERROR) << "Expected zx_vmar_map() to return " << ZX_ERR_ACCESS_DENIED
-               << " (ZX_ERR_ACCESS_DENIED) but returned " << status << "\n";
-    return false;
-  }
-  return true;
-}
-
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
 bool CheckReadOnlySharedMemoryMachPort(mach_port_t memory_object) {
   vm_address_t memory;
   const kern_return_t kr =
@@ -125,12 +96,8 @@ bool CheckReadOnlyPlatformSharedMemoryRegionForTesting(
 
 #if BUILDFLAG(IS_APPLE)
   return CheckReadOnlySharedMemoryMachPort(region.GetPlatformHandle());
-#elif BUILDFLAG(IS_FUCHSIA)
-  return CheckReadOnlySharedMemoryFuchsiaHandle(region.GetPlatformHandle());
 #elif BUILDFLAG(IS_WIN)
   return CheckReadOnlySharedMemoryWindowsHandle(region.GetPlatformHandle());
-#elif BUILDFLAG(IS_ANDROID)
-  return CheckReadOnlySharedMemoryFdPosix(region.GetPlatformHandle());
 #else
   return CheckReadOnlySharedMemoryFdPosix(region.GetPlatformHandle().fd);
 #endif

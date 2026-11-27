@@ -11,9 +11,9 @@
 #include "media/base/decoder_status.h"
 #include "media/base/video_color_space.h"
 #include "media/base/video_decoder.h"
-#include "media/gpu/chromeos/chromeos_status.h"
-#include "media/gpu/chromeos/dmabuf_video_frame_pool.h"
-#include "media/gpu/chromeos/frame_resource.h"
+#include "media/gpu/linux/chromeos_status.h"
+#include "media/gpu/linux/dmabuf_video_frame_pool.h"
+#include "media/gpu/linux/frame_resource.h"
 #include "ui/gfx/geometry/rect.h"
 
 namespace media {

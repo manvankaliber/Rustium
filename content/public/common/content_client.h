@@ -154,11 +154,6 @@ class CONTENT_EXPORT ContentClient {
     // not allowed. Entries are keyed by the requesting process's lock like
     // http(s), and a process locked to this scheme as a whole gets none.
     std::vector<std::string> code_cache_schemes;
-#if BUILDFLAG(IS_ANDROID)
-    // Normally, non-standard schemes canonicalize to opaque origins. However,
-    // Android WebView requires non-standard schemes to still be preserved.
-    bool allow_non_standard_schemes_in_origins = false;
-#endif
   };
 
   virtual void AddAdditionalSchemes(Schemes* schemes) {}
@@ -210,15 +205,6 @@ class CONTENT_EXPORT ContentClient {
   virtual bool IsFilePickerAllowedForCrossOriginSubframe(
       const url::Origin& origin);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns true for clients like Android WebView that uses synchronous
-  // compositor. Note setting this to true will permit synchronous IPCs from
-  // the browser UI thread.
-  virtual bool UsingSynchronousCompositing();
-
-  // Returns the MediaDrmBridgeClient to be used by media code on Android.
-  virtual media::MediaDrmBridgeClient* GetMediaDrmBridgeClient();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Allows the embedder to handle incoming interface binding requests from
   // the browser process to any type of child process. This is called once

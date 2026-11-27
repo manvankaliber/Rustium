@@ -211,22 +211,7 @@ suite('SyncInternals', function() {
     assertNotEquals(null, getAboutInfoForTest());
   });
 
-  // <if expr="is_chromeos">
-  // Sync should be disabled if there was no primary account set.
-  test('SyncDisabledByDefaultChromeOS', function() {
-    assertTrue(hasInDetails(true, 'Transport State', 'Disabled'));
-    // We don't check 'Disable Reasons' here because the string depends on the
-    // flag SplitSettingsSync. There's not a good way to check a C++ flag value
-    // in the middle of a JS test, nor is there a simple way to enable or
-    // disable platform-specific flags in a cross-platform JS test suite.
-    // TODO(crbug.com/1087165): When SplitSettingsSync is the default, delete
-    // this test and use SyncInternalsWebUITest.SyncDisabledByDefault on all
-    // platforms.
-    assertTrue(hasInDetails(true, 'Username', ''));
-  });
-  // </if>
 
-  // <if expr="not is_chromeos">
   // On non-ChromeOS, sync should be disabled if there was no primary account
   // set.
   test('SyncDisabledByDefault', function() {
@@ -234,7 +219,6 @@ suite('SyncInternals', function() {
     assertTrue(hasInDetails(true, 'Disable Reasons', 'Not signed in'));
     assertTrue(hasInDetails(true, 'Username', ''));
   });
-  // </if>
 
   test('LoadPastedAboutInfo', function() {
     // Expose the text field.

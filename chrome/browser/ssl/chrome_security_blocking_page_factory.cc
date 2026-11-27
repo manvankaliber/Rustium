@@ -38,18 +38,8 @@
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #include "base/enterprise_util.h"
-#elif BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/policy/core/browser_policy_connector_ash.h"
-#include "chrome/browser/browser_process_platform_part.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "components/security_interstitials/content/captive_portal_helper_android.h"
-#include "content/public/common/referrer.h"
-#include "net/android/network_library.h"
-#include "ui/base/mojom/window_open_disposition.mojom.h"
-#endif
 
 #if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
 #include "chrome/browser/captive_portal/captive_portal_service_factory.h"
@@ -506,13 +496,6 @@ bool ChromeSecurityBlockingPageFactory::IsEnterpriseManaged(Profile* profile) {
   }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  auto* connector =
-      g_browser_process->platform_part()->browser_policy_connector_ash();
-  if (connector && connector->IsDeviceEnterpriseManaged()) {
-    return true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (profile && profile->GetProfilePolicyConnector() &&
       profile->GetProfilePolicyConnector()->IsManaged()) {

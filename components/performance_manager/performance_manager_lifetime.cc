@@ -24,7 +24,6 @@
 #include "components/performance_manager/priority/frame_audible_voter.h"
 #include "components/performance_manager/priority/frame_capturing_media_stream_voter.h"
 #include "components/performance_manager/priority/frame_visibility_voter.h"
-#include "components/performance_manager/priority/glic_actuation_priority_voter.h"
 #include "components/performance_manager/priority/inherit_client_priority_voter.h"
 #include "components/performance_manager/priority/loading_page_voter.h"
 #include "components/performance_manager/priority/withheld_from_view_voter.h"
@@ -50,7 +49,6 @@ GraphCreatedCallback* GetAdditionalGraphCreatedCallback() {
   return additional_graph_created_callback.get();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Adds the ForceForegroundVoter to the graph if the corresponding feature or
 // policy is enabled.
 void AddForceForegroundVoter(
@@ -65,7 +63,6 @@ void AddForceForegroundVoter(
         ->AddPriorityVoter<priority::ForceForegroundVoterForUrls>();
   }
 }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Adds the default set of execution context voters.
 void AddVoters(GraphImpl* graph, PrefService* pref_service) {
@@ -74,7 +71,6 @@ void AddVoters(GraphImpl* graph, PrefService* pref_service) {
     // Disabled on Android because most of the prioritization logic still lives
     // in ChildProcessLauncherHelperImpl.
     // TODO(b/400850388): Enable voters on Android.
-#if !BUILDFLAG(IS_ANDROID)
     const auto policy_settings =
         PerformanceManagerImpl::GetProcessPriorityPolicySettings();
     // When a frame is visible, casts either a USER_BLOCKING or USER_VISIBLE
@@ -117,7 +113,6 @@ void AddVoters(GraphImpl* graph, PrefService* pref_service) {
     }
 
     AddForceForegroundVoter(priority_voting_system, pref_service);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
     // Casts a USER_BLOCKING vote for all frames in an active loading page,
     // or USER_VISIBLE for background loading pages (only user- or
@@ -139,11 +134,6 @@ void AddVoters(GraphImpl* graph, PrefService* pref_service) {
     }
 #endif
 
-    if (base::FeatureList::IsEnabled(features::kGlicActuationPriorityVoter)) {
-      // Casts a USER_BLOCKING vote when a frame is Glic actuating.
-      priority_voting_system
-          ->AddPriorityVoter<priority::GlicActuationPriorityVoter>();
-    }
   }
 }
 

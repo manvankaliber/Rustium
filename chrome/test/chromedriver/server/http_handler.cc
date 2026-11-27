@@ -32,8 +32,6 @@
 #include "base/values.h"
 #include "build/build_config.h"
 #include "chrome/test/chromedriver/alert_commands.h"
-#include "chrome/test/chromedriver/chrome/adb_impl.h"
-#include "chrome/test/chromedriver/chrome/device_manager.h"
 #include "chrome/test/chromedriver/chrome/status.h"
 #include "chrome/test/chromedriver/command.h"
 #include "chrome/test/chromedriver/commands.h"
@@ -254,8 +252,7 @@ HttpHandler::HttpHandler(
     const base::RepeatingClosure& quit_func,
     const scoped_refptr<base::SingleThreadTaskRunner> io_task_runner,
     const scoped_refptr<base::SingleThreadTaskRunner> cmd_task_runner,
-    const std::string& url_base,
-    int adb_port)
+    const std::string& url_base)
     : quit_func_(quit_func),
       io_task_runner_(io_task_runner),
       cmd_task_runner_(cmd_task_runner),
@@ -266,8 +263,6 @@ HttpHandler::HttpHandler(
 #endif
   context_getter_ = new URLRequestContextGetter(io_task_runner_);
   socket_factory_ = CreateSyncWebSocketFactory(context_getter_.get());
-  adb_ = std::make_unique<AdbImpl>(io_task_runner_, adb_port);
-  device_manager_ = std::make_unique<DeviceManager>(adb_.get());
   url_loader_factory_owner_ =
       std::make_unique<network::TransitionalURLLoaderFactoryOwner>(
           context_getter_.get());
@@ -284,7 +279,7 @@ HttpHandler::HttpHandler(
       base::BindRepeating(
           &ExecuteInitSession,
           InitSessionParams(wrapper_url_loader_factory_.get(), socket_factory_,
-                            device_manager_.get(), cmd_task_runner,
+                            cmd_task_runner,
                             terminate_on_cmd)));
   Command create_and_init_session = base::BindRepeating(
       &ExecuteCreateSession, &session_thread_map_, init_session_cmd);

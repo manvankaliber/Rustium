@@ -23,9 +23,7 @@ source_set("translate") {
     "translate_language_list_model.h",
   ]
 
-  if (!is_android) {
-    sources += [ "translate_bubble_factory.h" ]
-  }
+  sources += [ "translate_bubble_factory.h" ]
 
   public_deps = [
     "//base",
@@ -45,15 +43,13 @@ source_set("translate") {
   deps = [ "//components/language_detection/core" ]
 }
 
-if (!is_android) {
-  source_set("impl") {
-    sources = [ "translate_bubble_factory.cc" ]
-    deps = [
-      ":translate",
-      "//chrome/browser/ui:browser_window_header",
-      "//components/translate/core/browser",
-    ]
-  }
+source_set("impl") {
+  sources = [ "translate_bubble_factory.cc" ]
+  deps = [
+    ":translate",
+    "//chrome/browser/ui:browser_window_header",
+    "//components/translate/core/browser",
+  ]
 }
 
 if (toolkit_views) {

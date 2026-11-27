@@ -79,11 +79,7 @@ ${this.isMediaButtonEnabled_ ? html`
   </media-button>
 ` : ''}
 </if>
-${this.isGlicButtonEnabled_ ? html`
-  <glic-button id="glic-button" .state="${this.toolbarState_.glicButtonState}"
-      .hidden="${!this.toolbarState_.glicButtonState.shouldShow}">
-  </glic-button>
-` : ''}
+${''}
 ${this.isAvatarButtonEnabled_ ? html`
   <avatar-button id="avatar" .state="${this.toolbarState_.avatarControlState}">
   </avatar-button>

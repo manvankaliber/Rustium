@@ -70,7 +70,6 @@ suite('VoiceLanguageModel', () => {
         [voice1, voice2, voice3], voiceLanguageModel.getAvailableVoices());
   });
 
-  // <if expr="not is_chromeos">
   test('addPossiblyDisabledLang', () => {
     const lang1 = 'de';
     const lang2 = 'hi';
@@ -100,7 +99,6 @@ suite('VoiceLanguageModel', () => {
     assertEquals(1, voiceLanguageModel.getPossiblyDisabledLangs().size);
     assertTrue(voiceLanguageModel.getPossiblyDisabledLangs().has(lang3));
   });
-  // </if>
 
   test('setServerStatus', () => {
     const lang1 = 'abc';

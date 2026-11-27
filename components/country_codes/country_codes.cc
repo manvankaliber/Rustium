@@ -23,9 +23,6 @@
 #include "base/apple/scoped_cftyperef.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/i18n/android_locale.h"
-#endif
 
 namespace country_codes {
 
@@ -126,13 +123,7 @@ CountryId GetCurrentCountryID() {
   return CountryId(std::string_view(code, std::size(code)));
 }
 
-#elif BUILDFLAG(IS_ANDROID)
-
-CountryId GetCurrentCountryID() {
-  return CountryId(base::i18n::GetAndroidDefaultCountryCode());
-}
-
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 
 CountryId GetCurrentCountryID() {
   const char* locale = setlocale(LC_MESSAGES, nullptr);

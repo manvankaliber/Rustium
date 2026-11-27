@@ -55,7 +55,6 @@ const char kSampleUserEmail[] = "user@gmail.com";
 
 // TODO(b:514161985): Enable on Android once enterprise shortcuts are
 // implemented there. Only used by the enterprise shortcuts tests below.
-#if !BUILDFLAG(IS_ANDROID)
 // Sets the NTPShortcuts policy to a single shortcut.
 void SetNtpShortcutsPolicy(policy::MockConfigurationPolicyProvider& provider,
                            const std::string& name,
@@ -71,7 +70,6 @@ void SetNtpShortcutsPolicy(policy::MockConfigurationPolicyProvider& provider,
                base::Value(std::move(shortcuts)), nullptr);
   provider.UpdateChromePolicy(policies);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -282,7 +280,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilEnableFlagBrowserTest,
 
 // TODO(b:502297163): Enable on Android once the NTPSharepointCardVisible
 // policy is supported there. The policy is not generated for Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(NewTabPageUtilEnableFlagBrowserTest,
                        EnableMicrosoftFilesByFlag) {
   policy::PolicyMap policies;
@@ -306,7 +303,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilDisableFlagBrowserTest,
   CheckInternalsLog(std::string(ntp_features::kNtpSharepointModule.name) +
                     " disabled: feature flag forced off");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(NewTabPageUtilEnableFlagBrowserTest,
                        MicrosoftFilesPolicyDisabled) {
@@ -317,7 +313,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilEnableFlagBrowserTest,
 
 // TODO(b:502297163): Enable on Android once the NTPOutlookCardVisible policy
 // is supported there. The policy is not generated for Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(NewTabPageUtilEnableFlagBrowserTest,
                        EnableOutlookCalendarByFlag) {
   policy::PolicyMap policies;
@@ -341,7 +336,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilDisableFlagBrowserTest,
   CheckInternalsLog(std::string(ntp_features::kNtpOutlookCalendarModule.name) +
                     " disabled: feature flag forced off");
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(NewTabPageUtilEnableFlagBrowserTest,
                        OutlookCalendarPolicyDisabled) {
@@ -353,7 +347,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilEnableFlagBrowserTest,
 // TODO(b:514161985): Enable on Android once enterprise shortcuts are
 // implemented there. The implementation is compiled out on Android and
 // `IsEnterpriseShortcutsEnabled()` always returns false.
-#if !BUILDFLAG(IS_ANDROID)
 class NewTabPageUtilTileTypesEnterpriseShortcutsBrowserTest
     : public NewTabPageUtilBrowserTest {
  public:
@@ -394,7 +387,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilTileTypesEnterpriseShortcutsBrowserTest,
 INSTANTIATE_TEST_SUITE_P(All,
                          NewTabPageUtilTileTypesEnterpriseShortcutsBrowserTest,
                          testing::Bool());
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class NewTabPageUtilFeatureOptimizationModuleRemovalTest :
   public NewTabPageUtilBrowserTest {
@@ -692,7 +684,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilStalenessUpdateBrowserTest,
 
 // TODO(b:502297163): Enable on Android once the NTPCardsVisible policy is
 // supported there. The policy is not generated for Android.
-#if !BUILDFLAG(IS_ANDROID)
 // Parameterized to test for modules with managed preferences.
 IN_PROC_BROWSER_TEST_P(NewTabPageUtilStalenessUpdateBrowserTest,
                        ShouldUpdateModuleStalenessWithManagedPreference) {
@@ -732,7 +723,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilStalenessUpdateBrowserTest,
         base::PersistentHash(module_id), expected_histogram_count);
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Parameterized to test for logging the module staleness count metric.
 // In either case, the module staleness count is always logged.
@@ -895,7 +885,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilStalenessUpdateBrowserTest,
 // TODO(b:514161985): Enable on Android once enterprise shortcuts are
 // implemented there. The implementation is compiled out on Android and
 // `IsEnterpriseShortcutsEnabled()` always returns false.
-#if !BUILDFLAG(IS_ANDROID)
 // Parameterized to test for shortcuts with managed preference.
 IN_PROC_BROWSER_TEST_P(NewTabPageUtilStalenessUpdateBrowserTest,
                        ShouldUpdateShortcutsStalenessWithManagedPreference) {
@@ -922,7 +911,6 @@ IN_PROC_BROWSER_TEST_P(NewTabPageUtilStalenessUpdateBrowserTest,
       NtpShortcutsAutoRemovalReason::kManagedPreference,
       is_managed_preference ? 1 : 0);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Parameterized to test for logging the shortcuts staleness count metric.
 IN_PROC_BROWSER_TEST_P(NewTabPageUtilStalenessUpdateBrowserTest,

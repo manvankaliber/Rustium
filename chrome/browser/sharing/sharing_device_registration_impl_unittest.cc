@@ -179,10 +179,6 @@ class SharingDeviceRegistrationImplTest : public testing::Test {
           syncer::DeviceInfo::SharingFeature::kOneTimeTokenBackendNotification);
     }
 
-    if (sharing_device_registration_.IsGlicExperimentalTriggeringSupported()) {
-      features.insert(
-          syncer::DeviceInfo::SharingFeature::kGlicExperimentalTriggering);
-    }
 
     if (sharing_device_registration_.IsBrowserActuatorSupported()) {
       features.insert(syncer::DeviceInfo::SharingFeature::kBrowserActuator);
@@ -192,11 +188,7 @@ class SharingDeviceRegistrationImplTest : public testing::Test {
   }
 
   bool supports_opt_guide() const {
-#if BUILDFLAG(IS_ANDROID)
-    return true;
-#else
     return false;
-#endif
   }
 
  protected:
@@ -237,23 +229,7 @@ TEST_F(SharingDeviceRegistrationImplTest,
                    .IsOneTimeTokenBackendNotificationSupported());
 }
 
-TEST_F(SharingDeviceRegistrationImplTest,
-       IsGlicExperimentalTriggeringSupported_True) {
-  SharingDeviceRegistrationImpl sharing_device_registration(
-      &sync_prefs_, &mock_instance_id_driver_, &test_sync_service_,
-      /*glic_experimental_triggering_supported=*/true);
-  EXPECT_TRUE(
-      sharing_device_registration.IsGlicExperimentalTriggeringSupported());
-}
 
-TEST_F(SharingDeviceRegistrationImplTest,
-       IsGlicExperimentalTriggeringSupported_False) {
-  SharingDeviceRegistrationImpl sharing_device_registration(
-      &sync_prefs_, &mock_instance_id_driver_, &test_sync_service_,
-      /*glic_experimental_triggering_supported=*/false);
-  EXPECT_FALSE(
-      sharing_device_registration.IsGlicExperimentalTriggeringSupported());
-}
 
 TEST_F(SharingDeviceRegistrationImplTest, IsBrowserActuatorSupported_True) {
   base::test::ScopedFeatureList feature_list;

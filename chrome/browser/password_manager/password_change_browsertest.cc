@@ -499,13 +499,13 @@ class PasswordChangeBrowserTest : public base::test::WithFeatureOverride,
 };
 
 // Flaky: crbug.com/456247817
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #define MAYBE_ChangePasswordFormIsFilledAutomatically \
   DISABLED_ChangePasswordFormIsFilledAutomatically
 #else
 #define MAYBE_ChangePasswordFormIsFilledAutomatically \
   ChangePasswordFormIsFilledAutomatically
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
 IN_PROC_BROWSER_TEST_P(PasswordChangeBrowserTest,
                        MAYBE_ChangePasswordFormIsFilledAutomatically) {
   SetPrivacyNoticeAcceptedPref();

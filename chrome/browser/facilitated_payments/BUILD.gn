@@ -30,20 +30,6 @@ static_library("facilitated_payments") {
     "//content/public/browser",
     "//mojo/public/cpp/bindings",
   ]
-
-  # The payment UI, payment link handling, and platform API client are
-  # Android-only. Desktop only runs payment QR code detection, which needs
-  # none of them.
-  if (is_android) {
-    sources += [
-      "payment_link_handler_binder.cc",
-      "payment_link_handler_binder.h",
-    ]
-    deps += [
-      "//chrome/browser/facilitated_payments/ui/android",
-      "//components/facilitated_payments/android",
-    ]
-  }
 }
 
 source_set("unit_tests") {

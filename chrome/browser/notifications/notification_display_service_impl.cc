@@ -27,26 +27,17 @@
 #include "ui/message_center/public/cpp/notification.h"
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/enterprise/reporting/extension_request/extension_request_notification_handler_android.h"
-#endif
 #include "chrome/browser/extensions/api/notifications/extension_notification_handler.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "chrome/browser/sharing/sharing_notification_handler.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/notifications/glic_actor_task_notification_handler.h"
 #include "chrome/browser/notifications/muted_notification_handler.h"
 #include "chrome/browser/notifications/screen_capture_notification_blocker.h"
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/default_browser/default_browser_changed_notification_handler.h"
 #include "chrome/browser/default_browser/default_browser_features.h"
-#endif
-#endif
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #include "chrome/browser/safe_browsing/tailored_security/notification_handler_desktop.h"
@@ -77,9 +68,7 @@ NotificationDisplayServiceImpl::NotificationDisplayServiceImpl(Profile* profile)
     AddNotificationHandler(NotificationHandler::Type::WEB_PERSISTENT,
                            std::make_unique<PersistentNotificationHandler>());
 
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-     BUILDFLAG(IS_WIN)) &&                                                 \
-    BUILDFLAG(SAFE_BROWSING_AVAILABLE)
+#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)) && BUILDFLAG(SAFE_BROWSING_AVAILABLE)
     AddNotificationHandler(
         NotificationHandler::Type::TAILORED_SECURITY,
         std::make_unique<safe_browsing::TailoredSecurityNotificationHandler>());
@@ -89,22 +78,12 @@ NotificationDisplayServiceImpl::NotificationDisplayServiceImpl(Profile* profile)
     AddNotificationHandler(
         NotificationHandler::Type::EXTENSION,
         std::make_unique<extensions::ExtensionNotificationHandler>());
-#if BUILDFLAG(IS_ANDROID)
-    AddNotificationHandler(
-        NotificationHandler::Type::EXTENSION_REQUEST,
-        std::make_unique<
-            enterprise_reporting::ExtensionRequestNotificationHandler>());
-#endif
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
     AddNotificationHandler(NotificationHandler::Type::SHARING,
                            std::make_unique<SharingNotificationHandler>());
     AddNotificationHandler(NotificationHandler::Type::ANNOUNCEMENT,
                            std::make_unique<AnnouncementNotificationHandler>());
-    AddNotificationHandler(
-        NotificationHandler::Type::GLIC_ACTOR_TASK,
-        std::make_unique<GlicActorTaskNotificationHandler>());
 
     auto screen_capture_blocker =
         std::make_unique<ScreenCaptureNotificationBlocker>(this);
@@ -114,7 +93,6 @@ NotificationDisplayServiceImpl::NotificationDisplayServiceImpl(Profile* profile)
     notification_queue_.AddNotificationBlocker(
         std::move(screen_capture_blocker));
 
-#if !BUILDFLAG(IS_CHROMEOS)
     if (default_browser::IsDefaultBrowserFrameworkEnabled() &&
         default_browser::IsDefaultBrowserChangedOsNotificationEnabled()) {
       AddNotificationHandler(
@@ -122,8 +100,6 @@ NotificationDisplayServiceImpl::NotificationDisplayServiceImpl(Profile* profile)
           std::make_unique<
               default_browser::DefaultBrowserChangedNotificationHandler>());
     }
-#endif
-#endif
   }
 
   bridge_delegator_ = std::make_unique<NotificationPlatformBridgeDelegator>(

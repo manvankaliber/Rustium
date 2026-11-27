@@ -28,9 +28,6 @@
 #include "build/chromeos_buildflags.h"
 #include "content/public/browser/navigation_controller.h"
 #include "ui/base/page_transition_types.h"
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/chromeos/policy/dlp/test/mock_dlp_content_manager.h"
-#endif
 #include "chrome/browser/extensions/api/debugger/debugger_api.h"
 #include "chrome/browser/extensions/extension_apitest.h"
 #include "chrome/browser/extensions/extension_management_test_util.h"
@@ -109,12 +106,6 @@
 #include "extensions/browser/test_event_router_observer.h"
 #endif  // BUILDFLAG(ENABLE_GUEST_VIEW)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/messages/android/message_enums.h"
-#include "components/messages/android/message_wrapper.h"
-#include "components/messages/android/mock_message_dispatcher_bridge.h"
-#include "testing/gmock/include/gmock/gmock.h"
-#else
 #include "base/i18n/rtl.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/browser/extensions/api/debugger/extension_dev_tools_infobar_delegate.h"
@@ -122,7 +113,6 @@
 #include "chrome/grit/generated_resources.h"
 #include "components/infobars/core/confirm_infobar_delegate.h"
 #include "ui/base/l10n/l10n_util.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PDF)
 #include "base/test/scoped_feature_list.h"
@@ -133,9 +123,6 @@
 #include "pdf/pdf_features.h"
 #endif  // BUILDFLAG(ENABLE_PDF)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -712,85 +699,6 @@ IN_PROC_BROWSER_TEST_F(DebuggerApiTest,
   EXPECT_TRUE(RunAttachFunction(web_contents, "Cannot attach to this target."));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Android uses messages for warnings instead of infobars.
-IN_PROC_BROWSER_TEST_F(DebuggerApiTest, Messages) {
-  int tab_id =
-      sessions::SessionTabHelper::IdForTab(GetActiveWebContents()).id();
-  scoped_refptr<DebuggerAttachFunction> attach_function;
-  scoped_refptr<DebuggerDetachFunction> detach_function;
-
-  messages::MockMessageDispatcherBridge mock_bridge;
-  mock_bridge.SetMessagesEnabledForEmbedder(true);
-  messages::MessageDispatcherBridge::SetInstanceForTesting(&mock_bridge);
-
-  // Set up mocks to capture the message and handle cleanup.
-  messages::MessageWrapper* captured_message = nullptr;
-  EXPECT_CALL(mock_bridge,
-              EnqueueWindowScopedMessage(testing::_, testing::_,
-                                         messages::MessagePriority::kUrgent))
-      .WillRepeatedly([&captured_message](messages::MessageWrapper* message,
-                                          ui::WindowAndroid* window,
-                                          messages::MessagePriority priority) {
-        captured_message = message;
-        message->SetMessageEnqueued(window->GetJavaObject());
-        return true;
-      });
-  EXPECT_CALL(
-      mock_bridge,
-      DismissMessage(testing::_, messages::DismissReason::DISMISSED_BY_FEATURE))
-      .WillRepeatedly([&captured_message](
-                          messages::MessageWrapper* message,
-                          messages::DismissReason dismiss_reason) {
-        JNIEnv* env = base::android::AttachCurrentThread();
-        message->HandleDismissCallback(env, static_cast<int>(dismiss_reason));
-        captured_message = nullptr;
-      });
-
-  // Attaching should create a message.
-  attach_function = base::MakeRefCounted<DebuggerAttachFunction>();
-  attach_function->set_extension(extension());
-  ASSERT_TRUE(api_test_utils::RunFunction(
-      attach_function.get(),
-      base::StringPrintf("[{\"tabId\": %d}, \"1.1\"]", tab_id), profile()));
-  ASSERT_NE(nullptr, captured_message);
-  EXPECT_TRUE(captured_message->is_in_queue());
-
-  // Detaching removes the message.
-  detach_function = base::MakeRefCounted<DebuggerDetachFunction>();
-  detach_function->set_extension(extension());
-  ASSERT_TRUE(api_test_utils::RunFunction(
-      detach_function.get(), base::StringPrintf("[{\"tabId\": %d}]", tab_id),
-      profile()));
-  EXPECT_FALSE(captured_message);
-
-  // Attach again; should create another message.
-  attach_function = base::MakeRefCounted<DebuggerAttachFunction>();
-  attach_function->set_extension(extension());
-  ASSERT_TRUE(api_test_utils::RunFunction(
-      attach_function.get(),
-      base::StringPrintf("[{\"tabId\": %d}, \"1.1\"]", tab_id), profile()));
-  EXPECT_TRUE(captured_message->is_in_queue());
-
-  // Simulating what happens when the user clicks the cancel button. The
-  // extension is detached.
-  JNIEnv* env = base::android::AttachCurrentThread();
-  captured_message->HandleActionClick(env);
-
-  // The message is closed.
-  EXPECT_FALSE(captured_message);
-
-  // Trying to detach again will fail because the extension is already detached.
-  detach_function = base::MakeRefCounted<DebuggerDetachFunction>();
-  detach_function->set_extension(extension());
-  ASSERT_FALSE(api_test_utils::RunFunction(
-      detach_function.get(), base::StringPrintf("[{\"tabId\": %d}]", tab_id),
-      profile()));
-
-  messages::MessageDispatcherBridge::SetInstanceForTesting(nullptr);
-}
-
-#else  // BUILDFLAG(IS_ANDROID)
 
 // Win/Mac/Linux/Chrome OS use infobars for warnings.
 IN_PROC_BROWSER_TEST_F(DebuggerApiTest, InfoBar) {
@@ -1143,9 +1051,6 @@ class CrossProfileDebuggerApiTest : public DebuggerApiTest {
 
  private:
   void SetUpOnMainThread() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    ash::ProfileHelper::SetAlwaysReturnPrimaryUserForTesting(true);
-#endif  // BUILDFLAG(IS_CHROMEOS)
     DebuggerApiTest::SetUpOnMainThread();
     ProfileManager* const profile_manager = profile_util::GetProfileManager();
 
@@ -1278,7 +1183,6 @@ IN_PROC_BROWSER_TEST_F(DebuggerApiTest,
 
   EXPECT_EQ(1u, manager->infobars().size());
 }
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Tests that policy blocked hosts supersede the `debugger`
 // permission. Regression test for crbug.com/40053634.
@@ -1543,8 +1447,7 @@ IN_PROC_BROWSER_TEST_F(DebuggerExtensionApiTest, AttachToBlob) {
 // does not cause a crash.
 // This is a regression test for https://crbug.com/40055226.
 // TODO(crbug.com/41483732): Re-enable this test.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 #define MAYBE_NavigateToForbiddenUrl DISABLED_NavigateToForbiddenUrl
 #else
 #define MAYBE_NavigateToForbiddenUrl NavigateToForbiddenUrl
@@ -1687,29 +1590,6 @@ IN_PROC_BROWSER_TEST_F(
       << message_;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Target-level screenshot restrictions via Data Leak Prevention (DLP) are
-// currently only supported on ChromeOS.
-IN_PROC_BROWSER_TEST_F(
-    SitePerProcessDebuggerExtensionApiStrictPolicyEnabledTest,
-    AttachRejectedWhenScreenshotsRestrictedByDlp) {
-  ASSERT_TRUE(embedded_test_server()->Started());
-  GURL url = embedded_test_server()->GetURL("a.test", "/english_page.html");
-  ASSERT_TRUE(NavigateToURL(web_contents(), url));
-
-  policy::MockDlpContentManager mock_dlp_content_manager;
-  policy::ScopedDlpContentObserverForTesting scoped_dlp_content_observer(
-      &mock_dlp_content_manager);
-  EXPECT_CALL(mock_dlp_content_manager,
-              IsScreenshotApiRestricted(web_contents()))
-      .WillOnce(testing::Return(true));
-
-  ASSERT_TRUE(RunExtensionTest(
-      "debugger_disable_screenshots",
-      {.custom_arg = "Screenshot capture is restricted on this target."}))
-      << message_;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Tests that a trusted component extension is exempt from global screenshot
 // restrictions and can attach to the browser target even when enterprise
@@ -2031,29 +1911,6 @@ IN_PROC_BROWSER_TEST_F(
       << message_;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Tests that when kExtensionDebuggerStrictPolicyRestrictions is disabled
-// (crbug.com/561948316), attaching the debugger is allowed even if DLP
-// restricts screenshots on the target.
-IN_PROC_BROWSER_TEST_F(
-    SitePerProcessDebuggerExtensionApiStrictPolicyDisabledTest,
-    AttachAllowedWhenScreenshotsRestrictedByDlp) {
-  ASSERT_TRUE(embedded_test_server()->Started());
-  GURL url = embedded_test_server()->GetURL("a.test", "/english_page.html");
-  ASSERT_TRUE(NavigateToURL(web_contents(), url));
-
-  policy::MockDlpContentManager mock_dlp_content_manager;
-  policy::ScopedDlpContentObserverForTesting scoped_dlp_content_observer(
-      &mock_dlp_content_manager);
-  EXPECT_CALL(mock_dlp_content_manager,
-              IsScreenshotApiRestricted(web_contents()))
-      .WillRepeatedly(testing::Return(true));
-
-  ASSERT_TRUE(RunExtensionTest("debugger_disable_screenshots",
-                               {.custom_arg = "debuggerAllowed"}))
-      << message_;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Test fixture for verifying chrome.debugger runtime_blocked_hosts policy
 // behavior when the kExtensionDebuggerStrictPolicyRestrictions feature flag is

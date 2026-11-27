@@ -29,25 +29,23 @@ source_set("onboarding") {
   ]
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [ "indigo_onboarding_dialog_browsertest.cc" ]
-    deps = [
-      ":onboarding",
-      "//chrome/browser",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/tabs:tabs_public",
-      "//chrome/test:test_support",
-      "//components/tabs:public",
-      "//content/public/browser",
-      "//content/test:test_support",
-      "//testing/gtest",
-      "//ui/base/interaction",
-      "//ui/views",
-      "//ui/views/controls/webview",
-      "//url",
-    ]
-  }
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [ "indigo_onboarding_dialog_browsertest.cc" ]
+  deps = [
+    ":onboarding",
+    "//chrome/browser",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/tabs:tabs_public",
+    "//chrome/test:test_support",
+    "//components/tabs:public",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//testing/gtest",
+    "//ui/base/interaction",
+    "//ui/views",
+    "//ui/views/controls/webview",
+    "//url",
+  ]
 }

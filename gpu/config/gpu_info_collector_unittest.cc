@@ -208,12 +208,7 @@ TEST_P(GPUInfoCollectorTest, CollectGraphicsInfoGL) {
     EXPECT_EQ(test_values_.gpu.driver_vendor, gpu_info.gpu.driver_vendor);
     EXPECT_EQ(test_values_.gpu.driver_version, gpu_info.gpu.driver_version);
   }
-#elif BUILDFLAG(IS_ANDROID)
-  if (GetParam() == kMockedAndroid) {
-    EXPECT_EQ(test_values_.gpu.driver_vendor, gpu_info.gpu.driver_vendor);
-    EXPECT_EQ(test_values_.gpu.driver_version, gpu_info.gpu.driver_version);
-  }
-#else  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#else
   if (GetParam() == kMockedLinux) {
     EXPECT_EQ(test_values_.gpu.driver_vendor, gpu_info.gpu.driver_vendor);
     EXPECT_EQ(test_values_.gpu.driver_version, gpu_info.gpu.driver_version);
@@ -228,7 +223,7 @@ TEST_P(GPUInfoCollectorTest, CollectGraphicsInfoGL) {
   EXPECT_EQ(test_values_.gl_extensions, gpu_info.gl_extensions);
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 TEST_P(GPUInfoCollectorTest, CollectGraphicsInfoGLMultiGPU) {
   GPUInfo::GPUDevice amd_gpu;
   amd_gpu.vendor_id = 0x1002;
@@ -255,7 +250,7 @@ TEST_P(GPUInfoCollectorTest, CollectGraphicsInfoGLMultiGPU) {
               gpu_info.secondary_gpus[0].driver_version);
   }
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 TEST(MultiGPUsTest, IdentifyActiveGPU0) {
   GPUInfo::GPUDevice nvidia_gpu;

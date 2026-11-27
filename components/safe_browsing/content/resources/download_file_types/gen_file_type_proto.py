@@ -35,8 +35,6 @@ from binary_proto_generator import BinaryProtoGenerator  # noqa: E402
 def PlatformTypes():
     return {
         # LINT.IfChange(PlatformTypes)
-        "android": download_file_types_pb2.DownloadFileType.PLATFORM_TYPE_ANDROID,  # noqa: F821
-        "chromeos": download_file_types_pb2.DownloadFileType.PLATFORM_TYPE_CHROME_OS,  # noqa: F821
         "linux": download_file_types_pb2.DownloadFileType.PLATFORM_TYPE_LINUX,  # noqa: F821
         "mac": download_file_types_pb2.DownloadFileType.PLATFORM_TYPE_MAC,  # noqa: F821
         "win": download_file_types_pb2.DownloadFileType.PLATFORM_TYPE_WINDOWS,  # noqa: F821

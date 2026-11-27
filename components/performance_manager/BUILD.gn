@@ -161,8 +161,6 @@ static_library("performance_manager") {
     "priority/frame_capturing_media_stream_voter.h",
     "priority/frame_visibility_voter.cc",
     "priority/frame_visibility_voter.h",
-    "priority/glic_actuation_priority_voter.cc",
-    "priority/glic_actuation_priority_voter.h",
     "priority/inherit_client_priority_voter.cc",
     "priority/inherit_client_priority_voter.h",
     "priority/inherit_parent_priority_voter.cc",
@@ -344,20 +342,6 @@ static_library("performance_manager") {
   if (enable_guest_view) {
     deps += [ "//components/guest_view/browser" ]
   }
-
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/dbus/power",
-      "//chromeos/dbus/power:power_manager_proto",
-    ]
-
-    sources += [
-      "power/battery_level_provider_chromeos.cc",
-      "power/battery_level_provider_chromeos.h",
-      "power/dbus_power_manager_sampling_event_source.cc",
-      "power/dbus_power_manager_sampling_event_source.h",
-    ]
-  }
 }
 
 source_set("unit_tests") {
@@ -408,7 +392,6 @@ source_set("unit_tests") {
     "priority/frame_audible_voter_unittest.cc",
     "priority/frame_capturing_media_stream_voter_unittest.cc",
     "priority/frame_visibility_voter_unittest.cc",
-    "priority/glic_actuation_priority_voter_unittest.cc",
     "priority/inherit_client_priority_voter_unittest.cc",
     "priority/inherit_parent_priority_voter_unittest.cc",
     "priority/loading_page_voter_unittest.cc",
@@ -463,37 +446,21 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (is_ios) {
-    deps += [ "//components/test:performance_manager_test_bundle_data" ]
-  }
-
-  # The site data database isn't supported on Android.
-  if (!is_android) {
-    sources += [
-      "decorators/site_data_recorder_unittest.cc",
-      "freezing/freezer_unittest.cc",
-      "freezing/freezing_policy_unittest.cc",
-      "freezing/freezing_unittest.cc",
-      "graph/policies/process_priority_policy_unittest.cc",
-      "persistence/site_data/exponential_moving_average_unittest.cc",
-      "persistence/site_data/leveldb_site_data_store_unittest.cc",
-      "persistence/site_data/non_recording_site_data_cache_unittest.cc",
-      "persistence/site_data/site_data_cache_factory_unittest.cc",
-      "persistence/site_data/site_data_cache_impl_unittest.cc",
-      "persistence/site_data/site_data_impl_unittest.cc",
-      "persistence/site_data/site_data_reader_unittest.cc",
-      "persistence/site_data/site_data_writer_unittest.cc",
-    ]
-  }
-
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/dbus/power",
-      "//chromeos/dbus/power:power_manager_proto",
-    ]
-
-    sources += [ "power/battery_level_provider_chromeos_unittest.cc" ]
-  }
+  sources += [
+    "decorators/site_data_recorder_unittest.cc",
+    "freezing/freezer_unittest.cc",
+    "freezing/freezing_policy_unittest.cc",
+    "freezing/freezing_unittest.cc",
+    "graph/policies/process_priority_policy_unittest.cc",
+    "persistence/site_data/exponential_moving_average_unittest.cc",
+    "persistence/site_data/leveldb_site_data_store_unittest.cc",
+    "persistence/site_data/non_recording_site_data_cache_unittest.cc",
+    "persistence/site_data/site_data_cache_factory_unittest.cc",
+    "persistence/site_data/site_data_cache_impl_unittest.cc",
+    "persistence/site_data/site_data_impl_unittest.cc",
+    "persistence/site_data/site_data_reader_unittest.cc",
+    "persistence/site_data/site_data_writer_unittest.cc",
+  ]
 
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
   # enable the diagnostic by removing this line.
@@ -526,8 +493,4 @@ source_set("browser_tests") {
     "//testing/gmock",
     "//testing/gtest",
   ]
-
-  if (is_ios) {
-    deps += [ "//components/test:performance_manager_test_bundle_data" ]
-  }
 }

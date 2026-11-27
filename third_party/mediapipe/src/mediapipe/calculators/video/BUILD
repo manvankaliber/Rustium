@@ -282,14 +282,12 @@ cc_library(
         "@com_google_absl//absl/status:status_macros",
         "@com_google_absl//absl/strings",
     ] + select({
-        "//mediapipe:android": [
-            "//mediapipe/util/android/file/base",
-        ],
+
         "//mediapipe:ios": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:emscripten": [
-            "//mediapipe/util/android/file/base",
+
         ],
         "//mediapipe:macos": [
             "//mediapipe/framework/port:file_helpers",
@@ -437,7 +435,7 @@ cc_test(
     srcs = ["tracking_graph_test.cc"],
     copts = ["-DPARALLEL_INVOKER_ACTIVE"] + select({
         "//mediapipe:apple": [],
-        "//mediapipe:android": [],
+
         "//mediapipe:emscripten": ["-UPARALLEL_INVOKER_ACTIVE"],
         "//conditions:default": [],
     }),

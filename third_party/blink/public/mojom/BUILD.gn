@@ -9,14 +9,9 @@ import("//printing/buildflags/buildflags.gni")
 import("//third_party/blink/public/public_features.gni")
 import("//third_party/blink/renderer/config.gni")
 
-if (is_android) {
-  import("//build/config/android/config.gni")
-  import("//build/config/android/rules.gni")
-}
-
 mojom("dom_node_id") {
   generate_blink = true
-  generate_java = true
+
   generate_legacy_js_bindings = true
   sources = [ "dom/dom_node_id.mojom" ]
   webui_module_path = "/"
@@ -291,10 +286,6 @@ mojom("mojom_platform") {
     "worker/worklet_global_scope_creation_params.mojom",
   ]
 
-  if (is_android) {
-    sources += [ "input/synchronous_compositor.mojom" ]
-  }
-
   if (is_win) {
     sources += [ "dwrite_font_proxy/dwrite_font_proxy.mojom" ]
   }
@@ -303,18 +294,14 @@ mojom("mojom_platform") {
     sources += [ "input/text_input_host.mojom" ]
   }
 
-  if (is_chromeos) {
-    sources += [ "set_shape/set_shape.mojom" ]
-  }
-
   public_deps = [
-    ":android_mojo_bindings",
     ":authenticator_mojo_bindings",
     ":color_scheme_mojo_bindings",
     ":credentialmanagement_mojo_bindings",
     ":dom_node_id",
     ":mojom_mhtml_load_result",
     ":script_type_mojo_bindings",
+    ":shared_mojo_bindings",
     ":web_feature_mojo_bindings",
     "//cc/mojom",
     "//components/content_settings/core/common:content_settings_types",
@@ -369,12 +356,10 @@ mojom("mojom_platform") {
     "//url/mojom:url_mojom_scheme_host_port",
   ]
 
-  if (!is_android) {
-    sources += [
-      "direct_sockets/direct_sockets.mojom",
-      "printing/web_printing.mojom",
-    ]
-  }
+  sources += [
+    "direct_sockets/direct_sockets.mojom",
+    "printing/web_printing.mojom",
+  ]
 
   if (is_mac) {
     public_deps += [
@@ -856,41 +841,7 @@ mojom("mojom_platform") {
       ]
     },
   ]
-  if (is_chromeos && use_cups) {
-    cpp_typemaps += [
-      {
-        types = [
-          {
-            mojom = "blink.mojom.WebPrintJobTemplateAttributes"
-            cpp = "::std::unique_ptr<::printing::PrintSettings>"
-            move_only = true
-            nullable_is_same_type = true
-          },
-          {
-            mojom = "blink.mojom.WebPrintingSides"
-            cpp = "::printing::mojom::DuplexMode"
-          },
-          {
-            mojom = "blink.mojom.WebPrinterState"
-            cpp = "ipp_pstate_t"
-          },
-          {
-            mojom = "blink.mojom.WebPrinterStateReason"
-            cpp = "::printing::PrinterStatus::PrinterReason::Reason"
-          },
-        ]
-        traits_headers =
-            [ "//chrome/browser/printing/web_api/web_printing_mojom_traits.h" ]
-        traits_sources =
-            [ "//chrome/browser/printing/web_api/web_printing_mojom_traits.cc" ]
-        traits_public_deps = [ "//printing:settings" ]
-        traits_deps = [
-          "//printing/backend",
-          "//printing/mojom",
-        ]
-      },
-    ]
-  }
+
   blink_cpp_typemaps = [
     {
       types = [
@@ -959,16 +910,11 @@ mojom("mojom_platform") {
   scramble_message_ids = false
 }
 
-# Kept separate from "mojom_platform" because the Java bindings are
-# needed by Android's implementation (in chrome/android or in android_webview)
-# for following mojom files. "mojom_platform" and "mojom_core" don't generate
-# Java bindings, so any mojom file whose Java bindings are needed (directly, or
-# because it is imported by such a file) must be listed here instead.
-mojom("android_mojo_bindings") {
+# Shared renderer interfaces with C++ and Blink bindings.
+mojom("shared_mojo_bindings") {
   generate_blink = true
-  generate_java = true
+
   sources = [
-    "android_font_lookup/android_font_lookup.mojom",
     "blob/blob.mojom",
     "blob/blob_registry.mojom",
     "blob/blob_url_store.mojom",
@@ -1033,39 +979,6 @@ mojom("android_mojo_bindings") {
       "//media/mojo/mojom",
       "//media/mojo/mojom:media_types",
     ]
-  }
-
-  if (use_blink_extensions_webview) {
-    sources += [ "webview/webview_media_integrity.mojom" ]
-  }
-
-  # This uses target_os rather than current_os (which is what is_android is set
-  # from) for the case of generating the v8 context snapshot for android. When
-  # generating the snapshot for android, blink is compiled with
-  # current_os="linux" and target_os="android". Using target_os is necessary as
-  # we need to compile in the same way as would happen when
-  # current_os="android".
-  if (target_os_is_android) {
-    sources += [ "remote_objects/remote_objects.mojom" ]
-
-    # Direct deps (instead of transitive deps) are necessary for java targets.
-    public_deps += [
-      "//services/network/public/mojom:mojom_cache_storage_side_data_writer",
-      "//services/network/public/mojom:mojom_connection_allowlist",
-      "//services/network/public/mojom:mojom_content_security_policy",
-      "//services/network/public/mojom:mojom_cors_origin_pattern",
-      "//services/network/public/mojom:mojom_http_request_headers",
-      "//services/network/public/mojom:mojom_integrity_algorithm",
-      "//services/network/public/mojom:mojom_integrity_policy",
-      "//services/network/public/mojom:mojom_source_location",
-      "//services/network/public/mojom:mojom_web_sandbox_flags",
-      "//services/network/public/mojom:url_loader_base",
-    ]
-  }
-
-  # This Android unhandled-tap feature uses another mojo source, add it in.
-  if (enable_unhandled_tap) {
-    sources += [ "unhandled_tap_notifier/unhandled_tap_notifier.mojom" ]
   }
 
   shared_cpp_typemaps = [
@@ -1244,11 +1157,11 @@ mojom("mojom_core") {
   ]
 
   public_deps = [
-    ":android_mojo_bindings",
     ":color_scheme_mojo_bindings",
     ":dom_node_id",
     ":mojom_platform",
     ":script_type_mojo_bindings",
+    ":shared_mojo_bindings",
     ":web_feature_mojo_bindings",
     "//cc/mojom",
     "//components/payments/mojom",
@@ -1460,7 +1373,7 @@ mojom("mojom_core") {
   blink_cpp_typemaps += shared_cpp_typemaps
 
   overridden_deps_blink = [
-    ":android_mojo_bindings",
+    ":shared_mojo_bindings",
     ":dom_node_id",
     ":mojom_platform",
     "//cc/mojom",
@@ -1496,8 +1409,8 @@ mojom("mojom_modules") {
   ]
 
   public_deps = [
-    ":android_mojo_bindings",
     ":mojom_core",
+    ":shared_mojo_bindings",
     "//mojo/public/mojom/base",
     "//services/network/public/mojom:mojom_permissions_policy",
     "//url/mojom:url_mojom_gurl",
@@ -1505,7 +1418,7 @@ mojom("mojom_modules") {
   ]
 
   overridden_deps_blink = [
-    ":android_mojo_bindings",
+    ":shared_mojo_bindings",
     ":mojom_core",
   ]
   component_deps_blink = [ "//third_party/blink/renderer/core" ]
@@ -1676,7 +1589,7 @@ mojom("web_bluetooth_mojo_bindings") {
 
 mojom("mojom_mhtml_load_result") {
   generate_blink = true
-  generate_java = true
+
   sources = [ "loader/mhtml_load_result.mojom" ]
 
   export_class_attribute = "BLINK_COMMON_EXPORT"
@@ -1686,7 +1599,7 @@ mojom("mojom_mhtml_load_result") {
 
 mojom_component("script_type_mojo_bindings") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "script/script_evaluation_params.mojom",
     "script/script_type.mojom",
@@ -1705,7 +1618,7 @@ mojom_component("script_type_mojo_bindings") {
 # dependencies.
 mojom_component("web_feature_mojo_bindings") {
   generate_blink = true
-  generate_java = true
+
   sources = [
     "use_counter/metrics/css_property_id.mojom",
     "use_counter/metrics/web_feature.mojom",
@@ -1757,7 +1670,7 @@ mojom("memory_usage_monitor_linux_mojo_bindings") {
 
 mojom("color_scheme_mojo_bindings") {
   generate_blink = true
-  generate_java = true
+
   visibility_blink = [
     "//third_party/blink/public/mojom:mojom_core_blink",
     "//third_party/blink/public/mojom:mojom_platform_blink",
@@ -1775,7 +1688,6 @@ mojom("color_scheme_mojo_bindings") {
 
 mojom_component("credentialmanagement_mojo_bindings") {
   generate_blink = true
-  generate_java = true
 
   sources = [
     "credentialmanagement/credential_manager.mojom",
@@ -1827,7 +1739,6 @@ mojom_component("credentialmanagement_mojo_bindings") {
 
 mojom_component("authenticator_mojo_bindings") {
   generate_blink = true
-  generate_java = true
 
   sources = [ "webauthn/authenticator.mojom" ]
 

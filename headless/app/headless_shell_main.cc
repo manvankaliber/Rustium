@@ -29,7 +29,7 @@ int main(int argc, const char** argv) {
   }
   // Sandbox info has to be set and initialized.
   params.sandbox_info = &sandbox_info;
-#elif !BUILDFLAG(IS_ANDROID)
+#else
   params.argc = argc;
   params.argv = argv;
 #if BUILDFLAG(IS_MAC)

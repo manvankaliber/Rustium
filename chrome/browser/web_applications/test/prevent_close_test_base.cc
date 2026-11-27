@@ -6,7 +6,6 @@
 
 #include <string_view>
 
-#include "ash/constants/web_app_id_constants.h"
 #include "base/json/json_reader.h"
 #include "base/values.h"
 #include "build/build_config.h"
@@ -30,17 +29,8 @@
 #include "ui/base/mojom/window_open_disposition.mojom-shared.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/web_applications/web_app_run_on_os_login_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-PreventCloseTestBase::PreventCloseTestBase()
-    : skip_run_on_os_login_startup_(
-          web_app::WebAppRunOnOsLoginManager::SkipStartupForTesting()) {}
-#else
 PreventCloseTestBase::PreventCloseTestBase() = default;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 PreventCloseTestBase::~PreventCloseTestBase() = default;
 

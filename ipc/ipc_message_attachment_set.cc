@@ -22,8 +22,9 @@ unsigned count_attachments_of_type(
     MessageAttachment::Type type) {
   unsigned count = 0;
   for (const scoped_refptr<MessageAttachment>& attachment : attachments) {
-    if (attachment->GetType() == type)
+    if (attachment->GetType() == type) {
       ++count;
+    }
   }
   return count;
 }
@@ -31,12 +32,12 @@ unsigned count_attachments_of_type(
 }  // namespace
 
 MessageAttachmentSet::MessageAttachmentSet()
-    : consumed_descriptor_highwater_(0) {
-}
+    : consumed_descriptor_highwater_(0) {}
 
 MessageAttachmentSet::~MessageAttachmentSet() {
-  if (consumed_descriptor_highwater_ == size())
+  if (consumed_descriptor_highwater_ == size()) {
     return;
+  }
 
   // We close all the owning descriptors. If this message should have
   // been transmitted, then closing those with close flags set mirrors
@@ -62,7 +63,7 @@ unsigned MessageAttachmentSet::size() const {
 bool MessageAttachmentSet::AddAttachment(
     scoped_refptr<MessageAttachment> attachment,
     size_t* index) {
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   if (attachment->GetType() == MessageAttachment::Type::PLATFORM_FILE &&
       num_descriptors() == kMaxDescriptorsPerMessage) {
     DLOG(WARNING) << "Cannot add file descriptor. MessageAttachmentSet full.";
@@ -75,7 +76,7 @@ bool MessageAttachmentSet::AddAttachment(
     case MessageAttachment::Type::MOJO_HANDLE:
     case MessageAttachment::Type::WIN_HANDLE:
     case MessageAttachment::Type::MACH_PORT:
-    case MessageAttachment::Type::FUCHSIA_HANDLE:
+
       attachments_.push_back(attachment);
       *index = attachments_.size() - 1;
       return true;
@@ -116,8 +117,9 @@ scoped_refptr<MessageAttachment> MessageAttachmentSet::GetAttachmentAt(
                      "returning a nullptr";
   }
 
-  if (index != consumed_descriptor_highwater_)
+  if (index != consumed_descriptor_highwater_) {
     return scoped_refptr<MessageAttachment>();
+  }
 
   consumed_descriptor_highwater_ = index + 1;
 

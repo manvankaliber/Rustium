@@ -31,18 +31,12 @@
 #include "chrome/browser/safe_browsing/download_protection/download_protection_service.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/safe_browsing/download_protection/deep_scanning_request.h"
-#endif
 
 namespace safe_browsing {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-// File suffix for APKs.
-const base::FilePath::CharType kApkSuffix[] = FILE_PATH_LITERAL(".apk");
-#endif
 
 int ArchiveEntryWeight(const ClientDownloadRequest::ArchivedBinary& entry) {
   return FileTypePolicies::GetInstance()
@@ -470,11 +464,7 @@ bool IsFiletypeSupportedForFullDownloadProtection(
   // for Android here.
   // TODO(chlily): Refactor/fix FileTypePolicies and then remove this
   // platform-specific hardcoded behavior.
-#if BUILDFLAG(IS_ANDROID)
-  return file_name.MatchesExtension(kApkSuffix);
-#else
   return FileTypePolicies::GetInstance()->IsCheckedBinaryFile(file_name);
-#endif
 }
 
 }  // namespace safe_browsing

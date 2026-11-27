@@ -20,106 +20,16 @@
 #include "extensions/buildflags/buildflags.h"
 #include "extensions/common/event_args.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/scoped_multi_source_observation.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list_observer.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_observer.h"
-#else
 #include "chrome/browser/ui/browser_tab_strip_tracker.h"
 #include "chrome/browser/ui/browser_tab_strip_tracker_delegate.h"
 #include "chrome/browser/ui/tabs/tab_group_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
 namespace extensions {
 
-#if BUILDFLAG(IS_ANDROID)
-
-class TabGroupsEventRouter::PlatformDelegate : public TabModelListObserver,
-                                               public TabModelObserver {
- public:
-  PlatformDelegate(TabGroupsEventRouter* owner, Profile* profile)
-      : owner_(owner), profile_(profile) {}
-
-  PlatformDelegate(const PlatformDelegate&) = delete;
-  PlatformDelegate& operator=(const PlatformDelegate&) = delete;
-
-  ~PlatformDelegate() override {
-    tab_model_observations_.RemoveAllObservations();
-    TabModelList::RemoveObserver(this, profile_);
-  }
-
-  void Init() {
-    // Equivalent to observing for new windows.
-    TabModelList::AddObserver(this, profile_);
-    // Add models for existing windows.
-    TabModelList::ForEach(profile_, [&](TabModel* model) {
-      OnTabModelAdded(model);
-      return true;
-    });
-  }
-
-  // TabModelListObserver:
-  void OnTabModelAdded(TabModel* model) override {
-    // Ignore tab models that are non-standard as they have tabs that will never
-    // have `WebContents`, as well as empty regular tab models for ephemeral or
-    // incognito CCTs as they are never mutated.
-    if (model->GetTabModelType() != TabModel::TabModelType::kStandard ||
-        model->IsEmptyRegularModelForEphemeralOrIncognitoCct()) {
-      return;
-    }
-    tab_model_observations_.AddObservation(model);
-
-    // TODO(crbug.com/405219902): Should we fire a "created" event for existing
-    // tab groups? This object is created early in startup, so tab groups may
-    // not exist yet. Need to check Win/Mac/Linux behavior.
-  }
-
-  void OnTabModelRemoved(TabModel* model) override {
-    if (tab_model_observations_.IsObservingSource(model)) {
-      tab_model_observations_.RemoveObservation(model);
-    }
-  }
-
-  // TabModelObserver:
-  void OnTabGroupCreated(tab_groups::TabGroupId group_id) override {
-    owner_->DispatchGroupCreated(group_id);
-
-    // TODO(crbug.com/405219902): For compatibility with Win/Mac/Linux we also
-    // fire "updated" when a group is created. Check if this is necessary as
-    // more observer methods are added, specifically the updated method.
-    owner_->DispatchGroupUpdated(group_id);
-  }
-
-  void OnTabGroupRemoving(tab_groups::TabGroupId group_id) override {
-    // We must dispatch this message before the group is removed (i.e. in
-    // remov*ing*) because the first thing DispatchGroupRemoved() does is look
-    // up the group to build group data for the event. This is also compatible
-    // with Win/Mac/Linux.
-    owner_->DispatchGroupRemoved(group_id);
-  }
-
-  void OnTabGroupMoved(tab_groups::TabGroupId group_id) override {
-    owner_->DispatchGroupMoved(group_id);
-  }
-
-  void OnTabGroupVisualsChanged(tab_groups::TabGroupId group_id) override {
-    owner_->DispatchGroupUpdated(group_id);
-  }
-
- private:
-  const raw_ptr<TabGroupsEventRouter> owner_;
-  const raw_ptr<Profile> profile_;
-  base::ScopedMultiSourceObservation<TabModel, TabModelObserver>
-      tab_model_observations_{this};
-};
-
-#else
 
 class TabGroupsEventRouter::PlatformDelegate
     : public TabStripModelObserver,
@@ -185,7 +95,6 @@ class TabGroupsEventRouter::PlatformDelegate
   BrowserTabStripTracker browser_tab_strip_tracker_;
 };
 
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TabGroupsEventRouter::TabGroupsEventRouter(content::BrowserContext* context)
     : profile_(Profile::FromBrowserContext(context)),

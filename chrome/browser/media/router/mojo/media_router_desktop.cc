@@ -76,9 +76,7 @@ constexpr char kLoggerComponent[] = "MediaRouterDesktop";
 
 DesktopMediaPickerController::Params MakeDesktopPickerParams(
     content::WebContents* web_contents) {
-#if !BUILDFLAG(IS_CHROMEOS)
   CHECK(web_contents, base::NotFatalUntil::M161);
-#endif
 
   DesktopMediaPickerController::Params params(
       DesktopMediaPickerController::Params::RequestSource::kCast);

@@ -368,15 +368,8 @@ void AddSysColorMixer(ColorProvider* provider, const ColorProviderKey& key) {
                                               : kColorRefNeutral0};
 
   // ActorUi
-  mixer[kColorSysActorUiBorder] = {ui::kColorRefPrimary50};
-  mixer[kColorSysActorUiGradientStart] = {ui::kColorRefPrimary70};
-  mixer[kColorSysActorUiGradientMiddle] = {ui::kColorRefPrimary40};
-  mixer[kColorSysActorUiGradientEnd] = {ui::kColorRefPrimary60};
 
   // Glic
-  mixer[kColorGlicTabUnderline1] = {ui::kColorRefPrimary50};
-  mixer[kColorGlicTabUnderline2] = {ui::kColorRefPrimary60};
-  mixer[kColorGlicTabUnderline3] = {ui::kColorRefPrimary70};
 
   // AI.
   mixer[kColorSysAiIllustrationShapeSurface1] = {

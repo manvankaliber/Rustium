@@ -15,7 +15,6 @@
 #include "chrome/common/webui_url_constants.h"
 #include "chrome/test/base/web_ui_mocha_browser_test.h"
 #include "components/content_settings/core/common/content_settings_utils.h"
-#include "components/permissions/contexts/geolocation_permission_context_android.h"
 #include "components/permissions/permission_manager.h"
 #include "components/zoom/zoom_controller.h"
 #include "content/public/browser/navigation_handle.h"
@@ -56,7 +55,7 @@ class SlimWebviewBrowserTest : public WebUIMochaBrowserTest,
   // While these tests are independent of Glic, we use the Glic host as a
   // convenient way to get a WebUI instance that has all the sources and
   // bindings set up correctly.
-  SlimWebviewBrowserTest() { set_test_loader_host(chrome::kChromeUIGlicHost); }
+  SlimWebviewBrowserTest() {  }
 
   void SetUpDefaultCommandLine(base::CommandLine* command_line) override {
     WebUIMochaBrowserTest::SetUpDefaultCommandLine(command_line);

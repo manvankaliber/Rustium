@@ -12,7 +12,6 @@ import '../internal/icons.html.js';
 
 // </if>
 
-import {PrefService} from '/shared/settings/prefs2/pref_service.js';
 import {WebUiListenerMixinLit} from 'chrome://resources/cr_elements/web_ui_listener_mixin_lit.js';
 import {assert, assertNotReached} from 'chrome://resources/js/assert.js';
 import {OpenWindowProxyImpl} from 'chrome://resources/js/open_window_proxy.js';
@@ -57,9 +56,8 @@ export class SettingsAiPageElement extends SettingsAiPageElementBase {
       showPasswordChangeControl_: {type: Boolean},
       showAiSuggestionsControl_: {type: Boolean},
       showInlineCueMenuControl_: {type: Boolean},
-      showSkillsSettingPage_: {type: Boolean},
+
       showIndigoControl_: {type: Boolean},
-      showGoogleSearchAiModeWorkspaceControl_: {type: Boolean},
       showDictationControl_: {type: Boolean},
       // <if expr="_google_chrome">
       showOnDeviceAiAdvancedSettings_: {type: Boolean},
@@ -75,12 +73,9 @@ export class SettingsAiPageElement extends SettingsAiPageElementBase {
       loadTimeData.getBoolean('showAiSuggestionsControl');
   protected accessor showInlineCueMenuControl_: boolean =
       loadTimeData.getBoolean('showInlineCueMenuControl');
-  protected accessor showSkillsSettingPage_: boolean =
-      loadTimeData.getBoolean('showSkillsSettingPage');
+
   protected accessor showIndigoControl_: boolean =
       loadTimeData.getBoolean('showIndigoControl');
-  protected accessor showGoogleSearchAiModeWorkspaceControl_: boolean =
-      loadTimeData.getBoolean('showGoogleSearchAiModeWorkspaceControl');
   protected accessor showDictationControl_: boolean =
       loadTimeData.getBoolean('showDictationControl');
   // <if expr="_google_chrome">
@@ -130,9 +125,6 @@ export class SettingsAiPageElement extends SettingsAiPageElementBase {
         this.showAiSuggestionsControl_);
     this.metricsBrowserProxy_.recordBooleanHistogram(
         'Settings.AiPage.ElementVisibility.Indigo', this.showIndigoControl_);
-    this.metricsBrowserProxy_.recordBooleanHistogram(
-        'Settings.AiPage.ElementVisibility.GoogleSearchAiModeWorkspace',
-        this.showGoogleSearchAiModeWorkspaceControl_);
   }
 
   protected onComposeRowClick_() {
@@ -202,37 +194,6 @@ export class SettingsAiPageElement extends SettingsAiPageElementBase {
     OpenWindowProxyImpl.getInstance().openUrl(
         loadTimeData.getString('indigoSavedUrl'));
   }
-
-  protected onGoogleSearchAiModeWorkspaceRowClick_() {
-    this.recordInteractionMetrics_(
-        AiPageInteractions.GOOGLE_SEARCH_AI_MODE_WORKSPACE_CLICK,
-        'Settings.AiPage.GoogleSearchAiModeWorkspaceEntryPointClick');
-
-    let isRestricted = false;
-    try {
-      const consentState =
-          PrefService.getInstance()
-              .getPref<number>('contextual_search.drive_consent_state')
-              .value;
-      isRestricted = consentState === 1;  // DriveConsentState::kRestricted
-    } catch (e) {
-      console.error(
-          'Failed to read contextual_search.drive_consent_state pref:', e);
-    }
-
-    let url;
-    try {
-      url = loadTimeData.getString(
-          isRestricted ? 'googleSearchAiModeRestrictedUrl' :
-                         'googleSearchAiModeWorkspaceUrl');
-    } catch (e) {
-      console.error('Failed to read URL from loadTimeData:', e);
-      return;
-    }
-
-    OpenWindowProxyImpl.getInstance().openUrl(url);
-  }
-
 
   private recordInteractionMetrics_(
       interaction: AiPageInteractions, action: string) {
@@ -340,7 +301,7 @@ export class SettingsAiPageElement extends SettingsAiPageElementBase {
         triggerId = 'inlineCueMenuRow';
         break;
       case 'skills':
-        assert(this.showSkillsSettingPage_);
+
         triggerId = 'skillsRow';
         break;
       case 'dictation':

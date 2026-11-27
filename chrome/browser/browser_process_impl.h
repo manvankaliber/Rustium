@@ -37,13 +37,8 @@
 #include "services/network/public/cpp/network_quality_tracker.h"
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/upgrade_detector/build_state.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/application_status_listener.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class BatteryMetrics;
 class ChromeMetricsServicesManagerClient;
@@ -57,11 +52,9 @@ class SiteIsolationPrefsObserver;
 class SystemNotificationHelper;
 class StartupData;
 
-#if !BUILDFLAG(IS_CHROMEOS)
 namespace activity_reporter {
 class ActivityReporter;
 }  // namespace activity_reporter
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace speech {
 class SpeechRecognitionSmallExpertModelInstaller;
@@ -130,14 +123,12 @@ class BrowserProcessImpl : public BrowserProcess,
   // Called to complete initialization.
   void Init();
 
-#if !BUILDFLAG(IS_ANDROID)
   // Sets a closure to be run to break out of a run loop on browser shutdown
   // (when the KeepAlive count reaches zero).
   // TODO(crbug.com/41390731): This is also used on macOS for the Cocoa
   // first run dialog so that shutdown can be initiated via a signal while the
   // first run dialog is showing.
   void SetQuitClosure(base::OnceClosure quit_closure);
-#endif
 
 #if BUILDFLAG(IS_MAC)
   // Clears the quit closure. Shutdown will not be initiated should the
@@ -159,10 +150,8 @@ class BrowserProcessImpl : public BrowserProcess,
   // ChromeBrowserMain based on notifications from the content
   // framework, rather than in the destructor, so that we can
   // interleave cleanup with threads being stopped.
-#if !BUILDFLAG(IS_ANDROID)
   void StartTearDown();
   void PostDestroyThreads();
-#endif
 
   // BrowserProcess implementation.
   void EndSession() override;
@@ -220,24 +209,16 @@ class BrowserProcessImpl : public BrowserProcess,
   void StartAutoupdateTimer() override;
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
   activity_reporter::ActivityReporter* activity_reporter() override;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   component_updater::ComponentUpdateService* component_updater() override;
-#if BUILDFLAG(IS_CHROMEOS)
-  MediaFileSystemRegistry* media_file_system_registry() override;
-#endif
   WebRtcLogUploader* webrtc_log_uploader() override;
   network_time::NetworkTimeTracker* network_time_tracker() override;
-#if !BUILDFLAG(IS_ANDROID)
   gcm::GCMDriver* gcm_driver() override;
-#endif
   resource_coordinator::TabManager* GetTabManager() override;
   resource_coordinator::ResourceCoordinatorParts* resource_coordinator_parts()
       override;
 
   SerialPolicyAllowedPorts* serial_policy_allowed_ports() override;
-#if !BUILDFLAG(IS_ANDROID)
   HidSystemTrayIcon* hid_system_tray_icon() override;
   void set_hid_system_tray_icon_for_test(
       std::unique_ptr<HidSystemTrayIcon> icon) override;
@@ -246,7 +227,6 @@ class BrowserProcessImpl : public BrowserProcess,
       std::unique_ptr<UsbSystemTrayIcon> icon) override;
   speech::SpeechRecognitionSmallExpertModelInstaller*
   speech_recognition_small_expert_model_installer() override;
-#endif
 
   os_crypt_async::OSCryptAsync* os_crypt_async() override;
 
@@ -298,9 +278,7 @@ class BrowserProcessImpl : public BrowserProcess,
       base::expected<chrome::IsolationState, HRESULT> result);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if !BUILDFLAG(IS_ANDROID)
   void OnDevToolsRemoteDebuggingAllowedChanged();
-#endif
 
   // Methods called to control our lifetime. The browser process can be "pinned"
   // to make sure it keeps running.
@@ -363,14 +341,9 @@ class BrowserProcessImpl : public BrowserProcess,
       extensions_browser_client_;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<MediaFileSystemRegistry> media_file_system_registry_;
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<RemoteDebuggingServer> remote_debugging_server_;
   std::unique_ptr<DevToolsAutoOpener> devtools_auto_opener_;
-#endif
 
 #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
   std::unique_ptr<printing::PrintPreviewDialogController>
@@ -450,16 +423,13 @@ class BrowserProcessImpl : public BrowserProcess,
   void RestartBackgroundInstance();
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 
-#if !BUILDFLAG(IS_CHROMEOS)
   std::unique_ptr<activity_reporter::ActivityReporter> activity_reporter_;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   // component updater is normally not used under ChromeOS due
   // to concerns over integrity of data shared between profiles,
   // but some users of component updater only install per-user.
   std::unique_ptr<component_updater::ComponentUpdateService> component_updater_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Used to create a singleton instance of SodaInstallerImpl, which can be
   // retrieved using speech::SodaInstaller::GetInstance().
   // SodaInstallerImpl depends on ComponentUpdateService, so define it here
@@ -468,7 +438,6 @@ class BrowserProcessImpl : public BrowserProcess,
 
   std::unique_ptr<speech::SpeechRecognitionSmallExpertModelInstaller>
       speech_recognition_small_expert_model_installer_;
-#endif
 
   std::unique_ptr<BrowserProcessPlatformPart> platform_part_;
 
@@ -490,7 +459,6 @@ class BrowserProcessImpl : public BrowserProcess,
   std::unique_ptr<SiteIsolationPrefsObserver> site_isolation_prefs_observer_;
 
   std::unique_ptr<SerialPolicyAllowedPorts> serial_policy_allowed_ports_;
-#if !BUILDFLAG(IS_ANDROID)
   // Called to signal the process' main message loop to exit.
   base::OnceClosure quit_closure_;
 
@@ -499,11 +467,7 @@ class BrowserProcessImpl : public BrowserProcess,
   std::unique_ptr<UsbSystemTrayIcon> usb_system_tray_icon_;
 
   BuildState build_state_;
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<base::android::ApplicationStatusListener> app_state_listener_;
-#endif
 
   ui::UnownedUserDataHost unowned_user_data_host_;
 

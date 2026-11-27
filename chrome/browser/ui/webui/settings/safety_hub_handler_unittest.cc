@@ -26,8 +26,6 @@
 #include "chrome/browser/password_manager/password_manager_test_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/safe_browsing/test_safe_browsing_service.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_trigger_service.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promo_trigger_service_factory.h"
 #include "chrome/browser/ui/safety_hub/mock_safe_browsing_database_manager.h"
 #include "chrome/browser/ui/safety_hub/password_status_check_service.h"
 #include "chrome/browser/ui/safety_hub/password_status_check_service_factory.h"
@@ -96,29 +94,9 @@ const base::TimeDelta kLifetime = base::Days(30);
 
 namespace {
 
-class MockIOSPromoTriggerService : public IOSPromoTriggerService {
- public:
-  explicit MockIOSPromoTriggerService(Profile* profile)
-      : IOSPromoTriggerService(profile) {}
-  ~MockIOSPromoTriggerService() override = default;
 
-  MOCK_METHOD(void,
-              NotifyPromoShouldBeShown,
-              (desktop_to_mobile_promos::PromoType promo_type),
-              (override));
-  MOCK_METHOD(const syncer::DeviceInfo*, GetIOSDeviceToRemind, (), (override));
-  MOCK_METHOD(void,
-              SetReminderForIOSDevice,
-              (desktop_to_mobile_promos::PromoType promo_type,
-               const std::string& device_guid),
-              (override));
-};
 
-std::unique_ptr<KeyedService> BuildMockIOSPromoTriggerService(
-    content::BrowserContext* context) {
-  return std::make_unique<MockIOSPromoTriggerService>(
-      Profile::FromBrowserContext(context));
-}
+
 
 }  // namespace
 
@@ -130,8 +108,7 @@ class SafetyHubHandlerTest : public testing::Test {
         {{content_settings::features::kSafetyCheckUnusedSitePermissions, {}},
          {features::kSafetyHubExtensionsUwSTrigger, {}},
          {features::kSafetyHubExtensionsOffStoreTrigger, {}},
-         {kMobilePromoOnDesktopWithReminder,
-          {{kMobilePromoOnDesktopPromoTypeParam, "2"}}},
+
          {sync_preferences::features::kEnableCrossDevicePrefTracker, {}}},
         /*disabled_features=*/{});
   }
@@ -1209,22 +1186,7 @@ TEST_F(SafetyHubHandlerTest, ExtensionPrefAndInitialization) {
   EXPECT_EQ(2u, web_ui()->call_data().size());
 }
 
-TEST_F(SafetyHubHandlerTest, OnSafeBrowsingEnhancedChanged) {
-  auto* mock_service = static_cast<MockIOSPromoTriggerService*>(
-      IOSPromoTriggerServiceFactory::GetInstance()->SetTestingFactoryAndUse(
-          profile(), base::BindRepeating(&BuildMockIOSPromoTriggerService)));
 
-  // Turn off enhanced safe browsing. The promo should not be triggered.
-  EXPECT_CALL(*mock_service, NotifyPromoShouldBeShown(testing::_)).Times(0);
-  profile()->GetPrefs()->SetBoolean(prefs::kSafeBrowsingEnhanced, false);
-  testing::Mock::VerifyAndClearExpectations(mock_service);
-
-  // Turn on enhanced safe browsing. The promo should be triggered.
-  EXPECT_CALL(*mock_service,
-              NotifyPromoShouldBeShown(
-                  desktop_to_mobile_promos::PromoType::kEnhancedBrowsing));
-  profile()->GetPrefs()->SetBoolean(prefs::kSafeBrowsingEnhanced, true);
-}
 
 class SafetyHubHandlerUnusedPermissionRevocationDisabledTest
     : public testing::Test,

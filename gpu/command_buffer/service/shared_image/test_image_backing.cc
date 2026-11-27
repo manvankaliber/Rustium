@@ -387,12 +387,6 @@ bool TestOverlayImageRepresentation::BeginReadAccess(
 void TestOverlayImageRepresentation::EndReadAccess(
     gfx::GpuFenceHandle release_fence) {}
 
-#if BUILDFLAG(IS_ANDROID)
-std::unique_ptr<base::android::ScopedHardwareBufferFenceSync>
-TestOverlayImageRepresentation::GetAHardwareBufferFenceSync() {
-  return nullptr;
-}
-#endif
 
 #if BUILDFLAG(IS_APPLE)
 bool TestOverlayImageRepresentation::IsInUseByWindowServer() const {
@@ -419,11 +413,6 @@ D3D11TextureAndArrayIndex TestVideoImageRepresentation::GetD3D11Texture()
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-AHardwareBuffer* TestVideoImageRepresentation::GetAHardwareBuffer() const {
-  return nullptr;
-}
-#endif
 
 #if BUILDFLAG(IS_APPLE)
 gfx::ScopedIOSurface TestVideoImageRepresentation::GetIOSurface() const {

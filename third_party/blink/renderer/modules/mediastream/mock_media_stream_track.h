@@ -134,7 +134,6 @@ class MockMediaStreamTrack : public blink::MediaStreamTrack {
   MOCK_METHOD1(BeingTransferred, void(const base::UnguessableToken&));
   MOCK_CONST_METHOD1(TransferAllowed, bool(String&));
 
-#if !BUILDFLAG(IS_ANDROID)
   MOCK_METHOD5(
       SendWheel,
       void(double, double, int, int, base::OnceCallback<void(DOMException*)>));
@@ -144,7 +143,6 @@ class MockMediaStreamTrack : public blink::MediaStreamTrack {
   MOCK_METHOD0(CloseFocusWindowOfOpportunity, void());
   MOCK_METHOD2(SetZoomLevel,
                void(int, base::OnceCallback<void(DOMException*)>));
-#endif
 
   MOCK_METHOD1(AddObserver, void(Observer*));
 

@@ -26,9 +26,6 @@
 class GoogleURLLoaderThrottle final : public blink::URLLoaderThrottle {
  public:
   explicit GoogleURLLoaderThrottle(
-#if BUILDFLAG(IS_ANDROID)
-      const std::string& client_data_header,
-#endif
 #if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
       std::unique_ptr<BoundSessionRequestThrottledHandler>
           bound_session_request_throttled_handler,
@@ -94,9 +91,6 @@ class GoogleURLLoaderThrottle final : public blink::URLLoaderThrottle {
       deferred_request_resume_trigger_;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  std::string client_data_header_;
-#endif
 
   const chrome::mojom::DynamicParamsPtr dynamic_params_;
 

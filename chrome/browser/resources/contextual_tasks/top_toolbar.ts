@@ -14,7 +14,6 @@ import './sources_menu.js';
 import './overflow_menu.js';
 import './profile_tooltip.js';
 // clang-format off
-// <if expr="not is_android">
 import '/shared/permission_dashboard.js';
 
 import type {PermissionChipDelegate} from '/shared/permission_chip_delegate.js';
@@ -23,7 +22,6 @@ import {HelpBubbleMixinLit} from 'chrome://resources/cr_components/help_bubble/h
 
 import type {InitialState} from './contextual_tasks_toolbar.mojom-webui.js';
 
-// </if>
 
 import type {CrLazyRenderLitElement} from 'chrome://resources/cr_elements/cr_lazy_render/cr_lazy_render_lit.js';
 import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
@@ -52,12 +50,7 @@ export interface TopToolbarElement {
   };
 }
 
-// <if expr="is_android">
-const TopToolbarElementBase = CrLitElement;
-// </if>
-// <if expr="not is_android">
 const TopToolbarElementBase = HelpBubbleMixinLit(CrLitElement);
-// </if>
 
 export class TopToolbarElement extends TopToolbarElementBase {
   static get is() {
@@ -112,10 +105,8 @@ export class TopToolbarElement extends TopToolbarElementBase {
         attribute: 'is-side-panel-rearchitecture-enabled',
       },
       webuiRoundedIconsEnabled_: {type: Boolean},
-      // <if expr="not is_android">
       permissionDashboardState: {type: Object},
       permissionChipDelegate_: {type: Object},
-      // </if>
       profileAvatarUrl: {type: String},
       accountFullName: {type: String},
       accountEmail: {type: String},
@@ -130,11 +121,9 @@ export class TopToolbarElement extends TopToolbarElementBase {
   accessor isAimEligible: boolean = loadTimeData.getBoolean('isAimEligible');
   accessor isCobrowseEligible: boolean =
       loadTimeData.getBoolean('isCobrowseEligible');
-  // <if expr="not is_android">
   accessor permissionDashboardState: PermissionDashboardState|null = null;
   protected accessor permissionChipDelegate_: PermissionChipDelegate|null =
       null;
-  // </if>
   accessor profileAvatarUrl: string =
       loadTimeData.valueExists('profileAvatarUrl') ?
       loadTimeData.getString('profileAvatarUrl') :
@@ -150,9 +139,7 @@ export class TopToolbarElement extends TopToolbarElementBase {
   private toolbarBrowserProxy_: ToolbarBrowserProxyImpl =
       ToolbarBrowserProxyImpl.getInstance();
   private toolbarListenerIds_: number[] = [];
-  // <if expr="not is_android">
   private sidePanelToolbarListenerIds_: number[] = [];
-  // </if>
   protected accessor isExpandButtonEnabled: boolean =
       loadTimeData.getBoolean('expandButtonEnabled');
   accessor isPinButtonEnabled: boolean =
@@ -211,7 +198,6 @@ export class TopToolbarElement extends TopToolbarElementBase {
     ];
     window.addEventListener('blur', this.boundOnWindowBlur_);
 
-    // <if expr="not is_android">
     const toolbarUiService = this.toolbarBrowserProxy_.toolbarUiService;
     const toolbarUiObserverCallbackRouter =
         this.toolbarBrowserProxy_.toolbarUiObserverCallbackRouter;
@@ -258,7 +244,6 @@ export class TopToolbarElement extends TopToolbarElementBase {
         toolbarUiService.onChipCollapseAnimationEnded(id);
       },
     };
-    // </if>
   }
 
   override disconnectedCallback() {
@@ -269,14 +254,12 @@ export class TopToolbarElement extends TopToolbarElementBase {
     this.wasProfileIndicatorShown_ = false;
     window.removeEventListener('blur', this.boundOnWindowBlur_);
 
-    // <if expr="not is_android">
     const toolbarUiObserverCallbackRouter =
         this.toolbarBrowserProxy_.toolbarUiObserverCallbackRouter;
     this.sidePanelToolbarListenerIds_.forEach(
         id => toolbarUiObserverCallbackRouter.removeListener(id));
     this.sidePanelToolbarListenerIds_ = [];
     toolbarUiObserverCallbackRouter.$.close();
-    // </if>
   }
 
   // Dismisses any open menu when the side panel loses focus. Clicks outside of
@@ -290,7 +273,6 @@ export class TopToolbarElement extends TopToolbarElementBase {
     this.getProfileTooltip_()?.hide();
   }
 
-  // <if expr="not is_android">
   override firstUpdated(_changedProperties: PropertyValues) {
     super.firstUpdated(_changedProperties);
     this.registerHelpBubble(
@@ -305,7 +287,6 @@ export class TopToolbarElement extends TopToolbarElementBase {
           'kContextualTasksSuperGButtonElementId', '.top-toolbar-logo-button');
     }
   }
-  // </if>
 
   override updated(changedProperties: PropertyValues<this>) {
     super.updated(changedProperties);
@@ -322,25 +303,18 @@ export class TopToolbarElement extends TopToolbarElementBase {
         changedProperties.has('onboardingTooltipShowing')) {
       this.hideOverflowMenuButton_ =
           this.isAiPage && this.hideOverflowMenuOnAiPageEnabled_;
-      // <if expr="not is_android">
       if (this.isAiPage) {
         if (!this.onboardingTooltipShowing) {
           this.toolbarBrowserProxy_.handler.maybeTriggerPinningPromo();
         }
       }
-      // </if>
     }
   }
 
   protected isPermissionShowing_(): boolean {
-    // <if expr="is_android">
-    return false;
-    // </if>
-    // <if expr="not is_android">
     return this.isSidePanelRearchitectureEnabled_ &&
         (!!this.permissionDashboardState?.indicatorChip?.isVisible ||
          !!this.permissionDashboardState?.requestChip?.isVisible);
-    // </if>
   }
 
   protected shouldShowSourcesMenuButton_(): boolean {

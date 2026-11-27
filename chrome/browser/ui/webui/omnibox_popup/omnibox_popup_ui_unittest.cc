@@ -54,6 +54,19 @@ class OmniboxPopupUITest : public ChromeRenderViewHostTestHarness {
       variations::VariationsIdsProvider::Mode::kUseSignedInState};
 };
 
+TEST_F(OmniboxPopupUITest, CreatesAndReusesContextualSearchSession) {
+  ASSERT_NE(ContextualSearchServiceFactory::GetForProfile(profile()), nullptr);
+  content::TestWebUI web_ui;
+  web_ui.set_web_contents(web_contents());
+  OmniboxPopupUI popup(&web_ui);
+
+  auto* session = popup.GetOrCreateContextualSessionHandle();
+  ASSERT_NE(session, nullptr);
+  EXPECT_EQ(popup.GetOrCreateContextualSessionHandle(), session);
+  popup.ClearContextualSessionHandle();
+  EXPECT_FALSE(popup.HasContextualSessionHandleForTesting());
+}
+
 TEST_F(OmniboxPopupUITest, SafeWithNullContextualSearchService) {
   // Force ContextualSearchService to be null.
   ContextualSearchServiceFactory::GetInstance()->SetTestingFactory(

@@ -38,9 +38,6 @@
 #include "mojo/public/cpp/bindings/pending_remote.h"
 #include "services/on_device_model/public/mojom/on_device_model.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace speech {
 
@@ -49,12 +46,6 @@ constexpr base::TimeDelta kIdleProcessTimeout = base::Seconds(5);
 ChromeSpeechRecognitionService::ChromeSpeechRecognitionService(
     content::BrowserContext* context)
     : context_(context) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!base::FeatureList::IsEnabled(
-          ash::features::kOnDeviceSpeechRecognition)) {
-    return;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   auto* soda_installer = speech::SodaInstaller::GetInstance();
 
@@ -294,12 +285,12 @@ void ChromeSpeechRecognitionService::LaunchIfNotRunning() {
 
   content::ServiceProcessHost::Options options;
   options.WithDisplayName(IDS_UTILITY_PROCESS_SPEECH_RECOGNITION_SERVICE_NAME);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // libsoda.so has to be dlopen()ed before the sandbox is engaged, so tell the
   // utility process which binary it is going to be asked to load below.
   options.WithExtraCommandLineSwitchKeyValues(
       {{speech::kSodaBinaryPathSwitch, binary_path.value()}});
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   mojo::PendingRemote<media::mojom::SpeechRecognitionService> pending_remote;
   content::ServiceProcessHost::Launch(

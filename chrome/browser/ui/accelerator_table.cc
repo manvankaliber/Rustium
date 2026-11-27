@@ -47,9 +47,7 @@ constexpr AcceleratorMapping kAcceleratorMap[] = {
 //      item with the appropriate modifier.
 //   2) Update GetShortcutsNotPresentInMainMenu() in
 //      global_keyboard_shortcuts_mac.mm.
-#if !BUILDFLAG(IS_CHROMEOS)
     {ui::VKEY_F7, ui::EF_NONE, IDC_CARET_BROWSING_TOGGLE},
-#endif
     {ui::VKEY_ESCAPE, ui::EF_NONE, IDC_CLOSE_FIND_OR_STOP},
 
 #if !BUILDFLAG(IS_MAC)
@@ -165,7 +163,7 @@ constexpr AcceleratorMapping kDevToolsAcceleratorMap[] = {
 #endif  // !BUILDFLAG(IS_MAC)
 };
 
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_MAC)
 constexpr AcceleratorMapping kDesktopOnlyAcceleratorMap[] = {
     {ui::VKEY_M, ui::EF_SHIFT_DOWN | ui::EF_PLATFORM_ACCELERATOR,
      IDC_SHOW_AVATAR_MENU},
@@ -178,15 +176,13 @@ constexpr AcceleratorMapping kDesktopOnlyAcceleratorMap[] = {
      IDC_FOCUS_INACTIVE_POPUP_FOR_ACCESSIBILITY},
     {ui::VKEY_R, ui::EF_SHIFT_DOWN | ui::EF_ALT_DOWN,
      IDC_SHOW_READING_MODE_KEYBOARD},
-#if !BUILDFLAG(IS_CHROMEOS)
     {ui::VKEY_LMENU, ui::EF_NONE, IDC_FOCUS_MENU_BAR},
     {ui::VKEY_MENU, ui::EF_NONE, IDC_FOCUS_MENU_BAR},
     {ui::VKEY_RMENU, ui::EF_NONE, IDC_FOCUS_MENU_BAR},
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 };
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#endif
 
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC)
 constexpr AcceleratorMapping kNonChromeOSAcceleratorMap[] = {
     {ui::VKEY_DELETE, ui::EF_SHIFT_DOWN | ui::EF_CONTROL_DOWN,
      IDC_CLEAR_BROWSING_DATA},
@@ -199,40 +195,10 @@ constexpr AcceleratorMapping kNonChromeOSAcceleratorMap[] = {
      IDC_ZOOM_MINUS},
     {ui::VKEY_OEM_PLUS, ui::EF_SHIFT_DOWN | ui::EF_CONTROL_DOWN, IDC_ZOOM_PLUS},
 };
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr AcceleratorMapping kChromeOSAcceleratorMap[] = {
-    // On Chrome OS, Control + Search + the seventh key from escape (most
-    // commonly Brightness Up) toggles caret browsing.
-    // Note that VKEY_F7 is not a typo; Search + the seventh function key maps
-    // to F7 for accelerators.
-    {ui::VKEY_F7, ui::EF_CONTROL_DOWN, IDC_CARET_BROWSING_TOGGLE},
-    // Chrome OS supports the print key, however XKB conflates the print
-    // and printscreen keys together so it is not supported on Linux.
-    // See crbug.com/41296059
-    {ui::VKEY_PRINT, ui::EF_NONE, IDC_PRINT},
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-    // Chrome OS supports search-based shortcut to open feedback app.
-    {ui::VKEY_I, ui::EF_CONTROL_DOWN | ui::EF_COMMAND_DOWN, IDC_FEEDBACK},
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
-    // Chrome OS keyboard does not have delete key, so assign it to backspace.
-    {ui::VKEY_BACK, ui::EF_SHIFT_DOWN | ui::EF_CONTROL_DOWN,
-     IDC_CLEAR_BROWSING_DATA},
-    // On Chrome OS, VKEY_BROWSER_SEARCH is handled in Ash.
-    {ui::VKEY_OEM_2, ui::EF_CONTROL_DOWN, IDC_HELP_PAGE_VIA_KEYBOARD},
-    {ui::VKEY_OEM_2, ui::EF_SHIFT_DOWN | ui::EF_CONTROL_DOWN,
-     IDC_HELP_PAGE_VIA_KEYBOARD},
-    {ui::VKEY_BROWSER_FAVORITES, ui::EF_NONE, IDC_SHOW_BOOKMARK_MANAGER},
-    {ui::VKEY_BROWSER_STOP, ui::EF_NONE, IDC_STOP},
-    // On Chrome OS, Search + Esc is used to call out task manager.
-    {ui::VKEY_ESCAPE, ui::EF_COMMAND_DOWN, IDC_TASK_MANAGER_SHORTCUT},
-    {ui::VKEY_Z, ui::EF_COMMAND_DOWN, IDC_TOGGLE_MULTITASK_MENU},
-    {ui::VKEY_N, ui::EF_CONTROL_DOWN | ui::EF_ALT_DOWN, IDC_NEW_SPLIT_TAB},
-};
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 constexpr AcceleratorMapping kLinuxAndChromeOSAcceleratorMap[] = {
     {ui::VKEY_BROWSER_BACK, ui::EF_NONE, IDC_BACK},
     {ui::VKEY_BROWSER_FORWARD, ui::EF_NONE, IDC_FORWARD},
@@ -243,7 +209,7 @@ constexpr AcceleratorMapping kLinuxAndChromeOSAcceleratorMap[] = {
     {ui::VKEY_CLOSE, ui::EF_NONE, IDC_CLOSE_TAB},
     {ui::VKEY_NEW, ui::EF_NONE, IDC_NEW_TAB},
 };
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 constexpr AcceleratorMapping kLinuxAndWinAcceleratorMap[] = {
@@ -254,7 +220,7 @@ constexpr AcceleratorMapping kLinuxAndWinAcceleratorMap[] = {
 };
 #endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 constexpr AcceleratorMapping kAltTabSelectAcceleratorMap[] = {
     {ui::VKEY_1, ui::EF_ALT_DOWN, IDC_SELECT_TAB_0},
     {ui::VKEY_NUMPAD1, ui::EF_ALT_DOWN, IDC_SELECT_TAB_0},
@@ -275,7 +241,7 @@ constexpr AcceleratorMapping kAltTabSelectAcceleratorMap[] = {
     {ui::VKEY_9, ui::EF_ALT_DOWN, IDC_SELECT_LAST_TAB},
     {ui::VKEY_NUMPAD9, ui::EF_ALT_DOWN, IDC_SELECT_LAST_TAB},
 };
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#endif
 
 #if BUILDFLAG(IS_LINUX)
 constexpr AcceleratorMapping kLinuxAcceleratorMap[] = {
@@ -283,35 +249,10 @@ constexpr AcceleratorMapping kLinuxAcceleratorMap[] = {
 };
 #endif  // BUILDFLAG(IS_LINUX)
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr AcceleratorMapping kAndroidAcceleratorMap[] = {
-    {ui::VKEY_BROWSER_FORWARD, ui::EF_NONE, IDC_FORWARD},
-    {ui::VKEY_BROWSER_REFRESH, ui::EF_NONE, IDC_RELOAD},
-    {ui::VKEY_BROWSER_REFRESH, ui::EF_CONTROL_DOWN, IDC_RELOAD_BYPASSING_CACHE},
-    {ui::VKEY_BROWSER_REFRESH, ui::EF_SHIFT_DOWN, IDC_RELOAD_BYPASSING_CACHE},
-    // Some Android keyboards do not have a delete key, so assign it to
-    // backspace.
-    {ui::VKEY_BACK, ui::EF_SHIFT_DOWN | ui::EF_CONTROL_DOWN,
-     IDC_CLEAR_BROWSING_DATA},
-    {ui::VKEY_OEM_2, ui::EF_SHIFT_DOWN | ui::EF_CONTROL_DOWN,
-     IDC_HELP_PAGE_VIA_KEYBOARD},
-    {ui::VKEY_A, ui::EF_SHIFT_DOWN | ui::EF_ALT_DOWN, IDC_TAB_SEARCH},
-    {ui::VKEY_ESCAPE, ui::EF_CONTROL_DOWN, IDC_TASK_MANAGER_SHORTCUT},
-    {ui::VKEY_F10, ui::EF_SHIFT_DOWN, IDC_OPEN_TAB_STRIP_CONTEXT_MENU},
-    {ui::VKEY_LEFT, ui::EF_CONTROL_DOWN, IDC_REORDER_TAB_STRIP_ITEM_LEFT},
-    {ui::VKEY_RIGHT, ui::EF_CONTROL_DOWN, IDC_REORDER_TAB_STRIP_ITEM_RIGHT},
-    {ui::VKEY_H, ui::EF_SHIFT_DOWN | ui::EF_CONTROL_DOWN,
-     IDC_TOGGLE_MULTISELECT},
-    {ui::VKEY_Q, ui::EF_CONTROL_DOWN, IDC_EXIT},
-#if !BUILDFLAG(GOOGLE_CHROME_BRANDING)
-    {ui::VKEY_I, ui::EF_SHIFT_DOWN | ui::EF_ALT_DOWN, IDC_FEEDBACK},
-#endif  // !BUILDFLAG(GOOGLE_CHROME_BRANDING)
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Prevent conflicts with global_keyboard_shortcuts_mac.mm and chromeos
 // accelerators.
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_MAC)
 constexpr AcceleratorMapping kTabGroupAcceleratorMap[] = {
     // Tab group commands.
     {ui::VKEY_C, ui::EF_SHIFT_DOWN | ui::EF_ALT_DOWN, IDC_ADD_NEW_TAB_TO_GROUP},
@@ -320,10 +261,9 @@ constexpr AcceleratorMapping kTabGroupAcceleratorMap[] = {
     {ui::VKEY_Z, ui::EF_SHIFT_DOWN | ui::EF_ALT_DOWN, IDC_FOCUS_PREV_TAB_GROUP},
     {ui::VKEY_W, ui::EF_SHIFT_DOWN | ui::EF_ALT_DOWN, IDC_CLOSE_TAB_GROUP},
 };
-#endif  // !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS) &&
+#endif
         // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
 constexpr int kDebugModifier =
     ui::EF_CONTROL_DOWN | ui::EF_ALT_DOWN | ui::EF_SHIFT_DOWN;
 
@@ -335,7 +275,6 @@ constexpr AcceleratorMapping kUIDebugAcceleratorMap[] = {
     {ui::VKEY_W, kDebugModifier, IDC_DEBUG_PRINT_WINDOW_HIERARCHY},
     {ui::VKEY_L, kDebugModifier, IDC_DEBUG_PRINT_LAYER_HIERARCHY},
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 const int kRepeatableCommandIds[] = {
     IDC_FIND_NEXT,           IDC_FIND_PREVIOUS,       IDC_FOCUS_NEXT_PANE,
@@ -357,14 +296,6 @@ constexpr int kReservedCommandIds[] = {
     IDC_CYCLE_TO_NEXT_TAB,
     IDC_CYCLE_TO_PREV_TAB,
     IDC_EXIT,
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, pane navigation (F6 / Shift+F6) is also reserved so web
-    // pages cannot trap keyboard focus.
-    // TODO(crbug.com/542618092): Check if pane navigation should be reserved
-    // on Desktop as well.
-    IDC_FOCUS_NEXT_PANE,
-    IDC_FOCUS_PREVIOUS_PANE,
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 std::vector<AcceleratorMapping>* GetAcceleratorsPointer() {
@@ -381,31 +312,25 @@ std::vector<AcceleratorMapping> GetAcceleratorList() {
     constexpr base::span<const AcceleratorMapping> kAcceleratorTables[] = {
         kDevToolsAcceleratorMap,
         kAcceleratorMap,
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_MAC)
         kDesktopOnlyAcceleratorMap,
 #endif
-#if BUILDFLAG(IS_ANDROID)
-        kAndroidAcceleratorMap,
-#endif
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC)
         kNonChromeOSAcceleratorMap,
 #endif
-#if BUILDFLAG(IS_CHROMEOS)
-        kChromeOSAcceleratorMap,
-#endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
         kLinuxAndChromeOSAcceleratorMap,
 #endif
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
         kLinuxAndWinAcceleratorMap,
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
         kAltTabSelectAcceleratorMap,
 #endif
 #if BUILDFLAG(IS_LINUX)
         kLinuxAcceleratorMap,
 #endif
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
+#if !BUILDFLAG(IS_MAC)
         kTabGroupAcceleratorMap,
 #endif
     };
@@ -426,13 +351,11 @@ std::vector<AcceleratorMapping> GetAcceleratorList() {
     }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
     if (base::FeatureList::IsEnabled(features::kUIDebugTools)) {
       accelerators->insert(accelerators->begin(),
                            std::begin(kUIDebugAcceleratorMap),
                            std::end(kUIDebugAcceleratorMap));
     }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
     for (AcceleratorMapping& mapping : *accelerators) {
       mapping.action_id = chrome::GetActionIdForCommandId(mapping.command_id);

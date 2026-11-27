@@ -73,11 +73,9 @@
 #include "chrome/browser/extensions/api/safe_browsing_private/safe_browsing_private_event_router_factory.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/task/task_traits.h"
 #include "base/task/thread_pool.h"
 #include "chrome/browser/safe_browsing/download_protection/download_feedback_service.h"
-#endif
 
 using content::BrowserThread;
 
@@ -145,13 +143,11 @@ DownloadProtectionService::DownloadProtectionService(
     : sb_service_(sb_service),
       delegate_(std::move(delegate)),
       binary_feature_extractor_(base::MakeRefCounted<BinaryFeatureExtractor>()),
-#if !BUILDFLAG(IS_ANDROID)
       feedback_service_(std::make_unique<DownloadFeedbackService>(
           this,
           base::ThreadPool::CreateSequencedTaskRunner(
               {base::MayBlock(), base::TaskPriority::BEST_EFFORT})
               .get())),
-#endif
       weak_ptr_factory_(this) {
   CHECK(delegate_);
   if (sb_service) {
@@ -708,7 +704,6 @@ bool DownloadProtectionService::MaybeBeginFeedbackForDownload(
     download::DownloadItem* download,
     const std::string& ping_request,
     const std::string& ping_response) {
-#if !BUILDFLAG(IS_ANDROID)
   PrefService* prefs = profile->GetPrefs();
   bool is_extended_reporting = IsExtendedReportingEnabled(*prefs);
   if (!profile->IsOffTheRecord() && is_extended_reporting) {
@@ -716,7 +711,6 @@ bool DownloadProtectionService::MaybeBeginFeedbackForDownload(
                                                 ping_response);
     return true;
   }
-#endif
   return false;
 }
 

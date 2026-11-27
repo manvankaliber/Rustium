@@ -255,10 +255,10 @@ void HistorySyncOptinService::OnPrimaryAccountChanged(
     case signin_metrics::AccessPoint::kWebauthnModalDialog:
     case signin_metrics::AccessPoint::kAccountMenuSwitchAccount:
     case signin_metrics::AccessPoint::kProductSpecifications:
+    case signin_metrics::AccessPoint::kGlicLaunchButton:
     case signin_metrics::AccessPoint::kAccountMenuSwitchAccountFailed:
     case signin_metrics::AccessPoint::kCctAccountMismatchNotification:
     case signin_metrics::AccessPoint::kDriveFilePickerIos:
-    case signin_metrics::AccessPoint::kGlicLaunchButton:
     case signin_metrics::AccessPoint::kSkills:
     case signin_metrics::AccessPoint::kAccountMenuSignedOutState:
     case signin_metrics::AccessPoint::kIndigo:

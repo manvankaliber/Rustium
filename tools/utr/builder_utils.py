@@ -61,12 +61,12 @@ def guess_builder(build_dir):
     ('mac', 'x64'): ('ci', 'mac15-x64-rel-tests'),
     ('mac', 'arm64'): ('ci', 'mac15-arm64-rel-tests'),
     ('win', 'x64'): ('ci', 'Win10 Tests x64'),
-    ('android', 'arm64'): ('ci', 'android-14-arm64-rel'),
-    ('android', 'x64'): ('ci', 'android-16-x64-rel'),
-    ('android', 'x86'): ('ci', 'android-x86-rel'),
-    ('chromeos', 'x64'): ('ci', 'chromeos-amd64-generic-rel-gtest'),
-    ('chromeos', 'arm64'): ('ci', 'chromeos-arm64-generic-rel'),
-    ('ios', 'arm64'): ('ci', 'ios-simulator'),
+    ('arm64',): ('ci', 'android-14-arm64-rel'),
+    ('x64',): ('ci', 'android-16-x64-rel'),
+    ('x86',): ('ci', 'android-x86-rel'),
+    ('x64',): ('ci', 'chromeos-amd64-generic-rel-gtest'),
+    ('arm64',): ('ci', 'chromeos-arm64-generic-rel'),
+    ('arm64',): ('ci', 'ios-simulator'),
   }
 
   key = (target_os, target_cpu)

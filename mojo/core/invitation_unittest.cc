@@ -62,9 +62,6 @@ namespace {
 // TODO(crbug.com/40900578): Flaky on Tsan.
 #if defined(THREAD_SANITIZER)
 #define MAYBE_InvitationTest DISABLED_InvitationTest
-#elif BUILDFLAG(IS_CHROMEOS)
-// TODO(https://crbug.com/498954838): Flaky on CrOS.
-#define MAYBE_InvitationTest DISABLED_InvitationTest
 #else
 #define MAYBE_InvitationTest InvitationTest
 #endif
@@ -712,11 +709,7 @@ DEFINE_TEST_CLIENT(BrokenTransportClient) {
 }
 
 // TODO(crbug.com/407060377): Flaky in Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NonBrokerToNonBroker DISABLED_NonBrokerToNonBroker
-#else
 #define MAYBE_NonBrokerToNonBroker NonBrokerToNonBroker
-#endif
 
 TEST_F(MAYBE_InvitationTest, MAYBE_NonBrokerToNonBroker) {
   // Tests a non-broker inviting another non-broker to join the network.

@@ -12,7 +12,6 @@
 #include "base/memory/weak_ptr.h"
 #include "base/time/clock.h"
 #include "base/time/default_clock.h"
-#include "components/commerce/core/proto/merchant_trust.pb.h"
 #include "components/keyed_service/core/keyed_service.h"
 #include "components/optimization_guide/core/hints/optimization_guide_decision.h"
 #include "components/page_info/core/page_info_types.h"
@@ -64,10 +63,6 @@ class MerchantTrustService : public KeyedService {
     virtual ~Delegate() = default;
   };
 
-  using DecisionAndMetadata =
-      std::pair<optimization_guide::OptimizationGuideDecision,
-                std::optional<commerce::MerchantTrustSignalsV2>>;
-
   MerchantTrustService(
       std::unique_ptr<Delegate> delegate,
       optimization_guide::OptimizationGuideDecider* optimization_guide_decider,
@@ -111,8 +106,6 @@ class MerchantTrustService : public KeyedService {
       optimization_guide::OptimizationGuideDecision decision,
       const optimization_guide::OptimizationMetadata& metadata) const;
 
-  std::optional<page_info::MerchantData> GetMerchantDataFromProto(
-      const std::optional<commerce::MerchantTrustSignalsV2>& metadata) const;
 
   void RecordEngagementScore(const GURL& url,
                              MerchantTrustInteraction interaction) const;

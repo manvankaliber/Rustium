@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 // clang-format off
-import {isChromeOS} from 'chrome://resources/js/platform.js';
 import {assert} from 'chrome://resources/js/assert.js';
 import {webUIListenerCallback} from 'chrome://resources/js/cr.js';
 import {flush} from 'chrome://resources/polymer/v3_0/polymer/polymer_bundled.min.js';
@@ -74,14 +73,7 @@ suite('SiteDetails', function() {
     PrefsBrowserProxy.setInstance(prefsBrowserProxy);
     await PrefService.getInstance().whenInitialized();
 
-    loadTimeData.overrideValues({
-      // <if expr="enable_smart_card">
-      enableSmartCardReadersContentSetting: true,
-      // </if>
-      // <if expr="is_chromeos">
-      enableWebPrintingContentSetting: true,
-      // </if>
-    });
+    loadTimeData.overrideValues({});
     prefs = createSiteSettingsPrefs(
         [],
         [
@@ -150,18 +142,6 @@ suite('SiteDetails', function() {
           createContentSettingTypeToValuePair(
               ContentSettingsTypes.PAYMENT_HANDLER,
               [createRawSiteException('https://foo.com:443')]),
-          // <if expr="enable_smart_card">
-          createContentSettingTypeToValuePair(
-              ContentSettingsTypes.SMART_CARD_READERS,
-              [createRawSiteException('https://foo.com:443', {
-                setting: ContentSetting.BLOCK,
-              })]),
-          // </if>
-          // <if expr="is_chromeos">
-          createContentSettingTypeToValuePair(
-              ContentSettingsTypes.WEB_PRINTING,
-              [createRawSiteException('https://foo.com:443')]),
-          // </if>
           createContentSettingTypeToValuePair(
               ContentSettingsTypes.SERIAL_PORTS,
               [createRawSiteException('https://foo.com:443')]),
@@ -351,9 +331,8 @@ suite('SiteDetails', function() {
     const siteDetailsPermissions =
         testElement.shadowRoot!.querySelectorAll('site-details-permission');
     siteDetailsPermissions.forEach((siteDetailsPermission) => {
-      if (!isChromeOS &&
-          siteDetailsPermission.category ===
-              ContentSettingsTypes.PROTECTED_CONTENT) {
+      if (siteDetailsPermission.category ===
+          ContentSettingsTypes.PROTECTED_CONTENT) {
         return;
       }
 
@@ -370,9 +349,6 @@ suite('SiteDetails', function() {
         ContentSettingsTypes.IMAGES,
         ContentSettingsTypes.POPUPS,
         ContentSettingsTypes.FILE_SYSTEM_WRITE,
-        // <if expr="enable_smart_card">
-        ContentSettingsTypes.SMART_CARD_READERS,
-        // </if>
       ];
 
       if (categoriesWithNonUserSetAllow.includes(
@@ -666,10 +642,11 @@ suite('SiteDetails', function() {
     const isolatedAppOrigin = 'isolated-app://hubeit66v45f5a2n';
     const regularOrigin = 'https://foo.com:443';
 
-    // Add exceptions for isolatedAppOrigin to prefs so that getOriginPermissions
-    // doesn't assert.
+    // Add exceptions for isolatedAppOrigin to prefs so that
+    // getOriginPermissions doesn't assert.
     browserProxy.getCategoryListForTest(isolatedAppOrigin).forEach(category => {
-      prefs.exceptions[category].push(createRawSiteException(isolatedAppOrigin));
+      prefs.exceptions[category].push(
+          createRawSiteException(isolatedAppOrigin));
     });
 
     browserProxy.setSubAppsPermissionExplanation({
@@ -770,7 +747,6 @@ suite('SiteDetails', function() {
         routes.SITE_SETTINGS_SITE_DETAILS.path,
         Router.getInstance().getCurrentRoute().path);
     assertEquals(
-        parentAppOrigin,
-        Router.getInstance().getQueryParameters().get('site'));
+        parentAppOrigin, Router.getInstance().getQueryParameters().get('site'));
   });
 });

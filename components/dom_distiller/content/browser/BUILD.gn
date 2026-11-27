@@ -48,11 +48,6 @@ static_library("browser") {
     "//ui/gfx",
     "//url",
   ]
-
-  if (is_android) {
-    sources += [ "distillable_page_utils_android.cc" ]
-    deps += [ "android:jni_headers" ]
-  }
 }
 
 source_set("unit_tests") {

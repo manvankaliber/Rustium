@@ -28,9 +28,7 @@
 #include "net/test/embedded_test_server/http_response.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 namespace webapps {
 

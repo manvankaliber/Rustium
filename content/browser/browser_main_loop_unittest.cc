@@ -32,7 +32,6 @@
 
 namespace content {
 
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -81,7 +80,6 @@ class AbortingContentBrowserClient : public ContentBrowserClient {
 
 }  // namespace
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using StrickMockTask =
     testing::StrictMock<base::MockCallback<base::RepeatingCallback<void()>>>;
@@ -120,7 +118,6 @@ class BrowserMainLoopTest : public testing::Test {
 
 // Android runs startup tasks asynchronously and reports completion over JNI, so
 // this synchronous test does not apply there.
-#if !BUILDFLAG(IS_ANDROID)
 
 // Verify that a non-normal result from BrowserMainParts::PostCreateThreads()
 // aborts startup, so that the remaining startup tasks - including the ones that
@@ -165,7 +162,6 @@ TEST_F(BrowserMainLoopTest, PostCreateThreadsResultAbortsStartup) {
   browser_main_loop.ShutdownThreadsAndCleanUp();
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Verify that a single-process browser process has at least as many threads as
 // the number of cores in its foreground pool.

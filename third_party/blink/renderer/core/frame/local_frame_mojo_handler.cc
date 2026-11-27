@@ -1182,19 +1182,6 @@ void LocalFrameMojoHandler::BindDevToolsAgent(
   frame_->Client()->BindDevToolsAgent(std::move(host), std::move(receiver));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void LocalFrameMojoHandler::ExtractSmartClipData(
-    const gfx::Rect& rect,
-    ExtractSmartClipDataCallback callback) {
-  String clip_text;
-  String clip_html;
-  gfx::Rect clip_rect;
-  frame_->ExtractSmartClipDataInternal(rect, clip_text, clip_html, clip_rect);
-  std::move(callback).Run(clip_text.IsNull() ? g_empty_string : clip_text,
-                          clip_html.IsNull() ? g_empty_string : clip_html,
-                          clip_rect);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void LocalFrameMojoHandler::HandleRendererDebugURL(const KURL& url) {
   DCHECK(IsRendererDebugURL(GURL(url)));
@@ -1236,9 +1223,6 @@ void LocalFrameMojoHandler::HandleRendererDebugURL(const KURL& url) {
 
 void LocalFrameMojoHandler::GetCanonicalUrlForSharing(
     GetCanonicalUrlForSharingCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  base::TimeTicks start_time = base::TimeTicks::Now();
-#endif
   KURL canon_url;
   HTMLLinkElement* link_element = GetDocument()->LinkCanonical();
   if (link_element) {
@@ -1254,10 +1238,6 @@ void LocalFrameMojoHandler::GetCanonicalUrlForSharing(
   }
   std::move(callback).Run(canon_url.IsNull() ? std::nullopt
                                              : std::make_optional(canon_url));
-#if BUILDFLAG(IS_ANDROID)
-  base::UmaHistogramMicrosecondsTimes("Blink.Frame.GetCanonicalUrlRendererTime",
-                                      base::TimeTicks::Now() - start_time);
-#endif
 }
 
 void LocalFrameMojoHandler::GetOpenGraphMetadata(
@@ -1617,10 +1597,5 @@ void LocalFrameMojoHandler::UpdatePrerenderURL(
   std::move(callback).Run();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void LocalFrameMojoHandler::PerformFullContentSpellCheck() {
-  frame_->PerformFullContentSpellCheck();
-}
-#endif
 
 }  // namespace blink

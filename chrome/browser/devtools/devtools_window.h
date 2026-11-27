@@ -26,10 +26,8 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "ui/base/mojom/window_open_disposition.mojom-forward.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_collection_observer.h"  // nogncheck crbug.com/40147906
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"  // nogncheck crbug.com/40147906
-#endif
 
 class BrowserWindowInterface;
 class BrowserWindow;
@@ -98,9 +96,7 @@ enum class DevToolsClosedByAction {
 class DevToolsWindow : public DevToolsUIBindings::Delegate,
                        public content::WebContentsDelegate,
                        public content::WebContentsObserver,
-#if !BUILDFLAG(IS_ANDROID)
                        public BrowserCollectionObserver,
-#endif
                        public infobars::InfoBarManager::Observer,
                        public policy::PolicyService::Observer {
  public:
@@ -511,10 +507,8 @@ class DevToolsWindow : public DevToolsUIBindings::Delegate,
   void DidFinishNavigation(
       content::NavigationHandle* navigation_handle) override;
 
-#if !BUILDFLAG(IS_ANDROID)
   // BrowserCollectionObserver:
   void OnBrowserClosed(BrowserWindowInterface* browser) override;
-#endif
 
   // infobars::InfoBarManager::Observer
   void OnInfoBarRemoved(infobars::InfoBar* infobar, bool animate) override;
@@ -551,9 +545,7 @@ class DevToolsWindow : public DevToolsUIBindings::Delegate,
 
   void MaybeShowSharedProcessInfobar();
 
-#if !BUILDFLAG(IS_ANDROID)
   void ActivateInspectedTab();
-#endif
 
   FrontendType frontend_type_;
   raw_ptr<Profile> profile_;
@@ -623,12 +615,8 @@ class DevToolsWindow : public DevToolsUIBindings::Delegate,
   bool is_sharing_infobar_migrated_ = false;
   int checked_sharing_process_id_ = content::ChildProcessHost::kInvalidUniqueID;
 
-#if BUILDFLAG(IS_ANDROID)
-  bool launched_activity_ = false;
-#else
   base::ScopedObservation<GlobalBrowserCollection, BrowserCollectionObserver>
       browser_collection_observation_{this};
-#endif
 
 #if BUILDFLAG(IS_MAC)
   // Session ID of the browser that was inspected when the DevTools window was

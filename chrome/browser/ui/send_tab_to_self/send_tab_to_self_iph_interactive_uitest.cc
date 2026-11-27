@@ -439,9 +439,7 @@ IN_PROC_BROWSER_TEST_F(SendTabToSelfIphControllerCreationTest,
   EXPECT_EQ(SendTabToSelfIphController::From(
                 CreateBrowserForPopup(browser()->GetProfile())),
             nullptr);
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_EQ(SendTabToSelfIphController::From(CreateGuestBrowser()), nullptr);
-#endif
 }
 
 // -----------------------------------------------------------------------------

@@ -103,9 +103,6 @@
 #include "ui/native_theme/native_theme_observer.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/public/browser/android/child_process_importance.h"
-#endif
 
 namespace base {
 class FilePath;
@@ -178,10 +175,6 @@ namespace mojom {
 class CreateNewWindowParams;
 }  // namespace mojom
 
-#if BUILDFLAG(IS_ANDROID)
-class WebContentsAndroid;
-class SelectionPopupDelegate;
-#endif
 
 namespace webid {
 enum class FederatedLoginResult;
@@ -399,15 +392,6 @@ class CONTENT_EXPORT WebContentsImpl
   // A notification is then propagated to observers.
   void DidCapturedSurfaceControl();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Let long press on links select the link text instead of triggering
-  // the context menu.
-  void SetLongPressLinkSelectText(bool enabled);
-
-  // Allow drag-drop of files such as an image to load and replace contents.
-  void SetCanAcceptLoadDrops(bool enabled);
-  bool GetCanAcceptLoadDropsForTesting();
-#endif
 
   // WebContents ------------------------------------------------------
   WebContentsDelegate* GetDelegate() final;
@@ -605,10 +589,6 @@ class CONTENT_EXPORT WebContentsImpl
   RenderFrameHostImpl* GetOpener() override;
   bool HasLiveOriginalOpenerChain() override;
   WebContents* GetFirstWebContentsInLiveOriginalOpenerChain() override;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void DidChooseColorInColorChooser(SkColor color) override;
-  void DidEndColorChooser() override;
-#endif
   int DownloadImageFromAxNode(const ui::AXTreeID tree_id,
                               const ui::AXNodeID node_id,
                               const gfx::Size& preferred_size,
@@ -658,23 +638,6 @@ class CONTENT_EXPORT WebContentsImpl
   void Resize(const gfx::Rect& new_bounds) override;
   gfx::Size GetSize() override;
   void UpdateWindowControlsOverlay(const gfx::Rect& bounding_rect) override;
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaLocalRef<jobject> GetJavaWebContents() override;
-  base::android::ScopedJavaLocalRef<jthrowable> GetJavaCreatorLocation()
-      override;
-  WebContentsAndroid* GetWebContentsAndroid();
-  void ClearWebContentsAndroid();
-  void ActivateNearestFindResult(float x, float y) override;
-  void RequestFindMatchRects(int current_version) override;
-  service_manager::InterfaceProvider* GetJavaInterfaces() override;
-  ChildProcessImportance GetPrimaryMainFrameImportanceForTesting() override;
-  ChildProcessImportance GetPrimaryPageSubframeImportanceForTesting() override;
-  void SetPrimaryPageImportance(
-      ChildProcessImportance main_frame_importance,
-      ChildProcessImportance subframe_importance) override;
-  void SetSelectionPopupDelegate(
-      std::unique_ptr<SelectionPopupDelegate> delegate) override;
-#endif
   bool HasRecentInteraction() override;
   base::TimeTicks GetLastInteractionTimeTicks() override;
   [[nodiscard]] ScopedIgnoreInputEvents IgnoreInputEvents(
@@ -808,10 +771,6 @@ class CONTENT_EXPORT WebContentsImpl
   void UnrecoverableAccessibilityError() override;
   device::mojom::GeolocationContext* GetGeolocationContext() override;
   device::mojom::WakeLockContext* GetWakeLockContext() override;
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS))
-  void GetNFC(RenderFrameHostImpl*,
-              mojo::PendingReceiver<device::mojom::NFC>) override;
-#endif
   bool CanEnterFullscreenMode(RenderFrameHostImpl* requesting_frame) override;
   void EnterFullscreenMode(
       RenderFrameHostImpl* requesting_frame,
@@ -821,16 +780,11 @@ class CONTENT_EXPORT WebContentsImpl
       RenderFrameHostImpl* rfh,
       bool is_fullscreen,
       blink::mojom::FullscreenOptionsPtr options) override;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   bool CanUseWindowingControls(RenderFrameHostImpl* requesting_frame) override;
   void Maximize() override;
   void Minimize() override;
   void Restore() override;
   void SetResizable(bool resizable) override;
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  void UpdateUserGestureCarryoverInfo() override;
-#endif
   void DidCallFocus() override;
   void OnFocusedElementChangedInFrame(
       RenderFrameHostImpl* frame,
@@ -864,10 +818,6 @@ class CONTENT_EXPORT WebContentsImpl
       const gfx::Rect& rect,
       const base::UnguessableToken& guid,
       RenderFrameHostImpl* render_frame_host) override;
-#if BUILDFLAG(IS_ANDROID)
-  base::android::ScopedJavaLocalRef<jobject> GetJavaRenderFrameHostDelegate()
-      override;
-#endif
   void ResourceLoadComplete(
       RenderFrameHostImpl* render_frame_host,
       const GlobalRequestID& request_id,
@@ -1152,15 +1102,8 @@ class CONTENT_EXPORT WebContentsImpl
       NavigationRequest* navigation_request_to_exclude) override;
   bool MaybeCopyContentAreaAsBitmap(
       base::OnceCallback<void(const SkBitmap&)> callback) override;
-#if BUILDFLAG(IS_ANDROID)
-  bool MaybeCopyContentAreaAsHardwareBuffer(
-      HardwareBufferResultCallback callback) override;
-#endif
   bool SupportsForwardTransitionAnimation() override;
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetSupportsForwardTransitionAnimation(bool supports);
-#endif
 
   // RenderWidgetHostDelegate --------------------------------------------------
 
@@ -1276,9 +1219,6 @@ class CONTENT_EXPORT WebContentsImpl
   VisibleTimeRequestTrigger& GetVisibleTimeRequestTrigger() final;
   gfx::mojom::DelegatedInkPointRenderer* GetDelegatedInkRenderer(
       ui::Compositor* compositor) override;
-#if BUILDFLAG(IS_ANDROID)
-  gfx::PointF GetCurrentTouchSequenceOffset() override;
-#endif
 
   // RenderFrameHostManager::Delegate ------------------------------------------
 
@@ -1326,13 +1266,6 @@ class CONTENT_EXPORT WebContentsImpl
   // blink::mojom::ColorChooserFactory ---------------------------------------
   void OnColorChooserFactoryReceiver(
       mojo::PendingReceiver<blink::mojom::ColorChooserFactory> receiver);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void OpenColorChooser(
-      mojo::PendingReceiver<blink::mojom::ColorChooser> chooser,
-      mojo::PendingRemote<blink::mojom::ColorChooserClient> client,
-      SkColor color,
-      std::vector<blink::mojom::ColorSuggestionPtr> suggestions) override;
-#endif
 
   // FrameTree::Delegate -------------------------------------------------------
 
@@ -1362,11 +1295,6 @@ class CONTENT_EXPORT WebContentsImpl
   BackForwardCacheImpl& GetBackForwardCache() override;
   void NotifyNavigationStateChangedFromController(
       InvalidateTypes changed_flags) override;
-#if BUILDFLAG(IS_ANDROID)
-  scoped_refptr<viz::RasterContextProvider> GetRasterContextProvider() override;
-  gfx::ColorSpace GetOutputColorSpace(gfx::ContentColorUsage color_usage,
-                                      bool needs_alpha) override;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // TextInputManager::Observer implementation:
   void OnSelectionBoundsChanged(
@@ -1539,11 +1467,6 @@ class CONTENT_EXPORT WebContentsImpl
   // Sets the spatial navigation state.
   void SetSpatialNavigationDisabled(bool disabled);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Sets the Stylus handwriting feature status. This status is updated to web
-  // preferences.
-  void SetStylusHandwritingEnabled(bool enabled);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Called when a file selection is to be done.
   void RunFileChooser(
@@ -1561,18 +1484,7 @@ class CONTENT_EXPORT WebContentsImpl
       scoped_refptr<FileChooserImpl::FileSelectListenerImpl> listener,
       const base::FilePath& directory_path);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Called by FindRequestManager when all of the find match rects are in.
-  void NotifyFindMatchRectsReply(int version,
-                                 const std::vector<gfx::RectF>& rects,
-                                 const gfx::RectF& active_rect);
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-  // Called by WebContentsAndroid to send the Display Cutout safe area to
-  // DisplayCutoutHostImpl.
-  void SetDisplayCutoutSafeArea(gfx::Insets insets);
-#endif
 
   // Notify observers that the viewport fit value changed. This is called by
   // |SafeAreaInsetsHost|.
@@ -2381,10 +2293,6 @@ class CONTENT_EXPORT WebContentsImpl
   // parents in the chain (both SurfaceEmbed and GuestView).
   void SetPointerLockWidgetInParentChain(RenderWidgetHostImpl* widget);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Apply the cached primary subframe importance to the primary frame tree.
-  void ApplyPrimaryPageSubframeImportance();
-#endif
 
   void OnFocusSelectionBoundsChangedSubscriptionRemoved();
 
@@ -2442,14 +2350,6 @@ class CONTENT_EXPORT WebContentsImpl
 
   bool is_being_destroyed_ = false;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<WebContentsAndroid> web_contents_android_;
-  // Caches the importance of subframes in the primary frame tree.
-  // WebContentsImpl::RenderFrameCreated() sets the importance to a new
-  // RenderWidgetHost for new subframes.
-  ChildProcessImportance primary_subframe_importance_ =
-      ChildProcessImportance::NORMAL;
-#endif
 
   // Manages the embedder state for browser plugins, if this WebContents is an
   // embedder; NULL otherwise.
@@ -2641,11 +2541,6 @@ class CONTENT_EXPORT WebContentsImpl
   gfx::Size device_emulation_size_;
   gfx::Size view_size_before_emulation_;
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Holds information about a current color chooser dialog, if one is visible.
-  class ColorChooserHolder;
-  std::unique_ptr<ColorChooserHolder> color_chooser_holder_;
-#endif
 
   // All live RenderWidgetHostImpls that are created by this object and may
   // outlive it.
@@ -2706,9 +2601,6 @@ class CONTENT_EXPORT WebContentsImpl
 
   bool updating_web_preferences_ = false;
 
-#if BUILDFLAG(IS_ANDROID) || (BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS))
-  std::unique_ptr<NFCHost> nfc_host_;
-#endif
 
   mojo::ReceiverSet<blink::mojom::ColorChooserFactory>
       color_chooser_factory_receivers_;
@@ -2791,9 +2683,6 @@ class CONTENT_EXPORT WebContentsImpl
   // instructions are displayed to the user in fullscreen mode.
   bool esc_key_locked_ = false;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<service_manager::InterfaceProvider> java_interfaces_;
-#endif
 
   // Whether this WebContents is for content overlay.
   bool is_overlay_content_;
@@ -2806,10 +2695,6 @@ class CONTENT_EXPORT WebContentsImpl
 
   bool is_spatial_navigation_disabled_ = false;
 
-#if BUILDFLAG(IS_ANDROID)
-  bool stylus_handwriting_enabled_ = false;
-  bool long_press_link_select_text_ = false;
-#endif
 
   bool is_currently_audible_ = false;
   bool was_ever_audible_ = false;
@@ -2905,10 +2790,6 @@ class CONTENT_EXPORT WebContentsImpl
   // Stores WebContents::CreateParams::creator_location.
   base::Location creator_location_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Stores WebContents::CreateParams::java_creator_location.
-  base::android::ScopedJavaGlobalRef<jthrowable> java_creator_location_;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // The options used for WebContents associated with a PictureInPicture window.
   // This value is the parameter given in
@@ -2958,9 +2839,6 @@ class CONTENT_EXPORT WebContentsImpl
   ui::mojom::WindowOpenDisposition original_window_open_disposition_ =
       ui::mojom::WindowOpenDisposition::kUnknown;
 
-#if BUILDFLAG(IS_ANDROID)
-  bool supports_forward_transition_animation_ = true;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // True while any frame in this WebContents is changing RenderFrameHosts
   // during a navigation commit, including while the RenderFrameHostManager is

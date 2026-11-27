@@ -19,10 +19,8 @@ import '../performance_page/performance_page_index.js';
 import '../privacy_page/privacy_page_index.js';
 import '../reset_page/reset_profile_banner.js';
 import '../search_page/search_page_index.js';
-// <if expr="not is_chromeos">
 import '../default_browser_page/default_browser_page.js';
 
-// </if>
 
 import {getInstance as getAnnouncerInstance} from 'chrome://resources/cr_elements/cr_a11y_announcer/cr_a11y_announcer.js';
 import type {CrViewManagerElement} from 'chrome://resources/cr_elements/cr_view_manager/cr_view_manager.js';

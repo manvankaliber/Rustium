@@ -252,7 +252,6 @@ class AppMenuModel : public ui::SimpleMenuModel,
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kContactInfoMenuItem);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kIdentityDocsMenuItem);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kTravelMenuItem);
-  DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kShowLensOverlay);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kAskGoogleAboutThisPageItem);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kContextualTasksSubmenuItem);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kSaveAndShareMenuItem);
@@ -401,11 +400,6 @@ class AppMenuModel : public ui::SimpleMenuModel,
   // indicating whether any menu items were added.
   [[nodiscard]] bool AddSafetyHubMenuItem();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Disables/Enables the settings item based on kSystemFeaturesDisableList
-  // pref.
-  void UpdateSettingsItemState();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Time menu has been open. Used by LogMenuMetrics() to record the time
   // to action when the user selects a menu item.

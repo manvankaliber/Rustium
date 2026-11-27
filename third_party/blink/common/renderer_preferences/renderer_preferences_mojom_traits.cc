@@ -47,8 +47,7 @@ bool StructTraits<blink::mojom::RendererPreferencesDataView,
 
   out->use_custom_colors = data.use_custom_colors();
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   out->use_overlay_scrollbar = data.use_overlay_scrollbar();
 #endif
 
@@ -79,7 +78,7 @@ bool StructTraits<blink::mojom::RendererPreferencesDataView,
 
   out->send_subresource_notification = data.send_subresource_notification();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (!data.ReadSystemFontFamilyName(&out->system_font_family_name))
     return false;
 #endif
@@ -115,9 +114,6 @@ bool StructTraits<blink::mojom::RendererPreferencesDataView,
   out->plugin_fullscreen_allowed = data.plugin_fullscreen_allowed();
   out->caret_browsing_enabled = data.caret_browsing_enabled();
 
-#if BUILDFLAG(IS_ANDROID)
-  out->uses_platform_autofill = data.uses_platform_autofill();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   out->autofill_shortcut_key_code =
       static_cast<ui::KeyboardCode>(data.autofill_shortcut_key_code());

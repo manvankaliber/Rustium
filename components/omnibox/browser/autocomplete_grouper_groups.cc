@@ -12,7 +12,6 @@
 #include "third_party/omnibox_proto/groups.pb.h"
 
 namespace {
-constexpr bool is_android = !!BUILDFLAG(IS_ANDROID);
 }  // namespace
 
 Group::Group(size_t limit,
@@ -57,8 +56,6 @@ void Group::Add(const AutocompleteMatch& match) {
 void Group::GroupMatches() {
   if (is_zps_) {
     GroupMatchesByGroupId();
-  } else if (is_android) {
-    GroupMatchesBySearchVsUrl();
   }
 }
 

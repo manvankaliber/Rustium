@@ -146,12 +146,10 @@ suite('NewTabPageAppTest', () => {
         'getPageClassification',
         Promise.resolve({metricSource: 'NTP_REALBOX'}));
     // TODO(crbug.com/570702014): Smart Tab Sharing is desktop-only.
-    // <if expr="not is_android">
     searchboxHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
     searchboxHandler.setResultFor(
         'resetSmartTabSharing', Promise.resolve({active: false}));
-    // </if>
     app = document.createElement('ntp-app');
     document.body.appendChild(app);
     await microtasksFinished();
@@ -329,8 +327,6 @@ suite('NewTabPageAppTest', () => {
     });
   });
 
-  // TODO(crbug.com/571327206): Disabled on Android, where the OneGoogleBar is
-  // disabled.
   suite('OgbThemingRemoveScrim', () => {
     test('Ogb updates on ntp load', async () => {
       // Act.
@@ -365,8 +361,6 @@ suite('NewTabPageAppTest', () => {
     });
   });
 
-  // TODO(crbug.com/571327206): Disabled on Android, where the OneGoogleBar is
-  // disabled.
   suite('OgbScrim', () => {
     test('scroll bounce', async () => {
       // Arrange.
@@ -550,8 +544,6 @@ suite('NewTabPageAppTest', () => {
       assertTrue(mostVisited.hasAttribute('is-dark_'));
     });
 
-    // TODO(crbug.com/571327206): The OneGoogleBar is disabled on Android.
-    // <if expr="not is_android">
     [true, false].forEach((isDark) => {
       test(
           `OGB light mode whenever background image
@@ -584,7 +576,6 @@ suite('NewTabPageAppTest', () => {
             assertEquals(true, applyLightTheme);
           });
     });
-    // </if>
 
     suite('theming metrics', () => {
       test('having no theme produces correct metrics', async () => {
@@ -1396,16 +1387,16 @@ suite('NewTabPageAppTest', () => {
         're-rendering app does not overwrite internal composebox state changes',
         async () => {
           // Arrange: Open composebox with initial tool mode.
-          $$(app, '#searchbox')!.dispatchEvent(
-              new CustomEvent('open-composebox', {
-                detail: {
-                  text: '',
-                  files: [],
-                  mode: ToolMode.kImageGen,
-                  model: ModelMode.kUnspecified,
-                  smartTabSharingActive: false,
-                },
-              }));
+          ($$(app, '#searchbox')!
+           ).dispatchEvent(new CustomEvent('open-composebox', {
+            detail: {
+              text: '',
+              files: [],
+              mode: ToolMode.kImageGen,
+              model: ModelMode.kUnspecified,
+              smartTabSharingActive: false,
+            },
+          }));
           await microtasksFinished();
 
           const composebox =
@@ -1666,7 +1657,8 @@ suite('NewTabPageAppTest', () => {
       assertTrue(!!composebox);
 
       // Dismissing without submit should reset STS.
-      composebox.fire('close-composebox', {composeboxText: '', afterSubmit: false});
+      composebox.fire(
+          'close-composebox', {composeboxText: '', afterSubmit: false});
       await microtasksFinished();
       assertEquals(1, resetStsCallCount);
 
@@ -1677,7 +1669,8 @@ suite('NewTabPageAppTest', () => {
       await microtasksFinished();
 
       // Submitting should NOT reset STS here (handled elsewhere).
-      composebox.fire('close-composebox', {composeboxText: '', afterSubmit: true});
+      composebox.fire(
+          'close-composebox', {composeboxText: '', afterSubmit: true});
       await microtasksFinished();
       assertEquals(1, resetStsCallCount);
     });
@@ -2568,8 +2561,10 @@ suite('NewTabPageAppTest', () => {
       });
 
       test('scrim click keeps the composebox and shows the page', async () => {
-        $$(app, '#searchbox')!.dispatchEvent(new CustomEvent(
-            'open-composebox', {detail: {text: 'draft', files: []}}));
+        ($$(app, '#searchbox')!
+         ).dispatchEvent(new CustomEvent('open-composebox', {
+          detail: {text: 'draft', files: []}
+        }));
         await microtasksFinished();
         const composebox =
             app.shadowRoot.querySelector<NtpComposeboxElement>('#composebox');
@@ -2609,8 +2604,10 @@ suite('NewTabPageAppTest', () => {
           const mostVisited = $$<HTMLElement>(app, '#mostVisited')!;
           assertFalse(app.hasAttribute('page-content-hidden_'));
           assertNotEquals('none', window.getComputedStyle(mostVisited).display);
-          $$(app, '#searchbox')!.dispatchEvent(new CustomEvent(
-              'open-composebox', {detail: {text: 'draft', files: []}}));
+          ($$(app, '#searchbox')!
+           ).dispatchEvent(new CustomEvent('open-composebox', {
+            detail: {text: 'draft', files: []}
+          }));
           await microtasksFinished();
           assertTrue(app.hasAttribute('page-content-hidden_'));
           assertEquals('none', window.getComputedStyle(mostVisited).display);
@@ -3377,8 +3374,10 @@ suite('NewTabPageAppTest', () => {
 
       async function openComposebox(text: string = ''):
           Promise<NtpComposeboxElement> {
-        $$(app, '#searchbox')!.dispatchEvent(
-            new CustomEvent('open-composebox', {detail: {text, files: []}}));
+        ($$(app, '#searchbox')!
+         ).dispatchEvent(new CustomEvent('open-composebox', {
+          detail: {text, files: []}
+        }));
         await microtasksFinished();
         const composebox = getComposebox();
         assertTrue(!!composebox);
@@ -4268,10 +4267,6 @@ suite('NewTabPageAppTest', () => {
       const rhsWrapper = $$<HTMLElement>(app, '#rhsWrapper');
       assertTrue(!!rhsWrapper);
       assertTrue(rhsWrapper.scrollWidth > rhsWrapper.clientWidth);
-      // Only sticks if #rhsWrapper is a scroll container. Not necessarily 10:
-      // scroll offsets snap to physical pixels, so with a fractional device
-      // pixel ratio, e.g. on Android, it can be off by more than
-      // LAYOUT_TOLERANCE_PX.
       rhsWrapper.scrollLeft = 10;
       assertGT(rhsWrapper.scrollLeft, 0);
     });
@@ -5391,8 +5386,7 @@ suite('NewTabPageAppTest', () => {
           ((this: MockSpeechRecognition, ev: Event) => void)|null = null;
       onspeechstart:
           ((this: MockSpeechRecognition, ev: Event) => void)|null = null;
-      onnomatch:
-          ((this: MockSpeechRecognition, ev: Event) => void)|null = null;
+      onnomatch: ((this: MockSpeechRecognition, ev: Event) => void)|null = null;
       onerror:
           ((this: MockSpeechRecognition,
             ev: MockSpeechRecognitionErrorEvent) => void)|null = null;
@@ -5451,9 +5445,6 @@ suite('NewTabPageAppTest', () => {
         vsClass.activeRecognition_ = null;
         vsClass.pendingStartInstance_ = null;
       }
-
-      // Use desktop speech recognition unless a test opts into Android's.
-      loadTimeData.overrideValues({androidSpeechRecognition: false});
     });
 
     teardown(() => {
@@ -5575,62 +5566,6 @@ suite('NewTabPageAppTest', () => {
         });
 
     test(
-        'keeps listening when Android speech recognition ends after an ' +
-            'utterance',
-        async () => {
-          loadTimeData.overrideValues({
-            googleBaseUrl: 'chrome://new-tab-page/',
-            voiceSearchCoherenceAnySearchboxExperimentEnabled: true,
-            voiceSearchCoherenceRealboxAutoEndpointEnabled: false,
-            androidSpeechRecognition: true,
-          });
-          await recreateApp();
-
-          // Open voice search dialog.
-          const searchbox = $$(app, '#searchbox');
-          assertTrue(!!searchbox);
-          searchbox.dispatchEvent(new Event('open-voice-search'));
-          await microtasksFinished();
-
-          const voiceSearch =
-              app.shadowRoot.querySelector('cr-composebox-voice-search');
-          assertTrue(!!voiceSearch);
-          assertTrue(voiceSearch.androidContinuousRecognitionEnabled);
-
-          // Simulate speech recognition result (user speaks).
-          mockSpeechRecognition.onresult!
-              (createResults('test query', /*isFinal=*/ true));
-          await microtasksFinished();
-
-          // Android's recognizer ends its session after every utterance.
-          mockSpeechRecognition.voiceSearchInProgress = false;
-          mockSpeechRecognition.onend!();
-          await microtasksFinished();
-
-          // Like on desktop, voice search keeps listening instead of
-          // submitting right away.
-          assertTrue(mockSpeechRecognition.voiceSearchInProgress);
-          assertEquals(0, windowProxy.getCallCount('navigate'));
-          assertTrue(!!app.shadowRoot.querySelector('#voiceSearchDialog'));
-
-          // The user keeps speaking, then submits.
-          mockSpeechRecognition.onresult!
-              (createResults('tomorrow', /*isFinal=*/ true));
-          await voiceSearch.updateComplete;
-          const submitButton =
-              voiceSearch.shadowRoot.querySelector('#submitButton');
-          assertTrue(!!submitButton);
-          submitButton.dispatchEvent(new CustomEvent('submit-click'));
-          await microtasksFinished();
-
-          // Both utterances are submitted.
-          assertEquals(1, windowProxy.getCallCount('navigate'));
-          assertEquals(
-              'chrome://new-tab-page/search?q=test+query+tomorrow&gs_ivs=1&sourceid=chrome',
-              windowProxy.getArgs('navigate')[0]);
-        });
-
-    test(
         'force-submits query when voice recognition text exceeds 120 ' +
             'character limit and NTP searchbox (realbox) voice search ' +
             'coherence experiment is enabled',
@@ -5708,8 +5643,7 @@ suite('NewTabPageAppTest', () => {
           assertTrue(!!voiceSearch);
           await voiceSearch.updateComplete;
           assertFalse(voiceSearch.dynamicTimeoutEnabled);
-          // Only enabled where voice search uses Android's speech recognizer.
-          assertFalse(voiceSearch.androidContinuousRecognitionEnabled);
+
           assertTrue(voiceSearch.autosubmitEnabled);
           assertEquals(3000, voiceSearch.idleTimeout);
           assertEquals(10000, voiceSearch.manualSubmitIdleTimeout);
@@ -5738,9 +5672,10 @@ suite('NewTabPageAppTest', () => {
           await voiceSearch.updateComplete;
           assertTrue(voiceSearch.hasErrorTimer);
 
-          // Intercept window.setTimeout. The test might run in a bundled environment
-          // where ComposeboxWindowProxy is duplicated, making the test's mock ineffective.
-          let capturedCallback: Function | null = null;
+          // Intercept window.setTimeout. The test might run in a bundled
+          // environment where ComposeboxWindowProxy is duplicated, making the
+          // test's mock ineffective.
+          let capturedCallback: Function|null = null;
           let capturedDelay: number = 0;
           const originalSetTimeout = window.setTimeout;
           try {
@@ -5748,12 +5683,13 @@ suite('NewTabPageAppTest', () => {
               if (timeout === 24000) {
                 capturedCallback = handler as Function;
                 capturedDelay = timeout;
-                return 1; // Dummy timer ID
+                return 1;  // Dummy timer ID
               }
               return originalSetTimeout.call(window, handler, timeout);
             };
 
-            // Trigger `NO_MATCH` error on the specific component's recognition instance.
+            // Trigger `NO_MATCH` error on the specific component's recognition
+            // instance.
             const recognition = (voiceSearch as unknown as {
                                   voiceRecognition_: MockSpeechRecognition,
                                 }).voiceRecognition_;
@@ -5813,7 +5749,7 @@ suite('NewTabPageAppTest', () => {
           assertTrue(voiceSearch.hasErrorTimer);
 
           // Intercept window.setTimeout.
-          let capturedCallback: Function | null = null;
+          let capturedCallback: Function|null = null;
           let capturedDelay: number = 0;
           const originalSetTimeout = window.setTimeout;
           try {
@@ -5821,12 +5757,13 @@ suite('NewTabPageAppTest', () => {
               if (timeout === 9000) {
                 capturedCallback = handler as Function;
                 capturedDelay = timeout;
-                return 1; // Dummy timer ID
+                return 1;  // Dummy timer ID
               }
               return originalSetTimeout.call(window, handler, timeout);
             };
 
-            // Trigger network error on the specific component's recognition instance.
+            // Trigger network error on the specific component's recognition
+            // instance.
             const recognition = (voiceSearch as unknown as {
                                   voiceRecognition_: MockSpeechRecognition,
                                 }).voiceRecognition_;
@@ -6021,8 +5958,7 @@ suite('NewTabPageAppTest', () => {
           // log QUERY_SUBMITTED (enum value 1) due to early return.
           assertEquals(
               0,
-              metrics.count(
-                  VOICE_ACTIONS_METRIC, VoiceAction.QUERY_SUBMITTED));
+              metrics.count(VOICE_ACTIONS_METRIC, VoiceAction.QUERY_SUBMITTED));
         });
 
     // TODO(crbug.com/527969922): Re-enable this test
@@ -6057,8 +5993,7 @@ suite('NewTabPageAppTest', () => {
           assertEquals(1, metrics.count(VOICE_ACTIONS_METRIC));
           assertEquals(
               1,
-              metrics.count(
-                  VOICE_ACTIONS_METRIC, VoiceAction.QUERY_SUBMITTED));
+              metrics.count(VOICE_ACTIONS_METRIC, VoiceAction.QUERY_SUBMITTED));
 
           // Assert: New unified histograms are NOT logged when experiment is
           // disabled.
@@ -6177,12 +6112,10 @@ suite('NewTabPageAppReducedMotionTest', () => {
         'getPageClassification',
         Promise.resolve({metricSource: 'NTP_REALBOX'}));
     // TODO(crbug.com/570702014): Smart Tab Sharing is desktop-only.
-    // <if expr="not is_android">
     searchboxHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
     searchboxHandler.setResultFor(
         'resetSmartTabSharing', Promise.resolve({active: false}));
-    // </if>
     installMock(
         ActionChipsHandlerRemote,
         mock => actionChipsProxyFactory.setInstance(
@@ -6358,12 +6291,10 @@ suite('NewTabPageAppContextMenuAnimationTest', () => {
         'getPageClassification',
         Promise.resolve({metricSource: 'NTP_REALBOX'}));
     // TODO(crbug.com/570702014): Smart Tab Sharing is desktop-only.
-    // <if expr="not is_android">
     searchboxHandler.setResultFor(
         'getSmartTabSharingActive', Promise.resolve({active: false}));
     searchboxHandler.setResultFor(
         'resetSmartTabSharing', Promise.resolve({active: false}));
-    // </if>
     installMock(
         ActionChipsHandlerRemote,
         mock => actionChipsProxyFactory.setInstance(

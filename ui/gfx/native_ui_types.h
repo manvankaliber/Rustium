@@ -13,9 +13,6 @@
 #include "build/blink_buildflags.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#endif
 
 #if BUILDFLAG(IS_APPLE)
 #include "base/apple/owned_objc.h"
@@ -25,9 +22,6 @@
 #include <string>
 #endif
 
-#if BUILDFLAG(IS_IOS)
-#include <variant>
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/windows_types.h"
@@ -61,7 +55,7 @@
 // TODO(https://crbug.com/40157665): gfx::NativeCursor is ui::Cursor in Aura;
 // perhaps remove gfx::NativeCursor and use ui::Cursor everywhere?
 
-#if defined(USE_AURA) || BUILDFLAG(IS_ANDROID)
+#if defined(USE_AURA)
 namespace ui {
 class Cursor;
 }
@@ -82,12 +76,6 @@ enum class CursorType;
 
 #if BUILDFLAG(IS_WIN)
 struct IAccessible;
-#elif BUILDFLAG(IS_IOS)
-#ifdef __OBJC__
-@class UIImage;
-#else
-class UIImage;
-#endif  // __OBJC__
 #elif BUILDFLAG(IS_MAC)
 #ifdef __OBJC__
 @class NSImage;
@@ -98,13 +86,6 @@ class NSImage;
 #endif  // __OBJC__
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-struct ANativeWindow;
-namespace ui {
-class WindowAndroid;
-class ViewAndroid;
-}  // namespace ui
-#endif
 
 #if BUILDFLAG(IS_LINUX)
 extern "C" {
@@ -115,7 +96,7 @@ using AtkObject = struct _AtkObject;
 
 namespace gfx {
 
-#if defined(USE_AURA) || BUILDFLAG(IS_ANDROID)
+#if defined(USE_AURA)
 using NativeCursor = ui::Cursor;
 #endif
 
@@ -123,21 +104,6 @@ using NativeCursor = ui::Cursor;
 using NativeView = aura::Window*;
 using NativeWindow = aura::Window*;
 using NativeEvent = ui::Event*;
-#elif BUILDFLAG(IS_IOS)
-using NativeCursor = void*;
-using NativeView = base::apple::WeakUIView;
-using NativeWindow = base::apple::WeakUIWindow;
-#if BUILDFLAG(USE_BLINK)
-#if BUILDFLAG(IS_IOS_TVOS)
-using NativeEvent =
-    std::variant<base::apple::OwnedUIEvent, base::apple::OwnedUIPress>;
-#else
-using NativeEvent =
-    std::variant<base::apple::OwnedUIEvent, base::apple::OwnedBEKeyEntry>;
-#endif  // BUILDFLAG(IS_IOS_TVOS)
-#else
-using NativeEvent = base::apple::OwnedUIEvent;
-#endif  // BUILDFLAG(USE_BLINK)
 #elif BUILDFLAG(IS_MAC)
 using NativeCursor = base::apple::OwnedNSCursor;
 using NativeEvent = base::apple::OwnedNSEvent;
@@ -181,20 +147,12 @@ class COMPONENT_EXPORT(GFX) NativeWindow : public base::apple::WeakNSWindow {
  private:
   uintptr_t pointer_bits_ = 0;
 };
-#elif BUILDFLAG(IS_ANDROID)
-using NativeView = ui::ViewAndroid*;
-using NativeWindow = ui::WindowAndroid*;
-using NativeEvent = base::android::ScopedJavaGlobalRef<jobject>;
 #else
 #error Unknown build environment.
 #endif
 
 #if BUILDFLAG(IS_WIN)
 using NativeViewAccessible = IAccessible*;
-#elif BUILDFLAG(IS_IOS)
-// UIAccessibility is an informal protocol on NSObject, so make accessible
-// objects owned NSObjects. Do not use as a general object wrapper.
-using NativeViewAccessible = base::apple::OwnedNSObject;
 #elif BUILDFLAG(IS_MAC)
 using NativeViewAccessible = base::apple::OwnedNSAccessibility;
 #elif BUILDFLAG(IS_LINUX)
@@ -223,15 +181,9 @@ using AcceleratedWidget = HWND;
 #pragma clang diagnostic ignored "-Wunique-object-duplication"
 inline constexpr AcceleratedWidget kNullAcceleratedWidget = nullptr;
 #pragma clang diagnostic pop
-#elif BUILDFLAG(IS_IOS)
-using AcceleratedWidget = uint64_t;
-inline constexpr AcceleratedWidget kNullAcceleratedWidget = 0;
 #elif BUILDFLAG(IS_MAC)
 using AcceleratedWidget = uint64_t;
 inline constexpr AcceleratedWidget kNullAcceleratedWidget = 0;
-#elif BUILDFLAG(IS_ANDROID)
-using AcceleratedWidget = ANativeWindow*;
-constexpr AcceleratedWidget kNullAcceleratedWidget = nullptr;
 #elif BUILDFLAG(IS_OZONE)
 using AcceleratedWidget = uint32_t;
 inline constexpr AcceleratedWidget kNullAcceleratedWidget = 0;

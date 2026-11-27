@@ -23,9 +23,6 @@
 #include "google_apis/google_api_keys.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/version_info/android/channel_getter.h"
-#endif
 
 namespace optimization_guide::features {
 
@@ -37,11 +34,7 @@ constexpr char kOptimizationGuideServiceAPIKeySwitch[] =
     "optimization-guide-service-api-key";
 
 constexpr auto enabled_by_default_mobile_only =
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    base::FEATURE_ENABLED_BY_DEFAULT;
-#else
     base::FEATURE_DISABLED_BY_DEFAULT;
-#endif
 
 }  // namespace
 
@@ -195,11 +188,7 @@ std::string GetOptimizationGuideServiceAPIKey() {
         kOptimizationGuideServiceAPIKeySwitch);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  return google_apis::GetAPIKey(version_info::android::GetChannel());
-#else
   return google_apis::GetAPIKey();
-#endif
 }
 
 GURL GetOptimizationGuideServiceGetModelsURL() {
@@ -342,11 +331,7 @@ base::TimeDelta ModelExecutionWatchdogDefaultTimeout() {
 bool ShouldDeferStartupActiveTabsHintsFetch() {
   return GetFieldTrialParamByFeatureAsBool(
       kOptimizationHints, "defer_startup_active_tabs_hints_fetch",
-#if BUILDFLAG(IS_ANDROID)
-      true
-#else
       false
-#endif
   );
 }
 

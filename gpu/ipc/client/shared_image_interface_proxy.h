@@ -86,12 +86,12 @@ class SharedImageInterfaceProxy {
                          const Mailbox& mailbox);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
   void CopyNativeGmbToSharedMemoryAsync(
       gfx::GpuMemoryBufferHandle buffer_handle,
       base::UnsafeSharedMemoryRegion memory_region,
       base::OnceCallback<void(bool)> callback);
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
   void UpdateSharedImage(const SyncToken& sync_token, const Mailbox& mailbox);
   void UpdateSharedImage(const SyncToken& sync_token,
@@ -112,14 +112,6 @@ class SharedImageInterfaceProxy {
   bool CanVerifySyncToken(const gpu::SyncToken& sync_token);
   void VerifyFlush();
   void WaitSyncToken(const SyncToken& sync_token);
-
-#if BUILDFLAG(IS_FUCHSIA)
-  void RegisterSysmemBufferCollection(zx::eventpair service_handle,
-                                      zx::channel sysmem_token,
-                                      const viz::SharedImageFormat& format,
-                                      gfx::BufferUsage usage,
-                                      bool register_with_image_pipe);
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
   void NotifyMailboxAdded(const Mailbox& mailbox,
                           gpu::SharedImageUsageSet usage);

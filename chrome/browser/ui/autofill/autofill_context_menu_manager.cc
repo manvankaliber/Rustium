@@ -77,7 +77,6 @@ constexpr int kContextMenuIconSize = 16;
 bool IsAutofillCustomCommandId(
     AutofillContextMenuManager::CommandId command_id) {
   static constexpr auto kAutofillCommands = base::MakeFixedFlatSet<int>({
-      IDC_CONTENT_CONTEXT_AUTOFILL_FALLBACK_AT_MEMORY,
       IDC_CONTENT_CONTEXT_AUTOFILL_FEEDBACK,
       IDC_CONTENT_CONTEXT_AUTOFILL_FALLBACK_PASSWORDS_SELECT_PASSWORD,
       IDC_CONTENT_CONTEXT_AUTOFILL_FALLBACK_PASSWORDS_IMPORT_PASSWORDS,
@@ -146,9 +145,6 @@ AutofillContextMenuManager::~AutofillContextMenuManager() = default;
 
 void AutofillContextMenuManager::AppendItems() {
   if (params_.is_content_editable_for_autofill) {
-    if (MaybeAddAtMemoryItem()) {
-      menu_model_->AddSeparator(ui::NORMAL_SEPARATOR);
-    }
     return;
   }
 
@@ -184,11 +180,6 @@ void AutofillContextMenuManager::ExecuteCommand(int command_id) {
   if (command_id == IDC_CONTENT_CONTEXT_AUTOFILL_FEEDBACK) {
     ExecuteAutofillFeedbackCommand(autofill_driver->GetFrameToken(),
                                    autofill_driver->GetAutofillManager());
-    return;
-  }
-
-  if (command_id == IDC_CONTENT_CONTEXT_AUTOFILL_FALLBACK_AT_MEMORY) {
-    ExecuteAtMemoryContextMenuCommand(*rfh, params_);
     return;
   }
 
@@ -249,18 +240,6 @@ void AutofillContextMenuManager::MaybeAddAutofillFeedbackItem() {
   }
 }
 
-bool AutofillContextMenuManager::MaybeAddAtMemoryItem() {
-  content::RenderFrameHost* const rfh = delegate_->GetRenderFrameHost();
-  if (!rfh || !ShouldShowAtMemoryContextMenuItem(*rfh, params_)) {
-    return false;
-  }
-
-  menu_model_->AddItemWithStringId(
-      IDC_CONTENT_CONTEXT_AUTOFILL_FALLBACK_AT_MEMORY,
-      IDS_CONTENT_CONTEXT_AUTOFILL_FALLBACK_AT_MEMORY);
-  return true;
-}
-
 void AutofillContextMenuManager::MaybeAddAutofillManualFallbackItems() {
   if (!ShouldShowAutofillContextMenu(params_)) {
     // Autofill entries are only available in input or text area fields
@@ -290,9 +269,7 @@ void AutofillContextMenuManager::MaybeAddAutofillManualFallbackItems() {
           password_manager_driver);
     }
   }
-  const bool add_at_memory_fallback = MaybeAddAtMemoryItem();
-
-  if (add_passwords_fallback || add_at_memory_fallback) {
+  if (add_passwords_fallback) {
     menu_model_->AddSeparator(ui::NORMAL_SEPARATOR);
   }
 }

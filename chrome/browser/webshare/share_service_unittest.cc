@@ -30,11 +30,6 @@
 
 using blink::mojom::ShareError;
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/sharesheet/sharesheet_types.h"
-#include "chrome/browser/webshare/chromeos/sharesheet_client.h"
-#include "chromeos/components/sharesheet/constants.h"
-#endif
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/webshare/mac/sharing_service_operation.h"
 #include "third_party/blink/public/mojom/webshare/webshare.mojom.h"
@@ -52,10 +47,6 @@ class ShareServiceUnitTest : public ChromeRenderViewHostTestHarness {
     ShareServiceImpl::Create(
         main_rfh(), share_service_remote_.BindNewPipeAndPassReceiver());
 
-#if BUILDFLAG(IS_CHROMEOS)
-    webshare::SharesheetClient::SetSharesheetCallbackForTesting(
-        base::BindRepeating(&ShareServiceUnitTest::AcceptShareRequest));
-#endif
 #if BUILDFLAG(IS_MAC)
     webshare::SharingServiceOperation::SetSharePickerCallbackForTesting(
         base::BindRepeating(&ShareServiceUnitTest::AcceptShareRequest));
@@ -143,18 +134,6 @@ class ShareServiceUnitTest : public ChromeRenderViewHostTestHarness {
     return builder;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  static void AcceptShareRequest(
-      content::WebContents* web_contents,
-      const std::vector<base::FilePath>& file_paths,
-      const std::vector<std::string>& content_types,
-      const std::vector<uint64_t>& file_sizes,
-      const std::string& text,
-      const std::string& title,
-      sharesheet::DeliveredCallback delivered_callback) {
-    std::move(delivered_callback).Run(sharesheet::SharesheetResult::kSuccess);
-  }
-#endif
 
 #if BUILDFLAG(IS_MAC)
   static void AcceptShareRequest(
@@ -294,37 +273,5 @@ TEST_F(ShareServiceUnitTest, ReservedNames) {
   EXPECT_TRUE(IsDangerousFilename(FILE_PATH_LITERAL("COM9")));
   EXPECT_TRUE(IsDangerousFilename(FILE_PATH_LITERAL("LPT1")));
   EXPECT_TRUE(IsDangerousFilename(FILE_PATH_LITERAL("LPT9")));
-}
-#endif
-
-#if BUILDFLAG(IS_CHROMEOS)
-// On Chrome OS, like Android, we prevent sharing of Android applications.
-TEST_F(ShareServiceUnitTest, AndroidPackage) {
-  EXPECT_EQ(ShareError::PERMISSION_DENIED,
-            ShareGeneratedFileData(".apk", "text/plain"));
-  EXPECT_EQ(ShareError::PERMISSION_DENIED,
-            ShareGeneratedFileData(".dex", "text/plain"));
-  EXPECT_EQ(ShareError::PERMISSION_DENIED,
-            ShareGeneratedFileData(".txt", "vnd.android.package-archive"));
-}
-
-TEST_F(ShareServiceUnitTest, TotalBytes) {
-  EXPECT_EQ(ShareError::OK,
-            ShareGeneratedFileData(".txt", "text/plain",
-                                   kMaxSharedFileBytes / kMaxSharedFileCount,
-                                   kMaxSharedFileCount));
-  EXPECT_EQ(
-      ShareError::PERMISSION_DENIED,
-      ShareGeneratedFileData(".txt", "text/plain",
-                             (kMaxSharedFileBytes / kMaxSharedFileCount) + 1,
-                             kMaxSharedFileCount));
-}
-
-TEST_F(ShareServiceUnitTest, FileBytes) {
-  EXPECT_EQ(ShareError::OK,
-            ShareGeneratedFileData(".txt", "text/plain", kMaxSharedFileBytes));
-  EXPECT_EQ(
-      ShareError::PERMISSION_DENIED,
-      ShareGeneratedFileData(".txt", "text/plain", kMaxSharedFileBytes + 1));
 }
 #endif

@@ -476,13 +476,6 @@ base::FilePath OfflinePageRequestHandler::GetIntentFilePath() const {
     if (!net::FileURLToFilePath(offline_header_.intent_url, &file_path)) {
       return base::FilePath();
     }
-#if BUILDFLAG(IS_ANDROID)
-  } else if (IsProcessingContentUrlIntent()) {
-    file_path = base::FilePath(offline_header_.intent_url.spec());
-    if (!file_path.IsContentUri()) {
-      return base::FilePath();
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
   }
   return file_path;
 }

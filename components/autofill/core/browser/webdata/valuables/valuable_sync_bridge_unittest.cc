@@ -49,7 +49,6 @@ using testing::Return;
 using testing::ReturnRef;
 using testing::UnorderedElementsAre;
 
-#if !BUILDFLAG(IS_IOS)
 constexpr char kId1[] = "1";
 constexpr char kId2[] = "2";
 constexpr char kInvalidId[] = "";
@@ -75,7 +74,6 @@ std::vector<AutofillOfferData> ExtractOffersFromDataBatch(
   }
   return offers;
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 std::unique_ptr<syncer::EntityData> CreateEntityDataFromSpecifics(
     sync_pb::AutofillValuableSpecifics specifics) {
@@ -144,7 +142,6 @@ class ValuableSyncBridgeTest : public testing::Test {
         mock_processor_.CreateForwardingProcessor(), app_locale, &backend_);
   }
 
-#if !BUILDFLAG(IS_IOS)
   // Tells the processor to starts syncing with pre-existing `loyalty_cards`.
   // Triggers the `bridge()`'s `MergeFullSyncData()`.
   // Returns true if syncing started successfully.
@@ -172,7 +169,6 @@ class ValuableSyncBridgeTest : public testing::Test {
     return std::move(*CreateEntityDataFromLoyaltyCard(card,
                                                       /*base_specifics=*/{}));
   }
-#endif  // !BUILDFLAG(IS_IOS)
 
   // Tells the processor to starts syncing with pre-existing `entities`.
   // Triggers the `bridge()`'s `MergeFullSyncData()`.
@@ -388,7 +384,6 @@ TEST_F(ValuableSyncBridgeTest,
       ValuableSyncBridge::AutofillAiWalletManagementUrlSyncStatus::kInvalid, 1);
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(ValuableSyncBridgeTest, IsEntityDataValid_NonEmptyId) {
   // Valid case.
   std::unique_ptr<syncer::EntityData> entity =
@@ -871,7 +866,6 @@ TEST_F(ValuableSyncBridgeTest,
   EXPECT_EQ(cards_in_db[0].metadata(), local_metadata);
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(ValuableSyncBridgeTest, GetStorageKey) {
   EntityInstance vehicle = GetServerVehicleEntityInstance(
@@ -1377,7 +1371,6 @@ class ValuableSyncBridgeIncrementalUpdatesTest : public ValuableSyncBridgeTest {
   }
 };
 
-#if !BUILDFLAG(IS_IOS)
 // Tests that loyalty card changes passed to `ApplyIncrementalSyncChanges()`
 // are applied.
 TEST_F(ValuableSyncBridgeIncrementalUpdatesTest,
@@ -1589,7 +1582,6 @@ TEST_F(ValuableSyncBridgeIncrementalUpdatesTest,
   ASSERT_EQ(offers.size(), 1u);
   EXPECT_EQ(offers[0].GetOfferId(), "1");
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 // Tests that entity instance changes passed to `ApplyIncrementalSyncChanges()`
 // are applied.

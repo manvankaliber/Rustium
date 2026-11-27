@@ -45,9 +45,7 @@
 #include "src/core/lib/slice/slice.h"
 #include "src/core/util/load_file.h"
 
-#if !defined(__Fuchsia__)
 #include "src/core/util/directory_reader.h"
-#endif  // !defined(__Fuchsia__)
 
 namespace grpc_core {
 namespace experimental {
@@ -73,7 +71,6 @@ absl::StatusOr<std::string> IssuerFromCrl(X509_CRL* crl) {
   return ret;
 }
 
-#if !defined(__Fuchsia__)
 absl::StatusOr<std::shared_ptr<Crl>> ReadCrlFromFile(
     const std::string& crl_path) {
   absl::StatusOr<Slice> crl_slice = LoadFile(crl_path, false);
@@ -87,7 +84,6 @@ absl::StatusOr<std::shared_ptr<Crl>> ReadCrlFromFile(
   }
   return crl;
 }
-#endif  // !defined(__Fuchsia__)
 
 }  // namespace
 
@@ -149,7 +145,6 @@ std::shared_ptr<Crl> StaticCrlProvider::GetCrl(
   return it->second;
 }
 
-#if !defined(__Fuchsia__)
 absl::StatusOr<std::shared_ptr<CrlProvider>> CreateDirectoryReloaderCrlProvider(
     absl::string_view directory, std::chrono::seconds refresh_duration,
     std::function<void(absl::Status)> reload_error_callback) {
@@ -259,7 +254,6 @@ std::shared_ptr<Crl> DirectoryReloaderCrlProvider::GetCrl(
   }
   return it->second;
 }
-#endif  // !defined(__Fuchsia__)
 
 
 }  // namespace experimental

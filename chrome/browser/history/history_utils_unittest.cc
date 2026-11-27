@@ -8,9 +8,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/webapps/isolated_web_apps/scheme.h"
-#endif
 
 TEST(HistoryUtilsTest, CanAddURLToHistory) {
   EXPECT_TRUE(CanAddURLToHistory(GURL("https://www.google.com")));
@@ -24,10 +22,8 @@ TEST(HistoryUtilsTest, CanAddURLToHistory) {
   EXPECT_FALSE(CanAddURLToHistory(GURL("chrome-untrusted://terminal")));
   EXPECT_FALSE(CanAddURLToHistory(GURL("view-source:https://www.google.com")));
 
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_FALSE(CanAddURLToHistory(
       GURL("isolated-app://aerugq4wfqsayeaaxxxxxxxxxx/index.html")));
   EXPECT_FALSE(CanAddURLToHistory(
       GURL("isolated-app://aerugq4wfqsayeaaxxxxxxxxxx/secret/admin")));
-#endif
 }

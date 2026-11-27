@@ -135,8 +135,6 @@ _ADD_CONTENT = {
     # TODO(crbug.com/40276308): Remove once all targets are migrated to
     # :string_view.
     ":string_view" ]''',
-    'strings:str_format_convert_test':
-    'if (is_fuchsia) { sources = [] }',
     # Instead of parsing 'select', add platform-specific rules manually while there are few of those.
     'time/internal/cctz:time_zone':
     '''
@@ -148,15 +146,7 @@ if (is_apple) {
   # Work-around for https://github.com/llvm/llvm-project/issues/117630
   defines += [ "_XOPEN_SOURCE=700" ]
 }
-if (is_fuchsia) {
-  deps += [
-    "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.intl:fuchsia.intl_hlcpp",
-    "//third_party/fuchsia-sdk/sdk/pkg/async",
-    "//third_party/fuchsia-sdk/sdk/pkg/async-loop-cpp",
-    "//third_party/fuchsia-sdk/sdk/pkg/sys_cpp",
-    "//third_party/fuchsia-sdk/sdk/pkg/zx",
-  ]
-}''',
+''',
     'time/internal/cctz:time_zone_name_win_test':
     'if (is_win) { sources = [ "src/time_zone_name_win_test.cc" ] }',
 }

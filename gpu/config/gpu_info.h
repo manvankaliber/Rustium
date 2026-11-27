@@ -249,7 +249,7 @@ struct GPU_CONFIG_EXPORT GPUInfo {
     // Device ids are unique to vendor, not to one another.
     uint32_t device_id = 0u;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
     // The graphics card revision number.
     uint32_t revision = 0u;
 #endif

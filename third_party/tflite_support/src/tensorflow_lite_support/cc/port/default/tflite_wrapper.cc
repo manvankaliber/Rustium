@@ -39,7 +39,6 @@ absl::Status TfLiteInterpreterWrapper::SanityCheckComputeSettings(
     const ComputeSettings& compute_settings) {
   Delegate delegate = compute_settings.tflite_settings().delegate();
   if (delegate != Delegate::NONE && delegate != Delegate::GPU &&
-      delegate != Delegate::HEXAGON && delegate != Delegate::NNAPI &&
       delegate != Delegate::XNNPACK && delegate != Delegate::EDGETPU_CORAL &&
       delegate != Delegate::CORE_ML) {
     return absl::UnimplementedError(absl::StrFormat(
@@ -138,19 +137,9 @@ absl::Status TfLiteInterpreterWrapper::InitializeWithFallback(
   fallback_on_compilation_error_ =
       compute_settings_.tflite_settings()
           .fallback_settings()
-          .allow_automatic_fallback_on_compilation_error() ||
-      // Deprecated, keep supporting for backward compatibility.
-      compute_settings_.tflite_settings()
-          .nnapi_settings()
-          .fallback_settings()
           .allow_automatic_fallback_on_compilation_error();
   fallback_on_execution_error_ =
       compute_settings_.tflite_settings()
-          .fallback_settings()
-          .allow_automatic_fallback_on_execution_error() ||
-      // Deprecated, keep supporting for backward compatibility.
-      compute_settings_.tflite_settings()
-          .nnapi_settings()
           .fallback_settings()
           .allow_automatic_fallback_on_execution_error();
 
@@ -228,13 +217,7 @@ absl::Status TfLiteInterpreterWrapper::InitializeDelegate() {
     const tflite::ComputeSettings* compute_settings =
         tflite::ConvertFromProto(compute_settings_, &flatbuffers_builder_);
 
-    if (which_delegate == Delegate::NNAPI) {
-      TFLITE_RETURN_IF_ERROR(
-          LoadDelegatePlugin("Nnapi", *compute_settings->tflite_settings()));
-    } else if (which_delegate == Delegate::HEXAGON) {
-      TFLITE_RETURN_IF_ERROR(
-          LoadDelegatePlugin("Hexagon", *compute_settings->tflite_settings()));
-    } else if (which_delegate == Delegate::GPU) {
+    if (which_delegate == Delegate::GPU) {
       TFLITE_RETURN_IF_ERROR(
           LoadDelegatePlugin("Gpu", *compute_settings->tflite_settings()));
     } else if (which_delegate == Delegate::EDGETPU) {

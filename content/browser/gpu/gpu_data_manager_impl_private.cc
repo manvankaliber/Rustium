@@ -2,7 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-
 #include "content/browser/gpu/gpu_data_manager_impl_private.h"
 
 #include "base/notreached.h"
@@ -83,9 +82,6 @@
 #include "ui/gl/gl_implementation.h"
 #include "ui/gl/gl_switches.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/application_status_listener.h"
-#endif
 #if BUILDFLAG(IS_OZONE)
 #include "ui/ozone/public/ozone_platform.h"
 #endif
@@ -102,22 +98,6 @@ namespace content {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-// NOINLINE to ensure this function is used in crash reports.
-NOINLINE void FatalGpuProcessLaunchFailureOnBackground() {
-  if (!base::android::ApplicationStatusListener::HasVisibleActivities()) {
-    // We expect the platform to aggressively kill services when the app is
-    // backgrounded. A FATAL error creates a dialog notifying users that the
-    // app has crashed which doesn't look good. So we use SIGKILL instead. But
-    // still do a crash dump for 1% cases to make sure we're not regressing this
-    // case.
-    if (base::RandIntInclusive(1, 100) == 1) {
-      base::debug::DumpWithoutCrashing();
-    }
-    kill(getpid(), SIGKILL);
-  }
-}
-#endif
 
 #if BUILDFLAG(IS_WIN)
 // This function checks the created file to ensure it wasn't redirected
@@ -126,10 +106,12 @@ bool ValidateFileHandle(HANDLE cache_file_handle,
                         const base::FilePath& cache_file_path) {
   // Check that the file wasn't hardlinked to something else.
   BY_HANDLE_FILE_INFORMATION file_info = {};
-  if (!::GetFileInformationByHandle(cache_file_handle, &file_info))
+  if (!::GetFileInformationByHandle(cache_file_handle, &file_info)) {
     return false;
-  if (file_info.nNumberOfLinks > 1)
+  }
+  if (file_info.nNumberOfLinks > 1) {
     return false;
+  }
 
   // Check the final path matches the expected path.
   wchar_t final_path_buffer[MAX_PATH];
@@ -152,12 +134,14 @@ bool GetIntelCacheFileNames(std::vector<base::FilePath::StringType>* names) {
   CHECK(names, base::NotFatalUntil::M159);
   CHECK(names->empty(), base::NotFatalUntil::M159);
   base::FilePath module_path;
-  if (!base::PathService::Get(base::FILE_EXE, &module_path))
+  if (!base::PathService::Get(base::FILE_EXE, &module_path)) {
     return false;
+  }
   module_path = module_path.BaseName().RemoveExtension();
   base::FilePath::StringType module_name = module_path.value();
-  if (module_name.size() == 0)
+  if (module_name.size() == 0) {
     return false;
+  }
   // The Intel shader cache files should be appName_[0|1|2].
   names->push_back(module_name + L"_0");
   names->push_back(module_name + L"_1");
@@ -167,11 +151,13 @@ bool GetIntelCacheFileNames(std::vector<base::FilePath::StringType>* names) {
 
 void EnableIntelShaderCache() {
   base::FilePath dir;
-  if (!base::PathService::Get(base::DIR_COMMON_APP_DATA, &dir))
+  if (!base::PathService::Get(base::DIR_COMMON_APP_DATA, &dir)) {
     return;
+  }
   dir = dir.Append(L"Intel").Append(L"ShaderCache");
-  if (!base::DirectoryExists(dir))
+  if (!base::DirectoryExists(dir)) {
     return;
+  }
 
   PSECURITY_DESCRIPTOR sd = nullptr;
   ULONG sd_length = 0;
@@ -181,23 +167,26 @@ void EnableIntelShaderCache() {
       L"D:(A;;FA;;;AU)(A;;FA;;;BA)(A;;GRGWGX;;;S-1-15-2-1)(A;;GRGWGX;;;S-1-15-"
       L"2-2)",
       SDDL_REVISION_1, &sd, &sd_length);
-  if (!success)
+  if (!success) {
     return;
+  }
   CHECK(sd, base::NotFatalUntil::M159);
   CHECK_LT(0u, sd_length, base::NotFatalUntil::M159);
   std::unique_ptr<void, decltype(::LocalFree)*> sd_holder(sd, ::LocalFree);
   PACL dacl = nullptr;
   BOOL present = FALSE, defaulted = FALSE;
   success = ::GetSecurityDescriptorDacl(sd, &present, &dacl, &defaulted);
-  if (!success)
+  if (!success) {
     return;
+  }
   CHECK(present, base::NotFatalUntil::M159);
   CHECK(dacl, base::NotFatalUntil::M159);
   CHECK(!defaulted, base::NotFatalUntil::M159);
 
   std::vector<base::FilePath::StringType> cache_file_names;
-  if (!GetIntelCacheFileNames(&cache_file_names))
+  if (!GetIntelCacheFileNames(&cache_file_names)) {
     return;
+  }
   for (const auto& cache_file_name : cache_file_names) {
     base::FilePath cache_file_path = dir.Append(cache_file_name);
     HANDLE cache_file_handle = ::CreateFileW(
@@ -315,8 +304,9 @@ void UpdateFeatureStats(const gpu::GpuFeatureInfo& gpu_feature_info) {
     // expected if the macro is used within a loop.
     gpu::GpuFeatureStatus value =
         gpu_feature_info.status_values[kGpuFeatures[i]];
-    if (value == gpu::kGpuFeatureStatusEnabled && kGpuFeatureUserFlags[i])
+    if (value == gpu::kGpuFeatureStatusEnabled && kGpuFeatureUserFlags[i]) {
       value = gpu::kGpuFeatureStatusDisabled;
+    }
     base::HistogramBase* histogram_pointer = base::LinearHistogram::FactoryGet(
         kGpuBlocklistFeatureHistogramNames[i], 1, gpu::kGpuFeatureStatusMax,
         gpu::kGpuFeatureStatusMax + 1,
@@ -357,8 +347,9 @@ void OnVideoMemoryUsageStats(
 void RequestVideoMemoryUsageStats(
     GpuDataManager::VideoMemoryUsageStatsCallback callback,
     GpuProcessHost* host) {
-  if (!host)
+  if (!host) {
     return;
+  }
   host->gpu_service()->GetVideoMemoryUsageStats(
       base::BindOnce(&OnVideoMemoryUsageStats, std::move(callback)));
 }
@@ -437,9 +428,6 @@ GpuDataManagerImplPrivate::GpuDataManagerImplPrivate(GpuDataManagerImpl* owner)
     : owner_(owner),
 #if BUILDFLAG(IS_MAC)
       supports_gpu_mode_hardware_gl_(false),
-#elif BUILDFLAG(IS_ANDROID)
-      supports_gpu_mode_hardware_gl_(
-          !base::FeatureList::IsEnabled(features::kSkipVulkanBlocklist)),
 #else
       supports_gpu_mode_hardware_gl_(true),
 #endif
@@ -460,8 +448,9 @@ GpuDataManagerImplPrivate::GpuDataManagerImplPrivate(GpuDataManagerImpl* owner)
   }
 
   // For testing only.
-  if (command_line->HasSwitch(switches::kDisableDomainBlockingFor3DAPIs))
+  if (command_line->HasSwitch(switches::kDisableDomainBlockingFor3DAPIs)) {
     domain_blocking_enabled_ = false;
+  }
 }
 
 GpuDataManagerImplPrivate::~GpuDataManagerImplPrivate() = default;
@@ -480,27 +469,16 @@ void GpuDataManagerImplPrivate::InitializeGpuModes() {
   // Android and Chrome OS can't switch to software compositing. If the GPU
   // process initialization fails or GPU process is too unstable then crash the
   // browser process to reset everything.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
   fallback_modes_.push_back(gpu::GpuMode::DISPLAY_COMPOSITOR);
   if (SoftwareGLAllowed()) {
     fallback_modes_.push_back(gpu::GpuMode::SOFTWARE_GL);
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kDisableGpu)) {
-
-#if (BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CAST_ANDROID)) || \
-    BUILDFLAG(IS_CHROMEOS)
-    NOTREACHED() << "GPU acceleration is required on certain platforms!";
-#endif
   } else {
     // On Fuchsia Vulkan must be used when it's enabled by the WebEngine
     // embedder. Falling back to SW compositing in that case is not supported.
-#if BUILDFLAG(IS_FUCHSIA)
-    fallback_modes_.clear();
-    fallback_modes_.push_back(gpu::GpuMode::HARDWARE_VULKAN);
-#else
     // Skip hardware modes if SwiftShader-for-WebGL is in use; hardware GPU is
     // not needed in that case.
     if (!features::IsSwiftShaderUsedForWebGLByCommandLine(command_line)) {
@@ -528,7 +506,6 @@ void GpuDataManagerImplPrivate::InitializeGpuModes() {
         fallback_modes_.push_back(gpu::GpuMode::HARDWARE_VULKAN);
       }
     }
-#endif  // BUILDFLAG(IS_FUCHSIA)
   }
 
   FallBackToNextGpuMode();
@@ -540,10 +517,11 @@ void GpuDataManagerImplPrivate::BlocklistWebGLForTesting() {
 
   gpu::GpuFeatureInfo gpu_feature_info;
   for (int ii = 0; ii < gpu::NUMBER_OF_GPU_FEATURE_TYPES; ++ii) {
-    if (ii == static_cast<int>(gpu::GPU_FEATURE_TYPE_ACCELERATED_WEBGL))
+    if (ii == static_cast<int>(gpu::GPU_FEATURE_TYPE_ACCELERATED_WEBGL)) {
       gpu_feature_info.status_values[ii] = gpu::kGpuFeatureStatusBlocklisted;
-    else
+    } else {
       gpu_feature_info.status_values[ii] = gpu::kGpuFeatureStatusEnabled;
+    }
   }
   UpdateGpuFeatureInfo(gpu_feature_info, std::nullopt);
   NotifyGpuInfoUpdate();
@@ -615,8 +593,9 @@ bool GpuDataManagerImplPrivate::GpuAccessAllowed(std::string* reason) const {
 
 bool GpuDataManagerImplPrivate::GpuAccessAllowedForHardwareGpu(
     std::string* reason) const {
-  if (reason)
+  if (reason) {
     *reason = gpu_access_blocked_reason_for_hardware_gpu_;
+  }
   return gpu_access_allowed_for_hardware_gpu_;
 }
 
@@ -797,8 +776,9 @@ void GpuDataManagerImplPrivate::RequestMojoMediaVideoCapabilities() {
       base::BindOnce(
           [](VEAProfileCallback update_vea_profiles_callback,
              GpuProcessHost* host) {
-            if (!host)
+            if (!host) {
               return;
+            }
 
             mojo::PendingRemote<media::mojom::VideoEncodeAcceleratorProvider>
                 vea_provider_remote;
@@ -863,7 +843,7 @@ gpu::GpuFeatureStatus GpuDataManagerImplPrivate::GetFeatureStatus(
 void GpuDataManagerImplPrivate::RequestVideoMemoryUsageStatsUpdate(
     GpuDataManager::VideoMemoryUsageStatsCallback callback) const {
   GpuProcessHost::CallOnUI(
-      FROM_HERE, GPU_PROCESS_KIND_SANDBOXED, /*force_create=*/false ,
+      FROM_HERE, GPU_PROCESS_KIND_SANDBOXED, /*force_create=*/false,
       base::BindOnce(&RequestVideoMemoryUsageStats, std::move(callback)));
 }
 
@@ -884,8 +864,9 @@ void GpuDataManagerImplPrivate::UnblockDomainFrom3DAPIs(const GURL& url) {
   // Shortcut in the common case where no blocking has occurred. This
   // is important to not regress navigation performance, since this is
   // now called on every user-initiated navigation.
-  if (blocked_domains_.empty())
+  if (blocked_domains_.empty()) {
     return;
+  }
 
   std::string domain = GetDomainFromURL(url);
   auto iter = blocked_domains_.begin();
@@ -979,11 +960,13 @@ void GpuDataManagerImplPrivate::UpdateGpuInfo(
                  gpu_info_for_hardware_gpu->active_gpu().vendor_id == 0u) {
         valid_info = false;
       }
-      if (valid_info)
+      if (valid_info) {
         gpu_info_for_hardware_gpu_ = gpu_info_for_hardware_gpu.value();
+      }
     } else {
-      if (!gpu_info_.UsesSwiftShader())
+      if (!gpu_info_.UsesSwiftShader()) {
         gpu_info_for_hardware_gpu_ = gpu_info_;
+      }
     }
   }
 
@@ -1062,9 +1045,10 @@ void GpuDataManagerImplPrivate::TerminateInfoCollectionGpuProcess() {
   // directly here from TerminateInfoCollectionGpuProcess(), which also runs on
   // the IO thread.
   GpuProcessHost* host = GpuProcessHost::Get(GPU_PROCESS_KIND_INFO_COLLECTION,
-                                             /*force_create=*/false );
-  if (host)
+                                             /*force_create=*/false);
+  if (host) {
     host->ForceShutdown();
+  }
 }
 
 void GpuDataManagerImplPrivate::SetUseAdapterLuid(const CHROME_LUID& luid) {
@@ -1134,7 +1118,6 @@ void GpuDataManagerImplPrivate::UpdateGpuFeatureInfo(
   } else {
     gpu_feature_info_ = gpu_feature_info;
   }
-#if !BUILDFLAG(IS_FUCHSIA)
   // Prune any hardware fallback whose gr_context_type the GPU process has
   // determined is unsupported, so later FallBackToNextGpuMode() calls don't
   // relaunch the GPU process into a mode it already rejected.
@@ -1160,7 +1143,6 @@ void GpuDataManagerImplPrivate::UpdateGpuFeatureInfo(
       FallBackToNextGpuMode();
     }
   }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
   if (!gpu_feature_info_for_hardware_gpu_.IsInitialized()) {
     if (gpu_feature_info_for_hardware_gpu.has_value()) {
       CHECK(gpu_feature_info_for_hardware_gpu->IsInitialized(),
@@ -1234,8 +1216,9 @@ bool GpuDataManagerImplPrivate::IsGpuCompositingDisabledForHardwareGpu() const {
 void GpuDataManagerImplPrivate::SetGpuCompositingDisabled() {
   if (!IsGpuCompositingDisabled()) {
     disable_gpu_compositing_ = true;
-    if (gpu_feature_info_.IsInitialized())
+    if (gpu_feature_info_.IsInitialized()) {
       NotifyGpuInfoUpdate();
+    }
   }
 }
 
@@ -1261,11 +1244,8 @@ void GpuDataManagerImplPrivate::AppendGpuCommandLine(
       break;
     case gpu::GpuMode::SOFTWARE_GL:
       // On Fuchsia, always force software GL
-#if !BUILDFLAG(IS_FUCHSIA)
       if (!gl::HasRequestedSoftwareGLImplementationFromCommandLine(
-              command_line))
-#endif  // BUILDFLAG(IS_FUCHSIA)
-      {
+              command_line)) {
         gl::SetSoftwareWebGLCommandLineSwitches(command_line);
       }
       break;
@@ -1296,16 +1276,6 @@ void GpuDataManagerImplPrivate::UpdateGpuPreferences(
   CHECK(gpu_preferences, base::NotFatalUntil::M159);
 
   gpu_preferences->gpu_program_cache_size = gpu::GetDefaultGpuDiskCacheSize();
-#if BUILDFLAG(IS_ANDROID)
-  // Disable WebGPU if Android Advanced Protection is enabled.
-  // Directly toggling preferences instead of kWebGPUService to prevent
-  // bypass by enable_unsafe_webgpu.
-  if (GetContentClient()->browser()->IsAndroidAdvancedProtectionEnabled() &&
-      base::FeatureList::IsEnabled(features::kAAPMBlocksWebGPU)) {
-    gpu_preferences->enable_webgpu = false;
-    gpu_preferences->enable_unsafe_webgpu = false;
-  }
-#endif
 
   gpu_preferences->watchdog_starts_backgrounded = !application_is_visible_;
 
@@ -1383,8 +1353,9 @@ void GpuDataManagerImplPrivate::UpdateGpuPreferences(
 
 void GpuDataManagerImplPrivate::DisableHardwareAcceleration() {
   hardware_disabled_explicitly_ = true;
-  while (HardwareAccelerationEnabled())
+  while (HardwareAccelerationEnabled()) {
     FallBackToNextGpuMode();
+  }
 }
 
 bool GpuDataManagerImplPrivate::HardwareAccelerationEnabled() const {
@@ -1404,8 +1375,9 @@ bool GpuDataManagerImplPrivate::IsGpuRasterizationForUIEnabled() const {
 
 void GpuDataManagerImplPrivate::OnGpuBlocked() {
   std::optional<gpu::GpuFeatureInfo> gpu_feature_info_for_hardware_gpu;
-  if (gpu_feature_info_.IsInitialized())
+  if (gpu_feature_info_.IsInitialized()) {
     gpu_feature_info_for_hardware_gpu = gpu_feature_info_;
+  }
   UpdateGpuFeatureInfo(gpu_feature_info_, gpu_feature_info_for_hardware_gpu);
 
   // Some observers might be waiting.
@@ -1422,8 +1394,9 @@ void GpuDataManagerImplPrivate::AddLogMessage(int level,
   const int kLogMessageLimit = 1000;
 
   log_messages_.push_back(LogMessage(level, header, message));
-  if (log_messages_.size() > kLogMessageLimit)
+  if (log_messages_.size() > kLogMessageLimit) {
     log_messages_.erase(log_messages_.begin());
+  }
 }
 
 void GpuDataManagerImplPrivate::ProcessCrashed() {
@@ -1449,10 +1422,11 @@ void GpuDataManagerImplPrivate::OnDisplayAdded(
 
   // Pass the notification to the GPU process to notify observers there.
   GpuProcessHost::CallOnUI(FROM_HERE, GPU_PROCESS_KIND_SANDBOXED,
-                           /*force_create=*/false ,
+                           /*force_create=*/false,
                            base::BindOnce([](GpuProcessHost* host) {
-                             if (host)
+                             if (host) {
                                host->gpu_service()->DisplayAdded();
+                             }
                            }));
 }
 
@@ -1462,10 +1436,11 @@ void GpuDataManagerImplPrivate::OnDisplaysRemoved(
 
   // Pass the notification to the GPU process to notify observers there.
   GpuProcessHost::CallOnUI(FROM_HERE, GPU_PROCESS_KIND_SANDBOXED,
-                           /*force_create=*/false ,
+                           /*force_create=*/false,
                            base::BindOnce([](GpuProcessHost* host) {
-                             if (host)
+                             if (host) {
                                host->gpu_service()->DisplayRemoved();
+                             }
                            }));
 }
 
@@ -1476,10 +1451,11 @@ void GpuDataManagerImplPrivate::OnDisplayMetricsChanged(
 
   // Pass the notification to the GPU process to notify observers there.
   GpuProcessHost::CallOnUI(FROM_HERE, GPU_PROCESS_KIND_SANDBOXED,
-                           /*force_create=*/false ,
+                           /*force_create=*/false,
                            base::BindOnce([](GpuProcessHost* host) {
-                             if (host)
+                             if (host) {
                                host->gpu_service()->DisplayMetricsChanged();
+                             }
                            }));
 }
 
@@ -1541,8 +1517,9 @@ void GpuDataManagerImplPrivate::BlockDomainsFrom3DAPIsAtTime(
     const std::set<GURL>& urls,
     gpu::DomainGuilt guilt,
     base::Time at_time) {
-  if (!domain_blocking_enabled_)
+  if (!domain_blocking_enabled_) {
     return;
+  }
 
   // The coalescing of multiple entries for the same blocking event is
   // crucially important for the algorithm. Coalescing based on timestamp
@@ -1579,8 +1556,9 @@ void GpuDataManagerImplPrivate::ExpireOldBlockedDomainsAtTime(
 GpuDataManagerImplPrivate::DomainBlockStatus
 GpuDataManagerImplPrivate::Are3DAPIsBlockedAtTime(const GURL& url,
                                                   base::Time at_time) const {
-  if (!domain_blocking_enabled_)
+  if (!domain_blocking_enabled_) {
     return DomainBlockStatus::kNotBlocked;
+  }
 
   // Note: adjusting the policies in this code will almost certainly
   // require adjusting the associated unit tests.
@@ -1593,8 +1571,9 @@ GpuDataManagerImplPrivate::Are3DAPIsBlockedAtTime(const GURL& url,
       std::ranges::count(blocked_domains_, domain,
                          [](const auto& entry) { return entry.second.domain; });
   // Allow one context loss per domain, so block if there are two or more.
-  if (losses_for_domain > 1)
+  if (losses_for_domain > 1) {
     return DomainBlockStatus::kBlocked;
+  }
 
   // Look at and cluster the timestamps of recent domain blocking events to
   // see if there are more than the threshold which would cause us to
@@ -1619,8 +1598,9 @@ GpuDataManagerImplPrivate::Are3DAPIsBlockedAtTime(const GURL& url,
 
     const int kMaxNumResetsWithinDuration = 2;
 
-    if (num_event_clusters > kMaxNumResetsWithinDuration)
+    if (num_event_clusters > kMaxNumResetsWithinDuration) {
       return DomainBlockStatus::kAllDomainsBlocked;
+    }
   }
 
   return DomainBlockStatus::kNotBlocked;
@@ -1637,17 +1617,15 @@ gpu::GpuMode GpuDataManagerImplPrivate::GetGpuMode() const {
 
 void GpuDataManagerImplPrivate::FallBackToNextGpuMode() {
   if (fallback_modes_.empty()) {
-#if BUILDFLAG(IS_ANDROID)
-    FatalGpuProcessLaunchFailureOnBackground();
-#endif
     IntentionallyCrashBrowserForUnusableGpuProcess();
   }
 
   gpu_mode_ = fallback_modes_.back();
   fallback_modes_.pop_back();
   CHECK_NE(gpu_mode_, gpu::GpuMode::UNKNOWN, base::NotFatalUntil::M159);
-  if (gpu_mode_ == gpu::GpuMode::DISPLAY_COMPOSITOR)
+  if (gpu_mode_ == gpu::GpuMode::DISPLAY_COMPOSITOR) {
     OnGpuBlocked();
+  }
 }
 
 void GpuDataManagerImplPrivate::FallBackToNextGpuModeDueToCrash() {

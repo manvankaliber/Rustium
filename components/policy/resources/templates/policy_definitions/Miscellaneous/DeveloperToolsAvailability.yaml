@@ -28,8 +28,7 @@ example_value: 2
 features:
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 items:
 - caption: Disallow usage of <ph name="CHROME_DEVTOOLS_NAME">Chrome DevTools</ph> on apps and extensions
     installed by enterprise policy or, since version 114 and if this is a

@@ -58,7 +58,7 @@ class MockPaymentAppFactoryDelegate : public PaymentAppFactory::Delegate {
   base::WeakPtr<PaymentRequestSpec> GetSpec() const override {
     return spec_ ? spec_->AsWeakPtr() : nullptr;
   }
-  MOCK_METHOD1(GetTwaPackageName, void(GetTwaPackageNameCallback));
+
   MOCK_METHOD0(ShowProcessingSpinner, void());
   MOCK_METHOD0(ShowLoadingView, void());
   MOCK_CONST_METHOD0(GetPaymentRequestDelegate,

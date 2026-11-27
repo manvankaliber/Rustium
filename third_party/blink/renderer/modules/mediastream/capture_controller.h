@@ -81,12 +81,10 @@ class MODULES_EXPORT CaptureController final
   void SourceChangedState() override {}
   void SourceChangedCaptureConfiguration() override {}
   void SourceChangedCaptureHandle() override {}
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   void SourceChangedZoomLevel(int) override;
 
   void SetMediaStreamDispatcherHostForTesting(
       mojo::PendingRemote<mojom::blink::MediaStreamDispatcherHost>);
-#endif
   void Trace(Visitor* visitor) const override;
 
  private:
@@ -103,7 +101,6 @@ class MODULES_EXPORT CaptureController final
       ScriptState* script_state,
       mojom::blink::ZoomLevelAction action);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // Deliver a wheel event on the captured tab.
   //
   // `relative_x` is a value from [0, 1). It denotes the relative position
@@ -128,7 +125,6 @@ class MODULES_EXPORT CaptureController final
       HTMLElement*,
       mojom::blink::CapturedSurfaceControlResult);
   bool DoForwardWheel(ScriptState*, HTMLElement*);
-#endif
 
   // Whether this CaptureController has been passed to a getDisplayMedia() call.
   // This helps enforce the requirement that any CaptureController may only
@@ -167,12 +163,10 @@ class MODULES_EXPORT CaptureController final
   // Always stays at `std::nullopt` for window- and screen-capture.
   std::optional<int> zoom_level_;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   Member<WheelEventListener> wheel_listener_;
   HeapMojoRemote<mojom::blink::MediaStreamDispatcherHost>
       media_stream_dispatcher_host_;
 
-#endif
 };
 
 }  // namespace blink

@@ -125,16 +125,6 @@ class PageActionUiTestBase {
     // TODO(crbug.com/482339938): SuggestionChipReordersMultipleActions is
     // failing when kPageActionsPrioritySelector is enabled, since those 2 chips
     // are no longer allowed to show at the same time.
-    feature_list_.InitWithFeaturesAndParameters(
-        /*enabled_features=*/
-        {
-            {lens::features::kLensOverlayOmniboxEntryPoint, {}},
-        },
-        /*disabled_features=*/{
-            lens::features::kLensOverlay,
-            features::kPageActionsPrioritySelector,
-            features::kWebUILocationBar,
-        });
   }
 
   virtual ~PageActionUiTestBase() = default;

@@ -41,26 +41,8 @@ export function getHtml(this: SettingsAutofillPageV2Element) {
       .categoryId="${this.hierarchy_.travel.id}"
       .chips="${this.getVisibleChips_(this.hierarchy_.travel.chips)}">
   </category-reference-card>
-  ${this.isShoppingEnabled_ ? html`
-    <category-reference-card id="shoppingManagerButton"
-        card-title="$i18n{shoppingCardTitle}"
-        .categoryId="${this.hierarchy_.shopping.id}"
-        .chips="${this.getVisibleChips_(this.hierarchy_.shopping.chips)}">
-    </category-reference-card>
-  ` : ''}
-  ${this.showSuggestionsFromGeminiSettings_ ? html`
-    <div id="suggestionsFromGeminiCard">
-      <cr-link-row id="suggestionsFromGeminiLinkRow"
-          label="$i18n{autofillPersonalContextSettingsTitle}"
-          @click="${this.onSuggestionsFromGeminiClick_}">
-      </cr-link-row>
-      <hr>
-      <div id="suggestionsFromGeminiSubLabel" class="secondary">
-        <cr-icon icon="${this.spark_}" aria-hidden="true"></cr-icon>
-        $i18n{autofillPersonalContextSettingsSummary}
-      </div>
-    </div>
-  ` : ''}
+  ${''}
+  ${''}
 </div>
 
 <settings-section page-title="$i18n{yourSavedInfoAutofillSettingsLabel}">

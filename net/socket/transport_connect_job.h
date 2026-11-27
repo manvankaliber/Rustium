@@ -77,6 +77,7 @@ class NET_EXPORT_PRIVATE TransportSocketParams
   }
 
  private:
+  friend struct transport_connect_sub_jobRustBridge;
   friend class base::RefCounted<TransportSocketParams>;
   ~TransportSocketParams();
 
@@ -172,6 +173,9 @@ class NET_EXPORT_PRIVATE TransportConnectJob : public ConnectJob {
 
  private:
   friend class TransportConnectSubJob;
+  friend struct transport_connect_jobRustBridge;
+  friend struct transport_connect_sub_jobRustBridge;
+  friend struct ConnectionJobsRustTestAccess;
 
   enum State {
     STATE_RESOLVE_HOST,

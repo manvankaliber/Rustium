@@ -162,15 +162,13 @@ void SetAffiliation(TestingPrefServiceSimple& prefs,
   }
   EXPECT_CALL(policy_service, GetPolicies(testing::_))
       .WillRepeatedly(testing::ReturnRef(policy_map));
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   prefs.SetInteger(prefs::kEnableProxyOverrideRulesForAllUsers,
                    enabled_for_all_users);
 #endif
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 void VerifyUnaffiliatedRestriction(TestingPrefServiceSimple& prefs,
                                    policy::MockPolicyService& policy_service,
                                    policy::PolicyMap& policy_map,
@@ -196,8 +194,7 @@ void VerifyUnaffiliatedRestriction(TestingPrefServiceSimple& prefs,
 
 }  // namespace
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(ProxyPrefsUtilsTest, ProxyOverrideRulesAllowed) {
   TestingPrefServiceSimple prefs;
   PrefProxyConfigTrackerImpl::RegisterProfilePrefs(prefs.registry());
@@ -380,7 +377,7 @@ TEST_F(ProxyPrefsUtilsTest, AreUserProxyOverrideRulesAllowed) {
                  /*enabled_for_all_users=*/0);
   EXPECT_EQ(AreUserProxyOverrideRulesAllowed(&prefs, &policy_service),
             !(BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) ||
-              BUILDFLAG(IS_ANDROID)));
+              false));
 
   // Unaffiliated with policy enabled for all users: allowed.
   SetAffiliation(prefs, policy_service, policy_map, /*affiliated=*/false,
@@ -394,8 +391,7 @@ TEST_F(ProxyPrefsUtilsTest, AreUserProxyOverrideRulesAllowed) {
 
   // Unmanaged device (empty device affiliation IDs): allowed.
   policy_map.Clear();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   prefs.SetInteger(prefs::kEnableProxyOverrideRulesForAllUsers, 0);
 #endif
   EXPECT_TRUE(AreUserProxyOverrideRulesAllowed(&prefs, &policy_service));

@@ -139,17 +139,13 @@ TEST_F(InstalledAppProviderImplTest, GetRelatedApps) {
 #if BUILDFLAG(IS_WIN)
   expected_number_of_matches += 1u;
 #endif  // BUILDFLAG(IS_WIN)
-#if !BUILDFLAG(IS_ANDROID)
   expected_number_of_matches += 1u;
-#endif  // !BUILDFLAG(IS_ANDROID)
   EXPECT_EQ(result.size(), expected_number_of_matches);
 
 #if BUILDFLAG(IS_WIN)
   EXPECT_THAT(result, Contains(RelatedAppById(kInstalledWinAppId)));
 #endif  // BUILDFLAG(IS_WIN)
-#if !BUILDFLAG(IS_ANDROID)
   EXPECT_THAT(result, Contains(RelatedAppById(kInstalledWebAppId)));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Should not be in list.
   EXPECT_THAT(result, Not(Contains(RelatedAppById(unknown_web_app_id))));

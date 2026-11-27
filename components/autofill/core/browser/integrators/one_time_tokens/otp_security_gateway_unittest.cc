@@ -514,21 +514,6 @@ TEST_F(OtpSecurityGatewayTest,
       unfocused_context;
   hidden_keyboard_context.is_otp_field_focused = true;
 
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(
-      gateway.EvaluateProactiveTrigger(target, candidate, unfocused_context),
-      (OtpDeliveryPolicy::Decision{
-          .allowed = false,
-          .reason = OtpDeliveryPolicy::SkipReason::kProactiveUnfocusedOnAndroid,
-      }));
-  EXPECT_EQ(
-      gateway.EvaluateProactiveTrigger(target, candidate,
-                                       hidden_keyboard_context),
-      (OtpDeliveryPolicy::Decision{
-          .allowed = false,
-          .reason = OtpDeliveryPolicy::SkipReason::kKeyboardNotVisibleOnAndroid,
-      }));
-#else
   EXPECT_EQ(
       gateway.EvaluateProactiveTrigger(target, candidate, unfocused_context),
       (OtpDeliveryPolicy::Decision{
@@ -541,7 +526,6 @@ TEST_F(OtpSecurityGatewayTest,
                 .allowed = true,
                 .reason = OtpDeliveryPolicy::SkipReason::kNone,
             }));
-#endif
 }
 
 // Verifies that `EvaluateReactiveServing` and `EvaluateProactiveTrigger`

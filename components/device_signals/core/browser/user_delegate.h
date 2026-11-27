@@ -38,11 +38,6 @@ class UserDelegate {
 
   virtual ~UserDelegate() = default;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Returns true if the browser is currently executing in the context of the
-  // ChromeOS sign-in screen.
-  virtual bool IsSigninContext() const = 0;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Returns true if the current browser user is managed by an organization that
   // is affiliated with the organization managing the device.
@@ -55,11 +50,6 @@ class UserDelegate {
   // logged-in to the browser.
   virtual bool IsSameUser(const GaiaId& gaia_id) const = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns the Gaia ID of the primary account of the user currently logged-in
-  // to the browser, or an empty `GaiaId` if there is no primary account.
-  virtual GaiaId GetPrimaryAccountGaiaId() const = 0;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Returns the currently enabled Scopes for policies known to require signals.
   virtual std::set<policy::PolicyScope> GetPolicyScopesNeedingSignals()

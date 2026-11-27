@@ -38,11 +38,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/scoped_user_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -712,35 +707,6 @@ TEST_F(PrerenderManagerPrewarmTest,
       1);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(PrerenderManagerPrewarmTest, StartPrewarmInKioskSessionForKioskMode) {
-  base::HistogramTester histogram_tester;
-
-  // Set up Kiosk user session.
-  auto* user_manager = new ash::FakeChromeUserManager();
-  user_manager::ScopedUserManager enabler{
-      std::unique_ptr<user_manager::UserManager>(user_manager)};
-  const AccountId account_id =
-      AccountId::FromUserEmail("test-kiosk-app@localhost");
-  user_manager->AddKioskWebAppUser(account_id);
-  user_manager->LoginUser(account_id);
-
-  const GURL prewarm_url(ChromeContentBrowserClient::GetPrewarmUrl());
-  ASSERT_TRUE(prewarm_url.is_valid());
-  prerender_manager()->SetPrewarmUrlForTesting(prewarm_url);
-
-  // Prerender the prewarm page.
-  content::test::PrerenderHostRegistryObserver registry_observer(
-      *GetActiveWebContents());
-  EXPECT_FALSE(prerender_manager()->MaybeStartPrewarmSearchResult());
-
-  // Verify that the correct decision was logged.
-  // PrewarmDecision is a private enum, so we use its integer value.
-  // kInKioskSession = 11.
-  histogram_tester.ExpectUniqueSample("Prerender.Experimental.PrewarmDecision",
-                                      /*kInKioskSession=*/11, 1);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(PrerenderManagerTest, PrewarmDisableOnStartup) {
   base::HistogramTester histogram_tester;

@@ -25,6 +25,7 @@ path_util.AddTracingToPath()
 
 
 class TestOptions:
+
   def __init__(self):
     self.trace_processor_path = None
     self.dump_syms_path = None
@@ -38,6 +39,7 @@ class TestOptions:
 
 
 class SymbolizeTraceTestCase(unittest.TestCase):
+
   def side_effect(self, cmd, env, stdout):
     if cmd and env:
       stdout.write(b'Symbol data.')
@@ -52,8 +54,7 @@ class SymbolizeTraceTestCase(unittest.TestCase):
     self.ExtractBreakpadFiles = breakpad_file_extractor.ExtractBreakpadFiles
 
     symbolize_trace._RunSymbolizer = mock.MagicMock(
-      side_effect=self.side_effect
-    )
+        side_effect=self.side_effect)
     symbol_fetcher.GetTraceBreakpadSymbols = mock.MagicMock()
     metadata_extractor.MetadataExtractor = mock.MagicMock()
     breakpad_file_extractor.ExtractBreakpadFiles = mock.MagicMock()
@@ -63,9 +64,8 @@ class SymbolizeTraceTestCase(unittest.TestCase):
     with open(self.options.dump_syms_path, 'w') as _:
       pass
 
-    with tempfile.NamedTemporaryFile(
-      mode='w+', delete=False
-    ) as test_trace_file:
+    with tempfile.NamedTemporaryFile(mode='w+',
+                                     delete=False) as test_trace_file:
       test_trace_file.write('Trace data.')
       self.trace_file = test_trace_file.name
 
@@ -89,11 +89,11 @@ class SymbolizeTraceTestCase(unittest.TestCase):
 
     # Check that symbolized trace file was written correctly.
     self.assertEqual(
-      self.options.output_file,
-      os.path.join(
-        os.path.dirname(self.trace_file),
-        os.path.basename(self.trace_file) + '_symbolized_trace',
-      ),
+        self.options.output_file,
+        os.path.join(
+            os.path.dirname(self.trace_file),
+            os.path.basename(self.trace_file) + '_symbolized_trace',
+        ),
     )
     with open(self.options.output_file, 'r') as f:
       symbolized_trace_data = f.read()
@@ -114,11 +114,11 @@ class SymbolizeTraceTestCase(unittest.TestCase):
 
     # Check that symbolized trace file was written correctly.
     self.assertEqual(
-      self.options.output_file,
-      os.path.join(
-        os.path.dirname(self.trace_file),
-        os.path.basename(self.trace_file) + '_symbolized_trace',
-      ),
+        self.options.output_file,
+        os.path.join(
+            os.path.dirname(self.trace_file),
+            os.path.basename(self.trace_file) + '_symbolized_trace',
+        ),
     )
     with open(self.options.output_file, 'r') as f:
       symbolized_trace_data = f.read()
@@ -140,11 +140,11 @@ class SymbolizeTraceTestCase(unittest.TestCase):
 
     # Check that symbolized trace file was written correctly.
     self.assertEqual(
-      self.options.output_file,
-      os.path.join(
-        os.path.dirname(self.trace_file),
-        os.path.basename(self.trace_file) + '_symbolized_trace',
-      ),
+        self.options.output_file,
+        os.path.join(
+            os.path.dirname(self.trace_file),
+            os.path.basename(self.trace_file) + '_symbolized_trace',
+        ),
     )
     with open(self.options.output_file, 'r') as f:
       symbolized_trace_data = f.read()
@@ -205,11 +205,11 @@ class SymbolizeTraceTestCase(unittest.TestCase):
 
     # Check that symbolized trace file was written correctly.
     self.assertEqual(
-      self.options.output_file,
-      os.path.join(
-        os.path.dirname(self.trace_file),
-        os.path.basename(self.trace_file) + '_symbolized_trace',
-      ),
+        self.options.output_file,
+        os.path.join(
+            os.path.dirname(self.trace_file),
+            os.path.basename(self.trace_file) + '_symbolized_trace',
+        ),
     )
     with open(self.options.output_file, 'r') as f:
       symbolized_trace_data = f.read()
@@ -231,11 +231,11 @@ class SymbolizeTraceTestCase(unittest.TestCase):
 
     # Check that symbolized trace file was written correctly.
     self.assertEqual(
-      self.options.output_file,
-      os.path.join(
-        os.path.dirname(self.trace_file),
-        os.path.basename(self.trace_file) + '_symbolized_trace',
-      ),
+        self.options.output_file,
+        os.path.join(
+            os.path.dirname(self.trace_file),
+            os.path.basename(self.trace_file) + '_symbolized_trace',
+        ),
     )
     with open(self.options.output_file, 'r') as f:
       symbolized_trace_data = f.read()
@@ -258,11 +258,11 @@ class SymbolizeTraceTestCase(unittest.TestCase):
 
     # Check that symbolized trace file was written correctly.
     self.assertEqual(
-      self.options.output_file,
-      os.path.join(
-        os.path.dirname(self.trace_file),
-        os.path.basename(self.trace_file) + '_symbolized_trace',
-      ),
+        self.options.output_file,
+        os.path.join(
+            os.path.dirname(self.trace_file),
+            os.path.basename(self.trace_file) + '_symbolized_trace',
+        ),
     )
     with open(self.options.output_file, 'r') as f:
       symbolized_trace_data = f.read()
@@ -275,9 +275,8 @@ class SymbolizeTraceTestCase(unittest.TestCase):
 
   def testOutputFileGiven(self):
     self.options.local_breakpad_dir = tempfile.mkdtemp()
-    self.options.output_file = os.path.join(
-      os.path.dirname(self.trace_file), 'output_file'
-    )
+    self.options.output_file = os.path.join(os.path.dirname(self.trace_file),
+                                            'output_file')
 
     symbolize_trace.SymbolizeTrace(self.trace_file, self.options)
 
@@ -288,8 +287,8 @@ class SymbolizeTraceTestCase(unittest.TestCase):
 
     # Check that symbolized trace file was written correctly.
     self.assertEqual(
-      self.options.output_file,
-      os.path.join(os.path.dirname(self.trace_file), 'output_file'),
+        self.options.output_file,
+        os.path.join(os.path.dirname(self.trace_file), 'output_file'),
     )
     with open(self.options.output_file, 'r') as f:
       symbolized_trace_data = f.read()
@@ -313,20 +312,18 @@ class SymbolizeTraceTestCase(unittest.TestCase):
     with open(self.options.dump_syms_path, 'w') as _:
       pass
 
-    unstripped_dir = os.path.join(
-      self.options.local_build_dir, 'lib.unstripped'
-    )
+    unstripped_dir = os.path.join(self.options.local_build_dir,
+                                  'nested-symbols')
     exception_msg = (
-      'No breakpad symbols could be extracted from files in: %s xor %s'
-      % (self.options.local_build_dir, unstripped_dir)
-    )
+        'No breakpad symbols could be extracted from files in: %s' %
+        self.options.local_build_dir)
 
-    # Test when there is no 'lib.unstripped' subdirectory.
+    # Test when there is no 'nested-symbols' subdirectory.
     with self.assertRaises(Exception) as e:
       symbolize_trace.SymbolizeTrace(trace_file_override, self.options)
     self.assertIn(exception_msg, str(e.exception))
 
-    # Test when there is a 'lib.unstripped' subdirectory.
+    # Test when there is a 'nested-symbols' subdirectory.
     os.mkdir(unstripped_dir)
     with self.assertRaises(Exception):
       symbolize_trace.SymbolizeTrace(trace_file_override, self.options)

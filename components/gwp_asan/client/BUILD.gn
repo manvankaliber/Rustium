@@ -26,11 +26,6 @@ source_set("features") {
     ":gwp_asan_implementation",
     "//build/config/compiler:wglobal_constructors",
   ]
-
-  if (is_android) {
-    sources += [ "feature_map.cc" ]
-    deps += [ "android:gwp_asan_jni" ]
-  }
 }
 
 component("client") {
@@ -97,10 +92,6 @@ component("client") {
   ]
 
   configs += [ ":gwp_asan_implementation" ]
-
-  if (is_android || is_ios) {
-    deps += [ "//components/crash/core/app" ]
-  }
 }
 
 source_set("unit_tests") {
@@ -114,7 +105,7 @@ source_set("unit_tests") {
     "sampling_state_unittest.cc",
   ]
 
-  if (use_partition_alloc_as_malloc && !is_ios) {
+  if (use_partition_alloc_as_malloc) {
     sources += [
       "extreme_lightweight_detector_malloc_shims_unittest.cc",
       "extreme_lightweight_detector_quarantine_unittest.cc",
@@ -124,7 +115,7 @@ source_set("unit_tests") {
     ]
   }
 
-  if (use_partition_alloc && !is_ios) {
+  if (use_partition_alloc) {
     sources += [
       "lightweight_detector/partitionalloc_shims_unittest.cc",
       "sampling_partitionalloc_shims_unittest.cc",

@@ -28,10 +28,8 @@
 #include "extensions/common/extension_id.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/infobars/browser_infobar_manager.h"
 #include "chrome/browser/infobars/infobar_spec.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -59,7 +57,6 @@ ShowInfoBarResult ShowInfoBar(content::WebContents* web_contents,
   // IsInfoBarMigrated() is false on Android anyway, so keep the migrated
   // branch out of the Android build entirely rather than relying on the
   // runtime check alone.
-#if !BUILDFLAG(IS_ANDROID)
   if (infobars::IsInfoBarMigrated(
           infobars::InfoBarDelegate::
               INCOGNITO_CONNECTABILITY_INFOBAR_DELEGATE)) {
@@ -123,7 +120,6 @@ ShowInfoBarResult ShowInfoBar(content::WebContents* web_contents,
     }
     return ShowInfoBarResult{.infobar = infobar, .is_migrated = true};
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   return ShowInfoBarResult{
       .infobar = IncognitoConnectabilityInfoBarDelegate::Create(
           infobar_manager, message, std::move(callback)),
@@ -295,7 +291,6 @@ void IncognitoConnectability::OnInteractiveResponse(
         // dangling raw_ptr.
         infobars::InfoBar* other_infobar =
             std::exchange(other_tab_context.infobar, nullptr).get();
-#if !BUILDFLAG(IS_ANDROID)
         // Dispatch on how the infobar was created, not on the feature state:
         // a migrated prompt for a tabless WebContents falls back to the
         // legacy delegate, which Hide() must not be handed.
@@ -305,7 +300,6 @@ void IncognitoConnectability::OnInteractiveResponse(
           CHECK(browser_infobar_manager);
           browser_infobar_manager->Hide(other_infobar);
         } else
-#endif  //  !BUILDFLAG(IS_ANDROID)
         {
           IncognitoConnectabilityInfoBarDelegate* delegate =
               static_cast<IncognitoConnectabilityInfoBarDelegate*>(

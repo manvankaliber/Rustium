@@ -4,7 +4,6 @@
 
 import {getFavicon, getFaviconForPageURL, getFaviconUrl, getFileIconUrl, isFaviconUrl, resolveSchemeRelativeUrl} from 'chrome://resources/js/icon.js';
 import type {GetFaviconUrlParams} from 'chrome://resources/js/icon.js';
-import {isAndroid, isIOS} from 'chrome://resources/js/platform.js';
 import {assertEquals, assertFalse, assertTrue} from 'chrome://webui-test/chai_assert.js';
 
 suite('IconTest', function() {
@@ -84,16 +83,10 @@ suite('IconTest', function() {
           encodeURIComponent(url) + '&allowGoogleServerFallback=0") 1x, ' +
           `url("chrome://favicon2/?size=${size}&scaleFactor=2x&pageUrl=` +
           encodeURIComponent(url) + '&allowGoogleServerFallback=0") 2x)';
-      const expectedOther = 'image-set(' +
-          `url("chrome://favicon2/?size=${size}&scaleFactor=1x&pageUrl=` +
-          encodeURIComponent(url) + '&allowGoogleServerFallback=0") 1x, ' +
-          `url("chrome://favicon2/?size=${size}&` +
-          `scaleFactor=${window.devicePixelRatio}x&pageUrl=` +
-          encodeURIComponent(url) + '&allowGoogleServerFallback=0") ' +
-          `${window.devicePixelRatio}x)`;
 
-      const isDesktop = !isIOS && !isAndroid;
-      return isDesktop ? expectedDesktop : expectedOther;
+
+
+      return expectedDesktop;
     }
 
     assertEquals(getExpectedImageSet(16), getFaviconForPageURL(url, false));
@@ -120,16 +113,10 @@ suite('IconTest', function() {
         encodeURIComponent('http://foo.com/foo.ico') + '") 1x, ' +
         'url("chrome://favicon2/?size=16&scaleFactor=2x&iconUrl=' +
         encodeURIComponent('http://foo.com/foo.ico') + '") 2x)';
-    const expectedOther = 'image-set(' +
-        'url("chrome://favicon2/?size=16&scaleFactor=1x&iconUrl=' +
-        encodeURIComponent('http://foo.com/foo.ico') + '") 1x, ' +
-        'url("chrome://favicon2/?size=16&' +
-        `scaleFactor=${window.devicePixelRatio}x&iconUrl=` +
-        encodeURIComponent('http://foo.com/foo.ico') + '") ' +
-        `${window.devicePixelRatio}x)`;
 
-    const isDesktop = !isIOS && !isAndroid;
-    const expected = isDesktop ? expectedDesktop : expectedOther;
+
+
+    const expected = expectedDesktop;
     assertEquals(expected, getFavicon(url));
   });
 

@@ -15,11 +15,6 @@
 #include "components/url_formatter/url_formatter.h"
 #include "net/base/schemeful_site.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/profiles/profiles_state.h"
-#include "chromeos/components/kiosk/kiosk_utils.h"
-#include "chromeos/components/mgs/managed_guest_session_utils.h"
-#endif
 
 namespace {
 
@@ -41,14 +36,7 @@ bool IsRegularProfile(profile_metrics::BrowserProfileType profile_type) {
     return false;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Any Device Local account, which is a CrOS concept powering things like
-  // Kiosks and Managed Guest Sessions, is not considered regular.
-  return !chromeos::IsManagedGuestSession() && !chromeos::IsKioskSession() &&
-         !profiles::IsChromeAppKioskSession();
-#else
   return true;
-#endif
 }
 
 }  // namespace

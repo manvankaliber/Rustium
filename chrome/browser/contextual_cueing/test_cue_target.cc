@@ -105,7 +105,6 @@ ui::ImageModel TestCueTarget::GetOmniboxChipIcon() const {
 CueActionData TestCueTarget::CueActionDataFromResponse(
     const optimization_guide::proto::ContextualCue& cue,
     std::vector<tabs::TabHandle> tabs_to_show) const {
-  GlicCueActionData data;
   if (cue.has_gemini_in_chrome_surface()) {
     data.prompt = cue.gemini_in_chrome_surface().prompt();
   }

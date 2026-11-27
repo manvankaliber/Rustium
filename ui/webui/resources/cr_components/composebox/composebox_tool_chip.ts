@@ -82,30 +82,12 @@ export class ComposeboxToolChipElement extends I18nMixinLit
       case ToolMode.kDeepSearch:
         return 'composebox:travel-explore';
       case ToolMode.kImageGen:
-        return this.isClankMode_() ? 'composebox:nanoBanana-clank' :
-                                     'composebox:nanoBanana-custom';
+        return 'composebox:nanoBanana-custom';
       case ToolMode.kCanvas:
         return 'composebox:draft-spark';
       default:
         return '';
     }
-  }
-
-  protected isClankMode_(): boolean {
-    if (!getLoadTimeBoolean('isAndroid', false)) {
-      return false;
-    }
-    const tool = this.inputState?.activeTool;
-    return tool === ToolMode.kCanvas || tool === ToolMode.kImageGen;
-  }
-
-  protected getModeClasses_(): string {
-    if (!this.isClankMode_()) {
-      return '';
-    }
-    return this.inputState?.activeTool === ToolMode.kImageGen ?
-        'clank image-gen' :
-        'clank';
   }
 
   protected onClick_() {

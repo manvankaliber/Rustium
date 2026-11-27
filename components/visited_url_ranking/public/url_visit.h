@@ -92,9 +92,6 @@ struct URLVisitAggregate {
   static constexpr URLTypeSet kAllResultTypes = {
       URLType::kActiveLocalTab, URLType::kActiveRemoteTab, URLType::kLocalVisit,
       URLType::kRemoteVisit,
-#if BUILDFLAG(IS_ANDROID)
-      URLType::kCCTVisit
-#endif
   };
 
   // Captures tab data associated with a given URL visit.

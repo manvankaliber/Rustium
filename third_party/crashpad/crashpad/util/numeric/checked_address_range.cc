@@ -23,10 +23,8 @@
 #include <mach/mach.h>
 #elif BUILDFLAG(IS_WIN)
 #include "util/win/address_types.h"
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 #include "util/linux/address_types.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include <zircon/types.h>
 #endif  // BUILDFLAG(IS_APPLE)
 
 namespace crashpad {
@@ -131,10 +129,8 @@ std::string CheckedAddressRangeGeneric<ValueType, SizeType>::AsString() const {
 template class CheckedAddressRangeGeneric<mach_vm_address_t, mach_vm_size_t>;
 #elif BUILDFLAG(IS_WIN)
 template class CheckedAddressRangeGeneric<WinVMAddress, WinVMSize>;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 template class CheckedAddressRangeGeneric<LinuxVMAddress, LinuxVMSize>;
-#elif BUILDFLAG(IS_FUCHSIA)
-template class CheckedAddressRangeGeneric<zx_vaddr_t, size_t>;
 #endif  // BUILDFLAG(IS_APPLE)
 
 }  // namespace internal

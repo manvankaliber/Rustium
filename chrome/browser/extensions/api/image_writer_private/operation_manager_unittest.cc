@@ -57,10 +57,6 @@ class ImageWriterOperationManagerTest : public ImageWriterUnitTestBase {
   bool cancel_success_;
   std::string cancel_error_;
 
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList scoped_feature_list_{
-      kImageWriterPrivateAndroid};
-#endif
 
   TestingProfile test_profile_;
 };
@@ -156,42 +152,6 @@ TEST_F(ImageWriterOperationManagerTest, PermissionAllowlistScoping) {
       mojom::APIPermissionID::kImageWriterPrivate));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(ImageWriterOperationManagerTest, DisabledByKillSwitchFeature) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(kImageWriterPrivateAndroid);
-
-  OperationManager manager(&test_profile_);
-
-  manager.StartWriteFromFile(
-      kDummyExtensionId, test_utils_.GetImagePath(),
-      test_utils_.GetDevicePath().AsUTF8Unsafe(),
-      base::BindOnce(&ImageWriterOperationManagerTest::StartCallback,
-                     base::Unretained(this)));
-  EXPECT_TRUE(started_);
-  EXPECT_FALSE(start_success_);
-  EXPECT_EQ(error::kUnsupportedOperation, start_error_);
-
-  started_ = false;
-  manager.StartWriteFromUrl(
-      kDummyExtensionId, GURL("http://localhost/test.bin"), /*hash=*/"",
-      test_utils_.GetDevicePath().AsUTF8Unsafe(),
-      base::BindOnce(&ImageWriterOperationManagerTest::StartCallback,
-                     base::Unretained(this)));
-  EXPECT_TRUE(started_);
-  EXPECT_FALSE(start_success_);
-  EXPECT_EQ(error::kUnsupportedOperation, start_error_);
-
-  started_ = false;
-  manager.DestroyPartitions(
-      kDummyExtensionId, test_utils_.GetDevicePath().AsUTF8Unsafe(),
-      base::BindOnce(&ImageWriterOperationManagerTest::StartCallback,
-                     base::Unretained(this)));
-  EXPECT_TRUE(started_);
-  EXPECT_FALSE(start_success_);
-  EXPECT_EQ(error::kUnsupportedOperation, start_error_);
-}
-#endif
 
 }  // namespace
 }  // namespace image_writer

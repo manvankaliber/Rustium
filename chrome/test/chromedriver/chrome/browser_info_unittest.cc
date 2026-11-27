@@ -130,15 +130,7 @@ TEST(ParseBrowserInfo, NonStringFilePathStyleIsNonFatal) {
   EXPECT_EQ(FilePathStyle::kUnknown, browser_info.file_path_style);
 }
 
-TEST(ParseBrowserInfo, AndroidPackageForcesPosixFilePathStyle) {
-  BrowserInfo browser_info;
-  Status status = browser_info.ParseBrowserInfo(
-      CreateBrowserInfoJson(R"(, "Android-Package": "com.android.chrome", )"
-                            R"("File-Path-Style": "windows")"));
-  ASSERT_TRUE(status.IsOk());
-  EXPECT_TRUE(browser_info.is_android);
-  EXPECT_EQ(FilePathStyle::kPosix, browser_info.file_path_style);
-}
+
 
 TEST(ParseBrowserInfo, BlinkVersionContainsGitHash) {
   std::string data(
@@ -158,47 +150,11 @@ TEST(ParseBrowserInfo, BlinkVersionContainsGitHash) {
   ASSERT_EQ(default_blink_revision, browser_info.blink_revision);
 }
 
-TEST(ParseBrowserString, KitKatWebView) {
-  BrowserInfo browser_info;
-  Status status = BrowserInfo::ParseBrowserString(
-      false, "Version/4.0 Chrome/30.0.0.0", &browser_info);
-  ASSERT_TRUE(status.IsOk());
-  ASSERT_EQ("webview", browser_info.browser_name);
-  ASSERT_EQ("30.0.0.0", browser_info.browser_version);
-  ASSERT_EQ(30, browser_info.major_version);
-  ASSERT_EQ(kToTBuildNo, browser_info.build_no);
-  ASSERT_TRUE(browser_info.is_android);
-  ASSERT_FALSE(browser_info.is_headless_shell);
-  EXPECT_EQ(FilePathStyle::kPosix, browser_info.file_path_style);
-}
 
-TEST(ParseBrowserString, LollipopWebView) {
-  BrowserInfo browser_info;
-  Status status =
-      BrowserInfo::ParseBrowserString(true, "Chrome/37.0.0.0", &browser_info);
-  ASSERT_TRUE(status.IsOk());
-  ASSERT_EQ("webview", browser_info.browser_name);
-  ASSERT_EQ("37.0.0.0", browser_info.browser_version);
-  ASSERT_EQ(37, browser_info.major_version);
-  ASSERT_EQ(kToTBuildNo, browser_info.build_no);
-  ASSERT_TRUE(browser_info.is_android);
-  ASSERT_FALSE(browser_info.is_headless_shell);
-  EXPECT_EQ(FilePathStyle::kPosix, browser_info.file_path_style);
-}
 
-TEST(ParseBrowserString, AndroidChrome) {
-  BrowserInfo browser_info;
-  Status status = BrowserInfo::ParseBrowserString(true, "Chrome/39.0.2171.59",
-                                                  &browser_info);
-  ASSERT_TRUE(status.IsOk());
-  ASSERT_EQ("chrome", browser_info.browser_name);
-  ASSERT_EQ("39.0.2171.59", browser_info.browser_version);
-  ASSERT_EQ(39, browser_info.major_version);
-  ASSERT_EQ(2171, browser_info.build_no);
-  ASSERT_TRUE(browser_info.is_android);
-  ASSERT_FALSE(browser_info.is_headless_shell);
-  EXPECT_EQ(FilePathStyle::kPosix, browser_info.file_path_style);
-}
+
+
+
 
 TEST(ParseBrowserString, DesktopChrome) {
   BrowserInfo browser_info;
@@ -209,7 +165,7 @@ TEST(ParseBrowserString, DesktopChrome) {
   ASSERT_EQ("39.0.2171.59", browser_info.browser_version);
   ASSERT_EQ(39, browser_info.major_version);
   ASSERT_EQ(2171, browser_info.build_no);
-  ASSERT_FALSE(browser_info.is_android);
+
   ASSERT_FALSE(browser_info.is_headless_shell);
   EXPECT_EQ(FilePathStyle::kUnknown, browser_info.file_path_style);
 }
@@ -223,7 +179,7 @@ TEST(ParseBrowserString, HeadlessChrome) {
   ASSERT_EQ("39.0.2171.59", browser_info.browser_version);
   ASSERT_EQ(39, browser_info.major_version);
   ASSERT_EQ(2171, browser_info.build_no);
-  ASSERT_FALSE(browser_info.is_android);
+
   ASSERT_TRUE(browser_info.is_headless_shell);
   EXPECT_EQ(FilePathStyle::kUnknown, browser_info.file_path_style);
 }
@@ -305,4 +261,12 @@ TEST(FillFromBrowserVersionResponse, UserAgentIsNotString) {
   response.Set("product", "Chrome/37.0.2062.124");
   response.Set("userAgent", 1);
   AssertFillFromBrowserVersionResponseFails(response);
+}
+
+TEST(BrowserInfoTest, RejectsRetiredMobileEndpoint) {
+  BrowserInfo info;
+  const Status status = BrowserInfo::ParseBrowserInfo(
+      R"({"Android-Package":"com.example.app"})", &info);
+  EXPECT_EQ(kUnknownError, status.code());
+  EXPECT_EQ("unknown error: Android targets are not supported", status.message());
 }

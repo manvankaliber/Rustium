@@ -287,16 +287,12 @@ TEST_F(IdleTimeoutPolicyHandlerTest, ActionNotRecognized) {
 TEST_F(IdleTimeoutPolicyHandlerTest, AllActions) {
   SetPolicyValue(policy::key::kIdleTimeout, base::Value(15));
   base::ListValue list;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   list.Append("close_browsers");
   list.Append("show_profile_picker");
   list.Append("clear_download_history");
   list.Append("clear_hosted_app_data");
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
-#if !BUILDFLAG(IS_IOS)
   list.Append("clear_site_settings");
   list.Append("reload_pages");
-#endif
   list.Append("clear_browsing_history");
   list.Append("clear_cookies_and_other_site_data");
   list.Append("clear_cached_images_and_files");
@@ -322,16 +318,12 @@ TEST_F(IdleTimeoutPolicyHandlerTest, AllActions) {
   EXPECT_TRUE(pref_value->is_list());
   EXPECT_THAT(pref_value->GetList(),
               testing::ElementsAre(
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
                   static_cast<int>(ActionType::kCloseBrowsers),
                   static_cast<int>(ActionType::kShowProfilePicker),
                   static_cast<int>(ActionType::kClearDownloadHistory),
                   static_cast<int>(ActionType::kClearHostedAppData),
-#endif  // !BUILDFLAG(IS_ANDROID) !BUILDFLAG(IS_IOS)
-#if !BUILDFLAG(IS_IOS)
                   static_cast<int>(ActionType::kClearSiteSettings),
                   static_cast<int>(ActionType::kReloadPages),
-#endif  // !BUILDFLAG(IS_IOS)
                   static_cast<int>(ActionType::kClearBrowsingHistory),
                   static_cast<int>(ActionType::kClearCookiesAndOtherSiteData),
                   static_cast<int>(ActionType::kClearCachedImagesAndFiles),
@@ -341,7 +333,6 @@ TEST_F(IdleTimeoutPolicyHandlerTest, AllActions) {
 
 // When browser sign in is disabled by policy, the clear actions should
 // be applied and the error map and messages should be empty.
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(IdleTimeoutPolicyHandlerTest, BrowserSigninDisabled) {
   SetPolicyValue(policy::key::kSyncDisabled, base::Value(false));
   SetPolicyValue(policy::key::kIdleTimeout, base::Value(15));
@@ -371,7 +362,6 @@ TEST_F(IdleTimeoutPolicyHandlerTest, BrowserSigninDisabled) {
                   static_cast<int>(ActionType::kClearBrowsingHistory),
                   static_cast<int>(ActionType::kClearCookiesAndOtherSiteData)));
 }
-#endif
 
 TEST_F(IdleTimeoutPolicyHandlerTest, SyncTypesDisabledForClearActions) {
   // Start with sync prefs enabled so we can sense that they have changed.
@@ -386,16 +376,12 @@ TEST_F(IdleTimeoutPolicyHandlerTest, SyncTypesDisabledForClearActions) {
   SetPolicyValue(policy::key::kSyncDisabled, base::Value(false));
 
   base::ListValue list;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   list.Append("close_browsers");
   list.Append("show_profile_picker");
   list.Append("clear_download_history");
   list.Append("clear_hosted_app_data");
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
-#if !BUILDFLAG(IS_IOS)
   list.Append("clear_site_settings");
   list.Append("reload_pages");
-#endif  // !BUILDFLAG(IS_IOS)
   list.Append("clear_browsing_history");
   list.Append("clear_cookies_and_other_site_data");
   list.Append("clear_cached_images_and_files");
@@ -423,16 +409,12 @@ TEST_F(IdleTimeoutPolicyHandlerTest, SyncTypesDisabledForClearActions) {
   EXPECT_TRUE(pref_value->is_list());
   EXPECT_THAT(pref_value->GetList(),
               testing::ElementsAre(
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
                   static_cast<int>(ActionType::kCloseBrowsers),
                   static_cast<int>(ActionType::kShowProfilePicker),
                   static_cast<int>(ActionType::kClearDownloadHistory),
                   static_cast<int>(ActionType::kClearHostedAppData),
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
-#if !BUILDFLAG(IS_IOS)
                   static_cast<int>(ActionType::kClearSiteSettings),
                   static_cast<int>(ActionType::kReloadPages),
-#endif  // !BUILDFLAG(IS_IOS)
                   static_cast<int>(ActionType::kClearBrowsingHistory),
                   static_cast<int>(ActionType::kClearCookiesAndOtherSiteData),
                   static_cast<int>(ActionType::kClearCachedImagesAndFiles),
@@ -442,11 +424,7 @@ TEST_F(IdleTimeoutPolicyHandlerTest, SyncTypesDisabledForClearActions) {
   bool enabled;
   ASSERT_TRUE(
       prefs().GetBoolean(syncer::prefs::internal::kSyncPreferences, &enabled));
-#if BUILDFLAG(IS_IOS)
-  EXPECT_TRUE(enabled);
-#else
   EXPECT_FALSE(enabled);
-#endif  // BUILDFLAG(IS_IOS)
   ASSERT_TRUE(
       prefs().GetBoolean(syncer::prefs::internal::kSyncHistory, &enabled));
   EXPECT_FALSE(enabled);
@@ -481,17 +459,6 @@ TEST_F(IdleTimeoutPolicyHandlerTest,
                  policy::POLICY_SCOPE_USER);
   CheckAndApplyPolicySettings();
 
-#if BUILDFLAG(IS_IOS)
-  // Should have an error.
-  auto expected_error =
-      l10n_util::GetStringUTF16(IDS_POLICY_NOT_SUPPORTED_AS_USER_POLICY_ON_IOS);
-  EXPECT_THAT(errors(), UnorderedElementsAre(expected_error, expected_error));
-
-  // Prefs should not be set.
-  const base::Value* pref_value;
-  EXPECT_FALSE(prefs().GetValue(prefs::kIdleTimeout, &pref_value));
-  EXPECT_FALSE(prefs().GetValue(prefs::kIdleTimeoutActions, &pref_value));
-#else
   // Should not have an error.
   EXPECT_THAT(errors(), IsEmpty());
 
@@ -508,7 +475,6 @@ TEST_F(IdleTimeoutPolicyHandlerTest,
               testing::ElementsAre(
                   static_cast<int>(ActionType::kClearBrowsingHistory),
                   static_cast<int>(ActionType::kClearCookiesAndOtherSiteData)));
-#endif  // BUILDFLAG(IS_IOS)
 }
 
 }  // namespace enterprise_idle

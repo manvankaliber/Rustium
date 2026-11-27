@@ -16,7 +16,7 @@
 #include "build/build_config.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/devtools/chrome_devtools_session.h"
-#include "chrome/browser/devtools/device/android_device_manager.h"
+#include "chrome/browser/devtools/device/remote_device_manager.h"
 #include "chrome/browser/devtools/device/tcp_device_provider.h"
 #include "chrome/browser/devtools/devtools_availability_checker.h"
 #include "chrome/browser/devtools/devtools_browser_context_manager.h"
@@ -84,16 +84,12 @@
 #include "ui/gfx/switches.h"
 #include "ui/views/controls/webview/webview.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
 #if BUILDFLAG(ENTERPRISE_CDP_ATTRIBUTION)
 #include "chrome/browser/enterprise/connectors/reporting/cdp_actor_session_tracker.h"
 #endif
 
-static_assert(!BUILDFLAG(IS_ANDROID),
+static_assert(!false,
               "This file should not be included in Android build");
 
 using content::DevToolsAgentHost;
@@ -212,7 +208,6 @@ ChromeDevToolsManagerDelegate::ChromeDevToolsManagerDelegate() {
       enterprise_connectors::CdpActorSessionTracker::CreateIfEnabled();
 #endif  // BUILDFLAG(ENTERPRISE_CDP_ATTRIBUTION)
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Only create and hold keep alive for automation test for non ChromeOS.
   // ChromeOS automation test (aka tast) manages chrome instance via session
   // manager daemon. The extra keep alive is not needed and makes ChromeOS
@@ -241,7 +236,6 @@ ChromeDevToolsManagerDelegate::ChromeDevToolsManagerDelegate() {
           profile, ProfileKeepAliveOrigin::kRemoteDebugging);
     }
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 ChromeDevToolsManagerDelegate::~ChromeDevToolsManagerDelegate() {
@@ -645,9 +639,9 @@ void ChromeDevToolsManagerDelegate::UpdateDeviceDiscovery() {
     remote_agent_hosts_.clear();
   } else {
     if (!device_manager_)
-      device_manager_ = AndroidDeviceManager::Create();
+      device_manager_ = RemoteDeviceManager::Create();
 
-    AndroidDeviceManager::DeviceProviders providers;
+    RemoteDeviceManager::DeviceProviders providers;
     providers.push_back(new TCPDeviceProvider(remote_locations));
     device_manager_->SetDeviceProviders(providers);
 
@@ -723,7 +717,7 @@ void ChromeDevToolsManagerDelegate::OnDismiss() {
   infobar_ = nullptr;
 }
 
-void ChromeDevToolsManagerDelegate::ResetAndroidDeviceManagerForTesting() {
+void ChromeDevToolsManagerDelegate::ResetRemoteDeviceManagerForTesting() {
   device_manager_.reset();
 
   // We also need |device_discovery_| to go away because there may be a pending

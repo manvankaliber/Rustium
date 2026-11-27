@@ -230,7 +230,7 @@ final class MessageSchema<T> implements Schema<T> {
       MapFieldSchema mapFieldSchema) {
     if (UNSAFE == null) {
       throw new RuntimeException(
-          "Lite gencode is primarily intended for Android use and uses sun.misc.Unsafe which is"
+          "Lite gencode uses sun.misc.Unsafe which is"
               + " not available in the current environment. To run in this environment, you may"
               + " need to switch to standard gencode.");
     }

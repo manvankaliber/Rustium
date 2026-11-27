@@ -339,7 +339,6 @@ TEST_F(DataProtectionPasteIfAllowedByPolicyTest, CachedPasteSource) {
 
 // The DataTransferPolicyController is not relevant / supported by Clank, and
 // is thus disabled.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(DataProtectionPasteIfAllowedByPolicyTest,
        DataTransferPolicyController_Allowed) {
   PolicyControllerTest policy_controller;
@@ -395,7 +394,6 @@ TEST_F(DataProtectionPasteIfAllowedByPolicyTest,
   testing::Mock::VerifyAndClearExpectations(&policy_controller);
   EXPECT_FALSE(future.Get());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(DataProtectionPasteIfAllowedByPolicyTest,
        DestinationWithoutWebContents_Disallowed) {

@@ -4753,13 +4753,8 @@ void WebGLRenderingContextWebGPUBase::InitializeContext() {
       wgpu::TextureUsage::TextureBinding |
       wgpu::TextureUsage::RenderAttachment | wgpu::TextureUsage::CopySrc |
       wgpu::TextureUsage::CopyDst;
-#if BUILDFLAG(IS_ANDROID)
-  constexpr wgpu::TextureFormat kDefaultFBON32Format =
-      wgpu::TextureFormat::RGBA8Unorm;
-#else
   constexpr wgpu::TextureFormat kDefaultFBON32Format =
       wgpu::TextureFormat::BGRA8Unorm;
-#endif
 
   // TODO(413078308): Add support for non-SRGB color spaces and HDR metadata.
   // TODO(413078308): Add support for RGBA16Float drawing buffer.

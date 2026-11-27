@@ -73,7 +73,6 @@ class ViewSourceEventListener : public NativeEventListener {
         html_names::kClassAttr,
         checkbox_->Checked() ? AtomicString(kLineWrapClass) : g_empty_atom);
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_FUCHSIA)
     // TODO(crbug.com/40255878): The service is implemented in Chrome, so it may
     // not be provided in other embedders. Ensure that case is handled properly.
     // TODO(crbug.com/415945840): Implement the PersistentRendererPrefsService
@@ -85,7 +84,6 @@ class ViewSourceEventListener : public NativeEventListener {
     DCHECK(persistent_renderer_prefs_service);
     persistent_renderer_prefs_service->SetViewSourceLineWrapping(
         checkbox_->Checked());
-#endif
   }
 
   void Trace(Visitor* visitor) const override {
@@ -182,8 +180,9 @@ void HTMLViewSourceDocument::AddSource(
     HTMLToken& token,
     const HTMLAttributesRanges& attributes_ranges,
     int token_start) {
-  if (!current_)
+  if (!current_) {
     CreateContainingTable();
+  }
 
   switch (token.GetType()) {
     case HTMLToken::kUninitialized:
@@ -259,8 +258,9 @@ void HTMLViewSourceDocument::ProcessTagToken(
         AddRange(source, index, attribute_range.name_range.end - token_start,
                  class_attribute_name_);
 
-    if (tag_name == html_names::kBaseTag && name == html_names::kHrefAttr)
+    if (tag_name == html_names::kBaseTag && name == html_names::kHrefAttr) {
       AddBase(value);
+    }
 
     index =
         AddRange(source, index, attribute_range.value_range.start - token_start,
@@ -352,8 +352,9 @@ void HTMLViewSourceDocument::FinishLine() {
 void HTMLViewSourceDocument::AddText(const StringView& text,
                                      const AtomicString& class_name,
                                      const Link* link) {
-  if (text.empty())
+  if (text.empty()) {
     return;
+  }
 
   // Add in the content, splitting on linebreaks.
   // \r and \n both count as linebreaks, but \r\n only counts as one linebreak.
@@ -397,8 +398,9 @@ void HTMLViewSourceDocument::AddText(const StringView& text,
       }
       current_->ParserAppendChild(Text::Create(*this, substring.ToString()));
     }
-    if (i < size - 1)
+    if (i < size - 1) {
       FinishLine();
+    }
   }
 }
 
@@ -408,12 +410,14 @@ wtf_size_t HTMLViewSourceDocument::AddRange(const String& source,
                                             const AtomicString& class_name,
                                             const Link* link) {
   DCHECK_LE(start, end);
-  if (start == end)
+  if (start == end) {
     return start;
+  }
 
   AddText(source.subview(start, end - start), class_name, link);
-  if (!class_name.empty() && current_ != tbody_)
+  if (!class_name.empty() && current_ != tbody_) {
     current_ = To<Element>(current_->parentNode());
+  }
   return end;
 }
 
@@ -443,8 +447,9 @@ Element* HTMLViewSourceDocument::AddLink(const Link& link) {
   anchor->setAttribute(html_names::kRelAttr,
                        AtomicString("noreferrer noopener"));
   // Disallow JavaScript hrefs. https://crbug.com/808407
-  if (anchor->Url().ProtocolIsJavaScript())
+  if (anchor->Url().ProtocolIsJavaScript()) {
     anchor->setAttribute(html_names::kHrefAttr, AtomicString("about:blank"));
+  }
   current_->ParserAppendChild(anchor);
   return anchor;
 }

@@ -35,13 +35,11 @@ source_set("wallet") {
     "//ui/views",
   ]
 
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui:chrome_pages",
-      "//chrome/browser/ui:singleton_tabs",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-    ]
-  }
+  deps += [
+    "//chrome/browser/ui:chrome_pages",
+    "//chrome/browser/ui:singleton_tabs",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+  ]
 }
 
 if (toolkit_views) {

@@ -71,9 +71,6 @@
 #include "ui/views/interaction/interaction_test_util_views.h"
 #include "ui/views/view_utils.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/system_web_apps/system_web_app_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 DEFINE_LOCAL_ELEMENT_IDENTIFIER_VALUE(kWebContentsElementId);
@@ -453,11 +450,7 @@ class PageSpecificSiteDataDialogWithRelatedWebAppsInteractiveUiTest
   }
 
   const GURL GetAppSettingsUrlForApp(std::string app_id) {
-#if BUILDFLAG(IS_CHROMEOS)
-    return GURL("chrome://os-settings/app-management/detail?id=" + app_id);
-#else
     return GURL("chrome://app-settings/" + app_id);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
  protected:
@@ -477,12 +470,6 @@ IN_PROC_BROWSER_TEST_F(
   CookieChangeObserver observer(
       browser()->GetTabStripModel()->GetActiveWebContents(), 6);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Make sure the system web apps are installed since the app management page
-  // opens in the OS Settings app, and not a normal browser tab.
-  ash::SystemWebAppManager::GetForTest(browser()->GetProfile())
-      ->InstallSystemAppsForTesting();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Install an app so that the related application section will have something
   // to show. We don't actually care about the app in this test though.
@@ -518,12 +505,6 @@ IN_PROC_BROWSER_TEST_F(
   CookieChangeObserver observer(
       browser()->GetTabStripModel()->GetActiveWebContents(), 6);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Make sure the system web apps are installed since the app management page
-  // opens in the OS Settings app, and not a normal browser tab.
-  ash::SystemWebAppManager::GetForTest(browser()->GetProfile())
-      ->InstallSystemAppsForTesting();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Install and launch the web app.
   auto app_id = web_app::test::InstallDummyWebApp(

@@ -177,9 +177,6 @@ class GaiaCookieManagerServiceTest : public testing::Test {
     signin_client_->set_cookie_manager(
         std::make_unique<TestGaiaCookieManager>());
 
-#if BUILDFLAG(IS_ANDROID)
-    signin::SetUpFakeAccountManagerFacade();
-#endif
 
     account_tracker_service_ = std::make_unique<AccountTrackerService>(
         &pref_service_, base::FilePath());

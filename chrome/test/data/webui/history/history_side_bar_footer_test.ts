@@ -5,7 +5,6 @@
 import type {HistoryAppElement} from 'chrome://history/history.js';
 import {BrowserProxyImpl} from 'chrome://history/history.js';
 import type {PageRemote} from 'chrome://resources/cr_components/history/history.mojom-webui.js';
-import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
 import {assertEquals, assertFalse, assertTrue} from 'chrome://webui-test/chai_assert.js';
 import {microtasksFinished} from 'chrome://webui-test/test_util.js';
 
@@ -57,11 +56,6 @@ suite('GoogleAccountFooter', function() {
     const divElement = googleAccountFooter.querySelector('div:not([hidden])');
     assertTrue(!!divElement);
 
-    // Make sure other div elements are hidden.
-    const divHiddenElements =
-        googleAccountFooter.querySelectorAll('div[hidden]');
-    assertEquals(divHiddenElements.length, 2);
-
     return divElement.textContent;
   }
 
@@ -77,7 +71,7 @@ suite('GoogleAccountFooter', function() {
     linkElement.click();
   }
 
-  test('Neither My Activity nor Gemini Apps Activity visible', async () => {
+  test('My Activity footer hidden without other history', async () => {
     await createApp();
     assertFalse(isGoogleAccountFooterVisible());
   });
@@ -101,76 +95,5 @@ suite('GoogleAccountFooter', function() {
     const url = await testProxy.whenCalled('navigateToUrl');
     assertEquals(
         'https://myactivity.google.com/myactivity/?utm_source=chrome_h', url);
-  });
-
-  test('Only Gemini Apps Activity visible', async () => {
-    loadTimeData.overrideValues({
-      isManaged: false,
-      isGlicEnabled: true,
-    });
-    await createApp();
-
-    assertTrue(isGoogleAccountFooterVisible());
-
-    const expectedGaaOnlyMessage =
-        'Your Google Account may have your Gemini History';
-    assertEquals(getGoogleAccountFooterMessageHTML(), expectedGaaOnlyMessage);
-
-    // Verify that metric is recorded when the link is clicked and the correct
-    // URL is opened.
-    clickGoogleAccountFooterLinkWithId('footerGeminiAppsActivityLink');
-    assertEquals(
-        1, testProxy.actionMap['SideBarFooterGeminiAppsActivityClick']);
-
-    const url = await testProxy.whenCalled('navigateToUrl');
-    assertEquals('https://myactivity.google.com/product/gemini', url);
-  });
-
-  test('Both My Activity and Gemini Apps Activity visible', async () => {
-    loadTimeData.overrideValues({
-      isManaged: false,
-      isGlicEnabled: true,
-    });
-    await createApp();
-    await callOnHasOtherFormsChanged(true);
-
-    assertTrue(isGoogleAccountFooterVisible());
-
-    const expectedGmaAndGaaMessage =
-        loadTimeData.getBoolean('isCriticalActionsEnabled') ?
-        'Your Google Account may have other forms of browsing history at ' +
-            'myactivity.google.com, such as auto browse visits in your ' +
-            'Gemini History' :
-        'Your Google Account may have other forms of browsing history at ' +
-            'myactivity.google.com, such as your Gemini History';
-    assertEquals(getGoogleAccountFooterMessageHTML(), expectedGmaAndGaaMessage);
-
-    // Verify that metric is recorded when the link is clicked and the correct
-    // URLs are opened.
-    clickGoogleAccountFooterLinkWithId('footerGoogleMyActivityLink');
-    assertEquals(1, testProxy.actionMap['SideBarFooterGoogleMyActivityClick']);
-
-    const gma_url = await testProxy.whenCalled('navigateToUrl');
-    assertEquals(
-        'https://myactivity.google.com/myactivity/?utm_source=chrome_h',
-        gma_url);
-    testProxy.resetResolver('navigateToUrl');
-
-    clickGoogleAccountFooterLinkWithId('footerGeminiAppsActivityLink');
-    assertEquals(
-        1, testProxy.actionMap['SideBarFooterGeminiAppsActivityClick']);
-
-    const gaa_url = await testProxy.whenCalled('navigateToUrl');
-    assertEquals('https://myactivity.google.com/product/gemini', gaa_url);
-  });
-
-  test('Gemini Apps Activity hidden when glic disabled', async () => {
-    loadTimeData.overrideValues({
-      isManaged: false,
-      isGlicEnabled: false,
-    });
-    await createApp();
-
-    assertFalse(isGoogleAccountFooterVisible());
   });
 });

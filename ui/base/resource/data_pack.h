@@ -237,19 +237,6 @@ class COMPONENT_EXPORT(UI_DATA_PACK) DataPack : public ResourceHandle {
   // Called by Load and LoadFromFile and LoadFromBuffer.
   base::expected<void, DataPack::FailureReason> LoadImpl(
       std::unique_ptr<DataSource> data_source);
-  const Entry* LookupEntryById(uint16_t resource_id) const;
-
-  // Sanity check the file. If it passed the check, register `resource_table_`
-  // and `alias_table_`.
-  // `margin_to_skip` represents the size of the margin in bytes before
-  // resource_table information starts.
-  // If there is no extra data in data pack, `margin_to_skip` is equal to the
-  // length of file header. Returns std::nullopt on success or a FailureReason
-  // on failure.
-  base::expected<void, DataPack::FailureReason>
-  SanityCheckFileAndRegisterResources(size_t margin_to_skip,
-                                      const uint8_t* data,
-                                      size_t data_length);
 
   // Returns the string between `target_offset` and `next_offset` in data pack.
   static std::string_view GetStringViewFromOffset(uint32_t target_offset,

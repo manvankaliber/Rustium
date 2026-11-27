@@ -32,14 +32,8 @@
 #include "ui/base/mojom/window_open_disposition.mojom-shared.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/common/pref_names.h"
-#include "components/prefs/pref_service.h"
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/views/extensions/extension_post_install_dialog_view_utils.h"
-#endif
 
 namespace extensions {
 
@@ -75,21 +69,10 @@ void ConfigurePostInstallDialogModel(
   }
   if (model->show_how_to_manage()) {
     int manage_info_string_id = IDS_EXTENSION_INSTALLED_MANAGE_INFO;
-#if BUILDFLAG(IS_ANDROID)
-    if (!profile->GetPrefs()->GetBoolean(prefs::kPinExtensionsMenuButton)) {
-      manage_info_string_id = IDS_EXTENSION_INSTALLED_MANAGE_INFO_IN_MAIN_MENU;
-    }
-#endif
     dialog_model_builder.AddParagraph(
         ui::DialogModelLabel(l10n_util::GetStringUTF16(manage_info_string_id)));
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  dialog_model_builder.AddOkButton(
-      base::DoNothing(),
-      ui::DialogModel::Button::Params().SetLabel(
-          l10n_util::GetStringUTF16(IDS_EXTENSION_INSTALLED_OK_BUTTON)));
-#endif
 }
 
 void OpenExtensionsShortcutsPage(
@@ -169,7 +152,6 @@ void ShowExtensionPostInstallDialog(
                                   weak_delegate->model(),
                                   manage_shortcuts_callback);
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
   // Add a sync or sign in promo in the footer if it should be shown.
   extensions::ExtensionRegistry* registry =
       extensions::ExtensionRegistry::Get(profile);
@@ -181,7 +163,6 @@ void ShowExtensionPostInstallDialog(
     extensions::MaybeAddSigninPromoFootnoteView(
         profile, web_contents, *extension, dialog_model_builder);
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
   std::unique_ptr<ui::DialogModel> dialog_model = dialog_model_builder.Build();
   ShowDialog(native_window, weak_delegate->model()->extension_id(),

@@ -875,27 +875,6 @@ void SetLargeNavigationTimeout(NavigationURLLoaderImpl& loader) {
   loader.SetNavigationTimeout(base::Seconds(1000));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-class TestContentUriContentBrowserClient : public ContentBrowserClient {
- public:
-  explicit TestContentUriContentBrowserClient(bool is_allowed)
-      : is_allowed_(is_allowed) {}
-
-  bool IsContentSchemeURLNavigationAllowed(const GURL& url) override {
-    call_count_++;
-    last_url_ = url;
-    return is_allowed_;
-  }
-
-  int call_count() const { return call_count_; }
-  const GURL& last_url() const { return last_url_; }
-
- private:
-  const bool is_allowed_;
-  int call_count_ = 0;
-  GURL last_url_;
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -2055,100 +2034,5 @@ TEST_F(NavigationURLLoaderImplTest, ResponseWhileRedirectParseHeadersPending) {
   EXPECT_EQ(delegate.on_request_handled_counter(), 1);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(NavigationURLLoaderImplTest, DisallowedContentUriNavigation) {
-  TestContentUriContentBrowserClient test_browser_client(/*is_allowed=*/false);
-  ScopedContentBrowserClientSetting setting(&test_browser_client);
-  TestNavigationURLLoaderDelegate delegate;
-  const GURL url("content://blocked.authority/path");
-  std::unique_ptr<NavigationURLLoaderImpl> loader =
-      CreateTestLoader(url, std::string(), "GET", &delegate);
-  loader->Start();
-  delegate.WaitForRequestFailed();
-  EXPECT_EQ(net::ERR_BLOCKED_BY_CLIENT, delegate.net_error());
-  EXPECT_EQ(1, test_browser_client.call_count());
-  EXPECT_EQ(url, test_browser_client.last_url());
-}
-
-TEST_F(NavigationURLLoaderImplTest, AllowedContentUriNavigation) {
-  TestContentUriContentBrowserClient test_browser_client(/*is_allowed=*/true);
-  ScopedContentBrowserClientSetting setting(&test_browser_client);
-  TestNavigationURLLoaderDelegate delegate;
-  const GURL url("content://allowed.authority/path");
-  std::unique_ptr<NavigationURLLoaderImpl> loader =
-      CreateTestLoader(url, std::string(), "GET", &delegate);
-  loader->Start();
-  delegate.WaitForRequestFailed();
-  EXPECT_EQ(net::ERR_FILE_NOT_FOUND, delegate.net_error());
-  EXPECT_EQ(1, test_browser_client.call_count());
-  EXPECT_EQ(url, test_browser_client.last_url());
-}
-
-TEST_F(NavigationURLLoaderImplTest, RedirectToDisallowedContentUri) {
-  base::test::ScopedFeatureList feature_list{
-      features::kBypassRedirectChecksPerRequest};
-  ASSERT_TRUE(http_test_server_.Start());
-  TestContentUriContentBrowserClient test_browser_client(/*is_allowed=*/false);
-  ScopedContentBrowserClientSetting setting(&test_browser_client);
-
-  int64_t navigation_id = 0;
-  FrameTreeNodeId frame_tree_node_id;
-  TestNavigationURLLoaderDelegate delegate;
-  const GURL content_url("content://blocked.authority/path");
-  std::vector<std::unique_ptr<NavigationLoaderInterceptor>> interceptors;
-  interceptors.push_back(std::make_unique<TestRedirectInterceptor>(
-      content_url, /*bypass_redirect_checks=*/true, &navigation_id,
-      &frame_tree_node_id));
-  std::unique_ptr<NavigationURLLoaderImpl> loader =
-      CreateTestLoader(http_test_server_.GetURL("/echo"), std::string(), "GET",
-                       &delegate, blink::NavigationDownloadPolicy(),
-                       /*is_main_frame=*/true,
-                       /*upgrade_if_insecure=*/false,
-                       /*is_ad_tagged=*/false, std::move(interceptors));
-  navigation_id = pending_navigation_->GetNavigationHandle()->GetNavigationId();
-  frame_tree_node_id =
-      pending_navigation_->GetNavigationHandle()->GetFrameTreeNodeId();
-  loader->Start();
-  delegate.WaitForRequestRedirected();
-  loader->FollowRedirect({});
-  delegate.WaitForRequestFailed();
-  EXPECT_EQ(net::ERR_BLOCKED_BY_CLIENT, delegate.net_error());
-  EXPECT_EQ(1, test_browser_client.call_count());
-  EXPECT_EQ(content_url, test_browser_client.last_url());
-}
-
-TEST_F(NavigationURLLoaderImplTest, RedirectToAllowedContentUri) {
-  base::test::ScopedFeatureList feature_list{
-      features::kBypassRedirectChecksPerRequest};
-  ASSERT_TRUE(http_test_server_.Start());
-  TestContentUriContentBrowserClient test_browser_client(/*is_allowed=*/true);
-  ScopedContentBrowserClientSetting setting(&test_browser_client);
-
-  int64_t navigation_id = 0;
-  FrameTreeNodeId frame_tree_node_id;
-  TestNavigationURLLoaderDelegate delegate;
-  const GURL content_url("content://allowed.authority/path");
-  std::vector<std::unique_ptr<NavigationLoaderInterceptor>> interceptors;
-  interceptors.push_back(std::make_unique<TestRedirectInterceptor>(
-      content_url, /*bypass_redirect_checks=*/true, &navigation_id,
-      &frame_tree_node_id));
-  std::unique_ptr<NavigationURLLoaderImpl> loader =
-      CreateTestLoader(http_test_server_.GetURL("/echo"), std::string(), "GET",
-                       &delegate, blink::NavigationDownloadPolicy(),
-                       /*is_main_frame=*/true,
-                       /*upgrade_if_insecure=*/false,
-                       /*is_ad_tagged=*/false, std::move(interceptors));
-  navigation_id = pending_navigation_->GetNavigationHandle()->GetNavigationId();
-  frame_tree_node_id =
-      pending_navigation_->GetNavigationHandle()->GetFrameTreeNodeId();
-  loader->Start();
-  delegate.WaitForRequestRedirected();
-  loader->FollowRedirect({});
-  delegate.WaitForRequestFailed();
-  EXPECT_EQ(net::ERR_FILE_NOT_FOUND, delegate.net_error());
-  EXPECT_EQ(1, test_browser_client.call_count());
-  EXPECT_EQ(content_url, test_browser_client.last_url());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace content

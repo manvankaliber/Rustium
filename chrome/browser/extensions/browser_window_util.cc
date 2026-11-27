@@ -10,9 +10,6 @@
 #include "components/tabs/public/tab_interface.h"
 #include "extensions/buildflags/buildflags.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/browser_window.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -37,14 +34,6 @@ bool BrowserMatchesHelper(BrowserWindowInterface& browser,
     return false;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (restrict_to_current_workspace) {
-    BrowserWindow* browser_window = BrowserWindow::FromBrowser(&browser);
-    if (!browser_window || !browser_window->IsOnCurrentWorkspace()) {
-      return false;
-    }
-  }
-#endif
 
   return true;
 }

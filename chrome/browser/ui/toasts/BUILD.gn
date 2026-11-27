@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-assert(is_win || is_mac || is_linux || is_chromeos)
+assert(is_win || is_mac || is_linux)
 
 import("//build/config/chrome_build.gni")
 import("//build/config/ui.gni")
@@ -19,12 +19,10 @@ source_set("toasts") {
   public_deps = [
     "//base",
     "//chrome/browser/ui/browser_window",
-    "//chrome/browser/ui/commerce",
     "//chrome/browser/ui/exclusive_access",
     "//chrome/browser/ui/omnibox",
     "//chrome/browser/ui/tabs:tab_strip_model_observer",
     "//chrome/browser/ui/toasts/api:toasts",
-    "//components/commerce/core:feature_list",
     "//components/omnibox/browser:vector_icons",
     "//components/omnibox/common",
     "//content/public/browser",
@@ -48,19 +46,13 @@ source_set("impl") {
     "//chrome/app:generated_resources_grit",
     "//chrome/app/vector_icons",
     "//chrome/browser:browser_process",
-    "//chrome/browser/actor/resources:common_resources",
-    "//chrome/browser/actor/resources:grit",
     "//chrome/browser/autofill",
     "//chrome/browser/dictation",
-    "//chrome/browser/glic",
-    "//chrome/browser/glic/browser_ui",
     "//chrome/browser/indigo",
     "//chrome/browser/indigo/resources:indigo_strings",
     "//chrome/browser/profiles:profile",
     "//chrome/browser/send_tab_to_self",
-    "//chrome/browser/skills:public",
     "//chrome/browser/translate",
-    "//chrome/browser/ttc/core:features",
     "//chrome/browser/ui:browser_commands",
     "//chrome/browser/ui:browser_element_identifiers",
     "//chrome/browser/ui:chrome_pages",
@@ -139,7 +131,6 @@ source_set("browser_tests") {
     "//chrome/browser",
     "//chrome/browser:browser_process",
     "//chrome/browser/dictation",
-    "//chrome/browser/ttc/core:features",
     "//chrome/browser/ui/browser_window",
     "//chrome/browser/ui/views:layout_provider",
     "//chrome/browser/ui/views/frame:browser_view_header",

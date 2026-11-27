@@ -88,20 +88,7 @@
 #include "ui/display/screen.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#error This file should only be included on desktop.
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/multi_user/multi_user_window_manager.h"
-#include "ash/shell.h"
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/ui/ash/system_web_apps/system_web_app_ui_utils.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "components/account_id/account_id.h"
-#include "content/public/browser/global_routing_id.h"
-#include "services/network/public/mojom/web_sandbox_flags.mojom.h"
-#endif
 
 #if defined(USE_AURA)
 #include "ui/aura/window.h"
@@ -186,39 +173,6 @@ bool IncognitoModeForced(const Profile* profile) {
          policy::IncognitoModeAvailability::kForced;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Returns true if the navigation request originated from a captive portal
-// sign-in window. In non-Guest sessions, this is identified by checking if the
-// initiating profile has a CaptivePortal OTRProfileID. In Guest sessions, where
-// the primary OTR profile is reused, this checks the CaptivePortalTabHelper on
-// the source WebContents.
-bool ShouldForceCaptivePortalSigninIntoCurrentTab(
-    const NavigateParams& params,
-    BrowserWindowInterface* source_browser) {
-  if (params.initiating_profile->IsOffTheRecord() &&
-      params.initiating_profile->GetOTRProfileID().IsCaptivePortal()) {
-    return true;
-  }
-#if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
-  // In Guest mode the captive portal signin window uses the active profile
-  // rather than a dedicated captive portal OTR profile, so also check the
-  // source WebContents.
-  content::WebContents* source_contents = params.source_contents;
-  if (!source_contents && source_browser) {
-    source_contents =
-        source_browser->GetTabStripModel()->GetActiveWebContents();
-  }
-  if (source_contents) {
-    auto* helper = captive_portal::CaptivePortalTabHelper::FromWebContents(
-        source_contents);
-    if (helper && helper->is_captive_portal_window()) {
-      return true;
-    }
-  }
-#endif  // BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
-  return false;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Change some of the navigation parameters based on the particular URL.
 // Returns true on success. Otherwise, if changing params leads the browser
@@ -688,53 +642,6 @@ base::WeakPtr<content::NavigationHandle> NavigateImpl(
   }
   DCHECK(params->initiating_profile);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (params->disposition != ui::mojom::WindowOpenDisposition::kNewPopup &&
-      params->disposition != ui::mojom::WindowOpenDisposition::kCurrentTab &&
-      ShouldForceCaptivePortalSigninIntoCurrentTab(*params, source_browser) &&
-      !IncognitoModeForced(params->initiating_profile)) {
-    // Navigation outside of the current tab or the initial popup window from a
-    // captive portal signin window should be prevented.
-    if (!params->browser && params->source_contents) {
-      if (tabs::TabInterface* const tab =
-              tabs::TabInterface::MaybeGetFromContents(
-                  params->source_contents)) {
-        params->browser = tab->GetBrowserWindowInterface();
-        source_browser = params->browser;
-      }
-    }
-    params->disposition = [&]() {
-      // If a new WebContents was already created (e.g., `window.open()`),
-      // CURRENT_TAB cannot merge an existing WebContents into
-      // `source_contents`.
-      if (params->contents_to_insert) {
-        return ui::mojom::WindowOpenDisposition::kNewPopup;
-      }
-      if (!params->initiator_frame_token.has_value()) {
-        return ui::mojom::WindowOpenDisposition::kCurrentTab;
-      }
-      content::RenderFrameHost* const initiator_rfh =
-          content::RenderFrameHost::FromFrameToken(
-              content::GlobalRenderFrameHostToken(
-                  params->initiator_process_id,
-                  *params->initiator_frame_token));
-      // Fall back to NEW_POPUP if the initiator frame was already destroyed
-      // (`!initiator_rfh`), since its sandbox flags can no longer be checked.
-      if (!initiator_rfh) {
-        return ui::mojom::WindowOpenDisposition::kNewPopup;
-      }
-      // If the navigation is initiated by a subframe that is sandboxed against
-      // top-level navigation (e.g., an iframe with allow-popups but without
-      // allow-top-navigation), rewriting the disposition to CURRENT_TAB would
-      // allow the sandboxed frame to navigate the top-level captive portal
-      // window, bypassing the sandbox restriction.
-      return initiator_rfh->IsSandboxed(
-                 network::mojom::WebSandboxFlags::kTopNavigation)
-                 ? ui::mojom::WindowOpenDisposition::kNewPopup
-                 : ui::mojom::WindowOpenDisposition::kCurrentTab;
-    }();
-  }
-#endif
 
   if (params->initiating_profile->ShutdownStarted()) {
     // Don't navigate when the profile is shutting down.
@@ -745,54 +652,10 @@ base::WeakPtr<content::NavigationHandle> NavigateImpl(
     return nullptr;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Block navigation requests when in locked fullscreen mode. We allow
-  // navigation requests in the webapp when locked for OnTask (only relevant for
-  // non-web browser scenarios).
-  // TODO(b/365146870): Remove once we consolidate locked fullscreen with
-  // OnTask.
-  if (source_browser) {
-    if (features::IsUseUnifiedLockedStateControllerEnabled()) {
-      if (!chromeos::LockedStateController::From(source_browser)
-               ->GetCapabilities()
-               .allow_browser_navigation) {
-        return nullptr;
-      }
-    } else {
-      if (platform_util::IsBrowserLockedFullscreen(source_browser) &&
-          !ash::boca::OnTaskLockedController::From(source_browser)
-               ->is_locked_for_on_task()) {
-        return nullptr;
-      }
-    }
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Open System Apps in their standalone window if necessary.
   // TODO(crbug.com/40136163): Remove this code after we integrate with intent
   // handling.
-#if BUILDFLAG(IS_CHROMEOS)
-  const std::optional<ash::SystemWebAppType> capturing_system_app_type =
-      ash::GetCapturingSystemAppForURL(params->initiating_profile, params->url);
-  if (capturing_system_app_type &&
-      web_app::GetSystemWebAppType(params->browser) !=
-          capturing_system_app_type.value()) {
-    ash::SystemAppLaunchParams swa_params;
-    swa_params.url = params->url;
-    ash::LaunchSystemWebAppAsync(params->initiating_profile,
-                                 capturing_system_app_type.value(), swa_params);
-
-    // It's okay to early return here, because LaunchSystemWebAppAsync uses a
-    // different logic to choose (and create if necessary) a browser window for
-    // system apps.
-    //
-    // It's okay to skip the checks and cleanups below. The link captured system
-    // app will either open in its own browser window, or navigate an existing
-    // browser window exclusively used by this app. For the initiating browser,
-    // the navigation should appear to be cancelled.
-    return nullptr;
-  }
-#endif
 
   if (!AdjustNavigateParamsForURL(params)) {
     return nullptr;
@@ -939,30 +802,6 @@ base::WeakPtr<content::NavigationHandle> NavigateImpl(
           params->initiating_profile, params->url)) {
     CHECK(web_app::AppBrowserController::IsIsolatedWebApp(params->browser));
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  if (source_browser && source_browser != params->browser) {
-    // When the newly created browser was spawned by a browser which visits
-    // another user's desktop, it should be shown on the same desktop as the
-    // originating one. (This is part of the desktop separation per profile).
-    auto* window_manager = ash::Shell::Get()->multi_user_window_manager();
-    // Some unit tests have no client instantiated.
-    if (window_manager) {
-      aura::Window* src_window = source_browser->GetWindow()->GetNativeWindow();
-      aura::Window* new_window =
-          params->browser->GetWindow()->GetNativeWindow();
-      const AccountId& src_account_id =
-          window_manager->GetUserPresentingWindow(src_window);
-      if (src_account_id !=
-          window_manager->GetUserPresentingWindow(new_window)) {
-        // Once the window gets presented, it should be shown on the same
-        // desktop as the desktop of the creating browser. Note that this
-        // command will not show the window if it wasn't shown yet by the
-        // browser creation.
-        window_manager->ShowWindowForUser(new_window, src_account_id);
-      }
-    }
-  }
-#endif
 
   // Navigate() must not return early after this point.
 

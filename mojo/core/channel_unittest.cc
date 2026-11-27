@@ -564,7 +564,7 @@ TEST(ChannelTest, DeserializeMessage_BadExtraHeaderSize) {
 }
 
 // This test is only enabled for Linux-based platforms.
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_FUCHSIA)
+#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_APPLE)
 TEST(ChannelTest, DeserializeMessage_NonZeroExtraHeaderSize) {
   // Verifies that a message payload is rejected when the extra header chunk
   // size anything but zero on Linux, even if it's aligned.
@@ -1182,7 +1182,7 @@ class CallbackIpczChannelDelegate : public Channel::Delegate {
 // Note: While this test emulates sending behavior of old clients, it does not
 // emulate old receiving behaviors.
 TEST(ChannelTest, IpczHeaderCompatibilityTest) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   base::test::ScopedFeatureList scoped_feature_list;
   if (Channel::SupportsMultipleNotifiers()) {
     // The test constructs messages as if the feature is enabled. Enable the

@@ -6,8 +6,8 @@
 #define MEDIA_GPU_TEST_VIDEO_PLAYER_MAPPABLE_SI_VIDEO_FRAME_CONVERTER_H_
 
 #include "gpu/command_buffer/client/test_shared_image_interface.h"
-#include "media/gpu/chromeos/frame_resource.h"
-#include "media/gpu/chromeos/frame_resource_converter.h"
+#include "media/gpu/linux/frame_resource.h"
+#include "media/gpu/linux/frame_resource_converter.h"
 #include "media/gpu/media_gpu_export.h"
 
 namespace media {

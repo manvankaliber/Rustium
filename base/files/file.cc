@@ -16,7 +16,7 @@
 #include "base/trace_event/trace_event.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include <errno.h>
 #endif
 
@@ -39,14 +39,14 @@ File::File(PlatformFile platform_file) : File(platform_file, false) {}
 
 File::File(ScopedPlatformFile platform_file, bool async)
     : file_(std::move(platform_file)), error_details_(FILE_OK), async_(async) {
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   DCHECK_GE(file_.get(), -1);
 #endif
 }
 
 File::File(PlatformFile platform_file, bool async)
     : file_(platform_file), error_details_(FILE_OK), async_(async) {
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   DCHECK_GE(platform_file, -1);
 #endif
 }
@@ -55,10 +55,6 @@ File::File(Error error_details) : error_details_(error_details) {}
 
 File::File(File&& other)
     : file_(other.TakePlatformFile()),
-#if BUILDFLAG(IS_ANDROID)
-      java_parcel_file_descriptor_(
-          std::move(other.java_parcel_file_descriptor_)),
-#endif
       path_(other.path_),
       error_details_(other.error_details()),
       created_(other.created()),
@@ -73,9 +69,6 @@ File::~File() {
 File& File::operator=(File&& other) {
   Close();
   SetPlatformFile(other.TakePlatformFile());
-#if BUILDFLAG(IS_ANDROID)
-  java_parcel_file_descriptor_ = std::move(other.java_parcel_file_descriptor_);
-#endif
   path_ = other.path_;
   error_details_ = other.error_details();
   created_ = other.created();
@@ -87,7 +80,7 @@ void File::Initialize(const FilePath& path, uint32_t flags) {
   if (path.ReferencesParent()) {
 #if BUILDFLAG(IS_WIN)
     ::SetLastError(ERROR_ACCESS_DENIED);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
     errno = EACCES;
 #else
 #error Unsupported platform

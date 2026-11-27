@@ -29,23 +29,21 @@ source_set("controllers") {
     "//components/bookmarks/common",
   ]
 
-  if (!is_android) {
-    sources += [
-      "desktop_bookmark_bar_action_adapter.cc",
-      "desktop_bookmark_bar_action_adapter.h",
-      "desktop_bookmark_bar_injector.cc",
-      "desktop_bookmark_bar_injector.h",
-    ]
-    deps += [
-      "//chrome/browser/page_load_metrics",
-      "//chrome/browser/ui/bookmarks",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/views/bookmarks",
-      "//components/browser_apis/ui_controllers/bookmark_bar:impl",
-      "//components/profile_metrics",
-      "//ui/base:types",
-      "//ui/gfx/geometry",
-      "//ui/views",
-    ]
-  }
+  sources += [
+    "desktop_bookmark_bar_action_adapter.cc",
+    "desktop_bookmark_bar_action_adapter.h",
+    "desktop_bookmark_bar_injector.cc",
+    "desktop_bookmark_bar_injector.h",
+  ]
+  deps += [
+    "//chrome/browser/page_load_metrics",
+    "//chrome/browser/ui/bookmarks",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/views/bookmarks",
+    "//components/browser_apis/ui_controllers/bookmark_bar:impl",
+    "//components/profile_metrics",
+    "//ui/base:types",
+    "//ui/gfx/geometry",
+    "//ui/views",
+  ]
 }

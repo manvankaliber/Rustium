@@ -98,11 +98,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/test/base/testing_profile.h"
-#include "components/user_manager/user_names.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/ui/views/web_apps/web_app_install_flow_dialog_delegate.h"
@@ -2651,26 +2646,13 @@ class WebInstallFromManifestGuestModeTest
   WebInstallFromManifestGuestModeTest& operator=(
       const WebInstallFromManifestGuestModeTest&) = delete;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    command_line->AppendSwitch(ash::switches::kGuestSession);
-    command_line->AppendSwitchASCII(ash::switches::kLoginUser,
-                                    user_manager::kGuestUserName);
-    command_line->AppendSwitchASCII(ash::switches::kLoginProfile,
-                                    TestingProfile::kTestUserProfileDir);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 };
 
 IN_PROC_BROWSER_TEST_F(WebInstallFromManifestGuestModeTest,
                        GuestMode_NotSupportedDialog) {
   base::HistogramTester histograms;
   ukm::TestAutoSetUkmRecorder ukm_recorder;
-#if BUILDFLAG(IS_CHROMEOS)
-  BrowserWindowInterface* guest_browser = browser();
-#else
   BrowserWindowInterface* guest_browser = CreateGuestBrowser();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ASSERT_TRUE(guest_browser->GetProfile()->IsGuestSession());
 
   ASSERT_TRUE(ui_test_utils::NavigateToURL(

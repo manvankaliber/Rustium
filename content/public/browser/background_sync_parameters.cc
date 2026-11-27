@@ -19,9 +19,6 @@ constexpr base::TimeDelta kMinPeriodicSyncEventsInterval = base::Hours(12);
 
 BackgroundSyncParameters::BackgroundSyncParameters()
     : disable(false),
-#if BUILDFLAG(IS_ANDROID)
-      rely_on_android_network_detection(false),
-#endif
       keep_browser_awake_till_events_complete(false),
       skip_permissions_check_for_testing(false),
       max_sync_attempts(kMaxSyncAttempts),
@@ -42,10 +39,6 @@ BackgroundSyncParameters& BackgroundSyncParameters::operator=(
 bool BackgroundSyncParameters::operator==(
     const BackgroundSyncParameters& other) const {
   return disable == other.disable &&
-#if BUILDFLAG(IS_ANDROID)
-         rely_on_android_network_detection ==
-             other.rely_on_android_network_detection &&
-#endif
          keep_browser_awake_till_events_complete ==
              other.keep_browser_awake_till_events_complete &&
          skip_permissions_check_for_testing ==

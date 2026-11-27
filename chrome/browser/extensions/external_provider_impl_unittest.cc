@@ -60,18 +60,7 @@
 #include "net/test/embedded_test_server/embedded_test_server.h"
 #include "net/test/embedded_test_server/http_request.h"
 #include "net/test/embedded_test_server/http_response.h"
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/customization/customization_document.h"
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "chrome/browser/global_features.h"
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#include "chromeos/ash/components/system/statistics_provider.h"
-#include "components/user_manager/scoped_user_manager.h"
-#include "services/network/public/cpp/weak_wrapper_shared_url_loader_factory.h"
-#include "services/network/test/test_url_loader_factory.h"
-#else
 #include "chrome/browser/extensions/preinstalled_extensions.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/test/test_reg_util_win.h"
@@ -136,10 +125,6 @@ class ExternalProviderImplTest : public ExtensionServiceTestBase {
   }
 
   void InitService(bool autoupdate_enabled) {
-#if BUILDFLAG(IS_CHROMEOS)
-    user_manager::ScopedUserManager scoped_user_manager(
-        std::make_unique<ash::FakeChromeUserManager>());
-#endif
     InitializeExtensionServiceWithUpdaterAndPrefs(autoupdate_enabled);
 
     extension_updater()->SetExtensionCacheForTesting(
@@ -240,21 +225,9 @@ class ExternalProviderImplTest : public ExtensionServiceTestBase {
 
     extension_test_util::SetGalleryUpdateURL(
         test_server_->GetURL(kInAppPaymentsApp.update_path));
-#if BUILDFLAG(IS_CHROMEOS)
-    services_customization_document_ =
-        std::make_unique<ash::ServicesCustomizationDocument>(
-            TestingBrowserProcess::GetGlobal()->local_state(),
-            TestingBrowserProcess::GetGlobal()
-                ->GetFeatures()
-                ->application_locale_storage(),
-            test_url_loader_factory_.GetSafeWeakWrapper());
-#endif
   }
 
   void TearDown() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    services_customization_document_.reset();
-#endif
     // Avoid dangling pointers.
     extension_updater()->SetExtensionCacheForTesting(nullptr);
     test_extension_cache_.reset();
@@ -308,14 +281,6 @@ class ExternalProviderImplTest : public ExtensionServiceTestBase {
   std::unique_ptr<base::ScopedPathOverride> external_externsions_overrides_;
   std::unique_ptr<ExtensionCacheFake> test_extension_cache_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // chromeos::ServicesCustomizationExternalLoader is hooked up as an
-  // ExternalLoader and depends on a functioning StatisticsProvider.
-  ash::system::ScopedFakeStatisticsProvider fake_statistics_provider_;
-  network::TestURLLoaderFactory test_url_loader_factory_;
-  std::unique_ptr<ash::ServicesCustomizationDocument>
-      services_customization_document_;
-#endif
 
 #if BUILDFLAG(IS_WIN)
   // Registry key pointing to the external extension for Windows.
@@ -327,7 +292,6 @@ class ExternalProviderImplTest : public ExtensionServiceTestBase {
 }  // namespace
 
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-#if !BUILDFLAG(IS_ANDROID)
 // The in-app payments app is not bundled on Android, see crbug.com/409396604.
 TEST_F(ExternalProviderImplTest, InAppPayments) {
   InitServiceWithExternalProviders();
@@ -337,9 +301,7 @@ TEST_F(ExternalProviderImplTest, InAppPayments) {
   EXPECT_TRUE(registry()->GetInstalledExtension(kInAppPaymentsApp.app_id));
   EXPECT_TRUE(registrar()->IsExtensionEnabled(kInAppPaymentsApp.app_id));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ExternalProviderImplTest, DocsOfflineExtensionIsDefaultInstalled) {
   // No need to test the actual auto update, that's tested above and below.
   // Also, we don't have a dummy test CRX for Docs Offline like we do for
@@ -372,7 +334,6 @@ TEST_F(ExternalProviderImplTest, DocsOfflineExtensionIsNotReinstalled) {
   auto* manager = PendingExtensionManager::Get(profile());
   EXPECT_FALSE(manager->IsIdPending(extension_misc::kDocsOfflineExtensionId));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ExternalProviderImplTest, BlockedExternalUserProviders) {
   OverrideExternalExtensionsPath();

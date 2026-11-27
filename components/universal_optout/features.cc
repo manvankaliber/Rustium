@@ -13,9 +13,6 @@
 #include "base/time/time.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "base/ios/ios_util.h"
-#endif
 
 namespace universal_optout::features {
 
@@ -45,18 +42,7 @@ bool IsUniversalOptOutExtensionSilentEnabled() {
 }
 
 bool IsUniversalOptOutEnabled() {
-#if BUILDFLAG(IS_IOS)
-  if (!base::ios::IsRunningOnOrLater(18, 4, 0)) {
-    return false;
-  }
-  if (base::ios::IsRunningOnIOS27OrLater()) {
-    return base::FeatureList::IsEnabled(kUniversalOptOut);
-  }
-  return base::FeatureList::IsEnabled(kUniversalOptOut) &&
-         base::FeatureList::IsEnabled(kUniversalOptOutExtension);
-#else
   return base::FeatureList::IsEnabled(kUniversalOptOut);
-#endif
 }
 
 const base::FeatureParam<std::string> kTargetLocations{

@@ -259,21 +259,6 @@ TEST_F(WakeLockTest, ChangeType) {
   EXPECT_EQ(0, GetActiveWakeLocks(
                    mojom::WakeLockType::kPreventDisplaySleepAllowDimming));
 
-#if BUILDFLAG(IS_ANDROID)
-  // Wake locks associated with a WakeLockContext cannot change type on Android.
-  mojo::Remote<mojom::WakeLockContext> wake_lock_context;
-  wake_lock_provider_->GetWakeLockContextForID(
-      1, wake_lock_context.BindNewPipeAndPassReceiver());
-  mojo::Remote<mojom::WakeLock> context_wake_lock;
-  wake_lock_context->GetWakeLock(
-      mojom::WakeLockType::kPreventDisplaySleep, mojom::WakeLockReason::kOther,
-      "WakeLockTestWithContext",
-      context_wake_lock.BindNewPipeAndPassReceiver());
-  base::test::TestFuture<bool> context_change_result;
-  context_wake_lock->ChangeType(mojom::WakeLockType::kPreventAppSuspension,
-                                context_change_result.GetCallback());
-  EXPECT_FALSE(context_change_result.Get());
-#endif
 
   // Disconnecting after changing type from kPreventAppSuspension to
   // kPreventDisplaySleepAllowDimming must clean up cleanly in WakeLockProvider.

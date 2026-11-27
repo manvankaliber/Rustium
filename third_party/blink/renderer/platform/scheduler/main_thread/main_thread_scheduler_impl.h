@@ -63,10 +63,6 @@
 #include "third_party/blink/renderer/platform/wtf/vector.h"
 #include "third_party/perfetto/include/perfetto/tracing/traced_value_forward.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/functional/callback_forward.h"
-#include "base/threading/platform_thread.h"
-#endif
 
 namespace base {
 class LazyNow;
@@ -197,10 +193,6 @@ class PLATFORM_EXPORT MainThreadSchedulerImpl
   std::unique_ptr<WebAgentGroupScheduler> CreateWebAgentGroupScheduler()
       override;
   void SetRendererBackgrounded(bool backgrounded) override;
-#if BUILDFLAG(IS_ANDROID)
-  void PauseTimersForAndroidWebView() override;
-  void ResumeTimersForAndroidWebView() override;
-#endif
   void OnUrgentMessageReceived() override;
   void OnUrgentMessageProcessed() override;
 
@@ -628,9 +620,6 @@ class PLATFORM_EXPORT MainThreadSchedulerImpl
       MainThreadTaskQueue*,
       const base::sequence_manager::TaskQueue::TaskTiming&);
 
-#if BUILDFLAG(IS_ANDROID)
-  void ApplyPerformanceState(bool prefer_efficient_scheduling);
-#endif
 
   // Computes the priority for compositing based on the current use case.
   // Returns nullopt if the use case does not need to set the priority.

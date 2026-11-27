@@ -383,8 +383,7 @@ IN_PROC_BROWSER_TEST_F(EnterpriseProxyBrowserTest,
           .size());
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 IN_PROC_BROWSER_TEST_F(
     EnterpriseProxyBrowserTest,
     AppliedForAffiliatedUserWhenEnablePORForAllUsersDisabled) {

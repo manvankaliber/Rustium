@@ -110,13 +110,7 @@ VULKAN_INSTANCE_FUNCTIONS = [
       'vkCreateAndroidSurfaceKHR',
     ],
   },
-  {
-    'ifdef': 'BUILDFLAG(IS_FUCHSIA)',
-    'extension': 'VK_FUCHSIA_IMAGEPIPE_SURFACE_EXTENSION_NAME',
-    'functions': [
-      'vkCreateImagePipeSurfaceFUCHSIA',
-    ],
-  },
+
 ]
 
 VULKAN_DEVICE_FUNCTIONS = [
@@ -240,31 +234,6 @@ VULKAN_DEVICE_FUNCTIONS = [
     ],
   },
   {
-    'ifdef': 'BUILDFLAG(IS_FUCHSIA)',
-    'extension': 'VK_FUCHSIA_EXTERNAL_SEMAPHORE_EXTENSION_NAME',
-    'functions': [
-      'vkImportSemaphoreZirconHandleFUCHSIA',
-      'vkGetSemaphoreZirconHandleFUCHSIA',
-    ],
-  },
-  {
-    'ifdef': 'BUILDFLAG(IS_FUCHSIA)',
-    'extension': 'VK_FUCHSIA_EXTERNAL_MEMORY_EXTENSION_NAME',
-    'functions': [
-      'vkGetMemoryZirconHandleFUCHSIA',
-    ],
-  },
-  {
-    'ifdef': 'BUILDFLAG(IS_FUCHSIA)',
-    'extension': 'VK_FUCHSIA_BUFFER_COLLECTION_EXTENSION_NAME',
-    'functions': [
-      'vkCreateBufferCollectionFUCHSIA',
-      'vkSetBufferCollectionImageConstraintsFUCHSIA',
-      'vkGetBufferCollectionPropertiesFUCHSIA',
-      'vkDestroyBufferCollectionFUCHSIA',
-    ],
-  },
-  {
     'extension': 'VK_KHR_SWAPCHAIN_EXTENSION_NAME',
     'functions': [
       'vkAcquireNextImageKHR',
@@ -373,8 +342,7 @@ def WriteFunctionDeclarations(out_file, functions):
 def WriteMacros(out_file, functions):
   def gen_content(func, suffix=''):
     if func not in registry.cmddict:
-      # Some fuchsia functions are not in the vulkan registry, so use macro for
-      # them.
+      # Functions absent from the Vulkan registry use a macro.
       template = Template(
         '#define $name gpu::GetVulkanFunctionPointers()->${name}\n'
       )
@@ -513,13 +481,6 @@ def GenerateHeaderFile(out_file):
 #include <vulkan/vulkan_android.h>
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <zircon/types.h>
-// <vulkan/vulkan_fuchsia.h> must be included after <zircon/types.h>
-#include <vulkan/vulkan_fuchsia.h>
-
-#include "gpu/vulkan/fuchsia/vulkan_fuchsia_ext.h"
-#endif
 
 #if defined(USE_VULKAN_XCB)
 #include <xcb/xcb.h>

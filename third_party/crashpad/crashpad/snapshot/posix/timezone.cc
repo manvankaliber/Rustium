@@ -42,16 +42,7 @@ void TimeZone(const timeval& snapshot_time,
 
   bool found_transition = false;
   long probe_gmtoff = local.tm_gmtoff;
-#if BUILDFLAG(IS_ANDROID)
-  // Some versions of the timezone database on Android have incorrect
-  // information (e.g. Asia/Kolkata and Pacific/Honolulu). These timezones set
-  // daylight to a non-zero value and return incorrect, >= 0 values for tm_isdst
-  // in the probes below. If tzname[1] is set to a bogus value, assume the
-  // timezone does not actually use daylight saving time.
-  if (daylight && strncmp(tzname[1], "_TZif", 5) != 0) {
-#else
   if (daylight) {
-#endif
     // Scan forward and backward, one month at a time, looking for an instance
     // when the observance of daylight saving time is different than it is in
     // |local|. It’s possible that no such instance will be found even with
@@ -106,14 +97,8 @@ void TimeZone(const timeval& snapshot_time,
   } else {
     *daylight_name = tzname[0];
     *dst_status = SystemSnapshot::kDoesNotObserveDaylightSavingTime;
-#if BUILDFLAG(IS_ANDROID)
-    // timezone is more reliably set correctly on Android.
-    *standard_offset_seconds = -timezone;
-    *daylight_offset_seconds = -timezone;
-#else
     *standard_offset_seconds = local.tm_gmtoff;
     *daylight_offset_seconds = local.tm_gmtoff;
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 }
 

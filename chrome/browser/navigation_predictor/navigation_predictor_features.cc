@@ -35,11 +35,7 @@ BASE_FEATURE_ENUM_PARAM(DsePrewarmerLifetime,
 
 // A holdback that prevents the preconnect to measure benefit of the feature.
 BASE_FEATURE(kNavigationPredictorPreconnectHoldback,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_DISABLED_BY_DEFAULT
-#else
              base::FEATURE_ENABLED_BY_DEFAULT
-#endif
 );
 
 }  // namespace features

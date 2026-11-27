@@ -29,7 +29,6 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/enterprise/util/managed_browser_utils.h"
 #include "chrome/browser/feature_engagement/tracker_factory.h"
-#include "chrome/browser/glic/public/provider_features.h"
 #include "chrome/browser/policy/cloud/user_policy_signin_service_factory.h"
 #include "chrome/browser/policy/cloud/user_policy_signin_service_test_util.h"
 #include "chrome/browser/prefs/incognito_mode_prefs.h"
@@ -3947,10 +3946,6 @@ class FirstRunFeatureShowcaseWithGeminiInteractiveUiTest
     : public FirstRunFeatureShowcaseWithSyncInteractiveUiTest {
  public:
   FirstRunFeatureShowcaseWithGeminiInteractiveUiTest() {
-    scoped_feature_list_gemini_.InitWithFeatures(
-        /*enabled_features=*/{features::kGlic,
-                              features::kFirstRunFeatureShowcaseGeminiStep},
-        /*disabled_features=*/{features::kGlicCountryFiltering});
   }
 
   void SetUpCommandLine(base::CommandLine* command_line) override {

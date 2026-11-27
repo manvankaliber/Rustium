@@ -12,10 +12,6 @@ Examples:
 # of the automatically generated one.
 autotest.py -C out/Desktop bit_cast_unittest.cc --gtest_filter=BitCastTest*
 
-# Find and run UrlUtilitiesUnitTest.java's tests, pass remaining parameters to
-# the test binary.
-autotest.py -C out/Android UrlUtilitiesUnitTest --fast-local-dev -v
-
 # Run all tests under base/strings.
 autotest.py -C out/foo --run-all base/strings
 
@@ -47,8 +43,6 @@ from utils.command_error import AutotestError, CommandError
 from utils.options import AutotestConfig, Formatter, autotest_options
 from utils.builders import display_utr_help, run_utr_tests
 
-sys.path.append(str(const.SRC_DIR / 'build' / 'android'))
-from pylib import constants
 
 import logging
 from colorama import init, Fore, Style
@@ -114,8 +108,6 @@ def main(ctx, **kwargs) -> int:
       extras.append(arg)
 
   kwargs['files'] = tuple(files_to_test)
-  if kwargs.get('device'):
-    extras.extend(['-d', kwargs['device']])
   kwargs['extras'] = extras
 
   config: AutotestConfig = AutotestConfig(**kwargs)
@@ -130,10 +122,27 @@ def main(ctx, **kwargs) -> int:
     display_utr_help()
     ctx.exit(0)
 
+  out_dir = config.out_dir or os.environ.get('CHROMIUM_OUTPUT_DIR')
   if config.out_dir:
-    constants.SetOutputDirectory(config.out_dir)
-  constants.CheckOutputDirectory()
-  out_dir = constants.GetOutDirectory()
+    out_dir = os.path.abspath(config.out_dir)
+    os.environ['CHROMIUM_OUTPUT_DIR'] = out_dir
+  elif out_dir:
+    out_dir = os.path.abspath(os.path.join(const.SRC_DIR, out_dir))
+  elif os.environ.get('BUILDTYPE'):
+    out_dir = os.path.join(
+      const.SRC_DIR, os.environ.get('CHROMIUM_OUT_DIR', 'out'),
+      os.environ['BUILDTYPE'],
+    )
+  elif os.path.isfile('build.ninja'):
+    out_dir = os.getcwd()
+  elif os.environ.get('CHROME_HEADLESS'):
+    outputs = list((const.SRC_DIR / 'out').glob('*/build.ninja'))
+    if len(outputs) == 1:
+      out_dir = str(outputs[0].parent)
+  if not out_dir:
+    raise click.UsageError(
+      'Use -C OUT_DIR or set CHROMIUM_OUTPUT_DIR to select the build output.'
+    )
 
   if not os.path.isdir(out_dir):
     raise click.UsageError(f'OUT_DIR "{out_dir}" does not exist.')
@@ -303,9 +312,7 @@ def main(ctx, **kwargs) -> int:
       pref_mapping_filter,
       config.extras,
       config.dry_run,
-      config.no_try_android_wrappers,
-      config.no_fast_local_dev,
-      config.no_single_variant,
+
       is_suite=config.suite,
       gemini=config.gemini,
       web_test_files=web_test_files,

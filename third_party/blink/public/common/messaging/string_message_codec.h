@@ -15,9 +15,6 @@
 #include "third_party/blink/public/common/common_export.h"
 #include "third_party/blink/public/common/messaging/transferable_message.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/memory/unsafe_shared_memory_region.h"
-#endif
 
 namespace mojo_base {
 class BigBuffer;
@@ -67,15 +64,8 @@ class BLINK_COMMON_EXPORT WebMessageArrayBufferPayload {
 };
 
 // Represent WebMessage payload type between browser and renderer process.
-#if BUILDFLAG(IS_ANDROID)
-using WebMessagePayload =
-    std::variant<std::u16string,
-                 std::unique_ptr<WebMessageArrayBufferPayload>,
-                 base::UnsafeSharedMemoryRegion>;
-#else
 using WebMessagePayload =
     std::variant<std::u16string, std::unique_ptr<WebMessageArrayBufferPayload>>;
-#endif
 
 // To support exposing HTML message ports to Java, it is necessary to be able
 // to encode and decode message data using the same serialization format as V8.

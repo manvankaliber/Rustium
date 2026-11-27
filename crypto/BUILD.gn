@@ -6,10 +6,6 @@ import("//build/buildflag_header.gni")
 import("//crypto/features.gni")
 import("//testing/test.gni")
 
-if (is_ios) {
-  import("//build/config/apple/mobile_config.gni")  # For `target_platform`
-}
-
 buildflag_header("buildflags") {
   header = "crypto_buildflags.h"
   flags = [
@@ -135,12 +131,10 @@ component("crypto") {
       ]
     }
 
-    if (!(is_ios && target_platform == "tvos")) {
-      sources += [
-        "apple/unexportable_key_apple.h",
-        "apple/unexportable_key_apple.mm",
-      ]
-    }
+    sources += [
+      "apple/unexportable_key_apple.h",
+      "apple/unexportable_key_apple.mm",
+    ]
 
     frameworks = [
       "CoreFoundation.framework",
@@ -149,7 +143,7 @@ component("crypto") {
       "Security.framework",
     ]
 
-    if (is_mac || (is_ios && target_platform != "tvos")) {
+    if (is_mac) {
       frameworks += [ "LocalAuthentication.framework" ]
     }
   }
@@ -183,14 +177,6 @@ component("crypto") {
     configs += [ "//build/config/linux/nss" ]
   }
 
-  if (is_chromeos) {
-    sources += [
-      "chaps_support.cc",
-      "chaps_support.h",
-      "nss_util_chromeos.cc",
-    ]
-  }
-
   defines = [ "CRYPTO_IMPLEMENTATION" ]
 }
 
@@ -215,7 +201,7 @@ if (is_apple) {
       "Security.framework",
     ]
 
-    if (is_mac || (is_ios && target_platform != "tvos")) {
+    if (is_mac) {
       frameworks += [ "LocalAuthentication.framework" ]
     }
   }
@@ -278,24 +264,14 @@ test("crypto_unittests") {
   ]
 
   if (is_apple) {
-    if (!(is_ios && target_platform == "tvos")) {
-      sources += [
-        "apple/fake_keychain_v2_unittest.mm",
-        "apple/keychain_util_unittest.mm",
-        "apple/unexportable_key_apple_unittest.mm",
-      ]
-    }
+    sources += [
+      "apple/fake_keychain_v2_unittest.mm",
+      "apple/keychain_util_unittest.mm",
+      "apple/unexportable_key_apple_unittest.mm",
+    ]
   }
 
-  if (is_ios) {
-    # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
-    # enable the diagnostic by removing this line.
-    configs += [ "//build/config/compiler:no_exit_time_destructors" ]
-
-    deps += [ ":unittests_bundle_data" ]
-  } else {
-    data = [ "test/data/" ]
-  }
+  data = [ "test/data/" ]
 
   if (is_mac) {
     sources += [ "user_verifying_key_mac_unittest.mm" ]
@@ -344,16 +320,7 @@ static_library("test_support") {
     configs += [ "//build/config/linux/nss" ]
   }
 
-  if (is_chromeos) {
-    sources += [
-      "scoped_test_nss_chromeos_user.cc",
-      "scoped_test_nss_chromeos_user.h",
-      "scoped_test_system_nss_key_slot.cc",
-      "scoped_test_system_nss_key_slot.h",
-    ]
-  }
-
-  if (is_mac || is_ios) {
+  if (is_mac) {
     sources += [
       "apple/fake_keychain_v2.h",
       "apple/fake_keychain_v2.mm",
@@ -368,7 +335,7 @@ static_library("test_support") {
       "Security.framework",
     ]
 
-    if (is_mac || (is_ios && target_platform != "tvos")) {
+    if (is_mac) {
       frameworks += [ "LocalAuthentication.framework" ]
     }
   }

@@ -21,9 +21,6 @@
 #include "ui/views/focus/focus_manager.h"
 #include "ui/views/view.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/time/time.h"
-#endif
 
 namespace views {
 class ScrollView;
@@ -161,11 +158,6 @@ class MESSAGE_CENTER_EXPORT MessageView
   virtual void OnSettingsButtonPressed(const ui::Event& event);
   virtual void OnSnoozeButtonPressed(const ui::Event& event);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Gets the animation duration for a recent bounds change.
-  virtual base::TimeDelta GetBoundsAnimationDuration(
-      const Notification& notification) const;
-#endif
 
   // views::View:
   bool OnMousePressed(const ui::MouseEvent& event) override;

@@ -32,19 +32,7 @@ cfg_if::cfg_if! {
     } else if #[cfg(target_vendor = "apple")] {
         #[path = "gimli/mmap_unix.rs"]
         mod mmap;
-    } else if #[cfg(any(
-        target_os = "android",
-        target_os = "freebsd",
-        target_os = "fuchsia",
-        target_os = "haiku",
-        target_os = "hurd",
-        target_os = "linux",
-        target_os = "openbsd",
-        target_os = "solaris",
-        target_os = "illumos",
-        target_os = "aix",
-        target_os = "cygwin",
-    ))] {
+    } else if #[cfg(any(target_os = "freebsd", target_os = "haiku", target_os = "hurd", target_os = "linux", target_os = "openbsd", target_os = "solaris", target_os = "illumos", target_os = "aix", target_os = "cygwin"))] {
         #[path = "gimli/mmap_unix.rs"]
         mod mmap;
     } else {
@@ -61,7 +49,8 @@ use lru::Lru;
 const MAPPINGS_CACHE_SIZE: usize = 4;
 
 struct Mapping {
-    // 'static lifetime is a lie to hack around lack of support for self-referential structs.
+    // 'static lifetime is a lie to hack around lack of support for
+    // self-referential structs.
     cx: Context<'static>,
     _map: Mmap,
     stash: Stash,
@@ -151,10 +140,8 @@ impl<'data> Context<'data> {
             package = Some(
                 gimli::DwarfPackage::load(
                     |id| -> Result<_, gimli::Error> {
-                        let data = id
-                            .dwo_name()
-                            .and_then(|name| dwp.section(stash, name))
-                            .unwrap_or(&[]);
+                        let data =
+                            id.dwo_name().and_then(|name| dwp.section(stash, name)).unwrap_or(&[]);
                         Ok(EndianSlice::new(data, Endian))
                     },
                     EndianSlice::new(&[], Endian),
@@ -163,11 +150,7 @@ impl<'data> Context<'data> {
             );
         }
 
-        Some(Context {
-            dwarf,
-            object,
-            package,
-        })
+        Some(Context { dwarf, object, package })
     }
 
     fn find_frames(
@@ -221,19 +204,7 @@ cfg_if::cfg_if! {
     } else if #[cfg(target_os = "illumos")] {
         mod libs_illumos;
         use libs_illumos::native_libraries;
-    } else if #[cfg(all(
-        any(
-            target_os = "linux",
-            target_os = "fuchsia",
-            target_os = "freebsd",
-            target_os = "hurd",
-            target_os = "openbsd",
-            target_os = "netbsd",
-            target_os = "nto",
-            target_os = "android",
-        ),
-        not(target_env = "uclibc"),
-    ))] {
+    } else if #[cfg(all(any(target_os = "linux", target_os = "freebsd", target_os = "hurd", target_os = "openbsd", target_os = "netbsd", target_os = "nto"), not(target_env = "uclibc")))] {
         mod libs_dl_iterate_phdr;
         use libs_dl_iterate_phdr::native_libraries;
         #[path = "gimli/parse_running_mmaps_unix.rs"]
@@ -274,21 +245,7 @@ struct Cache {
 
 struct Library {
     name: OsString,
-    #[cfg(target_os = "android")]
-    /// On Android, the dynamic linker [can map libraries directly from a
-    /// ZIP archive][ndk-linker-changes] (typically an `.apk`).
-    ///
-    /// The linker requires that these libraries are stored uncompressed
-    /// and page-aligned.
-    ///
-    /// These "embedded" libraries have filepaths of the form
-    /// `/path/to/my.apk!/lib/mylib.so` (where `/path/to/my.apk` is the archive
-    /// and `lib/mylib.so` is the name of the library within the archive).
-    ///
-    /// This mechanism is present on Android since API level 23.
-    ///
-    /// [ndk-linker-changes]: https://android.googlesource.com/platform/bionic/+/main/android-changes-for-ndk-developers.md#opening-shared-libraries-directly-from-an-apk
-    zip_offset: Option<u64>,
+
     #[cfg(target_os = "aix")]
     /// On AIX, the library mmapped can be a member of a big-archive file.
     /// For example, with a big-archive named libfoo.a containing libbar.so,
@@ -319,9 +276,7 @@ fn create_mapping(lib: &Library) -> Option<Mapping> {
     cfg_if::cfg_if! {
         if #[cfg(target_os = "aix")] {
             Mapping::new(lib.name.as_ref(), &lib.member_name)
-        } else if #[cfg(target_os = "android")] {
-            Mapping::new_android(lib.name.as_ref(), lib.zip_offset)
-        } else {
+        }  else {
             Mapping::new(lib.name.as_ref())
         }
     }
@@ -331,16 +286,7 @@ fn create_mapping(lib: &Library) -> Option<Mapping> {
 /// (e.g. `/path/to/my.apk` from `/path/to/my.apk!/mylib.so`).
 ///
 /// Returns `None` if the path does not contain a `!/` separator.
-#[cfg(target_os = "android")]
-fn extract_zip_path_android(path: &mystd::ffi::OsStr) -> Option<&mystd::ffi::OsStr> {
-    use mystd::os::unix::ffi::OsStrExt;
 
-    path.as_bytes()
-        .windows(2)
-        .enumerate()
-        .find(|(_, chunk)| chunk == b"!/")
-        .map(|(index, _)| mystd::ffi::OsStr::from_bytes(path.as_bytes().split_at(index).0))
-}
 
 // unsafe because this is required to be externally synchronized
 pub unsafe fn clear_symbol_cache() {
@@ -351,10 +297,7 @@ pub unsafe fn clear_symbol_cache() {
 
 impl Cache {
     fn new() -> Cache {
-        Cache {
-            mappings: Lru::default(),
-            libraries: native_libraries(),
-        }
+        Cache { mappings: Lru::default(), libraries: native_libraries() }
     }
 
     // unsafe because this is required to be externally synchronized
@@ -363,14 +306,15 @@ impl Cache {
     unsafe fn with_global(f: impl FnOnce(&mut Self)) {
         // A very small, very simple LRU cache for debug info mappings.
         //
-        // The hit rate should be very high, since the typical stack doesn't cross
-        // between many shared libraries.
+        // The hit rate should be very high, since the typical stack doesn't
+        // cross between many shared libraries.
         //
-        // The `addr2line::Context` structures are pretty expensive to create. Its
-        // cost is expected to be amortized by subsequent `locate` queries, which
-        // leverage the structures built when constructing `addr2line::Context`s to
-        // get nice speedups. If we didn't have this cache, that amortization would
-        // never happen, and symbolicating backtraces would be ssssllllooooowwww.
+        // The `addr2line::Context` structures are pretty expensive to create.
+        // Its cost is expected to be amortized by subsequent `locate` queries,
+        // which leverage the structures built when constructing
+        // `addr2line::Context`s to get nice speedups. If we didn't have this
+        // cache, that amortization would never happen, and symbolicating
+        // backtraces would be ssssllllooooowwww.
         static mut MAPPINGS_CACHE: Option<Cache> = None;
 
         unsafe {
@@ -420,8 +364,8 @@ impl Cache {
         let cache_entry = if let Some(idx) = cache_idx {
             self.mappings.move_to_front(idx)
         } else {
-            // When the mapping is not in the cache, create a new mapping and insert it,
-            // which will also evict the oldest entry.
+            // When the mapping is not in the cache, create a new mapping and
+            // insert it, which will also evict the oldest entry.
             create_mapping(&self.libraries[lib])
                 .and_then(|mapping| self.mappings.push_front((lib, mapping)))
         };
@@ -456,8 +400,9 @@ pub unsafe fn resolve(what: ResolveWhat<'_>, cb: &mut dyn FnMut(&super::Symbol))
                 None => return,
             };
 
-            // Finally, get a cached mapping or create a new mapping for this file, and
-            // evaluate the DWARF info to find the file/line/name for this address.
+            // Finally, get a cached mapping or create a new mapping for this
+            // file, and evaluate the DWARF info to find the file/line/name for
+            // this address.
             let (cx, stash) = match cache.mapping_for_lib(lib) {
                 Some((cx, stash)) => (cx, stash),
                 None => return,
@@ -503,11 +448,7 @@ pub unsafe fn resolve(what: ResolveWhat<'_>, cb: &mut dyn FnMut(&super::Symbol))
 pub enum Symbol<'a> {
     /// We were able to locate frame information for this symbol, and
     /// `addr2line`'s frame internally has all the nitty gritty details.
-    Frame {
-        addr: *mut c_void,
-        location: Option<addr2line::Location<'a>>,
-        name: Option<&'a [u8]>,
-    },
+    Frame { addr: *mut c_void, location: Option<addr2line::Location<'a>>, name: Option<&'a [u8]> },
     /// Couldn't find debug information, but we found it in the symbol table of
     /// the elf executable.
     Symtab { name: &'a [u8] },

@@ -12,9 +12,7 @@
 namespace reading_list {
 namespace prefs {
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 extern const char kReadingListDesktopFirstUseExperienceShown[];
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 }  // namespace prefs
 }  // namespace reading_list

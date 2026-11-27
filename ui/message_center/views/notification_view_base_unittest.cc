@@ -48,9 +48,6 @@
 #include "ui/views/test/widget_test.h"
 #include "ui/views/widget/widget_utils.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/notifier_catalogs.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace message_center {
 
@@ -114,14 +111,18 @@ class NotificationTestDelegate : public NotificationDelegate {
 
   void Click(const std::optional<int>& button_index,
              const std::optional<std::u16string>& reply) override {
-    if (!button_index && !reply && !expecting_click_)
+    if (!button_index && !reply && !expecting_click_) {
       ADD_FAILURE() << "Click should not be invoked with a button index.";
-    if (button_index && !reply && !expecting_button_click_)
+    }
+    if (button_index && !reply && !expecting_button_click_) {
       ADD_FAILURE() << "Click should not be invoked with a button index.";
-    if (button_index && reply && !expecting_reply_submission_)
+    }
+    if (button_index && reply && !expecting_reply_submission_) {
       ADD_FAILURE() << "Click should not be invoked with a reply.";
-    if (!button_index && reply)
+    }
+    if (!button_index && reply) {
       FAIL();
+    }
 
     clicked_ = true;
     clicked_button_index_ = button_index.value_or(false);
@@ -439,8 +440,9 @@ TEST_F(NotificationViewBaseTest, UpdateButtonCountTest) {
   notification_view()->GetWidget()->Show();
 
   // Action buttons are hidden by collapsed state.
-  if (!notification_view()->expanded_)
+  if (!notification_view()->expanded_) {
     ToggleExpanded();
+  }
   EXPECT_TRUE(notification_view()->actions_row_->GetVisible());
 
   EXPECT_EQ(views::Button::STATE_NORMAL,
@@ -491,8 +493,9 @@ TEST_F(NotificationViewBaseTest, TestActionButtonClick) {
       GetRootWindow(notification_view()->GetWidget()));
 
   // Action buttons are hidden by collapsed state.
-  if (!notification_view()->expanded_)
+  if (!notification_view()->expanded_) {
     ToggleExpanded();
+  }
   EXPECT_TRUE(notification_view()->actions_row_->GetVisible());
 
   // Now construct a mouse click event inside the boundary of the action button.
@@ -522,8 +525,9 @@ TEST_F(NotificationViewBaseTest, TestInlineReply) {
       GetRootWindow(notification_view()->GetWidget()));
 
   // Action buttons are hidden by collapsed state.
-  if (!notification_view()->expanded_)
+  if (!notification_view()->expanded_) {
     ToggleExpanded();
+  }
   EXPECT_TRUE(notification_view()->actions_row_->GetVisible());
 
   // Now construct a mouse click event inside the boundary of the action button.
@@ -611,8 +615,9 @@ TEST_F(NotificationViewBaseTest, TestInlineReplyRemovedByUpdate) {
       GetRootWindow(notification_view()->GetWidget()));
 
   // Action buttons are hidden by collapsed state.
-  if (!notification_view()->expanded_)
+  if (!notification_view()->expanded_) {
     ToggleExpanded();
+  }
   EXPECT_TRUE(notification_view()->actions_row_->GetVisible());
 
   // Now construct a mouse click event inside the boundary of the action button.
@@ -658,8 +663,9 @@ TEST_F(NotificationViewBaseTest, TestInlineReplyActivateWithKeyPress) {
   notification_view()->GetWidget()->Show();
 
   // Action buttons are hidden by collapsed state.
-  if (!notification_view()->expanded_)
+  if (!notification_view()->expanded_) {
     ToggleExpanded();
+  }
 
   ui::test::EventGenerator generator(
       GetRootWindow(notification_view()->GetWidget()));
@@ -675,7 +681,7 @@ TEST_F(NotificationViewBaseTest, TestInlineReplyActivateWithKeyPress) {
 
 // Synthetic scroll events are not supported on Mac in the views
 // test framework.
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_SlideOut DISABLED_SlideOut
 #else
 #define MAYBE_SlideOut SlideOut
@@ -704,7 +710,7 @@ TEST_F(NotificationViewBaseTest, MAYBE_SlideOut) {
   EXPECT_TRUE(IsRemovedAfterIdle(kDefaultNotificationId));
 }
 
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_SlideOutNested DISABLED_SlideOutNested
 #else
 #define MAYBE_SlideOutNested SlideOutNested
@@ -732,7 +738,7 @@ TEST_F(NotificationViewBaseTest, MAYBE_SlideOutNested) {
   EXPECT_TRUE(IsRemovedAfterIdle(kDefaultNotificationId));
 }
 
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_DisableSlideForcibly DISABLED_DisableSlideForcibly
 #else
 #define MAYBE_DisableSlideForcibly DisableSlideForcibly
@@ -762,92 +768,6 @@ TEST_F(NotificationViewBaseTest, MAYBE_DisableSlideForcibly) {
 }
 
 // Pinning notification is ChromeOS only feature.
-#if BUILDFLAG(IS_CHROMEOS)
-
-TEST_F(NotificationViewBaseTest, SlideOutPinned) {
-  notification_view()->SetIsNested();
-  gfx::ScopedAnimationDurationScaleMode zero_duration_scope(
-      gfx::ScopedAnimationDurationScaleMode::ZERO_DURATION);
-
-  std::unique_ptr<Notification> notification = CreateSimpleNotification();
-  notification->set_pinned(true);
-  UpdateNotificationViews(*notification);
-
-  BeginScroll();
-  ScrollBy(-200);
-  EXPECT_FALSE(IsRemovedAfterIdle(kDefaultNotificationId));
-  EXPECT_LT(-200.f, GetNotificationSlideAmount());
-  EndScroll();
-  EXPECT_FALSE(IsRemovedAfterIdle(kDefaultNotificationId));
-}
-
-TEST_F(NotificationViewBaseTest, Pinned) {
-  notification_view()->SetIsNested();
-  std::unique_ptr<Notification> notification = CreateSimpleNotification();
-
-  // Visible at the initial state.
-  EXPECT_TRUE(GetCloseButton());
-  EXPECT_TRUE(GetCloseButton()->GetVisible());
-
-  // Pin.
-  notification->set_pinned(true);
-  UpdateNotificationViews(*notification);
-  EXPECT_FALSE(GetCloseButton());
-
-  // Unpin.
-  notification->set_pinned(false);
-  UpdateNotificationViews(*notification);
-  EXPECT_TRUE(GetCloseButton());
-  EXPECT_TRUE(GetCloseButton()->GetVisible());
-
-  // Pin again.
-  notification->set_pinned(true);
-  UpdateNotificationViews(*notification);
-  EXPECT_FALSE(GetCloseButton());
-}
-
-TEST_F(NotificationViewBaseTest, FixedViewMode) {
-  gfx::ScopedAnimationDurationScaleMode zero_duration_scope(
-      gfx::ScopedAnimationDurationScaleMode::ZERO_DURATION);
-
-  std::unique_ptr<Notification> notification = CreateSimpleNotification();
-  notification_view()->SetSettingMode(true);
-  UpdateNotificationViews(*notification);
-  std::string notification_id = notification->id();
-
-  BeginScroll();
-  ScrollBy(-200);
-  EXPECT_FALSE(IsRemovedAfterIdle(notification_id));
-  EXPECT_EQ(0.f, GetNotificationSlideAmount());
-  EndScroll();
-  EXPECT_FALSE(IsRemovedAfterIdle(notification_id));
-
-  EXPECT_EQ(MessageView::Mode::SETTING, notification_view()->GetMode());
-}
-
-TEST_F(NotificationViewBaseTest, SnoozeButton) {
-  MessageCenter::Get()->RemoveAllNotifications(/*by_user=*/false,
-                                               MessageCenter::RemoveType::ALL);
-
-  // Create notification to replace the current one with itself.
-  message_center::RichNotificationData rich_data;
-  rich_data.settings_button_handler = SettingsButtonHandler::INLINE;
-  rich_data.pinned = true;
-  rich_data.should_show_snooze_button = true;
-  std::unique_ptr<Notification> notification = std::make_unique<Notification>(
-      message_center::NOTIFICATION_TYPE_CUSTOM, kDefaultNotificationId,
-      u"title", u"message", ui::ImageModel(), u"display source", GURL(),
-      message_center::NotifierId(message_center::NotifierType::ARC_APPLICATION,
-                                 "test_app_id"),
-      rich_data, nullptr);
-
-  UpdateNotificationViews(*notification);
-
-  EXPECT_NE(nullptr,
-            notification_view()->GetControlButtonsView()->snooze_button());
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(NotificationViewBaseTest, UseImageAsIcon) {
   // TODO(tetsui): Remove duplicated integer literal in CreateOrUpdateIconView.
@@ -969,7 +889,6 @@ TEST_F(NotificationViewBaseTest, InlineSettings) {
   generator.ClickLeftButton();
   EXPECT_TRUE(notification_view()->settings_row_->GetVisible());
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // By clicking settings button again, it will toggle. Skip this on ChromeOS as
   // the control_buttons_view gets hidden when the inline settings are shown.
   generator.ClickLeftButton();
@@ -978,7 +897,6 @@ TEST_F(NotificationViewBaseTest, InlineSettings) {
   // Show inline settings again.
   generator.ClickLeftButton();
   EXPECT_TRUE(notification_view()->settings_row_->GetVisible());
-#endif
 }
 
 TEST_F(NotificationViewBaseTest, TestClick) {
@@ -992,8 +910,9 @@ TEST_F(NotificationViewBaseTest, TestClick) {
       GetRootWindow(notification_view()->GetWidget()));
 
   // Collapse the notification if it's expanded.
-  if (notification_view()->expanded_)
+  if (notification_view()->expanded_) {
     ToggleExpanded();
+  }
   EXPECT_FALSE(notification_view()->actions_row_->GetVisible());
 
   // Now construct a mouse click event 2 pixel inside from the bottom.
@@ -1018,8 +937,9 @@ TEST_F(NotificationViewBaseTest, TestClickExpanded) {
       GetRootWindow(notification_view()->GetWidget()));
 
   // Expand the notification if it's collapsed.
-  if (!notification_view()->expanded_)
+  if (!notification_view()->expanded_) {
     ToggleExpanded();
+  }
   EXPECT_FALSE(notification_view()->actions_row_->GetVisible());
 
   // Now construct a mouse click event 2 pixel inside from the bottom.
@@ -1095,12 +1015,7 @@ TEST_F(NotificationViewBaseTest, AppNameSystemNotification) {
   auto notification = std::make_unique<Notification>(
       NOTIFICATION_TYPE_SIMPLE, std::string(kDefaultNotificationId), u"title",
       u"message", ui::ImageModel(), std::u16string(), GURL(),
-#if BUILDFLAG(IS_CHROMEOS)
-      NotifierId(NotifierType::SYSTEM_COMPONENT, "system",
-                 ash::NotificationCatalogName::kTestCatalogName),
-#else
       NotifierId(NotifierType::SYSTEM_COMPONENT, "system"),
-#endif  // BUILDFLAG(IS_CHROMEOS)
       data, nullptr);
 
   UpdateNotificationViews(*notification);
@@ -1190,7 +1105,7 @@ TEST_F(NotificationViewBaseTest, ShowTimestamp) {
                    ->GetVisible());
 }
 
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_APPLE)
 #define MAYBE_SlideOutWithMessageCenterView \
   DISABLED_SlideOutWithMessageCenterView
 #else

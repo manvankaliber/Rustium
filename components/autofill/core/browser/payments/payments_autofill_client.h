@@ -26,11 +26,9 @@
 #include "components/autofill/core/browser/ui/autofill_suggestion_delegate.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_IOS)
 namespace webauthn {
 class InternalAuthenticator;
 }
-#endif
 
 namespace autofill {
 
@@ -59,9 +57,7 @@ class IbanManager;
 class LoyaltyCard;
 class MerchantPromoCodeManager;
 struct OfferNotificationOptions;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 class OmniboxAutofillDelegate;
-#endif
 class OtpUnmaskDelegate;
 enum class OtpUnmaskResult;
 class PaymentsDataManager;
@@ -310,9 +306,6 @@ class PaymentsAutofillClient : public RiskDataLoader {
 
     std::u16string card_number;
     std::optional<std::u16string> security_code;
-#if BUILDFLAG(IS_IOS)
-    std::optional<std::u16string> nickname;
-#endif
   };
 
   // Callback to run after the local/upload card Save and Fill dialog is shown.
@@ -359,17 +352,6 @@ class PaymentsAutofillClient : public RiskDataLoader {
       SaveCardOfferUserDecision user_decision,
       const UserProvidedCardDetails& user_provided_card_details)>;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Gets the AutofillSaveCardBottomSheetBridge or creates one if it doesn't
-  // exist.
-  virtual AutofillSaveCardBottomSheetBridge*
-  GetOrCreateAutofillSaveCardBottomSheetBridge() = 0;
-
-  // Gets the AutofillSaveIbanBottomSheetBridge or creates one if it doesn't
-  // exist.
-  virtual AutofillSaveIbanBottomSheetBridge*
-  GetOrCreateAutofillSaveIbanBottomSheetBridge() = 0;
-#elif !BUILDFLAG(IS_IOS)  // && !BUILDFLAG(IS_ANDROID)
   // TODO(crbug.com/40639086): Find a way to merge these two functions.
   // Shouldn't use WebauthnDialogState as that state is a purely UI state
   // (should not be accessible for managers?), and some of the states
@@ -397,22 +379,7 @@ class PaymentsAutofillClient : public RiskDataLoader {
 
   // Hides the virtual card enroll bubble and icon if it is visible.
   virtual void HideVirtualCardEnrollBubbleAndIconIfVisible() = 0;
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Display the cardholder name fix flow prompt and run the `callback` if
-  // the card should be uploaded to payments with updated name from the user.
-  virtual void ConfirmAccountNameFixFlow(
-      base::OnceCallback<void(const std::u16string&)> callback) = 0;
-
-  // Display the expiration date fix flow prompt with the `card` details
-  // and run the `callback` if the card should be uploaded to payments with
-  // updated expiration date from the user.
-  virtual void ConfirmExpirationDateFixFlow(
-      const CreditCard& card,
-      base::OnceCallback<void(const std::u16string&, const std::u16string&)>
-          callback) = 0;
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   // Returns true if both the platform and the device support scanning credit
   // cards. Should be called before ScanCreditCard().
@@ -581,15 +548,6 @@ class PaymentsAutofillClient : public RiskDataLoader {
 
   virtual void OnUnmaskVerificationResult(PaymentsRpcResult result) = 0;
 
-#if BUILDFLAG(IS_IOS)
-  virtual std::unique_ptr<AutofillProgressDialogController>
-  ExtractProgressDialogModel() = 0;
-
-  virtual std::unique_ptr<CardUnmaskOtpInputDialogController>
-  ExtractOtpInputDialogModel() = 0;
-
-  virtual CardUnmaskPromptController* GetCardUnmaskPromptModel() = 0;
-#endif
 
   // Returns a pointer to a VirtualCardEnrollmentManager that is owned by
   // PaymentsAutofillClient. VirtualCardEnrollmentManager is used for virtual
@@ -772,13 +730,11 @@ class PaymentsAutofillClient : public RiskDataLoader {
   // Gets a const version of the PaymentsDataManager.
   const PaymentsDataManager& GetPaymentsDataManager() const;
 
-#if !BUILDFLAG(IS_IOS)
   // Creates the appropriate implementation of InternalAuthenticator. May be
   // null for platforms that don't support this, in which case standard CVC
   // authentication will be used instead.
   virtual std::unique_ptr<webauthn::InternalAuthenticator>
   CreateCreditCardInternalAuthenticator(AutofillDriver* driver) = 0;
-#endif
 
   // Gets or creates a payments autofill mandatory re-auth manager. This will be
   // used to handle payments mandatory re-auth related flows.
@@ -838,7 +794,6 @@ class PaymentsAutofillClient : public RiskDataLoader {
   // client. Handles the resurrection UI for the Payments Churned Users flow.
   virtual PaymentsChurnedUsersUiDelegate* GetPaymentsChurnedUsersUiDelegate();
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // Gets the `OmniboxAutofillDelegate` instance associated with the client, or
   // nullptr on unsupported platforms. Handles the Autofill flow where the
   // Omnibox is the trigger point.
@@ -862,7 +817,6 @@ class PaymentsAutofillClient : public RiskDataLoader {
 
   // Hides the entire omnibox chip.
   virtual void HideOmniboxAutofillChip() = 0;
-#endif
 };
 
 }  // namespace payments

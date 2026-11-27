@@ -19,16 +19,12 @@
       <div slot="tab" id="referrer-chain">Referrer Chain</div>
       <div slot="tab" id="log">Log Messages</div>
       <div slot="tab" id="reporting">Reporting Events</div>
-<if expr="not is_android">
       <div slot="tab" id="db-manager">Database Manager</div>
       <div slot="tab" id="hash-cache">Hash Cache</div>
-</if>
       <div slot="tab" id="db-manager-search-hashes-lookups">Database Manager SearchHashes Lookups</div>
       <div slot="tab" id="download-protection">Download Protection</div>
       <div slot="tab" id="deep-scan">Deep Scans</div>
-<if expr="not is_android">
       <div slot="tab" id="hprt-lookup">HPRT Lookup</div>
-</if>
       <div slot="panel">
         <h2>Experiments</h2>
         <div class="content">
@@ -92,10 +88,6 @@
         <div class="content">
           <p id="referrer-chain-content"></p>
         </div>
-<if expr="is_android">
-        <h2>Most Recent Referring App Info (Android)</h2>
-        <p id="referring-app-info"></p>
-</if>
       </div>
       <div slot="panel">
         <h2>Log Messages</h2>
@@ -139,7 +131,6 @@
           </template>
         </div>
       </div>
-<if expr="not is_android">
       <div slot="panel">
         <h2>Database Manager</h2>
         <div class="content">
@@ -152,7 +143,6 @@
           <p id="full-hash-cache-info"></p>
         </div>
       </div>
-</if>
       <div slot="panel" id="db-manager-search-hashes-lookups-panel">
         <h2>Database Manager SearchHashes Lookups</h2>
         <p id="db-manager-search-hashes-lookups-empty-text">No Database Manager SearchHashes lookups logged yet.</p>
@@ -180,7 +170,6 @@
         <div class="content">
           <p id="received-client-download-response-list"></p>
         </div>
-<if expr="not is_android">
         <h2>Download TailoredVerdict override</h2>
         <div class="content">
           <p id="tailored-verdict-override-content"></p>
@@ -209,7 +198,6 @@
             <button id="tailored-verdict-override-clear">Clear override</button>
           </form>
         </div>
-</if>
       </div>
       <div slot="panel">
         <h2>Deep Scans</h2>
@@ -218,12 +206,10 @@
         </button>
         <table id="deep-scan-list" class="request-response"></table>
       </div>
-<if expr="not is_android">
       <div slot="panel">
         <h2>HPRT Lookup Pings</h2>
         <table id="hprt-lookup-ping-list" class="request-response"></table>
       </div>
-</if>
     </cr-tab-box>
     <template id="result-template">
       <div>

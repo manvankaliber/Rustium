@@ -33,9 +33,6 @@
 #include "net/http/http_status_code.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/safe_browsing/core/browser/referring_app_info/referring_app_info.h"  // nogncheck
-#endif
 
 class PrefService;
 class SkBitmap;
@@ -83,10 +80,6 @@ class ClientSideDetectionHost
       bool is_invalid_ip,
       PhishingDetectorResult result) override;
   void MaybeRunUserReportCallback() override;
-  void MaybeStartGeminiAntiscamProtection(
-      GURL url,
-      ClientSideDetectionType request_type,
-      std::optional<bool> did_match_high_confidence_allowlist) override;
   void MaybeStartPreClassification(
       safe_browsing::ClientSideDetectionType request_type) override;
 
@@ -142,16 +135,7 @@ class ClientSideDetectionHost
     // then used to provide the intelligent scan delegate the information about
     // the page.
     virtual void GetInnerText(HostInnerTextCallback callback) = 0;
-    // Triggers Gemini Antiscam Protection if conditions are met.
-    virtual void MaybeStartGeminiAntiscamProtection(
-        GURL url,
-        ClientSideDetectionType request_type,
-        std::optional<bool> did_match_high_confidence_allowlist) = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-    virtual internal::ReferringAppInfo GetReferringAppInfo(
-        content::WebContents* web_contents) = 0;
-#endif
   };
 
   static const int kMaxHighResScreenshotWidth;

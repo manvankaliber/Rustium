@@ -44,7 +44,7 @@
 #include "chrome/browser/web_applications/test/web_app_install_test_utils.h"
 #include "chrome/common/read_anything/read_anything.mojom.h"
 #include "chrome/common/webui_url_constants.h"
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
 #endif
 #include "chrome/test/interaction/interaction_test_util_browser.h"
@@ -507,7 +507,7 @@ class SidePanelEnterpriseIsolatedModeTest
   }
 
  private:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   chrome::ScopedChannelOverride channel_override_{
       chrome::ScopedChannelOverride::Channel::kDev};
 #endif

@@ -31,7 +31,6 @@
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/critical_actions/critical_action_factory.h"
 #include "chrome/browser/critical_actions/critical_action_ui_utils.h"
-#include "chrome/browser/critical_actions/glic_linkout_handler.h"
 #include "chrome/browser/favicon/large_icon_service_factory.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/browser/history/history_utils.h"
@@ -85,7 +84,6 @@
 #include "ui/base/l10n/time_format.h"
 #include "ui/webui/resources/cr_components/history/history.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/signin/signin_ui_util.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
@@ -95,15 +93,7 @@
 #include "chrome/browser/ui/hats/survey_config.h"
 #include "chrome/browser/ui/webui/signin/signin_utils.h"
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_web_ui_controller.h"  // nogncheck
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "ui/android/window_android.h"
-
-// Must come after all headers that specialize FromJniType() / ToJniType().
-#include "chrome/browser/settings/jni_headers/SettingsNavigationFactory_jni.h"
-#endif
 
 using bookmarks::BookmarkModel;
 using history::BrowsingHistoryService;
@@ -112,7 +102,6 @@ using history::WebHistoryService;
 
 namespace {
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 constexpr int kHistorySyncPromoShownThreshold = 5;
 constexpr base::TimeDelta kHistorySyncPromoCooldown = base::Days(7);
 
@@ -125,7 +114,6 @@ history::mojom::AccountInfoPtr CreateAccountInfoDataMojo(
       GURL(signin::GetAccountPictureUrl(info));
   return account_info_mojo;
 }
-#endif
 
 constexpr char kOpenConversationResultHistogram[] =
     "CriticalActions.OpenConversationResult";
@@ -477,12 +465,10 @@ BrowsingHistoryHandler::BrowsingHistoryHandler(
 
 BrowsingHistoryHandler::~BrowsingHistoryHandler() = default;
 
-#if !BUILDFLAG(IS_ANDROID)
 void BrowsingHistoryHandler::SetSidePanelUIEmbedder(
     base::WeakPtr<TopChromeWebUIController::Embedder> side_panel_embedder) {
   side_panel_embedder_ = side_panel_embedder;
 }
-#endif
 
 void BrowsingHistoryHandler::SetPage(
     mojo::PendingRemote<history::mojom::Page> pending_page) {
@@ -493,7 +479,6 @@ void BrowsingHistoryHandler::SetPage(
   }
   deferred_callbacks_.clear();
 
-#if !BUILDFLAG(IS_ANDROID)
   HatsService* hats_service =
       HatsServiceFactory::GetForProfile(profile_,
                                         /* create_if_necessary = */ true);
@@ -530,15 +515,12 @@ void BrowsingHistoryHandler::SetPage(
             .Get()
             .InMilliseconds());
   }
-#endif
 }
 
 void BrowsingHistoryHandler::ShowSidePanelUI() {
-#if !BUILDFLAG(IS_ANDROID)
   if (side_panel_embedder_) {
     side_panel_embedder_->ShowUI();
   }
-#endif
 }
 
 void BrowsingHistoryHandler::QueryHistory(
@@ -671,28 +653,15 @@ void BrowsingHistoryHandler::RemoveVisits(
 }
 
 void BrowsingHistoryHandler::OpenClearBrowsingDataDialog() {
-#if BUILDFLAG(IS_ANDROID)
-  ui::WindowAndroid* window =
-      web_contents_ ? web_contents_->GetTopLevelNativeWindow() : nullptr;
-  if (window) {
-    Java_SettingsNavigationFactory_showClearBrowsingData(
-        base::android::AttachCurrentThread(), window->GetJavaObject());
-  } else {
-    DLOG(WARNING)
-        << "Cannot open Clear Browsing Data: TopLevelNativeWindow is null";
-  }
-#else
   BrowserWindowInterface* browser =
       GlobalBrowserCollection::GetInstance()->FindBrowserWithTab(web_contents_);
   if (browser) {
     chrome::ShowClearBrowsingDataDialog(browser);
   }
-#endif
 }
 
 void BrowsingHistoryHandler::TurnOnHistorySync(
     history::mojom::AccessPoint access_point) {
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
   BrowserWindowInterface* browser =
       GlobalBrowserCollection::GetInstance()->FindBrowserWithTab(web_contents_);
   if (browser) {
@@ -708,30 +677,8 @@ void BrowsingHistoryHandler::TurnOnHistorySync(
     signin_ui_util::SignInAndEnableHistorySync(browser, profile_,
                                                signin_access_point);
   }
-#else
-  // This is not expected to be called on Android or ChromeOS as history sync
-  // promos are disabled on those platforms.
-  NOTREACHED();
-#endif
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// On Android, history sync promos are not shown in History WebUI.
-// However, history.mojom and the frontend templates guard these calls with
-// !is_chromeos rather than desktop-only flags. Because Android is not ChromeOS,
-// omitting them from C++ would break the Mojo interface and crash WebUI
-// initialization. Returning false from ShouldShowHistoryPageHistorySyncPromo()
-// suppresses the promo cleanly without adding !is_android conditionals across
-// shared WebUI resources.
-void BrowsingHistoryHandler::ShouldShowHistoryPageHistorySyncPromo(
-    ShouldShowHistoryPageHistorySyncPromoCallback callback) {
-  std::move(callback).Run(false);
-}
-
-void BrowsingHistoryHandler::RecordHistoryPageHistorySyncPromoDismissed() {}
-
-void BrowsingHistoryHandler::IncrementHistoryPageHistorySyncPromoShownCount() {}
-#elif !BUILDFLAG(IS_CHROMEOS)
 void BrowsingHistoryHandler::ShouldShowHistoryPageHistorySyncPromo(
     ShouldShowHistoryPageHistorySyncPromoCallback callback) {
   const int promo_shown_count = GetHistoryPageHistorySyncPromoShownCount();
@@ -869,7 +816,6 @@ void BrowsingHistoryHandler::
         .SetHistoryPageHistorySyncPromoShownAfterDismissal(account.GetGaiaId());
   }
 }
-#endif
 
 void BrowsingHistoryHandler::RemoveBookmark(const std::string& url) {
   BookmarkModel* model = BookmarkModelFactory::GetForBrowserContext(profile_);
@@ -1061,11 +1007,6 @@ Profile* BrowsingHistoryHandler::GetProfile() {
 
 void BrowsingHistoryHandler::RequestAccountInfo(
     RequestAccountInfoCallback callback) {
-#if BUILDFLAG(IS_ANDROID)
-  // Sign-in and sync promo cards are disabled on Android History WebUI; return
-  // an empty AccountInfo without observing IdentityManager for promo updates.
-  std::move(callback).Run(history::mojom::AccountInfo::New());
-#elif !BUILDFLAG(IS_CHROMEOS)
   AccountInfo account_info = signin_ui_util::GetSingleAccountForPromos(
       &identity_manager_.get(),
       AccountPreviewDataServiceFactory::GetForProfile(profile_));
@@ -1074,20 +1015,10 @@ void BrowsingHistoryHandler::RequestAccountInfo(
   if (!identity_manager_observation_.IsObserving()) {
     identity_manager_observation_.Observe(&identity_manager_.get());
   }
-#else
-  // This is not expected to be called on ChromeOS as the screen that uses this
-  // function is never shown for ChromeOS (using <if expr="not is_chromeos">).
-  NOTREACHED();
-#endif
 }
 
 void BrowsingHistoryHandler::OnExtendedAccountInfoUpdated(
     const AccountInfo& info) {
-#if BUILDFLAG(IS_ANDROID)
-  // Promos are disabled on Android History WebUI, so account updates are
-  // ignored.
-  return;
-#elif !BUILDFLAG(IS_CHROMEOS)
   AccountInfo account_to_display = signin_ui_util::GetSingleAccountForPromos(
       &identity_manager_.get(),
       AccountPreviewDataServiceFactory::GetForProfile(profile_));
@@ -1097,11 +1028,6 @@ void BrowsingHistoryHandler::OnExtendedAccountInfoUpdated(
     return;
   }
   page_->SendAccountInfo(CreateAccountInfoDataMojo(info));
-#else
-  // This is not expected to be called on ChromeOS as the screen that uses this
-  // function is never shown for ChromeOS (using <if expr="not is_chromeos">).
-  NOTREACHED();
-#endif
 }
 
 void BrowsingHistoryHandler::OpenCriticalActionConversation(
@@ -1163,17 +1089,10 @@ void BrowsingHistoryHandler::OnCriticalActionRetrievedForLinkout(
     return;
   }
 
-  critical_actions::GlicLinkoutHandler::GetInstance()->OpenConversation(
-      web_contents_, *entry,
-      glic::mojom::InvocationSource::kHistoryPageChatLinkout,
-      base::BindOnce(
-          [](OpenCriticalActionConversationCallback cb,
-             critical_actions::OpenConversationResult result) {
-            RecordOpenConversationResult(result);
-            std::move(cb).Run(
-                static_cast<history::mojom::OpenConversationResult>(result));
-          },
-          std::move(callback)));
+  RecordOpenConversationResult(
+      critical_actions::OpenConversationResult::kErrorInternal);
+  std::move(callback).Run(
+      history::mojom::OpenConversationResult::kErrorInternal);
 }
 
 void BrowsingHistoryHandler::GetSyncedDevicesForFiltering(

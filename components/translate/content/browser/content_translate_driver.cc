@@ -192,7 +192,6 @@ std::vector<mojom::TranslateAgent*> ContentTranslateDriver::GetTranslateAgents(
       it->second.main_agent.is_bound()) {
     agents.push_back(it->second.main_agent.get());
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (it->second.side_panel_agent.is_bound() &&
       (IsPdfTranslation() ||
        (translate_manager_ && translate_manager_->translate_client() &&
@@ -200,7 +199,6 @@ std::vector<mojom::TranslateAgent*> ContentTranslateDriver::GetTranslateAgents(
         features::IsImprovedReadAloudEnabled()))) {
     agents.push_back(it->second.side_panel_agent.get());
   }
-#endif
   return agents;
 }
 

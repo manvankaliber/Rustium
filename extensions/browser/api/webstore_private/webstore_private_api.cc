@@ -82,10 +82,8 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/enterprise/browser/promotion/promotion_prefs.h"
 #include "components/enterprise/promotion_types.h"
-#endif  //! BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #include "base/time/time.h"
@@ -478,14 +476,9 @@ void ReportWebStoreInstallNotAllowlistedInstalled(bool installed,
 
 // Returns whether the app launcher has been enabled.
 bool IsAppLauncherEnabled() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return true;
-#else
   return false;
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 api::webstore_private::PromotionType WebstorePromotionBannerPrefToApiResult(
     enterprise::PromotionType pref) {
   switch (pref) {
@@ -498,7 +491,6 @@ api::webstore_private::PromotionType WebstorePromotionBannerPrefToApiResult(
   }
   NOTREACHED();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -670,34 +662,9 @@ void WebstorePrivateBeginInstallWithManifest3Function::OnInstallStatusCheckDone(
         dummy_extension_.get(), &icon_);
   } else {
     ReportWebStoreInstallEsbAllowlistParameter(details().esb_allowlist);
-#if BUILDFLAG(IS_ANDROID)
-    auto* supervised_user_extensions_delegate =
-        ManagementAPI::GetFactoryInstance()
-            ->Get(browser_context())
-            ->GetSupervisedUserExtensionsDelegate();
-#endif  // BUILDFLAG(IS_ANDROID)
 
     if (ShouldShowFrictionDialog(browser_context_)) {
       ShowInstallFrictionDialog(web_contents);
-#if BUILDFLAG(IS_ANDROID)
-    } else if (supervised_user_extensions_delegate->IsChild() &&
-               !supervised_user_extensions_delegate
-                    ->CanSkipExtensionParentApprovals()) {
-      supervised_user_extensions_delegate->RecordAskParentDialogUmaMetrics(
-          SupervisedUserExtensionsDelegate::AskParentDialogState::kOpened);
-
-      // This install requires parent permission, so show the Ask Parent dialog.
-      ExtensionsAPIClient::Get()
-          ->GetWebstorePrivateAPIDelegate()
-          ->ShowExtensionInstallAskParentDialog(
-              web_contents,
-              base::BindOnce(&WebstorePrivateBeginInstallWithManifest3Function::
-                                 OnRequestParentApprovalPromptCancelled,
-                             this),
-              base::BindOnce(&WebstorePrivateBeginInstallWithManifest3Function::
-                                 RequestExtensionApproval,
-                             this, web_contents));
-#endif  // BUILDFLAG(IS_ANDROID)
     } else {
       ShowInstallDialog(web_contents);
     }
@@ -724,20 +691,10 @@ void WebstorePrivateBeginInstallWithManifest3Function::RequestExtensionApproval(
           ->GetSupervisedUserExtensionsDelegate();
   CHECK(supervised_user_extensions_delegate);
 
-#if !BUILDFLAG(IS_ANDROID)
   auto extension_approval_callback =
       base::BindOnce(&WebstorePrivateBeginInstallWithManifest3Function::
                          OnExtensionApprovalDone,
                      this);
-#else
-  supervised_user_extensions_delegate->RecordAskParentDialogUmaMetrics(
-      SupervisedUserExtensionsDelegate::AskParentDialogState::kApproved);
-
-  auto extension_approval_callback =
-      base::BindOnce(&WebstorePrivateBeginInstallWithManifest3Function::
-                         OnParentAuthenticationDone,
-                     this, web_contents);
-#endif
 
   supervised_user_extensions_delegate->RequestToAddExtensionOrShowError(
       *dummy_extension_, web_contents,
@@ -745,79 +702,9 @@ void WebstorePrivateBeginInstallWithManifest3Function::RequestExtensionApproval(
       std::move(extension_approval_callback));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void WebstorePrivateBeginInstallWithManifest3Function::
-    OnParentAuthenticationDone(content::WebContents* web_contents,
-                               SupervisedExtensionApprovalResult result) {
-  if (!web_contents) {
-    // The browser window has gone away.
-    Respond(BuildResponse(api::webstore_private::Result::kUserCancelled,
-                          kWebstoreUserCancelledError));
-
-    return;
-  }
-
-  if (result != SupervisedExtensionApprovalResult::kApproved) {
-    OnExtensionApprovalDone(result);
-    return;
-  }
-
-  auto dialog_callback = base::BindOnce(
-      [](base::OnceCallback<void(SupervisedExtensionApprovalResult)> callback,
-         ExtensionInstallPromptClient::DoneCallbackPayload payload) {
-        switch (payload.result) {
-          case ExtensionInstallPromptClient::Result::ACCEPTED:
-            std::move(callback).Run(
-                SupervisedExtensionApprovalResult::kApproved);
-            break;
-          case ExtensionInstallPromptClient::Result::USER_CANCELED:
-          case ExtensionInstallPromptClient::Result::ABORTED:
-            std::move(callback).Run(
-                SupervisedExtensionApprovalResult::kBlocked);
-            break;
-          case ExtensionInstallPromptClient::Result::
-              ACCEPTED_WITH_WITHHELD_PERMISSIONS:
-            // Parent approval dialog doesn't support
-            // `ACCEPTED_WITH_WITHHELD_PERMISSIONS` result.
-            NOTREACHED();
-        }
-      },
-      base::BindOnce(&WebstorePrivateBeginInstallWithManifest3Function::
-                         OnExtensionApprovalDone,
-                     this));
-
-  SupervisedUserExtensionsDelegate* supervised_user_extensions_delegate =
-      ManagementAPI::GetFactoryInstance()
-          ->Get(browser_context_)
-          ->GetSupervisedUserExtensionsDelegate();
-  CHECK(supervised_user_extensions_delegate);
-
-  auto prompt = std::make_unique<InstallPromptData>(
-      InstallPromptData::EXTENSION_PARENT_APPROVAL_PROMPT);
-  prompt->AddObserver(
-      supervised_user_extensions_delegate->GetInstallPromptObserver());
-
-  install_prompt_ = ExtensionsBrowserClient::Get()->CreateInstallPrompt(
-      web_contents, std::move(prompt));
-  install_prompt_->ShowInstallDialog(std::move(dialog_callback),
-                                     dummy_extension_.get(), &icon_);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void WebstorePrivateBeginInstallWithManifest3Function::OnExtensionApprovalDone(
     SupervisedExtensionApprovalResult result) {
-#if BUILDFLAG(IS_ANDROID)
-  auto* supervised_user_extensions_delegate =
-      ManagementAPI::GetFactoryInstance()
-          ->Get(browser_context())
-          ->GetSupervisedUserExtensionsDelegate();
-  if (result != SupervisedExtensionApprovalResult::kApproved &&
-      supervised_user_extensions_delegate->IsChild() &&
-      !supervised_user_extensions_delegate->CanSkipExtensionParentApprovals()) {
-    supervised_user_extensions_delegate->RecordEnablementUmaMetrics(
-        SupervisedUserExtensionsDelegate::EnablementState::kFailedToEnable);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   switch (result) {
     case SupervisedExtensionApprovalResult::kApproved:
@@ -1186,17 +1073,14 @@ void WebstorePrivateBeginInstallWithManifest3Function::ShowInstallDialog(
     if (requires_parent_permission) {
       // Bypass the install prompt dialog if V2 is enabled. The
       // ParentAccessDialog handles both the blocked and install use case.
-#if BUILDFLAG(IS_CHROMEOS)
-      RequestExtensionApproval(contents);
-      return;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
       // Shows a parental permission dialog directly bypassing the extension
       // install dialog view. The parental permission dialog contains a superset
       // of data from the extension install dialog: requested extension
       // permissions and also parent's password input.
       PromptForParentApproval();
       return;
-#endif  // BUILDFLAG(IS_CHROMEOS)
+#endif
     }
   }
 
@@ -1622,7 +1506,6 @@ WebstorePrivateGetMV2DeprecationStatusFunction::Run() {
           api::webstore_private::MV2DeprecationStatus::kHardDisable)));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 WebstorePrivateShouldShowEnterprisePromotionBannerFunction::
     WebstorePrivateShouldShowEnterprisePromotionBannerFunction() = default;
 WebstorePrivateShouldShowEnterprisePromotionBannerFunction::
@@ -1738,6 +1621,5 @@ WebstorePrivateOnEnterprisePromoClickFunction::Run() {
                                 enterprise::CwsPromotionBannerEvent::kClicked);
   return RespondNow(NoArguments());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace extensions

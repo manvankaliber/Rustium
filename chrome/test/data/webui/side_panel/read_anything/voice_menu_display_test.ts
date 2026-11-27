@@ -301,7 +301,6 @@ suite('VoiceMenuDisplay', () => {
   // "computeVoiceDropdown lets the system voice collapse outrank a mapping" and
   // "computeVoiceDropdown maps a voice with no Google identifier" are
   // complementary tests based on platform (ChromeOS vs other desktops).
-  // <if expr="not is_chromeos">
   test(
       'computeVoiceDropdown lets the system voice collapse outrank a mapping',
       () => {
@@ -322,25 +321,7 @@ suite('VoiceMenuDisplay', () => {
         assertEquals('System default voice', item.title);
         assertEquals(null, item.natureNaming);
       });
-  // </if>
 
-  // <if expr="is_chromeos">
-  test('computeVoiceDropdown maps a voice with no Google identifier', () => {
-    const mappedSystemVoice = createSpeechSynthesisVoice(
-        {name: 'Chrome OS 粵語 1', lang: 'yue-HK'});
-
-    const result = computeVoiceDropdown({
-      availableVoices: [mappedSystemVoice],
-      enabledLangs: ['yue-hk'],
-    });
-
-    const item = result.groups[0]!.voices[0]!;
-
-    assertEquals(mappedSystemVoice.name, item.title);
-    assertDeepEquals(
-        getVoiceNatureNaming(mappedSystemVoice.name), item.natureNaming);
-  });
-  // </if>
 
   test(
       'computeErrorMessages returns empty array when notifications is' +

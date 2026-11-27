@@ -10,7 +10,7 @@
 #include <ws2tcpip.h>
 
 #include "net/base/winsock_init.h"
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 #include <sys/socket.h>
 #include <sys/types.h>
 #endif
@@ -24,8 +24,8 @@ namespace net {
 SocketDescriptor CreatePlatformSocket(int family, int type, int protocol) {
 #if BUILDFLAG(IS_WIN)
   EnsureWinsockInit();
-  SocketDescriptor result = ::WSASocket(family, type, protocol, nullptr, 0,
-                                        WSA_FLAG_OVERLAPPED);
+  SocketDescriptor result =
+      ::WSASocket(family, type, protocol, nullptr, 0, WSA_FLAG_OVERLAPPED);
   if (result != kInvalidSocket && family == AF_INET6) {
     DWORD value = 0;
     if (setsockopt(result, IPPROTO_IPV6, IPV6_V6ONLY,
@@ -35,7 +35,7 @@ SocketDescriptor CreatePlatformSocket(int family, int type, int protocol) {
     }
   }
   return result;
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   SocketDescriptor result = ::socket(family, type, protocol);
   return result;
 #endif  // BUILDFLAG(IS_WIN)

@@ -130,19 +130,6 @@
 #include "ui/views/window/dialog_delegate.h"
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/test/kiosk_app_logged_in_browser_test_mixin.h"
-#include "chrome/browser/ash/test/public_account_logged_in_browser_test_mixin.h"
-#include "chrome/browser/ash/test/web_kiosk_app_logged_in_browser_test_mixin.h"
-#include "chrome/test/base/mixin_based_in_process_browser_test.h"
-#include "chromeos/ash/components/browser_context_helper/browser_context_helper.h"
-#include "chromeos/ash/components/install_attributes/stub_install_attributes.h"
-#include "chromeos/ash/components/network/network_handler.h"
-#include "chromeos/ash/components/network/network_state.h"
-#include "chromeos/ash/components/network/network_state_handler.h"
-#include "components/account_id/account_id.h"
-#include "components/user_manager/user_manager.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -380,19 +367,14 @@ void SimulateCustomUrlRedirect(const std::string& redirect_url,
 // The acceptable margin of error (in dips) when comparing requested and actual
 // window bounds. On Android, this counters the rounding error during dip->px
 // conversion.
-constexpr int kBoundsToleranceDip = BUILDFLAG(IS_ANDROID) ? 2 : 0;
+constexpr int kBoundsToleranceDip = false ? 2 : 0;
 
 // Returns whether `window` can be placed at requested bounds. On Android,
 // requested bounds are only applied when the window can be resized (e.g. the
 // SDK supports the window bounds API and the window is in desktop windowing
 // mode).
 bool CanApplyRequestedBounds(BrowserWindowInterface* window) {
-#if BUILDFLAG(IS_ANDROID)
-  ui::WindowResizePrecheckResult result;
-  return window->GetWindow()->CanResize(result);
-#else
   return true;
-#endif
 }
 
 }  // namespace
@@ -488,15 +470,7 @@ class FakeGetAuthTokenFunction : public IdentityGetAuthTokenFunction {
     }
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void StartDeviceAccessTokenRequest() override {
-    // In these tests requests for the device account just funnel through to
-    // requests for the token key account.
-    StartTokenKeyAccountAccessTokenRequest();
-  }
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Fix auth error on secondary account or add a new account.
   void FixOrAddSecondaryAccount() {
     signin::IdentityManager* identity_manager =
@@ -555,7 +529,6 @@ class FakeGetAuthTokenFunction : public IdentityGetAuthTokenFunction {
       SigninFailed();
     }
   }
-#endif
 
   void ShowRemoteConsentDialog() override {
     scope_ui_shown_ = true;
@@ -599,7 +572,6 @@ class FakeGetAuthTokenFunction : public IdentityGetAuthTokenFunction {
  private:
   ~FakeGetAuthTokenFunction() override = default;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Makes `email` available, adding it to the Gaia cookie jar if
   // `set_cookies_on_signin_`. The primary account is set last so the refresh
   // token exists when `OnPrimaryAccountChanged()` fires.
@@ -612,7 +584,6 @@ class FakeGetAuthTokenFunction : public IdentityGetAuthTokenFunction {
                                             signin::ConsentLevel::kSignin);
     }
   }
-#endif
 
   bool login_access_token_result_;
   bool auto_login_access_token_;
@@ -947,16 +918,12 @@ IN_PROC_BROWSER_TEST_F(IdentityGetProfileUserInfoFunctionTest, NotSignedIn) {
 
 IN_PROC_BROWSER_TEST_F(IdentityGetProfileUserInfoFunctionTest, ExtensionSync) {
   constexpr char kEmail[] = "president@example.com";
-#if BUILDFLAG(IS_CHROMEOS)
-  SignIn(kEmail, signin::ConsentLevel::kSync);
-#else
   SignIn(kEmail);
   SyncServiceFactory::GetForProfile(profile())
       ->GetUserSettings()
       ->SetSelectedTypes(
           /*sync_everything=*/false,
           /*types=*/{syncer::UserSelectableType::kExtensions});
-#endif  // BUILDFLAG(IS_CHROMEOS)
   std::optional<api::identity::ProfileUserInfo> info =
       RunGetProfileUserInfoWithEmail();
   EXPECT_EQ(kEmail, info->email);
@@ -1062,16 +1029,12 @@ IN_PROC_BROWSER_TEST_P(
     IdentityGetProfileUserInfoFunctionTestWithAccountStatusParam,
     ExtensionSync) {
   constexpr char kEmail[] = "test@example.com";
-#if BUILDFLAG(IS_CHROMEOS)
-  SignIn(kEmail, signin::ConsentLevel::kSync);
-#else
   SignIn(kEmail);
   SyncServiceFactory::GetForProfile(profile())
       ->GetUserSettings()
       ->SetSelectedTypes(
           /*sync_everything=*/false,
           /*types=*/{syncer::UserSelectableType::kExtensions});
-#endif  // BUILDFLAG(IS_CHROMEOS)
   std::optional<api::identity::ProfileUserInfo> info =
       RunGetProfileUserInfoWithAccountStatus();
   EXPECT_EQ(kEmail, info->email);
@@ -1357,7 +1320,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, NonInteractiveNotSignedIn) {
 }
 
 // The signin flow is simply not used on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
                        InteractiveNotSignedInShowSigninOnlyOnce) {
   scoped_refptr<FakeGetAuthTokenFunction> func =
@@ -1374,20 +1336,15 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
       IdentityGetAuthTokenError::State::kSignInFailed, 1);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
                        PRE_InteractiveNotSignedAndSigninNotAllowed) {
   // On Desktop, kSigninAllowed cannot be set after the profile creation. Use
   // kSigninAllowedOnNextStartup instead.
   profile()->GetPrefs()->SetBoolean(prefs::kSigninAllowedOnNextStartup, false);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
                        InteractiveNotSignedAndSigninNotAllowed) {
-#if BUILDFLAG(IS_ANDROID)
-  profile()->GetPrefs()->SetBoolean(prefs::kSigninAllowed, false);
-#endif
   ASSERT_FALSE(profile()->GetPrefs()->GetBoolean(prefs::kSigninAllowed));
   scoped_refptr<FakeGetAuthTokenFunction> func =
       CreateFakeGetAuthTokenFunction();
@@ -1402,7 +1359,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
       kGetAuthTokenResultHistogramName,
       IdentityGetAuthTokenError::State::kBrowserSigninNotAllowed, 1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, NonInteractiveMintFailure) {
   SignIn("primary@example.com");
@@ -1519,7 +1475,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
 }
 
 // The signin flow is simply not used on Ash.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
                        InteractiveMintServiceErrorShowSigninOnlyOnce) {
   scoped_refptr<FakeGetAuthTokenFunction> func =
@@ -1541,7 +1496,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
       kGetAuthTokenResultHistogramName,
       IdentityGetAuthTokenError::State::kMintTokenAuthFailure, 1);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, NonInteractiveSuccess) {
   SignIn("primary@example.com");
@@ -1598,9 +1552,7 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, InteractiveLoginCanceled) {
   EXPECT_EQ(std::string(errors::kUserNotSignedIn), error);
 // Ash does not support the interactive login flow, so the login UI will never
 // be shown on that platform.
-#if !BUILDFLAG(IS_CHROMEOS)
   EXPECT_TRUE(func->login_ui_shown());
-#endif
   EXPECT_FALSE(func->scope_ui_shown());
   histogram_tester()->ExpectUniqueSample(
       kGetAuthTokenResultHistogramName,
@@ -1630,7 +1582,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
 // The interactive login flow is always short-circuited out with failure on
 // Ash, so the tests of the interactive login flow being successful are not
 // relevant on that platform.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
                        InteractiveLoginSuccessMintFailure) {
   scoped_refptr<FakeGetAuthTokenFunction> func =
@@ -1709,121 +1660,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
       1);
 }
 
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-// Signing in from the login prompt doesn't immediately put the account in the
-// Gaia cookie jar on Android. If the cookies never arrive, the request should
-// fail rather than showing a blank consent page.
-IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
-                       InteractiveLoginSuccessCookieTimeout) {
-  IdentityGetAuthTokenFunction::ScopedCookieWaiterTimeoutForTesting
-      short_timeout(base::Milliseconds(10));
-
-  scoped_refptr<FakeGetAuthTokenFunction> func =
-      CreateFakeGetAuthTokenFunction();
-  func->set_extension(CreateExtension(CLIENT_ID | SCOPES));
-  func->set_login_ui_result(true);
-  // Simulate the cookies never making it into the jar.
-  func->set_set_cookies_on_signin(false);
-  func->push_mint_token_result(TestOAuth2MintTokenFlow::REMOTE_CONSENT_SUCCESS);
-
-  std::string error = utils::RunFunctionAndReturnError(
-      func.get(), "[{\"interactive\": true}]", profile());
-  EXPECT_EQ(std::string(errors::kUserNotSignedIn), error);
-  EXPECT_TRUE(func->login_ui_shown());
-  EXPECT_FALSE(func->scope_ui_shown());
-  histogram_tester()->ExpectUniqueSample(
-      kGetAuthTokenResultHistogramName,
-      IdentityGetAuthTokenError::State::kSignInFailed, 1);
-}
-
-// Same as above, but the cookies do land while the function is waiting. The
-// consent dialog should be deferred until then, and the flow should complete.
-IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
-                       InteractiveLoginSuccessCookieDelay) {
-  scoped_refptr<FakeGetAuthTokenFunction> func =
-      CreateFakeGetAuthTokenFunction();
-  func->set_extension(CreateExtension(CLIENT_ID | SCOPES));
-  func->set_login_ui_result(true);
-  // Cookies are set explicitly below, after the consent dialog has been
-  // deferred.
-  func->set_set_cookies_on_signin(false);
-  func->push_mint_token_result(TestOAuth2MintTokenFlow::REMOTE_CONSENT_SUCCESS);
-  func->push_mint_token_result(TestOAuth2MintTokenFlow::MINT_TOKEN_SUCCESS);
-
-  base::RunLoop scope_ui_run_loop;
-  func->set_scope_ui_async(scope_ui_run_loop.QuitClosure());
-
-  RunFunctionAsync(func.get(), "[{\"interactive\": true}]");
-
-  // Wait for the login prompt to sign the account in. The flow then continues
-  // on to the remote consent step, where it should block on the cookies.
-  ASSERT_TRUE(base::test::RunUntil([&]() { return func->login_ui_shown(); }));
-
-  CoreAccountInfo primary_account = GetPrimaryAccountInfo();
-  ASSERT_FALSE(primary_account.IsEmpty());
-
-  // The account is signed in, but its cookies aren't in the jar yet, so the
-  // consent dialog must not have been shown.
-  EXPECT_FALSE(func->scope_ui_shown());
-
-  signin::CookieParamsForTest cookie_params;
-  cookie_params.email = primary_account.email;
-  cookie_params.gaia_id = primary_account.gaia;
-
-  SetCookieAccounts({cookie_params});
-
-  // The cookies landed, so the consent dialog is shown.
-  scope_ui_run_loop.Run();
-  EXPECT_TRUE(func->scope_ui_shown());
-
-  func->set_remote_consent_gaia_id(primary_account.gaia);
-  func->CompleteRemoteConsentDialog();
-
-  base::Value result;
-  WaitForOneResult(func.get(), &result);
-  EXPECT_TRUE(result.is_dict());
-  EXPECT_NE(nullptr, result.GetDict().FindString("token"));
-
-  histogram_tester()->ExpectUniqueSample(
-      kGetAuthTokenResultHistogramName, IdentityGetAuthTokenError::State::kNone,
-      1);
-}
-
-// The function may still be waiting for cookies when the profile goes
-// away. `OnIdentityAPIShutdown()` has to tear the tracker down and fail the
-// request; see the `web_signin_tracker_` reset there.
-//
-// Note: the other shutdown tests in this file drive shutdown by closing
-// browsers, which isn't available in this build configuration. Notifying
-// `IdentityAPI`'s shutdown callback list directly exercises the same path the
-// `KeyedService` framework takes at profile teardown.
-IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
-                       InteractiveSigninShutdownWhileWaitingForCookies) {
-  scoped_refptr<FakeGetAuthTokenFunction> func =
-      CreateFakeGetAuthTokenFunction();
-  func->set_extension(CreateExtension(CLIENT_ID | SCOPES));
-  func->set_login_ui_result(true);
-  // Simulate the cookies never making it into the jar, so the function stays
-  // in the waiter for the duration of the test.
-  func->set_set_cookies_on_signin(false);
-  func->push_mint_token_result(TestOAuth2MintTokenFlow::REMOTE_CONSENT_SUCCESS);
-
-  RunFunctionAsync(func.get(), "[{\"interactive\": true}]");
-
-  // Wait for the login prompt to sign the account in. The flow then continues
-  // on to the remote consent step and parks on the cookies.
-  ASSERT_TRUE(base::test::RunUntil([&]() { return func->login_ui_shown(); }));
-  // Still waiting: had the wait been skipped or timed out, the dialog would
-  // have been shown or the function would have failed already.
-  ASSERT_FALSE(func->scope_ui_shown());
-
-  id_api()->Shutdown();
-
-  EXPECT_EQ(std::string(errors::kBrowserContextShutDown),
-            WaitForError(func.get()));
-  EXPECT_FALSE(func->scope_ui_shown());
-}
-#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, SignedInWebOnlyAcceptPrompt) {
@@ -2084,7 +1920,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
       kGetAuthTokenResultHistogramName,
       IdentityGetAuthTokenError::State::kRemoteConsentFlowRejected, 1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 class GetAuthTokenFunctionInteractivityTest
     : public GetAuthTokenFunctionTest,
@@ -2133,7 +1968,6 @@ class GetAuthTokenFunctionInteractivityTest
 // The interactive login flow is always short-circuited out with failure on
 // Ash, so the tests of the interactive login flow being successful are not
 // relevant on that platform.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(GetAuthTokenFunctionInteractivityTest,
                        SigninInteractivityTest) {
   scoped_refptr<const Extension> extension(CreateExtension(CLIENT_ID | SCOPES));
@@ -2189,7 +2023,6 @@ IN_PROC_BROWSER_TEST_P(GetAuthTokenFunctionInteractivityTest,
   histogram_tester()->ExpectUniqueSample(kGetAuthTokenResultHistogramName,
                                          expected_error_state, 1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(GetAuthTokenFunctionInteractivityTest,
                        ConsentInteractivityTest) {
@@ -2334,7 +2167,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, InteractiveApprovalNoGrant) {
 }
 
 // The signin flow is simply not used on Ash.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
                        InteractiveApprovalNoGrantShowSigninUIOnlyOnce) {
   scoped_refptr<FakeGetAuthTokenFunction> func =
@@ -2357,7 +2189,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
       kGetAuthTokenResultHistogramName,
       IdentityGetAuthTokenError::State::kNoGrant, 1);
 }
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #if !BUILDFLAG(IS_MAC)
@@ -2395,7 +2226,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
 }
 #endif  // !BUILDFLAG(IS_MAC)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
                        InteractiveSigninFailedDuringProfileShutDown) {
   SignIn("primary@example.com");
@@ -2423,7 +2253,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
   base::SingleThreadTaskRunner::GetCurrentDefault()->DeleteSoon(
       FROM_HERE, std::move(keep_alive));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, NoninteractiveQueue) {
@@ -2745,7 +2574,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, InteractiveCacheHit) {
 
 // The interactive login UI is never shown on Ash, so tests of the interactive
 // login flow being successful are not relevant on that platform.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, LoginInvalidatesTokenCache) {
   scoped_refptr<FakeGetAuthTokenFunction> func =
       CreateFakeGetAuthTokenFunction();
@@ -2780,7 +2608,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, LoginInvalidatesTokenCache) {
       kGetAuthTokenResultHistogramName, IdentityGetAuthTokenError::State::kNone,
       1);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, ComponentWithChromeClientId) {
   scoped_refptr<FakeGetAuthTokenFunction> func =
@@ -3470,7 +3297,6 @@ IN_PROC_BROWSER_TEST_F(
 // TODO(crbug.com/525397809): Currently this crashes because
 // SetInvalidRefreshTokenForAccount does not work on Android. We should fix this
 // and enable this test on Android.
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
                        MultiSecondaryInteractiveInvalidToken) {
   // Setup a secondary account with no valid refresh token, and try to get a
@@ -3518,7 +3344,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest,
         IdentityGetAuthTokenError::State::kNone, 1);
   }
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, ScopesDefault) {
   SignIn("primary@example.com");
@@ -3692,102 +3517,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionTest, GranularPermissionsResponse) {
       1);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class GetAuthTokenFunctionDeviceLocalAccountTest
-    : public InProcessBrowserTestMixinHostSupport<GetAuthTokenFunctionTest> {
- protected:
-  GetAuthTokenFunctionDeviceLocalAccountTest() { set_chromeos_user_ = false; }
-
-  void RunExtensionAndVerifyNoError(bool is_extension_allowlisted) {
-    scoped_refptr<FakeGetAuthTokenFunction> func =
-        CreateFakeGetAuthTokenFunction();
-    std::string extension_id = is_extension_allowlisted
-                                   ? "ljacajndfccfgnfohlgkdphmbnpkjflk"
-                                   : "test-id";
-    func->set_extension(CreateTestExtension(extension_id));
-    func->push_mint_token_result(TestOAuth2MintTokenFlow::MINT_TOKEN_SUCCESS);
-
-    std::string access_token;
-    std::set<std::string> granted_scopes;
-    auto* profile = Profile::FromBrowserContext(
-        ash::BrowserContextHelper::Get()->GetBrowserContextByUser(
-            user_manager::UserManager::Get()->GetActiveUser()));
-    RunGetAuthTokenFunction(func.get(), "[{}]", profile, &access_token,
-                            &granted_scopes);
-    EXPECT_EQ(std::string(kAccessToken), access_token);
-    EXPECT_EQ(func->GetExtensionTokenKeyForTest()->scopes, granted_scopes);
-    histogram_tester()->ExpectUniqueSample(
-        kGetAuthTokenResultHistogramName,
-        IdentityGetAuthTokenError::State::kNone, 1);
-  }
-
-  scoped_refptr<const Extension> CreateTestExtension(const std::string& id) {
-    return ExtensionBuilder("Test")
-        .SetManifestKey("oauth2",
-                        base::DictValue()
-                            .Set("client_id", "clientId")
-                            .Set("scopes", base::ListValue().Append("scope1")))
-        .SetID(id)
-        .Build();
-  }
-
- private:
-  // Set up fake install attributes to make the device appeared as
-  // enterprise-managed.
-  ash::ScopedStubInstallAttributes test_install_attributes_{
-      ash::StubInstallAttributes::CreateCloudManaged("example.com", "fake-id")};
-};
-
-class GetAuthTokenFunctionPublicSessionTest
-    : public GetAuthTokenFunctionDeviceLocalAccountTest {
- private:
-  ash::PublicAccountLoggedInBrowserTestMixin mixin_{&mixin_host_,
-                                                    "public-account"};
-};
-
-IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionPublicSessionTest, NonAllowlisted) {
-  // GetAuthToken() should return UserNotSignedIn in public sessions for
-  // non-allowlisted extensions.
-  scoped_refptr<FakeGetAuthTokenFunction> func =
-      CreateFakeGetAuthTokenFunction();
-  func->set_extension(CreateTestExtension("test-id"));
-  std::string error =
-      utils::RunFunctionAndReturnError(func.get(), "[]", profile());
-  EXPECT_EQ(std::string(errors::kUserNotSignedIn), error);
-  EXPECT_FALSE(func->login_ui_shown());
-  EXPECT_FALSE(func->scope_ui_shown());
-  histogram_tester()->ExpectUniqueSample(
-      kGetAuthTokenResultHistogramName,
-      IdentityGetAuthTokenError::State::kNotAllowlistedInPublicSession, 1);
-}
-
-class GetAuthTokenFunctionChromeKioskTest
-    : public GetAuthTokenFunctionDeviceLocalAccountTest {
- private:
-  ash::KioskAppLoggedInBrowserTestMixin mixin_{&mixin_host_,
-                                               "kiosk-app-account"};
-};
-
-IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionChromeKioskTest, NonAllowlisted) {
-  // GetAuthToken() should return a token for non-allowlisted extensions in the
-  // Chrome Kiosk session.
-  RunExtensionAndVerifyNoError(/*is_extension_allowlisted=*/false);
-}
-
-class GetAuthTokenFunctionWebKioskTest
-    : public GetAuthTokenFunctionDeviceLocalAccountTest {
- private:
-  ash::WebKioskAppLoggedInBrowserTestMixin mixin_{&mixin_host_,
-                                                  "web-kiosk-app-account"};
-};
-
-IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionWebKioskTest, NonAllowlisted) {
-  // GetAuthToken() should return a token for non-allowlisted extensions in the
-  // web Kiosk session.
-  RunExtensionAndVerifyNoError(/*is_extension_allowlisted=*/false);
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // There are two parameters, which are stored in a std::pair, for these tests.
 //
@@ -3994,7 +3723,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionSelectedUserIdTest,
 }
 
 // The signin flow is not used on Ash.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Tests that Chrome does not have any selected user id value if the account
 // specified by the extension is not available.
 IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionSelectedUserIdTest,
@@ -4050,7 +3778,6 @@ IN_PROC_BROWSER_TEST_F(GetAuthTokenFunctionSelectedUserIdTest,
       kGetAuthTokenResultHistogramName, IdentityGetAuthTokenError::State::kNone,
       1);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(RemoveCachedAuthTokenFunctionTest, NotFound) {
   EXPECT_TRUE(InvalidateDefaultToken());
@@ -4097,12 +3824,6 @@ class LaunchWebAuthFlowFunctionTest : public AsyncExtensionBrowserTest {
     command_line->AppendSwitch(switches::kDisableBackgroundNetworking);
   }
 
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-  void CloseBrowserSynchronously(BrowserWindowInterface* browser) {
-    BrowserEventWaiter waiter(BrowserEventWaiter::Event::CLOSED, browser);
-    browser->GetWindow()->Close();
-  }
-#endif
 
   base::HistogramTester* histogram_tester() { return &histogram_tester_; }
 
@@ -4379,13 +4100,6 @@ IN_PROC_BROWSER_TEST_F(LaunchWebAuthFlowFunctionTest, UserCloseWindow) {
 
   url_observer.Wait();
 
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-  // On Android, wait for the window to be created.
-  base::test::TestFuture<void> future;
-  WebAuthFlow* flow = function->GetWebAuthFlowForTesting();
-  flow->SetPopupDisplayedCallbackForTesting(future.GetCallback());
-  EXPECT_TRUE(future.Wait());
-#endif
 
   BrowserWindowInterface* popup_browser =
       GlobalBrowserCollection::GetInstance()->FindBrowserWithTab(
@@ -4402,7 +4116,7 @@ IN_PROC_BROWSER_TEST_F(LaunchWebAuthFlowFunctionTest, UserCloseWindow) {
       IdentityLaunchWebAuthFlowFunction::Error::kUserRejected, 1);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(ENABLE_EXTENSIONS)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
 IN_PROC_BROWSER_TEST_F(LaunchWebAuthFlowFunctionTest, CloseBrowser) {
   std::unique_ptr<net::EmbeddedTestServer> https_server = LaunchHttpsServer();
   // We want to interrupt the flow before `auth_url` gets loaded. To ensure that
@@ -4486,7 +4200,7 @@ IN_PROC_BROWSER_TEST_F(LaunchWebAuthFlowFunctionTest, RunAfterShutdownStarted) {
       kLaunchWebAuthFlowResultHistogramName,
       IdentityLaunchWebAuthFlowFunction::Error::kBrowserContextShutDown, 1);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(ENABLE_EXTENSIONS)
+#endif
 
 // Regression test for http://b/290733700.
 IN_PROC_BROWSER_TEST_F(LaunchWebAuthFlowFunctionTest,
@@ -4949,7 +4663,6 @@ IN_PROC_BROWSER_TEST_F(OnSignInChangedEventTest, FireOnPrimaryAccountSignIn) {
   EXPECT_FALSE(HasExpectedEvent());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Test that an event is fired when the primary account signs out. Only
 // applicable in non-DICE mode, as when DICE is enabled clearing the primary
 // account does not result in its refresh token being removed and hence does
@@ -4974,7 +4687,6 @@ IN_PROC_BROWSER_TEST_F(OnSignInChangedEventTest, FireOnPrimaryAccountSignOut) {
 
   EXPECT_FALSE(HasExpectedEvent());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Test that an event is fired when the primary account has a refresh token
 // invalidated.

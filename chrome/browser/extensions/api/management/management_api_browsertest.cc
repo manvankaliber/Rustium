@@ -52,9 +52,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/apps/app_service/chrome_app_deprecation/chrome_app_deprecation.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
@@ -67,7 +64,6 @@ namespace keys = extension_management_api_constants;
 namespace extensions {
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 // This function is unused on Android.
 bool ExpectChromeAppsDefaultEnabled() {
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
@@ -76,7 +72,6 @@ bool ExpectChromeAppsDefaultEnabled() {
   return true;
 #endif
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -111,16 +106,10 @@ class ExtensionManagementApiTestWithBackgroundType
     : public ExtensionManagementApiBrowserTest {
  public:
   ExtensionManagementApiTestWithBackgroundType() {
-#if !BUILDFLAG(IS_ANDROID)
     // Android does not support Chrome apps and does not have access to the
     // variable g_enable_chrome_apps_for_testing.
     enable_chrome_apps_ = std::make_unique<base::AutoReset<bool>>(
         &extensions::testing::g_enable_chrome_apps_for_testing, true);
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-    scoped_feature_list_.InitAndEnableFeature(
-        apps::chrome_app_deprecation::kAllowUserInstalledChromeApps);
-#endif
   }
   ~ExtensionManagementApiTestWithBackgroundType() override = default;
   ExtensionManagementApiTestWithBackgroundType(
@@ -130,9 +119,6 @@ class ExtensionManagementApiTestWithBackgroundType
 
  private:
   std::unique_ptr<base::AutoReset<bool>> enable_chrome_apps_;
-#if BUILDFLAG(IS_CHROMEOS)
-  base::test::ScopedFeatureList scoped_feature_list_;
-#endif
 };
 
 // We test this here instead of in an ExtensionApiTest because normal extensions
@@ -151,7 +137,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionManagementApiTestWithBackgroundType,
   ASSERT_TRUE(listener2.WaitUntilSatisfied());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Android does not support Chrome apps.
 IN_PROC_BROWSER_TEST_F(ExtensionManagementApiTestWithBackgroundType,
                        LaunchApp) {
@@ -231,7 +216,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionManagementApiTestWithBackgroundType,
     EXPECT_FALSE(success.was_satisfied());
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ExtensionManagementApiTestWithBackgroundType,
                        SelfUninstall) {
@@ -279,7 +263,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionManagementApiTestWithBackgroundType,
   ASSERT_TRUE(listener1.WaitUntilSatisfied());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Android does not support Chrome apps.
 IN_PROC_BROWSER_TEST_F(ExtensionManagementApiBrowserTest,
                        CreateAppShortcutConfirmDialog) {
@@ -306,7 +289,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionManagementApiBrowserTest,
           base::StringPrintf("[\"%s\"]", app_id.c_str()), profile()),
       keys::kCreateShortcutCanceledError));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ExtensionManagementApiBrowserTest,
                        GetAllIncludesTerminated) {

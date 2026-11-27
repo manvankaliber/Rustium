@@ -33,7 +33,6 @@ struct VectorIcon;
 // users.
 bool ShouldDisplayManagedUi(Profile* profile);
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
 // The URL which management surfaces should link to for more info.
 //
@@ -68,16 +67,9 @@ std::u16string GetManagedUiWebUILabel(Profile* profile);
 // The label for the string describing whether the browser is managed or not, in
 // the chrome://settings/help page.
 std::u16string GetDeviceManagedUiHelpLabel(Profile* profile);
-#endif  // !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// The label for the WebUI footnote for Managed UI indicating that the device
-// is mananged. These strings contain HTML for an <a> element.
-std::u16string GetDeviceManagedUiWebUILabel();
-#else
 std::u16string GetManagementPageSubtitle(Profile* profile);
 std::u16string GetManagementBubbleTitle(Profile* profile);
-#endif
 
 // Returns trus if the profile and browser are managed and both entities are
 // known and different.

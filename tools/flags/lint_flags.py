@@ -28,7 +28,6 @@ def find_unused_flags_in_metadata(
   internal_name_pattern = re.compile(r'"(?P<maybe_name>\w+(-\w+)*)"')
   for about_flags_path in [
     root_path / 'chrome' / 'browser' / 'about_flags.cc',
-    root_path / 'ios' / 'chrome' / 'browser' / 'flags' / 'about_flags.mm',
     # Check other files that are known to define internal flag name constants.
     # Since most names are inlined in `about_flags.{cc,mm}`, this list is not
     # expected to grow.

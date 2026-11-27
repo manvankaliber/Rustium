@@ -21,9 +21,6 @@ namespace page_actions {
 // consumed by the framework.
 // LINT.IfChange(kActionIds)
 inline constexpr auto kActionIds = std::to_array<actions::ActionId>({
-    kActionAiMode,
-    kActionSidePanelShowLensOverlayResults,
-    kActionLensOverlayHomework,
     kActionShowTranslate,
     kActionIndigo,
     kActionShowMemorySaverChip,
@@ -35,8 +32,6 @@ inline constexpr auto kActionIds = std::to_array<actions::ActionId>({
     kActionOffersAndRewardsForPage,
     kActionShowFileSystemAccess,
     kActionInstallPwa,
-    kActionCommercePriceInsights,
-    kActionCommerceDiscounts,
     kActionShowPasswordsBubbleOrPage,
     kActionShowCollaborationRecentActivity,
     kActionAutofillMandatoryReauth,
@@ -47,7 +42,6 @@ inline constexpr auto kActionIds = std::to_array<actions::ActionId>({
     kActionFilledCardInformation,
     kActionShowPaymentsBubbleOrPage,
     kActionSidePanelShowContextualTasks,
-    kActionGlicContextualCueing,
     kActionAnchoredContextualCue,
     kActionMultistepFilter,
     kActionFederation,
@@ -63,11 +57,6 @@ inline constexpr auto kActionIds = std::to_array<actions::ActionId>({
 });
 // LINT.ThenChange(//components/browser_apis/ui_controllers/toolbar/toolbar_ui_api_data_model.mojom:PageActionId,//chrome/browser/ui/page_action/page_action_properties_provider.cc:kPageActionProperties)
 
-// IMPORTANT NOTE: This assert SHOULD NOT be changed without prior consensus
-// from the page action team.
-static_assert(kActionIds[0] == kActionAiMode,
-              "kActionAiMode must be the first entry in kActionIds to ensure "
-              "it's the left-most page action");
 // IMPORTANT NOTE: This assert SHOULD NOT be changed without prior consensus
 // from the page action team.
 static_assert(

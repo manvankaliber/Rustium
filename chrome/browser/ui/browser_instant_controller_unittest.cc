@@ -38,12 +38,6 @@
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/test/scoped_feature_list.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "components/search/ntp_features.h"
-#endif
 
 namespace {
 
@@ -64,22 +58,10 @@ GURL ThirdPartyNtpUrl(const std::string& host) {
 class BrowserInstantControllerTest : public ChromeRenderViewHostTestHarness {
  public:
   BrowserInstantControllerTest() {
-#if BUILDFLAG(IS_ANDROID)
-    // On Android the WebUI NTP, the third-party NTPs it routes to and the
-    // Instant API are all behind flags.
-    feature_list_.InitWithFeatures(
-        /*enabled_features=*/{chrome::android::kUseWebUiNtpAndroid,
-                              chrome::android::kUseWebUiNtp3PDSE,
-                              ntp_features::kNtpEnableInstantApiAndroid},
-        /*disabled_features=*/{});
-#endif
   }
 
   void SetUp() override {
     ChromeRenderViewHostTestHarness::SetUp();
-#if BUILDFLAG(IS_ANDROID)
-    base::android::device_info::set_is_desktop_for_testing(true);
-#endif
 
     TemplateURLServiceFactory::GetInstance()->SetTestingFactoryAndUse(
         profile(),
@@ -105,9 +87,6 @@ class BrowserInstantControllerTest : public ChromeRenderViewHostTestHarness {
     tab_list_registration_.reset();
     tabs_.clear();
     web_contents_.clear();
-#if BUILDFLAG(IS_ANDROID)
-    base::android::device_info::reset_is_desktop_for_testing();
-#endif
     ChromeRenderViewHostTestHarness::TearDown();
   }
 
@@ -192,9 +171,6 @@ class BrowserInstantControllerTest : public ChromeRenderViewHostTestHarness {
   }
 
  private:
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList feature_list_;
-#endif
   NiceMock<MockBrowserWindowInterface> browser_window_;
   NiceMock<MockTabListInterface> tab_list_;
   std::vector<std::unique_ptr<content::WebContents>> web_contents_;

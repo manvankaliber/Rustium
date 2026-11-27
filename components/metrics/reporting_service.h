@@ -23,9 +23,6 @@
 #include "third_party/metrics_proto/reporting_info.pb.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/types/pass_key.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class PrefService;
 class PrefRegistrySimple;
@@ -36,9 +33,6 @@ class LogStore;
 class MetricsUploadScheduler;
 class MetricsServiceClient;
 
-#if BUILDFLAG(IS_ANDROID)
-class BackgroundUploadTask;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // ReportingService is an abstract class which uploads serialized logs from a
 // LogStore to a remote server. A concrete implementation of this class must
@@ -83,25 +77,6 @@ class ReportingService {
   void EnableReporting();
   void DisableReporting();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Immediately starts the uploading of the next completed log from the log
-  // manager (see `SendNextLogImpl()` below).
-  void SendNextLogNow(base::PassKey<BackgroundUploadTask>,
-                      base::OnceClosure done_callback);
-
-  bool background_upload_task_scheduled() const {
-    return background_upload_task_scheduled_;
-  }
-
-  background_task::TaskIds background_upload_task_id() const {
-    return background_upload_task_id_;
-  }
-
-  // Sets `on_stop_task_called_`, which indicates that OnStopTask() was called
-  // for the active background upload task. This is usually triggered by the OS
-  // when it wants to urgently stop the background task.
-  void OnStopTask(base::PassKey<BackgroundUploadTask>);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // True iff reporting is currently enabled.
   bool reporting_active() const;
@@ -110,10 +85,6 @@ class ReportingService {
     return upload_scheduler_.get();
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void OnAppEnterBackground();
-  void OnAppEnterForeground();
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   // Registers local state prefs used by this class. This should only be called
   // once.
@@ -189,16 +160,6 @@ class ReportingService {
   // Instance of the helper class for uploading logs.
   std::unique_ptr<MetricsLogUploader> log_uploader_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Whether the current log upload was initiated while the app was in the
-  // background. Set only when there is a log upload in progress.
-  std::optional<bool> log_upload_initiated_from_background_ = std::nullopt;
-
-  // Set when the most recent uploads have failed. Its value will be whether the
-  // first failure was from an upload initiated from the background. Unset when
-  // a successful upload occurs.
-  std::optional<bool> failures_started_from_background_ = std::nullopt;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // The scheduler for determining when uploads should happen.
   std::unique_ptr<MetricsUploadScheduler> upload_scheduler_;
@@ -213,12 +174,6 @@ class ReportingService {
   // Info on current reporting state to send along with reports.
   ReportingInfo reporting_info_;
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Indicates whether the browser is currently in the foreground. Used to
-  // determine whether |local_state_| should be flushed immediately after
-  // uploading a log.
-  bool is_in_foreground_ = false;
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   // The background task ID that will be posted to the JobScheduler to schedule
   // a log upload (see `metrics::BackgroundUploadTask`). Used only on Android
@@ -226,18 +181,6 @@ class ReportingService {
   // BUILDFLAG for the sake of making the constructor cleaner.
   [[maybe_unused]] const background_task::TaskIds background_upload_task_id_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // If there is a currently a scheduled JobScheduler upload task pending.
-  bool background_upload_task_scheduled_ = false;
-
-  // The time a background upload task was scheduled/posted to the JobScheduler.
-  // Used to track the time taken between the task being scheduled and the time
-  // the task actually runs.
-  std::optional<base::TimeTicks> background_upload_task_scheduled_time_;
-
-  // True if OnStopTask() was called for the active background task.
-  bool on_stop_task_called_ = false;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   SEQUENCE_CHECKER(sequence_checker_);
 

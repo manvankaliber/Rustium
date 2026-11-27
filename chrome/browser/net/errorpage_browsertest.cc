@@ -84,15 +84,10 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "chrome/browser/ash/system_web_apps/test_support/system_web_app_browsertest_base.h"  // nogncheck
-#include "chrome/browser/ui/ash/system_web_apps/system_web_app_ui_utils.h"  // nogncheck
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using content::BrowserThread;
 using content::NavigationController;
@@ -766,12 +761,10 @@ IN_PROC_BROWSER_TEST_F(DNSErrorPageTest, Incognito) {
   // Verify that the expected error page is being displayed.
   ExpectDisplayingErrorPage(incognito_browser, net::ERR_NAME_NOT_RESOLVED);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Can't currently show the diagnostics in incognito on any platform but
   // ChromeOS.
   EXPECT_FALSE(WebContentsCanShowDiagnosticsTool(
       incognito_browser->tab_strip_model()->GetActiveWebContents()));
-#endif
 
   // Diagnostics button should be displayed, if available.
   EXPECT_EQ(WebContentsCanShowDiagnosticsTool(
@@ -789,10 +782,10 @@ class DNSErrorPageIsolatedModeTest : public DNSErrorPageTest {
   }
 
  private:
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
   chrome::ScopedChannelOverride channel_override_{
       chrome::ScopedChannelOverride::Channel::kDev};
-#endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 };
 
 // Test error page in Enterprise Isolated Mode. This should behave like
@@ -809,12 +802,10 @@ IN_PROC_BROWSER_TEST_F(DNSErrorPageIsolatedModeTest, IsolatedMode) {
   // Verify that the expected error page is being displayed.
   ExpectDisplayingErrorPage(isolated_browser, net::ERR_NAME_NOT_RESOLVED);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // The diagnostics tool logs the URLs it is run with, so it must not be
   // available in Isolated Mode, just like in incognito mode.
   EXPECT_FALSE(WebContentsCanShowDiagnosticsTool(
       isolated_browser->tab_strip_model()->GetActiveWebContents()));
-#endif
 
   // Diagnostics button should be displayed, if available.
   EXPECT_EQ(WebContentsCanShowDiagnosticsTool(
@@ -942,9 +933,6 @@ class ErrorPageOfflineTest : public ErrorPageTest {
                      base::Value(value_of_allow_dinosaur_easter_egg_), nullptr);
     }
 
-#if BUILDFLAG(IS_CHROMEOS)
-    SetEnterpriseUsersProfileDefaults(&policy_map);
-#endif
 
     policy_provider_.UpdateChromePolicy(policy_map);
     policy::PushProfilePolicyConnectorProviderForTesting(&policy_provider_);
@@ -1008,19 +996,10 @@ IN_PROC_BROWSER_TEST_F(ErrorPageOfflineTestWithAllowDinosaurFalse,
   EXPECT_EQ(disabled_text, result);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(ErrorPageOfflineTest, CheckEasterEggIsDisabled) {
-  std::string result = NavigateToPageAndReadText();
-  std::string disabled_text =
-      l10n_util::GetStringUTF8(IDS_ERRORPAGE_FUN_DISABLED);
-  EXPECT_EQ(disabled_text, result);
-}
-#else
 IN_PROC_BROWSER_TEST_F(ErrorPageOfflineTest, CheckEasterEggIsAllowed) {
   std::string result = NavigateToPageAndReadText();
   EXPECT_EQ("", result);
 }
-#endif
 
 IN_PROC_BROWSER_TEST_F(ErrorPageOfflineTestWithAllowDinosaurTrue,
                        CheckEasterEggHighScoreLoaded) {
@@ -1177,41 +1156,5 @@ IN_PROC_BROWSER_TEST_F(ErrorPageSniffTest,
   ExpectDisplayingErrorPage(browser(), net::ERR_INVALID_RESPONSE);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// For ChromeOS, launches appropriate diagnostics app.
-void ClickDiagnosticsLink(BrowserWindowInterface* browser) {
-  DCHECK(IsDisplayingDiagnosticsLink(browser));
-  EXPECT_TRUE(
-      content::ExecJs(browser->tab_strip_model()->GetActiveWebContents(),
-                      "document.getElementById('diagnose-link').click();"));
-}
-
-// On ChromeOS "Running Connectivity Diagnostics" link on error page should
-// launch chrome://diagnostics/?connectivity app by default.
-using ErrorPageOfflineAppLaunchTest = ash::SystemWebAppBrowserTestBase;
-
-IN_PROC_BROWSER_TEST_F(ErrorPageOfflineAppLaunchTest, DiagnosticsConnectivity) {
-  WaitForTestSystemAppInstall();
-  ASSERT_TRUE(ui_test_utils::NavigateToURL(
-      browser(),
-      URLRequestFailedJob::GetMockHttpUrl(net::ERR_INTERNET_DISCONNECTED)));
-
-  const GURL expected_url = GURL("chrome://diagnostics/?connectivity");
-  content::TestNavigationObserver observer(expected_url);
-  observer.StartWatchingNewWebContents();
-
-  // Click to open diagnostics app.
-  ClickDiagnosticsLink(browser());
-  observer.Wait();
-  EXPECT_TRUE(observer.last_navigation_succeeded());
-
-  // The active screen should be Connectivity Diagnostics app.
-  content::WebContents* contents = GlobalBrowserCollection::GetInstance()
-                                       ->GetLastActiveBrowser()
-                                       ->GetTabStripModel()
-                                       ->GetActiveWebContents();
-  EXPECT_EQ(expected_url, contents->GetVisibleURL());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace

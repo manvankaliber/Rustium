@@ -8,14 +8,6 @@
 #include "build/build_config.h"
 namespace device_reauth {
 
-#if BUILDFLAG(IS_ANDROID)
-// GENERATED_JAVA_ENUM_PACKAGE: org.chromium.chrome.browser.device_reauth
-enum class BiometricStatus {
-  kBiometricsAvailable,
-  kOnlyLskfAvailable,
-  kUnavailable,
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // This interface encapsulates operations related to checking biometric and
 // screen lock availability. It's intended to be used prior to sharing the
@@ -35,10 +27,6 @@ class DeviceAuthAvailabilityChecker {
   // Returns whether biometrics or screen lock are available for a given device.
   virtual bool CanAuthenticateWithBiometricOrScreenLock() = 0;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns the biometric availability status enum on Android.
-  virtual BiometricStatus GetBiometricAvailabilityStatus() = 0;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace device_reauth

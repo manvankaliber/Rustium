@@ -44,16 +44,12 @@
 #include "net/test/embedded_test_server/embedded_test_server.h"
 #include "ui/base/models/menu_model.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/extensions/extension_menu_model_android.h"
-#else
 #include "chrome/browser/renderer_context_menu/render_view_context_menu.h"
 #include "chrome/browser/renderer_context_menu/render_view_context_menu_test_util.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/tabs/tab_menu_model.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/views/tabs/tab/tab_context_menu_controller.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -134,17 +130,9 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabContextMenuApiTest, ContextMenusTabContext) {
 
   // Verify the menu model. We create a tab menu model for the active tab
   // to inspect its contents.
-#if BUILDFLAG(IS_ANDROID)
-  ExtensionMenuModel menu(profile(), GetActiveWebContents());
-  menu.PopulateModel();
-  EXPECT_TRUE(menu.HasVisibleItems());
-  // Calling PopulateModel() again should be idempotent and not duplicate items.
-  menu.PopulateModel();
-#else
   TabStripModel* tab_strip = browser()->tab_strip_model();
   int index = tab_strip->active_index();
   TabMenuModel menu(nullptr, nullptr, tab_strip, index);
-#endif
 
   // Iterate through the menu items to count how many times the
   // extension-provided item is present. This ensures that exactly one such item
@@ -170,7 +158,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabContextMenuApiTest, ContextMenusTabContext) {
   ASSERT_TRUE(catcher.GetNextResult());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 class FakeTabContextMenuControllerDelegate
     : public TabContextMenuController::Delegate {
  public:
@@ -198,7 +185,6 @@ class FakeTabContextMenuControllerDelegate
     return false;
   }
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ExtensionTabContextMenuApiTest,
                        ContextMenusTabContextMultipleItems) {
@@ -217,14 +203,9 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabContextMenuApiTest,
 
   // Verify the menu model. We create a tab menu model for the active tab
   // to inspect its contents.
-#if BUILDFLAG(IS_ANDROID)
-  ExtensionMenuModel menu(profile(), GetActiveWebContents());
-  menu.PopulateModel();
-#else
   TabStripModel* tab_strip = browser()->tab_strip_model();
   int index = tab_strip->active_index();
   TabMenuModel menu(nullptr, nullptr, tab_strip, index);
-#endif
 
   // Because there are multiple items, ContextMenuMatcher must group them inside
   // a submenu. Find the index of the extension-named submenu item.
@@ -243,7 +224,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabContextMenuApiTest,
   ASSERT_TRUE(submenu);
   ASSERT_EQ(2u, submenu->GetItemCount());
 
-#if !BUILDFLAG(IS_ANDROID)
   FakeTabContextMenuControllerDelegate fake_delegate;
 
   // Instantiate the TabContextMenuController to wrap the model, matching the
@@ -278,16 +258,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionTabContextMenuApiTest,
 
   // Simulate user clicking the first submenu item.
   loaded_submenu->ActivatedAt(0);
-#else
-  // Verify that querying the submenu item states routes successfully without
-  // crashes.
-  EXPECT_TRUE(submenu->IsVisibleAt(0));
-  EXPECT_TRUE(submenu->IsEnabledAt(0));
-  EXPECT_FALSE(submenu->IsItemCheckedAt(0));
-
-  // Simulate user clicking the first submenu item.
-  submenu->ActivatedAt(0);
-#endif
 
   // Wait for the extension background script to receive the click event and
   // succeed.
@@ -445,13 +415,8 @@ class ContextMenusTabScrubbingTest : public ExtensionContextMenuApiTest {
         ContextMenuMatcher::ConvertToExtensionsCustomCommandId(/*id=*/0);
 
     ExtensionTestMessageListener click_listener;
-#if BUILDFLAG(IS_ANDROID)
-    ExtensionMenuModel menu(*frame, params);
-    menu.PopulateModel();
-#else
     TestRenderViewContextMenu menu(*frame, params);
     menu.Init();
-#endif
     EXPECT_TRUE(menu.IsCommandIdVisible(command_id));
     EXPECT_TRUE(menu.IsCommandIdEnabled(command_id));
     menu.ExecuteCommand(command_id, /*event_flags=*/0);
@@ -623,11 +588,7 @@ class ExtensionContextMenuVisibilityApiTest
   void TearDownOnMainThread() override {
     // Depends on `menu_` so must be cleared before it is destroyed.
     top_level_model_ = nullptr;
-#if BUILDFLAG(IS_ANDROID)
-    extension_menu_model_.reset();
-#else
     menu_.reset();
-#endif
     extension_ = nullptr;
     ExtensionContextMenuApiTest::TearDownOnMainThread();
   }
@@ -646,14 +607,6 @@ class ExtensionContextMenuVisibilityApiTest
     content::ContextMenuParams params;
     params.page_url = frame->GetLastCommittedURL();
 
-#if BUILDFLAG(IS_ANDROID)
-    extension_menu_model_ =
-        std::make_unique<ExtensionMenuModel>(*frame, params);
-    extension_menu_model_->PopulateModel();
-    top_level_model_ = extension_menu_model_.get();
-    top_level_index_ = 0;
-    bool valid_setup = true;
-#else
     // Create context menu.
     menu_ = std::make_unique<TestRenderViewContextMenu>(*frame, params);
     menu_->Init();
@@ -669,7 +622,6 @@ class ExtensionContextMenuVisibilityApiTest
     EXPECT_GT(top_level_index(), 0u);
     // TODO: Eliminate this variable.
     bool valid_setup = true;
-#endif  // BUILDFLAG(IS_ANDROID)
 
     return valid_setup;
   }
@@ -707,16 +659,9 @@ class ExtensionContextMenuVisibilityApiTest
   // menu items, |num_items|. Note that this includes items manually added by
   // extensions, but not the automatically added extension name, if present.
   void VerifyNumContextMenuItems(size_t num_items) {
-#if BUILDFLAG(IS_ANDROID)
-    ASSERT_TRUE(extension_menu_model_);
-    size_t items_in_menu =
-        extension_menu_model_->matcher_for_test().extension_item_map().size();
-    EXPECT_EQ(num_items, items_in_menu);
-#else
     ASSERT_TRUE(menu_);
     EXPECT_EQ(num_items,
               (menu_->extension_items().extension_item_map().size()));
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   // Verifies a context menu item's visibility, title, and item type.
@@ -738,13 +683,8 @@ class ExtensionContextMenuVisibilityApiTest
 
  private:
   raw_ptr<const Extension> extension_ = nullptr;
-#if BUILDFLAG(IS_ANDROID)
-  // Contains only the extension menu items.
-  std::unique_ptr<ExtensionMenuModel> extension_menu_model_;
-#else
   // Contains Chrome context menu items and extension menu items.
   std::unique_ptr<TestRenderViewContextMenu> menu_;
-#endif
   // Where the extension items start in the menu. Always 0 on Android because
   // the menu only contains extension items.
   size_t top_level_index_ = 0;
@@ -1071,7 +1011,6 @@ IN_PROC_BROWSER_TEST_P(ExtensionContextMenuVisibilityApiMenuSimplificationTest,
   VerifyMenuItem("parent", top_level_model_, top_level_index(),
                  ui::MenuModel::TYPE_SUBMENU, false);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Since the extension submenu is hidden, the previous separator should not be
   // in the model. On Android top_level_index() is 0 so we don't test this.
   // With kMenuSimplification enabled, there is a separator from the end of the
@@ -1080,7 +1019,6 @@ IN_PROC_BROWSER_TEST_P(ExtensionContextMenuVisibilityApiMenuSimplificationTest,
     EXPECT_NE(ui::MenuModel::TYPE_SEPARATOR,
               top_level_model_->GetTypeAt(top_level_index() - 1));
   }
-#endif
 
   ui::MenuModel* submodel =
       top_level_model_->GetSubmenuModelAt(top_level_index());
@@ -1109,14 +1047,12 @@ IN_PROC_BROWSER_TEST_P(ExtensionContextMenuVisibilityApiMenuSimplificationTest,
   VerifyMenuItem("parent", top_level_model_, top_level_index(),
                  ui::MenuModel::TYPE_SUBMENU, false);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Since the extension submenu is hidden, the previous separator should not be
   // in the model. On Android top_level_index() is 0 so we don't test this.
   if (!GetParam()) {
     EXPECT_NE(ui::MenuModel::TYPE_SEPARATOR,
               top_level_model_->GetTypeAt(top_level_index() - 1));
   }
-#endif
 
   ui::MenuModel* submodel =
       top_level_model_->GetSubmenuModelAt(top_level_index());

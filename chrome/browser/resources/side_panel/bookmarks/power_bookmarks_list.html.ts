@@ -66,8 +66,6 @@ export function getHtml(this: PowerBookmarksListElement) {
                     @power-bookmark-row-focus-parent="${
                         this.onPowerBookmarkRowFocusParent_}"
                     tabindex="${this.tabIndex}" .imageUrls="${this.imageUrls_}"
-                    .shoppingCollectionFolderId="${
-                        this.shoppingCollectionFolderId_}"
                     .contextMenuBookmark="${this.contextMenuBookmark}"
                     draggable="${this.canDrag_}" .canDrag="${this.canDrag_}"
                     .hasActiveDrag="${this.hasActiveDrag_}"
@@ -112,8 +110,6 @@ export function getHtml(this: PowerBookmarksListElement) {
                     @power-bookmark-row-focus-parent="${
                         this.onPowerBookmarkRowFocusParent_}"
                     tabindex="${this.tabIndex}" .imageUrls="${this.imageUrls_}"
-                    .shoppingCollectionFolderId="${
-                        this.shoppingCollectionFolderId_}"
                     .contextMenuBookmark="${this.contextMenuBookmark}"
                     draggable="${this.canDrag_}" .canDrag="${this.canDrag_}"
                     .hasActiveDrag="${this.hasActiveDrag_}"

@@ -125,9 +125,6 @@ const char* AnalysisConnectorPref(AnalysisConnector connector) {
     case AnalysisConnector::NETWORK_REQUEST:
       return kOnNetworkRequestPref;
     case AnalysisConnector::FILE_TRANSFER:
-#if BUILDFLAG(IS_CHROMEOS)
-      return kOnFileTransferPref;
-#endif
     case AnalysisConnector::DATA_COPIED:
       return kOnDataCopiedPref;
     case AnalysisConnector::ANALYSIS_CONNECTOR_UNSPECIFIED:
@@ -148,9 +145,6 @@ const char* AnalysisConnectorScopePref(AnalysisConnector connector) {
     case AnalysisConnector::NETWORK_REQUEST:
       return kOnNetworkRequestScopePref;
     case AnalysisConnector::FILE_TRANSFER:
-#if BUILDFLAG(IS_CHROMEOS)
-      return kOnFileTransferScopePref;
-#endif
     case AnalysisConnector::DATA_COPIED:
       return kOnDataCopiedScopePref;
     case AnalysisConnector::ANALYSIS_CONNECTOR_UNSPECIFIED:

@@ -38,10 +38,6 @@ void CompositorThread::InitializeHangWatcherAndThreadName() {
       kCompositorThreadSuffix);
   base::LockMetricsRecorder::EnableRecordingOnCurrentThread(
       kCompositorThreadSuffix);
-#if BUILDFLAG(IS_ANDROID)
-  base::PlatformThreadPriorityMonitor::Get().RegisterCurrentThread(
-      kCompositorThreadSuffix);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::unique_ptr<NonMainThreadSchedulerBase>

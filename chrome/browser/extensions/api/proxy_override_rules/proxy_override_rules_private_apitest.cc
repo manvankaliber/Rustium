@@ -35,13 +35,11 @@
 #include "extensions/test/test_extension_dir.h"
 #include "services/network/test/test_url_loader_factory.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "components/enterprise/browser/controller/fake_browser_dm_token_storage.h"
 #include "components/policy/core/common/cloud/cloud_policy_core.h"
 #include "components/policy/core/common/cloud/cloud_policy_store.h"
 #include "components/policy/core/common/cloud/machine_level_user_cloud_policy_manager.h"
 #include "components/policy/proto/device_management_backend.pb.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace extensions {
 namespace {
@@ -116,12 +114,10 @@ constexpr char kVerifyControllableAndSetRuleJs[] = R"(
 class ProxyOverrideRulesPrivateApiTest : public extensions::ExtensionApiTest {
  public:
   ProxyOverrideRulesPrivateApiTest() {
-#if !BUILDFLAG(IS_CHROMEOS)
     browser_dm_token_storage_.SetClientId("client_id");
     browser_dm_token_storage_.SetEnrollmentToken("enrollment_token");
     browser_dm_token_storage_.SetDMToken("dm_token");
     policy::BrowserDMTokenStorage::SetForTesting(&browser_dm_token_storage_);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   }
 
   ~ProxyOverrideRulesPrivateApiTest() override = default;
@@ -174,14 +170,12 @@ class ProxyOverrideRulesPrivateApiTest : public extensions::ExtensionApiTest {
     } else {
       policies.SetUserAffiliationIds({"unaffiliated-id"});
     }
-#if !BUILDFLAG(IS_CHROMEOS)
     if (enable_for_all_users.has_value()) {
       policies.Set(policy::key::kEnableProxyOverrideRulesForAllUsers,
                    policy::POLICY_LEVEL_MANDATORY, policy::POLICY_SCOPE_MACHINE,
                    policy::POLICY_SOURCE_CLOUD,
                    base::Value(*enable_for_all_users), nullptr);
     }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
     provider_.UpdateChromePolicy(policies);
     ASSERT_TRUE(base::test::RunUntil([&]() {
       const policy::PolicyMap& active_policies =
@@ -192,13 +186,11 @@ class ProxyOverrideRulesPrivateApiTest : public extensions::ExtensionApiTest {
           active_policies.IsUserAffiliated() != affiliated) {
         return false;
       }
-#if !BUILDFLAG(IS_CHROMEOS)
       if (profile()->GetPrefs()->GetInteger(
               proxy_config::prefs::kEnableProxyOverrideRulesForAllUsers) !=
           enable_for_all_users.value_or(0)) {
         return false;
       }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
       return true;
     }));
   }
@@ -221,7 +213,6 @@ class ProxyOverrideRulesPrivateApiTest : public extensions::ExtensionApiTest {
 
     identity_test_env()->SetTestURLLoaderFactory(&test_url_loader_factory_);
 
-#if !BUILDFLAG(IS_CHROMEOS)
     // Set device org's affiliated IDs.
     auto* browser_policy_manager =
         g_browser_process->browser_policy_connector()
@@ -231,7 +222,6 @@ class ProxyOverrideRulesPrivateApiTest : public extensions::ExtensionApiTest {
     browser_policy_data->add_device_affiliation_ids(kAffiliationId);
     browser_policy_manager->core()->store()->set_policy_data_for_testing(
         std::move(browser_policy_data));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   }
 
   void TearDownOnMainThread() override {
@@ -253,9 +243,7 @@ class ProxyOverrideRulesPrivateApiTest : public extensions::ExtensionApiTest {
 
   network::TestURLLoaderFactory test_url_loader_factory_;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   policy::FakeBrowserDMTokenStorage browser_dm_token_storage_;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   policy::ScopedManagementServiceOverrideForTesting
       scoped_management_service_override_{
@@ -538,16 +526,6 @@ IN_PROC_BROWSER_TEST_F(ProxyOverrideRulesPrivateApiTest,
                        ProxyOverrideRules_Unaffiliated) {
   SetPolicyState(/*affiliated=*/false);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, extensions can always set and control ProxyOverrideRules
-  // regardless of user affiliation.
-  RunTest(kVerifyControllableAndSetRuleJs);
-  EXPECT_EQ(profile()
-                ->GetPrefs()
-                ->GetList(proxy_config::prefs::kProxyOverrideRules)
-                .size(),
-            1u);
-#else
   constexpr char kTest[] = R"(
     chrome.test.runTests([
       function unaffiliatedCannotSetOrControl() {
@@ -581,10 +559,8 @@ IN_PROC_BROWSER_TEST_F(ProxyOverrideRulesPrivateApiTest,
                   ->GetPrefs()
                   ->GetList(proxy_config::prefs::kProxyOverrideRules)
                   .empty());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(ProxyOverrideRulesPrivateApiTest,
                        ProxyOverrideRules_UnaffiliatedEnabledForAllUsers) {
   SetPolicyState(/*affiliated=*/false, /*enable_for_all_users=*/1);
@@ -595,6 +571,5 @@ IN_PROC_BROWSER_TEST_F(ProxyOverrideRulesPrivateApiTest,
                 .size(),
             1u);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace extensions

@@ -8,9 +8,7 @@ check that traffic_annotation_auditor has the same results when heuristics that
 help it run fast and spam free on trybots are disabled."""
 
 import json
-import logging
 import os
-import re
 import sys
 import tempfile
 import traceback
@@ -25,24 +23,9 @@ WINDOWS_SHEET_CONFIG = {
   'last_update_column_name': 'Last Update',
 }
 
-CHROMEOS_SHEET_CONFIG = {
-  'spreadsheet_id': '1928goWKy6LVdF9Nl5nV1OD260YC10dHsdrnHEGdGsg8',
-  'annotations_sheet_name': 'Annotations',
-  'chrome_version_sheet_name': 'Chrome Version',
-  'silent_change_columns': [],
-  'last_update_column_name': 'Last Update',
-}
-
 WINDOWS_DOC_CONFIG = {
   'doc_id': '1Yx5cdCtqx_czAfkJyP388dlKCShqOGf1oZ96qsz84zo',
   'doc_name': 'Chrome Browser Network Traffic Annotations - Windows',
-  'credentials_file_path': 'tools/traffic_annotation/scripts/credentials.json',
-  'client_token_file_path': 'tools/traffic_annotation/scripts/token.pickle',
-}
-
-CHROMEOS_DOC_CONFIG = {
-  'doc_id': '1F2jb_PHmG1cGkal-l3yv45BQFlOWzovg9o2XM-CO-sQ',
-  'doc_name': 'Chrome Browser Network Traffic Annotations - ChromeOS',
   'credentials_file_path': 'tools/traffic_annotation/scripts/credentials.json',
   'client_token_file_path': 'tools/traffic_annotation/scripts/token.pickle',
 }
@@ -52,42 +35,15 @@ def is_windows():
   return os.name == 'nt'
 
 
-def is_chromeos(build_path):
-  current_platform = get_current_platform_from_gn_args(build_path)
-  return current_platform == 'chromeos'
-
-
 def get_sheet_config(build_path):
   if is_windows():
     return WINDOWS_SHEET_CONFIG
-  if is_chromeos(build_path):
-    return CHROMEOS_SHEET_CONFIG
   return None
 
 
 def get_doc_config(build_path):
   if is_windows():
     return WINDOWS_DOC_CONFIG
-  if is_chromeos(build_path):
-    return CHROMEOS_DOC_CONFIG
-  return None
-
-
-def get_current_platform_from_gn_args(build_path):
-  if sys.platform.startswith('linux') and build_path is not None:
-    try:
-      with open(os.path.join(build_path, 'args.gn')) as f:
-        gn_args = f.read()
-      if not gn_args:
-        logging.info('Could not retrieve args.gn')
-
-      pattern = re.compile(r'^\s*target_os\s*=\s*"chromeos"\s*$', re.MULTILINE)
-      if pattern.search(gn_args):
-        return 'chromeos'
-
-    except (ValueError, OSError) as e:
-      logging.info(e)
-
   return None
 
 
@@ -117,8 +73,7 @@ def main_run(args):
   ]
   rc = common.run_command(command_line)
 
-  # Update the Google Sheets and Docs on success, but only on the Windows and
-  # ChromeOS trybot.
+  # Update the Google Sheets and Docs on success, but only on the Windows trybot.
   update_sheet = '--no-update-sheet' not in args.args
   update_doc = '--no-update-doc' not in args.args
   sheet_config = get_sheet_config(build_path)

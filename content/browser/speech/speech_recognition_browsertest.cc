@@ -29,10 +29,16 @@
 #include "base/task/bind_post_task.h"
 #include "base/task/single_thread_task_runner.h"
 #include "base/test/run_until.h"
+#include "base/test/scoped_feature_list.h"
 #include "base/test/test_future.h"
 #include "build/build_config.h"
+#include "components/soda/mock_soda_installer.h"  // nogncheck
+#include "components/soda/soda_util.h"
 #include "content/browser/permissions/permission_controller_impl.h"
+#include "content/browser/site_instance_impl.h"
+#include "content/browser/speech/fake_speech_recognition_manager_delegate.h"
 #include "content/browser/speech/network_speech_recognition_engine_impl.h"
+#include "content/browser/speech/soda_speech_recognition_engine_impl.h"
 #include "content/browser/speech/speech_recognition_dispatcher_host.h"
 #include "content/browser/speech/speech_recognition_manager_impl.h"
 #include "content/browser/speech/speech_recognizer_impl.h"
@@ -46,6 +52,7 @@
 #include "content/public/browser/speech_recognition_event_listener.h"
 #include "content/public/browser/speech_recognition_manager.h"
 #include "content/public/browser/speech_recognition_session_config.h"
+#include "content/public/browser/storage_partition_config.h"
 #include "content/public/browser/web_contents.h"
 #include "content/public/common/child_process_id.h"
 #include "content/public/test/browser_test.h"
@@ -61,6 +68,8 @@
 #include "media/base/audio_capturer_source.h"
 #include "media/base/audio_glitch_info.h"
 #include "media/base/audio_sample_types.h"
+#include "media/base/media_switches.h"
+#include "media/mojo/mojom/audio_data.mojom.h"
 #include "media/mojo/mojom/speech_recognition_error.mojom.h"
 #include "media/mojo/mojom/speech_recognition_result.mojom.h"
 #include "net/test/embedded_test_server/controllable_http_response.h"
@@ -71,37 +80,18 @@
 #include "third_party/blink/public/mojom/permissions/permission_status.mojom.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_FUCHSIA)
-#include "base/test/scoped_feature_list.h"
-#include "components/soda/mock_soda_installer.h"  // nogncheck
-#include "components/soda/soda_util.h"
-#include "content/browser/site_instance_impl.h"
-#include "content/browser/speech/fake_speech_recognition_manager_delegate.h"
-#include "content/browser/speech/soda_speech_recognition_engine_impl.h"
-#include "content/public/browser/storage_partition_config.h"
-#include "media/base/media_switches.h"
-#include "media/mojo/mojom/audio_data.mojom.h"
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 using base::RunLoop;
 using CaptureCallback = media::AudioCapturerSource::CaptureCallback;
 
-#if !BUILDFLAG(IS_FUCHSIA)
 using testing::_;
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 namespace content {
 
 namespace {
 
-#if !BUILDFLAG(IS_FUCHSIA)
 const char kWebSpeechExpectGoodResult1[] = "Pictures of the moon";
 const char kWebSpeechPageGoodResult1[] = "goodresult1";
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 // TODO(crbug.com/40575807) Use FakeSystemInfo instead.
 class MockAudioSystem : public media::AudioSystem {
@@ -413,32 +403,27 @@ class SpeechRecognitionBrowserTest : public ContentBrowserTest {
     kTestAudioCapturerSourceClosed,
   };
 
-#if !BUILDFLAG(IS_FUCHSIA)
   SpeechRecognitionBrowserTest() {
     // Setup the SODA On-Device feature flags.
     scoped_feature_list_.InitWithFeatures(
         /*enabled_features=*/
         {
             media::kOnDeviceWebSpeech,
-#if BUILDFLAG(IS_CHROMEOS)
-            ash::features::kOnDeviceSpeechRecognition,
-#endif  // BUILDFLAG(IS_CHROMEOS)
         },
         /*disabled_features=*/{});
   }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   // Helper methods used by test fixtures.
   GURL GetTestUrlFromFragment(const std::string& fragment) {
     return GURL(GetTestUrl("speech", "web_speech_recognition.html").spec() +
-        "#" + fragment);
+                "#" + fragment);
   }
 
   std::string GetPageFragment() {
     return shell()->web_contents()->GetLastCommittedURL().GetRef();
   }
 
-  const StreamingServerState &streaming_server_state() {
+  const StreamingServerState& streaming_server_state() {
     return streaming_server_state_;
   }
 
@@ -463,12 +448,10 @@ class SpeechRecognitionBrowserTest : public ContentBrowserTest {
     SpeechRecognizerImpl::SetAudioEnvironmentForTesting(nullptr, nullptr);
   }
 
-#if !BUILDFLAG(IS_FUCHSIA)
   // Set SODA On-Device speech recognition features flags.
   base::test::ScopedFeatureList scoped_feature_list_;
   // Setup mock SODA installer
   speech::MockSodaInstaller mock_soda_installer_;
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
  private:
   void OnCapturerSourceStart(const media::AudioParameters& audio_parameters,
@@ -514,9 +497,10 @@ class SpeechRecognitionBrowserTest : public ContentBrowserTest {
     DCHECK(capture_callback);
     auto audio_buffer = base::HeapArray<uint8_t>::Uninit(buffer_size);
     if (fill_with_noise) {
-      for (size_t i = 0; i < buffer_size; ++i)
+      for (size_t i = 0; i < buffer_size; ++i) {
         audio_buffer[i] =
             static_cast<uint8_t>(127 * sin(i * 3.14F / (16 * buffer_size)));
+      }
     } else {
       std::ranges::fill(audio_buffer, 0);
     }
@@ -709,27 +693,10 @@ IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
                              session_id_future.GetCallback())));
 
   int session_id = session_id_future.Get();
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, browser-initiated sessions without a `RenderFrameHost` (such
-  // as Dictation) must not be aborted by `FrameSessionTracker`.
-  base::test::TestFuture<void> io_flushed;
-  GetIOThreadTaskRunner({})->PostTaskAndReply(FROM_HERE, base::DoNothing(),
-                                              io_flushed.GetCallback());
-  EXPECT_TRUE(io_flushed.Wait());
-  EXPECT_FALSE(ended_future.IsReady());
-
-  GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::BindOnce(&SpeechRecognitionManager::AbortSession,
-                     base::Unretained(SpeechRecognitionManager::GetInstance()),
-                     session_id));
-  EXPECT_TRUE(ended_future.Wait());
-#else
   // On non-ChromeOS platforms, sessions without a `RenderFrameHost` are aborted
   // by `FrameSessionTracker`.
   (void)session_id;
   EXPECT_TRUE(ended_future.Wait());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
@@ -1064,95 +1031,7 @@ IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
       nullptr);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
-                       CompromisedRendererVisibilityBypass) {
-  ASSERT_TRUE(embedded_test_server()->Start());
-  GURL url = embedded_test_server()->GetURL("/empty.html");
-  EXPECT_TRUE(NavigateToURL(shell(), url));
 
-  mojo::Remote<media::mojom::SpeechRecognizer> speech_recognizer;
-  content::GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::BindOnce(
-          &SpeechRecognitionDispatcherHost::Create,
-          shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId(),
-          speech_recognizer.BindNewPipeAndPassReceiver()));
-
-  MockSpeechRecognitionSessionClient client;
-  media::mojom::StartSpeechRecognitionRequestParamsPtr params =
-      media::mojom::StartSpeechRecognitionRequestParams::New();
-  params->client = client.BindNewPipeAndPassRemote();
-  mojo::Remote<media::mojom::SpeechRecognitionSession> session_remote;
-  params->session_receiver = session_remote.BindNewPipeAndPassReceiver();
-
-  speech_recognizer->Start(std::move(params));
-
-  // Wait for the session to be fully started and tracked by the manager.
-  client.WaitForStarted();
-
-  // Verify the session is tracked.
-  EXPECT_EQ(1,
-            SpeechRecognitionManagerImpl::GetSessionTrackerCountForTesting(
-                shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId()));
-
-  // Hide the WebContents to simulate the user switching tabs or backgrounding
-  // Chrome.
-  shell()->web_contents()->WasHidden();
-
-  // Wait for the browser process to abort the session and signal the client.
-  client.WaitForEvent();
-
-  // Without the fix, the session tracker count would NOT be 0 because
-  // SpeechRecognitionManagerImpl did not observe visibility changes.
-  // The test asserts it is 0 to ensure the secure behavior is enforced.
-  EXPECT_EQ(0,
-            SpeechRecognitionManagerImpl::GetSessionTrackerCountForTesting(
-                shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId()));
-}
-
-IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
-                       CompromisedRendererStartWhileHiddenBypass) {
-  ASSERT_TRUE(embedded_test_server()->Start());
-  GURL url = embedded_test_server()->GetURL("/empty.html");
-  EXPECT_TRUE(NavigateToURL(shell(), url));
-
-  // Hide the WebContents to simulate the user switching tabs or backgrounding
-  // Chrome.
-  shell()->web_contents()->WasHidden();
-
-  mojo::Remote<media::mojom::SpeechRecognizer> speech_recognizer;
-  content::GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::BindOnce(
-          &SpeechRecognitionDispatcherHost::Create,
-          shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId(),
-          speech_recognizer.BindNewPipeAndPassReceiver()));
-
-  MockSpeechRecognitionSessionClient client;
-  media::mojom::StartSpeechRecognitionRequestParamsPtr params =
-      media::mojom::StartSpeechRecognitionRequestParams::New();
-  params->client = client.BindNewPipeAndPassRemote();
-  mojo::Remote<media::mojom::SpeechRecognitionSession> session_remote;
-  params->session_receiver = session_remote.BindNewPipeAndPassReceiver();
-
-  speech_recognizer->Start(std::move(params));
-
-  // Wait for the session to either start (vulnerable) or error out/end
-  // (secure).
-  client.WaitForEvent();
-
-  // Without the fix, the session tracker count would NOT be 0
-  // even though the page is hidden, because SpeechRecognitionManagerImpl
-  // did not observe visibility changes during Start.
-  // The test asserts it is 0 to ensure the secure behavior is enforced.
-  EXPECT_EQ(0,
-            SpeechRecognitionManagerImpl::GetSessionTrackerCountForTesting(
-                shell()->web_contents()->GetPrimaryMainFrame()->GetGlobalId()));
-}
-#endif
-
-#if !BUILDFLAG(IS_FUCHSIA)
 IN_PROC_BROWSER_TEST_F(SpeechRecognitionBrowserTest,
                        OnDeviceWebSpeechRecognition) {
   // Speech On-Device not supported.
@@ -1476,7 +1355,5 @@ IN_PROC_BROWSER_TEST_F(SpeechRecognitionCrossOriginBrowserTest,
   NetworkSpeechRecognitionEngineImpl::set_web_service_base_url_for_tests(
       nullptr);
 }
-
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 }  // namespace content

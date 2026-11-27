@@ -222,8 +222,7 @@ void AddOptimizationTypesForBnplIssuers(
     const std::vector<BnplIssuer>& bnpl_issuers,
     base::flat_set<optimization_guide::proto::OptimizationType>&
         optimization_types) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   auto bnpl_issuer_allowlist_can_be_loaded =
       [&bnpl_issuers](BnplIssuer::IssuerId issuer_id) {
         return std::ranges::contains(bnpl_issuers, issuer_id,
@@ -234,44 +233,24 @@ void AddOptimizationTypesForBnplIssuers(
     optimization_types.insert(
         base::FeatureList::IsEnabled(
             features::kAutofillPreferBuyNowPayLaterBlocklists)
-#if BUILDFLAG(IS_ANDROID)
-            ? optimization_guide::proto::
-                  BUY_NOW_PAY_LATER_BLOCKLIST_AFFIRM_ANDROID
-            : optimization_guide::proto::
-                  BUY_NOW_PAY_LATER_ALLOWLIST_AFFIRM_ANDROID);
-#else
             ? optimization_guide::proto::BUY_NOW_PAY_LATER_BLOCKLIST_AFFIRM
             : optimization_guide::proto::BUY_NOW_PAY_LATER_ALLOWLIST_AFFIRM);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   if (bnpl_issuer_allowlist_can_be_loaded(BnplIssuer::IssuerId::kBnplZip)) {
     optimization_types.insert(
         base::FeatureList::IsEnabled(
             features::kAutofillPreferBuyNowPayLaterBlocklists)
-#if BUILDFLAG(IS_ANDROID)
-            ? optimization_guide::proto::BUY_NOW_PAY_LATER_BLOCKLIST_ZIP_ANDROID
-            : optimization_guide::proto::
-                  BUY_NOW_PAY_LATER_ALLOWLIST_ZIP_ANDROID);
-#else
             ? optimization_guide::proto::BUY_NOW_PAY_LATER_BLOCKLIST_ZIP
             : optimization_guide::proto::BUY_NOW_PAY_LATER_ALLOWLIST_ZIP);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   if (bnpl_issuer_allowlist_can_be_loaded(BnplIssuer::IssuerId::kBnplKlarna)) {
     optimization_types.insert(
         base::FeatureList::IsEnabled(
             features::kAutofillPreferBuyNowPayLaterBlocklists)
-#if BUILDFLAG(IS_ANDROID)
-            ? optimization_guide::proto::
-                  BUY_NOW_PAY_LATER_BLOCKLIST_KLARNA_ANDROID
-            : optimization_guide::proto::
-                  BUY_NOW_PAY_LATER_ALLOWLIST_KLARNA_ANDROID);
-#else
             ? optimization_guide::proto::BUY_NOW_PAY_LATER_BLOCKLIST_KLARNA
             : optimization_guide::proto::BUY_NOW_PAY_LATER_ALLOWLIST_KLARNA);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
@@ -298,11 +277,6 @@ void AutofillOptimizationGuideDecider::OnPaymentsDataLoaded(
   if (base::FeatureList::IsEnabled(features::kAutofillEnableOmniboxAutofill)) {
     optimization_types.insert(
         optimization_guide::proto::OMNIBOX_AUTOFILL_IFRAME_ALLOWLIST);
-  }
-
-  if (base::FeatureList::IsEnabled(features::kAutofillAtMemory)) {
-    optimization_types.insert(
-        optimization_guide::proto::AUTOFILL_AT_MEMORY_BLOCKED);
   }
 
   // If we do not have any optimization types to register, do not do anything.
@@ -521,28 +495,14 @@ bool AutofillOptimizationGuideDecider::IsUrlEligibleForBnplIssuer(
       return can_apply_optimization(
           base::FeatureList::IsEnabled(
               features::kAutofillPreferBuyNowPayLaterBlocklists)
-#if BUILDFLAG(IS_ANDROID)
-              ? optimization_guide::proto::
-                    BUY_NOW_PAY_LATER_BLOCKLIST_AFFIRM_ANDROID
-              : optimization_guide::proto::
-                    BUY_NOW_PAY_LATER_ALLOWLIST_AFFIRM_ANDROID);
-#else
               ? optimization_guide::proto::BUY_NOW_PAY_LATER_BLOCKLIST_AFFIRM
               : optimization_guide::proto::BUY_NOW_PAY_LATER_ALLOWLIST_AFFIRM);
-#endif  // BUILDFLAG(IS_ANDROID)
     case BnplIssuer::IssuerId::kBnplZip:
       return can_apply_optimization(
           base::FeatureList::IsEnabled(
               features::kAutofillPreferBuyNowPayLaterBlocklists)
-#if BUILDFLAG(IS_ANDROID)
-              ? optimization_guide::proto::
-                    BUY_NOW_PAY_LATER_BLOCKLIST_ZIP_ANDROID
-              : optimization_guide::proto::
-                    BUY_NOW_PAY_LATER_ALLOWLIST_ZIP_ANDROID);
-#else
               ? optimization_guide::proto::BUY_NOW_PAY_LATER_BLOCKLIST_ZIP
               : optimization_guide::proto::BUY_NOW_PAY_LATER_ALLOWLIST_ZIP);
-#endif  // BUILDFLAG(IS_ANDROID)
     // TODO(crbug.com/408268581): Handle Afterpay issuer enum value when
     // adding Afterpay to the BNPL flow.
     case BnplIssuer::IssuerId::kBnplAfterpay:
@@ -551,15 +511,8 @@ bool AutofillOptimizationGuideDecider::IsUrlEligibleForBnplIssuer(
       return can_apply_optimization(
           base::FeatureList::IsEnabled(
               features::kAutofillPreferBuyNowPayLaterBlocklists)
-#if BUILDFLAG(IS_ANDROID)
-              ? optimization_guide::proto::
-                    BUY_NOW_PAY_LATER_BLOCKLIST_KLARNA_ANDROID
-              : optimization_guide::proto::
-                    BUY_NOW_PAY_LATER_ALLOWLIST_KLARNA_ANDROID);
-#else
               ? optimization_guide::proto::BUY_NOW_PAY_LATER_BLOCKLIST_KLARNA
               : optimization_guide::proto::BUY_NOW_PAY_LATER_ALLOWLIST_KLARNA);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
   NOTREACHED();
 }
@@ -572,19 +525,6 @@ bool AutofillOptimizationGuideDecider::IsUrlEligibleForOmniboxAutofill(
              url, optimization_guide::proto::OMNIBOX_AUTOFILL_IFRAME_ALLOWLIST,
              /*optimization_metadata=*/nullptr) ==
              optimization_guide::OptimizationGuideDecision::kTrue;
-}
-
-bool AutofillOptimizationGuideDecider::ShouldBlockAtMemory(
-    const GURL& url) const {
-  // Since the optimization guide decider integration corresponding to
-  // `AUTOFILL_AT_MEMORY_BLOCKED` lists are blocklists for the question "Can
-  // this site be optimized?", a match on the blocklist answers the question
-  // with "no". Therefore, `kFalse` indicates that `url` is blocked from the
-  // AtMemory feature.
-  return decider_->CanApplyOptimization(
-             url, optimization_guide::proto::AUTOFILL_AT_MEMORY_BLOCKED,
-             /*optimization_metadata=*/nullptr) ==
-         optimization_guide::OptimizationGuideDecision::kFalse;
 }
 
 }  // namespace autofill

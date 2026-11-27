@@ -36,11 +36,7 @@
 #include "tensorflow/core/framework/node_def.pb.h"   // from @org_tensorflow
 #include "tensorflow/core/public/session_options.h"  // from @org_tensorflow
 
-#if defined(MEDIAPIPE_MOBILE)
-#include "mediapipe/util/android/file/base/helpers.h"
-#else
 #include "mediapipe/framework/port/file_helpers.h"
-#endif
 
 namespace mediapipe {
 

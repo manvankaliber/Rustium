@@ -19,17 +19,11 @@ BASE_DECLARE_FEATURE(kLocalWebApprovals);
 // subframe.
 BASE_DECLARE_FEATURE(kAllowSubframeLocalWebApprovals);
 
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 extern const base::FeatureParam<int> kLocalWebApprovalBottomSheetLoadTimeoutMs;
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
+#endif
         // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables the supervised user verification interstitial and best-effort URL
-// classification on Android when in pending auth state.
-BASE_DECLARE_FEATURE(kSupervisedUserVerificationPageOnAndroid);
-#endif
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Uses supervised user strings on the signout dialog.

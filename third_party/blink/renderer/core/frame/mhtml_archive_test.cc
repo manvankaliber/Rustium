@@ -358,13 +358,8 @@ TEST_F(MHTMLArchiveTest, MHTMLFromScheme) {
   CheckLoadResult(ToKURL("http://www.example.com"), data.get(),
                   MHTMLLoadResult::kSuccess);
 
-#if BUILDFLAG(IS_ANDROID)
-  CheckLoadResult(ToKURL("content://foo"), data.get(),
-                  MHTMLLoadResult::kSuccess);
-#else
   CheckLoadResult(ToKURL("content://foo"), data.get(),
                   MHTMLLoadResult::kUrlSchemeNotAllowed);
-#endif
   CheckLoadResult(ToKURL("file://foo"), data.get(), MHTMLLoadResult::kSuccess);
   CheckLoadResult(ToKURL("fooscheme://bar"), data.get(),
                   MHTMLLoadResult::kUrlSchemeNotAllowed);

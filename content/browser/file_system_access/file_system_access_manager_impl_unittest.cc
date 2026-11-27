@@ -77,11 +77,8 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/blink/public/mojom/choosers/file_chooser.mojom.h"
-#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <fcntl.h>
 #include <sys/prctl.h>
 #include <sys/stat.h>
@@ -179,33 +176,6 @@ class DenyingFilePickerContentBrowserClient : public ContentBrowserClient {
   bool was_checked_ = false;
 };
 
-#if BUILDFLAG(IS_ANDROID)
-// A WebContentsDelegate that simulates WebView by overriding
-// `UseFileChooserForFileSystemAccess()` and handling `RunFileChooser()`.
-class TestWebViewWebContentsDelegate : public WebContentsDelegate {
- public:
-  bool UseFileChooserForFileSystemAccess() const override { return true; }
-
-  void RunFileChooser(RenderFrameHost* render_frame_host,
-                      scoped_refptr<FileSelectListener> listener,
-                      const blink::mojom::FileChooserParams& params) override {
-    run_file_chooser_called_ = true;
-    listener->FileSelected(std::move(files_), base::FilePath(), params.mode);
-  }
-
-  void SetFileToSelect(base::FilePath file) {
-    files_.push_back(blink::mojom::FileChooserFileInfo::NewNativeFile(
-        blink::mojom::NativeFileInfo::New(file, std::u16string(),
-                                          std::vector<std::u16string>())));
-  }
-
-  bool run_file_chooser_called() const { return run_file_chooser_called_; }
-
- private:
-  bool run_file_chooser_called_ = false;
-  std::vector<blink::mojom::FileChooserFileInfoPtr> files_;
-};
-#endif
 
 }  // namespace
 
@@ -2282,48 +2252,6 @@ TEST_F(FileSystemAccessManagerImplTest,
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(FileSystemAccessManagerImplTest,
-       SerializeHandle_AndroidContentUri_FileInsideDirectory) {
-  const base::FilePath kRootTreeUri("content://authority/tree/foo");
-  const base::FilePath kChildDocUri(
-      "content://authority/tree/foo/document/doc%3Abar");
-  const PathInfo kRootPathInfo(kRootTreeUri, "foo_dir");
-
-  auto grant = base::MakeRefCounted<FixedFileSystemAccessPermissionGrant>(
-      FixedFileSystemAccessPermissionGrant::PermissionStatus::GRANTED,
-      kRootPathInfo);
-  storage::FileSystemURL child_url =
-      file_system_context_->CreateCrackedFileSystemURL(
-          blink::StorageKey(), storage::kFileSystemTypeLocal, kChildDocUri);
-  FileSystemAccessFileHandleImpl file(manager_.get(), binding_context_,
-                                      child_url, "bar", {grant, grant});
-  mojo::PendingRemote<blink::mojom::FileSystemAccessTransferToken> token_remote;
-  manager_->CreateTransferToken(file,
-                                token_remote.InitWithNewPipeAndPassReceiver());
-
-  EXPECT_CALL(
-      permission_context_,
-      GetReadPermissionGrant(
-          kTestStorageKey.origin(), kRootPathInfo, HandleType::kDirectory,
-          FileSystemAccessPermissionContext::AccessTrigger::kLoadFromStorage))
-      .WillOnce(testing::Return(ask_grant_));
-  EXPECT_CALL(
-      permission_context_,
-      GetWritePermissionGrant(
-          kTestStorageKey.origin(), kRootPathInfo, HandleType::kDirectory,
-          FileSystemAccessPermissionContext::AccessTrigger::kLoadFromStorage))
-      .WillOnce(testing::Return(ask_grant2_));
-
-  FileSystemAccessTransferTokenImpl* token =
-      SerializeAndDeserializeToken(std::move(token_remote));
-  ASSERT_TRUE(token);
-  EXPECT_EQ(kChildDocUri, token->url().path());
-  EXPECT_EQ(HandleType::kFile, token->type());
-  EXPECT_EQ(ask_grant_, token->GetReadGrant());
-  EXPECT_EQ(ask_grant2_, token->GetWriteGrant());
-}
-#endif
 
 // FileSystemAccessManager should successfully resolve a
 // FileSystemAccessDataTransferToken representing a file in the user's file
@@ -2950,107 +2878,6 @@ TEST_F(FileSystemAccessManagerImplTest, ChooseEntries_HiddenWebContents) {
   EXPECT_TRUE(future.Get<1>().empty());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// WebView has a WebContentsDelegate and calls back to the hosting app which
-// implements WebContentsClient.
-TEST_F(FileSystemAccessManagerImplTest, WebView_ChooseEntries_OpenFile) {
-  base::FilePath test_file = dir_.GetPath().AppendASCII("foo");
-  ASSERT_TRUE(base::CreateTemporaryFile(&test_file));
-  PathInfo test_file_info(test_file);
-
-  TestWebViewWebContentsDelegate delegate;
-  delegate.SetFileToSelect(test_file);
-  web_contents_->SetDelegate(&delegate);
-
-  static_cast<TestRenderFrameHost*>(web_contents_->GetPrimaryMainFrame())
-      ->SimulateUserActivation();
-
-  mojo::Remote<blink::mojom::FileSystemAccessManager> manager_remote;
-  FileSystemAccessManagerImpl::BindingContext binding_context = {
-      kTestStorageKey, kTestURL,
-      web_contents_->GetPrimaryMainFrame()->GetGlobalId()};
-  manager_->BindReceiver(binding_context,
-                         manager_remote.BindNewPipeAndPassReceiver());
-
-  ExpectShowFilePicker(
-      /*read_permission=*/true, /*write_permission=*/false,
-      PathInfo(test_file_info.path.DirName()));
-  ExpectConfirmSensitiveEntryAccess(
-      test_file_info,
-      FileSystemAccessPermissionContext::SensitiveEntryResult::kAllowed);
-  ExpectGetReadPermissionGrant(test_file_info);
-  ExpectGetWritePermissionGrant(test_file_info);
-  ExpectCheckPathsAgainstEnterprisePolicy();
-
-  auto open_file_picker_options = blink::mojom::OpenFilePickerOptions::New(
-      blink::mojom::AcceptsTypesInfo::New(
-          std::vector<blink::mojom::ChooseFileSystemEntryAcceptsOptionPtr>(),
-          /*include_accepts_all=*/true),
-      /*can_select_multiple_files=*/false);
-  auto picker_options = blink::mojom::FilePickerOptions::New(
-      blink::mojom::TypeSpecificFilePickerOptionsUnion::
-          NewOpenFilePickerOptions(std::move(open_file_picker_options)),
-      /*starting_directory_id=*/std::string(),
-      blink::mojom::FilePickerStartInOptionsUnionPtr());
-
-  base::test::TestFuture<blink::mojom::FileSystemAccessErrorPtr,
-                         std::vector<blink::mojom::FileSystemAccessEntryPtr>>
-      future;
-  manager_remote->ChooseEntries(std::move(picker_options),
-                                future.GetCallback());
-  ASSERT_TRUE(future.Wait());
-
-  EXPECT_TRUE(delegate.run_file_chooser_called());
-  EXPECT_EQ(future.Get<0>()->status, blink::mojom::FileSystemAccessStatus::kOk);
-  EXPECT_EQ(future.Get<1>().size(), 1u);
-}
-
-// WebView WebContentsDelegate should not be called when WebContents is hidden.
-TEST_F(FileSystemAccessManagerImplTest,
-       WebView_ChooseEntries_HiddenWebContents) {
-  TestWebViewWebContentsDelegate delegate;
-  web_contents_->SetDelegate(&delegate);
-
-  static_cast<TestRenderFrameHost*>(web_contents_->GetPrimaryMainFrame())
-      ->SimulateUserActivation();
-
-  // Must set VISIBLE first before HIDDEN will work.
-  web_contents_->UpdateWebContentsVisibility(Visibility::VISIBLE);
-  web_contents_->UpdateWebContentsVisibility(Visibility::HIDDEN);
-
-  mojo::Remote<blink::mojom::FileSystemAccessManager> manager_remote;
-  FileSystemAccessManagerImpl::BindingContext binding_context = {
-      kTestStorageKey, kTestURL,
-      web_contents_->GetPrimaryMainFrame()->GetGlobalId()};
-  manager_->BindReceiver(binding_context,
-                         manager_remote.BindNewPipeAndPassReceiver());
-
-  ExpectShowFilePicker();
-
-  auto open_file_picker_options = blink::mojom::OpenFilePickerOptions::New(
-      blink::mojom::AcceptsTypesInfo::New(
-          std::vector<blink::mojom::ChooseFileSystemEntryAcceptsOptionPtr>(),
-          /*include_accepts_all=*/true),
-      /*can_select_multiple_files=*/false);
-  auto picker_options = blink::mojom::FilePickerOptions::New(
-      blink::mojom::TypeSpecificFilePickerOptionsUnion::
-          NewOpenFilePickerOptions(std::move(open_file_picker_options)),
-      /*starting_directory_id=*/std::string(),
-      blink::mojom::FilePickerStartInOptionsUnionPtr());
-
-  base::test::TestFuture<blink::mojom::FileSystemAccessErrorPtr,
-                         std::vector<blink::mojom::FileSystemAccessEntryPtr>>
-      future;
-  manager_remote->ChooseEntries(std::move(picker_options),
-                                future.GetCallback());
-  ASSERT_TRUE(future.Wait());
-
-  EXPECT_FALSE(delegate.run_file_chooser_called());
-  EXPECT_EQ(blink::mojom::FileSystemAccessStatus::kOperationAborted,
-            future.Get<0>()->status);
-  EXPECT_TRUE(future.Get<1>().empty());
-}
-#endif
 
 TEST_F(FileSystemAccessManagerImplTest,
        ChooseEntries_CrossOriginDenialDoesNotConsumeActivation) {
@@ -3357,7 +3184,7 @@ TEST_P(FileSystemAccessManagerImplSaveFileTest, MissingParentDirectory) {
   EXPECT_FALSE(base::PathExists(dir_.GetPath().Append(relative_path)));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 TEST_P(FileSystemAccessManagerImplSaveFileTest, TruncateFailure) {
   if (sandbox::landlock_create_ruleset(nullptr, 0,
                                        LANDLOCK_CREATE_RULESET_VERSION) < 3) {

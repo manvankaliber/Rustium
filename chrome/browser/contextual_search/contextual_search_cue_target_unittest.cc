@@ -46,11 +46,7 @@
 #include "third_party/omnibox_proto/chrome_aim_entry_point.pb.h"
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
-#endif
-
 namespace contextual_search {
 namespace {
 
@@ -58,40 +54,11 @@ using ::page_content_annotations::Category;
 using ::page_content_annotations::CategoryType;
 using ::page_content_annotations::PageContentAnnotationsResult;
 
-#if !BUILDFLAG(IS_ANDROID)
-class MockLensSearchController : public LensSearchController {
- public:
-  explicit MockLensSearchController(tabs::TabInterface* tab)
-      : LensSearchController(tab) {}
-  ~MockLensSearchController() override = default;
 
-  MOCK_METHOD(
-      bool,
-      StartContextualAimQueryInSidePanel,
-      (const GURL& url,
-       std::unique_ptr<contextual_search::ContextualSearchSessionHandle>&
-           session_handle,
-       omnibox::ChromeAimEntryPoint aim_entry_point),
-      (override));
-};
-#endif
 
 class ContextualSearchCueTargetTest : public ChromeRenderViewHostTestHarness {
  public:
   explicit ContextualSearchCueTargetTest(bool discard_shopping_pdfs = true) {
-    feature_list_.InitWithFeaturesAndParameters(
-        {
-            {contextual_cueing::kContextualCueingV2,
-             {{"ContextualCueingV2EduClassifierThreshold", "0.7"},
-              {"ContextualCueingV2ShoppingClassifierThreshold", "0.6"},
-              {"ContextualCueingV2DiscardShoppingPdfs",
-               discard_shopping_pdfs ? "true" : "false"}}},
-            {contextual_tasks::kContextualSearchContextualCuesHandleEdu, {}},
-            {contextual_tasks::kContextualSearchContextualCuesHandleShopping,
-             {}},
-            {contextual_tasks::kContextualTasksForceEntryPointEligibility, {}},
-        },
-        {});
   }
 
   TestingProfile::TestingFactories GetTestingFactories() const override {
@@ -135,17 +102,12 @@ class ContextualSearchCueTargetTest : public ChromeRenderViewHostTestHarness {
         .WillRepeatedly(testing::Return(profile()));
     ON_CALL(*mock_tab_, GetUnownedUserDataHost())
         .WillByDefault(testing::ReturnRef(tab_user_data_host_));
-#if !BUILDFLAG(IS_ANDROID)
     mock_browser_window_interface_ =
         std::make_unique<testing::NiceMock<MockBrowserWindowInterface>>();
     ON_CALL(*mock_browser_window_interface_, GetUnownedUserDataHost())
         .WillByDefault(testing::ReturnRef(window_user_data_host_));
     EXPECT_CALL(*mock_tab_, GetBrowserWindowInterface())
         .WillRepeatedly(testing::Return(mock_browser_window_interface_.get()));
-    mock_lens_search_controller_ =
-        std::make_unique<testing::NiceMock<MockLensSearchController>>(
-            mock_tab_.get());
-#endif
 
     target_ = std::make_unique<ContextualSearchCueTarget>(
         /*optimization_guide_keyed_service=*/nullptr, *mock_tab_);
@@ -153,10 +115,8 @@ class ContextualSearchCueTargetTest : public ChromeRenderViewHostTestHarness {
 
   void TearDown() override {
     target_.reset();
-#if !BUILDFLAG(IS_ANDROID)
     mock_lens_search_controller_.reset();
     mock_browser_window_interface_.reset();
-#endif
     mock_tab_.reset();
     identity_test_env_adaptor_.reset();
     ChromeRenderViewHostTestHarness::TearDown();
@@ -186,17 +146,12 @@ class ContextualSearchCueTargetTest : public ChromeRenderViewHostTestHarness {
   ui::UnownedUserDataHost window_user_data_host_;
   ui::UnownedUserDataHost tab_user_data_host_;
   std::unique_ptr<tabs::MockTabInterface> mock_tab_;
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<testing::NiceMock<MockBrowserWindowInterface>>
       mock_browser_window_interface_;
-  std::unique_ptr<testing::NiceMock<MockLensSearchController>>
-      mock_lens_search_controller_;
-#endif
 
   std::unique_ptr<ContextualSearchCueTarget> target_;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualSearchCueTargetTest, IsEligible_HistorySync) {
   auto* sync_service = static_cast<syncer::TestSyncService*>(
       SyncServiceFactory::GetForProfile(profile()));
@@ -225,16 +180,6 @@ TEST_F(ContextualSearchCueTargetTest, IsEligible_NoBrowserWindow) {
   EXPECT_FALSE(target_->IsEligible());
 }
 
-TEST_F(ContextualSearchCueTargetTest, IsEligible_NoLensSearchController) {
-  auto* sync_service = static_cast<syncer::TestSyncService*>(
-      SyncServiceFactory::GetForProfile(profile()));
-  sync_service->SetSignedIn(signin::ConsentLevel::kSignin);
-  sync_service->GetUserSettings()->SetSelectedType(
-      syncer::UserSelectableType::kHistory, true);
-
-  mock_lens_search_controller_.reset();
-  EXPECT_FALSE(target_->IsEligible());
-}
 
 TEST_F(ContextualSearchCueTargetTest, IsEligible_SidePanelNotAvailable) {
   auto* sync_service = static_cast<syncer::TestSyncService*>(
@@ -252,7 +197,6 @@ TEST_F(ContextualSearchCueTargetTest, IsEligible_SidePanelNotAvailable) {
           contextual_tasks::kContextualTasksRearchitecture});
   EXPECT_FALSE(target_->IsEligible());
 }
-#endif
 
 TEST_F(ContextualSearchCueTargetTest, IsPageEligible_LowScoreEdu) {
   auto result = CreateAnnotationResult(CategoryType::kEducation, 60);
@@ -272,40 +216,12 @@ TEST_F(ContextualSearchCueTargetTest, IsPageEligible_EduDisabled) {
   auto edu_result = CreateAnnotationResult(CategoryType::kEducation, 80);
   EXPECT_FALSE(target_->IsPageEligible(edu_result, web_contents()));
 
-  auto shopping_result = CreateAnnotationResult(CategoryType::kShopping, 70);
   EXPECT_TRUE(target_->IsPageEligible(shopping_result, web_contents()));
 }
 
-TEST_F(ContextualSearchCueTargetTest, IsPageEligible_LowScoreShopping) {
-  auto result = CreateAnnotationResult(CategoryType::kShopping, 50);
-  EXPECT_FALSE(target_->IsPageEligible(result, web_contents()));
-}
 
-TEST_F(ContextualSearchCueTargetTest, IsPageEligible_HighScoreShopping) {
-  auto result = CreateAnnotationResult(CategoryType::kShopping, 70);
-  EXPECT_TRUE(target_->IsPageEligible(result, web_contents()));
-}
 
-TEST_F(ContextualSearchCueTargetTest, IsPageEligible_ShoppingDisabled) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(
-      contextual_tasks::kContextualSearchContextualCuesHandleShopping);
 
-  auto shopping_result = CreateAnnotationResult(CategoryType::kShopping, 70);
-  EXPECT_FALSE(target_->IsPageEligible(shopping_result, web_contents()));
-
-  auto edu_result = CreateAnnotationResult(CategoryType::kEducation, 80);
-  EXPECT_TRUE(target_->IsPageEligible(edu_result, web_contents()));
-}
-
-TEST_F(ContextualSearchCueTargetTest,
-       IsPageEligible_HighScoreShopping_PdfDiscarded) {
-  content::WebContentsTester::For(web_contents())
-      ->SetMainFrameMimeType(pdf::kPDFMimeType);
-
-  auto result = CreateAnnotationResult(CategoryType::kShopping, 80);
-  EXPECT_FALSE(target_->IsPageEligible(result, web_contents()));
-}
 
 TEST_F(ContextualSearchCueTargetTest,
        IsPageEligible_HighScoreEdu_PdfNotDiscarded) {
@@ -316,50 +232,11 @@ TEST_F(ContextualSearchCueTargetTest,
   EXPECT_TRUE(target_->IsPageEligible(result, web_contents()));
 }
 
-TEST_F(ContextualSearchCueTargetTest,
-       IsPageEligible_HighScoreEduAndShopping_PdfDiscarded) {
-  content::WebContentsTester::For(web_contents())
-      ->SetMainFrameMimeType(pdf::kPDFMimeType);
 
-  auto result = CreateMultiAnnotationResult(CategoryType::kEducation, 80,
-                                            CategoryType::kShopping, 80);
-  EXPECT_FALSE(target_->IsPageEligible(result, web_contents()));
-}
 
-class ContextualSearchCueTargetDoNotDiscardShoppingPdfsTest
-    : public ContextualSearchCueTargetTest {
- public:
-  ContextualSearchCueTargetDoNotDiscardShoppingPdfsTest()
-      : ContextualSearchCueTargetTest(/*discard_shopping_pdfs=*/false) {}
-};
 
-TEST_F(ContextualSearchCueTargetDoNotDiscardShoppingPdfsTest,
-       IsPageEligible_HighScoreEdu_Pdf) {
-  content::WebContentsTester::For(web_contents())
-      ->SetMainFrameMimeType(pdf::kPDFMimeType);
 
-  auto result = CreateAnnotationResult(CategoryType::kEducation, 80);
-  EXPECT_TRUE(target_->IsPageEligible(result, web_contents()));
-}
 
-TEST_F(ContextualSearchCueTargetDoNotDiscardShoppingPdfsTest,
-       IsPageEligible_HighScoreShopping_Pdf) {
-  content::WebContentsTester::For(web_contents())
-      ->SetMainFrameMimeType(pdf::kPDFMimeType);
-
-  auto result = CreateAnnotationResult(CategoryType::kShopping, 80);
-  EXPECT_TRUE(target_->IsPageEligible(result, web_contents()));
-}
-
-TEST_F(ContextualSearchCueTargetDoNotDiscardShoppingPdfsTest,
-       IsPageEligible_HighScoreEduAndShopping_Pdf) {
-  content::WebContentsTester::For(web_contents())
-      ->SetMainFrameMimeType(pdf::kPDFMimeType);
-
-  auto result = CreateMultiAnnotationResult(CategoryType::kEducation, 80,
-                                            CategoryType::kShopping, 80);
-  EXPECT_TRUE(target_->IsPageEligible(result, web_contents()));
-}
 
 TEST_F(ContextualSearchCueTargetTest, CueActionDataFromResponse) {
   optimization_guide::proto::ContextualCue cue;
@@ -409,7 +286,6 @@ TEST_F(ContextualSearchCueTargetTest, MetadataAndProperties) {
       contextual_cueing::CueIntrusiveness::kQuiet));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContextualSearchCueTargetTest,
        OnAnchoredMessageClicked_StartsContextualAimQueryInSidePanel) {
   ContextualSearchServiceFactory::GetInstance()->SetTestingFactory(
@@ -441,17 +317,9 @@ TEST_F(ContextualSearchCueTargetTest,
             EXPECT_EQ(
                 request_info->aim_entry_point,
                 omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_CONTEXTUAL_CUE);
-            EXPECT_EQ(request_info->invocation_source,
-                      lens::LensOverlayInvocationSource::kContextualCue);
             std::move(callback).Run(expected_url);
           });
 
-  EXPECT_CALL(
-      *contextual_search_service,
-      CreateSession(testing::_, ContextualSearchSource::kContextualCue,
-                    std::optional<lens::LensOverlayInvocationSource>(
-                        lens::LensOverlayInvocationSource::kContextualCue)))
-      .WillOnce(testing::Return(std::move(session_handle)));
 
   EXPECT_CALL(
       *mock_lens_search_controller_,
@@ -510,12 +378,6 @@ TEST_F(ContextualSearchCueTargetTest,
             std::move(callback).Run(expected_url);
           });
 
-  EXPECT_CALL(
-      *contextual_search_service,
-      CreateSession(testing::_, ContextualSearchSource::kContextualCue,
-                    std::optional<lens::LensOverlayInvocationSource>(
-                        lens::LensOverlayInvocationSource::kContextualCue)))
-      .WillOnce(testing::Return(std::move(session_handle)));
 
   EXPECT_CALL(*mock_lens_search_controller_,
               StartContextualAimQueryInSidePanel(testing::_, testing::_,
@@ -526,7 +388,6 @@ TEST_F(ContextualSearchCueTargetTest,
   cs_data.query = "compare headphones";
   target_->OnAnchoredMessageClicked(cs_data);
 }
-#endif
 }  // namespace
 
 // ---------------------------------------------------------------------------
@@ -539,17 +400,6 @@ class ContextualSearchCueTargetAsyncTest
   ContextualSearchCueTargetAsyncTest()
       : ChromeRenderViewHostTestHarness(
             base::test::TaskEnvironment::TimeSource::MOCK_TIME) {
-    feature_list_.InitWithFeaturesAndParameters(
-        {
-            {contextual_cueing::kContextualCueingV2,
-             {{"ContextualCueingV2EduClassifierThreshold", "0.7"},
-              {"ContextualCueingV2ShoppingClassifierThreshold", "0.6"}}},
-            {contextual_cueing::kContextualCueingV2MultiSource, {}},
-            {contextual_tasks::kContextualSearchContextualCuesHandleEdu, {}},
-            {contextual_tasks::kContextualSearchContextualCuesHandleShopping,
-             {}},
-        },
-        {});
   }
 
   TestingProfile::TestingFactories GetTestingFactories() const override {

@@ -164,6 +164,9 @@ _OBJECT_OUTPUTS = {
 }
 
 
+_OBJECT_OUTPUTS = {os.path.normpath(k): v for k, v in _OBJECT_OUTPUTS.items()}
+
+
 def _PrintHeader(path):
   sys.stdout.write('\n')
   sys.stdout.write(path + ':\n')

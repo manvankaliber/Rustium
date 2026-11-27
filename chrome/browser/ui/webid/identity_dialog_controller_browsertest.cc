@@ -12,12 +12,6 @@
 #include "base/test/scoped_feature_list.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#include "chrome/browser/actor/actor_task.h"
-#include "chrome/browser/actor/actor_task_metadata.h"
-#include "chrome/browser/actor/actor_test_util.h"
-#include "chrome/browser/actor/execution_engine.h"
-#include "chrome/browser/actor/ui/event_dispatcher.h"
-#include "chrome/browser/actor/ui/test_support/mock_event_dispatcher.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/ui/webid/account_selection_view.h"
@@ -183,92 +177,9 @@ class IdentityDialogControllerBrowserTest : public InProcessBrowserTest {
  protected:
   raw_ptr<content::WebContents> web_contents_;
 
-  TaskId SimulateNewActiveActorTask() {
-    actor::ActorKeyedService* actor_service =
-        actor::ActorKeyedService::Get(browser()->GetProfile());
-    CHECK(actor_service);
-
-    actor::TaskId task_id = actor_service->CreateTask(
-        actor::TestTaskSourceInfo(), actor::NoEnterprisePolicyChecker());
-
-    // Perform an arbitrary action in a tab to put the task into
-    // UnderActorControl state and add the tab to the task.
-    tabs::TabInterface* tab =
-        tabs::TabInterface::GetFromContents(web_contents_);
-    CHECK(tab);
-    auto click = actor::MakeClickRequest(*tab, gfx::Point(1, 1));
-    actor::PerformActionsFuture future;
-    actor_service->PerformActions(task_id, ToRequestList(std::move(click)),
-                                  actor::ActorTaskMetadata(),
-                                  future.GetCallback());
-    EXPECT_TRUE(future.Wait());
-    return task_id;
-  }
 
   bool HasActingTaskId(IdentityDialogController* controller) {
     return !controller->acting_task_id_.is_null();
   }
 
-  void SimulateActorTaskFinished(IdentityDialogController* controller,
-                                 TaskId task_id) {
-    actor::ActorKeyedService* actor_service =
-        actor::ActorKeyedService::Get(browser()->GetProfile());
-    EXPECT_NE(actor_service, nullptr);
-    actor_service->StopTask(task_id,
-                            actor::ActorTask::StoppedReason::kTaskComplete);
-  }
 };
-
-IN_PROC_BROWSER_TEST_F(IdentityDialogControllerBrowserTest,
-                       ActorTaskStateChangesCanShowUi) {
-  std::unique_ptr<IdentityDialogController> controller =
-      std::make_unique<IdentityDialogController>(web_contents_);
-  auto mock_view = std::make_unique<MockAccountSelectionView>();
-  MockAccountSelectionView* view_ptr = mock_view.get();
-  controller->SetAccountSelectionViewForTesting(std::move(mock_view));
-
-  // Simulate an actor task starting and acting on the page. Since the task is
-  // active SetCanShowUi is called with `false` each time the task changes
-  // state (kCreated->kActing->kReflecting).
-  EXPECT_CALL(*view_ptr, SetCanShowUi(false)).Times(2);
-  TaskId task_id = SimulateNewActiveActorTask();
-
-  // Simulate the actor task finishing. This should restore visibility. We
-  // expect SetCanShowUi(true) to be called.
-  EXPECT_CALL(*view_ptr, SetCanShowUi(true)).Times(1);
-  SimulateActorTaskFinished(controller.get(), task_id);
-
-  // The task ID should be cleared.
-  EXPECT_FALSE(HasActingTaskId(controller.get()));
-}
-
-IN_PROC_BROWSER_TEST_F(IdentityDialogControllerBrowserTest,
-                       ActorTaskHidesUiOnShow) {
-  std::unique_ptr<IdentityDialogController> controller =
-      std::make_unique<IdentityDialogController>(web_contents_);
-  auto mock_view = std::make_unique<MockAccountSelectionView>();
-  MockAccountSelectionView* view_ptr = mock_view.get();
-  controller->SetAccountSelectionViewForTesting(std::move(mock_view));
-
-  // Expect SetCanShowUi(false) to be called when we get an active actor
-  // task. It's called each time ActorTask transitions state.
-  EXPECT_CALL(*view_ptr, SetCanShowUi(false)).Times(2);
-
-  // Simulate an actor task being active.
-  SimulateNewActiveActorTask();
-
-  // Show the accounts dialog.
-  std::vector<IdentityRequestAccountPtr> accounts = CreateAccount();
-  IdentityProviderDataPtr idp_data = CreateIdentityProviderData(accounts);
-
-  EXPECT_CALL(*view_ptr, Show).WillOnce(testing::Return(true));
-  EXPECT_TRUE(controller->ShowAccountsDialog(
-      content::RelyingPartyData(kTopFrameEtldPlusOne,
-                                /*iframe_for_display=*/u""),
-      {idp_data}, accounts, /*filtered_accounts=*/{},
-      blink::mojom::RpMode::kPassive,
-      /*on_selected=*/base::DoNothing(),
-      /*on_add_account=*/base::DoNothing(),
-      /*dismiss_callback=*/base::DoNothing(),
-      /*accounts_displayed_callback=*/base::DoNothing()));
-}

@@ -28,7 +28,7 @@ export interface PdfViewerPrivateProxy {
 
   saveToDrive(saveRequestType?: SaveRequestType): void;
   // </if>
-  glicSummarize(): void;
+
   setPdfDocumentTitle(title: string): void;
 }
 
@@ -50,9 +50,7 @@ export class PdfViewerPrivateProxyImpl implements PdfViewerPrivateProxy {
   }
   // </if>
 
-  glicSummarize(): void {
-    chrome.pdfViewerPrivate.glicSummarize();
-  }
+
 
   setPdfDocumentTitle(title: string): void {
     chrome.pdfViewerPrivate.setPdfDocumentTitle(title);

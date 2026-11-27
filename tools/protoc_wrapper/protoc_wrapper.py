@@ -13,6 +13,7 @@ Features:
 
 from __future__ import print_function
 import argparse
+import filecmp
 import os.path
 import subprocess
 import sys
@@ -97,6 +98,50 @@ def WriteIncludes(headers, include):
         print(line, file=f)
 
 
+def PublishPluginOutputs(staging_dir, output_dir):
+  for root, _, files in os.walk(staging_dir):
+    for name in sorted(files):
+      source = os.path.join(root, name)
+      destination = os.path.join(
+        output_dir, os.path.relpath(source, staging_dir)
+      )
+      # Compare bytes, not just size/mtime. In particular, leave unchanged
+      # headers alone even when a compiler has them memory-mapped on Windows.
+      if os.path.exists(destination) and filecmp.cmp(
+        source, destination, shallow=False
+      ):
+        continue
+      os.makedirs(os.path.dirname(destination), exist_ok=True)
+      # Staging is on the same filesystem. Never fall back to copying over
+      # a final header: readers must not see partial or truncated contents.
+      # A sharing violation is a build failure, not permission to delete it.
+      os.replace(source, destination)
+
+
+def RewritePluginDepfile(depfile, staging_dir, output_dir):
+  # protoc writes one output per line, followed by the input dependencies.
+  # Change only staged output prefixes; leave descriptors and inputs untouched.
+  # Match protoc's trailing-slash and leading-./ handling.
+  def prefix(path):
+    if not path.endswith('/'):
+      path += '/'
+    if path.startswith('./'):
+      path = path[2:]
+    return os.fsencode(path)
+
+  old_prefix = prefix(staging_dir)
+  new_prefix = prefix(output_dir)
+  with open(depfile, 'rb') as f:
+    lines = f.readlines()
+  rewritten = [
+    new_prefix + line[len(old_prefix):] if line.startswith(old_prefix) else line
+    for line in lines
+  ]
+  if rewritten != lines:
+    with open(depfile, 'wb') as f:
+      f.writelines(rewritten)
+
+
 def main(argv):
   parser = argparse.ArgumentParser()
   parser.add_argument(
@@ -174,6 +219,30 @@ def main(argv):
 
   options = parser.parse_args(argv)
 
+  if sys.platform == 'win32' and options.plugin_out_dir:
+    output_dir = options.plugin_out_dir
+    os.makedirs(output_dir, exist_ok=True)
+    with tempfile.TemporaryDirectory(
+      prefix='.protoc-', dir=output_dir
+    ) as staging_dir:
+      # protoc shares an in-memory generator context for identical output
+      # directories. Preserve this for plugins that insert into built-in files.
+      # Only redirect modes sharing that context, not unrelated outputs.
+      for attr in ('plugin_out_dir', 'cc_out_dir', 'py_out_dir', 'js_out_dir',
+                   'ts_out_dir'):
+        path = getattr(options, attr)
+        if path and path.removesuffix('/') == output_dir.removesuffix('/'):
+          setattr(options, attr, staging_dir)
+      Generate(options)
+      if options.descriptor_set_out and options.descriptor_set_dependency_file:
+        RewritePluginDepfile(options.descriptor_set_dependency_file,
+                             staging_dir, output_dir)
+      PublishPluginOutputs(staging_dir, output_dir)
+  else:
+    Generate(options)
+
+
+def Generate(options):
   proto_dir = os.path.relpath(options.proto_in_dir)
   protoc_cmd = [os.path.realpath(options.protoc)]
 

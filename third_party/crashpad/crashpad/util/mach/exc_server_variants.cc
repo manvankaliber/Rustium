@@ -32,11 +32,7 @@
 #include "util/mach/mach_excServer.h"
 #include "util/mach/mach_message.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "util/ios/raw_logging.h"
-#else
 #include "base/apple/mach_logging.h"
-#endif
 
 namespace crashpad {
 
@@ -506,11 +502,7 @@ bool ExcServer<Traits>::MachMessageServerFunction(
               TASK_FLAVOR_CONTROL,
               &task_port);
           if (kr != MACH_MSG_SUCCESS) {
-#if BUILDFLAG(IS_IOS)
-            CRASHPAD_RAW_LOG_ERROR(kr, "task_identity_token_get_task_port");
-#else
             MACH_LOG(WARNING, kr) << "task_identity_token_get_task_port";
-#endif
           }
         }
 
@@ -606,11 +598,7 @@ bool ExcServer<Traits>::MachMessageServerFunction(
           if (kr != MACH_MSG_SUCCESS) {
             // If this fails, pass TASK_NULL to
             // CatchExceptionRaiseStateIdentityProtected
-#if BUILDFLAG(IS_IOS)
-            CRASHPAD_RAW_LOG_ERROR(kr, "task_identity_token_get_task_port");
-#else
             MACH_LOG(WARNING, kr) << "task_identity_token_get_task_port";
-#endif
           }
         }
 

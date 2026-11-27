@@ -80,7 +80,6 @@ class CommandBufferHelperImpl
     return stub_->channel()->shared_image_stub()->memory_tracker();
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   gpu::SharedImageStub* GetSharedImageStub() override {
     return shared_image_stub();
   }
@@ -88,7 +87,6 @@ class CommandBufferHelperImpl
   gpu::MemoryTypeTracker* GetMemoryTypeTracker() override {
     return &memory_type_tracker_;
   }
-#endif
 
   gpu::SharedImageManager* GetSharedImageManager() override {
     if (!stub_) {

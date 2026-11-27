@@ -84,18 +84,7 @@ cc_library(
 
 GL_BASE_LINK_OPTS = select({
     "//conditions:default": [],
-    "//mediapipe:android": [
-        "-lGLESv2",
-        "-lEGL",
-        # Note: on Android, libGLESv3.so is normally a symlink to
-        # libGLESv2.so, so we don't need to link to it. In fact, we
-        # do not _want_ to link to it, or we would be unable to load
-        # on API level < 18, where the symlink is missing entirely.
-        # Note: if we ever find a strange version of Android where the
-        # GLESv3 library is not a symlink, we will have to load it at
-        # runtime. Weak GLESv3 symbols will still be resolved if we
-        # load it early enough.
-    ],
+
     "//mediapipe:ios": [
         "-framework OpenGLES",
         "-framework CoreVideo",
@@ -120,7 +109,7 @@ GL_BASE_LINK_OPTS_OSS = GL_BASE_LINK_OPTS + select({
         "-lGLESv2",
         "-lEGL",
     ],
-    "//mediapipe:android": [],
+
     ":platform_apple_with_gpu": [],
     ":disable_gpu": [],
 })
@@ -138,7 +127,7 @@ cc_library(
     textual_hdrs = ["gl_base.h"],
     visibility = ["//visibility:public"],
     deps = [":gl_base_hdr"] + select({
-        "//mediapipe:android": [],
+
         "//mediapipe:apple": [],
         "//mediapipe:emscripten": [],
         "//conditions:default": [
@@ -171,7 +160,7 @@ cc_library(
     }),
     visibility = ["//visibility:public"],
     deps = select({
-        "//mediapipe:android": [],
+
         "//mediapipe:apple": [],
         "//mediapipe:emscripten": [],
         "//conditions:default": [
@@ -596,58 +585,6 @@ cc_library(
         "@com_google_absl//absl/types:span",
         "@libyuv",
     ],
-)
-
-cc_library(
-    name = "gpu_buffer_storage_ahwb",
-    srcs = ["gpu_buffer_storage_ahwb.cc"],
-    hdrs = ["gpu_buffer_storage_ahwb.h"],
-    linkopts = select({
-        "//conditions:default": [],
-        # Option for vendor binaries to avoid linking libandroid.so.
-        "//mediapipe/framework:android_no_jni": [],
-        "//mediapipe:android": [
-            "-landroid",
-        ],
-        # Vendor binaries on Android API >= 26 link libnativewindow for
-        # <android/hardware_buffer.h> (AHardwareBuffer_*) instead of
-        # libandroid.so, which is not available in the vendor linker namespace.
-        "//mediapipe/framework/formats:android_link_native_window": [
-            "-lnativewindow",
-        ],
-    }),
-    deps = [
-        ":gl_base_hdr",
-        ":gl_context",
-        ":gl_texture_buffer",
-        ":gl_texture_view",
-        ":gpu_buffer_format",
-        ":gpu_buffer_storage",
-        ":image_frame_view",
-        "//mediapipe/framework:port",
-        "//mediapipe/framework/formats:ahwb_view",
-        "//mediapipe/framework/formats:hardware_buffer",
-        "//mediapipe/framework/formats:image_frame",
-        "//mediapipe/framework/formats:shared_fd",
-        "//mediapipe/framework/formats:unique_fd",
-        "//mediapipe/framework/port:ret_check",
-        "//mediapipe/util:sync_wait",
-        "//third_party/GL:EGL_headers",
-        "@com_google_absl//absl/base",
-        "@com_google_absl//absl/log:absl_check",
-        "@com_google_absl//absl/log:absl_log",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/status:status_macros",
-        "@com_google_absl//absl/status:statusor",
-        "@com_google_absl//absl/strings:str_format",
-        "@com_google_absl//absl/time",
-    ] + select({
-        "//conditions:default": [],
-        "//mediapipe:android": [
-            ":egl_sync",
-            ":egl_sync_point",
-        ],
-    }),
 )
 
 mediapipe_proto_library(
@@ -1322,7 +1259,7 @@ cc_library(
         ":gl_simple_shaders",
         ":gpu_buffer",
         ":gpu_buffer_format",
-        ":gpu_buffer_storage_ahwb",
+
         ":shader_util",
         "//mediapipe/framework:calculator_framework",
         "//mediapipe/framework:port",
@@ -1664,43 +1601,6 @@ ios_unit_test(
         "ios",
     ],
     deps = [":gl_ios_test_lib"],
-)
-
-mediapipe_cc_test(
-    name = "gpu_buffer_storage_ahwb_test",
-    size = "small",
-    srcs = ["gpu_buffer_storage_ahwb_test.cc"],
-    # Ensures that virtual device chosen is Android 26+.
-    android_devices = {
-        "//tools/target_cpu:x86": "//tools/mobile/devices/android/generic_phone:android_26_x86",
-    },
-    exclude_platforms = [
-        "ios",
-        "wasm",
-    ],
-    requires_full_emulation = True,
-    deps = [
-        ":egl_sync",
-        ":gl_texture_buffer",
-        ":gl_texture_util",
-        ":gl_texture_view",
-        ":gpu_buffer_format",
-        ":gpu_buffer_storage",
-        ":gpu_buffer_storage_ahwb",
-        ":gpu_test_base",
-        "//mediapipe/framework:port",
-        "//mediapipe/framework/formats:ahwb_view",
-        "//mediapipe/framework/formats:hardware_buffer",
-        "//mediapipe/framework/formats:image_frame",
-        "//mediapipe/framework/formats:shared_fd",
-        "//mediapipe/framework/formats:unique_fd",
-        "//mediapipe/framework/port:gtest_main",
-        "//mediapipe/framework/tool:test_util",
-        "//mediapipe/util:sync_wait",
-        "@com_google_absl//absl/log:absl_log",
-        "@com_google_absl//absl/time",
-        "@com_google_googletest//:gtest",
-    ],
 )
 
 mediapipe_cc_test(

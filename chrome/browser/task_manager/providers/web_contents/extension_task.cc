@@ -85,16 +85,7 @@ void ExtensionTask::Activate() {
   if (!browser)
     return;
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/417512763): Consolidate this with chrome::ShowExtensions()
-  // when it works on Android.
-  GURL url = extensions::util::GetExtensionsPageUrl(extension->id());
-  NavigateParams params(browser, url, ui::PAGE_TRANSITION_LINK);
-  params.disposition = ui::mojom::WindowOpenDisposition::kNewForegroundTab;
-  Navigate(&params);
-#else
   chrome::ShowExtensions(browser, extension->id());
-#endif  // BUILDFLAG(IS_ANDROID)
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 }
 

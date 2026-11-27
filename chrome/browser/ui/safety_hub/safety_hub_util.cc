@@ -8,7 +8,6 @@
 #include "components/content_settings/core/common/features.h"
 #include "components/safety_check/safety_check.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/metrics/histogram_functions.h"
 #include "base/values.h"
 #include "chrome/browser/browser_process.h"
@@ -20,7 +19,6 @@
 #include "chrome/grit/branded_strings.h"
 #include "chrome/grit/generated_resources.h"
 #include "ui/base/l10n/l10n_util.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace safety_hub_util {
 
@@ -121,7 +119,6 @@ bool IsAbusiveNotificationRevocationIgnored(HostContentSettingsMap* hcsm,
   return false;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 base::DictValue GetVersionCardData() {
   base::DictValue result;
   switch (g_browser_process->GetBuildState()->update_type()) {
@@ -187,6 +184,5 @@ void MaybeNotifyMenuNotificationSeen(Profile* profile,
     hats_service->SafetyHubNotificationSeen();
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace safety_hub_util

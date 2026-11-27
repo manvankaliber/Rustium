@@ -43,22 +43,12 @@ std::unique_ptr<IOWatcher::FdWatch> IOWatcher::WatchFileDescriptor(
 }
 #endif
 
-#if BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_IOS) && !BUILDFLAG(CRONET_BUILD) && !BUILDFLAG(IS_IOS_TVOS))
+#if BUILDFLAG(IS_MAC)
 bool IOWatcher::WatchMachReceivePort(
     mach_port_t port,
     MessagePumpForIO::MachPortWatchController* controller,
     MessagePumpForIO::MachPortWatcher* delegate) {
   return WatchMachReceivePortImpl(port, controller, delegate);
-}
-#elif BUILDFLAG(IS_FUCHSIA)
-bool IOWatcher::WatchZxHandle(
-    zx_handle_t handle,
-    bool persistent,
-    zx_signals_t signals,
-    MessagePumpForIO::ZxHandleWatchController* controller,
-    MessagePumpForIO::ZxHandleWatcher* delegate) {
-  return WatchZxHandleImpl(handle, persistent, signals, controller, delegate);
 }
 #endif
 

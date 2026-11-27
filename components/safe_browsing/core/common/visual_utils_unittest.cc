@@ -114,13 +114,8 @@ TEST_F(VisualUtilsTest, BlurImageWhite) {
 
   ASSERT_TRUE(GetBlurredImage(bitmap_, &blurred));
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  const int kExpectedBlurredWidth = 18;
-  const int kExpectedBlurredHeight = 32;
-#else
   const int kExpectedBlurredWidth = 48;
   const int kExpectedBlurredHeight = 48;
-#endif
   ASSERT_EQ(kExpectedBlurredWidth, blurred.width());
   ASSERT_EQ(kExpectedBlurredHeight, blurred.height());
   ASSERT_EQ(3u * kExpectedBlurredWidth * kExpectedBlurredHeight,
@@ -139,13 +134,8 @@ TEST_F(VisualUtilsTest, BlurImageRed) {
   }
 
   ASSERT_TRUE(GetBlurredImage(bitmap_, &blurred));
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  const int kExpectedBlurredWidth = 18;
-  const int kExpectedBlurredHeight = 32;
-#else
   const int kExpectedBlurredWidth = 48;
   const int kExpectedBlurredHeight = 48;
-#endif
   ASSERT_EQ(kExpectedBlurredWidth, blurred.width());
   ASSERT_EQ(kExpectedBlurredHeight, blurred.height());
   ASSERT_EQ(3u * kExpectedBlurredWidth * kExpectedBlurredHeight,
@@ -163,15 +153,6 @@ TEST_F(VisualUtilsTest, BlurImageHalfWhiteHalfBlack) {
   bitmap_.erase(SK_ColorWHITE, SkIRect::MakeXYWH(0, 500, 1000, 1000));
 
   ASSERT_TRUE(GetBlurredImage(bitmap_, &blurred));
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  ASSERT_EQ(18, blurred.width());
-  ASSERT_EQ(32, blurred.height());
-  ASSERT_EQ(3u * 18u * 32u, blurred.data().size());
-  // The middle blocks may have been blurred to something between white and
-  // black, so only verify the first 14 and last 14 rows.
-  ExpectBlurredImagePixels(SK_ColorBLACK, blurred, gfx::Rect(18, 14));
-  ExpectBlurredImagePixels(SK_ColorWHITE, blurred, gfx::Rect(0, 18, 18, 14));
-#else
   ASSERT_EQ(48, blurred.width());
   ASSERT_EQ(48, blurred.height());
   ASSERT_EQ(3u * 48u * 48u, blurred.data().size());
@@ -179,7 +160,6 @@ TEST_F(VisualUtilsTest, BlurImageHalfWhiteHalfBlack) {
   // black, so only verify the first 22 and last 22 rows.
   ExpectBlurredImagePixels(SK_ColorBLACK, blurred, gfx::Rect(48, 22));
   ExpectBlurredImagePixels(SK_ColorWHITE, blurred, gfx::Rect(0, 26, 48, 22));
-#endif
 }
 
 TEST_F(VisualUtilsTest, BlockMeanAverageOneBlock) {
@@ -261,17 +241,10 @@ TEST_F(VisualUtilsTest, GetBitmapForVisualFeatures) {
   gfx::Image image = gfx::Image::CreateFrom1xBitmap(bitmap);
 
   SkBitmap prepared_bitmap = GetBitmapForVisualFeatures(image);
-#if BUILDFLAG(IS_IOS)
-  // `GetBitmapForVisualFeatures()` should shrink the image to the phash width
-  // and height on iOS.
-  EXPECT_EQ(108, prepared_bitmap.width());
-  EXPECT_EQ(192, prepared_bitmap.height());
-#else
   // `GetBitmapForVisualFeatures()` should not modify the dimensions on non-iOS
   // platforms.
   EXPECT_EQ(1000, prepared_bitmap.width());
   EXPECT_EQ(1000, prepared_bitmap.height());
-#endif
 
   // Prepared bitmap can be passed to GetBlurredImage successfully.
   VisualFeatures::BlurredImage blurred;
@@ -283,66 +256,6 @@ TEST_F(VisualUtilsTest, GetBitmapForVisualFeatures) {
   EXPECT_TRUE(empty_bitmap.drawsNothing());
 }
 
-#if BUILDFLAG(IS_IOS)
-// Tests that `GetResizedImageAsSkBitmap()` returns an empty bitmap
-// for invalid inputs.
-TEST_F(VisualUtilsTest, GetResizedImageAsSkBitmapEmptyInputs) {
-  static constexpr int kTargetWidth = 108;
-  static constexpr int kTargetHeight = 192;
-
-  // Empty input image.
-  EXPECT_TRUE(GetResizedImageAsSkBitmap(gfx::Image(),
-                                        gfx::Size(kTargetWidth, kTargetHeight))
-                  .drawsNothing());
-
-  // Non-empty input image.
-  SkBitmap bitmap;
-  bitmap.allocN32Pixels(kTargetWidth, kTargetHeight);
-  bitmap.eraseColor(SK_ColorWHITE);
-  gfx::Image image = gfx::Image::CreateFrom1xBitmap(bitmap);
-
-  // Zero-width or zero-height target size.
-  EXPECT_TRUE(GetResizedImageAsSkBitmap(image, gfx::Size(0, kTargetHeight))
-                  .drawsNothing());
-  EXPECT_TRUE(GetResizedImageAsSkBitmap(image, gfx::Size(kTargetWidth, 0))
-                  .drawsNothing());
-}
-
-// Tests that `GetResizedImageAsSkBitmap()` resizes images directly to target
-// pixel dimensions without bleeding detail across block boundaries.
-TEST_F(VisualUtilsTest, GetResizedImageAsSkBitmap) {
-  static constexpr int kTargetWidth = 108;
-  static constexpr int kTargetHeight = 192;
-  static constexpr int kScaleFactor = 3;
-  static constexpr int kSourceWidth = kTargetWidth * kScaleFactor;
-  static constexpr int kSourceHeight = kTargetHeight * kScaleFactor;
-
-  SkBitmap bitmap;
-  bitmap.allocN32Pixels(kSourceWidth, kSourceHeight);
-  bitmap.erase(SK_ColorBLACK,
-               SkIRect::MakeXYWH(0, 0, kSourceWidth, kSourceHeight / 2));
-  bitmap.erase(
-      SK_ColorWHITE,
-      SkIRect::MakeXYWH(0, kSourceHeight / 2, kSourceWidth, kSourceHeight / 2));
-  gfx::Image image = gfx::Image::CreateFrom1xBitmap(bitmap);
-
-  SkBitmap resized =
-      GetResizedImageAsSkBitmap(image, gfx::Size(kTargetWidth, kTargetHeight));
-  ASSERT_FALSE(resized.drawsNothing());
-  ASSERT_EQ(kTargetWidth, resized.width());
-  ASSERT_EQ(kTargetHeight, resized.height());
-
-  // Verify that the direct resize preserves the sharp horizontal boundary
-  // between the top (black) and bottom (white) halves without upsample bleed.
-  EXPECT_EQ(SK_ColorBLACK, resized.getColor(kTargetWidth / 2, 0));
-  EXPECT_EQ(SK_ColorBLACK,
-            resized.getColor(kTargetWidth / 2, kTargetHeight / 2 - 1));
-  EXPECT_EQ(SK_ColorWHITE,
-            resized.getColor(kTargetWidth / 2, kTargetHeight / 2));
-  EXPECT_EQ(SK_ColorWHITE,
-            resized.getColor(kTargetWidth / 2, kTargetHeight - 1));
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 TEST_F(VisualUtilsTest, EncodeScreenshot) {
   const int kBitmapWidth = 40;

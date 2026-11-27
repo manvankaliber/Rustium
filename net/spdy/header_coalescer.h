@@ -31,9 +31,8 @@ class NET_EXPORT_PRIVATE HeaderCoalescer
   bool error_seen() const { return error_seen_; }
 
  private:
-  // Helper to add a header. Return true on success.
-  bool AddHeader(std::string_view key, std::string_view value);
-
+  friend struct HeaderCoalescerRustTestAccess;
+  // Storage layout is unchanged; Rust receives synchronous value snapshots.
   quiche::HttpHeaderBlock headers_;
   bool headers_valid_ = true;
   size_t header_list_size_ = 0;

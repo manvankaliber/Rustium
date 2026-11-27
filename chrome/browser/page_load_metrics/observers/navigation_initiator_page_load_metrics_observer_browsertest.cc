@@ -59,7 +59,6 @@ class NavigationInitiatorPageLoadMetricsBrowserTest
             base::BindRepeating(&NavigationInitiatorPageLoadMetricsBrowserTest::
                                     GetActiveWebContents,
                                 base::Unretained(this))) {
-    scoped_feature_list_.InitAndDisableFeature(lens::features::kLensOverlay);
   }
 
   void SetUp() override {

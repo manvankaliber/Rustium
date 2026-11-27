@@ -19,20 +19,6 @@
 #include "components/search_engines/util.h"
 #include "third_party/search_engines_data/resources/definitions/prepopulated_engines.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "base/android/jni_array.h"
-#include "base/android/scoped_java_ref.h"
-#include "base/feature_list.h"
-#include "components/omnibox/common/omnibox_feature_configs.h"
-#include "components/omnibox/common/omnibox_features.h"
-#include "components/search_engines/android/template_url_android.h"
-#include "components/search_engines/search_engines_switches.h"
-
-// Must come after all headers that specialize FromJniType() / ToJniType().
-#include "components/search_engines/android/jni_headers/PrepopulatedAndRecentlyVisitedTemplateURLs_jni.h"
-#include "components/search_engines/android/jni_headers/SearchEngineSettingsDataProvider_jni.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace search_engines {
 namespace {
@@ -384,77 +370,5 @@ void SearchEngineSettingsDataProvider::MaybeRecordSettingsPageLoadMetrics(
        displayed_engines.inactive_feature_shortcuts});
 }
 
-#if BUILDFLAG(IS_ANDROID)
-base::android::ScopedJavaLocalRef<jobject>
-SearchEngineSettingsDataProvider::GetPrepopulatedAndRecentlyVisitedTemplateURLs(
-    JNIEnv* env) const {
-  CHECK(base::FeatureList::IsEnabled(switches::kSearchSettingsUpdateV2));
-  auto result = GetPrepopulatedAndRecentlyVisitedTemplateURLs();
-
-  std::vector<const TemplateURL*> prepopulated_urls;
-  prepopulated_urls.reserve(result.prepopulated_urls.size());
-  for (const auto& turl : result.prepopulated_urls) {
-    prepopulated_urls.push_back(turl.get());
-  }
-
-  std::vector<const TemplateURL*> recently_visited_urls;
-  recently_visited_urls.reserve(result.recently_visited_urls.size());
-  for (const auto& turl : result.recently_visited_urls) {
-    recently_visited_urls.push_back(turl.get());
-  }
-
-  return Java_PrepopulatedAndRecentlyVisitedTemplateURLs_create(
-      env, prepopulated_urls, recently_visited_urls);
-}
-
-// static
-template_url_starter_pack_data::StarterPackIdSet
-SearchEngineSettingsDataProvider::GetDisabledStarterPackIdsForAndroid() {
-  template_url_starter_pack_data::StarterPackIdSet disabled_ids;
-  if (!omnibox_feature_configs::ContextualSearch::Get().starter_pack_page) {
-    disabled_ids.Put(template_url_starter_pack_data::StarterPackId::kPage);
-  }
-  // TODO(crbug.com/512766345): Add profile check for aimode and gemini.
-  if (!base::FeatureList::IsEnabled(omnibox::kStarterPackExpansion)) {
-    disabled_ids.Put(template_url_starter_pack_data::StarterPackId::kGemini);
-  }
-  disabled_ids.Put(template_url_starter_pack_data::StarterPackId::kBookmarks);
-  return disabled_ids;
-}
-
-std::vector<const TemplateURL*>
-SearchEngineSettingsDataProvider::GetTemplateUrlsByCategory(
-    JNIEnv* env,
-    TemplateUrlCategory category) const {
-  CHECK(category >= TemplateUrlCategory::kDefault &&
-        category <= TemplateUrlCategory::kExtension);
-  return GetTemplateUrlsByCategory(category,
-                                   GetDisabledStarterPackIdsForAndroid());
-}
-
-void SearchEngineSettingsDataProvider::MaybeRecordSettingsPageLoadMetrics(
-    JNIEnv* env,
-    const base::android::JavaRef<jlongArray>& j_engine_ids) {
-  if (has_recorded_metrics_) {
-    return;
-  }
-
-  std::vector<int64_t> ids;
-  base::android::JavaLongArrayToInt64Vector(env, j_engine_ids, &ids);
-  TemplateURL::TemplateURLVector displayed_engines;
-  displayed_engines.reserve(ids.size());
-  for (int64_t id : ids) {
-    if (TemplateURL* turl =
-            template_url_service_->GetTemplateURLForId(TemplateURLID(id))) {
-      displayed_engines.push_back(turl);
-    }
-  }
-  MaybeRecordSettingsPageLoadMetrics(displayed_engines);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace search_engines
-
-#if BUILDFLAG(IS_ANDROID)
-DEFINE_JNI(SearchEngineSettingsDataProvider)
-#endif

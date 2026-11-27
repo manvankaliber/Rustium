@@ -5,7 +5,6 @@
 import '//resources/cr_elements/cr_icon_button/cr_icon_button.js';
 import './composebox_submit.js';
 
-import {AudioProcessor} from '//resources/cr_components/search/audio_processor.service.js';
 import {I18nMixinLit} from '//resources/cr_elements/i18n_mixin_lit.js';
 import {assert} from '//resources/js/assert.js';
 import {loadTimeData} from '//resources/js/load_time_data.js';
@@ -14,7 +13,7 @@ import type {PropertyValues} from '//resources/lit/v3_0/lit.rollup.js';
 import type {PageCallbackRouter, PageHandlerRemote as SearchboxPageHandlerRemote} from '//resources/mojo/components/omnibox/browser/searchbox.mojom-webui.js';
 import type {Size} from '//resources/mojo/ui/gfx/geometry/mojom/geometry.mojom-webui.js';
 
-import {getLoadTimeBoolean, recordEnumerationValue, SubmitButtonIconType} from './common.js';
+import {recordEnumerationValue, SubmitButtonIconType} from './common.js';
 import type {PageHandlerRemote} from './composebox.mojom-webui.js';
 import {ComposeboxProxyImpl} from './composebox_proxy.js';
 import {getCss} from './composebox_voice_search.css.js';
@@ -154,35 +153,6 @@ function abortRecognition(recognition: SpeechRecognition) {
   recognition.abort();
 }
 
-/**
- * Maximum number of times in a row that Android speech recognition is
- * restarted without receiving any result in between (see
- * `androidContinuousRecognitionEnabled`). Needed to avoid restarting
- * constantly (an infinite loop) if the recognizer keeps ending right away.
- */
-const MAX_ANDROID_RESTARTS_WITHOUT_RESULT: number = 5;
-
-// Scripts that are written without spaces between words.
-const NO_SPACE_SCRIPTS =
-    ['Han', 'Hiragana', 'Katakana', 'Thai', 'Lao', 'Khmer', 'Myanmar']
-        .map(script => `\\p{Script=${script}}`)
-        .join('');
-const NO_SPACE_SCRIPT_END = new RegExp(`[${NO_SPACE_SCRIPTS}]$`, 'u');
-const NO_SPACE_SCRIPT_START = new RegExp(`^[${NO_SPACE_SCRIPTS}]`, 'u');
-
-/**
- * Joins the transcripts of two consecutive speech recognition sessions. Adds a
- * space in between, unless there already is whitespace at the boundary or the
- * boundary is in a script that is written without spaces (e.g. Chinese).
- */
-function joinTranscripts(previous: string, next: string): string {
-  if (!previous || !next || /\s$/.test(previous) || /^\s/.test(next) ||
-      NO_SPACE_SCRIPT_END.test(previous) || NO_SPACE_SCRIPT_START.test(next)) {
-    return previous + next;
-  }
-  return `${previous} ${next}`;
-}
-
 const ComposeboxVoiceSearchElementBase = I18nMixinLit(CrLitElement);
 
 export class ComposeboxVoiceSearchElement extends
@@ -268,12 +238,7 @@ export class ComposeboxVoiceSearchElement extends
        * manual submit mode. If undefined, falls back to `idleTimeout`.
        */
       manualSubmitIdleTimeout: {type: Number},
-      /**
-       * When enabled, recognition is restarted, so that like on desktop the
-       * idle timeout or the user decides when voice search ends. Ignored if
-       * `dynamicTimeoutEnabled` is set.
-       */
-      androidContinuousRecognitionEnabled: {type: Boolean},
+
       /**
        * Whether voice search was activated by a keyboard shortcut.
        */
@@ -289,7 +254,7 @@ export class ComposeboxVoiceSearchElement extends
       null;
 
   accessor activatedByKeyboard: boolean = false;
-  accessor androidContinuousRecognitionEnabled: boolean = false;
+
   accessor audioWaveEnabled: boolean = false;
   accessor autosubmitEnabled: boolean = false;
   accessor detailedError: VoiceSearchError|null = null;
@@ -325,18 +290,6 @@ export class ComposeboxVoiceSearchElement extends
 
   private accessor state_: State = State.UNINITIALIZED;
 
-  // True when `webkitSpeechRecognition` is backed by Android's
-  // `SpeechRecognitionImpl`, which owns the microphone itself and reports
-  // cumulative result snapshots.
-  private readonly androidSpeechRecognition_: boolean =
-      getLoadTimeBoolean('androidSpeechRecognition', false);
-  // The transcript recognized before the latest Android recognition restart
-  // (see `androidContinuousRecognitionEnabled`).
-  private androidPreviousTranscript_: string = '';
-  // How many times in a row Android recognition was restarted without any
-  // result. Needed to avoid restarting constantly (an infinite loop) if the
-  // recognizer keeps ending right away.
-  private androidRestartsWithoutResult_: number = 0;
   private blurTimeoutId_: number|null = null;
   private listenerIds_: number[] = [];
   private pageHandler_: PageHandlerRemote =
@@ -358,27 +311,17 @@ export class ComposeboxVoiceSearchElement extends
     this.voiceRecognition_.onspeechstart = this.onSpeechStart_.bind(this);
     this.voiceRecognition_.onerror = (e) => {
       const error = toError(e.error);
-      if (error === VoiceSearchError.NO_SPEECH &&
-          this.isAndroidContinuousRecognition_()) {
-        // Android ends its session with this error when it hears no speech for
-        // a while. Like for any other session end, `onEnd_()` then decides
-        // whether voice search keeps listening.
-        return;
-      }
+
       this.onError_(error);
     };
     this.voiceRecognition_.onnomatch = () => {
-      if (this.isAndroidContinuousRecognition_()) {
-        // Same as for no-speech, when Android hears no recognizable speech.
-        return;
-      }
       this.onError_(VoiceSearchError.NO_MATCH);
     };
   }
 
   override connectedCallback() {
     super.connectedCallback();
-    AudioProcessor.setSimulate(this.androidSpeechRecognition_);
+
     if (!this.metricSource) {
       this.searchboxHandler_.getPageClassification().then(({metricSource}) => {
         this.metricSource = metricSource || '';
@@ -465,7 +408,8 @@ export class ComposeboxVoiceSearchElement extends
   private onOutsideInteraction_ = (e: Event) => {
     if (e.type === 'pointerdown') {
       const host = this.getRootNode() instanceof ShadowRoot ?
-          (this.getRootNode() as ShadowRoot).host : null;
+          (this.getRootNode() as ShadowRoot).host :
+          null;
       if (e.composedPath().includes(this) ||
           (host && e.composedPath().includes(host))) {
         return;
@@ -530,7 +474,6 @@ export class ComposeboxVoiceSearchElement extends
     document.removeEventListener('keydown', this.onKeyDown_, true);
     window.removeEventListener('blur', this.onOutsideInteraction_);
   }
-
 
   protected onStopClick_(e?: Event) {
     if (e) {
@@ -641,8 +584,6 @@ export class ComposeboxVoiceSearchElement extends
 
   private onAudioStart_() {
     if (this.state_ >= State.AUDIO_RECEIVED) {
-      // Audio capture already started, e.g. before Android recognition got
-      // restarted, so this is not user activity.
       return;
     }
     this.resetIdleTimer_();
@@ -651,15 +592,12 @@ export class ComposeboxVoiceSearchElement extends
 
   private onSpeechStart_() {
     if (this.state_ >= State.SPEECH_RECEIVED) {
-      // Speech was already received, e.g. before Android recognition got
-      // restarted. Only results reset the idle timer from here on.
       return;
     }
     this.resetIdleTimer_();
     this.state_ = State.SPEECH_RECEIVED;
     this.fire('speech-received');
   }
-
 
   private onResult_(e: SpeechRecognitionEvent) {
     // First reset, in case of early return before second reset
@@ -696,36 +634,14 @@ export class ComposeboxVoiceSearchElement extends
     const speechResult = results[e.resultIndex];
     assert(speechResult);
 
-    if (this.androidSpeechRecognition_) {
-      // On Android, `SpeechRecognitionImpl` sends cumulative snapshots of the
-      // entire utterance. The last item in `results` represents the current
-      // full transcript.
-      const latestResultList = results[results.length - 1]!;
-      const latestResult = latestResultList[0];
-      assert(latestResult);
-      // After a restart, the session only reports what was said since then.
-      this.transcript_ = joinTranscripts(
-          this.androidPreviousTranscript_, latestResult.transcript);
-      this.androidRestartsWithoutResult_ = 0;
-      this.processSpeechTranscript_(
-          latestResult.transcript, latestResult.confidence, /*append=*/ false);
-      // `processSpeechTranscript_()` only puts the current session's transcript
-      // in `finalResult_` if it's confident (partial results go in
-      // `interimResult_`). Like earlier phrases on desktop, what previous
-      // sessions recognized counts as final either way.
-      this.finalResult_ =
-          joinTranscripts(this.androidPreviousTranscript_, this.finalResult_);
-    } else {
-      // Process interim results based on confidence.
-      for (let j = 0; j < results.length; j++) {
-        const resultList = results[j]!;
-        const result = resultList[0];  // best guess
-        assert(result);
+    for (let j = 0; j < results.length; j++) {
+      const resultList = results[j]!;
+      const result = resultList[0];  // best guess
+      assert(result);
 
-        this.transcript_ += result.transcript;
-        this.processSpeechTranscript_(
-            result.transcript, result.confidence, /*append=*/ true);
-      }
+      this.transcript_ += result.transcript;
+      this.processSpeechTranscript_(
+          result.transcript, result.confidence, /*append=*/ true);
     }
     this.fire('transcript-update', this.transcript_);
 
@@ -735,12 +651,7 @@ export class ComposeboxVoiceSearchElement extends
     // timespan has passed, the timeout callback will submit the query.
     this.resetIdleTimer_();
 
-    // Force-stop long queries if queryLengthLimit is not undefined. When
-    // Android recognition gets restarted, everything recognized since voice
-    // search started counts, including what earlier sessions recognized.
-    const queryLength = this.isAndroidContinuousRecognition_() ?
-        this.transcript_.length :
-        this.interimResult_.length;
+    const queryLength = this.interimResult_.length;
     if (this.queryLengthLimit !== undefined &&
         queryLength > this.queryLengthLimit) {
       this.onFinalResult_(this.transcript_);
@@ -748,7 +659,8 @@ export class ComposeboxVoiceSearchElement extends
   }
 
   private onEnd_() {
-    if (ComposeboxVoiceSearchElement.activeRecognition_ === this.voiceRecognition_) {
+    if (ComposeboxVoiceSearchElement.activeRecognition_ ===
+        this.voiceRecognition_) {
       ComposeboxVoiceSearchElement.activeRecognition_ = null;
     }
 
@@ -756,17 +668,6 @@ export class ComposeboxVoiceSearchElement extends
       const pending = ComposeboxVoiceSearchElement.pendingStartInstance_;
       ComposeboxVoiceSearchElement.pendingStartInstance_ = null;
       pending.start();
-      return;
-    }
-
-    // The Android recognizer session ended on its own while voice search is
-    // still listening (see `androidContinuousRecognitionEnabled`), so start a
-    // new one. Not once voice search is removed or while the page is hidden,
-    // as Blink aborts recognition on Android then.
-    if (this.isAndroidContinuousRecognition_() && this.isConnected &&
-        !document.hidden && this.state_ >= State.AUDIO_RECEIVED &&
-        this.state_ <= State.RESULT_RECEIVED) {
-      this.restartAndroidRecognition_();
       return;
     }
 
@@ -787,15 +688,7 @@ export class ComposeboxVoiceSearchElement extends
         return;
       case State.SPEECH_RECEIVED:
       case State.RESULT_RECEIVED:
-        // On Android, 'SpeechRecognitionImpl' always fires 'onEnd' when the
-        // utterance finishes. Submit immediately if a transcript is present,
-        // unless recognition is meant to continue like on desktop (see
-        // `androidContinuousRecognitionEnabled`).
-        if (this.androidSpeechRecognition_ &&
-            !this.isAndroidContinuousRecognition_() && this.transcript_) {
-          this.onFinalResult_(this.transcript_, /*forceSubmit=*/ true);
-          return;
-        }
+
         if (this.transcript_) {
           this.onFinalResult_(this.transcript_);
         } else {
@@ -810,36 +703,6 @@ export class ComposeboxVoiceSearchElement extends
         this.onError_(VoiceSearchError.OTHER);
         return;
     }
-  }
-
-  // Whether Android speech recognition is restarted when its session ends on
-  // its own (see `androidContinuousRecognitionEnabled`).
-  private isAndroidContinuousRecognition_(): boolean {
-    return this.androidSpeechRecognition_ &&
-        this.androidContinuousRecognitionEnabled && !this.dynamicTimeoutEnabled;
-  }
-
-  // Starts a new Android recognizer session that continues the current voice
-  // search. Keeps the state and the idle timer as is, so that like on desktop,
-  // the idle timeout or the user decides when voice search ends.
-  private restartAndroidRecognition_() {
-    if (this.androidRestartsWithoutResult_ >=
-        MAX_ANDROID_RESTARTS_WITHOUT_RESULT) {
-      // The recognizer keeps ending without recognizing anything. Stop
-      // restarting it and end voice search with an error, without submitting.
-      this.onError_(VoiceSearchError.NO_SPEECH);
-      return;
-    }
-    this.androidRestartsWithoutResult_++;
-    this.androidPreviousTranscript_ = this.transcript_;
-    try {
-      this.voiceRecognition_.start();
-    } catch {
-      // Voice search can't keep listening without a recognizer session.
-      this.onError_(VoiceSearchError.OTHER);
-      return;
-    }
-    ComposeboxVoiceSearchElement.activeRecognition_ = this.voiceRecognition_;
   }
 
   private recordMetric_(
@@ -888,9 +751,10 @@ export class ComposeboxVoiceSearchElement extends
         if (metricEnumValue === VoiceSearchAction.CANCELED_BY_USER) {
           legacyMetricEnumValue = 2;
         }
-        // The legacy NewTabPageVoiceAction enum in enums.xml only defines values 0 to 6.
-        // Prevent newly added VoiceSearchAction values (>6, e.g. Stop = 7, Resume = 8)
-        // from leaking into and polluting the legacy NewTabPage.VoiceActions histogram.
+        // The legacy NewTabPageVoiceAction enum in enums.xml only defines
+        // values 0 to 6. Prevent newly added VoiceSearchAction values (>6, e.g.
+        // Stop = 7, Resume = 8) from leaking into and polluting the legacy
+        // NewTabPage.VoiceActions histogram.
         if (legacyMetricEnumValue > 6) {
           return;
         }
@@ -1059,8 +923,7 @@ export class ComposeboxVoiceSearchElement extends
     this.detailedError = null;
     this.hasMultilineTranscript = false;
     this.transcriptLines = 1;
-    this.androidPreviousTranscript_ = '';
-    this.androidRestartsWithoutResult_ = 0;
+
     WindowProxy.getInstance().clearTimeout(this.timerId_);
     this.timerId_ = null;
   }

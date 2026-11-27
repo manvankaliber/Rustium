@@ -3,7 +3,7 @@
 // found in the LICENSE file.
 
 import {assertNotReached} from '//resources/js/assert.js';
-import {isChromeOS, isMac} from '//resources/js/platform.js';
+import {isMac} from '//resources/js/platform.js';
 
 export enum Key {
   COMMA = 188,
@@ -60,10 +60,8 @@ function getModifierPolicy(keyCode: number): ModifierPolicy {
  */
 function hasModifier(e: KeyboardEvent, countShiftAsModifier: boolean): boolean {
   return e.ctrlKey || e.altKey ||
-      // Meta key is only relevant on Mac and CrOS, where we treat Command
-      // and Search (respectively) as modifiers.
-      (isMac && e.metaKey) || (isChromeOS && e.metaKey) ||
-      (countShiftAsModifier && e.shiftKey);
+      // Treat Command as a modifier on Mac.
+      (isMac && e.metaKey) || (countShiftAsModifier && e.shiftKey);
 }
 
 /**
@@ -91,9 +89,6 @@ export function keystrokeToString(e: KeyboardEvent): string {
   // TODO(devlin): Should this be i18n'd?
   if (isMac && e.metaKey) {
     output.push('Command');
-  }
-  if (isChromeOS && e.metaKey) {
-    output.push('Search');
   }
   if (e.ctrlKey) {
     output.push('Ctrl');

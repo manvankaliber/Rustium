@@ -243,9 +243,6 @@ void LogoServiceImpl::GetLogo(LogoCallbacks callbacks,
         command_line->GetSwitchValueASCII(switches::kSearchProviderLogoURL));
   } else {
     // Non-Google DSE logos are only enabled on some platforms.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    logo_url = template_url->logo_url();
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
   }
 
   GURL base_url;
@@ -618,12 +615,6 @@ void LogoServiceImpl::OnFreshLogoAvailable(
   } else if (encoded_logo && !encoded_logo->encoded_image &&
              encoded_logo->metadata.type != LogoType::INTERACTIVE) {
     download_outcome = DOWNLOAD_OUTCOME_MISSING_REQUIRED_IMAGE;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  } else if (encoded_logo && !encoded_logo->encoded_image) {
-    // On Mobile interactive doodles require a static CTA image, on Desktop the
-    // static image is not required as it's handled by the iframed page.
-    download_outcome = DOWNLOAD_OUTCOME_MISSING_REQUIRED_IMAGE;
-#endif
   } else {
     // Check if the server returned a valid, non-empty response.
     if (encoded_logo) {

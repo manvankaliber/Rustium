@@ -677,13 +677,7 @@ StoreMetricsReporter::CredentialsCount ReportAllMetrics(
 }
 
 void ReportBiometricAuthenticationBeforeFillingMetrics(PrefService* prefs) {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(features::kBiometricTouchToFill)) {
-    return;
-  }
-#endif
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   // TODO(crbug.com/358998546): use PasswordManagerSettingsService here.
   base::UmaHistogramBoolean(
       base::StrCat({kPasswordManager, ".BiometricAuthBeforeFillingEnabled2"}),

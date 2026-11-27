@@ -77,7 +77,7 @@ def get_subsystem_prefix(filepath: str) -> str:
     if (
         len(parts) >= 3
         and parts[0] == "chrome"
-        and parts[1] in ("browser", "android")
+        and parts[1] in ("browser", )
     ):
         depth = 3
     else:

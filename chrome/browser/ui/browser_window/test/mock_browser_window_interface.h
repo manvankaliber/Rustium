@@ -47,7 +47,6 @@ class MockBrowserWindowInterface : public BrowserWindowInterface {
               (),
               (override));
 
-#if !BUILDFLAG(IS_ANDROID)
   MOCK_METHOD(void,
               OpenGURL,
               (const GURL& gurl, ui::mojom::WindowOpenDisposition disposition),
@@ -98,7 +97,6 @@ class MockBrowserWindowInterface : public BrowserWindowInterface {
               capabilities,
               (),
               (const, override));
-#endif
  private:
   ui::UnownedUserDataHost unowned_user_data_host_;
 };

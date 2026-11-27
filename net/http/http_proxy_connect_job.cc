@@ -2,7 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/memory/raw_ptr.h"
 #include "net/http/http_proxy_connect_job.h"
+#include "net/socket/connection_jobs_upper_rust_ffi.h"
+#include "net/socket/connect_job_rust_native.h"
+#include "base/check.h"
 
 #include <algorithm>
 #include <memory>
@@ -56,16 +60,587 @@
 #include "url/scheme_host_port.h"
 
 namespace net {
+namespace {
+GURL MakeProxyUrl(const HttpProxySocketParams&);
+int32_t SelectConnectionFamilyIntParam(const std::string&,int32_t);
+scoped_refptr<HttpAuthController> CreateConnectionFamilyAuth(const HttpProxySocketParams&,const CommonConnectJobParams*,HostResolver*);
+}
+namespace { const scoped_refptr<base::SingleThreadTaskRunner>& TaskRunner(RequestPriority); }
+
+// Typed storage/provider primitives only. Sequencing/branches live in safe Rust.
+struct HttpProxyConnectJobFamilyRustBridge final
+    : connection_jobs_upper_rust::Invocation {
+  using Class = HttpProxyConnectJob;
+  static_assert(Class::STATE_BEGIN_CONNECT==0);
+  static_assert(Class::STATE_TRANSPORT_CONNECT==1);
+  static_assert(Class::STATE_TRANSPORT_CONNECT_COMPLETE==2);
+  static_assert(Class::STATE_HTTP_PROXY_CONNECT==3);
+  static_assert(Class::STATE_HTTP_PROXY_CONNECT_COMPLETE==4);
+  static_assert(Class::STATE_SPDY_PROXY_CREATE_STREAM==5);
+  static_assert(Class::STATE_SPDY_PROXY_CREATE_STREAM_COMPLETE==6);
+  static_assert(Class::STATE_QUIC_PROXY_CREATE_SESSION==7);
+  static_assert(Class::STATE_QUIC_PROXY_CREATE_STREAM==8);
+  static_assert(Class::STATE_QUIC_PROXY_CREATE_STREAM_COMPLETE==9);
+  static_assert(Class::STATE_RESTART_WITH_AUTH==10);
+  static_assert(Class::STATE_RESTART_WITH_AUTH_COMPLETE==11);
+  static_assert(Class::STATE_NONE==12);
+  static_assert(LOAD_STATE_IDLE==0 && LOAD_STATE_ESTABLISHING_PROXY_TUNNEL==9 && LOAD_STATE_CONNECTING==11 && LOAD_STATE_SSL_HANDSHAKE==12);
+  static_assert(ProxyServer::SCHEME_HTTP==4 && ProxyServer::SCHEME_HTTPS==32 && ProxyServer::SCHEME_QUIC==64);
+
+  explicit HttpProxyConnectJobFamilyRustBridge(Class* job)
+      : Invocation(static_cast<const ConnectJob*>(job)), mutable_owner(job), owner(job) { Register(&Clear); base_bridge.emplace(static_cast<ConnectJob*>(job)); }
+  explicit HttpProxyConnectJobFamilyRustBridge(const Class* job)
+      : Invocation(static_cast<const ConnectJob*>(job)), mutable_owner(nullptr), owner(job) { Register(&Clear); base_bridge.emplace(static_cast<const ConnectJob*>(job)); }
+  HttpProxyConnectJobFamilyRustBridge()
+      : Invocation(this), mutable_owner(nullptr), owner(nullptr) { Register(&Clear); }
+  ~HttpProxyConnectJobFamilyRustBridge() { base_bridge.reset(); Unregister(); }
+  Class& M() { CHECK(Live()); CHECK(mutable_owner); return *mutable_owner; }
+  const Class& R() const { CHECK(Live()); CHECK(owner); return *owner; }
+  int64_t Run(uint32_t operation, int64_t argument = 0) {
+    return connection_jobs_upper_rust::connection_jobs_rust_run(
+        6, operation, argument, this, Service);
+  }
+  raw_ptr<Class> mutable_owner;
+  raw_ptr<const Class> owner;
+  std::optional<ConnectJobRustBridge> base_bridge; std::unique_ptr<StreamSocket> base_socket; std::optional<base::flat_set<std::string>> base_aliases; void PrepareSocket(){ base_bridge->socket_input=&base_socket; base_bridge->aliases=&base_aliases; }
+
+  raw_ptr<ResolveErrorInfo> resolve_output=nullptr;
+  raw_ptr<scoped_refptr<SSLCertRequestInfo>> certificate_output=nullptr;
+  raw_ptr<std::string> text_output=nullptr;
+  std::optional<SpdySessionKey> key;
+  base::WeakPtr<SpdySession> spdy;
+  std::optional<base::expected<base::WeakPtr<SpdySession>,int>> session_result;
+  raw_ptr<const HttpProxySocketParams> params_input=nullptr;
+  raw_ptr<const NetworkQualityEstimator> estimator=nullptr;
+  std::optional<base::TimeDelta> rtt;
+  base::TimeDelta timeout,min_timeout,max_timeout,latency;
+  int32_t ssl_multiplier=0,plain_multiplier=0;
+  bool https=false;
+  int http_version=0,scheme=0,connect_result=0;
+  std::string histogram;
+  void (*load_timeout_config)(HttpProxyConnectJobFamilyRustBridge*)=nullptr;
+  RequestPriority priority_input=DEFAULT_PRIORITY;
+  raw_ptr<const scoped_refptr<base::SingleThreadTaskRunner>> runner_output=nullptr;
+  std::optional<GURL> url_output;
+  raw_ptr<const CommonConnectJobParams> common_input=nullptr;
+  raw_ptr<HostResolver> resolver_input=nullptr;
+  scoped_refptr<HttpAuthController> auth_output;
+  bool param_valid=false;
+  int32_t param_value=0;
+
+  static void Clear(Invocation* value) {
+    auto& c = *static_cast<HttpProxyConnectJobFamilyRustBridge*>(value);
+    c.mutable_owner = nullptr;
+    c.owner = nullptr;
+    c.resolve_output = nullptr;
+    c.certificate_output = nullptr;
+    c.text_output = nullptr;
+    c.params_input = nullptr;
+    c.estimator = nullptr;
+    c.runner_output = nullptr;
+    c.common_input = nullptr;
+    c.resolver_input = nullptr;
+  }
+
+  static bool Service(void* context, uint32_t module, uint32_t action, int64_t argument,
+                      int64_t* value) {
+    auto& c = *static_cast<HttpProxyConnectJobFamilyRustBridge*>(context);
+    *value = 0;
+    if(module==0 && c.base_bridge){ return ConnectJobRustBridge::Service(&*c.base_bridge,action,argument,value); }
+    if (!c.Live() || module != 6) { return false; }
+    if(action==UINT32_MAX){*value=1;return true;}
+    switch (action) {
+      case 0: {  // STATE
+*value=c.R().next_state_;
+        break;
+      }
+      case 1: {  // SET_STATE
+c.M().next_state_=static_cast<Class::State>(argument);
+        break;
+      }
+      case 2: {  // HAS_NESTED
+*value=c.R().nested_connect_job_ != nullptr;
+        break;
+      }
+      case 3: {  // NESTED_LOAD
+*value=c.R().nested_connect_job_->GetLoadState();
+        break;
+      }
+      case 4: {  // NESTED_ESTABLISHED
+*value=c.R().nested_connect_job_->HasEstablishedConnection();
+        break;
+      }
+      case 5: {  // ESTABLISHED
+*value=c.R().has_established_connection_;
+        break;
+      }
+      case 6: {  // SET_ESTABLISHED
+c.M().has_established_connection_=true;
+        break;
+      }
+      case 7: {  // COPY_RESOLVE
+*c.resolve_output=c.R().resolve_error_info_;
+        break;
+      }
+      case 8: {  // HAS_CERT
+*value=c.R().ssl_cert_request_info_ != nullptr;
+        break;
+      }
+      case 9: {  // COPY_CERT
+*c.certificate_output=c.R().ssl_cert_request_info_;
+        break;
+      }
+      case 10: {  // SCHEME
+*value=c.R().params_->proxy_server().scheme();
+        break;
+      }
+      case 11: {  // STAMP_START
+const auto now=base::TimeTicks::Now();if(!c.Live())return false;c.M().connect_start_time_=now;
+        break;
+      }
+      case 12: {  // ALTERNATE_TIMER
+c.base_bridge->duration=Class::AlternateNestedConnectionTimeout(*c.R().params_,c.M().network_quality_estimator());
+        break;
+      }
+      case 13: {  // CREATE_TRANSPORT
+c.M().nested_connect_job_=TransportConnectJob::Factory::CreateJob(
+c.M().priority(),c.M().socket_tag(),c.M().common_connect_job_params(),
+c.M().params_->transport_params(),&c.M(),&c.M().net_log());
+        break;
+      }
+      case 14: {  // TUNNEL
+*value=c.R().params_->tunnel();
+        break;
+      }
+      case 15: {  // FIND_EXISTING_SPDY
+c.spdy=c.M().common_connect_job_params()->spdy_session_pool->FindAvailableSession(
+c.M().CreateSpdySessionKey(),false,false,c.M().net_log());*value=static_cast<bool>(c.spdy);
+        break;
+      }
+      case 16: {  // CREATE_SSL
+DCHECK(c.R().params_->is_over_ssl());
+c.M().nested_connect_job_=std::make_unique<SSLConnectJob>(c.M().priority(),
+c.M().socket_tag(),c.M().common_connect_job_params(),c.M().params_->ssl_params(),&c.M(),&c.M().net_log());
+        break;
+      }
+      case 17: {  // EXPECT_HTTPS
+DCHECK_EQ(c.R().params_->proxy_server().scheme(),ProxyServer::SCHEME_HTTPS);
+        break;
+      }
+      case 18: {  // CONNECT_NESTED
+*value=c.M().nested_connect_job_->Connect();
+        break;
+      }
+      case 19: {  // SAVE_RESOLVE
+c.M().resolve_error_info_=c.M().nested_connect_job_->GetResolveErrorInfo();
+        break;
+      }
+      case 20: {  // FIRST_PROXY
+*value=c.R().params_->proxy_chain_index()==0;
+        break;
+      }
+      case 21: {  // ERROR_LATENCY
+Class::EmitConnectLatency(NextProto::kProtoUnknown,c.R().params_->proxy_server().scheme(),
+Class::HttpConnectResult::kError,base::TimeTicks::Now()-c.R().connect_start_time_);
+        break;
+      }
+      case 22: {  // SAVE_CERT
+c.M().ssl_cert_request_info_=c.M().nested_connect_job_->GetCertRequestInfo();
+        break;
+      }
+      case 23: {  // MULTI_PROXY
+*value=c.R().params_->proxy_chain().is_multi_proxy();
+        break;
+      }
+      case 24: {  // MARK_PROXY_CERT
+DCHECK(c.R().ssl_cert_request_info_);c.M().ssl_cert_request_info_->is_proxy=true;
+        break;
+      }
+      case 25: {  // NEGOTIATED
+*value=static_cast<int>(c.M().nested_connect_job_->socket()->GetNegotiatedProtocol());
+        break;
+      }
+      case 26: {  // SUCCESS_LATENCY
+Class::EmitConnectLatency(static_cast<NextProto>(argument),c.R().params_->proxy_server().scheme(),
+Class::HttpConnectResult::kSuccess,base::TimeTicks::Now()-c.R().connect_start_time_);
+        break;
+      }
+      case 27: {  // PUBLISH_UNTUNNELED
+c.base_socket=c.M().nested_connect_job_->PassSocket();c.base_aliases.emplace();c.PrepareSocket();
+        break;
+      }
+      case 28: {  // HANDSHAKE_TIMER
+c.base_bridge->duration=base::Seconds(30);
+        break;
+      }
+      case 29: {  // CREATE_HTTP_SOCKET
+DCHECK(c.R().params_->tunnel());
+c.M().transport_socket_=std::make_unique<HttpProxyClientSocket>(c.M().nested_connect_job_->PassSocket(),
+c.M().GetUserAgent(),c.R().params_->endpoint(),c.R().params_->proxy_chain(),c.R().params_->proxy_chain_index(),
+c.R().http_auth_controller_,c.M().common_connect_job_params()->proxy_delegate,c.R().params_->traffic_annotation());
+        break;
+      }
+      case 30: {  // CLEAR_NESTED
+c.M().nested_connect_job_.reset();
+        break;
+      }
+      case 31: {  // CONNECT_SOCKET
+*value=c.M().transport_socket_->Connect(base::BindOnce(&Class::OnIOComplete,base::Unretained(&c.M())));
+        break;
+      }
+      case 32: {  // POST_AUTH
+TaskRunner(c.R().priority())->PostTask(FROM_HERE,
+base::BindOnce(&Class::OnAuthChallenge,c.M().weak_ptr_factory_.GetWeakPtr()));
+        break;
+      }
+      case 33: {  // PUBLISH_SOCKET
+c.base_socket=std::move(c.M().transport_socket_);c.base_aliases.reset();c.PrepareSocket();
+        break;
+      }
+      case 34: {  // FIND_SPDY
+c.key.emplace(c.M().CreateSpdySessionKey());
+c.spdy=c.M().common_connect_job_params()->spdy_session_pool->FindAvailableSession(*c.key,false,false,c.M().net_log());
+*value=static_cast<bool>(c.spdy);
+        break;
+      }
+      case 35: {  // CREATE_SPDY
+c.session_result.emplace(c.M().common_connect_job_params()->spdy_session_pool->CreateAvailableSessionFromSocket(
+*c.key,c.M().nested_connect_job_->PassSocket(),c.R().nested_connect_job_->connect_timing(),c.M().net_log(),
+SpdySessionInitiator::kHttpProxyConnectJob));
+        break;
+      }
+      case 36: {  // SESSION_OK
+*value=c.session_result->has_value();
+        break;
+      }
+      case 37: {  // SESSION_ERROR
+*value=c.session_result->error();
+        break;
+      }
+      case 38: {  // TAKE_SESSION
+c.spdy=std::move(c.session_result->value());
+        break;
+      }
+      case 39: {  // NEW_STREAM_REQUEST
+c.M().spdy_stream_request_=std::make_unique<SpdyStreamRequest>();
+        break;
+      }
+      case 40: {  // REQUEST_SPDY_STREAM
+*value=c.M().spdy_stream_request_->StartRequest(SPDY_BIDIRECTIONAL_STREAM,c.spdy,
+GURL("https://"+c.R().params_->endpoint().ToString()),false,Class::kH2QuicTunnelPriority,
+c.M().socket_tag(),c.spdy->net_log(),base::BindOnce(&Class::OnIOComplete,base::Unretained(&c.M())),c.R().params_->traffic_annotation());
+        break;
+      }
+      case 41: {  // CLEAR_STREAM_REQUEST
+c.M().spdy_stream_request_.reset();
+        break;
+      }
+      case 42: {  // CREATE_SPDY_SOCKET
+auto stream=c.M().spdy_stream_request_->ReleaseStream();
+c.M().spdy_stream_request_.reset();DCHECK(stream.get());
+c.M().transport_socket_=std::make_unique<SpdyProxyClientSocket>(stream,c.R().params_->proxy_chain(),
+c.R().params_->proxy_chain_index(),c.M().GetUserAgent(),c.R().params_->endpoint(),c.M().net_log(),
+c.R().http_auth_controller_,c.M().common_connect_job_params()->proxy_delegate);
+        break;
+      }
+      case 43: {  // CREATE_QUIC_REQUEST
+DCHECK(c.R().params_->tunnel());DCHECK(!c.M().common_connect_job_params()->quic_supported_versions->empty());
+c.M().quic_session_request_=std::make_unique<QuicSessionRequest>(c.M().common_connect_job_params()->quic_session_pool);
+        break;
+      }
+      case 44: {  // REQUEST_QUIC_SESSION
+const auto& config=c.R().params_->quic_ssl_config().value();
+const auto& server=c.R().params_->proxy_server().host_port_pair();
+auto proxies=c.R().params_->proxy_chain().Prefix(c.R().params_->proxy_chain_index());
+for(const auto& proxy:proxies.proxy_servers()){CHECK(proxy.is_quic());}
+*value=c.M().quic_session_request_->Request(url::SchemeHostPort(url::kHttpsScheme,server.host(),server.port()),
+SupportedQuicVersionForProxying(),proxies,c.R().params_->traffic_annotation(),c.M().http_user_agent_settings(),
+SessionUsage::kProxy,config.privacy_mode,Class::kH2QuicTunnelPriority,c.M().socket_tag(),
+c.R().params_->network_anonymization_key(),c.R().params_->secure_dns_policy(),false,config.GetCertVerifyFlags(),
+GURL("https://"+server.ToString()),c.R().params_->target_network(),c.M().net_log(),&c.M().quic_net_error_details_,
+MultiplexedSessionCreationInitiator::kUnknown,std::nullopt,CompletionOnceCallback(),
+base::BindOnce(&Class::OnIOComplete,base::Unretained(&c.M())));
+        break;
+      }
+      case 45: {  // CLEAR_QUIC_REQUEST
+c.M().quic_session_request_.reset();
+        break;
+      }
+      case 46: {  // TAKE_QUIC_SESSION
+c.M().quic_session_=c.M().quic_session_request_->ReleaseSessionHandle();
+        break;
+      }
+      case 47: {  // REQUEST_QUIC_STREAM
+*value=c.M().quic_session_->RequestStream(false,
+base::BindOnce(&Class::OnIOComplete,base::Unretained(&c.M())),c.R().params_->traffic_annotation());
+        break;
+      }
+      case 48: {  // CREATE_QUIC_SOCKET
+auto stream=c.M().quic_session_->ReleaseStream();
+const uint8_t urgency=ConvertRequestPriorityToQuicPriority(Class::kH2QuicTunnelPriority);
+stream->SetPriority(quic::QuicStreamPriority(quic::HttpStreamPriority{urgency,kDefaultPriorityIncremental}));
+c.M().transport_socket_=std::make_unique<QuicProxyClientSocket>(std::move(stream),std::move(c.M().quic_session_),
+c.R().params_->proxy_chain(),c.R().params_->proxy_chain_index(),c.M().GetUserAgent(),c.R().params_->endpoint(),
+c.M().net_log(),c.R().http_auth_controller_,c.M().common_connect_job_params()->proxy_delegate);
+        break;
+      }
+      case 49: {  // RESTART_SOCKET
+DCHECK(c.R().transport_socket_);*value=c.M().transport_socket_->RestartWithAuth(
+base::BindOnce(&Class::OnIOComplete,base::Unretained(&c.M())));
+        break;
+      }
+      case 50: {  // SOCKET_CONNECTED
+*value=c.R().transport_socket_->IsConnected();
+        break;
+      }
+      case 51: {  // RESTARTED
+*value=c.R().has_restarted_;
+        break;
+      }
+      case 52: {  // SET_RESTARTED
+c.M().has_restarted_=true;
+        break;
+      }
+      case 53: {  // HAS_AUTH
+*value=c.R().http_auth_controller_ != nullptr;
+        break;
+      }
+      case 54: {  // AUTH_CLOSED
+c.M().http_auth_controller_->OnConnectionClosed();
+        break;
+      }
+      case 55: {  // CLEAR_SOCKET
+c.M().transport_socket_.reset();
+        break;
+      }
+      case 56: {  // HAS_SOCKET
+*value=c.R().transport_socket_ != nullptr;
+        break;
+      }
+      case 57: {  // PRIORITY_NESTED
+c.M().nested_connect_job_->ChangePriority(static_cast<RequestPriority>(argument));
+        break;
+      }
+      case 58: {  // PRIORITY_SOCKET
+c.M().transport_socket_->SetStreamPriority(static_cast<RequestPriority>(argument));
+        break;
+      }
+      case 59: {  // TIMEOUT_LATENCY
+Class::EmitConnectLatency(NextProto::kProtoUnknown,c.R().params_->proxy_server().scheme(),
+Class::HttpConnectResult::kTimedOut,base::TimeTicks::Now()-c.R().connect_start_time_);
+        break;
+      }
+      case 60: {  // STOP_TIMER
+c.base_bridge->duration=base::TimeDelta();
+        break;
+      }
+      case 61: {  // NOTIFY_AUTH
+c.M().NotifyDelegateOfProxyAuth(*c.M().transport_socket_->GetConnectResponseInfo(),
+c.M().transport_socket_->GetAuthController().get(),base::BindOnce(&Class::RestartWithAuthCredentials,c.M().weak_ptr_factory_.GetWeakPtr()));
+        break;
+      }
+      case 62: {  // POST_RESTART
+DCHECK(c.R().transport_socket_);TaskRunner(c.R().priority())->PostTask(FROM_HERE,
+base::BindOnce(&Class::OnIOComplete,c.M().weak_ptr_factory_.GetWeakPtr(),OK));
+        break;
+      }
+      case 63: {  // HAS_UA
+*value=c.R().http_user_agent_settings() != nullptr;
+        break;
+      }
+      case 64: {  // GET_UA
+*c.text_output=c.R().http_user_agent_settings()->GetUserAgent();
+        break;
+      }
+      case 65: {  // EMPTY_TEXT
+c.text_output->clear();
+        break;
+      }
+      case 66: {  // BUILD_KEY
+auto prefix=c.R().params_->proxy_chain().Prefix(c.R().params_->proxy_chain_index());
+DCHECK(c.R().params_->proxy_chain_index()!=0||prefix.is_direct());
+c.key.emplace(c.R().params_->proxy_server().host_port_pair(),PRIVACY_MODE_DISABLED,prefix,
+SessionUsage::kProxy,c.R().socket_tag(),c.R().params_->network_anonymization_key(),c.R().params_->secure_dns_policy(),true,c.R().params_->target_network());
+        break;
+      }
+      case 67: {  // NOTIFY_COMPLETE
+*value=argument; // Direct safe BASE completion.
+        break;
+      }
+      case 68: {  // BAD_STATE
+NOTREACHED() << "bad state";
+      }
+      case 69: {  // EXPECT_OK
+DCHECK_EQ(OK,argument);
+        break;
+      }
+      case 70: {  // EXPECT_NOT_PENDING
+DCHECK_NE(ERR_IO_PENDING,argument);
+        break;
+      }
+      case 71: {  // HAS_ESTIMATOR
+*value=c.estimator != nullptr;
+        break;
+      }
+      case 72: {  // READ_RTT
+c.rtt=c.estimator->GetHttpRTT();*value=c.rtt.has_value();
+        break;
+      }
+      case 73: {  // READ_TIMEOUT_CONFIG
+c.load_timeout_config(&c);
+        break;
+      }
+      case 74: {  // IS_HTTPS_INPUT
+*value=c.https;
+        break;
+      }
+      case 75: {  // SSL_MULTIPLIER
+*value=c.ssl_multiplier;
+        break;
+      }
+      case 76: {  // PLAIN_MULTIPLIER
+*value=c.plain_multiplier;
+        break;
+      }
+      case 77: {  // MULTIPLY_RTT
+c.timeout=static_cast<int32_t>(argument)*c.rtt.value();
+        break;
+      }
+      case 78: {  // BELOW_MIN
+*value=c.timeout<c.min_timeout;
+        break;
+      }
+      case 79: {  // ABOVE_MAX
+*value=c.max_timeout<c.timeout;
+        break;
+      }
+      case 80: {  // TAKE_MIN
+c.timeout=c.min_timeout;
+        break;
+      }
+      case 81: {  // TAKE_MAX
+c.timeout=c.max_timeout;
+        break;
+      }
+      case 82: {  // TIMEOUT_MICROS
+*value=c.timeout.InMicroseconds();
+        break;
+      }
+      case 83: {  // HTTP_VERSION_INPUT
+*value=c.http_version;
+        break;
+      }
+      case 84: {  // SCHEME_INPUT
+*value=c.scheme;
+        break;
+      }
+      case 85: {  // RESULT_INPUT
+*value=c.connect_result;
+        break;
+      }
+      case 86: {  // HISTOGRAM_PREFIX
+c.histogram="Net.HttpProxy.ConnectLatency.";
+        break;
+      }
+      case 87: {  // HISTOGRAM_HTTP1
+c.histogram+="Http1";
+        break;
+      }
+      case 88: {  // HISTOGRAM_HTTP2
+c.histogram+="Http2";
+        break;
+      }
+      case 89: {  // HISTOGRAM_HTTP3
+c.histogram+="Http3";
+        break;
+      }
+      case 90: {  // HISTOGRAM_HTTP
+c.histogram+=".Http";
+        break;
+      }
+      case 91: {  // HISTOGRAM_HTTPS
+c.histogram+=".Https";
+        break;
+      }
+      case 92: {  // HISTOGRAM_QUIC
+c.histogram+=".Quic";
+        break;
+      }
+      case 93: {  // HISTOGRAM_SUCCESS
+c.histogram+=".Success";
+        break;
+      }
+      case 94: {  // HISTOGRAM_ERROR
+c.histogram+=".Error";
+        break;
+      }
+      case 95: {  // HISTOGRAM_TIMEOUT
+c.histogram+=".TimedOut";
+        break;
+      }
+      case 96: {  // EMIT_HISTOGRAM
+base::UmaHistogramMediumTimes(c.histogram,c.latency);
+        break;
+      }
+      case 97: {  // TASK_SCHEDULER
+*value=features::kNetTaskSchedulerHttpProxyConnectJob.Get();
+        break;
+      }
+      case 98: {  // TASK_NET
+c.runner_output=&net::GetTaskRunner(c.priority_input);
+        break;
+      }
+      case 99: {  // TASK_DEFAULT
+c.runner_output=&base::SingleThreadTaskRunner::GetCurrentDefault();
+        break;
+      }
+      case 100: {  // PARAM_OVER_SSL
+*value=c.params_input->is_over_ssl();
+        break;
+      }
+      case 101: {  // PARAM_OVER_QUIC
+*value=c.params_input->is_over_quic();
+        break;
+      }
+      case 102: {  // URL_HTTPS
+c.url_output.emplace("https://"+c.params_input->proxy_server().host_port_pair().ToString());
+        break;
+      }
+      case 103: {  // URL_HTTP
+c.url_output.emplace("http://"+c.params_input->proxy_server().host_port_pair().ToString());
+        break;
+      }
+      case 104: {  // PARAM_TUNNEL
+*value=c.params_input->tunnel();
+        break;
+      }
+      case 105: {  // CREATE_AUTH
+c.auth_output=base::MakeRefCounted<HttpAuthController>(HttpAuth::AUTH_PROXY,
+MakeProxyUrl(*c.params_input),c.params_input->network_anonymization_key(),
+c.common_input->http_auth_cache,c.common_input->http_auth_handler_factory,c.resolver_input);
+        break;
+      }
+      case 106: {  // PARAM_PRESENT
+*value=c.param_valid;
+        break;
+      }
+      case 107: {  // PARAM_VALUE
+*value=c.param_value;
+        break;
+      }
+      default: return false;
+    }
+    // Only invocation-local liveness is read after any deleting callback.
+    return c.Live();
+  }
+};
+
 
 namespace {
 
 // HttpProxyConnectJobs will time out after this many seconds.  Note this is in
 // addition to the timeout for the transport socket.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-constexpr base::TimeDelta kHttpProxyConnectJobTunnelTimeout = base::Seconds(10);
-#else
-constexpr base::TimeDelta kHttpProxyConnectJobTunnelTimeout = base::Seconds(30);
-#endif
+// Timeout selection is implemented by the Rust family policy.
 
 class HttpProxyTimeoutExperiments {
  public:
@@ -106,14 +681,8 @@ class HttpProxyTimeoutExperiments {
   // unavailable, then |default_value| is available.
   static int32_t GetInt32Param(const std::string& param_name,
                                int32_t default_value) {
-    int32_t param;
-    if (!base::StringToInt(base::GetFieldTrialParamValue(
-                               "NetAdaptiveProxyConnectionTimeout", param_name),
-                           &param)) {
-      return default_value;
-    }
-    return param;
-  }
+  return SelectConnectionFamilyIntParam(param_name,default_value);
+}
 
   // For secure proxies, the connection timeout is set to
   // |ssl_http_rtt_multiplier_| times the HTTP RTT estimate. For insecure
@@ -134,17 +703,12 @@ HttpProxyTimeoutExperiments* GetProxyTimeoutExperiments() {
 
 // Make a URL for a proxy, for use in proxy auth challenges.
 GURL MakeProxyUrl(const HttpProxySocketParams& params) {
-  const bool is_https = params.is_over_ssl() || params.is_over_quic();
-  return GURL((is_https ? "https://" : "http://") +
-              params.proxy_server().host_port_pair().ToString());
+  HttpProxyConnectJobFamilyRustBridge c;c.params_input=&params;c.Run(31);return std::move(*c.url_output);
 }
 
 const scoped_refptr<base::SingleThreadTaskRunner>& TaskRunner(
     net::RequestPriority priority) {
-  if (features::kNetTaskSchedulerHttpProxyConnectJob.Get()) {
-    return net::GetTaskRunner(priority);
-  }
-  return base::SingleThreadTaskRunner::GetCurrentDefault();
+  HttpProxyConnectJobFamilyRustBridge c;c.priority_input=priority;c.Run(30);return *c.runner_output;
 }
 
 }  // namespace
@@ -263,71 +827,34 @@ HttpProxyConnectJob::HttpProxyConnectJob(
                  NetLogEventType::HTTP_PROXY_CONNECT_JOB_CONNECT),
       params_(std::move(params)),
       http_auth_controller_(
-          params_->tunnel()
-              ? base::MakeRefCounted<HttpAuthController>(
-                    HttpAuth::AUTH_PROXY,
-                    MakeProxyUrl(*params_),
-                    params_->network_anonymization_key(),
-                    common_connect_job_params->http_auth_cache,
-                    common_connect_job_params->http_auth_handler_factory,
-                    host_resolver())
-              : nullptr) {}
+          CreateConnectionFamilyAuth(*params_,common_connect_job_params,host_resolver())) {}
 
-HttpProxyConnectJob::~HttpProxyConnectJob() = default;
+HttpProxyConnectJob::~HttpProxyConnectJob() { connection_jobs_upper_rust::Invocation::Invalidate(static_cast<const ConnectJob*>(this)); }
 
 const RequestPriority HttpProxyConnectJob::kH2QuicTunnelPriority =
     DEFAULT_PRIORITY;
 
 LoadState HttpProxyConnectJob::GetLoadState() const {
-  switch (next_state_) {
-    case STATE_TRANSPORT_CONNECT_COMPLETE:
-      return nested_connect_job_->GetLoadState();
-    case STATE_HTTP_PROXY_CONNECT:
-    case STATE_HTTP_PROXY_CONNECT_COMPLETE:
-    case STATE_SPDY_PROXY_CREATE_STREAM:
-    case STATE_SPDY_PROXY_CREATE_STREAM_COMPLETE:
-    case STATE_QUIC_PROXY_CREATE_SESSION:
-    case STATE_QUIC_PROXY_CREATE_STREAM:
-    case STATE_QUIC_PROXY_CREATE_STREAM_COMPLETE:
-    case STATE_RESTART_WITH_AUTH:
-    case STATE_RESTART_WITH_AUTH_COMPLETE:
-      return LOAD_STATE_ESTABLISHING_PROXY_TUNNEL;
-    // This state shouldn't be possible to be called in.
-    case STATE_TRANSPORT_CONNECT:
-      NOTREACHED();
-    case STATE_BEGIN_CONNECT:
-    case STATE_NONE:
-      // May be possible for this method to be called after an error, shouldn't
-      // be called after a successful connect.
-      break;
-  }
-  return LOAD_STATE_IDLE;
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<LoadState>(c.Run(0));
 }
 
 bool HttpProxyConnectJob::HasEstablishedConnection() const {
-  if (has_established_connection_) {
-    return true;
-  }
-
-  // It's possible the nested connect job has established a connection, but
-  // hasn't completed yet (For example, an SSLConnectJob may be negotiating
-  // SSL).
-  if (nested_connect_job_) {
-    return nested_connect_job_->HasEstablishedConnection();
-  }
-  return false;
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<bool>(c.Run(1));
 }
 
 ResolveErrorInfo HttpProxyConnectJob::GetResolveErrorInfo() const {
-  return resolve_error_info_;
+  ResolveErrorInfo result;HttpProxyConnectJobFamilyRustBridge c(this);c.resolve_output=&result;c.Run(2);return result;
 }
 
 bool HttpProxyConnectJob::IsSSLError() const {
-  return ssl_cert_request_info_ != nullptr;
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<bool>(c.Run(3));
 }
 
 scoped_refptr<SSLCertRequestInfo> HttpProxyConnectJob::GetCertRequestInfo() {
-  return ssl_cert_request_info_;
+  scoped_refptr<SSLCertRequestInfo> result;HttpProxyConnectJobFamilyRustBridge c(this);c.certificate_output=&result;c.Run(4);return result;
 }
 
 void HttpProxyConnectJob::OnConnectJobComplete(int result, ConnectJob* job) {
@@ -351,39 +878,18 @@ void HttpProxyConnectJob::OnNeedsProxyAuth(
 base::TimeDelta HttpProxyConnectJob::AlternateNestedConnectionTimeout(
     const HttpProxySocketParams& params,
     const NetworkQualityEstimator* network_quality_estimator) {
-  base::TimeDelta default_alternate_timeout;
 
-  // On Android and iOS, a default proxy connection timeout is used instead of
-  // the actual TCP/SSL timeouts of nested jobs.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  default_alternate_timeout = kHttpProxyConnectJobTunnelTimeout;
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
-
-  bool is_https = params.proxy_server().is_https();
-
-  if (!network_quality_estimator) {
-    return default_alternate_timeout;
-  }
-
-  std::optional<base::TimeDelta> http_rtt_estimate =
-      network_quality_estimator->GetHttpRTT();
-  if (!http_rtt_estimate) {
-    return default_alternate_timeout;
-  }
-
-  int32_t multiplier =
-      is_https ? GetProxyTimeoutExperiments()->ssl_http_rtt_multiplier()
-               : GetProxyTimeoutExperiments()->non_ssl_http_rtt_multiplier();
-  base::TimeDelta timeout = multiplier * http_rtt_estimate.value();
-  // Ensure that connection timeout is between
-  // |min_proxy_connection_timeout_| and |max_proxy_connection_timeout_|.
-  return std::clamp(
-      timeout, GetProxyTimeoutExperiments()->min_proxy_connection_timeout(),
-      GetProxyTimeoutExperiments()->max_proxy_connection_timeout());
+  HttpProxyConnectJobFamilyRustBridge c;c.https=params.proxy_server().is_https();c.estimator=network_quality_estimator;
+  c.load_timeout_config=[](HttpProxyConnectJobFamilyRustBridge* input){
+  input->ssl_multiplier=GetProxyTimeoutExperiments()->ssl_http_rtt_multiplier();
+  input->plain_multiplier=GetProxyTimeoutExperiments()->non_ssl_http_rtt_multiplier();
+  input->min_timeout=GetProxyTimeoutExperiments()->min_proxy_connection_timeout();
+  input->max_timeout=GetProxyTimeoutExperiments()->max_proxy_connection_timeout();};
+  return base::Microseconds(c.Run(5));
 }
 
 base::TimeDelta HttpProxyConnectJob::TunnelTimeoutForTesting() {
-  return kHttpProxyConnectJobTunnelTimeout;
+  HttpProxyConnectJobFamilyRustBridge c;return base::Microseconds(c.Run(6));
 }
 
 void HttpProxyConnectJob::UpdateFieldTrialParametersForTesting() {
@@ -391,555 +897,114 @@ void HttpProxyConnectJob::UpdateFieldTrialParametersForTesting() {
 }
 
 int HttpProxyConnectJob::ConnectInternal() {
-  DCHECK_EQ(next_state_, STATE_NONE);
-  next_state_ = STATE_BEGIN_CONNECT;
-  return DoLoop(OK);
+  DCHECK_EQ(next_state_,STATE_NONE);
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(7));
 }
 
 ProxyServer::Scheme HttpProxyConnectJob::GetProxyServerScheme() const {
-  return params_->proxy_server().scheme();
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<ProxyServer::Scheme>(c.Run(8));
 }
 
 void HttpProxyConnectJob::OnIOComplete(int result) {
-  int rv = DoLoop(result);
-  if (rv != ERR_IO_PENDING) {
-    // May delete |this|.
-    NotifyDelegateOfCompletion(rv);
-  }
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  c.Run(9, result);
 }
 
 void HttpProxyConnectJob::RestartWithAuthCredentials() {
-  DCHECK(transport_socket_);
-  DCHECK_EQ(STATE_NONE, next_state_);
-
-  // Always do this asynchronously, to avoid re-entrancy.
-  next_state_ = STATE_RESTART_WITH_AUTH;
-  TaskRunner(priority())
-      ->PostTask(FROM_HERE, base::BindOnce(&HttpProxyConnectJob::OnIOComplete,
-                                           weak_ptr_factory_.GetWeakPtr(), OK));
+  DCHECK_EQ(next_state_,STATE_NONE);
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  c.Run(10);
 }
 
 int HttpProxyConnectJob::DoLoop(int result) {
-  DCHECK_NE(next_state_, STATE_NONE);
-
-  int rv = result;
-  do {
-    State state = next_state_;
-    next_state_ = STATE_NONE;
-    switch (state) {
-      case STATE_BEGIN_CONNECT:
-        DCHECK_EQ(OK, rv);
-        rv = DoBeginConnect();
-        break;
-      case STATE_TRANSPORT_CONNECT:
-        DCHECK_EQ(OK, rv);
-        rv = DoTransportConnect();
-        break;
-      case STATE_TRANSPORT_CONNECT_COMPLETE:
-        rv = DoTransportConnectComplete(rv);
-        break;
-      case STATE_HTTP_PROXY_CONNECT:
-        DCHECK_EQ(OK, rv);
-        rv = DoHttpProxyConnect();
-        break;
-      case STATE_HTTP_PROXY_CONNECT_COMPLETE:
-        rv = DoHttpProxyConnectComplete(rv);
-        break;
-      case STATE_SPDY_PROXY_CREATE_STREAM:
-        DCHECK_EQ(OK, rv);
-        rv = DoSpdyProxyCreateStream();
-        break;
-      case STATE_SPDY_PROXY_CREATE_STREAM_COMPLETE:
-        rv = DoSpdyProxyCreateStreamComplete(rv);
-        break;
-      case STATE_QUIC_PROXY_CREATE_SESSION:
-        DCHECK_EQ(OK, rv);
-        rv = DoQuicProxyCreateSession();
-        break;
-      case STATE_QUIC_PROXY_CREATE_STREAM:
-        rv = DoQuicProxyCreateStream(rv);
-        break;
-      case STATE_QUIC_PROXY_CREATE_STREAM_COMPLETE:
-        rv = DoQuicProxyCreateStreamComplete(rv);
-        break;
-      case STATE_RESTART_WITH_AUTH:
-        DCHECK_EQ(OK, rv);
-        rv = DoRestartWithAuth();
-        break;
-      case STATE_RESTART_WITH_AUTH_COMPLETE:
-        rv = DoRestartWithAuthComplete(rv);
-        break;
-      default:
-        NOTREACHED() << "bad state";
-    }
-  } while (rv != ERR_IO_PENDING && next_state_ != STATE_NONE);
-
-  return rv;
+  DCHECK_NE(next_state_,STATE_NONE);
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(11, result));
 }
 
 int HttpProxyConnectJob::DoBeginConnect() {
-  connect_start_time_ = base::TimeTicks::Now();
-  ResetTimer(
-      AlternateNestedConnectionTimeout(*params_, network_quality_estimator()));
-  switch (GetProxyServerScheme()) {
-    case ProxyServer::SCHEME_QUIC:
-      next_state_ = STATE_QUIC_PROXY_CREATE_SESSION;
-      // QUIC connections are always considered to have been established.
-      // |has_established_connection_| is only used to start retries if a
-      // connection hasn't been established yet, and QUIC has its own connection
-      // establishment logic.
-      has_established_connection_ = true;
-      break;
-    case ProxyServer::SCHEME_HTTP:
-    case ProxyServer::SCHEME_HTTPS:
-      next_state_ = STATE_TRANSPORT_CONNECT;
-      break;
-    default:
-      NOTREACHED();
-  }
-  return OK;
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(12));
 }
 
 int HttpProxyConnectJob::DoTransportConnect() {
-  ProxyServer::Scheme scheme = GetProxyServerScheme();
-  if (scheme == ProxyServer::SCHEME_HTTP) {
-    nested_connect_job_ = TransportConnectJob::Factory::CreateJob(
-        priority(), socket_tag(), common_connect_job_params(),
-        params_->transport_params(), this, &net_log());
-  } else {
-    DCHECK_EQ(scheme, ProxyServer::SCHEME_HTTPS);
-    DCHECK(params_->is_over_ssl());
-    // Skip making a new connection if we have an existing HTTP/2 session.
-    if (params_->tunnel() &&
-        common_connect_job_params()->spdy_session_pool->FindAvailableSession(
-            CreateSpdySessionKey(), /*enable_ip_based_pooling_for_h2=*/false,
-            /*is_websocket=*/false, net_log())) {
-      has_established_connection_ = true;
-      next_state_ = STATE_SPDY_PROXY_CREATE_STREAM;
-      return OK;
-    }
-
-    nested_connect_job_ = std::make_unique<SSLConnectJob>(
-        priority(), socket_tag(), common_connect_job_params(),
-        params_->ssl_params(), this, &net_log());
-  }
-
-  next_state_ = STATE_TRANSPORT_CONNECT_COMPLETE;
-  return nested_connect_job_->Connect();
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(13));
 }
 
 int HttpProxyConnectJob::DoTransportConnectComplete(int result) {
-  resolve_error_info_ = nested_connect_job_->GetResolveErrorInfo();
-  ProxyServer::Scheme scheme = GetProxyServerScheme();
-  if (result != OK) {
-    // Only record latency for connections to the first proxy in a chain.
-    if (params_->proxy_chain_index() == 0) {
-      EmitConnectLatency(NextProto::kProtoUnknown,
-                         params_->proxy_server().scheme(),
-                         HttpConnectResult::kError,
-                         base::TimeTicks::Now() - connect_start_time_);
-    }
-
-    if (IsCertificateError(result)) {
-      DCHECK_EQ(ProxyServer::SCHEME_HTTPS, scheme);
-      // TODO(rch): allow the user to deal with proxy cert errors in the
-      // same way as server cert errors.
-      return ERR_PROXY_CERTIFICATE_INVALID;
-    }
-
-    if (result == ERR_SSL_CLIENT_AUTH_CERT_NEEDED) {
-      DCHECK_EQ(ProxyServer::SCHEME_HTTPS, scheme);
-      ssl_cert_request_info_ = nested_connect_job_->GetCertRequestInfo();
-      if (params_->proxy_chain().is_multi_proxy() && !ssl_cert_request_info_) {
-        // When multi-proxy chains are in use, it's possible that a client auth
-        // cert is requested by the first proxy after the transport connection
-        // to it has been established. When this occurs,
-        // ERR_SSL_CLIENT_AUTH_CERT_NEEDED will get passed back to the parent
-        // SSLConnectJob and then to the parent HttpProxyConnectJob, but the SSL
-        // cert request info won't have been set up for the parent
-        // HttpProxyConnectJob to use it in this method. Fail gracefully when
-        // this case is encountered.
-        // TODO(crbug.com/40284947): Investigate whether changes are
-        // needed to support making the SSL cert request info available here in
-        // the case described above. Just returning `result` here makes the
-        // behavior for multi-proxy chains match that of single-proxy chains
-        // (where the proxied request fails with ERR_SSL_CLIENT_AUTH_CERT_NEEDED
-        // and no `SSLCertRequestInfo` is available from the corresponding
-        // `ResponseInfo`), though, so it could be that no further action is
-        // needed here.
-        return result;
-      }
-      DCHECK(ssl_cert_request_info_);
-      ssl_cert_request_info_->is_proxy = true;
-      return result;
-    }
-
-    // If this transport connection was attempting to be made through other
-    // proxies, prefer to propagate errors from attempting to establish the
-    // previous proxy connection(s) instead of returning
-    // `ERR_PROXY_CONNECTION_FAILED`. For instance, if the attempt to connect to
-    // the first proxy resulted in `ERR_PROXY_HTTP_1_1_REQUIRED`, return that so
-    // that the whole job will be restarted using HTTP/1.1.
-    if (params_->proxy_chain_index() != 0) {
-      return result;
-    }
-
-    return ERR_PROXY_CONNECTION_FAILED;
-  }
-
-  NextProto next_proto = nested_connect_job_->socket()->GetNegotiatedProtocol();
-  // Only record latency for connections to the first proxy in a chain.
-  if (params_->proxy_chain_index() == 0) {
-    EmitConnectLatency(next_proto, params_->proxy_server().scheme(),
-                       HttpConnectResult::kSuccess,
-                       base::TimeTicks::Now() - connect_start_time_);
-  }
-  has_established_connection_ = true;
-
-  if (!params_->tunnel()) {
-    // If not tunneling, this is an HTTP URL being fetched directly over the
-    // proxy. Return the underlying socket directly. The caller will handle the
-    // ALPN protocol, etc., from here. Clear the DNS aliases to match the other
-    // proxy codepaths.
-    SetSocket(nested_connect_job_->PassSocket(),
-              /*dns_aliases=*/base::flat_set<std::string>());
-    return result;
-  }
-
-  // Establish a tunnel over the proxy by making a CONNECT request. HTTP/1.1 and
-  // HTTP/2 handle CONNECT differently.
-  if (next_proto == NextProto::kProtoHTTP2) {
-    DCHECK_EQ(ProxyServer::SCHEME_HTTPS, scheme);
-    next_state_ = STATE_SPDY_PROXY_CREATE_STREAM;
-  } else {
-    next_state_ = STATE_HTTP_PROXY_CONNECT;
-  }
-  return result;
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(14, result));
 }
 
 int HttpProxyConnectJob::DoHttpProxyConnect() {
-  DCHECK(params_->tunnel());
-  next_state_ = STATE_HTTP_PROXY_CONNECT_COMPLETE;
-
-  // Reset the timer to just the length of time allowed for HttpProxy handshake
-  // so that a fast TCP connection plus a slow HttpProxy failure doesn't take
-  // longer to timeout than it should.
-  ResetTimer(kHttpProxyConnectJobTunnelTimeout);
-
-  // Add a HttpProxy connection on top of the tcp socket.
-  transport_socket_ = std::make_unique<HttpProxyClientSocket>(
-      nested_connect_job_->PassSocket(), GetUserAgent(), params_->endpoint(),
-      params_->proxy_chain(), params_->proxy_chain_index(),
-      http_auth_controller_, common_connect_job_params()->proxy_delegate,
-      params_->traffic_annotation());
-  nested_connect_job_.reset();
-  return transport_socket_->Connect(base::BindOnce(
-      &HttpProxyConnectJob::OnIOComplete, base::Unretained(this)));
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(15));
 }
 
 int HttpProxyConnectJob::DoHttpProxyConnectComplete(int result) {
-  // Always inform caller of auth requests asynchronously.
-  if (result == ERR_PROXY_AUTH_REQUESTED) {
-    TaskRunner(priority())
-        ->PostTask(FROM_HERE,
-                   base::BindOnce(&HttpProxyConnectJob::OnAuthChallenge,
-                                  weak_ptr_factory_.GetWeakPtr()));
-    return ERR_IO_PENDING;
-  }
-
-  if (result == ERR_HTTP_1_1_REQUIRED) {
-    return ERR_PROXY_HTTP_1_1_REQUIRED;
-  }
-
-  // In TLS 1.2 with False Start or TLS 1.3, alerts from the server rejecting
-  // our client certificate are received at the first Read(), not Connect(), so
-  // the error mapping in DoTransportConnectComplete does not apply. Repeat the
-  // mapping here.
-  if (result == ERR_BAD_SSL_CLIENT_AUTH_CERT) {
-    return ERR_PROXY_CONNECTION_FAILED;
-  }
-
-  if (result == OK) {
-    SetSocket(std::move(transport_socket_), /*dns_aliases=*/std::nullopt);
-  }
-
-  return result;
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(16, result));
 }
 
 int HttpProxyConnectJob::DoSpdyProxyCreateStream() {
-  DCHECK(params_->tunnel());
-  DCHECK(params_->is_over_ssl());
-
-  // Reset the timer to just the length of time allowed for HttpProxy handshake
-  // so that a fast TCP connection plus a slow HttpProxy failure doesn't take
-  // longer to timeout than it should.
-  ResetTimer(kHttpProxyConnectJobTunnelTimeout);
-
-  SpdySessionKey key = CreateSpdySessionKey();
-  base::WeakPtr<SpdySession> spdy_session =
-      common_connect_job_params()->spdy_session_pool->FindAvailableSession(
-          key, /* enable_ip_based_pooling_for_h2 = */ false,
-          /* is_websocket = */ false, net_log());
-  // It's possible that a session to the proxy has recently been created
-  if (spdy_session) {
-    nested_connect_job_.reset();
-  } else {
-    // Create a session direct to the proxy itself
-    base::expected<base::WeakPtr<SpdySession>, int> spdy_session_result =
-        common_connect_job_params()
-            ->spdy_session_pool->CreateAvailableSessionFromSocket(
-                key, nested_connect_job_->PassSocket(),
-                nested_connect_job_->connect_timing(), net_log(),
-                SpdySessionInitiator::kHttpProxyConnectJob);
-    nested_connect_job_.reset();
-    if (!spdy_session_result.has_value()) {
-      return spdy_session_result.error();
-    }
-    spdy_session = std::move(spdy_session_result.value());
-  }
-
-  next_state_ = STATE_SPDY_PROXY_CREATE_STREAM_COMPLETE;
-  spdy_stream_request_ = std::make_unique<SpdyStreamRequest>();
-  return spdy_stream_request_->StartRequest(
-      SPDY_BIDIRECTIONAL_STREAM, spdy_session,
-      GURL("https://" + params_->endpoint().ToString()),
-      false /* no early data */, kH2QuicTunnelPriority, socket_tag(),
-      spdy_session->net_log(),
-      base::BindOnce(&HttpProxyConnectJob::OnIOComplete,
-                     base::Unretained(this)),
-      params_->traffic_annotation());
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(17));
 }
 
 int HttpProxyConnectJob::DoSpdyProxyCreateStreamComplete(int result) {
-  if (result < 0) {
-    // See the comment in DoHttpProxyConnectComplete(). HTTP/2 proxies will
-    // typically also fail here, as a result of SpdyProxyClientSocket::Connect()
-    // below, but the error may surface out of SpdyStreamRequest if there were
-    // enough requests in parallel that stream creation became asynchronous.
-    if (result == ERR_BAD_SSL_CLIENT_AUTH_CERT) {
-      result = ERR_PROXY_CONNECTION_FAILED;
-    }
-
-    spdy_stream_request_.reset();
-    return result;
-  }
-
-  next_state_ = STATE_HTTP_PROXY_CONNECT_COMPLETE;
-  base::WeakPtr<SpdyStream> stream = spdy_stream_request_->ReleaseStream();
-  spdy_stream_request_.reset();
-  DCHECK(stream.get());
-  // |transport_socket_| will set itself as |stream|'s delegate.
-  transport_socket_ = std::make_unique<SpdyProxyClientSocket>(
-      stream, params_->proxy_chain(), params_->proxy_chain_index(),
-      GetUserAgent(), params_->endpoint(), net_log(), http_auth_controller_,
-      common_connect_job_params()->proxy_delegate);
-  return transport_socket_->Connect(base::BindOnce(
-      &HttpProxyConnectJob::OnIOComplete, base::Unretained(this)));
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(18, result));
 }
 
 int HttpProxyConnectJob::DoQuicProxyCreateSession() {
-  DCHECK(params_->tunnel());
-  DCHECK(!common_connect_job_params()->quic_supported_versions->empty());
-  const SSLConfig& ssl_config = params_->quic_ssl_config().value();
-
-  // Reset the timer to just the length of time allowed for HttpProxy handshake
-  // so that a fast QUIC connection plus a slow tunnel setup doesn't take longer
-  // to timeout than it should.
-  ResetTimer(kHttpProxyConnectJobTunnelTimeout);
-
-  next_state_ = STATE_QUIC_PROXY_CREATE_STREAM;
-  const HostPortPair& proxy_server = params_->proxy_server().host_port_pair();
-  quic_session_request_ = std::make_unique<QuicSessionRequest>(
-      common_connect_job_params()->quic_session_pool);
-
-  // Select the default QUIC version for the session to the proxy, since there
-  // is no DNS or Alt-Svc information to use.
-  quic::ParsedQuicVersion quic_version = SupportedQuicVersionForProxying();
-
-  // The QuicSessionRequest will handle connecting to any proxies earlier in the
-  // chain to this one, but expects a ProxyChain containing only QUIC proxies.
-  ProxyChain quic_proxies =
-      params_->proxy_chain().Prefix(params_->proxy_chain_index());
-
-  // The ConnectJobParamsFactory ensures that this prefix is all QUIC proxies.
-  for (const ProxyServer& ps : quic_proxies.proxy_servers()) {
-    CHECK(ps.is_quic());
-  }
-
-  return quic_session_request_->Request(
-      // TODO(crbug.com/40181080) Pass the destination directly once it's
-      // converted to contain scheme.
-      url::SchemeHostPort(url::kHttpsScheme, proxy_server.host(),
-                          proxy_server.port()),
-      quic_version, quic_proxies, params_->traffic_annotation(),
-      http_user_agent_settings(), SessionUsage::kProxy, ssl_config.privacy_mode,
-      kH2QuicTunnelPriority, socket_tag(), params_->network_anonymization_key(),
-      params_->secure_dns_policy(),
-      /*require_dns_https_alpn=*/false, ssl_config.GetCertVerifyFlags(),
-      GURL("https://" + proxy_server.ToString()), params_->target_network(),
-      net_log(), &quic_net_error_details_,
-      MultiplexedSessionCreationInitiator::kUnknown,
-      /*management_config=*/std::nullopt,
-      /*failed_on_default_network_callback=*/CompletionOnceCallback(),
-      base::BindOnce(&HttpProxyConnectJob::OnIOComplete,
-                     base::Unretained(this)));
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(19));
 }
 
 int HttpProxyConnectJob::DoQuicProxyCreateStream(int result) {
-  if (result < 0) {
-    quic_session_request_.reset();
-    return result;
-  }
-
-  next_state_ = STATE_QUIC_PROXY_CREATE_STREAM_COMPLETE;
-  quic_session_ = quic_session_request_->ReleaseSessionHandle();
-  quic_session_request_.reset();
-
-  return quic_session_->RequestStream(
-      false,
-      base::BindOnce(&HttpProxyConnectJob::OnIOComplete,
-                     base::Unretained(this)),
-      params_->traffic_annotation());
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(20, result));
 }
 
 int HttpProxyConnectJob::DoQuicProxyCreateStreamComplete(int result) {
-  if (result < 0) {
-    return result;
-  }
-
-  next_state_ = STATE_HTTP_PROXY_CONNECT_COMPLETE;
-  std::unique_ptr<QuicChromiumClientStream::Handle> quic_stream =
-      quic_session_->ReleaseStream();
-
-  uint8_t urgency = ConvertRequestPriorityToQuicPriority(kH2QuicTunnelPriority);
-  quic_stream->SetPriority(quic::QuicStreamPriority(
-      quic::HttpStreamPriority{urgency, kDefaultPriorityIncremental}));
-
-  transport_socket_ = std::make_unique<QuicProxyClientSocket>(
-      std::move(quic_stream), std::move(quic_session_), params_->proxy_chain(),
-      params_->proxy_chain_index(), GetUserAgent(), params_->endpoint(),
-      net_log(), http_auth_controller_,
-      common_connect_job_params()->proxy_delegate);
-  return transport_socket_->Connect(base::BindOnce(
-      &HttpProxyConnectJob::OnIOComplete, base::Unretained(this)));
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(21, result));
 }
 
 int HttpProxyConnectJob::DoRestartWithAuth() {
-  DCHECK(transport_socket_);
-
-  // Start the timeout timer again.
-  ResetTimer(kHttpProxyConnectJobTunnelTimeout);
-
-  next_state_ = STATE_RESTART_WITH_AUTH_COMPLETE;
-  return transport_socket_->RestartWithAuth(base::BindOnce(
-      &HttpProxyConnectJob::OnIOComplete, base::Unretained(this)));
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(22));
 }
 
 int HttpProxyConnectJob::DoRestartWithAuthComplete(int result) {
-  DCHECK_NE(ERR_IO_PENDING, result);
-
-  if (result == OK && !transport_socket_->IsConnected()) {
-    result = ERR_UNABLE_TO_REUSE_CONNECTION_FOR_PROXY_AUTH;
-  }
-
-  // If the connection could not be reused to attempt to send proxy auth
-  // credentials, try reconnecting. Do not reset the HttpAuthController in this
-  // case; the server may, for instance, send "Proxy-Connection: close" and
-  // expect that each leg of the authentication progress on separate
-  // connections.
-  bool reconnect = result == ERR_UNABLE_TO_REUSE_CONNECTION_FOR_PROXY_AUTH;
-
-  // If auth credentials were sent but the connection was closed, the server may
-  // have timed out while the user was selecting credentials. Retry once.
-  if (!has_restarted_ &&
-      (result == ERR_CONNECTION_CLOSED || result == ERR_CONNECTION_RESET ||
-       result == ERR_CONNECTION_ABORTED ||
-       result == ERR_SOCKET_NOT_CONNECTED)) {
-    reconnect = true;
-    has_restarted_ = true;
-
-    // Release any auth state bound to the connection. The new connection will
-    // start the current scheme and identity from scratch.
-    if (http_auth_controller_) {
-      http_auth_controller_->OnConnectionClosed();
-    }
-  }
-
-  if (reconnect) {
-    // Attempt to create a new one.
-    transport_socket_.reset();
-    next_state_ = STATE_BEGIN_CONNECT;
-    return OK;
-  }
-
-  // If not reconnecting, treat the result as the result of establishing a
-  // tunnel through the proxy. This is important in the case another auth
-  // challenge is seen.
-  next_state_ = STATE_HTTP_PROXY_CONNECT_COMPLETE;
-  return result;
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  return static_cast<int>(c.Run(23, result));
 }
 
 void HttpProxyConnectJob::ChangePriorityInternal(RequestPriority priority) {
-  // Do not set the priority on |spdy_stream_request_| or
-  // |quic_session_request_|, since those should always use
-  // kH2QuicTunnelPriority.
-  if (nested_connect_job_) {
-    nested_connect_job_->ChangePriority(priority);
-  }
-
-  if (transport_socket_) {
-    transport_socket_->SetStreamPriority(priority);
-  }
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  c.Run(24, priority);
 }
 
 void HttpProxyConnectJob::OnTimedOutInternal() {
-  // Only record latency for connections to the first proxy in a chain.
-  if (next_state_ == STATE_TRANSPORT_CONNECT_COMPLETE &&
-      params_->proxy_chain_index() == 0) {
-    EmitConnectLatency(NextProto::kProtoUnknown,
-                       params_->proxy_server().scheme(),
-                       HttpConnectResult::kTimedOut,
-                       base::TimeTicks::Now() - connect_start_time_);
-  }
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  c.Run(25);
 }
 
 void HttpProxyConnectJob::OnAuthChallenge() {
-  // Stop timer while potentially waiting for user input.
-  ResetTimer(base::TimeDelta());
-
-  NotifyDelegateOfProxyAuth(
-      *transport_socket_->GetConnectResponseInfo(),
-      transport_socket_->GetAuthController().get(),
-      base::BindOnce(&HttpProxyConnectJob::RestartWithAuthCredentials,
-                     weak_ptr_factory_.GetWeakPtr()));
+  HttpProxyConnectJobFamilyRustBridge c(this);
+  c.Run(26);
 }
 
 std::string HttpProxyConnectJob::GetUserAgent() const {
-  if (!http_user_agent_settings()) {
-    return std::string();
-  }
-  return http_user_agent_settings()->GetUserAgent();
+  std::string result;HttpProxyConnectJobFamilyRustBridge c(this);c.text_output=&result;c.Run(27);return result;
 }
 
 SpdySessionKey HttpProxyConnectJob::CreateSpdySessionKey() const {
-  // Construct the SpdySessionKey using a ProxyChain that corresponds to what we
-  // are sending the CONNECT to. For the first proxy server use a direct proxy
-  // chain, and for the others use a proxy chain containing all
-  // proxy servers that we have already connected through.
-  ProxyChain session_key_proxy_chain =
-      params_->proxy_chain().Prefix(params_->proxy_chain_index());
-  DCHECK(params_->proxy_chain_index() != 0 ||
-         session_key_proxy_chain.is_direct());
-
-  // Note that `disable_cert_network_fetches` must be true for proxies to avoid
-  // deadlock. See comment on
-  // `SSLConfig::disable_cert_verification_network_fetches`.
-  return SpdySessionKey(
-      params_->proxy_server().host_port_pair(), PRIVACY_MODE_DISABLED,
-      session_key_proxy_chain, SessionUsage::kProxy, socket_tag(),
-      params_->network_anonymization_key(), params_->secure_dns_policy(),
-      /*disable_cert_verification_network_fetches=*/true,
-      params_->target_network());
+  HttpProxyConnectJobFamilyRustBridge c(this);c.Run(28);return std::move(*c.key);
 }
 
 // static
@@ -947,60 +1012,19 @@ void HttpProxyConnectJob::EmitConnectLatency(NextProto http_version,
                                              ProxyServer::Scheme scheme,
                                              HttpConnectResult result,
                                              base::TimeDelta latency) {
-  std::string_view http_version_piece;
-  switch (http_version) {
-    case NextProto::kProtoUnknown:
-    // fall through to assume Http1
-    case NextProto::kProtoHTTP11:
-      http_version_piece = "Http1";
-      break;
-    case NextProto::kProtoHTTP2:
-      http_version_piece = "Http2";
-      break;
-    case NextProto::kProtoQUIC:
-      http_version_piece = "Http3";
-      break;
-    default:
-      NOTREACHED();
-  }
-
-  std::string_view scheme_piece;
-  switch (scheme) {
-    case ProxyServer::SCHEME_HTTP:
-      scheme_piece = "Http";
-      break;
-    case ProxyServer::SCHEME_HTTPS:
-      scheme_piece = "Https";
-      break;
-    case ProxyServer::SCHEME_QUIC:
-      scheme_piece = "Quic";
-      break;
-    case ProxyServer::SCHEME_INVALID:
-    case ProxyServer::SCHEME_SOCKS4:
-    case ProxyServer::SCHEME_SOCKS5:
-    default:
-      NOTREACHED();
-  }
-
-  std::string_view result_piece;
-  switch (result) {
-    case HttpConnectResult::kSuccess:
-      result_piece = "Success";
-      break;
-    case HttpConnectResult::kError:
-      result_piece = "Error";
-      break;
-    case HttpConnectResult::kTimedOut:
-      result_piece = "TimedOut";
-      break;
-    default:
-      NOTREACHED();
-  }
-
-  std::string histogram =
-      base::StrCat({"Net.HttpProxy.ConnectLatency.", http_version_piece, ".",
-                    scheme_piece, ".", result_piece});
-  base::UmaHistogramMediumTimes(histogram, latency);
+  HttpProxyConnectJobFamilyRustBridge c;c.http_version=static_cast<int>(http_version);
+  c.scheme=scheme;c.connect_result=static_cast<int>(result);c.latency=latency;c.Run(29);
 }
+
+namespace {
+int32_t SelectConnectionFamilyIntParam(const std::string& name,int32_t fallback){
+ HttpProxyConnectJobFamilyRustBridge c;c.param_value=0;
+ c.param_valid=base::StringToInt(base::GetFieldTrialParamValue("NetAdaptiveProxyConnectionTimeout",name),&c.param_value);
+ return static_cast<int32_t>(c.Run(33,fallback));
+}
+scoped_refptr<HttpAuthController> CreateConnectionFamilyAuth(const HttpProxySocketParams& params,const CommonConnectJobParams* common,HostResolver* resolver){
+ HttpProxyConnectJobFamilyRustBridge c;c.params_input=&params;c.common_input=common;c.resolver_input=resolver;c.Run(34);return std::move(c.auth_output);
+}
+}  // namespace
 
 }  // namespace net

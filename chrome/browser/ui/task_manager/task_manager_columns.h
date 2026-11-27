@@ -85,17 +85,6 @@ inline constexpr std::array kColumns = {
         .initial_sort_is_ascending = false,
         .default_visibility = true},
 
-#if BUILDFLAG(IS_CHROMEOS)
-    TableColumnData{.id = IDS_TASK_MANAGER_SWAPPED_MEM_COLUMN,
-                    .align = ui::TableColumn::RIGHT,
-                    .width = -1,
-                    .percent = 0,
-                    .min_width = std::size("800 MiB") * kCharWidth,
-                    .max_width = -1,
-                    .sortable = true,
-                    .initial_sort_is_ascending = false,
-                    .default_visibility = false},
-#endif
 
 // Make the CPU column min width a bit wider on macOS. When you click a column
 // to make it the primary sort column a caret appears to the right of the
@@ -274,7 +263,7 @@ inline constexpr std::array kColumns = {
                     .default_visibility = false},
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
     TableColumnData{.id = IDS_TASK_MANAGER_OPEN_FD_COUNT_COLUMN,
                     .align = ui::TableColumn::RIGHT,
                     .width = -1,
@@ -284,7 +273,7 @@ inline constexpr std::array kColumns = {
                     .sortable = true,
                     .initial_sort_is_ascending = false,
                     .default_visibility = false},
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#endif
     TableColumnData{.id = IDS_TASK_MANAGER_PROCESS_PRIORITY_COLUMN,
                     .align = ui::TableColumn::LEFT,
                     .width = -1,

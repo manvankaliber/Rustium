@@ -26,7 +26,6 @@ BASE_FEATURE(kLinkToHighlightCopiedToast, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kReadingListToast, base::FEATURE_ENABLED_BY_DEFAULT);
 
 // Migrates the lens overlay toast to the toast framework.
-BASE_FEATURE(kLensOverlayToast, base::FEATURE_DISABLED_BY_DEFAULT);
 
 // Enabled the clear browsing data confirmation toast.
 BASE_FEATURE(kClearBrowsingDataToast, base::FEATURE_DISABLED_BY_DEFAULT);

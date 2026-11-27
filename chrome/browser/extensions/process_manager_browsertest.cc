@@ -74,10 +74,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif
 
 namespace extensions {
 
@@ -338,19 +334,11 @@ class ProcessManagerBrowserTest : public ExtensionBrowserTest {
 class DefaultProfileExtensionBrowserTest : public ExtensionBrowserTest {
  protected:
   DefaultProfileExtensionBrowserTest() {
-#if BUILDFLAG(IS_CHROMEOS)
-    // We want signin profile on ChromeOS, not logged in user profile.
-    set_chromeos_user_ = false;
-#endif
   }
 
  private:
   void SetUpCommandLine(base::CommandLine* command_line) override {
     ExtensionBrowserTest::SetUpCommandLine(command_line);
-#if BUILDFLAG(IS_CHROMEOS)
-    command_line->AppendSwitch(ash::switches::kLoginManager);
-    command_line->AppendSwitch(ash::switches::kForceLoginManagerInTests);
-#endif
   }
 };
 
@@ -367,10 +355,6 @@ IN_PROC_BROWSER_TEST_F(DefaultProfileExtensionBrowserTest, NoExtensionHosts) {
   // the signin profile (profile()) is the off-the-record version.
   Profile* original = profile()->GetOriginalProfile();
   Profile* otr = original->GetPrimaryOTRProfile(/*create_if_needed=*/true);
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(profile(), otr);
-  EXPECT_TRUE(ash::ProfileHelper::IsSigninProfile(original));
-#endif
 
   ProcessManager* pm = ProcessManager::Get(original);
   EXPECT_EQ(0u, pm->background_hosts().size());
@@ -698,7 +682,7 @@ IN_PROC_BROWSER_TEST_F(ProcessManagerBrowserTest,
 // Verify correct keepalive count behavior on network request events.
 // Regression test for http://crbug.com/40437330.
 // Disabled on Linux for flakiness: http://crbug.com/40109993.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_KeepaliveOnNetworkRequest DISABLED_KeepaliveOnNetworkRequest
 #else
 #define MAYBE_KeepaliveOnNetworkRequest KeepaliveOnNetworkRequest

@@ -17,12 +17,7 @@ export const NONE_ANIMATION: string = 'none 0s ease 0s 1 normal none running';
  * layout positions, so values there can be slightly off. Elsewhere the values
  * are exact, so comparisons stay exact.
  */
-// <if expr="is_android">
-export const LAYOUT_TOLERANCE_PX: number = 0.1;
-// </if>
-// <if expr="not is_android">
 export const LAYOUT_TOLERANCE_PX: number = 0;
-// </if>
 
 export function keydown(element: HTMLElement, key: string) {
   keyDownOn(element, 0, [], key);

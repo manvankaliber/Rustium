@@ -53,9 +53,6 @@ struct TestCrashpadInfo {
 #if !defined(CRASHPAD_INFO_SIZE_TEST_MODULE_SMALL)
   void* user_data_minidump_stream_head_;
   void* annotations_list_;
-#if BUILDFLAG(IS_IOS)
-  void* intermediate_dump_extra_memory_ranges_;
-#endif  // BUILDFLAG(IS_IOS)
 #endif  // CRASHPAD_INFO_SIZE_TEST_MODULE_SMALL
 #if defined(CRASHPAD_INFO_SIZE_TEST_MODULE_LARGE)
   uint8_t trailer_[64 * 1024];
@@ -98,9 +95,6 @@ TestCrashpadInfo g_test_crashpad_info = {'CPad',
 #if !defined(CRASHPAD_INFO_SIZE_TEST_MODULE_SMALL)
                                          nullptr,
                                          nullptr,
-#if BUILDFLAG(IS_IOS)
-                                         nullptr,
-#endif  // BUILDFLAG(IS_IOS)
 
 #endif  // CRASHPAD_INFO_SIZE_TEST_MODULE_SMALL
 #if defined(CRASHPAD_INFO_SIZE_TEST_MODULE_LARGE)

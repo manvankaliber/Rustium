@@ -133,7 +133,7 @@
 #include "ui/accessibility/ax_features.mojom-features.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "pdf/pdfium/pdfium_font_linux.h"
 #endif
 
@@ -575,7 +575,7 @@ void FormatStringWithHyphens(std::u16string* text) {
 
 // Replace CR/LF with just LF on POSIX and Fuchsia.
 void FormatStringForOS(std::u16string* text) {
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   static constexpr char16_t kCr[] = {L'\r', L'\0'};
   static constexpr char16_t kBlank[] = {L'\0'};
   base::ReplaceChars(*text, kCr, kBlank, text);
@@ -1013,7 +1013,7 @@ void InitializeSDK(bool enable_v8,
 
   FPDF_InitLibraryWithConfig(&config);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   g_font_mapping_mode = font_mapping_mode;
   InitializeLinuxFontMapper();
 #endif

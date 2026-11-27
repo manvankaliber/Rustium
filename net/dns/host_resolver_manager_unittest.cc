@@ -112,9 +112,6 @@
 #include "net/dns/mdns_client_impl.h"
 #endif  // BUILDFLAG(ENABLE_MDNS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using net::test::IsError;
 using net::test::IsOk;
@@ -5034,120 +5031,6 @@ TEST_F(HostResolverManagerDnsTest,
 
 // InsecureDnsMode::{kEnabledPlatform, kEnabledPlatformNoSystem} are currently
 // only supported on Android.
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(HostResolverManagerDnsTest,
-       DnsPlatform_ScheduledOnStartupWithEmptyConfig) {
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_Q) {
-    GTEST_SKIP() << "Platform DNS APIs are only available from Q.";
-  }
-
-  resolver_->SetInsecureDnsClientEnabled(InsecureDnsMode::kEnabledPlatform,
-                                         /*additional_dns_types_enabled=*/true);
-
-  ResolveHostResponseHelper response(resolver_->CreateRequest(
-      HostPortPair("ok", 80), NetworkAnonymizationKey(),
-      handles::kInvalidNetworkHandle, NetLogWithSource(), std::nullopt,
-      resolve_context_.get()));
-  EXPECT_THAT(response.result_error(), IsOk());
-  EXPECT_THAT(response.request()->GetAddressResults(),
-              testing::UnorderedElementsAre(CreateExpected("127.0.0.1", 80),
-                                            CreateExpected("::1", 80)));
-}
-
-TEST_F(HostResolverManagerDnsTest,
-       DnsPlatform_ScheduledWhenTransitioningToEmptyNameservers) {
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_Q) {
-    GTEST_SKIP() << "Platform DNS APIs are only available from Q.";
-  }
-
-  resolver_->SetInsecureDnsClientEnabled(InsecureDnsMode::kEnabledPlatform,
-                                         /*additional_dns_types_enabled=*/true);
-
-  // Transition to an empty config with 0 nameservers.
-  ChangeDnsConfig(DnsConfig());
-
-  ResolveHostResponseHelper response(resolver_->CreateRequest(
-      HostPortPair("ok", 80), NetworkAnonymizationKey(),
-      handles::kInvalidNetworkHandle, NetLogWithSource(), std::nullopt,
-      resolve_context_.get()));
-  EXPECT_THAT(response.result_error(), IsOk());
-  EXPECT_THAT(response.request()->GetAddressResults(),
-              testing::UnorderedElementsAre(CreateExpected("127.0.0.1", 80),
-                                            CreateExpected("::1", 80)));
-}
-
-TEST_F(HostResolverManagerDnsTest,
-       DnsPlatformNoSystem_ResolvesWithoutSystemFallback) {
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_Q) {
-    GTEST_SKIP() << "Platform DNS APIs are only available from Q.";
-  }
-
-  resolver_->SetInsecureDnsClientEnabled(
-      InsecureDnsMode::kEnabledPlatformNoSystem,
-      /*additional_dns_types_enabled=*/true);
-
-  ResolveHostResponseHelper response(resolver_->CreateRequest(
-      HostPortPair("4ok", 80), NetworkAnonymizationKey(),
-      handles::kInvalidNetworkHandle, NetLogWithSource(), std::nullopt,
-      resolve_context_.get()));
-  EXPECT_THAT(response.result_error(), IsOk());
-  EXPECT_THAT(response.request()->GetAddressResults(),
-              testing::ElementsAre(CreateExpected("127.0.0.1", 80)));
-}
-
-TEST_F(HostResolverManagerDnsTest,
-       StrictEch_GloballyDisabledInsecureDns_ResolvesPlatform) {
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_Q) {
-    GTEST_SKIP() << "Platform DNS APIs are only available from Q.";
-  }
-
-  // Globally disable insecure DNS (standard Cronet configuration).
-  resolver_->SetInsecureDnsClientEnabled(
-      InsecureDnsMode::kDisabled,
-      /*additional_dns_types_enabled=*/false);
-
-  // Set up rules in proc_ (system resolver).
-  proc_->AddRuleForAllFamilies("4ok", "192.168.1.101");
-  proc_->AddRuleForAllFamilies("normal", "192.168.1.102");
-  proc_->SignalMultiple(1u);
-
-  // 1. Resolve "normal" (EchMode::kDisabled): Uses system resolver (proc_).
-  ResolveHostResponseHelper normal_response(resolver_->CreateRequest(
-      HostPortPair("normal", 80), NetworkAnonymizationKey(),
-      handles::kInvalidNetworkHandle, NetLogWithSource(), std::nullopt,
-      resolve_context_.get()));
-  EXPECT_THAT(normal_response.result_error(), IsOk());
-  EXPECT_THAT(normal_response.request()->GetAddressResults(),
-              testing::ElementsAre(CreateExpected("192.168.1.102", 80)));
-
-  // 2. Resolve "4ok" (EchMode::kStrict): Overrides to DNS_PLATFORM without
-  // system fallback (resolves via MockDnsClient to 127.0.0.1, ignoring proc_).
-  auto test_ssl_config_service =
-      std::make_unique<TestSSLConfigService>(SSLContextConfig());
-  test_ssl_config_service->SetEchModeGetter(
-      std::make_unique<TestStaticEchModeGetter>(EchMode::kStrict, "4ok"));
-  auto builder = CreateTestURLRequestContextBuilder();
-  builder->set_ssl_config_service(std::move(test_ssl_config_service));
-  auto request_context = builder->Build();
-  auto strict_resolve_context = std::make_unique<ResolveContext>(
-      request_context.get(), true /* enable_caching */);
-  resolver_->RegisterResolveContext(strict_resolve_context.get());
-
-  ResolveHostResponseHelper strict_response(resolver_->CreateRequest(
-      HostPortPair("4ok", 80), NetworkAnonymizationKey(),
-      handles::kInvalidNetworkHandle, NetLogWithSource(), std::nullopt,
-      strict_resolve_context.get()));
-  EXPECT_THAT(strict_response.result_error(), IsOk());
-  EXPECT_THAT(strict_response.request()->GetAddressResults(),
-              testing::ElementsAre(CreateExpected("127.0.0.1", 80)));
-
-  resolver_->DeregisterResolveContext(strict_resolve_context.get());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 TEST_F(HostResolverManagerDnsTest, StrictEch_NoSystemFallback) {
   // Add a rule to `proc_` (the system resolver) for "nx", which fails in
@@ -5530,7 +5413,6 @@ TEST_F(HostResolverManagerDnsTest, FallbackBySource_Dns) {
 }
 
 // Built-in client and config overrides not available on iOS.
-#if !BUILDFLAG(IS_IOS)
 TEST_F(HostResolverManagerDnsTest,
        ResolutionForTargetNetworkFailsOnInsecureDnsAndFallbackToSystem) {
   set_allow_fallback_to_systemtask(true);
@@ -5637,7 +5519,6 @@ TEST_F(HostResolverManagerDnsTest,
       GetIntegerValueFromParams(dns_task_events[1], "failure_result.error");
   EXPECT_THAT(error_code, IsError(ERR_INVALID_ARGUMENT));
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 // Fallback to proc on DnsClient change allowed with ANY source.
 TEST_F(HostResolverManagerDnsTest, FallbackOnAbortBySource_Any) {
@@ -9112,7 +8993,6 @@ class TestDnsObserver : public NetworkChangeNotifier::DNSObserver {
 };
 
 // Built-in client and config overrides not available on iOS.
-#if !BUILDFLAG(IS_IOS)
 TEST_F(HostResolverManagerDnsTest, SetDnsConfigOverrides) {
   test::ScopedMockNetworkChangeNotifier mock_network_change_notifier;
   TestDnsObserver config_observer;
@@ -9612,7 +9492,6 @@ TEST_F(HostResolverManagerDnsTest, DohMappingWithStrictDot) {
   EXPECT_EQ(expected_doh_config, fetched_config.doh_config);
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 TEST_F(HostResolverManagerDnsTest, FlushCacheOnDnsConfigOverridesChange) {
   ChangeDnsConfig(CreateValidDnsConfig());

@@ -13,26 +13,7 @@ Note that we cannot use a lock per atomic type, since the in-memory representati
 type and the value type must be the same.
 */
 
-#![cfg_attr(
-    any(
-        all(
-            target_arch = "riscv32",
-            not(any(miri, portable_atomic_sanitize_thread)),
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            not(portable_atomic_no_outline_atomics),
-            any(target_os = "linux", target_os = "android"),
-        ),
-        all(
-            target_arch = "arm",
-            not(any(miri, portable_atomic_sanitize_thread)),
-            any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-            any(target_os = "linux", target_os = "android"),
-            any(test, not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))),
-            not(portable_atomic_no_outline_atomics),
-        ),
-    ),
-    allow(dead_code)
-)]
+#![cfg_attr(any(all(target_arch = "riscv32", not(any(miri, portable_atomic_sanitize_thread)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), not(portable_atomic_no_outline_atomics), target_os = "linux"), all(target_arch = "arm", not(any(miri, portable_atomic_sanitize_thread)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), target_os = "linux", any(test, not(any(target_feature = "v6", portable_atomic_target_feature = "v6"))), not(portable_atomic_no_outline_atomics))), allow(dead_code))]
 
 // This module requires CAS and this crate only provides atomics up to 128-bit.
 // I don't believe there are any 16-bit multi-core systems with CAS, and
@@ -193,67 +174,7 @@ macro_rules! atomic {
         // SAFETY: any data races are prevented by the lock and atomic operation.
         unsafe impl Sync for $atomic_type {}
 
-        #[cfg(any(
-            test,
-            not(any(
-                all(
-                    target_arch = "x86_64",
-                    not(all(
-                        any(miri, portable_atomic_sanitize_thread),
-                        portable_atomic_no_cmpxchg16b_intrinsic,
-                    )),
-                    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                    not(portable_atomic_no_outline_atomics),
-                    not(any(target_env = "sgx", miri)),
-                ),
-                all(
-                    target_arch = "powerpc64",
-                    not(portable_atomic_no_asm),
-                    not(portable_atomic_no_outline_atomics),
-                    any(
-                        all(
-                            target_os = "linux",
-                            any(
-                                all(
-                                    target_env = "gnu",
-                                    any(target_endian = "little", not(target_feature = "crt-static")),
-                                ),
-                                all(
-                                    target_env = "musl",
-                                    any(not(target_feature = "crt-static"), feature = "std"),
-                                ),
-                                target_env = "ohos",
-                                all(target_env = "uclibc", not(target_feature = "crt-static")),
-                                portable_atomic_outline_atomics,
-                            ),
-                        ),
-                        target_os = "android",
-                        all(
-                            target_os = "freebsd",
-                            any(
-                                target_endian = "little",
-                                not(target_feature = "crt-static"),
-                                portable_atomic_outline_atomics,
-                            ),
-                        ),
-                        target_os = "openbsd",
-                        all(
-                            target_os = "aix",
-                            not(portable_atomic_pre_llvm_20),
-                            portable_atomic_outline_atomics, // TODO(aix): currently disabled by default
-                        ),
-                    ),
-                    not(any(miri, portable_atomic_sanitize_thread)),
-                ),
-                all(
-                    target_arch = "riscv64",
-                    not(any(miri, portable_atomic_sanitize_thread)),
-                    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                    not(portable_atomic_no_outline_atomics),
-                    any(target_os = "linux", target_os = "android"),
-                ),
-            )),
-        ))]
+        #[cfg(any(test, not(any(all(target_arch = "x86_64", not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_no_cmpxchg16b_intrinsic)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), not(portable_atomic_no_outline_atomics), not(any(target_env = "sgx", miri))), all(target_arch = "powerpc64", not(portable_atomic_no_asm), not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(all(target_env = "gnu", any(target_endian = "little", not(target_feature = "crt-static"))), all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), all(target_os = "freebsd", any(target_endian = "little", not(target_feature = "crt-static"), portable_atomic_outline_atomics)), target_os = "openbsd", all(target_os = "aix", not(portable_atomic_pre_llvm_20), portable_atomic_outline_atomics, /* TODO(aix): currently disabled by default */)), not(any(miri, portable_atomic_sanitize_thread))), all(target_arch = "riscv64", not(any(miri, portable_atomic_sanitize_thread)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), not(portable_atomic_no_outline_atomics), target_os = "linux")))))]
         items!({
             impl_default_no_fetch_ops!($atomic_type, $int_type);
             impl_default_bit_opts!($atomic_type, $int_type);
@@ -299,67 +220,7 @@ macro_rules! atomic {
                 }
             }
         });
-        #[cfg_attr(
-            any(
-                all(
-                    target_arch = "x86_64",
-                    not(all(
-                        any(miri, portable_atomic_sanitize_thread),
-                        portable_atomic_no_cmpxchg16b_intrinsic,
-                    )),
-                    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                    not(portable_atomic_no_outline_atomics),
-                    not(any(target_env = "sgx", miri)),
-                ),
-                all(
-                    target_arch = "powerpc64",
-                    not(portable_atomic_no_asm),
-                    not(portable_atomic_no_outline_atomics),
-                    any(
-                        all(
-                            target_os = "linux",
-                            any(
-                                all(
-                                    target_env = "gnu",
-                                    any(target_endian = "little", not(target_feature = "crt-static")),
-                                ),
-                                all(
-                                    target_env = "musl",
-                                    any(not(target_feature = "crt-static"), feature = "std"),
-                                ),
-                                target_env = "ohos",
-                                all(target_env = "uclibc", not(target_feature = "crt-static")),
-                                portable_atomic_outline_atomics,
-                            ),
-                        ),
-                        target_os = "android",
-                        all(
-                            target_os = "freebsd",
-                            any(
-                                target_endian = "little",
-                                not(target_feature = "crt-static"),
-                                portable_atomic_outline_atomics,
-                            ),
-                        ),
-                        target_os = "openbsd",
-                        all(
-                            target_os = "aix",
-                            not(portable_atomic_pre_llvm_20),
-                            portable_atomic_outline_atomics, // TODO(aix): currently disabled by default
-                        ),
-                    ),
-                    not(any(miri, portable_atomic_sanitize_thread)),
-                ),
-                all(
-                    target_arch = "riscv64",
-                    not(any(miri, portable_atomic_sanitize_thread)),
-                    any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                    not(portable_atomic_no_outline_atomics),
-                    any(target_os = "linux", target_os = "android"),
-                ),
-            ),
-            allow(dead_code)
-        )]
+        #[cfg_attr(any(all(target_arch = "x86_64", not(all(any(miri, portable_atomic_sanitize_thread), portable_atomic_no_cmpxchg16b_intrinsic)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), not(portable_atomic_no_outline_atomics), not(any(target_env = "sgx", miri))), all(target_arch = "powerpc64", not(portable_atomic_no_asm), not(portable_atomic_no_outline_atomics), any(all(target_os = "linux", any(all(target_env = "gnu", any(target_endian = "little", not(target_feature = "crt-static"))), all(target_env = "musl", any(not(target_feature = "crt-static"), feature = "std")), target_env = "ohos", all(target_env = "uclibc", not(target_feature = "crt-static")), portable_atomic_outline_atomics)), all(target_os = "freebsd", any(target_endian = "little", not(target_feature = "crt-static"), portable_atomic_outline_atomics)), target_os = "openbsd", all(target_os = "aix", not(portable_atomic_pre_llvm_20), portable_atomic_outline_atomics, /* TODO(aix): currently disabled by default */)), not(any(miri, portable_atomic_sanitize_thread))), all(target_arch = "riscv64", not(any(miri, portable_atomic_sanitize_thread)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), not(portable_atomic_no_outline_atomics), target_os = "linux")), allow(dead_code))]
         impl $atomic_type {
             #[inline]
             #[cfg_attr(all(debug_assertions, not(portable_atomic_no_track_caller)), track_caller)]

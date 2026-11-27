@@ -9,9 +9,5 @@
 #include "components/sync_preferences/features.h"
 
 BASE_FEATURE(kOneTimeTokenBackendNotification,
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
              base::FEATURE_ENABLED_BY_DEFAULT
-#else
-             base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );

@@ -15,9 +15,6 @@ suite('NetInternalsMainTest', function() {
       hsts: true,
       sharedDictionary: true,
       utilities: true,
-      // <if expr="is_chromeos">
-      chromeos: true,
-      // </if>
     };
 
     checkTabLinkVisibility(tabVisibilityState, true);

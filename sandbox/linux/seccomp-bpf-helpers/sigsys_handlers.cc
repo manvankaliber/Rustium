@@ -28,9 +28,6 @@
 #include "sandbox/linux/system_headers/linux_stat.h"
 #include "sandbox/linux/system_headers/linux_syscalls.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <android/log.h>
-#endif
 
 #if defined(__mips__)
 // __NR_Linux, is defined in <asm/unistd.h>.
@@ -49,9 +46,6 @@
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr char kLogTag[] = "cr_seccomp";
-#endif
 
 base::debug::CrashKeyString* seccomp_crash_key = nullptr;
 base::debug::CrashKeyString* seccomp_ioctl_crash_key = nullptr;
@@ -68,11 +62,6 @@ inline bool IsArchitectureX86_64() {
 // about async-signal safety. |size| is the size to write and should typically
 // not include a terminating \0.
 void WriteToStdErr(const char* error_message, size_t size) {
-#if BUILDFLAG(IS_ANDROID)
-  // Write to the Android log. When running as an APK, stderr is not typically
-  // sent to the log.
-  __android_log_write(ANDROID_LOG_ERROR, kLogTag, error_message);
-#endif
 
   while (size > 0) {
     // TODO(jln): query the current policy to check if send() is available and
@@ -130,9 +119,7 @@ void PrintAndSetSeccompCrashKey(const struct arch_seccomp_data& args) {
 #endif
   WriteToStdErr(kSeccompError, sizeof(kSeccompError) - 1);
   WriteToStdErr(crash_key, crash_key_length);
-#if !BUILDFLAG(IS_ANDROID)
   WriteToStdErr("\n", 1);
-#endif
 }
 
 }  // namespace

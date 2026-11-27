@@ -112,11 +112,7 @@ class TabAlertController
  private:
   class ScopedAlertNotifier;
 
-  void OnGlicSharingStateChange(bool is_sharing);
-  void OnGlicAccessingStateChange(bool is_accessing);
 
-  void OnActorTabIndicatorStateChanged(
-      actor::ui::TabIndicatorStatus tab_indicator_state);
   void OnRecentlyAudibleStateChanged(bool was_audible);
   void OnChildAlertsStateChange();
   void MaybeObserveActiveTaskContextProvider();

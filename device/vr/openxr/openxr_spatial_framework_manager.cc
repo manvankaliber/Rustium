@@ -14,13 +14,11 @@
 #include "device/vr/openxr/openxr_extension_helper.h"
 #include "device/vr/openxr/openxr_spatial_anchor_manager.h"
 #include "device/vr/openxr/openxr_spatial_capability_configuration_base.h"
-#include "device/vr/openxr/openxr_spatial_hit_test_manager.h"
 #include "device/vr/openxr/openxr_spatial_plane_manager.h"
 #include "device/vr/openxr/openxr_spatial_utils.h"
 #include "device/vr/openxr/openxr_util.h"
 #include "device/vr/public/mojom/xr_session.mojom-shared.h"
 #include "third_party/abseil-cpp/absl/container/flat_hash_map.h"
-#include "third_party/openxr/dev/xr_android.h"
 #include "third_party/openxr/src/include/openxr/openxr.h"
 
 #define OPENXR_LOAD_FN(fn)             \
@@ -52,17 +50,9 @@ OpenXrSpatialFrameworkManager::OpenXrSpatialFrameworkManager(
     plane_manager_->PopulateCapabilityConfiguration(capability_configuration);
   }
 
-  if (supported_features.contains(device::mojom::XRSessionFeature::HIT_TEST)) {
-    hit_test_manager_ = std::make_unique<OpenXrSpatialHitTestManager>(
-        extension_helper_.get(), *this, plane_manager_.get(), base_space_,
-        openxr_->instance(), openxr_->system());
-    hit_test_manager_->PopulateCapabilityConfiguration(
-        capability_configuration);
-  }
-
   if (supported_features.contains(device::mojom::XRSessionFeature::ANCHORS)) {
     anchor_manager_ = std::make_unique<OpenXrSpatialAnchorManager>(
-        extension_helper_.get(), *this, plane_manager_.get(), base_space_);
+        extension_helper_.get(), *this, base_space_);
     anchor_manager_->PopulateCapabilityConfiguration(capability_configuration);
   }
 
@@ -135,7 +125,7 @@ OpenXrMeshManager* OpenXrSpatialFrameworkManager::GetMeshManager() {
 }
 
 OpenXrHitTestManager* OpenXrSpatialFrameworkManager::GetHitTestManager() {
-  return hit_test_manager_.get();
+  return nullptr;
 }
 
 OpenXrAnchorManager* OpenXrSpatialFrameworkManager::GetAnchorManager() {
@@ -262,8 +252,6 @@ OpenXrSpatialFrameworkManagerFactory::GetRequestedExtensions() const {
       XR_EXT_SPATIAL_ENTITY_EXTENSION_NAME,
       XR_EXT_SPATIAL_ANCHOR_EXTENSION_NAME,
       XR_EXT_SPATIAL_PLANE_TRACKING_EXTENSION_NAME,
-      XR_ANDROID_SPATIAL_DISCOVERY_RAYCAST_EXTENSION_NAME,
-      XR_ANDROID_SPATIAL_ENTITY_BOUND_ANCHOR_EXTENSION_NAME,
   });
 
   return *kExtensions;
@@ -306,15 +294,6 @@ void OpenXrSpatialFrameworkManagerFactory::CheckAndUpdateEnabledState(
           XR_EXT_SPATIAL_ANCHOR_EXTENSION_NAME) &&
       OpenXrSpatialAnchorManager::IsSupported(capabilities)) {
     supported_features_.insert(device::mojom::XRSessionFeature::ANCHORS);
-  }
-
-  if (extension_enum->ExtensionSupported(
-          XR_ANDROID_SPATIAL_DISCOVERY_RAYCAST_EXTENSION_NAME)) {
-    if (OpenXrSpatialHitTestManager::IsSupported(
-            instance, system_id, xrEnumerateSpatialCapabilityComponentTypesEXT,
-            capabilities)) {
-      supported_features_.insert(device::mojom::XRSessionFeature::HIT_TEST);
-    }
   }
 
   SetEnabled(!supported_features_.empty());

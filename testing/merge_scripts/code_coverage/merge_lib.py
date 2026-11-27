@@ -14,7 +14,7 @@ _DIR_SOURCE_ROOT = os.path.normpath(
   os.path.join(os.path.dirname(__file__), '..', '..', '..')
 )
 
-sys.path.append(os.path.join(_DIR_SOURCE_ROOT, 'build', 'android'))
+sys.path.append(os.path.join(_DIR_SOURCE_ROOT, 'build'))
 import java_home  # noqa: E402
 
 _JAVA_PATH = os.path.join(java_home.JAVA_HOME, 'bin', 'java')

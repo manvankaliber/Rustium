@@ -479,7 +479,7 @@ TEST(FileIO, LoggingOpenFileForReadAndWrite) {
   TestOpenFileForWrite(LoggingOpenFileForReadAndWrite);
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 TEST(FileIO, LoggingOpenMemoryFileForReadAndWrite) {
   ScopedFileHandle handle(
       LoggingOpenMemoryFileForReadAndWrite(base::FilePath("memfile")));
@@ -494,7 +494,7 @@ TEST(FileIO, LoggingOpenMemoryFileForReadAndWrite) {
   ASSERT_TRUE(LoggingReadFileExactly(handle.get(), buffer, sizeof(buffer)));
   EXPECT_EQ(memcmp(buffer, kTestData, sizeof(buffer)), 0);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 enum class ReadOrWrite : bool {
   kRead,

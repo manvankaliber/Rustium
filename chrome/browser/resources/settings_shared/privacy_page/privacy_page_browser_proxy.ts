@@ -14,14 +14,14 @@ export interface MetricsReporting {
 }
 
 export interface PrivacyPageBrowserProxy {
-  // <if expr="_google_chrome and not is_chromeos">
+  // <if expr="_google_chrome">
   getMetricsReporting(): Promise<MetricsReporting>;
   setMetricsReportingEnabled(enabled: boolean): void;
   // </if>
 }
 
 export class PrivacyPageBrowserProxyImpl implements PrivacyPageBrowserProxy {
-  // <if expr="_google_chrome and not is_chromeos">
+  // <if expr="_google_chrome">
   getMetricsReporting() {
     return sendWithPromise<MetricsReporting>('getMetricsReporting');
   }

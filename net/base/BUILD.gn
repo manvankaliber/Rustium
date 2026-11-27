@@ -4,21 +4,6 @@
 
 import("//build/rust/rust_static_library.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-
-  java_cpp_features("java_features_srcjar") {
-    # External code should depend on ":features_java" instead.
-    visibility = [ ":*" ]
-    sources = [ "features.cc" ]
-    class_name = "org.chromium.net.NetFeatures"
-  }
-
-  android_library("features_java") {
-    srcjar_deps = [ ":java_features_srcjar" ]
-  }
-}
-
 source_set("constants") {
   sources = [
     "registry_controlled_domain_constants.h",
@@ -33,6 +18,13 @@ source_set("net_export_header") {
   sources = [ "net_export.h" ]
 }
 
+# Allow adapters and frozen benchmark references to use the public numeric API
+# without linking a second copy of its production implementation.
+source_set("parse_number_header") {
+  sources = [ "parse_number.h" ]
+  public_deps = [ ":net_export_header" ]
+}
+
 # sockaddr_util has its own build target so that //mojo/public/cpp/platform can
 # use it without depending on the whole of //net.
 source_set("sockaddr_util") {
@@ -44,7 +36,7 @@ source_set("sockaddr_util") {
     "sockaddr_storage.cc",
     "sockaddr_storage.h",
   ]
-  if (is_posix || is_fuchsia) {
+  if (is_posix) {
     sources += [
       "sockaddr_util_posix.cc",
       "sockaddr_util_posix.h",
@@ -65,7 +57,7 @@ source_set("registry_controlled_domains") {
     "lookup_string_in_fixed_set.cc",
     "lookup_string_in_fixed_set.h",
     "parse_number.cc",
-    "parse_number.h",
+    "parse_number_native_ffi.h",
     "registry_controlled_domains/registry_controlled_domain.cc",
     "registry_controlled_domains/registry_controlled_domain.h",
     "schemeful_site.cc",
@@ -77,10 +69,13 @@ source_set("registry_controlled_domains") {
   public_deps = [
     ":constants",
     ":net_export_header",
+    ":parse_number_header",
     "//net/base/registry_controlled_domains",
   ]
   deps = [
+    ":host_port_rust_services",
     "//base",
+    "//net:parse_number_native_parser",
     "//url",
   ]
 }
@@ -130,3 +125,19 @@ group("unittests") {
   testonly = true
   deps = [ ":filename_util_unittest" ]
 }
+
+# Parent Wave2 host-port services
+# net/base/BUILD.gn (parent-owned):
+source_set("host_port_rust_services") {
+  sources = [ "host_port_rust_services.cc" ]
+  public_deps = [ "//net:host_port_rust_services_header" ]
+  deps = [
+    "//base",
+    "//net:host_port_rust",
+    "//url",
+  ]
+}
+# Add ":host_port_rust_services" to registry_controlled_domains deps so the
+# public wrapper also works for standalone users of that source set.
+# Exact patch: url-util-wrapper.patch; git apply --ignore-whitespace --check
+# is necessary in the CRLF editing worktree. Validate GN and component exports.

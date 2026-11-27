@@ -74,11 +74,6 @@
 #endif  // BUILDFLAG(ENTERPRISE_LOCAL_CONTENT_ANALYSIS)
 #endif  // BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/40567307)  ChromeOS uses different testing setup that isn't
-// hooked up to make use of `TestPrintingContext` yet.
-#error "ChromeOS not supported here yet"
-#endif
 
 using task_manager::TaskManagerInterface;
 using task_manager::browsertest_util::MatchAnyTab;
@@ -89,7 +84,7 @@ namespace printing {
 
 namespace {
 
-#if BUILDFLAG(ENABLE_OOP_PRINTING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(ENABLE_OOP_PRINTING)
 constexpr gfx::SizeF kLetterPhysicalSize = gfx::SizeF(612, 792);
 constexpr gfx::RectF kLetterPrintableArea = gfx::RectF(5, 5, 602, 782);
 constexpr gfx::SizeF kLegalPhysicalSize = gfx::SizeF(612, 1008);
@@ -100,7 +95,7 @@ constexpr gfx::RectF kLegalPrintableArea = gfx::RectF(5, 5, 602, 998);
 // Letter, and similarly is 556 x 952 for Legal.
 constexpr gfx::SizeF kLetterExpectedContentSize = gfx::SizeF(556, 736);
 constexpr gfx::SizeF kLegalExpectedContentSize = gfx::SizeF(556, 952);
-#endif  // BUILDFLAG(ENABLE_OOP_PRINTING) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #if BUILDFLAG(ENTERPRISE_CONTENT_ANALYSIS)
 constexpr char kFakeDmToken[] = "fake-dm-token";
@@ -3175,9 +3170,6 @@ class TestPrintViewManagerForContentAnalysis : public TestPrintViewManager {
     return preview_allowed_;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void set_allowed_by_dlp(bool allowed) { allowed_by_dlp_ = allowed; }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   void set_on_print_preview_done_closure(base::OnceClosure closure) {
     observer_.set_on_print_preview_done_closure(std::move(closure));
@@ -3218,15 +3210,6 @@ class TestPrintViewManagerForContentAnalysis : public TestPrintViewManager {
         std::move(scanning_data), print_data, page_size, content_area, offsets);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void OnDlpPrintingRestrictionsChecked(
-      content::GlobalRenderFrameHostId rfh_id,
-      base::OnceCallback<void(bool should_proceed)> callback,
-      bool should_proceed) override {
-    PrintViewManager::OnDlpPrintingRestrictionsChecked(
-        rfh_id, std::move(callback), allowed_by_dlp_);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   void CompleteScriptedPrint(content::RenderFrameHost* rfh,
                              mojom::ScriptedPrintParamsPtr params,
@@ -3261,9 +3244,6 @@ class TestPrintViewManagerForContentAnalysis : public TestPrintViewManager {
            enterprise_connectors::BlockUntilVerdict::kBlock;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  bool allowed_by_dlp_ = true;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Indicates whether the preview was allowed after checking against content
   // analysis and DLP (if on CrOS). This is `std::nullopt` until then.
@@ -3559,7 +3539,6 @@ class ContentAnalysisScriptedPreviewlessPrintAfterDialogBrowserTest
   }
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(ContentAnalysisAfterPrintPreviewBrowserTest,
                        PrintWithPreviewBeforeLoaded) {
@@ -3838,7 +3817,6 @@ IN_PROC_BROWSER_TEST_P(
     WindowPrint) {
   RunScriptedPrintTest("window.print()");
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 INSTANTIATE_TEST_SUITE_P(
     All,

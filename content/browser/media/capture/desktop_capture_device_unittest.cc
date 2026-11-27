@@ -153,9 +153,7 @@ class UnpackedDesktopFrame : public webrtc::DesktopFrame {
   UnpackedDesktopFrame(const UnpackedDesktopFrame&) = delete;
   UnpackedDesktopFrame& operator=(const UnpackedDesktopFrame&) = delete;
 
-  ~UnpackedDesktopFrame() override {
-    delete[] data_;
-  }
+  ~UnpackedDesktopFrame() override { delete[] data_; }
 };
 
 // TODO(sergeyu): Move this to a separate file where it can be reused.
@@ -264,10 +262,11 @@ class FormatChecker {
         frame_count_(0) {}
 
   void ExpectAcceptableSize(const media::VideoCaptureFormat& format) {
-    if (frame_count_ % 2 == 0)
+    if (frame_count_ % 2 == 0) {
       EXPECT_EQ(size_for_even_frames_, format.frame_size);
-    else
+    } else {
       EXPECT_EQ(size_for_odd_frames_, format.frame_size);
+    }
     ++frame_count_;
     EXPECT_EQ(kFrameRate, format.frame_rate);
   }
@@ -475,20 +474,18 @@ class DesktopCaptureDeviceTest : public testing::TestWithParam<bool> {
 // Capturer implementation for Fuchsia is not fully functional.
 // TODO(crbug.com/445218901): Capturer implementation for Android needs user
 // input to work.
-#if !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
 TEST_P(DesktopCaptureDeviceTest, Capture) {
   std::unique_ptr<webrtc::DesktopCapturer> capturer(
       desktop_capture::CreateScreenCapturer(
           webrtc::DesktopCaptureOptions::CreateDefault(),
           /*for_snapshot=*/false));
 
-#if (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && \
-    !BUILDFLAG(SUPPORTS_OZONE_X11)
+#if BUILDFLAG(IS_LINUX) && !BUILDFLAG(SUPPORTS_OZONE_X11)
   // webrtc::DesktopCapturer is only supported on Ozone X11 by default.
   // TODO(webrtc/13429): Enable for Wayland.
   EXPECT_FALSE(capturer);
   GTEST_SKIP();
-#endif  // (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) &&
+#endif
         // !BUILDFLAG(SUPPORTS_OZONE_X11)
 
   EXPECT_TRUE(capturer);
@@ -518,7 +515,6 @@ TEST_P(DesktopCaptureDeviceTest, Capture) {
   EXPECT_GT(format.frame_size.height(), 0);
   EXPECT_EQ(kFrameRate, format.frame_rate);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA) && !BUILDFLAG(IS_ANDROID)
 
 // Test that screen capturer behaves correctly if the source frame size changes
 // but the caller cannot cope with variable resolution output.
@@ -670,8 +666,7 @@ TEST_P(DesktopCaptureDeviceTest, UnpackedFrame) {
   capture_params.requested_format.frame_size.SetSize(kTestFrameWidth1,
                                                      kTestFrameHeight1);
   capture_params.requested_format.frame_rate = kFrameRate;
-  capture_params.requested_format.pixel_format =
-      media::PIXEL_FORMAT_I420;
+  capture_params.requested_format.pixel_format = media::PIXEL_FORMAT_I420;
 
   capture_device_->AllocateAndStart(capture_params, std::move(client));
 

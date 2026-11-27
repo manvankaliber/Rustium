@@ -17,10 +17,8 @@ source_set("external_protocol") {
     "//ui/base",
   ]
 
-  if (!is_android && !is_chromeos) {
-    sources += [ "auto_launch_protocols_policy_handler.h" ]
-    public_deps += [ "//components/policy/core/browser" ]
-  }
+  sources += [ "auto_launch_protocols_policy_handler.h" ]
+  public_deps += [ "//components/policy/core/browser" ]
 }
 
 source_set("impl") {
@@ -48,18 +46,12 @@ source_set("impl") {
     "//url",
   ]
 
-  if (is_android) {
-    deps += [ "//components/navigation_interception" ]
-  } else {
-    deps += [
-      "//components/url_formatter",
-      "//components/web_modal",
-    ]
-  }
+  deps += [
+    "//components/url_formatter",
+    "//components/web_modal",
+  ]
 
-  if (!is_android && !is_chromeos) {
-    sources += [ "auto_launch_protocols_policy_handler.cc" ]
-  }
+  sources += [ "auto_launch_protocols_policy_handler.cc" ]
 }
 
 source_set("unit_tests") {
@@ -82,41 +74,35 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (is_android) {
-    deps += [ "//components/navigation_interception" ]
-  } else {
-    deps += [ "//components/web_modal" ]
-  }
+  deps += [ "//components/web_modal" ]
 }
 
-if (!is_android && !is_chromeos) {
-  source_set("browser_tests") {
-    testonly = true
+source_set("browser_tests") {
+  testonly = true
 
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "external_protocol_handler_browsertest.cc",
-      "external_protocol_policy_browsertest.cc",
-    ]
+  sources = [
+    "external_protocol_handler_browsertest.cc",
+    "external_protocol_policy_browsertest.cc",
+  ]
 
-    deps = [
-      ":external_protocol",
-      ":impl",
-      "//base",
-      "//chrome/browser:browser_features",
-      "//chrome/browser:platform_util_internal",
-      "//chrome/browser:shell_integration",
-      "//chrome/browser/policy:test_support",
-      "//chrome/browser/profiles:profile",
-      "//chrome/test:test_support",
-      "//components/policy:generated",
-      "//components/policy/core/browser",
-      "//components/policy/core/common",
-      "//components/prefs",
-      "//content/public/browser",
-      "//content/test:test_support",
-      "//testing/gtest",
-    ]
-  }
+  deps = [
+    ":external_protocol",
+    ":impl",
+    "//base",
+    "//chrome/browser:browser_features",
+    "//chrome/browser:platform_util_internal",
+    "//chrome/browser:shell_integration",
+    "//chrome/browser/policy:test_support",
+    "//chrome/browser/profiles:profile",
+    "//chrome/test:test_support",
+    "//components/policy:generated",
+    "//components/policy/core/browser",
+    "//components/policy/core/common",
+    "//components/prefs",
+    "//content/public/browser",
+    "//content/test:test_support",
+    "//testing/gtest",
+  ]
 }

@@ -13,8 +13,7 @@ potential (sometimes known) issues.
 Clang is built using CMake. To run cmake, this script can be used:
 ```bash
   ./tools/clang/scripts/build.py     \
-    --without-android                \
-    --without-fuchsia
+
 ```
 
 The build directory is created into: `third_party/llvm-build/Release+Asserts/`

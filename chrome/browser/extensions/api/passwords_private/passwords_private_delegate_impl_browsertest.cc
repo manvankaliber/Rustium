@@ -12,7 +12,6 @@
 #include <utility>
 #include <vector>
 
-#include "ash/constants/web_app_id_constants.h"
 #include "base/functional/bind.h"
 #include "base/functional/callback_helpers.h"
 #include "base/i18n/time_formatting.h"
@@ -186,7 +185,7 @@ MATCHER_P(PasswordUiEntryDataEquals, expected, "") {
 
 void ExpectAuthentication(scoped_refptr<PasswordsPrivateDelegateImpl> delegate,
                           bool successful) {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   auto biometric_authenticator =
       std::make_unique<device_reauth::MockDeviceAuthenticator>();
 
@@ -509,7 +508,7 @@ IN_PROC_BROWSER_TEST_F(PasswordsPrivateDelegateImplTest,
       password_manager::metrics_util::ACCESS_PASSWORD_VIEWED, 1);
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 IN_PROC_BROWSER_TEST_F(PasswordsPrivateDelegateImplTest,
                        TestFailedReauthOnRequestCredentialsDetails) {
   std::unique_ptr<content::WebContents> web_contents = CreateWebContents();
@@ -609,7 +608,7 @@ IN_PROC_BROWSER_TEST_F(PasswordsPrivateDelegateImplTest,
                                           mock_callback.Get());
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 class PasswordsPrivateDelegateImplMockTaskEnvironmentTest
     : public PasswordsPrivateDelegateImplTest {
  public:
@@ -714,6 +713,6 @@ IN_PROC_BROWSER_TEST_F(PasswordsPrivateDelegateImplMockTaskEnvironmentTest,
   delegate.reset();
 }
 #endif  // !BUILDFLAG(IS_WIN)
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 }  // namespace extensions

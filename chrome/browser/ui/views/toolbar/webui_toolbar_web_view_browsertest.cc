@@ -45,7 +45,6 @@
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/extensions/chrome_test_extension_loader.h"
 #include "chrome/browser/extensions/extension_tab_util.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
@@ -227,22 +226,15 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "ash/constants/ash_pref_names.h"
-#include "chromeos/dbus/power/power_manager_client.h"
-#endif
 
 namespace {
 constexpr int kNumMaxRecoveryTime = 2;
 constexpr base::TimeDelta kRecoveryResetInterval = base::Seconds(10);
 constexpr base::TimeDelta kRecoveryRetryInterval = base::Seconds(20);
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::string GetAppMenuPropertyJS(const std::string& property) {
   return base::StrCat({GetButtonAppJS(kAppMenuButtonSelector), property});
 }
-#endif
 
 std::string GetValueForCSSProperty(const std::string& element_js,
                                    const std::string& property) {
@@ -383,9 +375,6 @@ class WebUIToolbarWebViewPixelBrowserTest : public WebUIToolbarWebViewTestBase {
              features::kWebUILocationBar, features::kWebUIExtensionsContainer,
              features::kSkipIPCChannelPausingForNonGuests,
              features::kWebUIInProcessResourceLoadingV2,
-#if BUILDFLAG(IS_CHROMEOS)
-             ash::features::kBatterySaver,
-#endif
              features::kWebUIBatterySaverButton},
             /*disabled=*/{}) {
   }
@@ -1263,15 +1252,10 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarWebViewPixelBrowserTest,
   destroyed_waiter.Wait();
 
   // 6. Disable Battery Saver and verify it becomes hidden again.
-#if BUILDFLAG(IS_CHROMEOS)
-  g_browser_process->local_state()->SetBoolean(ash::prefs::kPowerBatterySaver,
-                                               false);
-#else
   g_browser_process->local_state()->SetInteger(
       performance_manager::user_tuning::prefs::kBatterySaverModeState,
       static_cast<int>(performance_manager::user_tuning::prefs::
                            BatterySaverModeState::kDisabled));
-#endif
 
   EXPECT_TRUE(base::test::RunUntil([&]() {
     return !webui_toolbar_view->battery_saver_control_.IsVisible();
@@ -2594,7 +2578,6 @@ IN_PROC_BROWSER_TEST_F(WebUIAppMenuBrowserTest, CheckAppMenuFocusSync) {
 // WebUIAppMenuButtonStateTest is disabled on ChromeOS because update and global
 // error badging on the app menu icon is not supported on that platform (they
 // are instead handled by the system tray).
-#if !BUILDFLAG(IS_CHROMEOS)
 class MockGlobalError : public GlobalError {
  public:
   explicit MockGlobalError(GlobalError::Severity severity)
@@ -2791,7 +2774,6 @@ INSTANTIATE_TEST_SUITE_P(
     [](const testing::TestParamInfo<AppMenuStateTestParam>& info) {
       return info.param.test_name;
     });
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(WebUIToolbarWebViewBrowserTest,
                        AvatarButtonNotInitializedWhenDisabled) {
@@ -4009,14 +3991,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarDropBrowserTest, DropFile_FromOs) {
   ASSERT_NO_FATAL_FAILURE(SetUpToolbarDropTest());
   SimulateFileDrop(file_path, DragOrigin::kOs);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS cannot tell an OS-local drag from a renderer drag, so it treats
-  // every drag as renderer-originated (b/256022714). The dragged file path is
-  // then never cached, leaving the drop with nothing to act on.
-  ExpectDropIgnored();
-#else
   ExpectNavigatedTo(net::FilePathToFileURL(file_path));
-#endif
 }
 
 // A web page must not be able to open a local file by dragging it onto the
@@ -4166,14 +4141,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarDropBrowserTest,
   const GURL url("chrome://version/");
   SimulateTextDrop(url.spec(), DragOrigin::kOs);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS cannot tell an OS-local drag from a renderer drag, so it treats
-  // every drag as renderer-originated (b/256022714), which rejects privileged
-  // schemes whether or not a URL was synthesized.
-  ExpectDropIgnored();
-#else
   ExpectNavigatedTo(url);
-#endif
 }
 
 // A link dropped from a web page must keep the page as the navigation
@@ -4212,13 +4180,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarDropBrowserTest,
 
   const std::optional<url::Origin> initiator = WaitForDropNavigationInitiator();
   EXPECT_EQ(url, active_web_contents()->GetLastCommittedURL());
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS treats every drag as renderer-originated (b/256022714).
-  ASSERT_TRUE(initiator.has_value());
-  EXPECT_TRUE(initiator->opaque());
-#else
   EXPECT_FALSE(initiator.has_value());
-#endif
 }
 
 namespace {
@@ -5268,14 +5230,7 @@ IN_PROC_BROWSER_TEST_F(WebUIOmniboxDropBrowserTest, DropFile_FromOs) {
   ASSERT_NO_FATAL_FAILURE(SetUpOmniboxDropTest(InitialState::kWithText));
   SimulateFileDrop(file_path, DragOrigin::kOs);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS cannot tell an OS-local drag from a renderer drag, so it treats
-  // every drag as renderer-originated (b/256022714). The dragged file path is
-  // then never cached, leaving the drop with nothing to act on.
-  ExpectDropIgnored();
-#else
   ExpectDroppedInto(net::FilePathToFileURL(file_path).spec());
-#endif
 }
 
 // Unlike a dropped file, a dropped `file:` URL is shown in the omnibox whatever
@@ -5859,11 +5814,7 @@ IN_PROC_BROWSER_TEST_P(WebUIToolbarWebViewPermissionBrowserTest,
 }
 
 // TODO(crbug.com/532463469): Flaky on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_LocationIconSuppressionE2E DISABLED_LocationIconSuppressionE2E
-#else
 #define MAYBE_LocationIconSuppressionE2E LocationIconSuppressionE2E
-#endif
 IN_PROC_BROWSER_TEST_F(WebUIToolbarWebViewPermissionBrowserTest,
                        MAYBE_LocationIconSuppressionE2E) {
   WebUIToolbarWebView* webui_toolbar_view = GetWebUIToolbarWebView(browser());
@@ -5976,7 +5927,7 @@ class WebUIToolbarSynchronousStartupBrowserTest
 // dependencies accurately hydrated synchronous startup data during early
 // `BrowserView::Init()` sequences.
 // TODO(crbug.com/540971327): Test is flaky on Linux and ChromeOS.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ColdWindowLaunch DISABLED_ColdWindowLaunch
 #else
 #define MAYBE_ColdWindowLaunch ColdWindowLaunch
@@ -6119,9 +6070,6 @@ class WebUIToolbarFullyEnabledBrowserTest
                 features::kSkipIPCChannelPausingForNonGuests,
                 features::kWebUIInProcessResourceLoadingV2,
                 features::kOmniboxResizingPrioritization,
-#if BUILDFLAG(IS_CHROMEOS)
-                ash::features::kBatterySaver,
-#endif
             },
             {}) {
   }
@@ -6590,10 +6538,8 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledBrowserTest,
 
   // Wait for home, forward, split tabs, and avatar buttons to be visible.
   ASSERT_TRUE(WaitUntilResponsiveControlsAreVisible({
-#if !BUILDFLAG(IS_CHROMEOS)
       // ChromeOS should not show the avatar button.
       kAvatarSelector,
-#endif
       kSplitTabsSelector, kForwardSelector, kHomeSelector}));
   // Check that TrackedElements reach a consistent state.
   EXPECT_TRUE(WaitForTrackedElements(
@@ -6604,10 +6550,8 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledBrowserTest,
 
   TestShrinkingResponsiveControls(
       {"location-bar",
-#if !BUILDFLAG(IS_CHROMEOS)
        // ChromeOS should not show the avatar button.
        "avatar",
-#endif
        "split-tabs", "forward", "home"});
 
   // Check that TrackedElements reach a consistent state.
@@ -6642,9 +6586,7 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledBrowserTest,
 
   // Wait for home, forward, split tabs, and avatar buttons to be visible.
   ASSERT_TRUE(WaitUntilResponsiveControlsAreVisible({
-#if !BUILDFLAG(IS_CHROMEOS)
       kAvatarSelector,
-#endif
       kSplitTabsSelector, kForwardSelector, kHomeSelector}));
 
   // Create spacer so that any padding it will add is taken into account by
@@ -6657,10 +6599,8 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledBrowserTest,
 
   CheckResponsiveControlOrder(all_controls_info,
                               {"location-bar",
-#if !BUILDFLAG(IS_CHROMEOS)
                                // ChromeOS should not show the avatar button.
                                "avatar",
-#endif
                                "split-tabs", "forward", "home"});
 
   // Calculate spacer width needed to force all controls to their minimum size.
@@ -6748,10 +6688,8 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledBrowserTest,
 
   // Wait for expected buttons to be visible.
   ASSERT_TRUE(WaitUntilResponsiveControlsAreVisible({
-#if !BUILDFLAG(IS_CHROMEOS)
       // ChromeOS should not show the avatar button.
       kAvatarSelector,
-#endif
       kForwardSelector, kHomeSelector}));
 
   // Create spacer so that any padding it adds is taken into account by
@@ -6766,10 +6704,8 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledBrowserTest,
       all_controls_info,
       // Check that TrackedElements reach a consistent state.
       {"location-bar",
-#if !BUILDFLAG(IS_CHROMEOS)
        // ChromeOS should not show the avatar button.
        "avatar",
-#endif
        "forward", "home"});
   // Check that TrackedElements reach a consistent state. Don't include the
   // Avatar button, to avoid more ChromeOS-specific #ifs.
@@ -6963,11 +6899,9 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarFullyEnabledBrowserTest,
   // The ResponsiveControls expected to be visible, from highest to lowest
   // priority.
   std::vector<std::string> expected_order = {"location-bar",
-#if !BUILDFLAG(IS_CHROMEOS)
                                              // ChromeOS should not show the
                                              // avatar button.
                                              "avatar",
-#endif
                                              "forward", "home",
                                              "battery-saver"};
   if (has_media_button) {
@@ -7311,10 +7245,8 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarNoOmniboxPrioritizationBrowserTest,
 
   // Wait for home, forward, avatar, and split tabs buttons to be visible.
   ASSERT_TRUE(WaitUntilResponsiveControlsAreVisible({
-#if !BUILDFLAG(IS_CHROMEOS)
       // ChromeOS should not show the avatar button.
       kAvatarSelector,
-#endif
       kSplitTabsSelector, kForwardSelector, kHomeSelector}));
 
   InstallErrorListener();
@@ -7328,10 +7260,8 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarNoOmniboxPrioritizationBrowserTest,
   ASSERT_NO_FATAL_FAILURE(MeasureResponsiveControls(all_controls_info));
 
   TestShrinkingResponsiveControls({
-#if !BUILDFLAG(IS_CHROMEOS)
       // ChromeOS should not show the avatar button.
       "avatar",
-#endif
       "split-tabs", "forward", "home", "location-bar"});
 
   AssertNoJsErrors();
@@ -7350,10 +7280,8 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarNoOmniboxPrioritizationBrowserTest,
                                                   true);
 
   ASSERT_TRUE(WaitUntilResponsiveControlsAreVisible({
-#if !BUILDFLAG(IS_CHROMEOS)
       // ChromeOS should not show the avatar button.
       kAvatarSelector,
-#endif
       kSplitTabsSelector, kForwardSelector, kHomeSelector}));
 
   InstallErrorListener();
@@ -7368,10 +7296,8 @@ IN_PROC_BROWSER_TEST_F(WebUIToolbarNoOmniboxPrioritizationBrowserTest,
 
   CheckResponsiveControlOrder(
       all_controls_info, {
-#if !BUILDFLAG(IS_CHROMEOS)
                              // ChromeOS should not show the avatar button.
                              "avatar",
-#endif
                              "split-tabs", "forward", "home", "location-bar"});
 
   // Calculate spacer width needed to force all controls to their minimum size.

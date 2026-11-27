@@ -530,8 +530,7 @@
 //
 // XRay isn't currently supported on Android:
 // https://github.com/android/ndk/issues/368
-#if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_always_instrument) && \
-    !defined(ABSL_NO_XRAY_ATTRIBUTES) && !defined(__ANDROID__)
+#if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_always_instrument) && !defined(ABSL_NO_XRAY_ATTRIBUTES)
 #define ABSL_XRAY_ALWAYS_INSTRUMENT [[clang::xray_always_instrument]]
 #define ABSL_XRAY_NEVER_INSTRUMENT [[clang::xray_never_instrument]]
 #if ABSL_HAVE_CPP_ATTRIBUTE(clang::xray_log_args)

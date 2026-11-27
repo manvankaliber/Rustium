@@ -9,10 +9,10 @@ load("@stdlib//internal/luci/common.star", "keys", "triggerer")
 # These triggers cross builder groups but predate us restricting triggers to
 # within a builder group, we should attempt to remove these where feasible
 _LEGACY_CROSS_BUILDER_GROUP_TRIGGERS = {
-    ("ci", "Android x64 Builder (dbg)"): [
-        ("ci", "android-12-x64-dbg-tests"),
-        ("ci", "android-webview-12-x64-dbg-tests"),
-        ("ci", "android-webview-13-x64-dbg-tests"),
+    ("ci",): [
+        ("ci",),
+        ("ci",),
+        ("ci",),
     ],
     ("ci", "Mac Builder (dbg)"): [
         ("ci", "mac-osxbeta-rel"),

@@ -18,12 +18,7 @@
 #include "components/prefs/pref_service.h"
 #include "components/url_formatter/url_fixer.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#else
 #include "chrome/browser/ui/startup/startup_tab.h"
-#endif
 
 namespace {
 
@@ -66,24 +61,12 @@ void SessionStartupPref::RegisterProfilePrefs(
 
 // static
 SessionStartupPref::Type SessionStartupPref::GetDefaultStartupType() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return SessionStartupPref::LAST;
-#else
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   if (features::kSetDefaultToContinueSession.Get()) {
     return SessionStartupPref::LAST;
   }
-#elif BUILDFLAG(IS_ANDROID)
-  // On Android desktop, restoring the last session is the default startup
-  // behavior when the restore-on-startup pref is synced.
-  if (base::android::device_info::is_desktop() &&
-      base::FeatureList::IsEnabled(
-          chrome::android::kSyncRestoreOnStartupPref)) {
-    return SessionStartupPref::LAST;
-  }
 #endif
   return SessionStartupPref::DEFAULT;
-#endif
 }
 
 // static
@@ -205,7 +188,6 @@ bool SessionStartupPref::ShouldOpenUrls() const {
   return type == URLS || type == LAST_AND_URLS;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 StartupTabs SessionStartupPref::ToStartupTabs() const {
   StartupTabs startup_tabs;
   for (const GURL& url : urls) {
@@ -216,4 +198,3 @@ StartupTabs SessionStartupPref::ToStartupTabs() const {
   }
   return startup_tabs;
 }
-#endif

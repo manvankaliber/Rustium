@@ -25,14 +25,10 @@ TEST(UrlUtilTest, ValidateLaunchUrlWebUnsafe) {
   EXPECT_TRUE(ValidateLaunchUrlWebUnsafe(GURL("about:blank")));
 
   // chrome:// settings
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_TRUE(ValidateLaunchUrlWebUnsafe(GURL("chrome://settings")));
-#else
   EXPECT_FALSE(ValidateLaunchUrlWebUnsafe(GURL("chrome://settings")));
   // Approved settings subpage should be allowed on desktop platforms.
   EXPECT_TRUE(ValidateLaunchUrlWebUnsafe(
       GURL("chrome://settings/resetProfileSettings")));
-#endif
 
   // javascript
   EXPECT_FALSE(ValidateLaunchUrlWebUnsafe(GURL("javascript:alert(1)")));
@@ -52,13 +48,8 @@ TEST(UrlUtilTest, ValidateLaunchUrlWebUnsafe) {
       "chrome-native://pdf/link?url=https%3A%2F%2Fexample.com%2Fdoc.pdf")));
   EXPECT_FALSE(ValidateLaunchUrlWebUnsafe(GURL("chrome-native://newtab/")));
 
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_TRUE(ValidateLaunchUrlWebUnsafe(
-      GURL("content://packagename.providername/path")));
-#else
   EXPECT_FALSE(ValidateLaunchUrlWebUnsafe(
       GURL("content://packagename.providername/path")));
-#endif
 }
 
 TEST(UrlUtilTest, ValidateLaunchUrlWebSafe) {
@@ -137,8 +128,7 @@ TEST(UrlUtilTest, ValidateUrlRejectsNestedSchemes) {
       ValidateLaunchUrlWebUnsafe(GURL("blob:https://example.com/guid-string")));
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST(UrlUtilTest, ValidateGoogleChromeSchemeUrls) {
   base::test::ScopedFeatureList feature_list{features::kGoogleChromeScheme};
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)

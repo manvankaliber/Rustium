@@ -34,9 +34,6 @@
 #include "build/build_config.h"
 #include "util/posix/close_multiple.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <android/api-level.h>
-#endif
 
 extern char** environ;
 
@@ -176,29 +173,6 @@ bool SpawnSubprocess(const std::vector<std::string>& argv,
     char* const* envp_for_spawn =
         envp ? const_cast<char* const*>(envp_c.data()) : environ;
 
-#if BUILDFLAG(IS_ANDROID) && __ANDROID_API__ < 28
-    pid = fork();
-    if (pid < 0) {
-      PLOG(FATAL) << "fork";
-    }
-
-    if (pid > 0) {
-      // Child process.
-
-      // _exit() instead of exit(), because fork() was called.
-      _exit(EXIT_SUCCESS);
-    }
-
-    // Grandchild process.
-
-    CloseMultipleNowOrOnExec(STDERR_FILENO + 1, preserve_fds);
-    ClearCloseOnExec(preserve_fds);
-
-    auto execve_fp = use_path ? execvpe : execve;
-    execve_fp(argv_for_spawn[0], argv_for_spawn, envp_for_spawn);
-    PLOG(FATAL) << (use_path ? "execvpe" : "execve") << " "
-                << argv_for_spawn[0];
-#else
 #if BUILDFLAG(IS_APPLE)
     PosixSpawnAttr attr;
     attr.SetFlags(POSIX_SPAWN_CLOEXEC_DEFAULT);
@@ -234,7 +208,6 @@ bool SpawnSubprocess(const std::vector<std::string>& argv,
 
     // _exit() instead of exit(), because fork() was called.
     _exit(EXIT_SUCCESS);
-#endif
   }
 
   // waitpid() for the child, so that it does not become a zombie process. The

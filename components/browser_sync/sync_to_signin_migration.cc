@@ -36,13 +36,9 @@
 #include "extensions/buildflags/buildflags.h"
 #include "google_apis/gaia/gaia_id.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/signin/public/base/signin_switches.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace browser_sync {
 
-#if !BUILDFLAG(IS_IOS)
 namespace {
 
 // These values are persisted to logs. Entries should not be renumbered and
@@ -96,7 +92,6 @@ enum class SyncToSigninMigrationExecutionMode {
 };
 // LINT.ThenChange(/tools/metrics/histograms/metadata/sync/enums.xml:SyncToSigninMigrationExecutionMode)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // These values are persisted to logs. Entries should not be renumbered and
 // numeric values should never be reused.
 // LINT.IfChange(SyncSetupIncompleteMigrationDecision)
@@ -109,7 +104,6 @@ enum class SyncSetupIncompleteMigrationDecision {
   kMaxValue = kDontMigrateFlagDisabled
 };
 // LINT.ThenChange(/tools/metrics/histograms/metadata/sync/enums.xml:SyncSetupIncompleteMigrationDecision)
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // The state of the Reading List pref migration for a signed-in, non-syncing
@@ -174,20 +168,6 @@ SyncToSigninMigrationDecision GetSyncToSigninMigrationDecision(
       return SyncToSigninMigrationDecision::kUndoMigration;
     }
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, `kUndoChromeOsUseConsentLevelSignin` reverts all signed-in
-  // users back to `ConsentLevel::kSync` during session startup. If this profile
-  // was previously migrated by Sync-to-Signin migration, undo the migration
-  // cleanly here (before KeyedServices are created) rather than letting Ash
-  // flip the consent level mid-startup.
-  if (!pref_service
-           ->GetString(prefs::kGoogleServicesSyncingGaiaIdMigratedToSignedIn)
-           .empty() &&
-      base::FeatureList::IsEnabled(
-          switches::kUndoChromeOsUseConsentLevelSignin)) {
-    return SyncToSigninMigrationDecision::kUndoMigration;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (pref_service->GetString(prefs::kGoogleServicesAccountId).empty()) {
     // Signed-out user, nothing to migrate.
@@ -256,15 +236,6 @@ SyncToSigninMigrationDecision GetSyncToSigninMigrationDecision(
   if (!base::FeatureList::IsEnabled(switches::kMigrateSyncingUserToSignedIn)) {
     return SyncToSigninMigrationDecision::kDontMigrateFlagDisabled;
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, `kUndoChromeOsUseConsentLevelSignin` reverts signed-in users
-  // back to `ConsentLevel::kSync` during session startup. Skip the migration
-  // when it's enabled to prevent an infinite migration/revert loop with Ash.
-  if (base::FeatureList::IsEnabled(
-          switches::kUndoChromeOsUseConsentLevelSignin)) {
-    return SyncToSigninMigrationDecision::kDontMigrateChromeOsUndoSigninEnabled;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   return forced ? SyncToSigninMigrationDecision::kMigrateForced
                 : SyncToSigninMigrationDecision::kMigrate;
@@ -300,10 +271,8 @@ void UndoSyncToSigninMigration(PrefService* pref_service) {
 
   // Mark the user as syncing again.
   pref_service->SetBoolean(prefs::kGoogleServicesConsentedToSync, true);
-#if !BUILDFLAG(IS_CHROMEOS)
   pref_service->SetBoolean(
       syncer::prefs::internal::kSyncInitialSyncFeatureSetupComplete, true);
-#endif
 
   // Restore the "previously syncing user" prefs too.
   pref_service->SetString(prefs::kGoogleServicesLastSyncingGaiaId,
@@ -349,23 +318,6 @@ void UndoSyncToSigninMigration(PrefService* pref_service) {
       syncer::prefs::internal::kMigrateExtensionsFromLocalToAccount);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Turns off all OS data types if `kSyncDisabledViaDashboard` is set. OS data
-// types don't support separate local and account storage, so otherwise, local
-// OS data would get uploaded to the account once Sync-the-transport starts
-// running. Signed-in non-syncing users get the same treatment when this pref is
-// set, see `SyncUserSettingsImpl::SetSyncFeatureDisabledViaDashboard()`.
-void DisableOsTypesIfSyncDisabledViaDashboard(PrefService* pref_service) {
-  syncer::SyncPrefs sync_prefs(pref_service);
-  if (!sync_prefs.IsSyncFeatureDisabledViaDashboard()) {
-    return;
-  }
-  sync_prefs.SetSelectedOsTypes(
-      /*sync_all_os_types=*/false,
-      /*registered_types=*/syncer::UserSelectableOsTypeSet::All(),
-      /*selected_types=*/syncer::UserSelectableOsTypeSet());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 void RecordReadingListPrefMigrationState(ReadingListPrefMigrationState state) {
@@ -608,7 +560,6 @@ void MaybeMigrateSyncingUserToSignedInInternal(
                     syncer::DataTypeToHistogramSuffix(syncer::BOOKMARKS)}),
       bookmarks_decision);
 
-#if !BUILDFLAG(IS_ANDROID)
   // On Android no password migration is required here, because other layers
   // were responsible for migrating the user to the local+account model in the
   // past.
@@ -621,7 +572,6 @@ void MaybeMigrateSyncingUserToSignedInInternal(
                     GetHistogramMigratingOrNotInfix(doing_migration),
                     syncer::DataTypeToHistogramSuffix(syncer::PASSWORDS)}),
       passwords_decision);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   const SyncToSigninMigrationDataTypeDecision reading_list_decision =
       GetSyncToSigninMigrationDataTypeDecision(
@@ -645,7 +595,6 @@ void MaybeMigrateSyncingUserToSignedInInternal(
       extensions_decision);
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   const SyncToSigninMigrationDataTypeDecision themes_decision =
       GetSyncToSigninMigrationDataTypeDecision(
           pref_service, syncer::THEMES, syncer::prefs::internal::kSyncThemes);
@@ -654,7 +603,6 @@ void MaybeMigrateSyncingUserToSignedInInternal(
                     GetHistogramMigratingOrNotInfix(doing_migration),
                     syncer::DataTypeToHistogramSuffix(syncer::THEMES)}),
       themes_decision);
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   if (!doing_migration) {
     return;
@@ -699,20 +647,13 @@ void MaybeMigrateSyncingUserToSignedInInternal(
   // Also clear the "InitialSyncFeatureSetup" pref. It's not needed
   // post-migration, and that pref being true without ConsentLevel::kSync would
   // be an inconsistent state.
-#if !BUILDFLAG(IS_CHROMEOS)
   pref_service->ClearPref(
       syncer::prefs::internal::kSyncInitialSyncFeatureSetupComplete);
-#endif
 
   // Migrate the global data type prefs (used for Sync-the-feature) over to the
   // account-specific ones.
   syncer::SyncPrefs::MigrateGlobalDataTypePrefsToAccount(pref_service, gaia_id);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // The OS data type prefs aren't account-specific, so they carry over as-is,
-  // unless `kSyncDisabledViaDashboard` is set.
-  DisableOsTypesIfSyncDisabledViaDashboard(pref_service);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Ensure the prefs changes are persisted as soon as possible. (They get
   // persisted on shutdown anyway, but better make sure.)
@@ -728,7 +669,6 @@ void MaybeMigrateSyncingUserToSignedInInternal(
 // On Android no password migration is required here, because other layers are
 // responsible for migrating the user to the local+account model, e.g.
 // SetUsesSplitStoresAndUPMForLocal(), PasswordStoreBackendMigrationDecorator.
-#if !BUILDFLAG(IS_ANDROID)
   // Move passwords DB file, if password sync is enabled.
   if (passwords_decision == SyncToSigninMigrationDataTypeDecision::kMigrate) {
     base::FilePath from_path =
@@ -744,7 +684,6 @@ void MaybeMigrateSyncingUserToSignedInInternal(
     syncer::RecordSyncToSigninMigrationStatsTableCleanupStep(
         syncer::SyncToSigninMigrationStatsTableCleanupStep::kCleanupRequested);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Move bookmarks json file, if bookmark sync is enabled.
   if (bookmarks_decision == SyncToSigninMigrationDataTypeDecision::kMigrate) {
@@ -791,14 +730,12 @@ void MaybeMigrateSyncingUserToSignedInInternal(
   }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (themes_decision == SyncToSigninMigrationDataTypeDecision::kMigrate) {
     pref_service->SetBoolean(
         syncer::prefs::internal::kMigrateThemeFromLocalToAccount, true);
     syncer::RecordSyncToSigninMigrationThemeStep(
         syncer::SyncToSigninMigrationThemeStep::kMigrationRequested);
   }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
   if (!is_blocking_allowed) {
     base::ThreadPool::PostTaskAndReplyWithResult(
@@ -816,7 +753,6 @@ void MaybeMigrateSyncingUserToSignedInInternal(
 }
 
 // On ChromeOS, there exists no sync setup incomplete state.
-#if !BUILDFLAG(IS_CHROMEOS)
 SyncSetupIncompleteMigrationDecision GetSyncSetupIncompleteMigrationDecision(
     PrefService* pref_service) {
   if (pref_service->GetString(prefs::kGoogleServicesAccountId).empty()) {
@@ -864,7 +800,6 @@ void MaybeMigrateUserWithSyncSetupIncomplete(const base::FilePath& profile_path,
   pref_service->ClearPref(
       syncer::prefs::internal::kSyncInitialSyncFeatureSetupComplete);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -872,13 +807,8 @@ SyncToSigninMigrationDataTypeDecision GetSyncToSigninMigrationDataTypeDecision(
     const PrefService* pref_service,
     syncer::DataType type,
     const char* type_enabled_pref) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // In ChromeOS-Ash, the "initial-setup-complete" pref doesn't exist.
-  bool initial_setup_complete = true;
-#else
   bool initial_setup_complete = pref_service->GetBoolean(
       syncer::prefs::internal::kSyncInitialSyncFeatureSetupComplete);
-#endif
   bool sync_everything = pref_service->GetBoolean(
       syncer::prefs::internal::kSyncKeepEverythingSynced);
 
@@ -901,9 +831,7 @@ SyncToSigninMigrationDataTypeDecision GetSyncToSigninMigrationDataTypeDecision(
 void MaybeMigrateSyncingUserToSignedIn(const base::FilePath& profile_path,
                                        PrefService* pref_service) {
   // On ChromeOS, there exists no sync setup incomplete state.
-#if !BUILDFLAG(IS_CHROMEOS)
   MaybeMigrateUserWithSyncSetupIncomplete(profile_path, pref_service);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   MaybeMigrateSyncingUserToSignedInInternal(profile_path, pref_service, {});
 }
 
@@ -914,7 +842,6 @@ void MaybeMigrateSyncingUserToSignedInAsync(const base::FilePath& profile_path,
   MaybeMigrateSyncingUserToSignedInInternal(profile_path, pref_service,
                                             std::move(closure));
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 bool WasPrimaryAccountMigratedFromSyncingToSignedIn(
     const signin::IdentityManager* identity_manager,

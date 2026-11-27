@@ -23,8 +23,8 @@ POLICY_TEST_TOOL_PATH = "/usr/local/share/policy-test-tool"
 sys.path.insert(0, POLICY_TEST_TOOL_PATH)
 
 # Attempt to import protobufs from the standard DUT location.
-# These are needed by functions like apply_user_policies, which are imported
-# by orchestrator.py. These variables will be None if import fails.
+# These are needed by offline policy conversion helpers such as
+# apply_user_policies.
 try:
   import chrome_device_policy_pb2
   import chrome_settings_pb2

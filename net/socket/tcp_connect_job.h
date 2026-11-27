@@ -29,6 +29,7 @@
 #include "net/dns/public/resolve_error_info.h"
 #include "net/dns/public/secure_dns_policy.h"
 #include "net/socket/connect_job.h"
+#include "net/socket/tcp_connect_job_rust_ffi.h"
 #include "net/socket/connection_attempts.h"
 #include "net/socket/transport_connect_job.h"
 #include "url/scheme_host_port.h"
@@ -148,6 +149,9 @@ class NET_EXPORT_PRIVATE TcpConnectJob
   size_t GetStaleConnectorCountForTesting() const;
 
  private:
+  friend struct tcp_connect_job_connectorRustBridge;
+  friend struct tcp_connect_jobRustBridge;
+  friend struct ConnectionJobsRustTestAccess;
   // Connectors manage the actual connection attempts. They keep on pulling
   // IP addresses to try from the TcpConnectJob and trying to connect to them
   // until they either get a usable connection, or all addresses have been
@@ -276,8 +280,8 @@ class NET_EXPORT_PRIVATE TcpConnectJob
   void OnConnectorComplete(int result, Connector& connector);
 
   bool IsStaleConnector(const Connector& connector) const {
-    return stale_state_.primary_connector.get() == &connector ||
-           stale_state_.ipv4_connector.get() == &connector;
+    return connection_jobs_rust_either(stale_state_.primary_connector.get() == &connector,
+        stale_state_.ipv4_connector.get() == &connector);
   }
 
   // Timer callback for the slow timer. `is_stale` indicates whether it fired

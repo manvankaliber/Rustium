@@ -1098,7 +1098,6 @@ TEST_F(BrowsingHistoryServiceTest, RemoveVisitsDeduplicatedEntries) {
                                baseline_time_ + base::Days(1)))));
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(BrowsingHistoryServiceTest, IncludeActorVisits) {
   AddHistory({
       {kUrl1, 1, kRemote},
@@ -1236,7 +1235,6 @@ TEST_F(BrowsingHistoryServiceTest, ShouldQueryActorVisitsOnly) {
   EXPECT_FALSE(result.second.sync_timed_out);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 TEST_F(BrowsingHistoryServiceTest, QueryDurationHistogram) {
   base::HistogramTester histogram_tester;

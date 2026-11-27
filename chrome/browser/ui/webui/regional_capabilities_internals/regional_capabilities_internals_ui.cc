@@ -27,19 +27,6 @@ using regional_capabilities::RegionalCapabilitiesServiceFactory;
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-std::u16string GetExternalChoiceTemplateURL(Profile* profile) {
-  TemplateURLService* template_url_service =
-      TemplateURLServiceFactory::GetForProfile(profile);
-  for (const auto& template_url : template_url_service->GetTemplateURLs()) {
-    if (template_url->CreatedByRegulatoryProgram()) {
-      return template_url->keyword();
-    }
-  }
-
-  return u"NONE FOUND";
-}
-#endif
 
 }  // namespace
 
@@ -69,10 +56,6 @@ RegionalCapabilitiesInternalsUI::RegionalCapabilitiesInternalsUI(
     source->AddString(key, value);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  source->AddString(regional_capabilities::kExternalChoiceKeywordKey,
-                    GetExternalChoiceTemplateURL(profile));
-#endif
 
   webui::SetupWebUIDataSource(source, kRegionalCapabilitiesInternalsResources,
                               IDR_REGIONAL_CAPABILITIES_INTERNALS_INDEX_HTML);

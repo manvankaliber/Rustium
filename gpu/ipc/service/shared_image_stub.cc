@@ -90,7 +90,7 @@ SharedImageStub::SharedImageStub(GpuChannel* channel, int32_t route_id)
       command_buffer_id_(
           CommandBufferIdFromChannelAndRoute(channel->client_id(), route_id)),
       sequence_(channel->scheduler()->CreateSequence(
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
           base::FeatureList::IsEnabled(features::kSharedImageStubHighPriority)
               ? SchedulingPriority::kHigh
               : SchedulingPriority::kLow,
@@ -125,12 +125,14 @@ std::unique_ptr<SharedImageStub> SharedImageStub::Create(GpuChannel* channel,
                                                          int32_t route_id) {
   auto stub = base::WrapUnique(new SharedImageStub(channel, route_id));
   ContextResult result = stub->Initialize();
-  if (result == ContextResult::kSuccess)
+  if (result == ContextResult::kSuccess) {
     return stub;
+  }
 
   // If it's not a transient failure, treat it as fatal.
-  if (result != ContextResult::kTransientFailure)
+  if (result != ContextResult::kTransientFailure) {
     return nullptr;
+  }
 
   // For transient failure, retry once to create a shared context state and
   // hence factory again.
@@ -393,8 +395,9 @@ void SharedImageStub::OnUpdateSharedImage(const Mailbox& mailbox,
                                           gfx::GpuFenceHandle in_fence_handle) {
   TRACE_EVENT0("gpu", "SharedImageStub::OnUpdateSharedImage");
 
-  if (!UpdateSharedImage(mailbox, std::move(in_fence_handle)))
+  if (!UpdateSharedImage(mailbox, std::move(in_fence_handle))) {
     return;
+  }
 }
 
 bool SharedImageStub::UpdateSharedImage(const Mailbox& mailbox,
@@ -559,24 +562,6 @@ void SharedImageStub::OnUnregisterDxgiFence(const Mailbox& mailbox,
 
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_FUCHSIA)
-void SharedImageStub::RegisterSysmemBufferCollection(
-    zx::eventpair service_handle,
-    zx::channel sysmem_token,
-    const viz::SharedImageFormat& format,
-    gfx::BufferUsage usage,
-    bool register_with_image_pipe) {
-  if (!service_handle || !sysmem_token) {
-    OnError();
-    return;
-  }
-
-  factory_->RegisterSysmemBufferCollection(std::move(service_handle),
-                                           std::move(sysmem_token), format,
-                                           usage, register_with_image_pipe);
-}
-#endif  // BUILDFLAG(IS_FUCHSIA)
-
 void SharedImageStub::OnRegisterSharedImageUploadBuffer(
     base::ReadOnlySharedMemoryRegion shm) {
   TRACE_EVENT0("gpu", "SharedImageStub::OnRegisterSharedImageUploadBuffer");
@@ -604,8 +589,9 @@ bool SharedImageStub::MakeContextCurrent(bool needs_gl) {
   // |factory_| never writes to the surface, so pass nullptr to
   // improve performance. https://crbug.com/457431
   auto* context = context_state_->real_context();
-  if (context->IsCurrent(nullptr))
+  if (context->IsCurrent(nullptr)) {
     return !context_state_->CheckResetStatus(needs_gl);
+  }
   return context_state_->MakeCurrent(/*surface=*/nullptr, needs_gl);
 }
 
@@ -667,15 +653,8 @@ gfx::GpuMemoryBufferHandle SharedImageStub::CreateGpuMemoryBufferHandle(
     const viz::SharedImageFormat& format,
     gfx::BufferUsage buffer_usage) {
   if (SharedImageFactory::IsNativeBufferSupported(format, buffer_usage)) {
-#if BUILDFLAG(IS_ANDROID)
-    // Creation of native buffer handles is not supported on Android (the
-    // only way that a non-null GpuMemoryBufferHandle can be created on
-    // Android is by importing an external AHB).
-    return gfx::GpuMemoryBufferHandle();
-#else
     return factory_->CreateNativeGpuMemoryBufferHandle(size, format,
                                                        buffer_usage);
-#endif
   } else {
     if (SharedMemoryImageBackingFactory::IsBufferUsageSupported(buffer_usage) &&
         SharedMemoryImageBackingFactory::IsSizeValidForFormat(size, format)) {
@@ -737,12 +716,6 @@ bool SharedImageStub::ValidateGpuMemoryBufferHandle(
     return true;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (channel_->client_type() == viz::mojom::GpuClientType::kRenderer) {
-    LOG(ERROR) << "AHardwareBuffers are not allowed from renderer processes";
-    return false;
-  }
-#endif
 
   // TODO(crbug.com/565252393): Add validation
   return true;

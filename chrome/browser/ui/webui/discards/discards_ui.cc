@@ -81,12 +81,10 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if !BUILDFLAG(IS_DESKTOP_ANDROID)
 #include "chrome/browser/resource_coordinator/lifecycle_unit.h"
 #include "chrome/browser/resource_coordinator/lifecycle_unit_state.mojom.h"
 #include "chrome/browser/resource_coordinator/tab_lifecycle_unit.h"
 #include "chrome/browser/resource_coordinator/tab_lifecycle_unit_external.h"
-#endif  // !BUILDFLAG(IS_DESKTOP_ANDROID)
 
 using performance_manager::FrameNode;
 using performance_manager::PageNode;
@@ -323,7 +321,6 @@ mojom::LifecycleUnitLoadingState GetLifecycleUnitLoadingState(
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 discards::mojom::CanFreeze ToCanFreezeMojom(
     performance_manager::freezing::CanFreeze can_freeze) {
   switch (can_freeze) {
@@ -353,7 +350,6 @@ std::vector<std::string> ToCannotFreezeReasonsStrings(
   }
   return reasons;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class DiscardsDetailsProviderImpl
     : public discards::mojom::DetailsProvider,
@@ -423,10 +419,6 @@ class DiscardsDetailsProviderImpl
               page_node.get());
       info->can_discard = info->cannot_discard_reasons.empty();
 
-#if BUILDFLAG(IS_ANDROID)
-      info->cannot_freeze_reasons = {"not implemented"};
-      info->can_freeze = discards::mojom::CanFreeze::NO;
-#else
       // TODO(crbug.com/40160563): Add FreezingPolicy to Android.
       const auto can_freeze_details =
           performance_manager::freezing::GetCanFreezeDetailsForPageNode(
@@ -434,7 +426,6 @@ class DiscardsDetailsProviderImpl
       info->cannot_freeze_reasons =
           ToCannotFreezeReasonsStrings(can_freeze_details);
       info->can_freeze = ToCanFreezeMojom(can_freeze_details.can_freeze);
-#endif  // BUILDFLAG(IS_ANDROID)
 
       info->utility_rank = rank++;
       info->id = id++;
@@ -448,7 +439,6 @@ class DiscardsDetailsProviderImpl
       info->site_engagement_score = GetSiteEngagementScore(contents);
       info->has_focus = page_node->IsFocused();
 
-#if !BUILDFLAG(IS_DESKTOP_ANDROID)
       auto* lifecycle_unit_external = resource_coordinator::
           TabLifecycleUnitSource::GetTabLifecycleUnitExternal(contents);
       // A TabLifecycleUnitExternal object is always a TabLifecycleUnit object.
@@ -470,7 +460,6 @@ class DiscardsDetailsProviderImpl
         info->last_active_seconds = static_cast<int32_t>(elapsed.InSeconds());
         info->state_change_time = lifecycle_unit->GetStateChangeWallTime();
       }
-#endif  // !BUILDFLAG(IS_DESKTOP_ANDROID)
 
       infos.push_back(std::move(info));
     }
@@ -533,12 +522,6 @@ class DiscardsDetailsProviderImpl
   }
 
   void Discard(DiscardCallback callback) override {
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, discarding is enabled when kWebContentsDiscard is enabled.
-    if (!base::FeatureList::IsEnabled(features::kWebContentsDiscard)) {
-      return;
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
     performance_manager::user_tuning::DiscardAnyPage(
         mojom::LifecycleUnitDiscardReason::URGENT,
         /*ignore_minimum_time_in_background=*/true);
@@ -560,10 +543,8 @@ class DiscardsDetailsProviderImpl
   }
 
   void RefreshPerformanceTabCpuMeasurements() override {
-#if !BUILDFLAG(IS_DESKTOP_ANDROID)
     performance_manager::user_tuning::PerformanceDetectionManager::GetInstance()
         ->ForceTabCpuDataRefresh();
-#endif  // !BUILDFLAG(IS_DESKTOP_ANDROID)
   }
 
   void GetProcessMemoryDumps(GetProcessMemoryDumpsCallback callback) override {
@@ -675,10 +656,8 @@ DiscardsUI::DiscardsUI(content::WebUI* web_ui)
       profile, chrome::kChromeUIDiscardsHost);
 
   bool demoModeEnabled = false;
-#if !BUILDFLAG(IS_DESKTOP_ANDROID)
   demoModeEnabled = base::FeatureList::IsEnabled(
       performance_manager::features::kPerformanceInterventionDemoMode);
-#endif  // !BUILDFLAG(IS_DESKTOP_ANDROID)
   source->AddBoolean("isPerformanceInterventionDemoModeEnabled",
                      demoModeEnabled);
 

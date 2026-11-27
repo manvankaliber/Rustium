@@ -77,24 +77,16 @@ DecodeTrustedVaultAutoUpgradeExperimentGroupFromString(
 
 bool IsBookmarksSelectedByDefaultInTransportMode(PrefService& pref_service,
                                                  const GaiaId& gaia_id) {
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  return true;
-#else
   // Bookmarks and reading list are enabled by default for new sign-ins (not
   // pre-existing sessions). This pref is set if the above conditions are met.
   return SigninPrefs(pref_service).GetBookmarksExplicitBrowserSignin(gaia_id);
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
 }
 
 bool IsExtensionsSelectedByDefaultInTransportMode(PrefService& pref_service,
                                                   const GaiaId& gaia_id) {
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  return true;
-#else
   // Extensions are enabled by default for new sign-ins (not pre-existing
   // sessions). This pref is set if the above conditions are met.
   return SigninPrefs(pref_service).GetExtensionsExplicitBrowserSignin(gaia_id);
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
 }
 
 }  // namespace
@@ -159,18 +151,8 @@ void SyncPrefs::RegisterProfilePrefs(PrefRegistrySimple* registry) {
   for (UserSelectableType type : UserSelectableTypeSet::All()) {
     RegisterTypeSelectedPref(registry, type);
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  registry->RegisterBooleanPref(prefs::internal::kSyncDisabledViaDashboard,
-                                false);
-  registry->RegisterBooleanPref(prefs::internal::kSyncAllOsTypes, true);
-  registry->RegisterBooleanPref(prefs::internal::kSyncOsApps, false);
-  registry->RegisterBooleanPref(prefs::internal::kSyncOsPreferences, false);
-  registry->RegisterBooleanPref(prefs::internal::kSyncWifiConfigurations,
-                                false);
-#else   // BUILDFLAG(IS_CHROMEOS)
   registry->RegisterBooleanPref(
       prefs::internal::kSyncInitialSyncFeatureSetupComplete, false);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   registry->RegisterIntegerPref(prefs::internal::kSyncToSigninMigrationState,
                                 kNotMigrated);
@@ -216,10 +198,8 @@ void SyncPrefs::RegisterProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterTimePref(
       prefs::internal::kFirstTimeTriedToMigrateSyncFeaturePausedToSignin,
       base::Time());
-#if !BUILDFLAG(IS_CHROMEOS)
   registry->RegisterBooleanPref(prefs::internal::kWipedAppsAndAppSettingsData,
                                 false);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   SyncFeatureStatusForMigrationsRecorder::RegisterProfilePrefs(registry);
 }
@@ -236,15 +216,10 @@ void SyncPrefs::RemoveObserver(SyncPrefObserver* sync_pref_observer) {
 
 bool SyncPrefs::IsInitialSyncFeatureSetupComplete() const {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-#if BUILDFLAG(IS_CHROMEOS)
-  return true;
-#else   // BUILDFLAG(IS_CHROMEOS)
   return pref_service_->GetBoolean(
       prefs::internal::kSyncInitialSyncFeatureSetupComplete);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void SyncPrefs::SetInitialSyncFeatureSetupComplete() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   pref_service_->SetBoolean(
@@ -256,7 +231,6 @@ void SyncPrefs::ClearInitialSyncFeatureSetupComplete() {
   pref_service_->ClearPref(
       prefs::internal::kSyncInitialSyncFeatureSetupComplete);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 bool SyncPrefs::HasKeepEverythingSynced() const {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
@@ -428,98 +402,6 @@ void SyncPrefs::KeepAccountSettingsPrefsOnlyForUsers(
                                                           hashes);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool SyncPrefs::IsSyncFeatureDisabledViaDashboard() const {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  return pref_service_->GetBoolean(prefs::internal::kSyncDisabledViaDashboard);
-}
-
-void SyncPrefs::SetSyncFeatureDisabledViaDashboard() {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  pref_service_->SetBoolean(prefs::internal::kSyncDisabledViaDashboard, true);
-}
-
-void SyncPrefs::ClearSyncFeatureDisabledViaDashboard() {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  pref_service_->ClearPref(prefs::internal::kSyncDisabledViaDashboard);
-}
-
-bool SyncPrefs::IsSyncAllOsTypesEnabled() const {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  return pref_service_->GetBoolean(prefs::internal::kSyncAllOsTypes);
-}
-
-UserSelectableOsTypeSet SyncPrefs::GetSelectedOsTypes() const {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  UserSelectableOsTypeSet selected_types;
-  const bool sync_all_os_types = IsSyncAllOsTypesEnabled();
-  for (UserSelectableOsType type : UserSelectableOsTypeSet::All()) {
-    const char* pref_name = GetPrefNameForOsType(type);
-    DCHECK(pref_name);
-    // If the type is managed, `sync_all_os_types` is ignored for this type.
-    if (pref_service_->GetBoolean(pref_name) ||
-        (sync_all_os_types && !IsOsTypeManagedByPolicy(type))) {
-      selected_types.Put(type);
-    }
-  }
-  return selected_types;
-}
-
-bool SyncPrefs::IsOsTypeManagedByPolicy(UserSelectableOsType type) const {
-  const char* pref_name = GetPrefNameForOsType(type);
-  CHECK(pref_name);
-  return pref_service_->IsManagedPreference(pref_name);
-}
-
-void SyncPrefs::SetSelectedOsTypes(bool sync_all_os_types,
-                                   UserSelectableOsTypeSet registered_types,
-                                   UserSelectableOsTypeSet selected_types) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  {
-    // Prevent OnSelectedTypesPrefChanged() from notifying about each of the
-    // type changes individually.
-    base::AutoReset<bool> batch_update(&batch_updating_selected_types_, true);
-
-    pref_service_->SetBoolean(prefs::internal::kSyncAllOsTypes,
-                              sync_all_os_types);
-    for (UserSelectableOsType type : registered_types) {
-      const char* pref_name = GetPrefNameForOsType(type);
-      DCHECK(pref_name);
-      pref_service_->SetBoolean(pref_name, selected_types.Has(type));
-    }
-  }
-  for (SyncPrefObserver& observer : sync_pref_observers_) {
-    observer.OnSelectedTypesPrefChange();
-  }
-}
-
-// static
-const char* SyncPrefs::GetPrefNameForOsTypeForTesting(
-    UserSelectableOsType type) {
-  return GetPrefNameForOsType(type);
-}
-
-// static
-const char* SyncPrefs::GetPrefNameForOsType(UserSelectableOsType type) {
-  switch (type) {
-    case UserSelectableOsType::kOsApps:
-      return prefs::internal::kSyncOsApps;
-    case UserSelectableOsType::kOsPreferences:
-      return prefs::internal::kSyncOsPreferences;
-    case UserSelectableOsType::kOsWifiConfigurations:
-      return prefs::internal::kSyncWifiConfigurations;
-  }
-  NOTREACHED();
-}
-
-// static
-void SyncPrefs::SetOsTypeDisabledByPolicy(PrefValueMap* policy_prefs,
-                                          UserSelectableOsType type) {
-  const char* pref_name = syncer::SyncPrefs::GetPrefNameForOsType(type);
-  CHECK(pref_name);
-  policy_prefs->SetValue(pref_name, base::Value(false));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool SyncPrefs::IsSyncClientDisabledByPolicy() const {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
@@ -722,24 +604,12 @@ bool SyncPrefs::IsTypeSupportedInTransportMode(UserSelectableType type) {
     case UserSelectableType::kExtensions:
       return true;
     case UserSelectableType::kThemes:
-#if BUILDFLAG(IS_ANDROID)
-      return base::FeatureList::IsEnabled(
-          syncer::kNewTabPageCustomizationThemeSync);
-#elif BUILDFLAG(IS_IOS)
-      // Allow 'Themes' toggle on iOS if the feature is enabled.
-      return base::FeatureList::IsEnabled(syncer::kSyncThemesIos);
-#else
       return true;
-#endif
     case UserSelectableType::kApps:
       return true;
     case UserSelectableType::kCookies:
-#if BUILDFLAG(IS_CHROMEOS)
-      return true;
-#else
       // ChromeOS-only type.
       return false;
-#endif
   }
   NOTREACHED();
 }
@@ -920,7 +790,6 @@ void SyncPrefs::MigrateGlobalDataTypePrefsToAccount(PrefService* pref_service,
   // were enabled previously, so they're specially tracked here.
   bool history_enabled = everything_enabled;
   bool tabs_enabled = everything_enabled;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // Saved Tab Groups user toggle is only used on desktop.
   bool saved_tab_groups_enabled = everything_enabled;
   // Explicitly set the extensions toggle, which otherwise requires an explicit
@@ -932,15 +801,12 @@ void SyncPrefs::MigrateGlobalDataTypePrefsToAccount(PrefService* pref_service,
   // `SigninPrefs::GetBookmarksExplicitBrowserSignin()`).
   bool bookmarks_enabled = everything_enabled;
   bool reading_list_enabled = everything_enabled;
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (everything_enabled) {
     // On desktop, Passwords is considered disabled by default and
     // so also needs to be enabled explicitly.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     // TODO(b/314773312): Remove this when Uno is enabled.
     account_settings->Set(GetPrefNameForType(UserSelectableType::kPasswords),
                           true);
-#endif
   } else {
     // "Sync everything" is off, so copy over the individual value for each
     // type.
@@ -954,7 +820,6 @@ void SyncPrefs::MigrateGlobalDataTypePrefsToAccount(PrefService* pref_service,
         GetPrefNameForType(UserSelectableType::kHistory));
     tabs_enabled =
         pref_service->GetBoolean(GetPrefNameForType(UserSelectableType::kTabs));
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     saved_tab_groups_enabled = pref_service->GetBoolean(
         GetPrefNameForType(UserSelectableType::kSavedTabGroups));
     extensions_enabled = pref_service->GetBoolean(
@@ -963,16 +828,7 @@ void SyncPrefs::MigrateGlobalDataTypePrefsToAccount(PrefService* pref_service,
         GetPrefNameForType(UserSelectableType::kBookmarks));
     reading_list_enabled = pref_service->GetBoolean(
         GetPrefNameForType(UserSelectableType::kReadingList));
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   }
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // On mobile, History and Tabs remain enabled only if they were both
-  // enabled previously.
-  account_settings->Set(GetPrefNameForType(UserSelectableType::kHistory),
-                        history_enabled && tabs_enabled);
-  account_settings->Set(GetPrefNameForType(UserSelectableType::kTabs),
-                        history_enabled && tabs_enabled);
-#else
   // On desktop, History, Tabs and Saved Tab Groups carry over their individual
   // values.
   account_settings->Set(GetPrefNameForType(UserSelectableType::kHistory),
@@ -993,23 +849,7 @@ void SyncPrefs::MigrateGlobalDataTypePrefsToAccount(PrefService* pref_service,
   pref_service->SetBoolean(prefs::internal::kReadingListPrefMigratedToAccount,
                            true);
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Another special case: For custom passphrase users, "Addresses and more"
-  // gets disabled by default. The reason is that for syncing custom passphrase
-  // users, this toggle mapped to the legacy AUTOFILL_PROFILE type (which
-  // supported custom passphrase), but for migrated users it maps to
-  // CONTACT_INFO (which does not). This is only done on Mobile because on
-  // Desktop the strings already mention that the addresses are not encrypted
-  // with the passphrase.
-  std::optional<PassphraseType> passphrase_type = ProtoPassphraseInt32ToEnum(
-      pref_service->GetInteger(prefs::internal::kSyncCachedPassphraseType));
-  if (passphrase_type.has_value() && IsExplicitPassphrase(*passphrase_type)) {
-    account_settings->Set(GetPrefNameForType(UserSelectableType::kAutofill),
-                          false);
-  }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   // Usually, the "SyncToSignin" migration (aka phase 2) will have completed
   // previously. But just in case it hasn't, make sure it doesn't run in the
@@ -1043,12 +883,8 @@ bool SyncPrefs::IsTypeSelectedByDefaultInTransportMode(
     case UserSelectableType::kHistory:
     case UserSelectableType::kTabs:
     case UserSelectableType::kSavedTabGroups:
-#if BUILDFLAG(IS_CHROMEOS)
-      return true;
-#else
       // History and tabs require a separate opt in.
       return false;
-#endif
     case UserSelectableType::kBookmarks:
     case UserSelectableType::kReadingList:
       return IsBookmarksSelectedByDefaultInTransportMode(*pref_service_,

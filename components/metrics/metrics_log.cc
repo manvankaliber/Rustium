@@ -50,10 +50,6 @@
 #include "third_party/metrics_proto/system_profile.pb.h"
 #include "third_party/metrics_proto/user_action_event.pb.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/android/apk_info.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
@@ -92,11 +88,6 @@ void LogMetadata::AddSampleCount(base::HistogramBase::Count32 sample_count) {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// The foreground/background ID. When a MetricsLog instance is created, its
-// `fg_bg_id` system profile field will be set to this value.
-static int g_fg_bg_id_counter = 1;
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 // Convenience function to return the given time at a resolution in seconds.
 static int64_t ToMonotonicSeconds(base::TimeTicks time_ticks) {
@@ -326,16 +317,6 @@ int64_t MetricsLog::GetCurrentTime() {
   return ToMonotonicSeconds(base::TimeTicks::Now());
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// static
-void MetricsLog::IncrementFgBgId() {
-  g_fg_bg_id_counter++;
-}
-
-void MetricsLog::ClearFgBgId() {
-  uma_proto_.mutable_system_profile()->clear_fg_bg_id();
-}
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 void MetricsLog::AssignFinalizedRecordId(PrefService* local_state) {
   DCHECK(!uma_proto_.has_finalized_record_id());
@@ -420,9 +401,6 @@ void MetricsLog::RecordCoreSystemProfile(
 
   system_profile->set_session_hash(GetSessionHash());
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  system_profile->set_fg_bg_id(g_fg_bg_id_counter);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
   metrics::SystemProfileProto::Hardware* hardware =
       system_profile->mutable_hardware();
@@ -444,24 +422,13 @@ void MetricsLog::RecordCoreSystemProfile(
 
 // On ChromeOS, KernelVersion refers to the Linux kernel version and
 // OperatingSystemVersion refers to the ChromeOS release version.
-#if BUILDFLAG(IS_CHROMEOS)
-  os->set_kernel_version(base::SysInfo::KernelVersion());
-#elif BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   // Linux operating system version is copied over into kernel version to be
   // consistent.
   os->set_kernel_version(base::SysInfo::OperatingSystemVersion());
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  os->set_build_fingerprint(base::android::android_info::android_build_fp());
-  system_profile->mutable_hardware()->set_manufacturer(
-      base::SysInfo::HardwareManufacturer());
-  if (!package_name.empty() && package_name != "com.android.chrome") {
-    system_profile->set_app_package_name(package_name);
-  }
-  system_profile->set_installer_package(internal::ToInstallerPackage(
-      base::android::apk_info::installer_package_name()));
-#elif BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_APPLE)
   os->set_build_number(base::SysInfo::OperatingSystemBuildVersion());
 #endif
 
@@ -662,12 +629,5 @@ void MetricsLog::TruncateEvents() {
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void MetricsLog::SetUserId(const std::string& user_id) {
-  uint64_t hashed_user_id = Hash(user_id);
-  uma_proto_.set_user_id(hashed_user_id);
-  log_metadata_.user_id = hashed_user_id;
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace metrics

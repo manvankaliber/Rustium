@@ -63,8 +63,6 @@
 
 #if defined(USE_ALSA)
 #include "media/audio/alsa/audio_manager_alsa.h"
-#elif BUILDFLAG(IS_ANDROID)
-#include "media/audio/android/audio_manager_android.h"
 #elif BUILDFLAG(IS_MAC)
 #include "media/audio/mac/audio_manager_mac.h"
 #elif BUILDFLAG(IS_WIN)
@@ -80,13 +78,11 @@ using ::blink::mojom::StreamSelectionInfoPtr;
 using ::testing::_;
 using testing::ElementsAre;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 using ::blink::mojom::CapturedWheelAction;
 using ::blink::mojom::CapturedWheelActionPtr;
 using ::blink::mojom::ZoomLevelAction;
 using CapturedSurfaceControllerFactoryCallback =
     ::content::MediaStreamManager::CapturedSurfaceControllerFactoryCallback;
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 using DeviceStoppedCallback =
     ::content::MediaStreamManager::DeviceStoppedCallback;
@@ -99,8 +95,6 @@ typedef media::AudioManagerAlsa AudioManagerPlatform;
 typedef media::AudioManagerMac AudioManagerPlatform;
 #elif BUILDFLAG(IS_WIN)
 typedef media::AudioManagerWin AudioManagerPlatform;
-#elif BUILDFLAG(IS_ANDROID)
-typedef media::AudioManagerAndroid AudioManagerPlatform;
 #else
 typedef media::FakeAudioManager AudioManagerPlatform;
 #endif
@@ -110,7 +104,6 @@ namespace {
 const char kFakeDeviceIdPrefix[] = "fake_device_id_";
 const GlobalRenderFrameHostId kRenderFrameHostId{1, 2};
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 enum class CapturedSurfaceControlAPI {
   kSendWheel,
   kIncreaseZoomLevel,
@@ -133,7 +126,6 @@ ZoomLevelAction ToZoomLevelAction(CapturedSurfaceControlAPI input) {
   }
   NOTREACHED() << "Not a ZoomLevelAction.";
 }
-#endif
 
 std::string GetAudioInputDeviceId(size_t index) {
   return std::string(kFakeDeviceIdPrefix) + base::NumberToString(index);
@@ -353,7 +345,6 @@ class TestMediaStreamDispatcherHost
       blink::mojom::MediaStreamType type,
       bool is_secure) override {}
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   void SendWheel(const base::UnguessableToken& device_id,
                  blink::mojom::CapturedWheelActionPtr action) override {}
   void UpdateZoomLevel(const base::UnguessableToken& device_id,
@@ -363,7 +354,6 @@ class TestMediaStreamDispatcherHost
       const base::UnguessableToken& device_id,
       RequestCapturedSurfaceControlPermissionCallback callback) override {}
   void FocusCapturedSurface(const std::string& label, bool focus) override {}
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(ENABLE_SCREEN_CAPTURE)
   void ApplySubCaptureTarget(const base::UnguessableToken& device_id,
@@ -423,7 +413,6 @@ blink::StreamControls GetAudioStreamControls(std::string hmac_device_id) {
   return stream_controls;
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 // Make an arbitrary valid CapturedWheelAction.
 CapturedWheelActionPtr MakeCapturedWheelActionPtr() {
   return CapturedWheelAction::New(
@@ -432,7 +421,6 @@ CapturedWheelActionPtr MakeCapturedWheelActionPtr() {
       /*wheel_delta_x=*/0,
       /*wheel_delta_y=*/0);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 blink::mojom::StreamSelectionInfoPtr NewSearchBySessionId(
     base::flat_map<std::string, base::UnguessableToken> session_id_map) {
@@ -2365,7 +2353,6 @@ TEST_F(MediaStreamManagerTestForTransfers,
   EXPECT_EQ(result_, blink::mojom::MediaStreamRequestResult::INVALID_STATE);
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 class MediaStreamManagerCapturedSurfaceControlTest
     : public MediaStreamManagerTest {
  public:
@@ -2645,7 +2632,6 @@ TEST_P(MediaStreamManagerCapturedSurfaceControlActionTest,
   // TODO(crbug.com/41485502): Use a dedicated error.
   EXPECT_EQ(result_, CapturedSurfaceControlResult::kUnknownError);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 TEST_F(MediaStreamManagerTest,
        OpenNativeScreenCapturePicker_StopAudioCallbackStopsAudio) {

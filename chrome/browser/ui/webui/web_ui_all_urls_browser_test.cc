@@ -29,22 +29,10 @@
 #include "printing/buildflags/buildflags.h"
 #include "third_party/abseil-cpp/absl/strings/ascii.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/tabs/organizer/organizer_panel_utils.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_extension_constants.h"
-#include "ash/constants/ash_features.h"
-#include "ash/constants/ash_login_pref_names.h"
-#include "ash/constants/ash_switches.h"
-#include "chrome/browser/ash/file_system_provider/fake_extension_provider.h"
-#include "chrome/browser/ash/file_system_provider/service.h"
-#include "components/prefs/pref_service.h"
-#else
 #include "chrome/browser/ui/webui/whats_new/whats_new_util.h"
 #include "components/signin/public/base/signin_switches.h"
-#endif
 
 WebUIAllUrlsBrowserTest::WebUIAllUrlsBrowserTest() {
   std::vector<base::test::FeatureRefAndParams> enabled_features;
@@ -59,8 +47,7 @@ WebUIAllUrlsBrowserTest::WebUIAllUrlsBrowserTest() {
   enable_feature(collaboration::features::kCollaborationComments);
   enable_feature(omnibox::kComposeboxDriveContextMenuOption);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   enable_feature(features::kAiOverlayDialog);
 #endif
 
@@ -68,18 +55,13 @@ WebUIAllUrlsBrowserTest::WebUIAllUrlsBrowserTest() {
   enable_feature(whats_new::kForceEnabled);
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  enable_feature(ash::features::kShimlessRMAOsUpdate);
-#endif
 
   enable_feature(features::kTabsFromOtherDevicesSidePanel);
   enable_feature(contextual_cueing::kContextualCueingV2);
 
-#if !BUILDFLAG(IS_ANDROID)
   enable_feature(features::kCraft);
   enable_feature(features::kIsolatedWebApps);
   enable_feature(organizer_panel::kOrganizerPanel);
-#endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
   enable_feature(switches::kFirstRunDesktopRefresh);
@@ -108,29 +90,8 @@ void WebUIAllUrlsBrowserTest::SetUpCommandLine(
     command_line->AppendSwitch(
         switches::kIgnoreNoFirstRunForSearchEngineChoiceScreen);
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  command_line->AppendSwitchASCII(ash::switches::kSamlPasswordChangeUrl,
-                                  "http://password-change.example");
-  if (GetParam() == std::string_view("chrome://shimless-rma")) {
-    command_line->AppendSwitchASCII(ash::switches::kLaunchRma, "");
-  }
-#endif
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void WebUIAllUrlsBrowserTest::SetUpOnMainThread() {
-  browser()->GetProfile()->GetPrefs()->SetBoolean(
-      ash::prefs::kSamlInSessionPasswordChangeEnabled, true);
-
-  // This is needed to simulate the presence of the ODFS extension, which is
-  // checked in `IsMicrosoftOfficeOneDriveIntegrationAllowedAndOdfsInstalled`.
-  auto fake_provider = ash::file_system_provider::FakeExtensionProvider::Create(
-      extension_misc::kODFSExtensionId);
-  auto* service =
-      ash::file_system_provider::Service::Get(browser()->GetProfile());
-  service->RegisterProvider(std::move(fake_provider));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void WebUIAllUrlsBrowserTest::WaitBeforeNavigation() {
   // A number of these tests are flaky due to navigating to and from the

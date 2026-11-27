@@ -17,38 +17,9 @@
 #include "content/public/common/url_constants.h"
 #include "url/url_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/web_applications/app_service/publisher_helper.h"
-#include "chromeos/constants/chromeos_features.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-// Must come after other includes, because FromJniType() uses Profile.
-#include "chrome/browser/ui/android/omnibox/jni_headers/ChromeAutocompleteSchemeClassifier_jni.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-static jni_zero::JniUniquePtr<AutocompleteSchemeClassifier>
-JNI_ChromeAutocompleteSchemeClassifier_CreateAutocompleteClassifier(
-    JNIEnv* env,
-    Profile* profile) {
-  CHECK(profile, base::NotFatalUntil::M161);
 
-  return jni_zero::MakeUnique(std::unique_ptr<AutocompleteSchemeClassifier>(
-      std::make_unique<ChromeAutocompleteSchemeClassifier>(profile)));
-}
-#endif
-
-#if BUILDFLAG(IS_CHROMEOS)
-namespace {
-bool IsCustomSchemeHandledByWebApp(Profile* profile,
-                                   const std::string& scheme) {
-  return !web_app::GetWebAppIdsForProtocolUrl(
-              profile, GURL(scheme + url::kStandardSchemeSeparator))
-              .empty();
-}
-}  // namespace
-#endif
 
 ChromeAutocompleteSchemeClassifier::ChromeAutocompleteSchemeClassifier(
     Profile* profile)
@@ -103,10 +74,6 @@ ChromeAutocompleteSchemeClassifier::GetInputTypeForScheme(
       // between URL schemes with handers and those without. This will
       // make the default behaviour be search on Linux.
       return metrics::OmniboxInputType::EMPTY;
-#elif BUILDFLAG(IS_CHROMEOS)
-      return IsCustomSchemeHandledByWebApp(profile_, scheme)
-                 ? metrics::OmniboxInputType::URL
-                 : metrics::OmniboxInputType::EMPTY;
 #else
       // If block state is unknown, check if there is an application registered
       // for the url scheme.
@@ -115,12 +82,8 @@ ChromeAutocompleteSchemeClassifier::GetInputTypeForScheme(
           shell_integration::GetApplicationNameForScheme(url);
       return application_name.empty() ? metrics::OmniboxInputType::EMPTY
                                       : metrics::OmniboxInputType::URL;
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
     }
   }
   NOTREACHED();
 }
-
-#if BUILDFLAG(IS_ANDROID)
-DEFINE_JNI(ChromeAutocompleteSchemeClassifier)
-#endif

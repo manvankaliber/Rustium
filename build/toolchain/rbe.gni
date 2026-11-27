@@ -45,8 +45,7 @@ if (use_remoteexec) {
 }
 
 if (use_siso && rbe_exec_root != rebase_path("//")) {
-  assert(target_os == "chromeos" && rbe_exec_root == "/",
-         "Can't use non-default rbe_exec_root with siso.")
+  assert(false, "Can't use non-default rbe_exec_root with siso.")
 
   # cros chroot ebuild case.
   rbe_logs += [ "source_root=" + rebase_path("//") ]

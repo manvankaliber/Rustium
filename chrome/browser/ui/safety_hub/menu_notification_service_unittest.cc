@@ -32,7 +32,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/extensions/cws_info_service_factory.h"
 #include "chrome/browser/password_manager/password_manager_test_util.h"
 #include "chrome/browser/ui/safety_hub/password_status_check_service.h"
@@ -40,7 +39,6 @@
 #include "chrome/browser/ui/safety_hub/safety_hub_hats_service.h"
 #include "chrome/browser/ui/safety_hub/safety_hub_hats_service_factory.h"
 #include "components/password_manager/core/browser/password_store/test_password_store.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using ::testing::_;
 
@@ -240,74 +238,6 @@ TEST_F(SafetyHubMenuNotificationServiceTest, SafeBrowsingTriggerLogic) {
   EXPECT_TRUE(notification.has_value());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(SafetyHubMenuNotificationServiceTest, PasswordOverride) {
-  std::optional<MenuNotificationEntry> notification;
-  // Show Safe Browsing notification.
-  prefs()->SetBoolean(prefs::kSafeBrowsingEnabled, false);
-  notification = menu_notification_service()->GetNotificationToShow();
-  AdvanceClockBy(base::Days(1));
-  notification = menu_notification_service()->GetNotificationToShow();
-  EXPECT_TRUE(notification.has_value());
-
-  // A leaked password warning should override the Safe Browsing notification.
-  prefs()->SetInteger(prefs::kBreachedCredentialsCount, 1);
-  notification = menu_notification_service()->GetNotificationToShow();
-  EXPECT_TRUE(notification.has_value());
-  ExpectPluralString(
-      IDS_SETTINGS_SAFETY_HUB_COMPROMISED_PASSWORDS_MENU_NOTIFICATION, 1,
-      notification.value().label);
-
-  // Fixing the leaked password will clear notification. Because the safe
-  // browsing notification was dismissed, it will not be shown either.
-  prefs()->SetInteger(prefs::kBreachedCredentialsCount, 0);
-  notification = menu_notification_service()->GetNotificationToShow();
-  EXPECT_FALSE(notification.has_value());
-}
-
-TEST_F(SafetyHubMenuNotificationServiceTest, PasswordTrigger) {
-  // If the leaked password count is not yet fetched or the user is signed out,
-  // no notification should be displayed.
-  std::optional<MenuNotificationEntry> notification;
-  prefs()->SetInteger(prefs::kBreachedCredentialsCount, -1);
-  notification = menu_notification_service()->GetNotificationToShow();
-  EXPECT_FALSE(notification.has_value());
-
-  // A leaked password warning should create a password notification.
-  prefs()->SetInteger(prefs::kBreachedCredentialsCount, 2);
-  notification = menu_notification_service()->GetNotificationToShow();
-  EXPECT_TRUE(notification.has_value());
-  ExpectPluralString(
-      IDS_SETTINGS_SAFETY_HUB_COMPROMISED_PASSWORDS_MENU_NOTIFICATION, 2,
-      notification.value().label);
-
-  // The notification should no longer appear after it has been dismissed.
-  menu_notification_service()->DismissActiveNotificationOfModule(
-      safety_hub::SafetyHubModuleType::PASSWORDS);
-  notification = menu_notification_service()->GetNotificationToShow();
-  EXPECT_FALSE(notification.has_value());
-
-  // A leaked password count of lower value should NOT create a new password
-  // notification.
-  prefs()->SetInteger(prefs::kBreachedCredentialsCount, 1);
-  notification = menu_notification_service()->GetNotificationToShow();
-  EXPECT_FALSE(notification.has_value());
-
-  // A leaked password count of higher value should create a new password
-  // notification.
-  prefs()->SetInteger(prefs::kBreachedCredentialsCount, 3);
-  notification = menu_notification_service()->GetNotificationToShow();
-  EXPECT_TRUE(notification.has_value());
-  ExpectPluralString(
-      IDS_SETTINGS_SAFETY_HUB_COMPROMISED_PASSWORDS_MENU_NOTIFICATION, 3,
-      notification.value().label);
-
-  // Fixing the leaked passwords should clear notification.
-  prefs()->SetInteger(prefs::kBreachedCredentialsCount, 0);
-  notification = menu_notification_service()->GetNotificationToShow();
-  EXPECT_FALSE(notification.has_value());
-}
-#endif
 
 TEST_F(SafetyHubMenuNotificationServiceTest, DismissNotifications) {
   // Generate a mock notification for unused site permissions.

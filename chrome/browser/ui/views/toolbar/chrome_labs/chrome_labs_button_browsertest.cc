@@ -33,16 +33,11 @@
 #include "ui/views/test/button_test_api.h"
 #include "ui/views/test/widget_test.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#include "base/command_line.h"
-#endif
 
-#if BUILDFLAG(GOOGLE_CHROME_BRANDING) && !BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/test/base/scoped_channel_override.h"
 #endif
 
-#if !BUILDFLAG(IS_CHROMEOS) || !BUILDFLAG(GOOGLE_CHROME_BRANDING)
 
 namespace {
 
@@ -112,9 +107,6 @@ IN_PROC_BROWSER_TEST_F(ChromeLabsButtonTest,
   ChromeLabsCoordinator* coordinator = ChromeLabsCoordinator::From(browser());
   ASSERT_NE(coordinator, nullptr);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  coordinator->SetShouldCircumventDeviceCheckForTesting(true);
-#endif
 
   EXPECT_FALSE(coordinator->BubbleExists());
   ui::MouseEvent e(ui::EventType::kMousePressed, gfx::Point(), gfx::Point(),
@@ -175,9 +167,6 @@ IN_PROC_BROWSER_TEST_F(ChromeLabsButtonTest, ShouldButtonShowEphemerallyTest) {
 IN_PROC_BROWSER_TEST_F(ChromeLabsButtonTest, DotIndicatorTest) {
   views::Button* labs_button = GetChromeLabsButton();
   ChromeLabsCoordinator* coordinator = ChromeLabsCoordinator::From(browser());
-#if BUILDFLAG(IS_CHROMEOS)
-  coordinator->SetShouldCircumventDeviceCheckForTesting(true);
-#endif
   coordinator->MaybeInstallDotIndicator();
   views::DotIndicator* dot_indicator = coordinator->GetDotIndicator();
   EXPECT_TRUE(dot_indicator->GetVisible());
@@ -196,24 +185,6 @@ IN_PROC_BROWSER_TEST_F(ChromeLabsButtonTest, DotIndicatorTest) {
   EXPECT_FALSE(coordinator->BubbleExists());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-
-class ChromeLabsButtonTestSafeMode : public ChromeLabsButtonTest {
- public:
-  ChromeLabsButtonTestSafeMode() = default;
-
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    ChromeLabsButtonTest::SetUpCommandLine(command_line);
-    command_line->AppendSwitch(ash::switches::kSafeMode);
-  }
-};
-
-IN_PROC_BROWSER_TEST_F(ChromeLabsButtonTestSafeMode, ButtonShouldNotShowTest) {
-  views::Button* button = GetChromeLabsButton();
-  EXPECT_TRUE(!button || !button->GetVisible());
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 class ChromeLabsButtonNoExperimentsAvailableTest
     : public ChromeLabsButtonTestBase {
@@ -295,5 +266,3 @@ IN_PROC_BROWSER_TEST_F(ChromeLabsButtonOnlyExpiredFeaturesAvailableTest,
                               ->GetChromeLabsButton();
   EXPECT_TRUE(!button || !button->GetVisible());
 }
-
-#endif  // !BUILDFLAG(IS_CHROMEOS) || !BUILDFLAG(GOOGLE_CHROME_BRANDING)

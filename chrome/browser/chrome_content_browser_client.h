@@ -61,9 +61,7 @@
 #include "ui/base/mojom/window_open_disposition.mojom-forward.h"
 
 class ChromeContentBrowserClientParts;
-#if !BUILDFLAG(IS_ANDROID)
 class FetchKeepAliveProcessManager;
-#endif
 class PrefRegistrySimple;
 class ScopedKeepAlive;
 
@@ -334,9 +332,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
   bool ShouldUrlUseApplicationIsolationLevel(
       content::BrowserContext* browser_context,
       const GURL& url) override;
-#if !BUILDFLAG(IS_ANDROID)
   bool IsInitialWebUIURL(const GURL& url) override;
-#endif  // !BUILDFLAG(IS_ANDROID)
   bool IsTopChromeWebUIURL(const GURL& url) override;
   bool IsMultiCaptureAllowed(
       content::RenderFrameHost* render_frame_host) override;
@@ -473,9 +469,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
   bool SystemMayPromptForVideoCapture() override;
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  bool ShouldUseGmsCoreGeolocationProvider() override;
-#endif
   content::GeneratedCodeCacheSettings GetGeneratedCodeCacheSettings(
       content::BrowserContext* context) override;
   std::string GetWebUIHostnameForCodeCacheMetrics(
@@ -492,9 +485,7 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
       bool strict_enforcement,
       base::OnceCallback<void(content::CertificateRequestResultType)> callback)
       override;
-#if !BUILDFLAG(IS_ANDROID)
   bool ShouldDenyRequestOnCertificateError(const GURL main_page_url) override;
-#endif
   base::OnceClosure SelectClientCertificate(
       content::BrowserContext* browser_context,
       content::ChildProcessId process_id,
@@ -539,9 +530,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserContext* context,
       const std::string& language,
       media::mojom::SpeechRecognitionQuality quality) override;
-#if BUILDFLAG(IS_CHROMEOS)
-  content::TtsControllerDelegate* GetTtsControllerDelegate() override;
-#endif
   std::optional<blink::Manifest> MaybeOverrideManifest(
       content::RenderFrameHost* render_frame_host,
       const blink::Manifest& manifest) override;
@@ -810,7 +798,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
       const url::Origin& caller_origin) override;
   content::WebAuthenticationDelegate* GetWebAuthenticationDelegate() override;
   content::HidDelegate* GetHidDelegate() override;
-#if !BUILDFLAG(IS_ANDROID)
   void CreateDeviceInfoService(
       content::RenderFrameHost* render_frame_host,
       mojo::PendingReceiver<blink::mojom::DeviceAPIService> receiver) override;
@@ -823,14 +810,10 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
   std::unique_ptr<content::AuthenticatorRequestClientDelegate>
   GetWebAuthenticationRequestDelegate(
       content::RenderFrameHost* render_frame_host) override;
-#endif
   void CreateSecurePaymentConfirmationService(
       content::RenderFrameHost* render_frame_host,
       mojo::PendingReceiver<payments::mojom::SecurePaymentConfirmationService>
           receiver) override;
-#if BUILDFLAG(ENABLE_SMART_CARD)
-  content::SmartCardDelegate* GetSmartCardDelegate() override;
-#endif
   bool ShowPaymentHandlerWindow(
       content::BrowserContext* browser_context,
       const GURL& url,
@@ -924,10 +907,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserContext* context,
       content::RenderFrameHost* render_frame_host) override;
 
-#if BUILDFLAG(IS_ANDROID)
-  ContentBrowserClient::WideColorGamutHeuristic GetWideColorGamutHeuristic()
-      override;
-#endif
 
   base::flat_set<std::string> GetPluginMimeTypesWithExternalHandlers(
       content::BrowserContext* browser_context) override;
@@ -943,7 +922,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
       const blink::StorageKey& storage_key,
       base::OnceCallback<void(bool, const std::string&)> callback) override;
 
-#if !BUILDFLAG(IS_ANDROID)
   base::OnceClosure FetchRemoteSms(
       content::WebContents* web_contents,
       const std::vector<url::Origin>& origin_list,
@@ -951,7 +929,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
                               std::optional<std::string>,
                               std::optional<content::SmsFetchFailureType>)>
           callback) override;
-#endif
 
   bool IsClipboardPasteAllowed(
       content::RenderFrameHost* render_frame_host) override;
@@ -1040,18 +1017,12 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
   std::unique_ptr<content::DigitalIdentityProvider>
   CreateDigitalIdentityProvider() override;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<content::NativeIdpFetcher> CreateNativeIdpFetcher(
-      const url::Origin& idp_origin) override;
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
   static base::TimeDelta GetKeepaliveTimerTimeout(
       content::BrowserContext* context);
   bool IsKeepaliveTimerRunningForTesting() const {
     return keepalive_timer_.IsRunning();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   bool SuppressDifferentOriginSubframeJSDialogs(
       content::BrowserContext* browser_context) override;
@@ -1091,9 +1062,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserContext* browser_context,
       const GURL& url) override;
 
-#if BUILDFLAG(IS_ANDROID)
-  bool IsContentSchemeURLNavigationAllowed(const GURL& url) override;
-#endif
 
   base::FilePath GetChildProcessPath(
       int flags,
@@ -1164,13 +1132,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
       content::BrowserContext& browser_context,
       const std::optional<url::Origin>& initiator_origin,
       const GURL& navigation_url) override;
-#if BUILDFLAG(IS_CHROMEOS)
-  void NotifyMultiCaptureStateChanged(
-      content::GlobalRenderFrameHostId capturer_rfh_id,
-      const std::string& label,
-      MultiCaptureChanged state,
-      base::OnceClosure stop_callback) override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   bool ShouldEnableBtm(content::BrowserContext* browser_context) override;
   void OnBtmServiceCreated(content::BrowserContext* browser_context,
@@ -1210,14 +1171,12 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
           language_detection::mojom::ContentLanguageDetectionDriver> receiver)
       override;
 
-#if !BUILDFLAG(IS_ANDROID)
   void QueryInstalledWebAppsByManifestId(
       const GURL& frame_url,
       const GURL& manifest_id,
       content::BrowserContext* browser_context,
       base::OnceCallback<void(std::optional<blink::mojom::RelatedApplication>)>
           callback) override;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
   void OnTracingServiceStarted() override;
@@ -1257,14 +1216,9 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
 
   bool UsePrefetchPrerenderIntegration() override;
 
-#if !BUILDFLAG(IS_ANDROID)
   bool ShouldDisallowCredentialRequest(
       content::WebContents* web_contents) override;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID)
-  bool ShouldAllowSystemUiPopups(content::WebContents* web_contents) override;
-#endif
 
   void ModifyRequestHeadersForPrefetch(
       const GURL& url,
@@ -1404,10 +1358,8 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
       Profile* profile);
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   void OnKeepaliveTimerFired(
       std::unique_ptr<ScopedKeepAlive> keep_alive_handle);
-#endif
 
   // If `factory_builder` will be backed by the network service
   // (`is_for_network_service` == true), and
@@ -1437,17 +1389,12 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
   std::unique_ptr<ChromeWebAuthenticationDelegateBase>
       web_authentication_delegate_;
   std::unique_ptr<ChromeHidDelegate> hid_delegate_;
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<ChromeDirectSocketsDelegate> direct_sockets_delegate_;
   std::unique_ptr<ChromeSensorDelegate> sensor_delegate_;
-#endif
   std::unique_ptr<ChromeBluetoothDelegate> bluetooth_delegate_;
   std::unique_ptr<ChromeUsbDelegate> usb_delegate_;
   std::unique_ptr<ChromeSerialDelegate> serial_delegate_;
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-  std::unique_ptr<content::SmartCardDelegate> smart_card_delegate_;
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
 
 #if BUILDFLAG(ENABLE_VR)
   std::unique_ptr<vr::ChromeXrIntegrationClient> xr_integration_client_;
@@ -1463,7 +1410,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
   // Handles web-browser implementation of the http auth feature.
   std::unique_ptr<HttpAuthCoordinator> http_auth_coordinator_;
 
-#if !BUILDFLAG(IS_ANDROID)
   uint64_t num_keepalive_requests_ = 0;
   base::OneShotTimer keepalive_timer_;
   base::TimeTicks keepalive_deadline_;
@@ -1473,7 +1419,6 @@ class ChromeContentBrowserClient : public content::ContentBrowserClient {
   // first request when features::kKeepAliveBrowserProcessAlive is enabled.
   std::unique_ptr<FetchKeepAliveProcessManager>
       fetch_keepalive_process_manager_;
-#endif
 
   std::unique_ptr<MainThreadStackSamplingProfiler> sampling_profiler_;
 

@@ -11,6 +11,8 @@
 
 #include "net/base/net_export.h"
 
+struct HttpByteRangeRustState;
+
 namespace net {
 
 // A container class that represents a "range" specified for range request
@@ -61,6 +63,8 @@ class NET_EXPORT HttpByteRange {
   bool ComputeBounds(int64_t size);
 
  private:
+  explicit HttpByteRange(HttpByteRangeRustState state);
+
   int64_t first_byte_position_;
   int64_t last_byte_position_;
   int64_t suffix_length_;

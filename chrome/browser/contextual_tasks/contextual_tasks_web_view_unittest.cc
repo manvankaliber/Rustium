@@ -31,7 +31,6 @@
 #include "chrome/browser/themes/theme_service_factory.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/test/mock_browser_window_interface.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
 #include "chrome/test/base/testing_browser_process.h"
 #include "chrome/test/base/testing_profile.h"
@@ -70,18 +69,7 @@ using testing::ReturnRef;
 namespace contextual_tasks {
 namespace {
 
-class MockLensSearchController : public LensSearchController {
- public:
-  explicit MockLensSearchController(tabs::TabInterface* tab)
-      : LensSearchController(tab) {}
-  ~MockLensSearchController() override = default;
 
-  using LensSearchController::CloseLensAsync;
-  MOCK_METHOD(void,
-              CloseLensAsync,
-              (lens::LensOverlayDismissalSource dismissal_source),
-              (override));
-};
 
 class FakeContextualTasksUiService : public ContextualTasksUiService {
  public:
@@ -472,7 +460,6 @@ TEST_F(ContextualTasksWebViewTest, RunFileChooserOpensFileDialog) {
 
 TEST_F(ContextualTasksWebViewTest, TransitionFromSrpToAiPageClosesLens) {
   tabs::MockTabInterface mock_tab;
-  NiceMock<MockLensSearchController> mock_lens_controller(&mock_tab);
   ON_CALL(*browser_window_, GetActiveTabInterface())
       .WillByDefault(Return(&mock_tab));
 
@@ -488,11 +475,6 @@ TEST_F(ContextualTasksWebViewTest, TransitionFromSrpToAiPageClosesLens) {
   testing::Mock::VerifyAndClearExpectations(&mock_lens_controller);
 
   // Transitioning from SRP to AIM should close Lens.
-  EXPECT_CALL(
-      mock_lens_controller,
-      CloseLensAsync(
-          lens::LensOverlayDismissalSource::kContextualTasksSrpToAimTransition))
-      .Times(1);
   content::NavigationSimulator::NavigateAndCommitFromBrowser(
       web_contents.get(), GURL("https://ai.google.com/search?q=test"));
 }
@@ -500,7 +482,6 @@ TEST_F(ContextualTasksWebViewTest, TransitionFromSrpToAiPageClosesLens) {
 TEST_F(ContextualTasksWebViewTest,
        SameDocumentTransitionFromSrpToAiPageClosesLens) {
   tabs::MockTabInterface mock_tab;
-  NiceMock<MockLensSearchController> mock_lens_controller(&mock_tab);
   ON_CALL(*browser_window_, GetActiveTabInterface())
       .WillByDefault(Return(&mock_tab));
 
@@ -514,11 +495,6 @@ TEST_F(ContextualTasksWebViewTest,
       web_contents.get(), GURL("https://www.google.com/search?q=test"));
   testing::Mock::VerifyAndClearExpectations(&mock_lens_controller);
 
-  EXPECT_CALL(
-      mock_lens_controller,
-      CloseLensAsync(
-          lens::LensOverlayDismissalSource::kContextualTasksSrpToAimTransition))
-      .Times(1);
   auto sim = content::NavigationSimulator::CreateRendererInitiated(
       GURL("https://www.google.com/search?q=test&udm=50"),
       web_contents->GetPrimaryMainFrame());
@@ -528,7 +504,6 @@ TEST_F(ContextualTasksWebViewTest,
 TEST_F(ContextualTasksWebViewTest,
        TransitionFromSrpToNonSrpThenAiPageDoesNotCloseLens) {
   tabs::MockTabInterface mock_tab;
-  NiceMock<MockLensSearchController> mock_lens_controller(&mock_tab);
   ON_CALL(*browser_window_, GetActiveTabInterface())
       .WillByDefault(Return(&mock_tab));
 

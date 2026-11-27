@@ -16,9 +16,6 @@
 #include "components/ukm/ukm_recorder_impl.h"
 #include "components/version_info/channel.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 namespace metrics {
 namespace {
@@ -26,16 +23,12 @@ namespace {
 // Note that the trial name must be kept in sync with the server config
 // controlling sampling. If they don't match, then clients will be shuffled into
 // different groups when the server config takes over from the fallback trial.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 constexpr char kSamplingTrialName[] = "MetricsAndCrashSampling";
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_ANDROID)
-constexpr char kPostFREFixSamplingTrialName[] =
-    "PostFREFixMetricsAndCrashSampling";
-#endif  // BUILDFLAG(IS_ANDROID)
+#endif
 constexpr char kUkmSamplingTrialName[] = "UkmSamplingRate";
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 // Appends a group to the sampling controlling |trial|. The group will be
 // associated with a variation param for reporting sampling |rate| in per mille.
 void AppendSamplingTrialGroup(const std::string& group_name,
@@ -115,7 +108,7 @@ void CreateFallbackSamplingTrial(
     trial->Activate();
   }
 }
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
 // Unconditionally attempts to create a field trial to control client side
 // UKM sampling to use as a fallback when one hasn't been provided. This is
@@ -163,13 +156,7 @@ void CreateFallbackUkmSamplingTrial(
 void CreateFallbackSamplingTrialsIfNeeded(
     const base::FieldTrial::EntropyProvider& entropy_provider,
     base::FeatureList* feature_list) {
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_ANDROID)
-  // On Android Desktop, do not sample out data at all.
-  if (base::android::device_info::is_desktop()) {
-    return;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 
   const bool is_stable = chrome::GetChannel() == version_info::Channel::STABLE;
 
@@ -187,20 +174,6 @@ void CreateFallbackSamplingTrialsIfNeeded(
 
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-
-    // On all channels except stable, we sample out at a minimal rate to ensure
-    // the code paths are exercised in the wild before hitting stable.
-    const int kPreStableSampledInRatePerMille = 995;    // 99.5%
-    const int kPreStableReportingFullRatePerMille = 0;  // 0%
-    // This leaves 0.5% for OutOfReportingSample.
-
-    // We use 5.3% for this set of users to work around an old bug
-    // (crbug.com/40218371). This should be ~10% in practice.
-    const int kStableSampledInRatePerMille = 53;     // 5.3%
-    const int kStableReportingFullRatePerMille = 0;  // 0%
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
     const int kSamplingInRatePerMille = is_stable
                                             ? kStableSampledInRatePerMille
@@ -220,35 +193,8 @@ void CreateFallbackSamplingTrialsIfNeeded(
         /*starts_active=*/true, feature_list);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FieldTrialList::TrialExists(kPostFREFixSamplingTrialName)) {
-    // On all channels except stable, we sample out at a minimal rate to ensure
-    // the code paths are exercised in the wild before hitting stable.
-    const int kPreStableSampledInRatePerMille = 995;  // 99.5%
 
-    // This is meant to be 10%, and this population, unlike the set of users
-    // under the kSamplingTrialName trial should correctly be 10% in practice.
-    const int kStableSampledInRatePerMille = 100;  // 10%
-
-    const int kReportingFullRatePerMille = 0;
-
-    // Note that as per the serverside config, this trial does not start active
-    // (so that it is possible to determine from the serverside whether the
-    // client used the old or new trial to determine sampling). So if Chrome
-    // crashes before its feature is queried, the independent log produced will
-    // not contain this trial, even if the client normally uses this trial to
-    // determine sampling.
-    CreateFallbackSamplingTrial(
-        entropy_provider, kPostFREFixSamplingTrialName,
-        metrics::internal::kPostFREFixMetricsReportingFeature.name,
-        is_stable ? kStableSampledInRatePerMille
-                  : kPreStableSampledInRatePerMille,
-        kReportingFullRatePerMille,
-        /*starts_active=*/false, feature_list);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 }
 
 void CreateFallbackUkmSamplingTrialIfNeeded(

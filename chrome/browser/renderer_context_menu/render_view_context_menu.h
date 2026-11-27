@@ -46,9 +46,6 @@
 #include "chrome/browser/extensions/menu_manager.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ui/clipboard_history/clipboard_history_types.h"
-#endif
 
 class AccessibilityLabelsMenuObserver;
 class BrowserWindowInterface;
@@ -96,25 +93,10 @@ namespace ui {
 class DataTransferEndpoint;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace ash {
-class SystemWebAppDelegate;
-}
 
-namespace chromeos::clipboard_history {
-class ClipboardHistorySubmenuModel;
-}  // namespace chromeos::clipboard_history
-
-namespace policy {
-class DlpRulesManager;
-}  // namespace policy
-#endif
-
-#if !BUILDFLAG(IS_ANDROID)
 namespace split_tabs {
 enum class SplitTabLayout;
 }
-#endif
 
 class RenderViewContextMenu
     : public RenderViewContextMenuBase,
@@ -122,9 +104,6 @@ class RenderViewContextMenu
  public:
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kExitFullscreenMenuItem);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kComposeMenuItem);
-  DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kGlicReloadMenuItem);
-  DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kGlicArchiveConversationMenuItem);
-  DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kGlicShareImageMenuItem);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kOpenLinkInSplitMenuItem);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kRegionSearchItem);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kAskGoogleAboutThisPageItem);
@@ -176,9 +155,6 @@ class RenderViewContextMenu
       base::OnceCallback<void(content::RenderFrameHost*,
                               blink::mojom::PluginActionType)> cb);
 
-  bool lens_region_search_controller_started_for_testing() const {
-    return lens_region_search_controller_started_for_testing_;
-  }
 
   void AddObserverForTesting(RenderViewContextMenuObserver* observer);
   void RemoveObserverForTesting(RenderViewContextMenuObserver* observer);
@@ -235,9 +211,6 @@ class RenderViewContextMenu
   // hold escape to exit exclusive access mode.
   bool IsPressAndHoldEscRequiredToExitFullscreen() const;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  virtual const policy::DlpRulesManager* GetDlpRulesManager() const;
-#endif
 
 #if BUILDFLAG(ENABLE_COMPOSE)
   virtual ChromeComposeClient* GetChromeComposeClient() const;
@@ -277,8 +250,6 @@ class RenderViewContextMenu
   std::u16string GetElidedSelectionText(size_t max_length,
                                         gfx::BreakType break_type);
 
-  void ExecGlic();
-  void ExecGlicSmartSuggestion();
 
   friend class RenderViewContextMenuTest;
   friend class TestRenderViewContextMenu;
@@ -363,7 +334,6 @@ class RenderViewContextMenu
   void AppendSaveToMemoryBanksItem();
   void AppendBrowseMemoryBanksItem();
   bool CanSaveImageToMemoryBanks() const;
-  void AppendGlicItems();
   void AppendRotationItems();
   void AppendSpellingAndSearchSuggestionItems();
   void AppendOtherEditableItems();
@@ -379,10 +349,8 @@ class RenderViewContextMenu
 #endif
   void AppendPrintPreviewItems();
   void AppendSearchWebForImageItems();
-  void AppendGlicShareImageItem();
   void AppendIndigoItem();
   bool CanAppendRegionSearchItem() const;
-  bool CanAppendGlicShareImageItem() const;
   bool CanAppendIndigoItem() const;
   void AppendLensGeminiSection();
   void AppendRevisedTextSelectionSection();
@@ -413,7 +381,6 @@ class RenderViewContextMenu
   // Helper function for checking if text query should be opened in Lens. Checks
   // whether Lens is available and whether the text selection entrypoint flag is
   // enabled.
-  bool ShouldOpenTextQueryInLens() const;
 
   // Command enabled query functions.
   bool IsReloadEnabled() const;
@@ -442,7 +409,6 @@ class RenderViewContextMenu
   void ExecInspectBackgroundPage();
   void ExecSaveLinkAs();
   void ExecSaveAs();
-  void ExecGlicShareImage();
   void ExecIndigo();
   void ExecExitFullscreen();
   void ExecCopyLinkText();
@@ -485,7 +451,6 @@ class RenderViewContextMenu
                            const gfx::Rect& region_bounds);
   void PluginActionAt(const gfx::Point& location,
                       blink::mojom::PluginActionType plugin_action);
-  void OpenTextQueryInLens();
 
   // Returns the WebContents used for data control policy checks. This usually
   // returns the source WebContents, but if the context menu is shown in a
@@ -520,37 +485,19 @@ class RenderViewContextMenu
   void OnSupervisedUserURLFilterChecked(
       supervised_user::WebFilteringResult result);
 
-  void MaybeAppendOpenGlicItem(bool add_separator = true);
-  void MaybeAppendGlicSmartSuggestionItem();
 
   // Opens the Lens overlay to search a region defined by the given bounds of
   // the view and the image to be searched. Tab bounds and view bounds are
   // relative to the screen and in DP, while image bounds are relative to the
   // view and in physical pixels. The device scale factor is supplied to scale
   // the image bounds properly.
-  void OpenLensOverlayWithPreselectedRegion(
-      mojo::AssociatedRemote<chrome::mojom::ChromeRenderFrame>
-          chrome_render_frame,
-      lens::LensOverlayInvocationSource invocation_source,
-      const gfx::Rect& tab_bounds,
-      const gfx::Rect& view_bounds,
-      float device_scale_factor,
-      const SkBitmap& region_bytes,
-      const gfx::Rect& region_bitmap);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Shows the standalone clipboard history menu. `event_flags` describes the
-  // event that caused the menu to show.
-  void ShowClipboardHistoryMenu(int event_flags);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID)
   // Opens the link in a new split view so that the linked page will be visible
   // next to the active tab. If the active tab is already in the split view,
   // then the tab that wasn't the source of the link will be navigated to the
   // link instead.
   void OpenLinkInSplitView();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // The destination URL to use if the user tries to search for or navigate to
   // a text selection.
@@ -603,20 +550,6 @@ class RenderViewContextMenu
       spelling_options_submenu_observer_;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // An observer that handles "Open with <app>" items.
-  std::unique_ptr<RenderViewContextMenuObserver> open_with_menu_observer_;
-  // An observer that handles smart text selection action items.
-  std::unique_ptr<RenderViewContextMenuObserver>
-      start_smart_selection_action_menu_observer_;
-  // An observer that populates events to read write cards.
-  std::unique_ptr<ReadWriteCardObserver> read_write_card_observer_;
-
-  // A submenu model to contain clipboard history item descriptors. Used only if
-  // the clipboard history refresh feature is enabled.
-  std::unique_ptr<chromeos::clipboard_history::ClipboardHistorySubmenuModel>
-      submenu_model_;
-#endif
 
 #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
   // An observer that disables menu items when print preview is active.
@@ -632,10 +565,6 @@ class RenderViewContextMenu
   // |source_web_contents_|.
   const raw_ptr<content::WebContents, DanglingUntriaged> embedder_web_contents_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // The system app (if any) associated with the WebContents we're in.
-  raw_ptr<const ash::SystemWebAppDelegate> system_app_ = nullptr;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // A one-time callback that will be called the next time a plugin action is
   // executed from a given render frame.
@@ -643,7 +572,6 @@ class RenderViewContextMenu
 
   // Used in testing to determine whether the lens region search controller has
   // started due to interaction with the region search entrypoint in the menu.
-  bool lens_region_search_controller_started_for_testing_ = false;
 
   // Responsible for handling autofill related context menu items.
   autofill::AutofillContextMenuManager autofill_context_menu_manager_;
@@ -657,12 +585,8 @@ class RenderViewContextMenu
   std::unique_ptr<ui::SimpleMenuModel> send_tab_to_self_submenu_;
 
   //  Used for CTR metrics of menu item for opening Glic.
-  bool glic_item_shown_ = false;
-  bool glic_item_executed_ = false;
 
   // Used for CTR metrics of the Glic share image menu item.
-  bool glic_share_image_item_shown_ = false;
-  bool glic_share_image_item_executed_ = false;
 
   // Tracks the originating document at menu-open time so Glic actions can bail
   // out if the tab navigated while the menu was open.

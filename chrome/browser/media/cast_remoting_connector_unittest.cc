@@ -323,7 +323,6 @@ TEST_F(CastRemotingConnectorTest, PrefPersistsAcrossReset) {
   RunUntilIdle();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(CastRemotingConnectorTest, EnableRemotingMidSession) {
   pref_service_.registry()->RegisterBooleanPref(
       media_router::prefs::kMediaRouterMediaRemotingEnabled, false);
@@ -387,7 +386,6 @@ TEST_F(CastRemotingConnectorTest, DisableAndReEnableRemotingMidSession) {
   remoter->Start();
   RunUntilIdle();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace {
 

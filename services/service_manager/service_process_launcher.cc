@@ -40,7 +40,7 @@
 #include "base/apple/mach_port_rendezvous.h"
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "sandbox/linux/services/namespace_sandbox.h"
 #endif
 
@@ -203,8 +203,9 @@ base::ProcessId ServiceProcessLauncher::ProcessState::LaunchInBackground(
   options.stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
   options.stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
   // Always inherit stdout/stderr as a pair.
-  if (!options.stdout_handle || !options.stdin_handle)
+  if (!options.stdout_handle || !options.stdin_handle) {
     options.stdin_handle = options.stdout_handle = nullptr;
+  }
 
   // Pseudo handles are used when stdout and stderr redirect to the console. In
   // that case, they're automatically inherited by child processes. See
@@ -222,11 +223,6 @@ base::ProcessId ServiceProcessLauncher::ProcessState::LaunchInBackground(
       options.stdout_handle != options.stderr_handle) {
     options.handles_to_inherit.push_back(options.stderr_handle);
   }
-#elif BUILDFLAG(IS_FUCHSIA)
-  // LaunchProcess will share stdin/out/err with the child process by default.
-  if (!sandbox::policy::IsUnsandboxedSandboxType(sandbox_type))
-    NOTIMPLEMENTED();
-  options.handles_to_transfer = std::move(handle_passing_info);
 #elif BUILDFLAG(IS_POSIX)
   const base::FileHandleMappingVector fd_mapping{
       {STDIN_FILENO, STDIN_FILENO},
@@ -244,12 +240,13 @@ base::ProcessId ServiceProcessLauncher::ProcessState::LaunchInBackground(
 #endif
   DVLOG(2) << "Launching child with command line: "
            << child_command_line->GetCommandLineString();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   if (!sandbox::policy::IsUnsandboxedSandboxType(sandbox_type)) {
     child_process_ =
         sandbox::NamespaceSandbox::LaunchProcess(*child_command_line, options);
-    if (!child_process_.IsValid())
+    if (!child_process_.IsValid()) {
       LOG(ERROR) << "Starting the process with a sandbox failed.";
+    }
   } else
 #endif
   {
@@ -263,14 +260,7 @@ base::ProcessId ServiceProcessLauncher::ProcessState::LaunchInBackground(
     return base::kNullProcessId;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Always log instead of DVLOG because knowing which pid maps to which
-  // service is vital for interpreting crashes after-the-fact and Chrome OS
-  // devices generally run release builds, even in development.
-  VLOG(0)
-#else
   DVLOG(0)
-#endif
       << "Launched child process pid=" << child_process_.Pid()
       << " id=" << target.ToString();
 
@@ -282,8 +272,9 @@ base::ProcessId ServiceProcessLauncher::ProcessState::LaunchInBackground(
 
 void ServiceProcessLauncher::ProcessState::StopInBackground() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  if (!child_process_.IsValid())
+  if (!child_process_.IsValid()) {
     return;
+  }
 
   int rv = -1;
   LOG_IF(ERROR, !child_process_.WaitForExit(&rv))

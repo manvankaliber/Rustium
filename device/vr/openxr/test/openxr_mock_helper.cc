@@ -54,26 +54,6 @@ bool InitializeOpenXrMockTrampoline() {
   }
   library_path =
       exe_dir.AppendASCII("mock_vr_clients/bin/openxr/openxrruntime.dll");
-#elif BUILDFLAG(IS_ANDROID)
-  std::string json_contents;
-  if (base::ReadFileToString(
-          base::FilePath("/product/etc/openxr/1/active_runtime.json"),
-          &json_contents)) {
-    std::optional<base::DictValue> parsed_dict =
-        base::JSONReader::ReadDict(json_contents, base::JSON_PARSE_RFC);
-    if (parsed_dict) {
-      const base::DictValue* runtime = parsed_dict->FindDict("runtime");
-      if (runtime) {
-        const std::string* path_str = runtime->FindString("library_path");
-        if (path_str) {
-          library_path = base::FilePath(*path_str);
-        }
-      }
-    }
-  }
-  if (library_path.empty()) {
-    library_path = base::FilePath("libmockopenxrruntime.so");
-  }
 #elif BUILDFLAG(IS_LINUX)
   // :openxr_mock puts the trampoline next to its manifest, in the same
   // mock_vr_clients/bin/openxr/ directory the Windows runtime uses.

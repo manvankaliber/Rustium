@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import("//build/rust/rust_static_library.gni")
 import("//net/features.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
 import("//third_party/protobuf/proto_library.gni")
@@ -43,23 +44,32 @@ source_set("dns") {
     "dns_alias_utility.h",
     "dns_attempt.cc",
     "dns_attempt.h",
+    "dns_client_rust_services.h",
     "dns_config.cc",
     "dns_config_service.cc",
     "dns_config_service.h",
+    "dns_host_cache_rust_ffi.h",
     "dns_hosts.cc",
     "dns_hosts.h",
     "dns_http_attempt.cc",
     "dns_http_attempt.h",
+    "dns_names_ffi.h",
     "dns_names_util.cc",
     "dns_names_util.h",
     "dns_platform_attempt_factory.h",
     "dns_query.cc",
     "dns_query.h",
+    "dns_query_rust_ffi.h",
     "dns_reloader.cc",
     "dns_reloader.h",
+    "dns_request_family_drift_checks.h",
+    "dns_request_family_ffi.h",
+    "dns_request_partition_provider.h",
+    "dns_resolution_policy_ffi.h",
     "dns_response.cc",
     "dns_response_result_extractor.cc",
     "dns_response_result_extractor.h",
+    "dns_response_rust_ffi.h",
     "dns_server_iterator.cc",
     "dns_server_iterator.h",
     "dns_session.cc",
@@ -81,6 +91,7 @@ source_set("dns") {
     "host_resolver.cc",
     "host_resolver_cache.cc",
     "host_resolver_cache.h",
+    "host_resolver_cache_rust_ffi.h",
     "host_resolver_dns_task.cc",
     "host_resolver_dns_task.h",
     "host_resolver_internal_result.cc",
@@ -142,36 +153,15 @@ source_set("dns") {
     ]
   }
 
-  if (is_fuchsia) {
-    sources += [
-      "dns_config_service_fuchsia.cc",
-      "dns_config_service_fuchsia.h",
-    ]
-  }
+  sources += [
+    # These are specific here, instead of the main sources, to make sure they
+    # cannot be references while compiling for Android. Doing so is always a
+    # mistake.
+    "dns_platform_attempt_factory_not_implemented.cc",
+    "dns_platform_attempt_factory_not_implemented.h",
+  ]
 
-  if (is_android) {
-    sources += [
-      "dns_platform_android_attempt.cc",
-      "dns_platform_android_attempt.h",
-      "dns_platform_attempt_factory_android.cc",
-      "dns_platform_attempt_factory_android.h",
-    ]
-  } else {
-    sources += [
-      # These are specific here, instead of the main sources, to make sure they
-      # cannot be references while compiling for Android. Doing so is always a
-      # mistake.
-      "dns_platform_attempt_factory_not_implemented.cc",
-      "dns_platform_attempt_factory_not_implemented.h",
-    ]
-  }
-
-  if (is_android) {
-    sources += [
-      "dns_config_service_android.cc",
-      "dns_config_service_android.h",
-    ]
-  } else if (is_linux) {
+  if (is_linux) {
     sources += [
       "dns_config_service_linux.cc",
       "dns_config_service_linux.h",
@@ -186,7 +176,7 @@ source_set("dns") {
   if (enable_built_in_dns) {
     sources += [ "dns_client.cc" ]
 
-    if (is_posix || is_fuchsia) {
+    if (is_posix) {
       sources += [
         "address_sorter_posix.cc",
         "address_sorter_posix.h",
@@ -204,7 +194,15 @@ source_set("dns") {
     ]
   }
 
-  deps = [ "//net:net_deps" ]
+  deps = [
+    ":dns_request_family_ffi",
+    ":dns_resolution_policy_ffi",
+    "//net:dns_host_cache_rust",
+    "//net:dns_names_rust",
+    "//net:dns_query_rust",
+    "//net:dns_response_rust",
+    "//net:net_deps",
+  ]
 
   public_deps = [
     ":dns_client",
@@ -248,15 +246,6 @@ source_set("host_resolver") {
   # Restricted access so we can keep track of all usage external to the
   # network stack and network service.
   friend = [
-    # chromecast/browser/url_request_context_factory.cc
-    # URLRequestContext creation for chromecast.
-    "//chromecast/browser",
-
-    # URLRequestContext and HttpNetworkSession::Context creation for iOS.
-    "//ios/components/io_thread",
-    "//ios/web/shell",
-    "//ios/web_view:*",
-
     # Tests and test support.
     "//chrome/test/*",
     "//content/shell:content_shell_lib",
@@ -308,10 +297,6 @@ source_set("host_resolver_manager") {
   # Restricted access so we can keep track of all usage external to the
   # network stack and network service.
   friend = [
-    # chromecast/browser/url_request_context_factory.cc
-    # URLRequestContext creation for chromecast.
-    "//chromecast/browser",
-
     # Tests and test support.
     "//components/cronet:cronet_common_unittests",
 
@@ -352,11 +337,6 @@ source_set("dns_client") {
     # TODO(crbug.com/41408297): Remove once migrated to network service.
     "//chrome/browser/local_discovery:impl",
 
-    # chrome/browser/ash/smb_client/discovery/mdns_host_locator.cc
-    # Result parsing for results read through MdnsClient.
-    # TODO(crbug.com/41424787): Remove once migrated to network service.
-    "//chrome/browser/ash/smb_client/discovery",
-
     # Network stack/service
     "//components/certificate_transparency/*",
     "//net/*",
@@ -365,6 +345,7 @@ source_set("dns_client") {
 
   sources = [
     "dns_client.h",
+    "dns_client_rust_services.h",
     "dns_response.h",
     "dns_transaction.h",
     "https_record_rdata.h",
@@ -408,12 +389,6 @@ source_set("mdns_client") {
     # Creates MDnsClient instance and passes to ServiceDiscoveryClientImpl.
     # TODO(crbug.com/41408297): Remove once discovery client migrated.
     "//chrome/tools/service_discovery_sniffer",
-
-    # chrome/browser/ash/smb_client/discovery/mdns_host_locator.h
-    # chrome/browser/ash/smb_client/discovery/mdns_host_locator.cc
-    # Makes MDNS queries using MDnsClient.
-    # TODO(crbug.com/41424787): Remove once migrated to network service.
-    "//chrome/browser/ash/smb_client/discovery",
 
     # Network stack/service
     "//net/*",
@@ -479,14 +454,7 @@ source_set("tests") {
     sources += [ "dns_config_service_win_unittest.cc" ]
   }
 
-  if (is_android) {
-    sources += [
-      "dns_config_service_android_unittest.cc",
-      "dns_platform_android_attempt_unittest.cc",
-      "mock_dns_platform_android_attempt_delegate.cc",
-      "mock_dns_platform_android_attempt_delegate.h",
-    ]
-  } else if (is_linux) {
+  if (is_linux) {
     sources += [ "dns_config_service_linux_unittest.cc" ]
   } else if (is_posix) {
     sources += [ "dns_config_service_posix_unittest.cc" ]
@@ -498,7 +466,7 @@ source_set("tests") {
       "dns_client_unittest.cc",
       "host_resolver_dns_task_unittest.cc",
     ]
-    if (is_posix || is_fuchsia) {
+    if (is_posix) {
       sources += [ "address_sorter_posix_unittest.cc" ]
     }
   }
@@ -666,4 +634,165 @@ if (is_win) {
     dict = "//net/data/fuzzer_dictionaries/net_dns_hosts_parse_fuzzer.dict"
     seed_corpus = "//net/data/fuzzer_data/dns_parse_domain_ascii_win_fuzzer"
   }
+}
+
+# Whole-family proposal: dns-resolution
+# Exact DNS7 revision2 whole-family targets; uncompiled proposal.
+rust_static_library("dns_resolution_policy") {
+  crate_root = "dns_resolution_policy.rs"
+  edition = "2021"
+  allow_unsafe = false
+  build_native_rust_unit_tests = true
+  unit_test_target = "dns_resolution_policy_unittests"
+  sources = [
+    "dns_client_policy.rs",
+    "dns_endpoint_request_policy.rs",
+    "dns_probe_policy.rs",
+    "dns_request_family_ids.rs",
+    "dns_request_family_services.rs",
+    "dns_request_family_tests.rs",
+    "dns_request_policy.rs",
+    "dns_resolution_policy.rs",
+    "dns_transaction_policy.rs",
+    "host_resolver_cache_rust_core.rs",
+    "host_resolver_manager_job_rust_policy.rs",
+    "host_resolver_manager_rust_policy.rs",
+    "resolver_client_bridge.rs",
+    "resolver_family_policy_tests.rs",
+    "resolver_task_policy.rs",
+  ]
+  deps = [ "//net:dns_names_policy_core" ]
+  aliased_deps = {
+    dns_names_policy_core = "//net:dns_names_policy_core"
+  }
+  visibility = [
+    ":*",
+    "//net:*",
+  ]
+}
+
+rust_static_library("dns_resolution_policy_ffi") {
+  crate_root = "dns_resolution_policy_ffi.rs"
+  edition = "2021"
+  allow_unsafe = true
+  sources = [
+    "dns_resolution_policy_ffi.rs",
+    "host_resolver_cache_rust_ffi.rs",
+  ]
+  deps = [ ":dns_resolution_policy" ]
+  aliased_deps = {
+    dns_resolution_policy = ":dns_resolution_policy"
+  }
+  visibility = [
+    ":*",
+    "//net:*",
+  ]
+}
+
+rust_static_library("dns_request_family_ffi") {
+  crate_root = "dns_request_family_ffi.rs"
+  edition = "2021"
+  allow_unsafe = true
+  sources = [ "dns_request_family_ffi.rs" ]
+  deps = [ ":dns_resolution_policy" ]
+  aliased_deps = {
+    dns_resolution_policy = ":dns_resolution_policy"
+  }
+  visibility = [
+    ":*",
+    "//net:*",
+  ]
+}
+
+component("dns_resolution_original") {
+  testonly = true
+  defines = [ "IS_DNS_RESOLUTION_ORIGINAL_IMPL=1" ]
+  sources = [
+    "dns_resolution_host_cache_rust_original.cc",
+    "dns_resolution_host_cache_rust_original.h",
+    "dns_resolution_host_value_rust_original.cc",
+    "dns_resolution_host_value_rust_original.h",
+    "dns_resolution_manager_native_providers.h",
+    "dns_resolution_mdns_listener_interface_rust_original.h",
+    "dns_resolution_native_provider_aliases.h",
+    "dns_resolution_original_dns_alias_utility.cc",
+    "dns_resolution_original_dns_alias_utility.h",
+    "dns_resolution_original_dns_attempt.cc",
+    "dns_resolution_original_dns_attempt.h",
+    "dns_resolution_original_dns_client.cc",
+    "dns_resolution_original_dns_client.h",
+    "dns_resolution_original_dns_http_attempt.cc",
+    "dns_resolution_original_dns_http_attempt.h",
+    "dns_resolution_original_dns_names_util.cc",
+    "dns_resolution_original_dns_names_util.h",
+    "dns_resolution_original_dns_platform_attempt_factory.h",
+    "dns_resolution_original_dns_platform_attempt_factory_not_implemented.cc",
+    "dns_resolution_original_dns_platform_attempt_factory_not_implemented.h",
+    "dns_resolution_original_dns_query.cc",
+    "dns_resolution_original_dns_query.h",
+    "dns_resolution_original_dns_response.cc",
+    "dns_resolution_original_dns_response.h",
+    "dns_resolution_original_dns_response_result_extractor.cc",
+    "dns_resolution_original_dns_response_result_extractor.h",
+    "dns_resolution_original_dns_server_iterator.cc",
+    "dns_resolution_original_dns_server_iterator.h",
+    "dns_resolution_original_dns_task_results_manager.cc",
+    "dns_resolution_original_dns_task_results_manager.h",
+    "dns_resolution_original_dns_tcp_attempt.cc",
+    "dns_resolution_original_dns_tcp_attempt.h",
+    "dns_resolution_original_dns_transaction.cc",
+    "dns_resolution_original_dns_transaction.h",
+    "dns_resolution_original_dns_udp_attempt.cc",
+    "dns_resolution_original_dns_udp_attempt.h",
+    "dns_resolution_original_host_resolver_dns_task.cc",
+    "dns_resolution_original_host_resolver_dns_task.h",
+    "dns_resolution_original_host_resolver_manager.cc",
+    "dns_resolution_original_host_resolver_manager.h",
+    "dns_resolution_original_host_resolver_manager_job.cc",
+    "dns_resolution_original_host_resolver_manager_job.h",
+    "dns_resolution_original_host_resolver_manager_request_impl.cc",
+    "dns_resolution_original_host_resolver_manager_request_impl.h",
+    "dns_resolution_original_host_resolver_manager_service_endpoint_request_impl.cc",
+    "dns_resolution_original_host_resolver_manager_service_endpoint_request_impl.h",
+    "dns_resolution_original_host_resolver_mdns_listener_impl.cc",
+    "dns_resolution_original_host_resolver_mdns_listener_impl.h",
+    "dns_resolution_original_host_resolver_mdns_task.cc",
+    "dns_resolution_original_host_resolver_mdns_task.h",
+    "dns_resolution_original_host_resolver_nat64_task.cc",
+    "dns_resolution_original_host_resolver_nat64_task.h",
+    "dns_resolution_original_host_resolver_system_task.cc",
+    "dns_resolution_original_host_resolver_system_task.h",
+    "dns_resolution_original_https_record_rdata.cc",
+    "dns_resolution_original_https_record_rdata.h",
+    "dns_resolution_original_mdns_cache.cc",
+    "dns_resolution_original_mdns_cache.h",
+    "dns_resolution_original_mdns_client.cc",
+    "dns_resolution_original_mdns_client.h",
+    "dns_resolution_original_mdns_client_impl.cc",
+    "dns_resolution_original_mdns_client_impl.h",
+    "dns_resolution_original_opt_record_rdata.cc",
+    "dns_resolution_original_opt_record_rdata.h",
+    "dns_resolution_original_record_parsed.cc",
+    "dns_resolution_original_record_parsed.h",
+    "dns_resolution_original_record_rdata.cc",
+    "dns_resolution_original_record_rdata.h",
+    "dns_resolution_original_resolve_context.cc",
+    "dns_resolution_original_resolve_context.h",
+    "dns_resolution_request_interfaces_rust_original.cc",
+    "dns_resolution_request_interfaces_rust_original.h",
+    "dns_resolution_result_types_rust_original.h",
+    "dns_resolution_rust_original_types.h",
+  ]
+  deps = [
+    "//base",
+    "//net",
+    "//net:backoff_rust_reference",
+    "//net:host_port_rust_reference",
+    "//net:host_resolver_cache_rust_reference",
+    "//net:net_error_rust_reference",
+    "//net:net_log_values_rust_reference",
+    "//third_party/abseil-cpp:absl",
+    "//third_party/re2",
+    "//url",
+  ]
 }

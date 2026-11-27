@@ -15,8 +15,6 @@ ui::ElementIdentifier GetElementIdentifierForAction(actions::ActionId id) {
       return kSharedTabGroupFeedbackElementId;
     case kActionSidePanelShowComments:
       return kSharedTabGroupCommentsActionElementId;
-    case kActionSidePanelShowLensOverlayResults:
-      return kPinnedToolbarActionShowSidePanelLensOverlayResultsElementId;
     case kActionSidePanelShowBookmarks:
       return kPinnedToolbarActionShowSidePanelBookmarksElementId;
     case kActionSendTabToSelf:

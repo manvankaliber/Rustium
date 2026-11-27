@@ -10,7 +10,6 @@
 #include "chrome/browser/profiles/profile.h"
 #include "components/autofill/content/browser/content_autofill_client.h"
 #include "components/autofill/content/browser/content_autofill_driver.h"
-#include "components/autofill/core/browser/at_memory/at_memory_enablement_util.h"
 #include "components/autofill/core/browser/foundations/autofill_driver.h"
 #include "components/autofill/core/common/aliases.h"
 #include "components/autofill/core/common/unique_ids.h"
@@ -67,46 +66,6 @@ bool ShouldShowAutofillContextMenu(const content::ContextMenuParams& params) {
       return false;
   }
   NOTREACHED();
-}
-
-bool ShouldShowAtMemoryContextMenuItem(
-    content::RenderFrameHost& rfh,
-    const content::ContextMenuParams& params) {
-  if (params.form_control_type ==
-      blink::mojom::FormControlType::kInputPassword) {
-    return false;
-  }
-
-  if (!ShouldShowAutofillContextMenu(params)) {
-    return false;
-  }
-
-  ContentAutofillDriver* autofill_driver =
-      ContentAutofillDriver::GetForRenderFrameHost(&rfh);
-  if (!autofill_driver || !autofill_driver->CanShowAutofillUi()) {
-    return false;
-  }
-
-  return MayPerformAtMemoryAction(AtMemoryAction::kTriggerSearchUI,
-                                  autofill_driver->GetAutofillClient(),
-                                  params.page_url) &&
-         MayPerformAtMemoryAction(AtMemoryAction::kTriggerSearchUI,
-                                  autofill_driver->GetAutofillClient(),
-                                  params.frame_url);
-}
-
-void ExecuteAtMemoryContextMenuCommand(
-    content::RenderFrameHost& rfh,
-    const content::ContextMenuParams& params) {
-  AutofillDriver* autofill_driver =
-      ContentAutofillDriver::GetForRenderFrameHost(&rfh);
-  if (!autofill_driver) {
-    return;
-  }
-  autofill_driver->RendererShouldTriggerSuggestions(
-      {autofill_driver->GetFrameToken(),
-       FieldRendererId(params.field_renderer_id.value())},
-      AutofillSuggestionTriggerSource::kAtMemoryContextMenu);
 }
 
 bool ShouldAddPasswordsManualFallbackItem(

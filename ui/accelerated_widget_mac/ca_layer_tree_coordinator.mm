@@ -22,10 +22,8 @@
 #include "ui/gl/gl_implementation.h"
 #include "ui/gl/scoped_make_current.h"
 
-#if BUILDFLAG(IS_MAC)
 #include "ui/display/mac/display_link_mac.h"
 #include "ui/gl/gl_context.h"
-#endif
 
 namespace ui {
 
@@ -56,10 +54,8 @@ CALayerTreeCoordinator::~CALayerTreeCoordinator() {
 
 void CALayerTreeCoordinator::Resize(const gfx::Size& pixel_size,
                                     float scale_factor) {
-#if BUILDFLAG(IS_MAC)
   has_resized_since_last_swap_ |=
       pixel_size != pixel_size_ || scale_factor_ != scale_factor;
-#endif
   pixel_size_ = pixel_size;
   scale_factor_ = scale_factor;
 }
@@ -163,34 +159,21 @@ void CALayerTreeCoordinator::EnsureCAContextAndRootLayer() {
   }
   if (!root_ca_layer_) {
     root_ca_layer_ = [[CALayer alloc] init];
-#if BUILDFLAG(IS_MAC)
     // iOS' UIKit has default coordinate system where the origin is at the
     // upper left of the drawing area. In contrast, AppKit and Core Graphics
     // that macOS uses has its origin at the lower left of the drawing area.
     // Thus, we don't need to flip the coordinate system on iOS as it's
     // already set the way we want it to be.
     root_ca_layer_.geometryFlipped = YES;
-#endif
     root_ca_layer_.opaque = YES;
   }
   if (!ca_context_) {
-#if !BUILDFLAG(IS_IOS) || BUILDFLAG(IS_IOS_TVOS)
     // Create the CAContext to send this to the GPU process, and the layer
     // for the context.
-#if BUILDFLAG(IS_MAC)
     CGSConnectionID connection_id = CGSMainConnectionID();
     ca_context_ = [CAContext contextWithCGSConnection:connection_id
                                               options:@{}];
-#else
-    // Use a very large display ID to ensure that the context is never put
-    // on-screen without being explicitly parented.
-    ca_context_ = [CAContext remoteContextWithOptions:@{
-      kCAContextIgnoresHitTest : @YES,
-      kCAContextDisplayId : @10000
-    }];
-#endif
     ca_context_.layer = root_ca_layer_;
-#endif  // !BUILDFLAG(IS_IOS) || BUILDFLAG(IS_IOS_TVOS)
   }
 }
 
@@ -217,7 +200,6 @@ void CALayerTreeCoordinator::CommitPresentedFrameToCA(
 
   gfx::CALayerParams params;
   bool no_post_task_for_callback = true;
-#if BUILDFLAG(IS_MAC)
   no_post_task_for_callback = ui::SkipPostTaskForCallbacks();
   if (has_resized_since_last_swap_) {
     // Create a new CAContext for the new size. This allows new frame update at
@@ -229,7 +211,6 @@ void CALayerTreeCoordinator::CommitPresentedFrameToCA(
     }
     has_resized_since_last_swap_ = false;
   }
-#endif
   EnsureCAContextAndRootLayer();
 
   // Get the frame to be committed.
@@ -281,7 +262,6 @@ void CALayerTreeCoordinator::CommitPresentedFrameToCA(
                                      /*flags=*/0);
   feedback.ca_layer_error_code = frame.ca_layer_error_code;
 
-#if BUILDFLAG(IS_MAC)
   feedback.ready_timestamp = frame.ready_timestamp;
   feedback.latch_timestamp = base::TimeTicks::Now();
   feedback.interval = frame_interval;
@@ -292,7 +272,6 @@ void CALayerTreeCoordinator::CommitPresentedFrameToCA(
   // update vsync params.
   feedback.flags = gfx::PresentationFeedback::kHWCompletion |
                    gfx::PresentationFeedback::kVSync;
-#endif
 
   // |frame.presentation_callback| will reach these functions:
   // viz::SkiaRenderer::DidReceiveReleasedOverlays(),

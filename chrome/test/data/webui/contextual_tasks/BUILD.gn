@@ -26,32 +26,27 @@ build_webui_tests("build") {
     "window_manager_test.ts",
   ]
 
-  if (!is_android || is_desktop_android) {
-    files += [
-      "app_composebox_basic_mode_test.ts",
-      "composebox_test.ts",
-      "composebox_files_test.ts",
-      "composebox_submit_test.ts",
-      "composebox_misc_inputs_test.ts",
-      "composebox_zero_state_test.ts",
-      "test_searchbox_utils.ts",
-    ]
-  }
+  files += [
+    "app_composebox_basic_mode_test.ts",
+    "composebox_test.ts",
+    "composebox_files_test.ts",
+    "composebox_submit_test.ts",
+    "composebox_misc_inputs_test.ts",
+    "composebox_zero_state_test.ts",
+    "test_searchbox_utils.ts",
+  ]
 
-  if (!is_android || enable_webui_contextual_tasks_composebox) {
-    files += [ "onboarding_tooltip_test.ts" ]
-  }
+  files += [ "onboarding_tooltip_test.ts" ]
 
-  if (!is_android) {
-    files += [
-      "context_library_test.ts",
-      "info_tooltip_test.ts",
-      "lens_button_test.ts",
-      "lens_chip_test.ts",
-      "tab_picker_test.ts",
-      "unbounded_menu_test.ts",
-    ]
-  }
+  files += [
+    "context_library_test.ts",
+    "info_tooltip_test.ts",
+    "lens_button_test.ts",
+    "lens_chip_test.ts",
+    "tab_picker_test.ts",
+    "unbounded_menu_test.ts",
+  ]
+
   static_files = [ "test.html" ]
 
   ts_path_mappings = [
@@ -64,11 +59,9 @@ build_webui_tests("build") {
             target_gen_dir),
   ]
 
-  if (!is_android || is_desktop_android) {
-    ts_path_mappings += [ "chrome://webui-test/cr_components/searchbox/*|" + rebase_path(
-                              "$root_gen_dir/chrome/test/data/webui/cr_components/searchbox/tsc/*",
-                              target_gen_dir) ]
-  }
+  ts_path_mappings += [ "chrome://webui-test/cr_components/searchbox/*|" + rebase_path(
+                            "$root_gen_dir/chrome/test/data/webui/cr_components/searchbox/tsc/*",
+                            target_gen_dir) ]
 
   ts_tsconfig_base = "tsconfig_base.json"
 
@@ -84,9 +77,9 @@ build_webui_tests("build") {
   # Depend on production resources so CQ test builders validate Rollup bundling
   # and packaging targets whenever WebUI or extension source files change.
   ts_extra_deps = []
-  if (!is_android) {
-    ts_extra_deps += [ "//chrome/browser/resources/contextual_tasks:resources" ]
-  }
+
+  ts_extra_deps += [ "//chrome/browser/resources/contextual_tasks:resources" ]
+
   if (enable_extensions_core) {
     ts_deps +=
         [ "//chrome/browser/resources/contextual_tasks/extension:build_ts" ]
@@ -97,23 +90,20 @@ build_webui_tests("build") {
                               target_gen_dir) ]
   }
 
-  if (!is_android) {
-    ts_deps += [ "//chrome/browser/resources/webui_toolbar_shared:build_ts" ]
-    ts_path_mappings += [ "chrome://resources/webui_toolbar_shared/*|" + rebase_path(
-                              "$root_gen_dir/chrome/browser/resources/webui_toolbar_shared/tsc/*",
-                              target_gen_dir) ]
-  }
+  ts_deps += [ "//chrome/browser/resources/webui_toolbar_shared:build_ts" ]
+  ts_path_mappings +=
+      [ "chrome://resources/webui_toolbar_shared/*|" +
+        rebase_path(
+            "$root_gen_dir/chrome/browser/resources/webui_toolbar_shared/tsc/*",
+            target_gen_dir) ]
 
-  if (!is_android || is_desktop_android) {
-    ts_deps += [ "//chrome/test/data/webui/cr_components/searchbox:build_ts" ]
-  }
+  ts_deps += [ "//chrome/test/data/webui/cr_components/searchbox:build_ts" ]
 
-  if (!is_android || enable_webui_contextual_tasks_composebox) {
-    ts_deps += [
-      "//ui/webui/resources/cr_components/composebox:build_ts",
-      "//ui/webui/resources/cr_components/search:build_ts",
-    ]
-  }
+  ts_deps += [
+    "//ui/webui/resources/cr_components/composebox:build_ts",
+    "//ui/webui/resources/cr_components/search:build_ts",
+  ]
+
   ts_definitions = [
     "//tools/typescript/definitions/chrome_event.d.ts",
     "//tools/typescript/definitions/chrome_histograms.d.ts",

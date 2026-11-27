@@ -22,10 +22,6 @@
 #include "base/no_destructor.h"
 #include "base/notreached.h"
 #include "base/scoped_observation.h"
-#if !BUILDFLAG(IS_FUCHSIA)
-#include "components/variations/service/google_groups_manager.h"  // nogncheck
-#endif  // !BUILDFLAG(IS_FUCHSIA)
-#include "components/autofill/core/browser/at_memory/at_memory_manager.h"
 #include "components/autofill/core/browser/country_type.h"
 #include "components/autofill/core/browser/crowdsourcing/autofill_crowdsourcing_manager.h"
 #include "components/autofill/core/browser/crowdsourcing/mock_autofill_crowdsourcing_manager.h"
@@ -40,7 +36,6 @@
 #include "components/autofill/core/browser/foundations/autofill_client.h"
 #include "components/autofill/core/browser/foundations/autofill_driver_factory.h"
 #include "components/autofill/core/browser/foundations/test_autofill_driver_factory.h"
-#include "components/autofill/core/browser/integrators/at_memory/at_memory_query_service.h"
 #include "components/autofill/core/browser/integrators/autofill_ai/mock_autofill_ai_manager.h"
 #include "components/autofill/core/browser/integrators/compose/autofill_compose_delegate.h"
 #include "components/autofill/core/browser/integrators/identity_credential/identity_credential_delegate.h"
@@ -95,6 +90,7 @@
 #include "components/translate/core/browser/language_state.h"
 #include "components/translate/core/browser/mock_translate_driver.h"
 #include "components/ukm/test_ukm_recorder.h"
+#include "components/variations/service/google_groups_manager.h"  // nogncheck
 #include "services/metrics/public/cpp/delegating_ukm_recorder.h"
 #include "services/network/public/cpp/weak_wrapper_shared_url_loader_factory.h"
 #include "services/network/test/test_url_loader_factory.h"
@@ -230,19 +226,6 @@ class TestAutofillClientTemplate : public T {
 
   AutocompleteHistoryManager* GetAutocompleteHistoryManager() override {
     return &mock_autocomplete_history_manager_;
-  }
-
-  AtMemoryQueryService* GetAtMemoryQueryService() override {
-    return at_memory_query_service_.get();
-  }
-
-  AtMemoryManager* GetAtMemoryManager() override {
-    if (!at_memory_manager_ &&
-        base::FeatureList::IsEnabled(features::kAutofillAtMemory)) {
-      at_memory_manager_ =
-          std::make_unique<AtMemoryManager>(this, /*history_service=*/nullptr);
-    }
-    return at_memory_manager_.get();
   }
 
   personal_context::PersonalContextEligibilityState
@@ -541,29 +524,24 @@ class TestAutofillClientTemplate : public T {
 
   std::unique_ptr<device_reauth::DeviceAuthenticator> GetDeviceAuthenticator(
       std::string histogram) const override {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     return std::make_unique<device_reauth::MockDeviceAuthenticator>();
 #else
     return nullptr;
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
   }
 
   std::unique_ptr<device_reauth::DeviceAuthAvailabilityChecker>
   GetDeviceAuthAvailabilityChecker() const override {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     return std::make_unique<device_reauth::MockDeviceAuthAvailabilityChecker>();
 #else
     return nullptr;
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
   }
 
-#if BUILDFLAG(IS_IOS)
-  bool IsLastQueriedField(FieldGlobalId field_id) override { return true; }
-#endif
 
   OtpPhishGuardDelegate* GetOtpPhishGuardDelegate() override {
     return otp_phish_guard_delegate_.get();
@@ -601,18 +579,12 @@ class TestAutofillClientTemplate : public T {
   }
 
   const GoogleGroupsManager* GetGoogleGroupsManager() const override {
-#if !BUILDFLAG(IS_FUCHSIA)
     return google_groups_manager_.get();
-#else   // !BUILDFLAG(IS_FUCHSIA)
-    return nullptr;
-#endif  // !BUILDFLAG(IS_FUCHSIA)
   }
 
-#if !BUILDFLAG(IS_FUCHSIA)
   void set_google_groups_manager(std::unique_ptr<GoogleGroupsManager> manager) {
     google_groups_manager_ = std::move(manager);
   }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
   void SetAutofillProfileEnabled(bool autofill_profile_enabled) {
     autofill_profile_enabled_ = autofill_profile_enabled;
@@ -755,11 +727,6 @@ class TestAutofillClientTemplate : public T {
     test_shared_loader_factory_ = url_loader_factory;
   }
 
-  void set_at_memory_query_service(
-      std::unique_ptr<AtMemoryQueryService> at_memory_query_service) {
-    at_memory_query_service_ = std::move(at_memory_query_service);
-  }
-
   void set_identity_credential_delegate(
       std::unique_ptr<IdentityCredentialDelegate>
           identity_credential_delegate) {
@@ -852,13 +819,10 @@ class TestAutofillClientTemplate : public T {
       personal_context_access_manager_ = nullptr;
   raw_ptr<personal_context::PersonalContextEligibilityService>
       personal_context_eligibility_service_ = nullptr;
-#if !BUILDFLAG(IS_FUCHSIA)
   std::unique_ptr<GoogleGroupsManager> google_groups_manager_;
-#endif
   std::unique_ptr<OtpPhishGuardDelegate> otp_phish_guard_delegate_;
   std::unique_ptr<OtpMetricsTracker> otp_metrics_tracker_;
   std::unique_ptr<OtpFieldDetector> otp_field_detector_;
-  std::unique_ptr<AtMemoryQueryService> at_memory_query_service_;
   personal_context::PersonalContextEligibilityState
       personal_context_eligibility_state_ =
           personal_context::PersonalContextEligibilityState::kEligible;
@@ -905,9 +869,6 @@ class TestAutofillClientTemplate : public T {
   std::unique_ptr<SingleFieldFillRouter> single_field_fill_router_;
   std::unique_ptr<FormDataImporter> form_data_importer_;
   std::unique_ptr<WalletPassAccessManager> wallet_pass_access_manager_;
-  // Must be destroyed before `prefs_` because `AtMemoryPersistedStateManager`
-  // observes and references `prefs_`.
-  std::unique_ptr<AtMemoryManager> at_memory_manager_;
   std::unique_ptr<consent_auditor::FakeConsentAuditor> consent_auditor_;
 
   GeoIpCountryCode variation_config_country_code_;

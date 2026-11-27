@@ -169,14 +169,6 @@ void CoreExtensionsRendererAPIProvider::PopulateSourceMap(
     ResourceBundleSourceMap* source_map) const {
   static constexpr auto kSources = base::MakeFixedFlatMap<std::string_view,
                                                           int>({
-#if BUILDFLAG(IS_CHROMEOS)
-      {"appView",
-       IDR_EXTENSIONS_RENDERER_GENERATED_GUEST_VIEW_APP_VIEW_APP_VIEW_JS},
-      {"appViewDeny",
-       IDR_EXTENSIONS_RENDERER_GENERATED_GUEST_VIEW_APP_VIEW_APP_VIEW_DENY_JS},
-      {"appViewElement",
-       IDR_EXTENSIONS_RENDERER_GENERATED_GUEST_VIEW_APP_VIEW_APP_VIEW_ELEMENT_JS},
-#endif
 
       {"entryIdManager", IDR_EXTENSIONS_RENDERER_GENERATED_ENTRY_ID_MANAGER_JS},
       {"extensionOptions",
@@ -256,9 +248,6 @@ void CoreExtensionsRendererAPIProvider::PopulateSourceMap(
       {"mojo_bindings", IDR_MOJO_MOJO_BINDINGS_JS},
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-      {"mojo_bindings_lite", IDR_MOJO_MOJO_BINDINGS_LITE_JS},
-#endif
 
       {"extensions/common/mojom/keep_alive.mojom",
        IDR_EXTENSIONS_RENDERER_GENERATED_EXTENSIONS_COMMON_MOJOM_KEEP_ALIVE_MOJOM_JS},

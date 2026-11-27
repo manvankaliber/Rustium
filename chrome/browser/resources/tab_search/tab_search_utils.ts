@@ -39,8 +39,7 @@ export function getMediaAlertImageClass(tab: Tab): string {
       return 'audio-playing';
     case TabAlertState.kAudioMuting:
       return 'audio-muting';
-    case TabAlertState.kGlicAccessing:
-      return 'glic-accessing';
+
     default:
       return '';
   }

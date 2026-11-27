@@ -7,9 +7,6 @@
 #include <atomic>
 #include <string>
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 #include "base/feature_list.h"
 #include "build/build_config.h"
 
@@ -189,25 +186,11 @@ BASE_FEATURE_PARAM(int,
 
 // Enabled on Android, after a field trial showed improvements.
 BASE_FEATURE(kThrottleMainFrameTo60Hz,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kThrottleOffscreenCanvasTo60Hz, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kThrottleMainFrameTo60HzWebView,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-BASE_FEATURE(kThrottleMainFrameTo60HzDesktopAndroid,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-BASE_FEATURE(kDesktopAndroidUnifiedCompositorLimits,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-#endif
 
 BASE_FEATURE(kHighFramerateRequestFromClient,
              base::FEATURE_ENABLED_BY_DEFAULT);
@@ -226,12 +209,7 @@ bool IsThrottleMainFrameTo60HzEnabled(bool is_webview) {
   if (!IsEligibleForThrottleMainFrameTo60Hz()) {
     return false;
   }
-#if BUILDFLAG(IS_ANDROID)
-  const base::Feature& feature =
-      is_webview ? kThrottleMainFrameTo60HzWebView : kThrottleMainFrameTo60Hz;
-#else
   const base::Feature& feature = kThrottleMainFrameTo60Hz;
-#endif
   return base::FeatureList::IsEnabled(feature);
 }
 
@@ -259,11 +237,7 @@ BASE_FEATURE(kProgrammaticScrollAnimationOverride,
                      base::Milliseconds(duration_ms))
 // Default to `gfx::CubicBezierTimingFunction::EaseType::EASE_IN_OUT` on
 // Android. On other platforms, use the tweaked cubic bezier curve.
-#if BUILDFLAG(IS_ANDROID)
-PROGRAMMATIC_SCROLL_ANIMATION_CURVE(0.42, 0.0, 0.58, 1.0, 700);
-#else
 PROGRAMMATIC_SCROLL_ANIMATION_CURVE(0.4, 0.0, 0.0, 1.0, 1500);
-#endif
 #undef PROGRAMMATIC_SCROLL_ANIMATION_CURVE
 
 BASE_FEATURE(kOverscrollEffectOnNonRootScrollers,
@@ -302,19 +276,6 @@ BASE_FEATURE_PARAM(double,
 BASE_FEATURE(kScrollJankV4MetricFastScrollContinuityRequiresSameDirection,
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_FEATURE(kScrollJankV4MetricReportAndroidAppJankStats,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-bool ShouldScrollJankV4MetricReportAndroidAppJankStats() {
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_BAKLAVA) {
-    return false;
-  }
-  return base::FeatureList::IsEnabled(
-      features::kScrollJankV4MetricReportAndroidAppJankStats);
-}
-#endif
 
 BASE_FEATURE(kManualBeginFrame, base::FEATURE_DISABLED_BY_DEFAULT);
 
@@ -327,11 +288,7 @@ BASE_FEATURE(kBrowserControlsHeightChangeCancelAnimations,
 BASE_FEATURE(kWebviewSchedulerStateMachine, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kBrowserControlsScrollSnapAnimation,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kSelectionEdgeVisibilityUsesFullEdge,

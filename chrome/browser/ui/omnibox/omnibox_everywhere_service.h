@@ -73,7 +73,6 @@ class OmniboxEverywhereService : public KeyedService {
   Profile* profile() const { return profile_; }
   virtual void MaybeShowLensPromo();
   virtual void EndLensPromo();
-  virtual void OnLensSearchClicked();
   virtual void ShowProfilePicker();
   virtual void OnDrivePickerOpened();
   virtual void OnDrivePickerClosed();

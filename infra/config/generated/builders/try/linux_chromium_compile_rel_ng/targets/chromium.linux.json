@@ -2000,27 +2000,6 @@
         "merge": {
           "script": "//testing/merge_scripts/standard_isolated_script_merge.py"
         },
-        "module_name": "//testing:fuchsia_pytype",
-        "module_scheme": "single",
-        "name": "fuchsia_pytype",
-        "resultdb": {
-          "enable": true,
-          "has_native_resultdb_integration": true
-        },
-        "swarming": {
-          "dimensions": {
-            "os": "Ubuntu-22.04"
-          },
-          "service_account": "chromium-tester@chops-service-accounts.iam.gserviceaccount.com"
-        },
-        "test": "fuchsia_pytype",
-        "test_id_prefix": "ninja://testing:fuchsia_pytype/"
-      },
-      {
-        "isolate_profile_data": true,
-        "merge": {
-          "script": "//testing/merge_scripts/standard_isolated_script_merge.py"
-        },
         "module_name": "//build:gold_common_pytype",
         "module_scheme": "single",
         "name": "gold_common_pytype",

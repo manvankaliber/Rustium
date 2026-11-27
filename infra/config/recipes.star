@@ -78,22 +78,6 @@ build_recipe = _recipe_for_package(
 )
 
 build_recipe(
-    name = "recipe:android/androidx_packager",
-)
-
-build_recipe(
-    name = "recipe:android/avd_packager",
-)
-
-build_recipe(
-    name = "recipe:android/device_flasher",
-)
-
-build_recipe(
-    name = "recipe:android/sdk_packager",
-)
-
-build_recipe(
     name = "recipe:angle_chromium",
 )
 
@@ -110,10 +94,6 @@ build_recipe(
     # Can't be bootstrapped since it interferes with the recipe's custom
     # bot_update sync'ing behavior.
     bootstrappable = False,
-)
-
-build_recipe(
-    name = "recipe:binary_size_fuchsia_trybot",
 )
 
 build_recipe(
@@ -350,10 +330,6 @@ build_recipe(
 
 build_recipe(
     name = "recipe:tricium_oilpan",
-)
-
-build_recipe(
-    name = "recipe:webrtc/chromium_ios",
 )
 
 infra_recipe = _recipe_for_package(

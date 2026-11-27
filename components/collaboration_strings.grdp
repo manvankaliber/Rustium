@@ -121,17 +121,7 @@
 
   <!-- Data Sharing -->
   <!-- Error Messages -->
-  <if expr="is_android">
-    <message name ="IDS_COLLABORATION_SHARE_SHEET_TITLE" desc="The title of the share sheet when sharing a tab group." formatter_data="android_java">
-      Collaborate on tab group
-    </message>
-    <message name ="IDS_COLLABORATION_SHARE_SHEET_MESSAGE" desc="The contents of the message when sharing a tab group." formatter_data="android_java">
-      <ph name="TAB_GROUP_DISPLAY_NAME">%1$s<ex>Vacation plan</ex></ph> link expires in 48 hours
-    </message>
-    <message name ="IDS_COLLABORATION_SHARE_SHEET_TAB_GROUP_FALLBACK_NAME" desc="Fallback name if the tab group was not named by the user." formatter_data="android_java">
-      Shared tab group
-    </message>
-  </if>
+
   <!-- Error Messages -->
   <!-- /Data Sharing -->
 
@@ -243,14 +233,14 @@
 
   <!-- Comments -->
   <!-- Excluded from Android to pass LINT check until it needs to be used there. -->
-  <if expr="not is_android">
+
     <message name="IDS_COLLABORATION_SHARED_TAB_GROUPS_COMMENTS_TITLE" desc="Title of the comments side panel." formatter_data="android_java">
       Comments
     </message>
     <message name="IDS_COLLABORATION_SHARED_TAB_GROUPS_COMMENTS_TITLE_WITH_NAME" desc="Title of the comments side panel." formatter_data="android_java">
       Comments - <ph name="GROUP_NAME">$1<ex>Vacation</ex></ph>
     </message>
-  </if>
+
   <!-- Comments -->
 
 </grit-part>

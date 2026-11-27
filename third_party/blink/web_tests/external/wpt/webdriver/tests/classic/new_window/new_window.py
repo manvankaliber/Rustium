@@ -19,13 +19,7 @@ def test_payload(session):
     assert len(handles) == len(original_handles) + 1
     assert value["handle"] in handles
     assert value["handle"] not in original_handles
-
-    # On Android applications have a single window only and a new tab will
-    # be opened instead.
-    if session.capabilities["platformName"] == "android":
-        assert value["type"] == "tab"
-    else:
-        assert value["type"] == "window"
+    assert value["type"] == "window"
 
 
 def test_keeps_current_window_handle(session):

@@ -28,10 +28,6 @@ void InitChromeLogging(const base::CommandLine& command_line,
 LoggingDestination DetermineLoggingDestination(
     const base::CommandLine& command_line);
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Get the log file location.
-base::FilePath GetSessionLogFile(const base::CommandLine& command_line);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Call when done using logging for Chrome.
 void CleanupChromeLogging();

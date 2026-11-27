@@ -418,7 +418,6 @@ TEST_F(AccountNameEmailStoreTest, OnCounterPrefUpdated) {
 }
 
 // ChromeOS does not support signing out
-#if !BUILDFLAG(IS_CHROMEOS)
 
 // Tests that the user's gets their `kAutofillNameAndEmailProfileSignature` pref
 // cleared on signout and the kAccountNameEmail profile is removed.
@@ -524,7 +523,6 @@ TEST_F(AccountNameEmailStoreTest, SignInAfterHardRemove) {
             AccountNameEmailStore::kNotSelectedThreshold);
 }
 
-#endif  // !BUILDFLAG(CHROME_OS)
 
 // Tests that the kAccountNameEmail profile will be recreated after enabling
 // autofill sync toggle.
@@ -631,44 +629,6 @@ TEST_F(AccountNameEmailStoreTest,
                   base::UTF8ToUTF16(info.GetEmail()))));
 }
 
-#if BUILDFLAG(IS_IOS)
-// TODO(crbug.com/449708427): Remove once `AccountInfo` supports full_name on
-// IOS.
-TEST_F(AccountNameEmailStoreTest,
-       MaybeUpdateOrCreateAccountNameEmail_ExplicitlyPassedNameEmail) {
-  // Needed since MaybeUpdateOrCreateAccountNameEmail() takes references.
-  std::string test_name = "George Washington";
-  std::string test_email = "testing@gmail.com";
-
-  CreatePrimaryAccount(std::string(), kTestEmailAddress1);
-  ASSERT_THAT(address_data_manager().GetProfiles(), IsEmpty());
-
-  // On IOS the `AccountInfo` doesn't contain the full name. A dedicated method
-  // should create the profile using the explicitly passed account info.
-  account_name_email_store().MaybeUpdateOrCreateAccountNameEmail(test_name,
-                                                                 test_email);
-  EXPECT_THAT(
-      address_data_manager().GetProfiles(),
-      ElementsAre(IsCorrectAccountNameEmail(base::UTF8ToUTF16(test_name),
-                                            base::UTF8ToUTF16(test_email))));
-}
-
-// Tests that `MaybeUpdateOrCreateAccountNameEmail()` returns early when an
-// empty account name is provided.
-// Regression test for https://crbug.com/485186158.
-TEST_F(AccountNameEmailStoreTest,
-       MaybeUpdateOrCreateAccountNameEmail_EmptyName) {
-  std::string test_name = "";
-  std::string test_email = "testing@gmail.com";
-
-  CreatePrimaryAccount(std::string(), kTestEmailAddress1);
-  ASSERT_THAT(address_data_manager().GetProfiles(), IsEmpty());
-
-  account_name_email_store().MaybeUpdateOrCreateAccountNameEmail(test_name,
-                                                                 test_email);
-  EXPECT_THAT(address_data_manager().GetProfiles(), IsEmpty());
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 struct NicknameTestCase {
   std::string account_name_with_nickname;

@@ -64,7 +64,7 @@
 #include "chrome/browser/ui/webui/settings/settings_security_key_handler.h"
 #endif
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/browser_process_platform_part.h"
 #include "components/password_manager/core/browser/password_manager_util.h"
@@ -533,11 +533,6 @@ content::WebUIDataSource* CreateAndAddPasswordsUIHTMLSource(
        IDS_PASSWORD_MANAGER_UI_BIOMETRIC_AUTHENTICATION_FOR_FILLING_TOGGLE_LABEL_WIN},
       {"biometricAuthenticationForFillingSubLabel",
        IDS_PASSWORD_MANAGER_UI_BIOMETRIC_AUTHENTICATION_FOR_FILLING_TOGGLE_SUBLABEL_WIN},
-#elif BUILDFLAG(IS_CHROMEOS)
-      {"biometricAuthenticationForFillingLabel",
-       IDS_PASSWORD_MANAGER_UI_BIOMETRIC_AUTHENTICATION_FOR_FILLING_TOGGLE_LABEL_CHROMEOS},
-      {"biometricAuthenticationForFillingSubLabel",
-       IDS_PASSWORD_MANAGER_UI_BIOMETRIC_AUTHENTICATION_FOR_FILLING_TOGGLE_SUBLABEL_CHROMEOS},
 #endif
   };
   for (const auto& str : kStrings) {
@@ -575,7 +570,7 @@ content::WebUIDataSource* CreateAndAddPasswordsUIHTMLSource(
               password_manager::PasswordCheckupReferrer::kPasswordCheck)
               .spec()));
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   source->AddBoolean("biometricAuthenticationForFillingToggleVisible",
                      password_manager_util::
                          ShouldBiometricAuthenticationForFillingToggleBeVisible(

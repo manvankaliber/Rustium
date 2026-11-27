@@ -87,27 +87,3 @@ class Metadata:
 
     def get_license_type(self) -> LicenseType:
         return get_most_restrictive_type(self.get_licenses())
-
-    def to_android_metadata(self):
-        third_party_dict = metadata_dictionary.MetadataDictionary("third_party")
-        third_party_dict["license_type"] = self.get_license_type().name
-        if self.get_version():
-            third_party_dict["version"] = f"\"{self.get_version()}\""
-
-        if self._get_version_control():
-            third_party_dict["identifier_primary"] = (
-                self._create_identifier_block()
-            )
-        else:
-            third_party_dict["homepage"] = f"\"{self.get_url()}\""
-
-        cpe_prefix = self.metadata.get("CPEPrefix")
-        if cpe_prefix is not None:
-            third_party_dict["security"] = security_dict = (
-                metadata_dictionary.MetadataDictionary("security")
-            )
-            security_dict["tag"] = f"\"NVD-CPE2.3:{cpe_prefix}\""
-
-        return "\n".join(
-            [f"name: \"{self.get_name()}\"", f"{third_party_dict}"]
-        )

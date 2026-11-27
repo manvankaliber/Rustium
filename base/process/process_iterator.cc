@@ -8,7 +8,7 @@
 
 namespace base {
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 ProcessEntry::ProcessEntry() : pid_(0), ppid_(0), gid_(0) {}
 ProcessEntry::ProcessEntry(const ProcessEntry& other) = default;
 ProcessEntry::~ProcessEntry() = default;
@@ -44,17 +44,6 @@ NamedProcessIterator::NamedProcessIterator(
     : ProcessIterator(filter),
       executable_name_(executable_name),
       use_prefix_match_(use_prefix_match) {
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, the process name contains only the last 15 characters, which
-  // is in file /proc/<pid>/stat, the string between open parenthesis and close
-  // parenthesis. Please See ProcessIterator::CheckForNextProcess for details.
-  // Now if the length of input process name is greater than 15, only save the
-  // last 15 characters.
-  if (executable_name_.size() > 15) {
-    executable_name_ = FilePath::StringType(executable_name_,
-                                            executable_name_.size() - 15, 15);
-  }
-#endif
 }
 
 NamedProcessIterator::~NamedProcessIterator() = default;

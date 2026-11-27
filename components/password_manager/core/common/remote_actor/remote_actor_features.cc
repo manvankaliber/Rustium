@@ -11,7 +11,6 @@
 
 namespace password_manager::features {
 
-#if !BUILDFLAG(IS_ANDROID)
 // Enables sharing credentials with Gemini (`RemoteActorType::kGemini`) by
 // uploading them to Passbox and granting the actor permission to use them.
 BASE_FEATURE(kRemoteActorCredentialSharing, base::FEATURE_DISABLED_BY_DEFAULT);
@@ -46,7 +45,6 @@ BASE_FEATURE_PARAM(std::string,
                    &kRemoteActorCredentialSharingSearch,
                    "search_config_json",
                    "");
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 bool RemoteActorCredentialSharingEnabled() {
   return RemoteActorCredentialSharingGeminiEnabled() ||
@@ -54,19 +52,11 @@ bool RemoteActorCredentialSharingEnabled() {
 }
 
 bool RemoteActorCredentialSharingGeminiEnabled() {
-#if !BUILDFLAG(IS_ANDROID)
   return base::FeatureList::IsEnabled(kRemoteActorCredentialSharing);
-#else
-  return false;
-#endif
 }
 
 bool RemoteActorCredentialSharingSearchEnabled() {
-#if !BUILDFLAG(IS_ANDROID)
   return base::FeatureList::IsEnabled(kRemoteActorCredentialSharingSearch);
-#else
-  return false;
-#endif
 }
 
 }  // namespace password_manager::features

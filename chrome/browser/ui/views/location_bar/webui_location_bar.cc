@@ -16,7 +16,6 @@
 #include "build/branding_buildflags.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#include "chrome/browser/actor/ui/actor_ui_window_controller.h"
 #include "chrome/browser/autocomplete/aim_eligibility_service_factory.h"
 #include "chrome/browser/autocomplete/autocomplete_classifier_factory.h"
 #include "chrome/browser/search_engines/template_url_service_factory.h"
@@ -26,7 +25,6 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/interaction/browser_elements.h"
 #include "chrome/browser/ui/layout_constants.h"
-#include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/omnibox/chrome_omnibox_client.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_edit_model.h"
@@ -1175,13 +1173,6 @@ void WebUILocationBar::OnPopupStateChanged(OmniboxPopupState old_state,
                      weak_ptr_factory_.GetWeakPtr()),
       base::Milliseconds(100));
 
-  if (browser_ && base::FeatureList::IsEnabled(
-                      features::kGlicHandoffButtonHideWhenOmniboxPopupOpened)) {
-    if (auto* window_controller = ActorUiWindowController::From(browser_)) {
-      window_controller->OnOmniboxPopupStateChanged(new_state !=
-                                                    OmniboxPopupState::kNone);
-    }
-  }
 
   if (new_state != OmniboxPopupState::kNone) {
     // Close any overlapping user education bubbles when any popup opens.
@@ -1396,15 +1387,7 @@ void WebUILocationBar::UpdateSelectedKeywordState() {
   toolbar_delegate_->OnSelectedKeywordChanged(std::move(keyword_state));
 }
 
-void WebUILocationBar::RefreshAiModePageAction() {
-  auto* aim_page_action_controller =
-      omnibox::AiModePageActionController::From(browser_);
-  if (aim_page_action_controller) {
-    aim_page_action_controller->UpdatePageAction();
-  }
-
-  // TODO(crbug.com/491707187): kShowRhsAimHint support, if relevant.
-}
+void WebUILocationBar::RefreshAiModePageAction() {}
 
 void WebUILocationBar::OnMiddleClickPaste(base::TimeTicks event_timestamp,
                                           std::u16string text) {

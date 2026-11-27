@@ -19,11 +19,6 @@ namespace send_tab_to_self {
 // be captured and propagated to the target device.
 BASE_DECLARE_FEATURE(kSendTabToSelfPropagateNavigationHistory);
 
-#if BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
-// If this feature is enabled, received tabs will be automatically opened in the
-// background even while in the Tab Grid.
-BASE_DECLARE_FEATURE(kSendTabToSelfSupportAutoOpenInTabGrid);
-#endif  // BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // If this feature is enabled, a QR code promo is shown in the Send Tab to Self
@@ -53,48 +48,8 @@ BASE_DECLARE_FEATURE(kSendTabToSelfAnchorPromosToProfilePill);
 // supported.
 BASE_DECLARE_FEATURE(kSendTabToSelfMultiTabShare);
 
-#if BUILDFLAG(IS_ANDROID)
-// If this feature is enabled, physical double-tap gestures will be detected
-// and used to trigger sending tabs to self on Android devices.
-BASE_DECLARE_FEATURE(kSendTabToSelfGesture);
 
-// If this feature is enabled, a Sent Tab To Self notification will open
-// the appropriate native app if it is available.
-BASE_DECLARE_FEATURE(kSendTabToSelfOpenNativeApp);
 
-// If this feature is enabled, pressing back on an incoming tab opened via the
-// message banner switches back to the parent tab instead of minimizing Chrome.
-BASE_DECLARE_FEATURE(kSendTabToSelfSwitchToParentOnBack);
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_IOS)
-
-// If this feature is enabled, target devices are displayed as individual
-// actions in the native iOS Share Sheet.
-BASE_DECLARE_FEATURE(kSendTabToSelfIOSShareSheetDeviceList);
-
-// If this feature is enabled, users can schedule tab reminder iOS push
-// notifications.
-BASE_DECLARE_FEATURE(kIOSTabReminders);
-
-// Convenience method for determining when `kIOSTabReminders` is enabled.
-bool AreIOSTabRemindersEnabled();
-
-// Parameter representing the default time offset initially presented in the
-// 'Set a Reminder' UI half-sheet. Users can select a different offset manually.
-extern const char kReminderNotificationsDefaultTimeOffset[];
-
-// Returns the default time offset used to pre-populate the date/time picker
-// when the 'Set a Reminder' UI half-sheet is first shown. This value is
-// controlled by the `kReminderNotificationsDefaultTimeOffset` Finch parameter.
-base::TimeDelta GetReminderNotificationsDefaultTimeOffset();
-#endif  // BUILDFLAG(IS_IOS)
-
-#if BUILDFLAG(IS_ANDROID)
-// If this feature is enabled, dynamic shortcuts will be registered for other
-// syncing devices.
-BASE_DECLARE_FEATURE(kSendTabToSelfDynamicShortcuts);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace send_tab_to_self
 

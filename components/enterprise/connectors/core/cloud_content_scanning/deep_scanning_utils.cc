@@ -387,9 +387,6 @@ void InitializeBinaryUploadRequest(BinaryUploadRequest* request,
   request->set_url(mutable_url);
   request->set_tab_url(info.tab_url());
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  request->set_is_mobile(true);
-#endif
 
   for (const auto& tag : settings.tags) {
     request->add_tag(tag.first);

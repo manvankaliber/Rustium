@@ -14,10 +14,6 @@
 #include "base/memory/weak_ptr.h"
 #include "build/build_config.h"
 #include "build/buildflag.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/page_image_service/image_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/profiles/profile_avatar_icon_util.h"
@@ -48,11 +44,9 @@
 #include "ui/webui/tracked_element/tracked_element_handler_document_singleton.h"
 #include "ui/webui/webui_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/history_clusters/history_clusters_handler.h"
 #include "chrome/browser/ui/webui/page_not_available_for_guest/page_not_available_for_guest_ui.h"  // nogncheck
 #include "components/tabs/public/tab_interface.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -63,10 +57,8 @@ content::WebUIDataSource* CreateAndAddHistoryUIHTMLSource(Profile* profile) {
   source->AddBoolean("replaceSyncPromosWithSignInPromos",
                      syncer::IsReplaceSyncPromosWithSignInPromosEnabled());
 
-#if !BUILDFLAG(IS_CHROMEOS)
   source->AddBoolean("unoPhase2FollowUp",
                      base::FeatureList::IsEnabled(syncer::kUnoPhase2FollowUp));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   HistoryUtil::PopulateCommonSourceForHistory(source, profile);
 
@@ -101,8 +93,7 @@ content::WebUIDataSource* CreateAndAddHistoryUIHTMLSource(Profile* profile) {
   source->AddString("accountPictureUrl",
                     profiles::GetPlaceholderAvatarIconUrl());
 
-  const bool is_critical_actions_enabled = base::FeatureList::IsEnabled(
-      critical_actions::features::kCriticalActionHistory);
+  const bool is_critical_actions_enabled = false;
   const bool is_critical_actions_chat_linkouts_enabled =
       is_critical_actions_enabled &&
       critical_actions::features::kEnableChatLinkouts.Get();
@@ -111,21 +102,8 @@ content::WebUIDataSource* CreateAndAddHistoryUIHTMLSource(Profile* profile) {
       "sidebarFooterGMAOnly",
       l10n_util::GetStringFUTF16(IDS_HISTORY_OTHER_FORMS_OF_HISTORY_GMA_ONLY,
                                  chrome::kMyActivityUrlInHistory));
-  source->AddString(
-      "sidebarFooterGAAOnly",
-      l10n_util::GetStringFUTF16(IDS_HISTORY_OTHER_FORMS_OF_HISTORY_GAA_ONLY,
-                                 chrome::kMyActivityGeminiAppsUrl));
-  source->AddString(
-      "sidebarFooterGMAAndGAA",
-      l10n_util::GetStringFUTF16(
-          is_critical_actions_enabled
-              ? IDS_HISTORY_OTHER_FORMS_OF_HISTORY_GMA_AND_GAA_CRITICAL_ACTIONS
-              : IDS_HISTORY_OTHER_FORMS_OF_HISTORY_GMA_AND_GAA,
-          chrome::kMyActivityUrlInHistory, chrome::kMyActivityGeminiAppsUrl));
   source->AddString("sidebarFooterGMALink", chrome::kMyActivityUrlInHistory);
-  source->AddString("sidebarFooterGAALink", chrome::kMyActivityGeminiAppsUrl);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   static constexpr webui::LocalizedString kHistorySyncStrings[] = {
       {"historySyncPromoTitle", IDS_HISTORY_SYNC_PROMO_TITLE},
       {"historySyncPromoBodySignedOut", IDS_HISTORY_SYNC_PROMO_BODY_SIGNED_OUT},
@@ -135,14 +113,13 @@ content::WebUIDataSource* CreateAndAddHistoryUIHTMLSource(Profile* profile) {
        IDS_HISTORY_SYNC_PROMO_BODY_SIGN_IN_PENDING_SYNC_HISTORY_ON},
   };
   source->AddLocalizedStrings(kHistorySyncStrings);
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   source->AddBoolean("isBrowsingHistoryCollapsibleDayCardsEnabled",
                      base::FeatureList::IsEnabled(
                          history::kBrowsingHistoryCollapsibleDayCards));
   source->AddBoolean(
       "isBrowsingHistoryFilterByActorEnabled",
-      base::FeatureList::IsEnabled(history::kBrowsingHistoryFilterByActor));
+      false);
   source->AddBoolean("isBrowsingHistoryFilterByDeviceEnabled",
                      history::IsBrowsingHistoryFilterByDeviceEnabled());
   source->AddBoolean(
@@ -172,26 +149,14 @@ HistoryUIConfig::~HistoryUIConfig() = default;
 std::unique_ptr<content::WebUIController>
 HistoryUIConfig::CreateWebUIController(content::WebUI* web_ui,
                                        const GURL& url) {
-#if !BUILDFLAG(IS_ANDROID)
   Profile* profile = Profile::FromWebUI(web_ui);
   if (profile->IsGuestSession()) {
     return std::make_unique<PageNotAvailableForGuestUI>(
         web_ui, chrome::kChromeUIHistoryHost);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
   return std::make_unique<HistoryUI>(web_ui);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool HistoryUIConfig::IsWebUIEnabled(content::BrowserContext* browser_context) {
-  // LINT.IfChange(AndroidDesktopWebUiHistory)
-  return base::android::device_info::is_desktop() &&
-         base::FeatureList::IsEnabled(
-             chrome::android::kAndroidDesktopWebUiHistory);
-  // LINT.ThenChange(//chrome/browser/history/java/src/org/chromium/chrome/browser/history/HistoryFeatures.java:AndroidDesktopWebUiHistory,
-  // //chrome/browser/android/ntp/new_tab_page_url_handler.cc:AndroidDesktopWebUiHistory)
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 HistoryUI::HistoryUI(content::WebUI* web_ui)
     : ui::MojoWebUIController(web_ui, /*enable_chrome_send=*/true) {
@@ -229,7 +194,6 @@ scoped_refptr<base::RefCountedMemory> HistoryUI::GetFaviconResourceBytes(
       IDR_HISTORY_FAVICON, scale_factor);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void HistoryUI::BindInterface(
     mojo::PendingReceiver<history_clusters::mojom::PageHandlerFactory>
         pending_page_handler_factory) {
@@ -248,7 +212,6 @@ void HistoryUI::CreatePageHandler(
           // HistoryUI should always be in a tab. Look it up unconditionally.
           tabs::TabInterface::GetFromContents(web_ui()->GetWebContents()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void HistoryUI::BindInterface(
     mojo::PendingReceiver<history::mojom::PageHandler> pending_page_handler) {

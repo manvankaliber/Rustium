@@ -16,8 +16,7 @@ features:
   can_be_recommended: false
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 items:
 - caption: Do not enforce Restricted Mode on <ph name="YOUTUBE_PRODUCT_NAME">YouTube</ph>
   name: 'Off'

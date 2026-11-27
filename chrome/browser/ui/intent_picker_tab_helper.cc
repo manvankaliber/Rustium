@@ -45,12 +45,7 @@
 #include "ui/gfx/image/image.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/apps/link_capturing/chromeos_apps_intent_picker_delegate.h"
-#include "chrome/browser/apps/link_capturing/metrics/intent_handling_metrics.h"
-#else
 #include "chrome/browser/apps/link_capturing/web_apps_intent_picker_delegate.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -248,9 +243,6 @@ void IntentPickerTabHelper::MaybeShowIconForApps(
     intent_picker_delegate_->RecordIntentPickerIconEvent(
         apps::IntentPickerIconEvent::kIconShown);
 
-#if BUILDFLAG(IS_CHROMEOS)
-    apps::IntentHandlingMetrics::RecordLinkCapturingEntryPointShown(apps);
-#endif  // BUILDFLAG(IS_CHROMEOS)
   }
 
   if (apps::features::ShouldShowLinkCapturingUX()) {
@@ -293,15 +285,10 @@ IntentPickerTabHelper::IntentPickerTabHelper(tabs::TabInterface& tab,
 
   Profile* profile =
       Profile::FromBrowserContext(web_contents->GetBrowserContext());
-#if BUILDFLAG(IS_CHROMEOS)
-  intent_picker_delegate_ =
-      std::make_unique<apps::ChromeOsAppsIntentPickerDelegate>(profile);
-#else
   intent_picker_delegate_ = std::make_unique<apps::WebAppsIntentPickerDelegate>(
       profile,
       std::vector<int>{GetLayoutConstant(LayoutConstant::kLocationBarIconSize),
                        GetIntentPickerBubbleIconSize()});
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void IntentPickerTabHelper::OnAppIconLoaded(
@@ -452,13 +439,8 @@ void IntentPickerTabHelper::ShowIntentPickerOrLaunchAppImpl(
 
   bool show_stay_in_chrome;
   bool show_remember_selection;
-#if BUILDFLAG(IS_CHROMEOS)
-  show_stay_in_chrome = true;
-  show_remember_selection = true;
-#else
   show_stay_in_chrome = false;
   show_remember_selection = false;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   auto show_intent_picker_bubble = base::BindOnce(
       &ShowIntentPickerBubbleForApps, web_contents(), show_stay_in_chrome,

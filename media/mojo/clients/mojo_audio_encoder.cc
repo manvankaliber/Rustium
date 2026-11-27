@@ -11,9 +11,6 @@
 #include "media/base/media_switches.h"
 #include "media/mojo/common/media_type_converters.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "media/base/android/media_codec_util.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/windows_version.h"
@@ -25,9 +22,7 @@ namespace media {
 bool MojoAudioEncoder::IsSupported(AudioCodec codec) {
   switch (codec) {
     case AudioCodec::kAAC:
-#if BUILDFLAG(IS_ANDROID)
-      return base::FeatureList::IsEnabled(media::kPlatformAudioEncoder);
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
       // Windows AAC encoder relies on the MediaFoundation, which is not
       // installed for Windows N Sku.
       return !base::win::OSInfo::GetInstance()->IsWindowsNSku() &&

@@ -118,7 +118,7 @@ SharingDevicePlatform GetDevicePlatform(const syncer::DeviceInfo& device_info) {
     case syncer::DeviceInfo::OsType::kIOS:
       return SharingDevicePlatform::kIOS;
     case syncer::DeviceInfo::OsType::kUnknown:
-    case syncer::DeviceInfo::OsType::kFuchsia:
+
       return SharingDevicePlatform::kUnknown;
   }
 }

@@ -395,12 +395,7 @@ TEST_F(PrintCompositorImplTest, NotifyUnavailableSubframe) {
   testing::Mock::VerifyAndClearExpectations(&impl);
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-// TODO(crbug.com/40172607): Enable this test once CrashKeys are supported.
-#define MAYBE_SetCrashKey DISABLED_SetCrashKey
-#else
 #define MAYBE_SetCrashKey SetCrashKey
-#endif
 TEST_F(PrintCompositorImplCrashKeyTest, MAYBE_SetCrashKey) {
   PrintCompositorImpl impl(mojo::NullReceiver(),
                            /*initialize_environment=*/false,
@@ -417,9 +412,8 @@ TEST_F(PrintCompositorImplTest, MultiRequestsBasicFinishDocument) {
   // Page 0 with frame 3 has content 1, which refers to frame 8.
   // When the content is not available, the request is not fulfilled.
   const ContentToFrameMap subframe_content_map = {{1, 8}};
-  impl.PrepareToCompositeDocument(
-      base::BindOnce(
-          &PrintCompositorImplTest::OnPrepareToCompositeDocumentCallback));
+  impl.PrepareToCompositeDocument(base::BindOnce(
+      &PrintCompositorImplTest::OnPrepareToCompositeDocumentCallback));
   EXPECT_CALL(impl, OnCompositePage(testing::_, testing::_)).Times(0);
   impl.CompositePage(
       3, CreateTestData(3, 0), subframe_content_map,
@@ -570,7 +564,8 @@ TEST_F(PrintCompositorImplTest, InvalidContentFormat) {
                          /*is_pdf=*/false, ContentToFrameMap(),
                          future.GetCallback());
 
-  EXPECT_EQ(future.Get<0>(), mojom::PrintCompositor::Status::kContentFormatError);
+  EXPECT_EQ(future.Get<0>(),
+            mojom::PrintCompositor::Status::kContentFormatError);
   EXPECT_FALSE(future.Get<1>().IsValid());
 }
 

@@ -21,7 +21,6 @@ suite('ComposeboxFileThumbnailTest', () => {
   setup(() => {
     // overrideValues() mutates a singleton; reset before each test.
     loadTimeData.overrideValues({
-      isAndroid: false,
       tabFaviconChipsToCoinsEnabled: false,
     });
     document.body.innerHTML = window.trustedTypes!.emptyHTML;
@@ -160,57 +159,7 @@ suite('ComposeboxFileThumbnailTest', () => {
     assertEquals(favicon.url, 'https://example.com/some/path');
   });
 
-  test('android renders clank chip structure', async () => {
-    loadTimeData.overrideValues({isAndroid: true});
-    document.body.innerHTML = window.trustedTypes!.emptyHTML;
-    fileThumbnailElement =
-        document.createElement('cr-composebox-file-thumbnail');
-    document.body.appendChild(fileThumbnailElement);
 
-    // Image.
-    fileThumbnailElement.file =
-        createFile(1, {type: 'image/jpeg', objectUrl: 'data:foo'});
-    await microtasksFinished();
-    assertTrue(fileThumbnailElement.hasAttribute('is-android'));
-    assertTrue(
-        !!fileThumbnailElement.shadowRoot.querySelector('#imgChipLeadingSlot'));
-    assertEquals(
-        'imgChipStateLayer',
-        fileThumbnailElement.shadowRoot
-            .querySelector<HTMLElement>('#removeImgButton')!.parentElement!.id);
-    assertEquals(
-        null, fileThumbnailElement.shadowRoot.querySelector('.img-overlay'));
-
-    // Document.
-    fileThumbnailElement.file = createFile(
-        0, {name: 'a_very_long_filename_example_for_bug_report.pdf'});
-    await microtasksFinished();
-    const documentThumbnail =
-        fileThumbnailElement.shadowRoot.querySelector('#documentThumbnail');
-    assertTrue(!!documentThumbnail);
-    assertFalse(documentThumbnail.hasAttribute('part'));
-    assertEquals(
-        'documentChipContent',
-        fileThumbnailElement.shadowRoot
-            .querySelector<HTMLElement>(
-                '#removeDocumentButton')!.parentElement!.id);
-    const documentTitle =
-        fileThumbnailElement.shadowRoot.querySelector('#documentTitle');
-    assertTrue(!!documentTitle);
-    assertEquals(
-        'a_very_long_filename_example_for_bug_report.pdf',
-        documentTitle.textContent);
-
-    // Tab.
-    fileThumbnailElement.file =
-        createFile(2, {url: 'https://example.com/some/path', name: 'some tab'});
-    await microtasksFinished();
-    assertEquals(null, fileThumbnailElement.shadowRoot.querySelector('.url'));
-    assertEquals(
-        'tabChipContent',
-        fileThumbnailElement.shadowRoot
-            .querySelector<HTMLElement>('#removeTabButton')!.parentElement!.id);
-  });
 
   test('shows animation for entering attachment', async () => {
     // Arrange.
@@ -353,10 +302,8 @@ suite('ComposeboxFileThumbnailTest', () => {
   });
 });
 
-function createThumbnailElement(isAndroid: boolean):
-    ComposeboxFileThumbnailElement {
+function createThumbnailElement(): ComposeboxFileThumbnailElement {
   loadTimeData.overrideValues({
-    isAndroid,
     tabFaviconChipsToCoinsEnabled: false,
   });
   document.body.innerHTML = window.trustedTypes!.emptyHTML;
@@ -365,302 +312,297 @@ function createThumbnailElement(isAndroid: boolean):
   return element;
 }
 
-[false, true].forEach(isAndroid => {
-  suite(`ComposeboxFileThumbnailTest isAndroid=${isAndroid}`, () => {
-    let fileThumbnailElement: ComposeboxFileThumbnailElement;
+suite('ComposeboxFileThumbnailTest', () => {
+  let fileThumbnailElement: ComposeboxFileThumbnailElement;
 
-    setup(() => {
-      fileThumbnailElement = createThumbnailElement(isAndroid);
+  setup(() => {
+    fileThumbnailElement = createThumbnailElement();
+  });
+
+  test('display loading spinner', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(1, {
+      type: 'image/jpeg',
+      objectUrl: 'data:foo',
+      status: ContextUploadStatus.kUploadStarted,
     });
+    await microtasksFinished();
 
-    test('display loading spinner', async () => {
+    // Assert.
+    const spinner = fileThumbnailElement.shadowRoot.querySelector('.spinner');
+    assertTrue(!!spinner);
+  });
+
+  test('display image file', async () => {
+    // Arrange.
+    fileThumbnailElement.file =
+        createFile(1, {type: 'image/jpeg', objectUrl: 'data:foo'});
+    await microtasksFinished();
+
+    // Assert one image file.
+    const thumbnail =
+        fileThumbnailElement.shadowRoot.querySelector('.img-thumbnail');
+    assertTrue(!!thumbnail);
+    assertEquals(thumbnail.tagName, 'IMG');
+    assertEquals(
+        (thumbnail as HTMLImageElement).src,
+        fileThumbnailElement.file.objectUrl);
+    assertTrue(
+        !!fileThumbnailElement.shadowRoot.querySelector('#imgChip.img-chip'));
+  });
+
+  test('display image file from dataUrl', async () => {
+    // Arrange.
+    fileThumbnailElement.file =
+        createFile(1, {type: 'image/jpeg', dataUrl: 'data:foo'});
+    await microtasksFinished();
+
+    // Assert one image file.
+    const thumbnail =
+        fileThumbnailElement.shadowRoot.querySelector('.img-thumbnail');
+    assertTrue(!!thumbnail);
+    assertEquals(thumbnail.tagName, 'IMG');
+    assertEquals(
+        (thumbnail as HTMLImageElement).src, fileThumbnailElement.file.dataUrl);
+  });
+
+  [{name: 'photo.heic', type: 'image/heic', objectUrl: 'blob:foo'},
+   {name: 'IMG_1234.HEIC', type: 'image/heif', objectUrl: 'blob:foo'},
+   {name: 'photo.HEIF', type: '', objectUrl: 'blob:foo'},
+   {name: 'browser.heic', type: 'image/heic', dataUrl: 'data:image/heic,'},
+  ].forEach(fileOverrides => {
+    const name = fileOverrides.name;
+    test(`display HEIF image ${name} as document chip`, async () => {
       // Arrange.
-      fileThumbnailElement.file = createFile(1, {
-        type: 'image/jpeg',
-        objectUrl: 'data:foo',
-        status: ContextUploadStatus.kUploadStarted,
-      });
+      fileThumbnailElement.file = createFile(1, fileOverrides);
       await microtasksFinished();
 
-      // Assert.
-      const spinner = fileThumbnailElement.shadowRoot.querySelector('.spinner');
-      assertTrue(!!spinner);
-    });
-
-    test('display image file', async () => {
-      // Arrange.
-      fileThumbnailElement.file =
-          createFile(1, {type: 'image/jpeg', objectUrl: 'data:foo'});
-      await microtasksFinished();
-
-      // Assert one image file.
-      const thumbnail =
-          fileThumbnailElement.shadowRoot.querySelector('.img-thumbnail');
-      assertTrue(!!thumbnail);
-      assertEquals(thumbnail.tagName, 'IMG');
-      assertEquals(
-          (thumbnail as HTMLImageElement).src,
-          fileThumbnailElement.file.objectUrl);
-      if (!isAndroid) {
-        assertTrue(!!fileThumbnailElement.shadowRoot.querySelector(
-            '#imgChip.img-chip'));
-      }
-    });
-
-    test('display image file from dataUrl', async () => {
-      // Arrange.
-      fileThumbnailElement.file =
-          createFile(1, {type: 'image/jpeg', dataUrl: 'data:foo'});
-      await microtasksFinished();
-
-      // Assert one image file.
-      const thumbnail =
-          fileThumbnailElement.shadowRoot.querySelector('.img-thumbnail');
-      assertTrue(!!thumbnail);
-      assertEquals(thumbnail.tagName, 'IMG');
-      assertEquals(
-          (thumbnail as HTMLImageElement).src,
-          fileThumbnailElement.file.dataUrl);
-    });
-
-    [{name: 'photo.heic', type: 'image/heic', objectUrl: 'blob:foo'},
-     {name: 'IMG_1234.HEIC', type: 'image/heif', objectUrl: 'blob:foo'},
-     {name: 'photo.HEIF', type: '', objectUrl: 'blob:foo'},
-     {name: 'browser.heic', type: 'image/heic', dataUrl: 'data:image/heic,'},
-    ].forEach(fileOverrides => {
-      const name = fileOverrides.name;
-      test(`display HEIF image ${name} as document chip`, async () => {
-        // Arrange.
-        fileThumbnailElement.file = createFile(1, fileOverrides);
-        await microtasksFinished();
-
-        // Assert the undecodable image is shown as a document chip.
-        assertFalse(
-            !!fileThumbnailElement.shadowRoot.querySelector('.img-thumbnail'));
-        const title =
-            fileThumbnailElement.shadowRoot.querySelector('#documentTitle');
-        assertTrue(!!title);
-        assertEquals(name, title.textContent);
-      });
-    });
-
-    test('display HEIF image with thumbnailUrl as image', async () => {
-      // Arrange.
-      fileThumbnailElement.file = createFile(1, {
-        name: 'photo.heic',
-        type: 'image/heic',
-        thumbnailUrl: 'https://example.com/thumbnail.png',
-      });
-      await microtasksFinished();
-
-      // Assert the server-provided thumbnail is shown.
-      assertTrue(
+      // Assert the undecodable image is shown as a document chip.
+      assertFalse(
           !!fileThumbnailElement.shadowRoot.querySelector('.img-thumbnail'));
+      const title =
+          fileThumbnailElement.shadowRoot.querySelector('#documentTitle');
+      assertTrue(!!title);
+      assertEquals(name, title.textContent);
     });
+  });
 
-    test('display video file', async () => {
-      // Arrange.
+  test('display HEIF image with thumbnailUrl as image', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(1, {
+      name: 'photo.heic',
+      type: 'image/heic',
+      thumbnailUrl: 'https://example.com/thumbnail.png',
+    });
+    await microtasksFinished();
+
+    // Assert the server-provided thumbnail is shown.
+    assertTrue(
+        !!fileThumbnailElement.shadowRoot.querySelector('.img-thumbnail'));
+  });
+
+  test('display video file', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(1, {
+      name: 'video.mp4',
+      type: 'video/mp4',
+      objectUrl: 'data:foo',
+    });
+    await microtasksFinished();
+
+    // Assert one video file.
+    const thumbnail =
+        fileThumbnailElement.shadowRoot.querySelector<HTMLVideoElement>(
+            '.img-thumbnail');
+    assertTrue(!!thumbnail);
+    assertEquals(thumbnail.tagName, 'VIDEO');
+    assertEquals(
+        thumbnail.getAttribute('src'),
+        `${fileThumbnailElement.file.objectUrl}#t=0.001`);
+    assertEquals(thumbnail.getAttribute('preload'), 'metadata');
+    assertTrue(thumbnail.hasAttribute('muted'));
+    assertTrue(thumbnail.hasAttribute('playsinline'));
+    assertTrue(thumbnail.hasAttribute('disablepictureinpicture'));
+    assertTrue(thumbnail.hasAttribute('disableremoteplayback'));
+    assertEquals(
+        thumbnail.getAttribute('aria-label'), fileThumbnailElement.file.name);
+  });
+
+  test('clicking image delete button sends event', async () => {
+    // Arrange.
+    fileThumbnailElement.file =
+        createFile(1, {type: 'image/jpeg', objectUrl: 'data:foo'});
+    await microtasksFinished();
+
+    // Act.
+    const deleteEventPromise = eventToPromise<CustomEvent<{uuid: string}>>(
+        'delete-file', fileThumbnailElement);
+    const removeImgButton =
+        fileThumbnailElement.shadowRoot.querySelector<HTMLElement>(
+            '#removeImgButton');
+    assertTrue(!!removeImgButton);
+    removeImgButton.click();
+
+    // Assert.
+    const deleteEvent = await deleteEventPromise;
+    assertEquals(deleteEvent.detail.uuid, fileThumbnailElement.file.uuid);
+  });
+
+  test('hides image delete button when not deletable', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(1, {
+      type: 'image/jpeg',
+      objectUrl: 'data:foo',
+      isDeletable: false,
+    });
+    await microtasksFinished();
+
+    // Assert.
+    const removeButton =
+        fileThumbnailElement.shadowRoot.querySelector('#removeImgButton');
+    assertEquals(null, removeButton);
+  });
+
+  test('clicking video delete button sends event', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(1, {
+      name: 'video.mp4',
+      type: 'video/mp4',
+      objectUrl: 'data:foo',
+    });
+    await microtasksFinished();
+
+    // Act.
+    const deleteEventPromise = eventToPromise<CustomEvent<{uuid: string}>>(
+        'delete-file', fileThumbnailElement);
+    const removeImgButton =
+        fileThumbnailElement.shadowRoot.querySelector<HTMLElement>(
+            '#removeImgButton');
+    assertTrue(!!removeImgButton);
+    removeImgButton.click();
+
+    // Assert.
+    const deleteEvent = await deleteEventPromise;
+    assertEquals(deleteEvent.detail.uuid, fileThumbnailElement.file.uuid);
+  });
+
+  test('hides video delete button when not deletable', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(1, {
+      name: 'video.mp4',
+      type: 'video/mp4',
+      objectUrl: 'data:foo',
+      isDeletable: false,
+    });
+    await microtasksFinished();
+
+    // Assert.
+    const removeButton =
+        fileThumbnailElement.shadowRoot.querySelector('#removeImgButton');
+    assertEquals(null, removeButton);
+  });
+
+  ['mp4', 'webm', 'ogg', 'mov', 'm4v'].forEach(ext => {
+    test(`display supported video format .${ext}`, async () => {
       fileThumbnailElement.file = createFile(1, {
-        name: 'video.mp4',
-        type: 'video/mp4',
+        name: `video.${ext}`,
+        type: `video/${ext}`,
         objectUrl: 'data:foo',
       });
       await microtasksFinished();
 
-      // Assert one video file.
       const thumbnail =
           fileThumbnailElement.shadowRoot.querySelector<HTMLVideoElement>(
               '.img-thumbnail');
       assertTrue(!!thumbnail);
       assertEquals(thumbnail.tagName, 'VIDEO');
-      assertEquals(
-          thumbnail.getAttribute('src'),
-          `${fileThumbnailElement.file.objectUrl}#t=0.001`);
-      assertEquals(thumbnail.getAttribute('preload'), 'metadata');
-      assertTrue(thumbnail.hasAttribute('muted'));
-      assertTrue(thumbnail.hasAttribute('playsinline'));
-      assertTrue(thumbnail.hasAttribute('disablepictureinpicture'));
-      assertTrue(thumbnail.hasAttribute('disableremoteplayback'));
-      assertEquals(
-          thumbnail.getAttribute('aria-label'), fileThumbnailElement.file.name);
     });
+  });
 
-    test('clicking image delete button sends event', async () => {
-      // Arrange.
-      fileThumbnailElement.file =
-          createFile(1, {type: 'image/jpeg', objectUrl: 'data:foo'});
-      await microtasksFinished();
-
-      // Act.
-      const deleteEventPromise = eventToPromise<CustomEvent<{uuid: string}>>(
-          'delete-file', fileThumbnailElement);
-      const removeImgButton =
-          fileThumbnailElement.shadowRoot.querySelector<HTMLElement>(
-              '#removeImgButton');
-      assertTrue(!!removeImgButton);
-      removeImgButton.click();
-
-      // Assert.
-      const deleteEvent = await deleteEventPromise;
-      assertEquals(deleteEvent.detail.uuid, fileThumbnailElement.file.uuid);
-    });
-
-    test('hides image delete button when not deletable', async () => {
-      // Arrange.
-      fileThumbnailElement.file = createFile(1, {
-        type: 'image/jpeg',
-        objectUrl: 'data:foo',
-        isDeletable: false,
-      });
-      await microtasksFinished();
-
-      // Assert.
-      const removeButton =
-          fileThumbnailElement.shadowRoot.querySelector('#removeImgButton');
-      assertEquals(null, removeButton);
-    });
-
-    test('clicking video delete button sends event', async () => {
-      // Arrange.
-      fileThumbnailElement.file = createFile(1, {
-        name: 'video.mp4',
-        type: 'video/mp4',
-        objectUrl: 'data:foo',
-      });
-      await microtasksFinished();
-
-      // Act.
-      const deleteEventPromise = eventToPromise<CustomEvent<{uuid: string}>>(
-          'delete-file', fileThumbnailElement);
-      const removeImgButton =
-          fileThumbnailElement.shadowRoot.querySelector<HTMLElement>(
-              '#removeImgButton');
-      assertTrue(!!removeImgButton);
-      removeImgButton.click();
-
-      // Assert.
-      const deleteEvent = await deleteEventPromise;
-      assertEquals(deleteEvent.detail.uuid, fileThumbnailElement.file.uuid);
-    });
-
-    test('hides video delete button when not deletable', async () => {
-      // Arrange.
-      fileThumbnailElement.file = createFile(1, {
-        name: 'video.mp4',
-        type: 'video/mp4',
-        objectUrl: 'data:foo',
-        isDeletable: false,
-      });
-      await microtasksFinished();
-
-      // Assert.
-      const removeButton =
-          fileThumbnailElement.shadowRoot.querySelector('#removeImgButton');
-      assertEquals(null, removeButton);
-    });
-
-    ['mp4', 'webm', 'ogg', 'mov', 'm4v'].forEach(ext => {
-      test(`display supported video format .${ext}`, async () => {
-        fileThumbnailElement.file = createFile(1, {
-          name: `video.${ext}`,
-          type: `video/${ext}`,
-          objectUrl: 'data:foo',
-        });
-        await microtasksFinished();
-
-        const thumbnail =
-            fileThumbnailElement.shadowRoot.querySelector<HTMLVideoElement>(
-                '.img-thumbnail');
-        assertTrue(!!thumbnail);
-        assertEquals(thumbnail.tagName, 'VIDEO');
-      });
-    });
-
-    ['wmv', 'flv', 'avi', 'mkv'].forEach(ext => {
-      test(
-          `fallback to document chip for unsupported video format .${ext}`,
-          async () => {
-            fileThumbnailElement.file = createFile(1, {
-              name: `video.${ext}`,
-              type: `video/${ext}`,
-              objectUrl: 'data:foo',
-            });
-            await microtasksFinished();
-
-            const video =
-                fileThumbnailElement.shadowRoot.querySelector('.img-thumbnail');
-            assertEquals(null, video);
-            const documentChip =
-                fileThumbnailElement.shadowRoot.querySelector('#documentChip');
-            assertTrue(!!documentChip);
+  ['wmv', 'flv', 'avi', 'mkv'].forEach(ext => {
+    test(
+        `fallback to document chip for unsupported video format .${ext}`,
+        async () => {
+          fileThumbnailElement.file = createFile(1, {
+            name: `video.${ext}`,
+            type: `video/${ext}`,
+            objectUrl: 'data:foo',
           });
+          await microtasksFinished();
+
+          const video =
+              fileThumbnailElement.shadowRoot.querySelector('.img-thumbnail');
+          assertEquals(null, video);
+          const documentChip =
+              fileThumbnailElement.shadowRoot.querySelector('#documentChip');
+          assertTrue(!!documentChip);
+        });
+  });
+
+  test('clicking document delete button sends event', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(0);
+    await microtasksFinished();
+
+    // Act.
+    const deleteEventPromise = eventToPromise<CustomEvent<{uuid: string}>>(
+        'delete-file', fileThumbnailElement);
+    const removeDocumentButton =
+        fileThumbnailElement.shadowRoot.querySelector<HTMLElement>(
+            '#removeDocumentButton');
+    assertTrue(!!removeDocumentButton);
+    removeDocumentButton.click();
+
+    // Assert.
+    const deleteEvent = await deleteEventPromise;
+    assertEquals(deleteEvent.detail.uuid, fileThumbnailElement.file.uuid);
+  });
+
+  test('hides document delete button when not deletable', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(0, {isDeletable: false});
+    await microtasksFinished();
+
+    // Assert.
+    const removeButton =
+        fileThumbnailElement.shadowRoot.querySelector('#removeDocumentButton');
+    assertEquals(null, removeButton);
+  });
+
+  test('clicking tab delete button sends event', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(2, {
+      url: 'https://example.com/some/path',
+      name: 'some tab',
     });
+    await microtasksFinished();
 
-    test('clicking document delete button sends event', async () => {
-      // Arrange.
-      fileThumbnailElement.file = createFile(0);
-      await microtasksFinished();
+    // Act.
+    const deleteEventPromise = eventToPromise<CustomEvent<{uuid: string}>>(
+        'delete-file', fileThumbnailElement);
+    const removeTabButton =
+        fileThumbnailElement.shadowRoot.querySelector<HTMLElement>(
+            '#removeTabButton');
+    assertTrue(!!removeTabButton);
+    removeTabButton.click();
 
-      // Act.
-      const deleteEventPromise = eventToPromise<CustomEvent<{uuid: string}>>(
-          'delete-file', fileThumbnailElement);
-      const removeDocumentButton =
-          fileThumbnailElement.shadowRoot.querySelector<HTMLElement>(
-              '#removeDocumentButton');
-      assertTrue(!!removeDocumentButton);
-      removeDocumentButton.click();
+    // Assert.
+    const deleteEvent = await deleteEventPromise;
+    assertEquals(deleteEvent.detail.uuid, fileThumbnailElement.file.uuid);
+  });
 
-      // Assert.
-      const deleteEvent = await deleteEventPromise;
-      assertEquals(deleteEvent.detail.uuid, fileThumbnailElement.file.uuid);
+  test('hides tab delete button when not deletable', async () => {
+    // Arrange.
+    fileThumbnailElement.file = createFile(2, {
+      url: 'https://example.com/some/path',
+      name: 'some tab',
+      isDeletable: false,
     });
+    await microtasksFinished();
 
-    test('hides document delete button when not deletable', async () => {
-      // Arrange.
-      fileThumbnailElement.file = createFile(0, {isDeletable: false});
-      await microtasksFinished();
-
-      // Assert.
-      const removeButton = fileThumbnailElement.shadowRoot.querySelector(
-          '#removeDocumentButton');
-      assertEquals(null, removeButton);
-    });
-
-    test('clicking tab delete button sends event', async () => {
-      // Arrange.
-      fileThumbnailElement.file = createFile(2, {
-        url: 'https://example.com/some/path',
-        name: 'some tab',
-      });
-      await microtasksFinished();
-
-      // Act.
-      const deleteEventPromise = eventToPromise<CustomEvent<{uuid: string}>>(
-          'delete-file', fileThumbnailElement);
-      const removeTabButton =
-          fileThumbnailElement.shadowRoot.querySelector<HTMLElement>(
-              '#removeTabButton');
-      assertTrue(!!removeTabButton);
-      removeTabButton.click();
-
-      // Assert.
-      const deleteEvent = await deleteEventPromise;
-      assertEquals(deleteEvent.detail.uuid, fileThumbnailElement.file.uuid);
-    });
-
-    test('hides tab delete button when not deletable', async () => {
-      // Arrange.
-      fileThumbnailElement.file = createFile(2, {
-        url: 'https://example.com/some/path',
-        name: 'some tab',
-        isDeletable: false,
-      });
-      await microtasksFinished();
-
-      // Assert.
-      const removeButton =
-          fileThumbnailElement.shadowRoot.querySelector('#removeTabButton');
-      assertEquals(null, removeButton);
-    });
+    // Assert.
+    const removeButton =
+        fileThumbnailElement.shadowRoot.querySelector('#removeTabButton');
+    assertEquals(null, removeButton);
   });
 });

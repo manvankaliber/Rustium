@@ -75,11 +75,6 @@ constexpr auto kMediaIndicatorHoldAfterUseDuration = base::Seconds(1);
 constexpr auto kMediaIndicatorMinimumHoldDuration = base::Seconds(4);
 // A delay before blocked media indicator disappears.
 constexpr auto kBlockedMediaIndicatorDismissDelay = base::Seconds(4);
-#if BUILDFLAG(ENABLE_SMART_CARD)
-// A delay before in-use indicator for device (currently only smart cards)
-// disappears.
-constexpr auto kDeviceInUseIndicatorHideDelay = base::Seconds(15);
-#endif
 
 bool ignore_blocked_media_indicator_timer_for_testing_ = false;
 
@@ -480,7 +475,6 @@ void WebContentsHandler::ReadyToCommitNavigation(
       map_->GetContentSetting(primary_url, secondary_url,
                               ContentSettingsType::POPUPS) ==
       CONTENT_SETTING_ALLOW;
-#if !BUILDFLAG(IS_IOS)
   content_settings->allow_mixed_content =
       map_->GetContentSetting(primary_url, secondary_url,
                               ContentSettingsType::MIXEDSCRIPT) ==
@@ -493,7 +487,6 @@ void WebContentsHandler::ReadyToCommitNavigation(
       map_->GetContentSetting(primary_url, secondary_url,
                               ContentSettingsType::CONTROLLED_FRAME) ==
       CONTENT_SETTING_ALLOW;
-#endif
 
   navigation_handle->SetContentSettings(std::move(content_settings));
 }
@@ -1030,14 +1023,6 @@ void PageSpecificContentSettings::OnContentAllowed(ContentSettingsType type) {
     must_reset_blocked_status = true;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // content_settings_status_[type].allowed is always set to true in
-  // OnContentBlocked, so we have to use
-  // content_settings_status_[type].blocked to detect whether the protected
-  // media setting has changed.
-  if (type == ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER)
-    must_reset_blocked_status = true;
-#endif
 
   if (must_reset_blocked_status && status.blocked) {
     status.blocked = false;
@@ -1239,7 +1224,7 @@ void PageSpecificContentSettings::OnBrowsingDataAccessed(
   MaybeNotifySiteDataObservers(access_details);
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 void PageSpecificContentSettings::OnProtectedMediaIdentifierPermissionSet(
     const GURL& requesting_origin,
     bool allowed) {
@@ -1624,33 +1609,6 @@ void PageSpecificContentSettings::OnCapturingStateChanged(
   }
 }
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-void PageSpecificContentSettings::OnDeviceUsed(ContentSettingsType type) {
-  // For now, only smart card permissions are supported.
-  CHECK_EQ(ContentSettingsType::SMART_CARD_GUARD, type);
-  ContentSettingsStatus& status = content_settings_status_[type];
-  status.last_used_time = base::Time::Now();
-  if (!std::exchange(status.in_use, true)) {
-    MaybeUpdateLocationBar();
-  }
-}
-
-void PageSpecificContentSettings::OnLastDeviceConnectionLost(
-    ContentSettingsType type) {
-  // For now, only smart card permissions are supported.
-  CHECK_EQ(mojom::ContentSettingsType::SMART_CARD_GUARD, type);
-  content_settings_status_[type].in_use = false;
-
-  // The indicator should remain for `kDeviceInUseIndicatorHideDelay` seconds
-  // after the connection has died in order to also make user aware of very
-  // rapid connections.
-  base::SequencedTaskRunner::GetCurrentDefault()->PostDelayedTask(
-      FROM_HERE,
-      base::BindOnce(&PageSpecificContentSettings::MaybeUpdateLocationBar,
-                     weak_factory_.GetWeakPtr()),
-      kDeviceInUseIndicatorHideDelay);
-}
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
 
 bool PageSpecificContentSettings::IsInUse(ContentSettingsType type) const {
   auto it = content_settings_status_.find(type);
@@ -1688,15 +1646,6 @@ int PageSpecificContentSettings::active_available_sensors() const {
   return active_available_sensors_;
 }
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-bool PageSpecificContentSettings::ShouldShowDeviceInUseIndicator(
-    ContentSettingsType type) const {
-  return IsInUse(type) ||
-         GetLastUsedTime(type) >
-             base::Time::Now() - kDeviceInUseIndicatorHideDelay;
-  ;
-}
-#endif
 
 void PageSpecificContentSettings::OnCapturingStateChangedInternal(
     ContentSettingsType type,

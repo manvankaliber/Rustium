@@ -23,9 +23,6 @@
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/native_ui_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/supervised_user/android/extension_parent_approval.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -189,13 +186,6 @@ SupervisedUserExtensionsDelegateImpl::GetInstallPromptObserver() {
   return &metrics_recorder_;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void SupervisedUserExtensionsDelegateImpl::
-    SetParentAccessExtensionApprovalsManagerForTesting(
-        std::unique_ptr<ParentAccessExtensionApprovalsManager> manager) {
-  extension_approvals_manager_ = std::move(manager);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void SupervisedUserExtensionsDelegateImpl::
     ShowParentPermissionDialogForExtension(const Extension& extension,
@@ -255,23 +245,6 @@ void SupervisedUserExtensionsDelegateImpl::RequestExtensionApproval(
   // Always invoke the parent permission dialog.
   ShowParentPermissionDialogForExtension(extension, web_contents, icon);
   return;
-#elif BUILDFLAG(IS_CHROMEOS)
-  // ParentAccessDialog handles the blocked use case for ChromeOS.
-  if (!extension_approvals_manager_) {
-    extension_approvals_manager_ =
-        std::make_unique<ParentAccessExtensionApprovalsManager>();
-  }
-  extension_approvals_manager_->ShowParentAccessDialog(
-      extension, context_, icon,
-      CanInstallExtensions() ? ParentAccessExtensionApprovalsManager::
-                                   ExtensionInstallMode::kInstallationPermitted
-                             : ParentAccessExtensionApprovalsManager::
-                                   ExtensionInstallMode::kInstallationDenied,
-      std::move(done_callback_));
-#elif BUILDFLAG(IS_ANDROID)
-  CHECK(contents.value());
-  ExtensionParentApproval::RequestExtensionApproval(contents.value().get(),
-                                                    std::move(done_callback_));
 #endif
 }
 

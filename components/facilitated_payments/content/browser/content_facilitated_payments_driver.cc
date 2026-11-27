@@ -31,34 +31,6 @@ ContentFacilitatedPaymentsDriver::ContentFacilitatedPaymentsDriver(
 
 ContentFacilitatedPaymentsDriver::~ContentFacilitatedPaymentsDriver() = default;
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/40280186): Add test for this method once FPManager refactoring
-// is done.
-void ContentFacilitatedPaymentsDriver::HandlePaymentLink(const GURL& url) {
-  content::RenderFrameHost* render_frame_host =
-      content::RenderFrameHost::FromID(render_frame_host_id_);
-  if (!render_frame_host->IsInPrimaryMainFrame()) {
-    return;
-  }
-
-  if (!security_checker_->IsSecureForPaymentLinkHandling(*render_frame_host)) {
-    return;
-  }
-
-  TriggerPaymentLinkPushPayment(
-      /*payment_link_url=*/url,
-      /*page_url=*/render_frame_host->GetLastCommittedURL(),
-      /*ukm_source_id=*/render_frame_host->GetPageUkmSourceId());
-}
-
-void ContentFacilitatedPaymentsDriver::SetPaymentLinkHandlerReceiver(
-    mojo::PendingReceiver<mojom::PaymentLinkHandler> pending_receiver) {
-  if (receiver_.is_bound()) {
-    receiver_.reset();
-  }
-  receiver_.Bind(std::move(pending_receiver));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void ContentFacilitatedPaymentsDriver::ReportHeuristicSignals(
     mojom::HeuristicSignalsPtr signals) {

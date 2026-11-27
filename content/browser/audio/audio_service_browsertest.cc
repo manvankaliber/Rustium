@@ -184,7 +184,7 @@ class AudioServiceBrowserTest
 
   bool AudioProcessorAecAvailable() {
     // AEC never runs in Chrome on Android.
-    return !BUILDFLAG(IS_ANDROID);
+    return !false;
   }
 
   bool LoopbackAecAvailable() {

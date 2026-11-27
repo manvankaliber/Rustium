@@ -16,9 +16,6 @@
 #include "components/viz/service/main/viz_compositor_thread_runner.h"
 #include "gpu/command_buffer/service/shared_context_state.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/java_handler_thread.h"
-#endif
 
 namespace base {
 class Thread;
@@ -32,11 +29,7 @@ class HintSessionFactory;
 class OutputSurfaceProvider;
 class SharedImageInterfaceProvider;
 
-#if BUILDFLAG(IS_ANDROID)
-using VizCompositorThreadType = base::android::JavaHandlerThread;
-#else
 using VizCompositorThreadType = base::Thread;
-#endif
 
 class VizCompositorThreadRunnerImpl : public VizCompositorThreadRunner {
  public:

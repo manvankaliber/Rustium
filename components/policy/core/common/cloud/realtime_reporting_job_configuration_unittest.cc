@@ -34,9 +34,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/win/windows_version.h"
@@ -73,12 +70,7 @@ class MockCallbackObserver {
 class RealtimeReportingJobConfigurationTest : public testing::Test {
  public:
   RealtimeReportingJobConfigurationTest()
-#if BUILDFLAG(IS_CHROMEOS)
-      : client_(&service_),
-        fake_serial_number_(&fake_statistics_provider_)
-#else
       : client_(&service_)
-#endif
   {
   }
 
@@ -174,22 +166,6 @@ class RealtimeReportingJobConfigurationTest : public testing::Test {
   MockCloudPolicyClient client_;
   StrictMock<MockCallbackObserver> callback_observer_;
   DeviceManagementService::Job job_;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::system::ScopedFakeStatisticsProvider fake_statistics_provider_;
-  class ScopedFakeSerialNumber {
-   public:
-    explicit ScopedFakeSerialNumber(
-        ash::system::ScopedFakeStatisticsProvider* fake_statistics_provider) {
-      // The fake serial number must be set before |configuration_| is
-      // constructed below.
-      fake_statistics_provider->SetMachineStatistic(
-          ash::system::kSerialNumberKey, "fake_serial_number");
-      fake_statistics_provider->SetLoadingState(
-          ash::system::StatisticsProvider::LoadingState::kFinished);
-    }
-  };
-  ScopedFakeSerialNumber fake_serial_number_;
-#endif
   std::unique_ptr<RealtimeReportingJobConfiguration> configuration_;
 
  private:

@@ -103,11 +103,6 @@ class CONTENT_EXPORT ClipboardHostImpl : public blink::mojom::ClipboardHost,
         IsClipboardPasteAllowedCallback callback) = 0;
     virtual void OnTextCopiedToClipboard(const std::u16string& copied_text) = 0;
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // The Files app pastes its own custom formats alongside files, where a
-    // web page gets only the file list.
-    virtual bool IncludeAllTypesWhenFilesPresent() = 0;
-#endif
   };
 
   explicit ClipboardHostImpl(std::unique_ptr<Context> context);

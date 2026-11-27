@@ -2,8 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-assert(!is_android)
-
 source_set("browser_command") {
   sources = [
     "browser_command_handler.cc",
@@ -16,7 +14,6 @@ source_set("browser_command") {
     "//chrome/browser:browser_process",
     "//chrome/browser:command_updater_impl",
     "//chrome/browser/feedback",
-    "//chrome/browser/glic",
     "//chrome/browser/new_tab_page",
     "//chrome/browser/profiles:profile",
     "//chrome/browser/search",

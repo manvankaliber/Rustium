@@ -30,10 +30,6 @@
 #include "content/public/common/webplugininfo.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/public/browser/render_widget_host_view.h"
-#include "third_party/blink/public/common/features.h"
-#endif
 
 namespace {
 
@@ -125,27 +121,6 @@ PDFIFrameNavigationThrottle::WillProcessResponse() {
   }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(
-          blink::features::kAndroidHandlePdfInIframe)) {
-    content::RenderFrameHost* rfh = navigation_handle()->GetRenderFrameHost();
-    content::RenderWidgetHostView* view = rfh ? rfh->GetView() : nullptr;
-    bool is_hidden_view = !view || view->GetViewBounds().IsEmpty();
-    // Open PDFs in a new tab if the view is hidden and the user tried to access
-    // it.
-    if (is_hidden_view && navigation_handle()->HasUserGesture()) {
-      // Open in new tab
-      content::OpenURLParams params =
-          content::OpenURLParams::FromNavigationHandle(navigation_handle());
-      params.disposition = ui::mojom::WindowOpenDisposition::kNewForegroundTab;
-      navigation_handle()->GetWebContents()->OpenURL(
-          params, /*navigation_handle_callback=*/{});
-      // Cancel the navigation in the original frame so it doesn't show
-      // placeholder.
-      return content::NavigationThrottle::CANCEL_AND_IGNORE;
-    }
-  }
-#endif
 
   LoadPlaceholderHTML();
   return content::NavigationThrottle::CANCEL_AND_IGNORE;

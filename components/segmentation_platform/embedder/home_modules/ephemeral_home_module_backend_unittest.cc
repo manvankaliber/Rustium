@@ -5,7 +5,6 @@
 #include "components/segmentation_platform/embedder/home_modules/ephemeral_home_module_backend.h"
 
 #include "base/test/scoped_feature_list.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/prefs/testing_pref_service.h"
 #include "components/segmentation_platform/embedder/default_model/default_model_test_base.h"
 #include "components/segmentation_platform/embedder/home_modules/card_selection_info.h"
@@ -99,31 +98,8 @@ TEST_F(EphemeralHomeModuleBackendTest, InitAndFetchModel) {
 }
 
 TEST_F(EphemeralHomeModuleBackendTest, ExecuteModelWithInput) {
-#if BUILDFLAG(IS_IOS)
-  size_t input_size = registry_->all_cards_input_size();
-  size_t output_size = registry_->all_output_labels().size();
-  std::vector<float> expected_result(output_size, kNotShownResultValue);
-  // App Bundle Promo card is visible when passed a 0 (below impression limit
-  // threshold.
-  int index = registry_->get_label_index(kAppBundlePromoEphemeralModule);
-  if (index != -1) {
-    expected_result[index] =
-        EphemeralHomeModuleRankToScore(EphemeralHomeModuleRank::kTop);
-  }
-  ExpectExecutionWithInput(std::vector<float>(input_size, 0),
-                           /*expected_error=*/false,
-                           /*expected_result=*/expected_result);
-#elif BUILDFLAG(IS_ANDROID)
-  size_t input_size = registry_->all_cards_input_size();
-  size_t output_size = registry_->all_output_labels().size();
-  ExpectExecutionWithInput(
-      std::vector<float>(input_size, 0), /*expected_error=*/false,
-      /*expected_result=*/
-      std::vector<float>(output_size, kNotShownResultValue));
-#else
   ExpectExecutionWithInput(/*inputs=*/{}, /*expected_error=*/false,
                            /*expected_result=*/{kNotShownResultValue});
-#endif
 }
 
 // Test with adding a TestCardInfo to the registry.

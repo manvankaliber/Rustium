@@ -168,9 +168,7 @@ def _EnsureInputLoaded(
     asts[mojom_abspath],
     module_path,
     imports,
-    translate.ExtensibleEnumMode.RELAXED_FOR_CHROMEOS
-    if is_chromeos
-    else translate.ExtensibleEnumMode.STRICT,
+    translate.ExtensibleEnumMode.STRICT,
   )
   loaded_modules[mojom_abspath].metadata = dict(module_metadata)
 

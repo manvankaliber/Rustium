@@ -6,7 +6,6 @@
 
 #include <utility>
 
-#include "chrome/browser/password_manager/password_change/glic_password_change_actuator.h"
 #include "chrome/browser/profiles/profile.h"
 #include "components/password_manager/core/browser/password_string.h"
 #include "content/public/browser/web_contents.h"
@@ -15,7 +14,6 @@ PasswordChangeFromCheckupDelegate::PasswordChangeFromCheckupDelegate() =
     default;
 
 PasswordChangeFromCheckupDelegate::~PasswordChangeFromCheckupDelegate() {
-  Stop(actor::ActorTask::StoppedReason::kShutdown);
   actuator_.reset();
 }
 
@@ -30,28 +28,14 @@ void PasswordChangeFromCheckupDelegate::StartPasswordChangeFlow(
   state_change_callback_ = std::move(callback);
 
   if (!actuator_) {
-    Profile* profile =
-        Profile::FromBrowserContext(web_contents->GetBrowserContext());
-    actuator_ = std::make_unique<GlicPasswordChangeActuator>(
-        std::move(credential), web_contents.get(), profile);
-    actuator_->AddObserver(this);
+    if (state_change_callback_) {
+      state_change_callback_.Run(PasswordAutomaticChangeState::kError);
+    }
+    return;
   }
   actuator_->Start();
 }
 
-void PasswordChangeFromCheckupDelegate::Stop(
-    actor::ActorTask::StoppedReason stop_reason) {
-  if (actuator_) {
-    actuator_->RemoveObserver(this);
-    actuator_->Cancel();
-    actuator_.reset();
-  }
-
-  if (state_change_callback_) {
-    state_change_callback_.Run(PasswordAutomaticChangeState::kInactive);
-    state_change_callback_.Reset();
-  }
-}
 
 void PasswordChangeFromCheckupDelegate::OnActuationStateChanged(
     PasswordChangeActuator::State new_state) {

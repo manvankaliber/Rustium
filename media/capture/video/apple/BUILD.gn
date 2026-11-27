@@ -2,8 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/apple/mobile_config.gni")
-
 assert(is_apple)
 
 source_set("apple") {
@@ -62,10 +60,6 @@ source_set("apple") {
     deps += [ "//media/capture/video/mac" ]
   }
 
-  if (is_ios) {
-    deps += [ "//media/capture/video/ios" ]
-  }
-
   frameworks = [
     "AVFoundation.framework",
     "CoreFoundation.framework",
@@ -76,10 +70,6 @@ source_set("apple") {
     "IOSurface.framework",
     "VideoToolbox.framework",
   ]
-
-  if (is_ios) {
-    frameworks += [ "UIKit.framework" ]
-  }
 }
 
 source_set("unit_tests") {
@@ -119,8 +109,4 @@ source_set("unit_tests") {
     "IOSurface.framework",
     "VideoToolbox.framework",
   ]
-
-  if (is_ios) {
-    frameworks += [ "UIKit.framework" ]
-  }
 }

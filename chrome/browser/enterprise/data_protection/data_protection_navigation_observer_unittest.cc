@@ -1793,7 +1793,7 @@ TEST_F(DataProtectionNavigationObserverTest, CanCheckUrl) {
   const std::pair<GURL, bool> kTestCases[] = {
       {GURL(chrome::kChromeUINewTabPageThirdPartyURL), false},
       {GURL("chrome://version/"), true},
-      {GURL("about:blank"), !BUILDFLAG(IS_ANDROID)},
+      {GURL("about:blank"), !false},
   };
   // LINT.ThenChange(//components/safe_browsing/core/browser/realtime/chrome_enterprise_url_lookup_service.cc:CanCheckUrl)
 

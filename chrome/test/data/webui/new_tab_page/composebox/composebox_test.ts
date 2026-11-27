@@ -169,53 +169,51 @@ suite('NewTabPageComposeboxTest', () => {
             'cr-composebox-submit'));
       });
 
-  test(
-      'clear functionality', async () => {
-        createComposeboxElement(testProxy, {
-          searchboxNextEnabled: true,
-        });
-        testProxy.searchboxHandler.setPromiseResolveFor(
-            ADD_FILE_CONTEXT_FN, {low: BigInt(1), high: BigInt(2)});
-        await microtasksFinished();
+  test('clear functionality', async () => {
+    createComposeboxElement(testProxy, {
+      searchboxNextEnabled: true,
+    });
+    testProxy.searchboxHandler.setPromiseResolveFor(
+        ADD_FILE_CONTEXT_FN, {low: BigInt(1), high: BigInt(2)});
+    await microtasksFinished();
 
-        // Assert submit button is omitted from DOM.
-        assertFalse(!!testProxy.element.shadowRoot.querySelector(
-            'cr-composebox-submit'));
+    // Assert submit button is omitted from DOM.
+    assertFalse(
+        !!testProxy.element.shadowRoot.querySelector('cr-composebox-submit'));
 
-        // Add input and files.
-        const input =
-            testProxy.element.getInputElement()
-                .shadowRoot.querySelector<HTMLTextAreaElement>('#input')!;
-        input.value = 'test';
-        input.dispatchEvent(new Event('input'));
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(
-            new File(['foo1'], 'foo1.pdf', {type: 'application/pdf'}));
-        const fileInput = testProxy.element.$.fileInputs.shadowRoot
-                              .querySelector<HTMLInputElement>('#fileInput')!;
-        fileInput.files = dataTransfer.files;
-        fileInput.dispatchEvent(new Event('change'));
+    // Add input and files.
+    const input = testProxy.element.getInputElement()
+                      .shadowRoot.querySelector<HTMLTextAreaElement>('#input')!;
+    input.value = 'test';
+    input.dispatchEvent(new Event('input'));
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(
+        new File(['foo1'], 'foo1.pdf', {type: 'application/pdf'}));
+    const fileInput = testProxy.element.$.fileInputs.shadowRoot
+                          .querySelector<HTMLInputElement>('#fileInput')!;
+    fileInput.files = dataTransfer.files;
+    fileInput.dispatchEvent(new Event('change'));
 
-        await testProxy.searchboxHandler.whenCalled(ADD_FILE_CONTEXT_FN);
-        await microtasksFinished();
+    await testProxy.searchboxHandler.whenCalled(ADD_FILE_CONTEXT_FN);
+    await microtasksFinished();
 
-        assertEquals(
-            testProxy.element.shadowRoot
-                .querySelector<ComposeboxFileCarouselElement>(
-                    '#carousel')!.files.length,
-            1);
+    assertEquals(
+        testProxy.element.shadowRoot
+            .querySelector<ComposeboxFileCarouselElement>(
+                '#carousel')!.files.length,
+        1);
 
-        // Clear input.
-        $$<HTMLElement>(
-            testProxy.element.getInputElement(), '#cancelIcon')!.click();
-        await microtasksFinished();
-        assertEquals(testProxy.searchboxHandler.getCallCount('clearFiles'), 1);
+    // Clear input.
+    $$<HTMLElement>(
+        testProxy.element.getInputElement(), '#cancelIcon')!.click();
+    await microtasksFinished();
+    assertEquals(testProxy.searchboxHandler.getCallCount('clearFiles'), 1);
 
-        // Assert button is omitted from DOM after clear.
-        assertFalse(!!testProxy.element.shadowRoot.querySelector(
-            'cr-composebox-submit'));
-        assertFalse(!!$$<HTMLElement>(testProxy.element, '#carousel'));
-      });
+    // Assert button is omitted from DOM after clear.
+    assertFalse(
+        !!testProxy.element.shadowRoot.querySelector('cr-composebox-submit'));
+    assertFalse(!!$$<HTMLElement>(testProxy.element, '#carousel'));
+  });
 
   test(
       'clear functionality preserves restored tabs when context management ' +
@@ -322,50 +320,48 @@ suite('NewTabPageComposeboxTest', () => {
         assertEquals(testProxy.element.aimThreadRestoredTabs.length, 0);
       });
 
-  test(
-      'suggestion activity link triggers navigation', async () => {
-        createComposeboxElement(testProxy);
-        await microtasksFinished();
+  test('suggestion activity link triggers navigation', async () => {
+    createComposeboxElement(testProxy);
+    await microtasksFinished();
 
-        const matches = [createSearchMatchForTesting()];
-        testProxy.searchboxCallbackRouterRemote.autocompleteResultChanged(
-            createAutocompleteResultForTesting({
-              queryId: testProxy.element.activeQueryId,
-              matches,
-              showAimActivityLink: true,
-            }));
-        await testProxy.searchboxCallbackRouterRemote.$.flushForTesting();
-        await microtasksFinished();
-        await testProxy.element.updateComplete;
+    const matches = [createSearchMatchForTesting()];
+    testProxy.searchboxCallbackRouterRemote.autocompleteResultChanged(
+        createAutocompleteResultForTesting({
+          queryId: testProxy.element.activeQueryId,
+          matches,
+          showAimActivityLink: true,
+        }));
+    await testProxy.searchboxCallbackRouterRemote.$.flushForTesting();
+    await microtasksFinished();
+    await testProxy.element.updateComplete;
 
-        const suggestionActivity =
-            testProxy.element.shadowRoot.querySelector('#suggestionActivity');
-        assertTrue(!!suggestionActivity);
-        const localizedLink =
-            suggestionActivity.querySelector('localized-link');
-        assertTrue(!!localizedLink);
+    const suggestionActivity =
+        testProxy.element.shadowRoot.querySelector('#suggestionActivity');
+    assertTrue(!!suggestionActivity);
+    const localizedLink = suggestionActivity.querySelector('localized-link');
+    assertTrue(!!localizedLink);
 
-        const testUrl = 'about:blank?activity';
-        const anchor = document.createElement('a');
-        anchor.href = testUrl;
+    const testUrl = 'about:blank?activity';
+    const anchor = document.createElement('a');
+    anchor.href = testUrl;
 
-        let preventDefaultCalled = false;
-        const linkClickedEvent = new CustomEvent('link-clicked', {
-          detail: {
-            event: {
-              preventDefault: () => {
-                preventDefaultCalled = true;
-              },
-              currentTarget: anchor,
-            },
+    let preventDefaultCalled = false;
+    const linkClickedEvent = new CustomEvent('link-clicked', {
+      detail: {
+        event: {
+          preventDefault: () => {
+            preventDefaultCalled = true;
           },
-        });
-        localizedLink.dispatchEvent(linkClickedEvent);
+          currentTarget: anchor,
+        },
+      },
+    });
+    localizedLink.dispatchEvent(linkClickedEvent);
 
-        const url = await testProxy.handler.whenCalled('navigateUrl');
-        assertEquals(testUrl, url);
-        assertTrue(preventDefaultCalled);
-      });
+    const url = await testProxy.handler.whenCalled('navigateUrl');
+    assertEquals(testUrl, url);
+    assertTrue(preventDefaultCalled);
+  });
 
   test(
       'suggestion activity link hidden when suggestions are non canned',
@@ -586,79 +582,38 @@ suite('NewTabPageComposeboxTest', () => {
     assertTrue(openMenuCalled);
   });
 
-  test(
-      'tool chip uses Clank layout for ImageGen and Canvas on Android',
-      async () => {
-        createComposeboxElement(testProxy, {
-          searchboxNextEnabled: true,
-        });
-        testProxy.element.searchboxLayoutMode = 'Compact';
-        testProxy.element.inToolMode = true;
+  test('tool chip renders desktop ImageGen layout', async () => {
+    createComposeboxElement(testProxy, {
+      searchboxNextEnabled: true,
+    });
+    testProxy.element.searchboxLayoutMode = 'Compact';
+    testProxy.element.inToolMode = true;
 
-        try {
-          // Guard off: ImageGen renders the legacy layout.
-          loadTimeData.overrideValues({
-            isAndroid: false,
-            useSearchboxConfigIconIds: false,
-          });
-          testProxy.searchboxCallbackRouterRemote.onInputStateChanged(
-              new MockInputState({activeTool: ToolMode.kImageGen}));
-          await testProxy.searchboxCallbackRouterRemote.$.flushForTesting();
-          await microtasksFinished();
-
-          let chip = testProxy.element.shadowRoot
-                         .querySelector<ComposeboxToolChipElement>(
-                             '#toolChipsContainer cr-composebox-tool-chip');
-          assertTrue(
-              !!chip!.shadowRoot.querySelector('#leftCloseIcon'),
-              'ImageGen should render the legacy layout when isAndroid is' +
-                  ' false');
-          assertEquals(
-              'composebox:nanoBanana-custom',
-              chip!.shadowRoot.querySelector<CrIconElement>('.tool-icon')!.icon,
-              'ImageGen should keep the legacy banana icon when isAndroid is' +
-                  ' false');
-
-          // Guard on: ImageGen and Canvas render the Clank layout.
-          loadTimeData.overrideValues({isAndroid: true});
-          testProxy.searchboxCallbackRouterRemote.onInputStateChanged(
-              new MockInputState({activeTool: ToolMode.kImageGen}));
-          await testProxy.searchboxCallbackRouterRemote.$.flushForTesting();
-          await microtasksFinished();
-
-          chip = testProxy.element.shadowRoot
-                     .querySelector<ComposeboxToolChipElement>(
-                         '#toolChipsContainer cr-composebox-tool-chip');
-          assertTrue(
-              !!chip!.shadowRoot.querySelector('.chip-close-icon'),
-              'ImageGen should render the Clank close icon when isAndroid is' +
-                  ' true');
-          assertEquals(
-              'composebox:nanoBanana-clank',
-              chip!.shadowRoot
-                  .querySelector<CrIconElement>('.chip-leading-icon')!.icon,
-              'ImageGen should use the Clank banana icon when isAndroid is' +
-                  ' true');
-
-          testProxy.searchboxCallbackRouterRemote.onInputStateChanged(
-              new MockInputState({activeTool: ToolMode.kCanvas}));
-          await testProxy.searchboxCallbackRouterRemote.$.flushForTesting();
-          await microtasksFinished();
-
-          chip = testProxy.element.shadowRoot
-                     .querySelector<ComposeboxToolChipElement>(
-                         '#toolChipsContainer cr-composebox-tool-chip');
-          assertTrue(
-              !!chip!.shadowRoot.querySelector('.chip-close-icon'),
-              'Canvas should render the Clank close icon when isAndroid is' +
-                  ' true');
-        } finally {
-          loadTimeData.overrideValues({
-            isAndroid: false,
-            useSearchboxConfigIconIds: true,
-          });
-        }
+    try {
+      loadTimeData.overrideValues({
+        useSearchboxConfigIconIds: false,
       });
+      testProxy.searchboxCallbackRouterRemote.onInputStateChanged(
+          new MockInputState({activeTool: ToolMode.kImageGen}));
+      await testProxy.searchboxCallbackRouterRemote.$.flushForTesting();
+      await microtasksFinished();
+
+      const chip =
+          testProxy.element.shadowRoot.querySelector<ComposeboxToolChipElement>(
+              '#toolChipsContainer cr-composebox-tool-chip');
+      assertTrue(
+          !!chip!.shadowRoot.querySelector('#leftCloseIcon'),
+          'ImageGen should render the desktop close icon');
+      assertEquals(
+          'composebox:nanoBanana-custom',
+          chip!.shadowRoot.querySelector<CrIconElement>('.tool-icon')!.icon,
+          'ImageGen should keep the desktop banana icon');
+    } finally {
+      loadTimeData.overrideValues({
+        useSearchboxConfigIconIds: true,
+      });
+    }
+  });
 
   // Required to test how the voice chips are integrated into NTP html
   // (event listeners, id's, classes, etc.):

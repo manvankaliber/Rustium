@@ -30,7 +30,7 @@ class TestPersonalDataManager;
 
 struct CardUnmaskChallengeOption;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 class TestCreditCardFidoAuthenticator;
 #endif
 
@@ -51,7 +51,7 @@ class CreditCardAccessManagerTestBase
   static constexpr int64_t kTestInstrumentId = 12345;
   static constexpr int64_t kTestInstrumentId2 = 67890;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   static constexpr char kTestCvc[] = "123";
   // Base64 encoding of "This is a test challenge".
   static constexpr char kTestChallenge[] = "VGhpcyBpcyBhIHRlc3QgY2hhbGxlbmdl";
@@ -136,7 +136,7 @@ class CreditCardAccessManagerTestBase
       TestFidoRequestOptionsType test_fido_request_options_type =
           TestFidoRequestOptionsType::kNotPresent);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   void AddMaxStrikes();
   void ClearStrikes();
   int GetStrikes();
@@ -198,7 +198,7 @@ class CreditCardAccessManagerTestBase
     return *autofill_manager().GetCreditCardAccessManager();
   }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   TestCreditCardFidoAuthenticator& fido_authenticator();
 #endif
 
@@ -211,7 +211,7 @@ class CreditCardAccessManagerTestBase
 
   TestPersonalDataManager& personal_data();
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   void OptUserInToFido();
 #endif
 

@@ -86,13 +86,11 @@
 #include "ui/gfx/image/image_skia.h"
 #include "ui/gfx/image/image_skia_rep.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/download/download_item_warning_data.h"
 #include "chrome/browser/ui/hats/trust_safety_sentiment_service.h"
 #include "chrome/browser/ui/hats/trust_safety_sentiment_service_factory.h"
-#endif
 
-#if !BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(ENABLE_EXTENSIONS)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/download/bubble/download_bubble_ui_controller.h"
 #endif
 
@@ -1083,7 +1081,6 @@ bool IsDownloadDeltaField(const std::string& field) {
 // dangerous download.
 // NOTE: Android does not support the TrustSafetySentimentService.
 void MaybeTriggerTrustSafetySentimentSurvey(Profile* profile, bool accept) {
-#if !BUILDFLAG(IS_ANDROID)
   // Survey triggered on ACCEPT action, since this is where the user
   // confirms their choice to keep a dangerous download, rather than
   // triggering a survey after selecting to KEEP in the downloads page UI.
@@ -1097,7 +1094,6 @@ void MaybeTriggerTrustSafetySentimentSurvey(Profile* profile, bool accept) {
           DownloadItemWarningData::WarningAction::PROCEED);
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 }  // namespace
@@ -1752,7 +1748,7 @@ ExtensionFunction::ResponseAction DownloadsSetShelfEnabledFunction::Run() {
     if (!match_current_service || current_service->IsDownloadUiEnabled()) {
       continue;
     }
-#if !BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(ENABLE_EXTENSIONS)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
     // Calling this API affects the download bubble as well, so extensions
     // using this API is still compatible with the new download bubble. This
     // API will eventually be deprecated (replaced by the SetUiOptions API
@@ -1807,7 +1803,7 @@ ExtensionFunction::ResponseAction DownloadsSetUiOptionsFunction::Run() {
       continue;
     }
 
-#if !BUILDFLAG(IS_CHROMEOS) && BUILDFLAG(ENABLE_EXTENSIONS)
+#if BUILDFLAG(ENABLE_EXTENSIONS)
     BrowserWindowInterface* browser = window->GetBrowser();
     BrowserWindow* browser_window = BrowserWindow::FromBrowser(browser);
     if (browser_window && browser_window->GetDownloadBubbleUIController()) {

@@ -28,7 +28,7 @@ namespace content {
 // TODO(crbug.com/40554182): Re-enable test on Android as soon as the cause for
 // the bug is understood and fixed.
 // TODO(crbug.com/40754212): Flaky on Linux/Windows.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #define MAYBE_ManipulatePan DISABLED_ManipulatePan
 #define MAYBE_ManipulateZoom DISABLED_ManipulateZoom
 #else
@@ -38,13 +38,13 @@ namespace content {
 
 // TODO(crbug.com/793859, crbug.com/986602): This test is broken on Android
 // (see above) and flaky on Linux.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ManipulateExposureTime DISABLED_ManipulateExposureTime
 #else
 #define MAYBE_ManipulateExposureTime ManipulateExposureTime
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // See crbug/986470
 #define MAYBE_GetPhotoSettings DISABLED_GetPhotoSettings
 #define MAYBE_GetTrackSettings DISABLED_GetTrackSettings
@@ -165,7 +165,7 @@ class WebRtcImageCaptureSucceedsBrowserTest
 };
 
 // TODO(crbug.com/41478485): Flaky on Linux.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_GetPhotoCapabilities DISABLED_GetPhotoCapabilities
 #else
 #define MAYBE_GetPhotoCapabilities GetPhotoCapabilities
@@ -201,7 +201,7 @@ IN_PROC_BROWSER_TEST_P(WebRtcImageCaptureSucceedsBrowserTest, MAYBE_GrabFrame) {
 }
 
 // Flaky. crbug.com/998116
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_GetTrackCapabilities DISABLED_GetTrackCapabilities
 #else
 #define MAYBE_GetTrackCapabilities GetTrackCapabilities
@@ -227,7 +227,7 @@ IN_PROC_BROWSER_TEST_P(WebRtcImageCaptureSucceedsBrowserTest,
 // TODO(crbug.com/41478484): Flaky on Linux.
 // TODO(crbug.com/40554182): Re-enable test on Android as soon as the cause for
 // the bug is understood and fixed.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_ManipulateTilt DISABLED_ManipulateTilt
 #else
 #define MAYBE_ManipulateTilt ManipulateTilt
@@ -268,8 +268,7 @@ INSTANTIATE_TEST_SUITE_P(
 // API has already been implemented.
 // Note, these tests must be run sequentially, since multiple parallel test runs
 // competing for a single physical webcam typically causes failures.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 
 const TargetVideoCaptureImplementation
     kTargetVideoCaptureImplementationsForRealWebcam[] = {

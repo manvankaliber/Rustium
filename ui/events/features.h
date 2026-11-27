@@ -38,11 +38,6 @@ BASE_DECLARE_FEATURE(kLegacyKeyRepeatSynthesis);
 EVENTS_BASE_EXPORT
 BASE_DECLARE_FEATURE(kFixDoubleClickNotWorking);
 
-#if BUILDFLAG(IS_ANDROID)
-// If enabled, MOUSE events with UNKNOWN tool are considered as touchpads on
-// Android.
-EVENTS_BASE_EXPORT BASE_DECLARE_FEATURE(kAndroidTouchpadDetection);
-#endif
 
 }  // namespace ui
 

@@ -9,12 +9,12 @@
 
 namespace base::internal {
 
-#if PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
 std::atomic<int> ReentrancyState::Guard::guard_count_{0};
 std::array<std::atomic<ReentrancyState::PlatformThreadRef>,
            ReentrancyState::Guard::kCapacity>
     ReentrancyState::Guard::threads_;
-#endif  // PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#endif
 
 ReentrancyState::TlsKey ReentrancyState::key_{kInvalidTlsKey};
 partition_alloc::internal::Lock ReentrancyState::creation_lock_;

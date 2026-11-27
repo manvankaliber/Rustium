@@ -1102,34 +1102,5 @@ TEST_F(PictureInPictureControllerTestWithChromeClient,
   ExpectPipActivationAllowsFocusingOpener(pip_script_state, *pip_window);
 }
 
-#if BUILDFLAG(TARGET_OS_IS_ANDROID)
-TEST_F(PictureInPictureControllerTestWithChromeClient,
-       WindowLookupKillSwitchBlocksFocusingOpenerOnAndroid) {
-  V8TestingScope v8_scope;
-  LocalFrame::NotifyUserActivation(
-      &GetFrame(), mojom::UserActivationNotificationType::kTest);
-  LocalDOMWindow* pip_window =
-      OpenDocumentPictureInPictureWindow(v8_scope, GetDocument());
-  ASSERT_NE(nullptr, pip_window);
-
-  ScopedDocumentPictureInPictureWindowLookupAndroidForTest window_lookup(false);
-  EXPECT_EQ(nullptr,
-            PictureInPictureController::GetDocumentPictureInPictureWindow(
-                GetDocument()));
-  EXPECT_EQ(nullptr,
-            PictureInPictureController::GetDocumentPictureInPictureOwner(
-                *pip_window->document()));
-
-  // Even with activation in the pip window, focus() doesn't focus the opener.
-  ScriptState* script_state = ToScriptStateForMainWorld(&GetFrame());
-  ScriptState::Scope entered_context_scope(script_state);
-  LocalFrame::ConsumeTransientUserActivation(&GetFrame());
-  LocalFrame::NotifyUserActivation(
-      pip_window->GetFrame(), mojom::UserActivationNotificationType::kTest);
-  EXPECT_CALL(GetPipChromeClient(), FocusPage()).Times(0);
-  GetDocument().domWindow()->focus(script_state->GetIsolate());
-  testing::Mock::VerifyAndClearExpectations(&GetPipChromeClient());
-}
-#endif  // BUILDFLAG(TARGET_OS_IS_ANDROID)
 
 }  // namespace blink

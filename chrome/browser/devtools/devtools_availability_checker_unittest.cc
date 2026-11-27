@@ -34,7 +34,6 @@
 #include "extensions/common/mojom/manifest.mojom-shared.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_webui_profile.h"
 #include "chrome/browser/web_applications/isolated_web_apps/isolated_web_app_url_info.h"
 #include "chrome/browser/web_applications/test/fake_web_app_provider.h"
@@ -44,7 +43,6 @@
 #include "chrome/browser/web_applications/web_app_constants.h"
 #include "chrome/browser/web_applications/web_app_registrar.h"
 #include "components/webapps/common/web_app_id.h"
-#endif
 
 class DevToolsAvailabilityCheckerTest : public testing::Test {
  public:
@@ -512,7 +510,6 @@ TEST_F(DevToolsAvailabilityCheckerTest,
   EXPECT_FALSE(IsInspectionAllowed(profile_.get(), web_contents_.get()));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(DevToolsAvailabilityCheckerTest, WebAppAllowedByPolicy) {
   base::ListValue allowlist;
@@ -688,7 +685,6 @@ TEST_F(DevToolsAvailabilityCheckerTest,
   EXPECT_FALSE(IsInspectionAllowed(profile_.get(), sw_url));
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(DevToolsAvailabilityCheckerTest, TargetLevelSubframeBlocked) {
   base::ListValue blocklist;
@@ -890,7 +886,6 @@ TEST_F(DevToolsAvailabilityCheckerTest,
 }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(DevToolsAvailabilityCheckerTest, BlockReasonForKioskWebApp) {
   profile_->GetPrefs()->SetInteger(
       prefs::kDevToolsAvailability,
@@ -958,7 +953,6 @@ TEST_F(DevToolsAvailabilityCheckerTest,
                                    GURL("chrome://webui-toolbar.top-chrome/")));
   EXPECT_FALSE(HasDevToolsPolicyCheck(webui::GetTopChromeWebUIProfile()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(DevToolsAvailabilityCheckerTest, HasDevToolsPolicyCheck) {
   EXPECT_FALSE(HasDevToolsPolicyCheck(profile_.get()));
@@ -1114,7 +1108,6 @@ TEST_F(DevToolsAvailabilityCheckerTest,
 }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(DevToolsAvailabilityCheckerTest,
        HasDevToolsPolicyCheckWithInstalledWebApps) {
   web_app::test::AwaitStartWebAppProviderAndSubsystems(profile_.get());
@@ -1145,4 +1138,3 @@ TEST_F(DevToolsAvailabilityCheckerTest,
       policy_iwa_id, std::move(policy_iwa));
   EXPECT_TRUE(HasDevToolsPolicyCheck(profile_.get()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

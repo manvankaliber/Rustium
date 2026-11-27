@@ -110,30 +110,28 @@ source_set("browser_tests") {
   ]
 }
 
-if (!is_chromeos_device) {
-  source_set("interactive_ui_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+source_set("interactive_ui_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
 
-    sources = [
-      "LHS_indicators_interactive_uitest.cc",
-      "dashboard_kombucha_interactive_uitest.cc",
-      "permission_chip_interactive_uitest.cc",
-      "permission_chip_kombucha_interactive_uitest.cc",
-    ]
+  sources = [
+    "LHS_indicators_interactive_uitest.cc",
+    "dashboard_kombucha_interactive_uitest.cc",
+    "permission_chip_interactive_uitest.cc",
+    "permission_chip_kombucha_interactive_uitest.cc",
+  ]
 
-    deps = [
-      ":chip",
-      "//chrome/browser/permissions",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui/views:content_setting_bubble_contents",
-      "//chrome/browser/ui/views/frame:browser_view_header",
-      "//chrome/browser/ui/views/location_bar:test_support",
-      "//chrome/browser/ui/views/page_info",
-      "//chrome/browser/ui/views/permissions",
-      "//chrome/test:test_support",
-      "//ui/events:test_support",
-    ]
-  }
+  deps = [
+    ":chip",
+    "//chrome/browser/permissions",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui/views:content_setting_bubble_contents",
+    "//chrome/browser/ui/views/frame:browser_view_header",
+    "//chrome/browser/ui/views/location_bar:test_support",
+    "//chrome/browser/ui/views/page_info",
+    "//chrome/browser/ui/views/permissions",
+    "//chrome/test:test_support",
+    "//ui/events:test_support",
+  ]
 }

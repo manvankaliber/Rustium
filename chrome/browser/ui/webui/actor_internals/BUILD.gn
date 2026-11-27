@@ -20,7 +20,6 @@ source_set("actor_internals") {
   deps = [
     "//chrome/browser:browser_process",
     "//chrome/browser:global_features",
-    "//chrome/browser/actor",
     "//chrome/browser/profiles",
     "//chrome/common",
     "//components/actor/core:journal",

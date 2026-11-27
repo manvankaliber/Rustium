@@ -11,12 +11,6 @@ export function getHtml(this: SettingsA11yPageElement) {
   return html`<!--_html_template_start_-->
 <settings-section page-title="$i18n{a11yPageTitle}">
   <div route-path="default">
-<if expr="is_chromeos">
-    <cr-link-row label="$i18n{manageAccessibilityFeatures}"
-        @click="${this.onManageSystemAccessibilityFeaturesClick_}"
-        sub-label="$i18n{moreFeaturesLinkDescription}" external>
-    </cr-link-row>
-</if>
 
 <if expr="is_macosx or is_win">
     ${this.enableLiveCaption_ ? html`
@@ -37,7 +31,6 @@ export function getHtml(this: SettingsA11yPageElement) {
     </cr-link-row>
 </if>
 
-<if expr="not is_chromeos">
     ${this.showPageColors_ ? html`
       <div class="cr-row hr">
         <div class="flex cr-padded-text" aria-hidden="true">
@@ -68,7 +61,6 @@ export function getHtml(this: SettingsA11yPageElement) {
         label="$i18n{caretBrowsingTitle}"
         sub-label="$i18n{caretBrowsingSubtitle}">
     </settings-toggle-button>
-</if>
     <settings-toggle-button class="hr" ?hidden="${!this.hasScreenReader_}"
         pref-key="settings.a11y.enable_accessibility_image_labels"
         @change="${this.onA11yImageLabelsChange_}"
@@ -103,7 +95,6 @@ export function getHtml(this: SettingsA11yPageElement) {
         sub-label="$i18n{overscrollHistoryNavigationSubtitle}" external>
     </cr-link-row>
 </if>
-<if expr="not is_chromeos">
     <settings-toggle-button class="hr" id="toastToggle"
         pref-key="settings.toast.alert_level"
         .numericUncheckedValues="${this.numericUncheckedToastAlertValues_}"
@@ -112,7 +103,6 @@ export function getHtml(this: SettingsA11yPageElement) {
         label="$i18n{toastAlertLevelTitle}"
         sub-label="$i18n{toastAlertLevelDescription}">
     </settings-toggle-button>
-</if>
     <cr-link-row class="hr" label="$i18n{moreFeaturesLink}"
         @click="${this.onMoreFeaturesLinkClick_}"
         sub-label="$i18n{a11yWebStore}"

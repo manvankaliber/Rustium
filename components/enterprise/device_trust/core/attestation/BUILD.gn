@@ -43,12 +43,10 @@ source_set("attestation") {
     "//third_party/boringssl",
   ]
 
-  if (!is_chromeos) {
-    public += [ "device_attester.h" ]
-    sources += [ "device_attester.cc" ]
+  public += [ "device_attester.h" ]
+  sources += [ "device_attester.cc" ]
 
-    deps += [ "//components/enterprise" ]
-  }
+  deps += [ "//components/enterprise" ]
 }
 
 source_set("types") {
@@ -56,12 +54,7 @@ source_set("types") {
 
   public = [ "signals_type.h" ]
 
-  if (is_chromeos) {
-    public_deps =
-        [ "//chromeos/ash/components/dbus/attestation:attestation_proto" ]
-  } else {
-    public_deps = [ "//components/enterprise/device_trust/core/attestation/proto:attestation_ca_proto" ]
-  }
+  public_deps = [ "//components/enterprise/device_trust/core/attestation/proto:attestation_ca_proto" ]
 }
 
 source_set("test_support") {
@@ -98,14 +91,10 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (!is_fuchsia) {
-    sources += [
-      "browser_attestation_service_unittest.cc",
-      "profile_attester_unittest.cc",
-    ]
-  }
+  sources += [
+    "browser_attestation_service_unittest.cc",
+    "profile_attester_unittest.cc",
+  ]
 
-  if (!is_chromeos && !is_fuchsia) {
-    sources += [ "device_attester_unittest.cc" ]
-  }
+  sources += [ "device_attester_unittest.cc" ]
 }

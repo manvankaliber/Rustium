@@ -509,15 +509,9 @@ TEST_F(InstallableEvaluatorUnitTest, ManifestRequiresIconSize) {
   // be accepted on desktop.
   icon.sizes = {gfx::Size(143, 143), gfx::Size(1025, 1025)};
   SetIcon(icon);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(InstallableStatusCode::NO_ERROR_DETECTED,
-            GetCheckInstallabilityErrorCode(
-                InstallableCriteria::kValidManifestWithIcons));
-#else
   EXPECT_EQ(InstallableStatusCode::MANIFEST_MISSING_SUITABLE_ICON,
             GetCheckInstallabilityErrorCode(
                 InstallableCriteria::kValidManifestWithIcons));
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // The representation of the keyword 'any' should be recognized.
   icon.sizes = {gfx::Size(143, 143), gfx::Size(0, 0)};

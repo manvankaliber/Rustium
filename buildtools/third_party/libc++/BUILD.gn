@@ -69,7 +69,11 @@ if (current_toolchain == default_toolchain) {
   # unconditionally.
   action("generate_libcxx_modulemap") {
     script = "//build/modules/unified/generate_system_modulemap.py"
-    inputs = [ "//third_party/libc++/src/include/module.modulemap.in" ]
+    inputs = [
+      "//build/action_helpers.py",
+      "//build/gn_helpers.py",
+      "//third_party/libc++/src/include/module.modulemap.in",
+    ]
     outputs = [
       "${root_build_dir}/gen/third_party/libc++/src/include/module.modulemap",
     ]
@@ -427,8 +431,7 @@ target(libcxx_target_type, "libc++") {
   if (is_linux) {
     # This target packages libc++.so, so must have an explicit dependency on
     # libc++.
-    visibility +=
-        [ "//remoting/host/linux:remoting_me2me_host_copy_user_session" ]
+    visibility += []
   }
   if (build_with_chromium && is_win && is_component_build) {
     # PartitionAlloc uses no_default_deps=true when is_win && is_component_build
@@ -565,13 +568,9 @@ target(libcxx_target_type, "libc++") {
     use_libcxx_modules = false
   }
 
-  if ((is_android || is_apple) && libcxx_is_shared) {
+  if (is_apple && libcxx_is_shared) {
     # Use libc++_chrome to avoid conflicting with system libc++
     output_name = "libc++_chrome"
-    if (is_android) {
-      # See crbug.com/1076244#c11 for more detail.
-      configs -= [ "//build/config/android:hide_all_but_jni_onload" ]
-    }
   }
 
   if (libcxx_is_shared && !is_win) {

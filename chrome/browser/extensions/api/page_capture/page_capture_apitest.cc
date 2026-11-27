@@ -111,12 +111,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionPageCaptureApiTest,
 // Tests that chrome.pageCapture.saveAsMHTML excludes subframes belonging to
 // other extensions unless activeTab permission has been granted, while
 // preserving the capturing extension's own frames and the main document.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_SaveAsMHTMLWithExtensionSubframe \
-  DISABLED_SaveAsMHTMLWithExtensionSubframe
-#else
 #define MAYBE_SaveAsMHTMLWithExtensionSubframe SaveAsMHTMLWithExtensionSubframe
-#endif
 IN_PROC_BROWSER_TEST_F(ExtensionPageCaptureApiTest,
                        MAYBE_SaveAsMHTMLWithExtensionSubframe) {
   ASSERT_TRUE(StartEmbeddedTestServer());

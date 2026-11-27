@@ -17,11 +17,6 @@
 #include <wtsapi32.h>
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include <optional>
-
-#include "components/session_manager/core/session_manager_observer.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_WIN)
 #include "base/callback_list.h"
@@ -95,25 +90,6 @@ class CONTENT_EXPORT ScreenlockMonitorDeviceSource
   void StopListeningForScreenlock();
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  class ScreenLockListener : public session_manager::SessionManagerObserver {
-   public:
-    ScreenLockListener();
-
-    ScreenLockListener(const ScreenLockListener&) = delete;
-    ScreenLockListener& operator=(const ScreenLockListener&) = delete;
-
-    ~ScreenLockListener() override;
-
-    // session_manager::SessionManagerObserver:
-    void OnSessionStateChanged() override;
-
-   private:
-    std::optional<ScreenlockEvent> prev_event_;
-  };
-
-  ScreenLockListener screenlock_listener_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 };
 
 }  // namespace content

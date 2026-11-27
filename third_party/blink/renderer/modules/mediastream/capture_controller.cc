@@ -63,7 +63,6 @@ bool IsCaptureType(const MediaStreamTrack* track,
       types, [display_surface](SurfaceType t) { return t == display_surface; });
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 bool ShouldFocusCapturedSurface(V8CaptureStartFocusBehavior focus_behavior) {
   switch (focus_behavior.AsEnum()) {
     case V8CaptureStartFocusBehavior::Enum::kFocusCapturedSurface:
@@ -158,11 +157,9 @@ void OnCapturedSurfaceControlResult(
     resolver->Resolve();
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 }  // namespace
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 class CaptureController::WheelEventListener : public NativeEventListener {
  public:
   WheelEventListener(ScriptState* script_state, CaptureController* controller)
@@ -217,7 +214,6 @@ class CaptureController::WheelEventListener : public NativeEventListener {
   Member<CaptureController> controller_;
   Member<HTMLElement> element_;
 };
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 CaptureController::ValidationResult::ValidationResult(DOMExceptionCode code,
                                                       String message)
@@ -255,10 +251,8 @@ CaptureController* CaptureController::Create(ExecutionContext* context) {
 
 CaptureController::CaptureController(ExecutionContext* context)
     : ExecutionContextClient(context)
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
       ,
       media_stream_dispatcher_host_(context)
-#endif
 {
 }
 
@@ -308,11 +302,6 @@ ScriptPromise<IDLUndefined> CaptureController::forwardWheel(
   auto* resolver =
       MakeGarbageCollected<ScriptPromiseResolver<IDLUndefined>>(script_state);
   const auto promise = resolver->Promise();
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  resolver->RejectWithDOMException(DOMExceptionCode::kNotSupportedError,
-                                   "Unsupported.");
-  return promise;
-#else
   if (!element) {
     if (wheel_listener_) {
       wheel_listener_->StopListening();
@@ -341,7 +330,6 @@ ScriptPromise<IDLUndefined> CaptureController::forwardWheel(
                             WrapWeakPersistent(this), WrapPersistent(resolver),
                             WrapWeakPersistent(element)));
   return promise;
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 }
 
 Vector<int> CaptureController::getSupportedZoomLevels(
@@ -396,9 +384,7 @@ void CaptureController::SetVideoTrack(MediaStreamTrack* video_track,
   // explicit deregistration of the observer is necessary.
   video_track_->Component()->AddSourceObserver(this);
   descriptor_id_ = std::move(descriptor_id);
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   zoom_level_ = GetInitialZoomLevel(video_track_);
-#endif
 }
 
 const AtomicString& CaptureController::InterfaceName() const {
@@ -418,7 +404,6 @@ bool CaptureController::FinalizeFocusDecision() {
 
   focus_decision_finalized_ = true;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   if (!video_track_ || !IsCaptureType(video_track_, {SurfaceType::BROWSER,
                                                      SurfaceType::WINDOW})) {
     return focus_decision_dispatched_;
@@ -431,11 +416,9 @@ bool CaptureController::FinalizeFocusDecision() {
         ShouldFocusCapturedSurface(focus_behavior_.value()));
     focus_decision_dispatched_ = true;
   }
-#endif
   return focus_decision_dispatched_;
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void CaptureController::SourceChangedZoomLevel(int zoom_level) {
   DCHECK(IsMainThread());
 
@@ -489,14 +472,11 @@ void CaptureController::SetMediaStreamDispatcherHostForTesting(
       std::move(host),
       GetExecutionContext()->GetTaskRunner(TaskType::kInternalMediaRealTime));
 }
-#endif
 
 void CaptureController::Trace(Visitor* visitor) const {
   visitor->Trace(video_track_);
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   visitor->Trace(wheel_listener_);
   visitor->Trace(media_stream_dispatcher_host_);
-#endif
   EventTarget::Trace(visitor);
   ExecutionContextClient::Trace(visitor);
 }
@@ -534,11 +514,6 @@ ScriptPromise<IDLUndefined> CaptureController::UpdateZoomLevel(
       MakeGarbageCollected<ScriptPromiseResolver<IDLUndefined>>(script_state);
 
   const auto promise = resolver->Promise();
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  resolver->RejectWithDOMException(DOMExceptionCode::kNotSupportedError,
-                                   "Unsupported.");
-  return promise;
-#else
   ValidationResult validation_result = ValidateCapturedSurfaceControlCall();
   if (validation_result.code != DOMExceptionCode::kNoError) {
     resolver->RejectWithDOMException(validation_result.code,
@@ -558,10 +533,8 @@ ScriptPromise<IDLUndefined> CaptureController::UpdateZoomLevel(
       session_id.value(), action,
       BindOnce(&OnCapturedSurfaceControlResult, WrapPersistent(resolver)));
   return promise;
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 void CaptureController::SendWheel(double relative_x,
                                   double relative_y,
                                   int32_t wheel_delta_x,
@@ -576,6 +549,5 @@ void CaptureController::SendWheel(double relative_x,
       *session_id, blink::mojom::blink::CapturedWheelAction::New(
                        relative_x, relative_y, wheel_delta_x, wheel_delta_y));
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 }  // namespace blink

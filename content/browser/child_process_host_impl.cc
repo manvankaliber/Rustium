@@ -36,13 +36,13 @@
 #include "services/resource_coordinator/public/mojom/memory_instrumentation/constants.mojom.h"
 #include "services/service_manager/public/cpp/interface_provider.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "base/linux_util.h"
 #elif BUILDFLAG(IS_MAC)
 #include "base/apple/foundation_util.h"
 #include "base/strings/strcat.h"
 #include "content/browser/mac_helpers.h"
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
 namespace content {
 
@@ -74,7 +74,7 @@ base::FilePath ChildProcessHost::GetChildPath(int flags,
     }
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // Use /proc/self/exe rather than our known binary path so updates
   // can't swap out the binary from underneath us.
   if (flags & CHILD_ALLOW_SELF) {
@@ -148,17 +148,6 @@ void ChildProcessHostImpl::BindReceiver(mojo::GenericPendingReceiver receiver) {
   child_process_->BindReceiver(std::move(receiver));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ChildProcessHostImpl::ReinitializeLogging(
-    uint32_t logging_dest,
-    base::ScopedFD log_file_descriptor) {
-  auto logging_settings = mojom::LoggingSettings::New();
-  logging_settings->logging_dest = logging_dest;
-  logging_settings->log_file_descriptor =
-      mojo::PlatformHandle(std::move(log_file_descriptor));
-  child_process()->ReinitializeLogging(std::move(logging_settings));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 base::Process& ChildProcessHostImpl::GetPeerProcess() {
   if (!peer_process_.IsValid()) {

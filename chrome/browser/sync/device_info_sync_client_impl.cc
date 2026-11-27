@@ -11,9 +11,6 @@
 
 #include "base/feature_list.h"
 #include "build/build_config.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
 #include "chrome/browser/metrics/chrome_metrics_service_accessor.h"
 #include "chrome/browser/personal_context/personal_context_eligibility_service_factory.h"
 #include "chrome/browser/profiles/profile.h"
@@ -27,9 +24,6 @@
 #include "components/sync_device_info/device_info_proto_enum_util.h"
 #include "device/fido/public/features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/webauthn/android/cable_module_android.h"
-#endif
 
 DeviceInfoSyncClientImpl::DeviceInfoSyncClientImpl(Profile* profile)
     : profile_(profile) {}
@@ -79,22 +73,11 @@ DeviceInfoSyncClientImpl::GetInterestedDataTypes() const {
 
 syncer::DeviceInfo::PhoneAsASecurityKeyInfo::StatusOrInfo
 DeviceInfoSyncClientImpl::GetPhoneAsASecurityKeyInfo() const {
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(device::kWebAuthnPublishPrelinkingInfo)) {
-    return syncer::DeviceInfo::PhoneAsASecurityKeyInfo::NoSupport();
-  }
-  return webauthn::authenticator::GetSyncDataIfRegistered();
-#else
   return syncer::DeviceInfo::PhoneAsASecurityKeyInfo::NoSupport();
-#endif
 }
 
 bool DeviceInfoSyncClientImpl::IsUmaEnabledOnCrOSDevice() const {
-#if BUILDFLAG(IS_CHROMEOS)
-  return ChromeMetricsServiceAccessor::IsMetricsAndCrashReportingEnabled();
-#else
   return false;
-#endif
 }
 
 bool DeviceInfoSyncClientImpl::GetDesktopToIOSPromoReceivingEnabled() const {
@@ -107,31 +90,22 @@ DeviceInfoSyncClientImpl::GetDesktopToIOSPromoReceivingTypes() const {
   return {};
 }
 
+
+
+
 syncer::DeviceInfo::GlicExperimentalTriggeringState
 DeviceInfoSyncClientImpl::GetGlicExperimentalTriggeringState() const {
-  auto* service = glic::GlicKeyedService::Get(profile_);
-  if (!service) {
-    return syncer::DeviceInfo::GlicExperimentalTriggeringState::kUnavailable;
-  }
-  return service->enabling().GetExperimentalTriggeringState();
+  return syncer::DeviceInfo::GlicExperimentalTriggeringState::kUnavailable;
 }
 
 std::optional<int>
 DeviceInfoSyncClientImpl::GetGlicExperimentalTriggeringVersion() const {
-  auto* service = glic::GlicKeyedService::Get(profile_);
-  if (!service) {
-    return std::nullopt;
-  }
-  return service->enabling().GetExperimentalTriggeringVersion();
+  return std::nullopt;
 }
 
 base::flat_set<std::string>
 DeviceInfoSyncClientImpl::GetGlicExperimentalTriggeringCapabilities() const {
-  auto* service = glic::GlicKeyedService::Get(profile_);
-  if (!service) {
-    return {};
-  }
-  return service->enabling().GetExperimentalTriggeringCapabilities();
+  return {};
 }
 
 syncer::DeviceInfo::PersonalContextInfo::StatusOrInfo

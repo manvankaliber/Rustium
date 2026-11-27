@@ -97,96 +97,6 @@ class ZpsSectionWithMVTiles : public ZpsSection {
   void InitFromMatches(ACMatches& matches) override;
 };
 
-// Android prefixed section for Adaptive Suggestions grouping.
-class AndroidNonZPSSection : public Section {
- public:
-  // Construct a new instance of the grouping class used in non-zero-prefix
-  // context.
-  // When `show_only_search_suggestions` is set to `true`, URLs will not be
-  // offered at any position other than position 0 (the Default Match).
-  // `num_visible_matches` specifies the number of matches that are at least
-  // 50% exposed while the software keyboard is visible (including the Default
-  // Match).
-  explicit AndroidNonZPSSection(bool show_only_search_suggestions,
-                                const omnibox::GroupConfigMap& group_configs,
-                                size_t num_visible_matches = 6);
-};
-
-// Android section for a single default match suggestion when there is one or
-// more composebox attachment.
-class AndroidComposeboxNonZPSSection : public Section {
- public:
-  explicit AndroidComposeboxNonZPSSection(
-      const omnibox::GroupConfigMap& group_configs,
-      size_t num_contextual_attachments = 0,
-      omnibox::ToolMode tool_mode = omnibox::ToolMode::TOOL_MODE_UNSPECIFIED);
-};
-
-// Android prefix section for Hub search (ZPS).
-class AndroidHubZPSSection : public Section {
- public:
-  explicit AndroidHubZPSSection(const omnibox::GroupConfigMap& group_configs);
-};
-
-// Android prefix section for Tab Search overlay (ZPS).
-class AndroidTabSearchZPSSection : public Section {
- public:
-  explicit AndroidTabSearchZPSSection(
-      const omnibox::GroupConfigMap& group_configs);
-};
-
-// Android prefix section for Hub search (non-ZPS).
-class AndroidHubNonZPSSection : public Section {
- public:
-  explicit AndroidHubNonZPSSection(
-      const omnibox::GroupConfigMap& group_configs);
-};
-
-// Android prefix section for Tab Search overlay (non-ZPS).
-class AndroidTabSearchNonZPSSection : public Section {
- public:
-  explicit AndroidTabSearchNonZPSSection(
-      const omnibox::GroupConfigMap& group_configs);
-};
-
-// Section expressing the Android ZPS limits and grouping for the NTP.
-// - up to 15 + `max_related_queries` + `max_trending_queries` suggestions
-//   total.
-//  - up to 1 clipboard suggestion.
-//  - up to 15 MIA or personalized suggestions.
-//  - up to 5 trending search suggestions.
-class AndroidNTPZpsSection : public ZpsSectionWithLocalHistory {
- public:
-  AndroidNTPZpsSection(const omnibox::GroupConfigMap& group_configs,
-                       bool mia_enabled);
-
-  void InitFromMatches(ACMatches& matches) override;
-};
-
-// Section expressing the Android ZPS limits and grouping for the SRP.
-// - up to 15 suggestions total.
-//  - up to 1 verbatim suggestion.
-//  - up to 1 clipboard suggestion.
-//  - up to 1 most visited carousel.
-//  - up to 15 previous search related suggestions.
-//  - up to 15 personalized suggestions.
-class AndroidSRPZpsSection : public ZpsSection {
- public:
-  explicit AndroidSRPZpsSection(const omnibox::GroupConfigMap& group_configs);
-};
-
-// Section expressing the Android ZPS limits and grouping for the Web.
-// - up to 15 suggestions total.
-//  - up to 1 verbatim suggestion.
-//  - up to 1 clipboard suggestion.
-//  - up to 1 most visited carousel.
-//  - up to 8 page related suggestions.
-//  - up to 15 personalized suggestions.
-class AndroidWebZpsSection : public ZpsSectionWithMVTiles {
- public:
-  explicit AndroidWebZpsSection(const omnibox::GroupConfigMap& group_configs);
-};
-
 // Section expressing the Desktop ZPS limits and grouping for the NTP.
 // - up to 8 suggestions total or 7 total if the ZPS IPH is enabled (the 8th
 // suggestion being the IPH).
@@ -304,16 +214,6 @@ class DesktopLensMultimodalZpsSection : public ZpsSection {
   explicit DesktopLensMultimodalZpsSection(
       const omnibox::GroupConfigMap& group_configs,
       size_t max_suggestions);
-};
-
-class AndroidComposeboxZpsSection : public ZpsSection {
- public:
-  explicit AndroidComposeboxZpsSection(
-      const omnibox::GroupConfigMap& group_configs,
-      size_t max_suggestions,
-      size_t max_aim_suggestions,
-      size_t max_contextual_suggestions,
-      size_t num_contextual_attachments = 0);
 };
 
 class IOSComposeboxZpsSection : public ZpsSection {

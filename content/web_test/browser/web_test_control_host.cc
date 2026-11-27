@@ -281,11 +281,7 @@ void ApplyWebTestDefaultPreferences(blink::web_pref::WebPreferences* prefs) {
   // To ensure the testing expectations are consistent with MacPort
   // and to avoid this scrollbar behavior in web-platform-tests,
   // set viewport_enabled to false for iOS.
-#if BUILDFLAG(IS_IOS)
-  prefs->viewport_enabled = false;
-#else
   prefs->viewport_enabled = command_line.HasSwitch(switches::kEnableViewport);
-#endif
   prefs->default_minimum_page_scale_factor = 1.f;
   prefs->default_maximum_page_scale_factor = 4.f;
   prefs->presentation_receiver =

@@ -20,11 +20,9 @@
 #include "build/build_config.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/resources_util.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/themes/theme_properties.h"       // nogncheck
 #include "chrome/browser/themes/theme_service.h"          // nogncheck
 #include "chrome/browser/themes/theme_service_factory.h"  // nogncheck
-#endif
 #include "chrome/browser/ui/color/chrome_color_id.h"
 #include "chrome/browser/ui/color/chrome_color_provider_utils.h"
 #include "chrome/browser/ui/webui/current_channel_logo.h"
@@ -52,23 +50,17 @@
 #include "ui/gfx/image/image_skia_rep.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/search/instant_service.h"
 #include "chrome/browser/themes/theme_service.h"          // nogncheck
 #include "chrome/browser/themes/theme_service_factory.h"  // nogncheck
 #include "chrome/browser/ui/webui/ntp/ntp_resource_cache.h"
 #include "chrome/browser/ui/webui/ntp/ntp_resource_cache_factory.h"
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_webui_user_profile.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/themes/browser_theme_pack.h"  // nogncheck
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/grit/cros_styles_resources.h"  // nogncheck crbug.com/40143654
-#include "ui/chromeos/styles/cros_tokens_color_mappings.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -77,13 +69,11 @@ GURL GetThemeUrl(const std::string& path) {
                             chrome::kChromeUIThemeHost, "/", path}));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 bool IsNewTabCssPath(const std::string& path) {
   static const char kNewTabThemeCssPath[] = "css/new_tab_theme.css";
   static const char kIncognitoTabThemeCssPath[] = "css/incognito_tab_theme.css";
   return path == kNewTabThemeCssPath || path == kIncognitoTabThemeCssPath;
 }
-#endif
 
 }  // namespace
 
@@ -121,7 +111,6 @@ void ThemeSource::StartDataRequest(
   std::string parsed_path;
   webui::ParsePathAndImageSpec(GetThemeUrl(path), &parsed_path, &scale, &frame);
 
-#if !BUILDFLAG(IS_ANDROID)
   if (IsNewTabCssPath(parsed_path)) {
     CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M162);
     Profile* profile = GetProfileForRequest(wc_getter);
@@ -135,7 +124,6 @@ void ThemeSource::StartDataRequest(
     std::move(callback).Run(cache->GetNewTabCSS(type, wc_getter));
     return;
   }
-#endif
 
   // kColorsCssPath should stay consistent with COLORS_CSS_SELECTOR in
   // colors_css_updater.js.
@@ -145,13 +133,6 @@ void ThemeSource::StartDataRequest(
     return;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  constexpr char kTypographyCssPath[] = "typography.css";
-  if (parsed_path == kTypographyCssPath) {
-    SendTypographyCss(std::move(callback));
-    return;
-  }
-#endif
 
   int resource_id = -1;
   if (parsed_path == "current-channel-logo") {
@@ -212,12 +193,10 @@ bool ThemeSource::ShouldServiceRequest(const GURL& url,
     // theme resources shouldn't be.
     return url.path() == "/colors.css";
   }
-#if !BUILDFLAG(IS_ANDROID)
   if (url.SchemeIs(chrome::kChromeSearchScheme)) {
     return InstantService::ShouldServiceRequest(url, browser_context,
                                                 render_process_id);
   }
-#endif
   return URLDataSource::ShouldServiceRequest(url, browser_context,
                                              render_process_id);
 }
@@ -230,16 +209,12 @@ Profile* ThemeSource::GetProfileForRequest(
   if (profile_) {
     return profile_;
   }
-#if BUILDFLAG(IS_ANDROID)
-  NOTREACHED();
-#else
   // A source created for TopChromeWebUIProfile, see the constructor. The user
   // profile is null if it was not set, e.g. for the DevTools frontend in
   // TopChromeWebUIProfile with features::kDebugTopChromeWebUI, or has been
   // destroyed.
   content::WebContents* web_contents = wc_getter.Run();
   return web_contents ? webui::GetUserProfile(web_contents) : nullptr;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void ThemeSource::SendThemeBitmap(
@@ -337,22 +312,6 @@ std::optional<std::string> ThemeSource::GenerateColorsCss(
          base::BindRepeating(&ui::ColorIdToCSSColorId)},
         {"chrome", kChromeColorsStart, kChromeColorsEnd,
          base::BindRepeating(&ChromeColorIdToCSSColorId)},
-#if BUILDFLAG(IS_CHROMEOS)
-        {"ref", cros_tokens::kCrosRefColorsStart,
-         cros_tokens::kCrosRefColorsEnd,
-         base::BindRepeating(&cros_tokens::ColorIdName)},
-        {"sys", cros_tokens::kCrosSysColorsStart,
-         cros_tokens::kCrosSysColorsEnd,
-         base::BindRepeating(&cros_tokens::ColorIdName)},
-        {"legacy", cros_tokens::kLegacySemanticColorsStart,
-         cros_tokens::kLegacySemanticColorsEnd,
-         base::BindRepeating(&cros_tokens::ColorIdName)},
-#elif BUILDFLAG(IS_ANDROID)
-        {"ref", ui::kColorRefPrimary0, ui::kColorRefNeutralVariant100,
-         base::BindRepeating(&ui::ColorIdToCSSColorId)},
-        {"sys", ui::kColorSysPrimary, ui::kColorSysOmniboxContainer,
-         base::BindRepeating(&ui::ColorIdToCSSColorId)},
-#endif
     };
 
     // Validate only valid `color_id_sets` were requested.
@@ -432,26 +391,6 @@ std::optional<std::string> ThemeSource::GenerateColorsCss(
        base::BindRepeating(to_css_id, ui::ColorIdName)},
       {"chrome", kChromeColorsStart, kChromeColorsEnd,
        base::BindRepeating(to_css_id, &ChromeColorIdName)},
-#if BUILDFLAG(IS_CHROMEOS)
-      {"ref", cros_tokens::kCrosRefColorsStart, cros_tokens::kCrosRefColorsEnd,
-       base::BindRepeating([](ui::ColorId id) {
-         return std::string(cros_tokens::ColorIdName(id));
-       })},
-      {"sys", cros_tokens::kCrosSysColorsStart, cros_tokens::kCrosSysColorsEnd,
-       base::BindRepeating([](ui::ColorId id) {
-         return std::string(cros_tokens::ColorIdName(id));
-       })},
-      {"legacy", cros_tokens::kLegacySemanticColorsStart,
-       cros_tokens::kLegacySemanticColorsEnd,
-       base::BindRepeating([](ui::ColorId id) {
-         return std::string(cros_tokens::ColorIdName(id));
-       })},
-#elif BUILDFLAG(IS_ANDROID)
-      {"ref", ui::kColorRefPrimary0, ui::kColorRefNeutralVariant100,
-       base::BindRepeating(to_css_id, ui::ColorIdName)},
-      {"sys", ui::kColorSysPrimary, ui::kColorSysOmniboxContainer,
-       base::BindRepeating(to_css_id, ui::ColorIdName)},
-#endif
   };
 
   // Validate only valid `color_id_sets` were requested.
@@ -523,14 +462,12 @@ void ThemeSource::SendColorsCss(
 
   bool is_grayscale = false;
   bool is_baseline = true;
-#if !BUILDFLAG(IS_ANDROID)
   if (Profile* profile = GetProfileForRequest(wc_getter)) {
     const auto* theme_service =
         ThemeServiceFactory::GetForProfile(profile->GetOriginalProfile());
     is_grayscale = theme_service->GetIsGrayscale();
     is_baseline = theme_service->GetIsBaseline();
   }
-#endif
 
   std::optional<std::string> css_content =
       GenerateColorsCss(color_provider, url, is_grayscale, is_baseline);
@@ -571,15 +508,6 @@ std::string ThemeSource::GetAccessControlAllowOriginForOrigin(
   return content::URLDataSource::GetAccessControlAllowOriginForOrigin(origin);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ThemeSource::SendTypographyCss(
-    content::URLDataSource::GotDataCallback callback) {
-  const ui::ResourceBundle& rb = ui::ResourceBundle::GetSharedInstance();
-  std::move(callback).Run(rb.LoadDataResourceBytesForScale(
-      IDR_CROS_STYLES_UI_CHROMEOS_STYLES_CROS_TYPOGRAPHY_CSS,
-      ui::kScaleFactorNone));
-}
-#endif
 
 std::string ThemeSource::GetContentSecurityPolicy(
     network::mojom::CSPDirectiveName directive) {

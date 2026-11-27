@@ -63,13 +63,8 @@ source_set("impl") {
     "//ui/webui",
   ]
 
-  # Custom theme background images (BrowserThemePack) and the legacy NTP
-  # resource cache are desktop-only. On Android the page is themed purely
-  # through the ColorProvider, exactly like the first-party WebUI NTP.
-  if (!is_android) {
-    deps += [
-      "//chrome/browser/ui/webui/ntp:ntp_resource_cache",
-      "//chrome/browser/ui/webui/util",
-    ]
-  }
+  deps += [
+    "//chrome/browser/ui/webui/ntp:ntp_resource_cache",
+    "//chrome/browser/ui/webui/util",
+  ]
 }

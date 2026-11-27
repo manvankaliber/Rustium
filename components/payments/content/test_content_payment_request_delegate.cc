@@ -72,11 +72,7 @@ bool TestContentPaymentRequestDelegate::IsBrowserWindowActive() const {
   return core_delegate_.IsBrowserWindowActive();
 }
 
-void TestContentPaymentRequestDelegate::GetTwaPackageName(
-    GetTwaPackageNameCallback callback) const {
-  base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
-      FROM_HERE, base::BindOnce(std::move(callback), ""));
-}
+
 
 PaymentRequestDialog* TestContentPaymentRequestDelegate::GetDialogForTesting() {
   return nullptr;

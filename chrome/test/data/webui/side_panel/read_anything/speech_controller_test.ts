@@ -646,23 +646,13 @@ suite('SpeechController', () => {
 
     // Fast-forward 10s to trigger the first stall timeout.
     mockTimer.tick(10000);
-    // <if expr="is_chromeos">
-    assertEquals(0, metrics.getCallCount('recordSpeechError'));
-    // </if>
-    // <if expr="not is_chromeos">
     assertEquals(1, metrics.getCallCount('recordSpeechError'));
     assertEquals(9, metrics.getArgs('recordSpeechError')[0]);
-    // </if>
 
     // Fast-forward another 5s (15s total) to trigger recovery stall timeout.
     mockTimer.tick(5000);
-    // <if expr="is_chromeos">
-    assertEquals(0, metrics.getCallCount('recordSpeechError'));
-    // </if>
-    // <if expr="not is_chromeos">
     assertEquals(2, metrics.getCallCount('recordSpeechError'));
     assertEquals(10, metrics.getArgs('recordSpeechError')[1]);
-    // </if>
     mockTimer.uninstall();
   });
 

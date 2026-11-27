@@ -168,8 +168,7 @@ TEST(IndigoMetricsTest,
        IndigoTransformationResult::kMissingScript},
       {LocalEligibility::kManagedDomain,
        IndigoTransformationResult::kManagedDomain},
-      {LocalEligibility::kGlicDisabledForProfile,
-       IndigoTransformationResult::kGlicDisabledForProfile},
+
       {LocalEligibility::kEnterpriseDisallowed,
        IndigoTransformationResult::kEnterpriseDisallowed},
   };

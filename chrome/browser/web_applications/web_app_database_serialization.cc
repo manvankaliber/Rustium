@@ -42,7 +42,7 @@
 #include "chrome/browser/web_applications/scope_extension_info.h"
 #include "chrome/browser/web_applications/user_display_mode.h"
 #include "chrome/browser/web_applications/web_app.h"
-#include "chrome/browser/web_applications/web_app_chromeos_data.h"
+#include "chrome/browser/web_applications/legacy_platform_app_data.h"
 #include "chrome/browser/web_applications/web_app_constants.h"
 #include "chrome/browser/web_applications/web_app_helpers.h"
 #include "chrome/browser/web_applications/web_app_install_info.h"
@@ -68,10 +68,6 @@
 #include "url/origin.h"
 
 // TODO(crbug.com/441959098): Consider removing chromeos includes.
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system_web_apps/system_web_app_type.h"
-#include "chromeos/ash/experiences/system_web_apps/types/system_web_app_data.h"
-#endif
 
 namespace web_app {
 
@@ -613,7 +609,7 @@ std::unique_ptr<WebApp> ParseWebAppProto(
   }
 
   if (proto.has_chromeos_data()) {
-    auto chromeos_data = std::make_optional<WebAppChromeOsData>();
+    auto chromeos_data = std::make_optional<LegacyPlatformAppData>();
     chromeos_data->show_in_launcher = chromeos_data_proto.show_in_launcher();
     chromeos_data->show_in_search_and_shelf =
         chromeos_data_proto.show_in_search_and_shelf();
@@ -623,18 +619,9 @@ std::unique_ptr<WebApp> ParseWebAppProto(
     chromeos_data->oem_installed = chromeos_data_proto.oem_installed();
     chromeos_data->handles_file_open_intents =
         chromeos_data_proto.handles_file_open_intents();
-    web_app->SetWebAppChromeOsData(std::move(chromeos_data));
+    web_app->SetLegacyPlatformAppData(std::move(chromeos_data));
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (proto.client_data().has_system_web_app_data()) {
-    ash::SystemWebAppData& swa_data =
-        web_app->client_data()->system_web_app_data.emplace();
-
-    swa_data.system_app_type = static_cast<ash::SystemWebAppType>(
-        proto.client_data().system_web_app_data().system_app_type());
-  }
-#endif
 
   // Optional fields:
   if (proto.has_launch_query_params()) {
@@ -1646,17 +1633,6 @@ std::unique_ptr<proto::WebApp> WebAppToProto(const WebApp& web_app) {
         chromeos_data.handles_file_open_intents);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (web_app.client_data().system_web_app_data.has_value()) {
-    auto& swa_data = web_app.client_data().system_web_app_data.value();
-
-    auto* mutable_swa_data =
-        local_data->mutable_client_data()->mutable_system_web_app_data();
-    mutable_swa_data->set_system_app_type(
-        static_cast<ash::SystemWebAppDataProto_SystemWebAppType>(
-            swa_data.system_app_type));
-  }
-#endif
 
   local_data->set_user_run_on_os_login_mode(
       ToWebAppProtoRunOnOsLoginMode(web_app.run_on_os_login_mode()));

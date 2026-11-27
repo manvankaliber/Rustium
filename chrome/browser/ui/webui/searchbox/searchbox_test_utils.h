@@ -24,7 +24,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom-forward.h"
 #include "ui/gfx/geometry/size.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/browser_window/public/browser_window_features.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/webui/omnibox_popup/mojom/omnibox_popup.mojom.h"
@@ -34,7 +33,6 @@
 
 class MockBrowserWindowInterface;
 class MockTabListInterface;
-#endif
 
 class Profile;
 
@@ -42,7 +40,6 @@ namespace content {
 class WebContents;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void SetupMockBrowserWindowInterface(
     MockBrowserWindowInterface& window_interface,
     Profile* profile,
@@ -59,7 +56,6 @@ void SetupMockTabInterface(tabs::MockTabInterface& mock_tab,
                            Profile* profile,
                            BrowserWindowInterface* window_interface = nullptr,
                            ui::UnownedUserDataHost* user_data_host = nullptr);
-#endif
 
 using testing::_;
 using testing::DoAll;
@@ -122,11 +118,9 @@ class MockSearchboxPage : public searchbox::mojom::Page {
               UpdateAutoSuggestedTabContext,
               (searchbox::mojom::TabInfoPtr,
                const std::optional<std::string>&));
-  MOCK_METHOD(void, UpdateLensSearchEligibility, (bool eligible), (override));
   MOCK_METHOD(void, UpdateAimPopupEligibility, (bool eligible), (override));
-#if !BUILDFLAG(IS_ANDROID)
+  MOCK_METHOD(void, UpdateLensSearchEligibility, (bool eligible), (override));
   MOCK_METHOD(void, UpdateSmartTabSharingActive, (bool active), (override));
-#endif
   MOCK_METHOD(void, UpdateContentSharingPolicy, (bool enabled), (override));
   MOCK_METHOD(void,
               OnPermissionPromptChanged,
@@ -151,7 +145,6 @@ class MockSearchboxPage : public searchbox::mojom::Page {
               (override));
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 class MockOmniboxPopupPage : public omnibox_popup::mojom::Page {
  public:
   MockOmniboxPopupPage();
@@ -180,7 +173,6 @@ class MockOmniboxPopupPage : public omnibox_popup::mojom::Page {
               (),
               (override));
 };
-#endif
 
 class MockAutocompleteController : public AutocompleteController {
  public:
@@ -215,36 +207,7 @@ class MockOmniboxEditModel : public OmniboxEditModel {
   MOCK_METHOD(void, OnChanged, (), (override));
 };
 
-class MockLensSearchboxClient : public LensSearchboxClient {
- public:
-  MockLensSearchboxClient();
-  ~MockLensSearchboxClient() override;
-  MockLensSearchboxClient(const MockLensSearchboxClient&) = delete;
-  MockLensSearchboxClient& operator=(const MockLensSearchboxClient&) = delete;
 
-  // LensSearchboxClient:
-  MOCK_METHOD(const GURL&, GetPageURL, (), (override, const));
-  MOCK_METHOD(SessionID, GetTabId, (), (override, const));
-  MOCK_METHOD(metrics::OmniboxEventProto::PageClassification,
-              GetPageClassification,
-              (),
-              (override, const));
-  MOCK_METHOD(std::string&, GetThumbnail, (), (override));
-  MOCK_METHOD(lens::proto::LensOverlaySuggestInputs,
-              GetLensSuggestInputs,
-              (),
-              (override, const));
-  MOCK_METHOD(void, OnTextModified, (), (override));
-  MOCK_METHOD(void, OnThumbnailRemoved, (), (override));
-  MOCK_METHOD(void,
-              OnSuggestionAccepted,
-              (const GURL&, omnibox::AutocompleteMatchType, bool),
-              (override));
-  MOCK_METHOD(void, OnFocusChanged, (bool focused), (override));
-  MOCK_METHOD(void, OnPageBound, (), (override));
-  MOCK_METHOD(void, ShowGhostLoaderErrorState, (), (override));
-  MOCK_METHOD(void, OnZeroSuggestShown, (), (override));
-};
 
 class MockTabContextualizationController
     : public lens::TabContextualizationController {

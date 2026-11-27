@@ -5,19 +5,15 @@
 import("//sandbox/features.gni")
 import("//testing/test.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
-
 declare_args() {
-  compile_suid_client = is_linux || is_chromeos
+  compile_suid_client = is_linux
 
-  compile_credentials = is_linux || is_chromeos
+  compile_credentials = is_linux
 
-  compile_syscall_broker = is_linux || is_chromeos
+  compile_syscall_broker = is_linux
 
   # On Android, use plain GTest.
-  use_base_test_suite = is_linux || is_chromeos
+  use_base_test_suite = is_linux
 }
 
 # We have two principal targets: sandbox and sandbox_linux_unittests
@@ -32,9 +28,6 @@ group("sandbox") {
   }
   if (use_seccomp_bpf) {
     public_deps += [ ":seccomp_bpf" ]
-  }
-  if (is_android) {
-    public_deps += [ ":seccomp_starter_android" ]
   }
 }
 
@@ -135,10 +128,6 @@ source_set("sandbox_linux_unittests_sources") {
       "seccomp-bpf/trap_unittest.cc",
     ]
     deps += [ ":bpf_dsl_golden" ]
-
-    if (is_android) {
-      sources += [ "seccomp-bpf-helpers/baseline_policy_android_unittest.cc" ]
-    }
   }
   if (compile_credentials) {
     sources += [
@@ -204,9 +193,6 @@ test("sandbox_linux_unittests") {
     ":sandbox_linux_unittests_sources",
     "//sandbox/policy:tests",
   ]
-  if (is_android) {
-    use_raw_android_executable = true
-  }
 }
 
 component("seccomp_bpf") {
@@ -257,43 +243,12 @@ component("seccomp_bpf") {
     "//sandbox:sandbox_buildflags",
   ]
 
-  if (is_android) {
-    sources += [
-      "seccomp-bpf-helpers/baseline_policy_android.cc",
-      "seccomp-bpf-helpers/baseline_policy_android.h",
-    ]
-  }
-
   # Clang warngs that Syscall::Call() cannot get -fstack-clash-protection
   # since the inline asm clobbers the stack pointer. This is fine.
   cflags = [ "-Wno-stack-protector" ]
 }
 
-if (is_android) {
-  # This target is available even if use_seccomp_bpf is disabled, but it also
-  # works when it is enabled.
-  component("seccomp_starter_android") {
-    sources = [
-      "seccomp-bpf-helpers/seccomp_starter_android.cc",
-      "seccomp-bpf-helpers/seccomp_starter_android.h",
-    ]
-
-    defines = [ "SANDBOX_IMPLEMENTATION" ]
-
-    deps = [
-      "//base",
-      "//sandbox:sandbox_buildflags",
-    ]
-
-    if (use_seccomp_bpf) {
-      deps += [ ":seccomp_bpf" ]
-    }
-
-    visibility = [ ":*" ]
-  }
-}
-
-if (is_linux || is_chromeos) {
+if (is_linux) {
   # The setuid sandbox for Linux.
   executable("chrome_sandbox") {
     sources = [
@@ -371,12 +326,10 @@ component("sandbox_services") {
     ]
   }
 
-  if (!is_android) {
-    sources += [
-      "services/libc_interceptor.cc",
-      "services/libc_interceptor.h",
-    ]
-  }
+  sources += [
+    "services/libc_interceptor.cc",
+    "services/libc_interceptor.h",
+  ]
 }
 
 source_set("sandbox_services_headers") {

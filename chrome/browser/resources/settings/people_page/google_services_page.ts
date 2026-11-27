@@ -57,9 +57,6 @@ export class SettingsGoogleServicesPageElement extends
   override connectedCallback() {
     super.connectedCallback();
 
-    // <if expr="is_chromeos">
-    assert(loadTimeData.getBoolean('replaceSyncPromosWithSignInPromos'));
-    // </if>
 
     SyncBrowserProxyImpl.getInstance().getSyncStatus().then(
         this.onSyncStatusChanged_.bind(this));

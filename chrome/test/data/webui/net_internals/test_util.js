@@ -2,9 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// <if expr="is_chromeos">
-import {CrosView} from 'chrome://net-internals/chromeos_view.js';
-// </if>
 import {DnsView} from 'chrome://net-internals/dns_view.js';
 import {DomainSecurityPolicyView} from 'chrome://net-internals/domain_security_policy_view.js';
 import {EventsView} from 'chrome://net-internals/events_view.js';
@@ -84,9 +81,6 @@ function getTab(tabId) {
       hsts: DomainSecurityPolicyView.TAB_ID,
       sharedDictionary: SharedDictionaryView.TAB_ID,
       utilities: UtilitiesView.TAB_ID,
-      // <if expr="is_chromeos">
-      chromeos: CrosView.TAB_ID,
-      // </if>
     };
 
     assertEquals(

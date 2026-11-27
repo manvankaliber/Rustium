@@ -32,11 +32,7 @@
 #import "device/bluetooth/test/test_bluetooth_adapter_observer.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "device/bluetooth/bluetooth_adapter_ios.h"
-#else
 #include "device/bluetooth/bluetooth_adapter_mac.h"
-#endif
 
 namespace {
 
@@ -61,11 +57,9 @@ NSDictionary* TestPropertyListData() {
   };
 }
 
-#if BUILDFLAG(IS_MAC)
 bool IsTestDeviceSystemPaired(const std::string& address) {
   return true;
 }
-#endif
 
 }  // namespace
 
@@ -120,11 +114,9 @@ class BluetoothLowEnergyAdapterAppleTest : public testing::Test {
             base::BindRepeating(
                 &BluetoothLowEnergyAdapterApple::UpdateKnownLowEnergyDevices,
                 adapter_low_energy_->GetLowEnergyWeakPtr()));
-#if BUILDFLAG(IS_MAC)
     static_cast<BluetoothAdapterMac*>(adapter_low_energy_)
         ->SetGetDevicePairedStatusCallbackForTesting(
             base::BindRepeating(&IsTestDeviceSystemPaired));
-#endif
   }
 
   void SetUp() override {
@@ -143,13 +135,8 @@ class BluetoothLowEnergyAdapterAppleTest : public testing::Test {
   }
 
   BluetoothLowEnergyAdapterApple* CreateBluetoothLowEnergyAdapterApple() {
-#if BUILDFLAG(IS_IOS)
-    return static_cast<BluetoothLowEnergyAdapterApple*>(
-        new BluetoothAdapterIOS());
-#else
     return static_cast<BluetoothLowEnergyAdapterApple*>(
         new BluetoothAdapterMac());
-#endif
   }
 
   BluetoothDevice* GetDevice(const std::string& address) {

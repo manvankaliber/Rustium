@@ -16,7 +16,6 @@
 #include "chrome/browser/browsing_data/counters/signin_data_counter.h"
 #include "chrome/browser/browsing_data/counters/site_data_counter.h"
 #include "chrome/browser/browsing_data/counters/site_settings_counter.h"
-#include "chrome/browser/browsing_data/counters/skills_counter.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/custom_handlers/protocol_handler_registry_factory.h"
 #include "chrome/browser/history/history_service_factory.h"
@@ -24,7 +23,6 @@
 #include "chrome/browser/password_manager/factories/account_password_store_factory.h"
 #include "chrome/browser/password_manager/factories/profile_password_store_factory.h"
 #include "chrome/browser/profiles/profile.h"
-#include "chrome/browser/skills/skills_service_factory.h"
 #include "chrome/browser/sync/sync_service_factory.h"
 #include "chrome/browser/webdata_services/web_data_service_factory.h"
 #include "components/browsing_data/core/counters/autofill_counter.h"
@@ -42,15 +40,8 @@
 #include "chrome/browser/browsing_data/counters/hosted_apps_counter.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "content/public/browser/host_zoom_map.h"
-#else
-#include "chrome/browser/browsing_data/counters/tabs_counter.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "device/fido/cros/credential_store.h"
-#endif
 
 // static
 std::unique_ptr<browsing_data::BrowsingDataCounter>
@@ -74,12 +65,7 @@ BrowsingDataCounterFactory::GetForProfileAndPref(Profile* profile,
 
   if (pref_name == browsing_data::prefs::kDeletePasswords) {
     std::unique_ptr<::device::fido::PlatformCredentialStore> credential_store =
-#if BUILDFLAG(IS_CHROMEOS)
-        std::make_unique<
-            ::device::fido::cros::PlatformAuthenticatorCredentialStore>();
-#else
         nullptr;
-#endif
     return std::make_unique<browsing_data::SigninDataCounter>(
         ProfilePasswordStoreFactory::GetForProfile(
             profile, ServiceAccessType::EXPLICIT_ACCESS),
@@ -107,24 +93,11 @@ BrowsingDataCounterFactory::GetForProfileAndPref(Profile* profile,
   if (pref_name == browsing_data::prefs::kDeleteSiteSettings) {
     return std::make_unique<SiteSettingsCounter>(
         HostContentSettingsMapFactory::GetForProfile(profile),
-#if !BUILDFLAG(IS_ANDROID)
         content::HostZoomMap::GetDefaultForBrowserContext(profile),
-#else
-        nullptr,
-#endif
         ProtocolHandlerRegistryFactory::GetForBrowserContext(profile),
         profile->GetPrefs());
   }
 
-  if (pref_name == browsing_data::prefs::kDeleteSkills) {
-    skills::SkillsService* skills_service =
-        skills::SkillsServiceFactory::GetForProfile(profile);
-    if (!skills_service) {
-      return nullptr;
-    }
-    return std::make_unique<SkillsCounter>(
-        *skills_service, SyncServiceFactory::GetForProfile(profile));
-  }
 
 #if BUILDFLAG(ENABLE_HOSTED_APPS)
   if (pref_name == browsing_data::prefs::kDeleteHostedAppsData) {
@@ -132,11 +105,6 @@ BrowsingDataCounterFactory::GetForProfileAndPref(Profile* profile,
   }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  if (pref_name == browsing_data::prefs::kCloseTabs) {
-    return std::make_unique<TabsCounter>(profile);
-  }
-#endif
 
   return nullptr;
 }

@@ -55,8 +55,7 @@ namespace {
 uint32_t CalculatePrivateFootprintKb(const mojom::RawOSMemDump& os_dump,
                                      uint32_t shared_resident_kb) {
   DCHECK(os_dump.platform_private_footprint);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_LINUX)
   uint64_t rss_anon_bytes = os_dump.platform_private_footprint->rss_anon_bytes;
   uint64_t vm_swap_bytes = os_dump.platform_private_footprint->vm_swap_bytes;
   return (rss_anon_bytes + vm_swap_bytes) / 1024;
@@ -85,7 +84,7 @@ memory_instrumentation::mojom::OSMemDumpPtr CreatePublicOSDump(
   os_dump->is_peak_rss_resettable = internal_os_dump.is_peak_rss_resettable;
   os_dump->private_footprint_kb =
       CalculatePrivateFootprintKb(internal_os_dump, shared_resident_kb);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   os_dump->private_footprint_swap_kb =
       internal_os_dump.platform_private_footprint->vm_swap_bytes / 1024;
   os_dump->mappings_count = internal_os_dump.mappings_count;
@@ -103,8 +102,9 @@ void NodeAsValueIntoRecursively(const GlobalNodeGraph::Node& node,
     std::string name = base::JoinString(*path, "/");
     value->BeginDictionaryWithCopiedName(name);
 
-    if (!node.id().empty())
+    if (!node.id().empty()) {
       value->SetString("id", node.id().ToString());
+    }
 
     value->BeginDictionary("attrs");
     for (const auto& name_to_entry : node.const_entries()) {
@@ -133,8 +133,9 @@ void NodeAsValueIntoRecursively(const GlobalNodeGraph::Node& node,
     }
     value->EndDictionary();  // "attrs": { ... }
 
-    if (node.is_weak())
+    if (node.is_weak()) {
       value->SetInteger("flags", RawMemoryGraphNode::Flags::kWeak);
+    }
 
     value->EndDictionary();  // "allocator_name/heap_subheap": { ... }
   }
@@ -150,8 +151,9 @@ mojom::AllocatorMemDumpPtr CreateAllocatorDumpForNode(const Node* node,
                                                       bool recursive) {
   base::flat_map<std::string, uint64_t> numeric_entries;
   for (const auto& entry : node->const_entries()) {
-    if (entry.second.type == Node::Entry::Type::kUInt64)
+    if (entry.second.type == Node::Entry::Type::kUInt64) {
       numeric_entries.emplace(entry.first, entry.second.value_uint64);
+    }
   }
   base::flat_map<std::string, mojom::AllocatorMemDumpPtr> children;
   if (recursive) {
@@ -224,22 +226,23 @@ void QueuedRequestDispatcher::SetUpAndDispatch(
 
 // On most platforms each process can dump data about their own process
 // so ask each process to do so Linux is special see below.
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
     request->pending_responses.insert({client_info.pid, ResponseType::kOSDump});
     client->RequestOSMemoryDump(
         request->memory_map_option(), request->memory_dump_flags(),
         {base::kNullProcessId}, base::BindOnce(os_callback, client_info.pid));
-#endif  // !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#endif
 
     // If we are in the single pid case, then we've already found the only
     // process we're looking for.
-    if (request->args.pid != base::kNullProcessId)
+    if (request->args.pid != base::kNullProcessId) {
       break;
+    }
   }
 
 // In some cases, OS stats can only be dumped from a privileged process to
 // get around to sandboxing/selinux restrictions (see crbug.com/461788).
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   std::vector<base::ProcessId> pids;
   mojom::ClientProcess* browser_client = nullptr;
   base::ProcessId browser_client_pid = base::kNullProcessId;
@@ -265,7 +268,7 @@ void QueuedRequestDispatcher::SetUpAndDispatch(
                                         request->memory_dump_flags(), pids,
                                         std::move(callback));
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   // The requested pid was not found. Update the outcome and exit.
   if (request->args.pid != base::kNullProcessId &&
@@ -276,7 +279,6 @@ void QueuedRequestDispatcher::SetUpAndDispatch(
     return;
   }
 }
-
 
 void QueuedRequestDispatcher::Finalize(QueuedRequest* request,
                                        TracingObserver* tracing_observer) {
@@ -313,7 +315,7 @@ void QueuedRequestDispatcher::Finalize(QueuedRequest* request,
     // crash). In the latter case (OS_LINUX) we expect the full map to come
     // from the browser process response.
     OSMemDumpMap& extra_os_dumps = response.second.os_dumps;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     for (const auto& kv : extra_os_dumps) {
       auto pid = kv.first == base::kNullProcessId ? original_pid : kv.first;
       DCHECK_EQ(pid_to_os_dump[pid], nullptr);
@@ -373,8 +375,9 @@ void QueuedRequestDispatcher::Finalize(QueuedRequest* request,
 
     // On Linux, we may also have the browser process as a response.
     // Just ignore it if we are looking for the single pid case.
-    if (request->args.pid != base::kNullProcessId && pid != request->args.pid)
+    if (request->args.pid != base::kNullProcessId && pid != request->args.pid) {
       continue;
+    }
 
     // These pointers are owned by |request|.
     mojom::RawOSMemDump* raw_os_dump = pid_to_os_dump[pid];
@@ -398,8 +401,9 @@ void QueuedRequestDispatcher::Finalize(QueuedRequest* request,
         if (node) {
           const auto& entry =
               node->entries()->find(RawMemoryGraphNode::kNameSize);
-          if (entry != node->entries()->end())
+          if (entry != node->entries()->end()) {
             shared_resident_kb = entry->second.value_uint64 / 1024;
+          }
         }
       }
 #endif
@@ -447,8 +451,9 @@ void QueuedRequestDispatcher::Finalize(QueuedRequest* request,
                (raw_os_dump && !raw_os_dump->memory_maps.empty()));
     }
 
-    if (!valid)
+    if (!valid) {
       continue;
+    }
 
     mojom::ProcessMemoryDumpPtr pmd = mojom::ProcessMemoryDump::New();
     pmd->pid = pid;
@@ -469,8 +474,9 @@ void QueuedRequestDispatcher::Finalize(QueuedRequest* request,
         Node* node = process_graph->FindNode(node_name);
 
         // Silently ignore any missing node in the process graph.
-        if (!node)
+        if (!node) {
           continue;
+        }
 
         pmd->chrome_allocator_dumps.emplace(
             node_name, CreateAllocatorDumpForNode(node, is_recursive));
@@ -517,8 +523,9 @@ bool QueuedRequestDispatcher::AddChromeMemoryDumpToTrace(
     return tracing_observer->AddChromeDumpToTraceIfEnabled(
         args, pid, &raw_chrome_dump, timestamp);
   }
-  if (!tracing_observer->ShouldAddToTrace(args))
+  if (!tracing_observer->ShouldAddToTrace(args)) {
     return false;
+  }
 
   return tracing_observer->AddChromeDumpToTraceIfEnabled(
       args, pid, &raw_chrome_dump, timestamp);

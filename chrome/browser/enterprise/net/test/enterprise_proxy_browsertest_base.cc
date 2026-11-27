@@ -175,8 +175,7 @@ void EnterpriseProxyBrowserTestBase::SetMachineProxyProvisioningDomains(
   management_context_mixin_->SetCloudMachinePolicies(std::move(policies));
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 void EnterpriseProxyBrowserTestBase::SetEnableForAllUsers(bool enable) {
   base::flat_map<std::string, std::optional<base::Value>> policies;
   policies.emplace(policy::key::kEnableProxyOverrideRulesForAllUsers,

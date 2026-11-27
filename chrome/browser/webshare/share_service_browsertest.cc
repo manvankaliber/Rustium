@@ -31,11 +31,6 @@
 #include "net/test/embedded_test_server/embedded_test_server.h"
 #include "third_party/blink/public/mojom/webshare/webshare.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/sharesheet/sharesheet_types.h"
-#include "chrome/browser/webshare/chromeos/sharesheet_client.h"
-#include "chromeos/components/sharesheet/constants.h"
-#endif
 #if BUILDFLAG(IS_WIN)
 #include "chrome/browser/webshare/win/scoped_share_operation_fake_components.h"
 #endif
@@ -47,10 +42,6 @@ class ShareServiceBrowserTest : public InProcessBrowserTest {
  public:
   void SetUpOnMainThread() override {
     InProcessBrowserTest::SetUpOnMainThread();
-#if BUILDFLAG(IS_CHROMEOS)
-    webshare::SharesheetClient::SetSharesheetCallbackForTesting(
-        base::BindRepeating(&ShareServiceBrowserTest::AcceptShareRequest));
-#endif
 #if BUILDFLAG(IS_WIN)
     ASSERT_NO_FATAL_FAILURE(scoped_fake_components_.SetUp());
 #endif
@@ -60,18 +51,6 @@ class ShareServiceBrowserTest : public InProcessBrowserTest {
 #endif
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  static void AcceptShareRequest(
-      content::WebContents* web_contents,
-      const std::vector<base::FilePath>& file_paths,
-      const std::vector<std::string>& content_types,
-      const std::vector<uint64_t>& file_sizes,
-      const std::string& text,
-      const std::string& title,
-      sharesheet::DeliveredCallback delivered_callback) {
-    std::move(delivered_callback).Run(sharesheet::SharesheetResult::kSuccess);
-  }
-#endif
 
 #if BUILDFLAG(IS_MAC)
   static void AcceptShareRequest(

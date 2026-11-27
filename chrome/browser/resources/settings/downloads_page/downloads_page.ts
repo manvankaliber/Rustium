@@ -46,16 +46,8 @@ export class SettingsDownloadsPageElement extends
     return {
       autoOpenDownloads_: {type: Boolean},
 
-      // <if expr="not is_chromeos">
       downloadDefaultDirectoryPref_: {type: Object},
-      // </if>
 
-      // <if expr="is_chromeos">
-      /**
-       * The download location string that is suitable to display in the UI.
-       */
-      downloadLocation_: {type: String},
-      // </if>
 
       /**
        * Whether the user can toggle the option to display downloads when
@@ -66,14 +58,9 @@ export class SettingsDownloadsPageElement extends
   }
 
   protected accessor autoOpenDownloads_: boolean = false;
-  // <if expr="not is_chromeos">
   protected accessor downloadDefaultDirectoryPref_:
       chrome.settingsPrivate.PrefObject<string>|undefined = undefined;
-  // </if>
 
-  // <if expr="is_chromeos">
-  protected accessor downloadLocation_: string = '';
-  // </if>
 
   protected accessor downloadBubblePartialViewControlledByPref_: boolean =
       loadTimeData.getBoolean('downloadBubblePartialViewControlledByPref');
@@ -84,18 +71,9 @@ export class SettingsDownloadsPageElement extends
   override connectedCallback() {
     super.connectedCallback();
 
-    // <if expr="not is_chromeos">
     this.mirrorPref(
         'download.default_directory', 'downloadDefaultDirectoryPref_');
-    // </if>
 
-    // <if expr="is_chromeos">
-    this.addPrefObserver<string>('download.default_directory', pref => {
-      this.browserProxy_.getDownloadLocationText(pref.value).then(text => {
-        this.downloadLocation_ = text;
-      });
-    });
-    // </if>
   }
 
   override firstUpdated() {

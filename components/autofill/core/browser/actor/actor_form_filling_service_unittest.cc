@@ -92,7 +92,6 @@ gfx::Image CreateTestImage(int width, int height) {
                Optional(Property(&gfx::Image::IsEmpty, false)));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 [[nodiscard]] Matcher<ActorSuggestion> ActorSuggestionIconEquals(
     gfx::Image expected_image) {
   return Field(&ActorSuggestion::icon,
@@ -101,7 +100,6 @@ gfx::Image CreateTestImage(int width, int height) {
                                                    actual_image.AsBitmap());
                })));
 }
-#endif
 
 [[nodiscard]] Matcher<ActorFormFillingRequest> IsActorFormFillingRequest(
     ActorFormFillingRequest::RequestedData requested_data) {
@@ -799,20 +797,11 @@ TEST_F(ActorFormFillingServiceTest, CreditCardFormWithCardArtIcon) {
       client(), {CreditCardFillRequest({form.fields()[0].global_id()})},
       future.GetCallback());
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, card art is not fetched as a gfx::Image in C++. Instead, the
-  // suggestion receives a fallback network icon (Visa).
-  EXPECT_THAT(
-      future.Get(),
-      ValueIs(ElementsAre(Field(&ActorFormFillingRequest::suggestions,
-                                Each(ActorSuggestionHasNonEmptyIcon())))));
-#else
   // Verify that the suggestion's icon matches the test image pixel by pixel.
   EXPECT_THAT(future.Get(),
               ValueIs(ElementsAre(Field(
                   &ActorFormFillingRequest::suggestions,
                   Each(ActorSuggestionIconEquals(std::move(test_image)))))));
-#endif
 }
 
 // Tests that filling a credit card after fetching it from the server works.

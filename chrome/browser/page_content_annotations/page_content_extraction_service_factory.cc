@@ -20,16 +20,9 @@
 #include "components/page_content_annotations/content/page_content_extraction_service.h"
 #include "components/page_content_annotations/core/page_content_annotations_features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/page_content_annotations/android/page_content_extraction_tab_model_observer_android.h"
-#else
 #include "chrome/browser/page_content_annotations/page_content_extraction_tab_strip_model_observer.h"
 #include "chrome/browser/ui/browser_manager_service_factory.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif
 
 namespace page_content_annotations {
 
@@ -55,9 +48,7 @@ PageContentExtractionServiceFactory::PageContentExtractionServiceFactory()
               .WithRegular(ProfileSelection::kOriginalOnly)
               .Build()) {
   DependsOn(feature_engagement::TrackerFactory::GetInstance());
-#if !BUILDFLAG(IS_ANDROID)
   DependsOn(BrowserManagerServiceFactory::GetInstance());
-#endif
 }
 
 PageContentExtractionServiceFactory::~PageContentExtractionServiceFactory() =
@@ -82,17 +73,10 @@ PageContentExtractionServiceFactory::BuildServiceInstanceForBrowserContext(
   if (base::FeatureList::IsEnabled(features::kPageContentCache)) {
     static constexpr char kPageContentExtractionTabObserverKey[] =
         "page_content_extraction_tab_observer";
-#if BUILDFLAG(IS_ANDROID)
-    service->SetUserData(
-        kPageContentExtractionTabObserverKey,
-        std::make_unique<PageContentExtractionTabModelObserverAndroid>(
-            profile, service.get()));
-#else
     service->SetUserData(
         kPageContentExtractionTabObserverKey,
         std::make_unique<PageContentExtractionTabStripModelObserver>(
             profile, service.get()));
-#endif
   }
   return service;
 }

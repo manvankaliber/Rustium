@@ -15,7 +15,6 @@
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 namespace {
 base::DictValue CardDataToValue(int header_id,
                                 int subheader_id,
@@ -31,7 +30,6 @@ base::DictValue CardDataToValue(int header_id,
   return card_info;
 }
 }  // namespace
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 SafetyHubSafeBrowsingResult::SafetyHubSafeBrowsingResult(
     SafeBrowsingState status)
@@ -69,7 +67,6 @@ SafeBrowsingState SafetyHubSafeBrowsingResult::GetState(
   return SafeBrowsingState::kDisabledByUser;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 base::DictValue SafetyHubSafeBrowsingResult::GetSafeBrowsingCardData(
     const PrefService* pref_service) {
   base::DictValue sb_card_info;
@@ -107,7 +104,6 @@ base::DictValue SafetyHubSafeBrowsingResult::GetSafeBrowsingCardData(
   }
   return sb_card_info;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 std::unique_ptr<SafetyHubResult> SafetyHubSafeBrowsingResult::Clone() const {
   return std::make_unique<SafetyHubSafeBrowsingResult>(*this);

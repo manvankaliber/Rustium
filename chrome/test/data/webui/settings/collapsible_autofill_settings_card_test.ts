@@ -9,7 +9,7 @@ import {AiEnterpriseFeaturePrefName, EntityDataManagerProxyImpl} from 'chrome://
 import type {CollapsibleAutofillSettingsCardElement} from 'chrome://settings/settings.js';
 import {loadTimeData, ModelExecutionEnterprisePolicyValue, PrefsBrowserProxy, PrefService} from 'chrome://settings/settings.js';
 import type {CrPolicyPrefIndicatorElement, SettingsAiLoggingInfoBulletElement} from 'chrome://settings/settings.js';
-// <if expr="is_win or is_macosx or is_chromeos">
+// <if expr="is_win or is_macosx">
 import type {SettingsToggleButtonElement} from 'chrome://settings/settings.js';
 // </if>
 import {assertEquals, assertFalse, assertTrue} from 'chrome://webui-test/chai_assert.js';
@@ -23,7 +23,7 @@ suite('CollapsibleAutofillSettingsCard', function() {
   let prefsBrowserProxy: TestPrefsBrowserProxy;
   let prefService: PrefService;
   // Note that authentication is not available on linux.
-  // <if expr="is_win or is_macosx or is_chromeos">
+  // <if expr="is_win or is_macosx">
   const authenticationPref =
       'autofill.autofill_ai.reauth_before_viewing_sensitive_data';
   // </if>
@@ -518,7 +518,7 @@ suite('CollapsibleAutofillSettingsCard', function() {
     assertFalse(!!component);
   });
 
-  // <if expr="is_win or is_macosx or is_chromeos">
+  // <if expr="is_win or is_macosx">
   test('AutofillAiReauthToggleHiddenWhenFeatureDisabled', async function() {
     loadTimeData.overrideValues(
         {autofillAiReauthOnViewingSensitiveDataEnabled: false});

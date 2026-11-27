@@ -98,22 +98,24 @@
         <div class="hero-main">
           <div class="hero-label">Actual lines of source</div>
           <div class="hero-number" id="actual-loc">—</div>
-          <div class="hero-note">Nonblank source lines after recognized comments are stripped.</div>
+          <div class="hero-note">Maintained production source after recognized comments are stripped.</div>
         </div>
         <div class="hero-side">
           <strong id="source-size">— GB of source files</strong>
-          <p>Counts source extensions only. Documentation, configuration, lockfiles, ignored files, and unsupported formats stay out of this figure.</p>
+          <p>Counts maintained production source. Tests and vendored code are reported separately; generated code, fixtures, docs and configuration are excluded.</p>
         </div>
       </section>
       <dl class="stats" aria-label="Codebase totals">
-        <div class="stat"><dt>Lines of code</dt><dd id="total-lines">—</dd><small>All tracked text, including docs and configuration</small></div>
+        <div class="stat"><dt>Lines of code</dt><dd id="total-lines">—</dd><small>Maintained production source, including comments</small></div>
         <div class="stat"><dt>Without comment-only lines</dt><dd id="without-comments">—</dd><small>Inline-comment lines remain counted</small></div>
         <div class="stat"><dt>Lines containing comments</dt><dd id="comment-lines">—</dd><small>Recognized source comment syntax</small></div>
-        <div class="stat"><dt>Project configuration files</dt><dd id="config-files">—</dd><small>Known build and configuration formats</small></div>
+        <div class="stat"><dt>Project configuration files</dt><dd id="config-files">—</dd><small>Committed paths; contents are not scanned</small></div>
         <div class="stat"><dt>Root folders</dt><dd id="root-count">—</dd><small>Tracked top-level directories</small></div>
-        <div class="stat"><dt>“Google” mentions</dt><dd id="google-mentions">—</dd><small>Case-insensitive whole-word matches</small></div>
+        <div class="stat"><dt>“Google” mentions</dt><dd id="google-mentions">—</dd><small>Whole-word matches in maintained production source</small></div>
         <div class="stat"><dt>Obsolete functions flagged</dt><dd id="obsolete-functions">—</dd><small>Heuristic; review before removal</small></div>
         <div class="stat"><dt>Snapshot commit</dt><dd id="commit" class="commit-value">—</dd><small id="commit-time">—</small></div>
+        <div class="stat"><dt>Test source lines</dt><dd id="test-loc">&#8212;</dd><small>Actual LOC in maintained test source</small></div>
+        <div class="stat"><dt>Vendored source lines</dt><dd id="vendor-loc">&#8212;</dd><small>Actual LOC under third_party and vendor directories</small></div>
       </dl>
       <div class="columns">
         <section aria-labelledby="languages-title">
@@ -134,15 +136,16 @@
       <details class="obsolete">
         <summary>How the numbers are counted</summary>
         <ul>
-          <li>All counts use tracked, non-ignored text files. Lockfiles and binary assets are skipped.</li>
-          <li>“Lines of code” counts nonblank lines, including docs and configuration. “Without comment-only lines” removes full-line comments in recognized languages; inline-comment lines stay counted.</li>
-          <li>Actual LOC counts nonblank lines in recognized source extensions after removing recognized comments. Markdown, YAML, TOML, build/config files, ownership files, readmes, lockfiles, ignored files, and unsupported formats are excluded.</li>
-          <li>Language share uses actual LOC. Source size is the byte size of included source files, divided by one billion.</li>
-          <li>Google mentions are case-insensitive whole-word matches in tracked text. Obsolete-function matches are a heuristic for declarations near deprecated, obsolete, or removal markers—not a safe-to-delete list.</li>
+          <li>Counts use the committed snapshot. Local edits, untracked files, symlinks, submodules and Git internals are excluded.</li>
+          <li>Headline counts and language share cover maintained production source. Tests and vendored code have separate LOC totals.</li>
+          <li>Generated directories, known generated/minified/bundled filenames, generated-code headers and test fixtures are excluded. Header detection and source categorization are heuristic.</li>
+          <li>Documentation, configuration, ownership files, readmes, lockfiles, binaries and unsupported formats are excluded from source totals. Configuration files are counted by path without reading their contents.</li>
+          <li>Lines of code counts nonblank source lines including comments. Actual LOC strips recognized comments; inline-comment lines with code remain counted.</li>
+          <li>Source size is included maintained production source bytes divided by one billion. Google mentions and obsolete-function examples use the same scope; obsolete matches require review.</li>
         </ul>
       </details>
       <footer class="foot">
-        <span>Counts come from tracked, non-ignored files. Comment parsing is language-aware but heuristic.</span>
+        <span>Counts come from committed source files. Comment parsing is language-aware but heuristic.</span>
         <span>Updated on each push to <code>main</code>.</span>
       </footer>
     </div>
@@ -157,6 +160,8 @@
         document.getElementById("dashboard").hidden = false;
         setText("updated", `Snapshot ${new Date(data.updated).toLocaleString()}`);
         setText("actual-loc", number(data.actual_loc));
+        setText("test-loc", number(data.categories?.tests?.actual_loc ?? 0));
+        setText("vendor-loc", number(data.categories?.vendored?.actual_loc ?? 0));
         setText("source-size", `${data.source_gb.toFixed(2)} GB of source files`);
         setText("total-lines", number(data.lines_of_code));
         setText("without-comments", number(data.lines_without_comment_only_lines));

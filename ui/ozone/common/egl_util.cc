@@ -30,17 +30,10 @@ EGL_GetProcAddress(const char* procname);
 namespace ui {
 namespace {
 
-#if BUILDFLAG(IS_FUCHSIA)
-const base::FilePath::CharType kDefaultEglSoname[] =
-    FILE_PATH_LITERAL("libEGL.so");
-const base::FilePath::CharType kDefaultGlesSoname[] =
-    FILE_PATH_LITERAL("libGLESv2.so");
-#else  // BUILDFLAG(IS_FUCHSIA)
 const base::FilePath::CharType kDefaultEglSoname[] =
     FILE_PATH_LITERAL("libEGL.so.1");
 const base::FilePath::CharType kDefaultGlesSoname[] =
     FILE_PATH_LITERAL("libGLESv2.so.2");
-#endif
 
 const base::FilePath::CharType kAngleEglSoname[] =
     FILE_PATH_LITERAL("libEGL.so");
@@ -108,14 +101,10 @@ bool LoadEGLGLES2Bindings(const base::FilePath& egl_library_path,
          /*overwrite=*/0);
   setenv(kTraceLibglesv2, gles_library_path.BaseName().value().c_str(),
          /*overwrite=*/0);
-#if BUILDFLAG(IS_CHROMEOS)
-  setenv(kTraceFile, "/tmp/gltrace.dat", /*overwrite=*/0);
-#else
   if (!getenv(kTraceFile)) {
     LOG(ERROR) << "egltrace requires valid TRACE_FILE environment variable but "
                   "none were found. Chrome will probably crash.";
   }
-#endif
 
   LOG(WARNING) << "Loading egltrace.so with TRACE_LIBEGL="
                << getenv(kTraceLibegl)
@@ -125,8 +114,9 @@ bool LoadEGLGLES2Bindings(const base::FilePath& egl_library_path,
       FILE_PATH_LITERAL("egltrace.so");
   base::NativeLibrary trace_library =
       base::LoadNativeLibrary(base::FilePath(kDefaultTraceSoname), &error);
-  if (!trace_library)
+  if (!trace_library) {
     LOG(ERROR) << error.ToString();
+  }
   gl::AddGLNativeLibrary(trace_library);
 #endif
 
@@ -153,11 +143,9 @@ bool LoadDefaultEGLGLES2Bindings(
 #endif  // BUILDFLAG(USE_STATIC_ANGLE)
 
     base::FilePath module_path;
-#if !BUILDFLAG(IS_FUCHSIA)
     if (!base::PathService::Get(base::DIR_MODULE, &module_path)) {
       return false;
     }
-#endif
 
     glesv2_path = module_path.Append(kAngleGlesSoname);
     egl_path = module_path.Append(kAngleEglSoname);

@@ -762,7 +762,6 @@ IN_PROC_BROWSER_TEST_F(InitialWebUIWindowCreationSourceBrowserTest,
 }
 
 // Non-process-startup browser launches don't happen on ChromeOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(InitialWebUIWindowCreationSourceBrowserTest, Launch) {
   // Simulate a launch handled by the already running browser process, e.g.
   // from an OS shortcut.
@@ -778,7 +777,6 @@ IN_PROC_BROWSER_TEST_F(InitialWebUIWindowCreationSourceBrowserTest, Launch) {
   EXPECT_EQ(GetCreationSource(new_browser),
             waap::NewWindowCreationSource::kLaunch);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(InitialWebUIWindowCreationSourceBrowserTest,
                        SessionRestoreFallback) {
@@ -884,9 +882,7 @@ IN_PROC_BROWSER_TEST_F(InitialWebUIMetricsMappingBrowserTest,
 
 // TODO(crbug.com/491012584, crbug.com/540625890): Flaky on ChromeOS MSan/ASan,
 // Win, and Mac.
-#if (BUILDFLAG(IS_CHROMEOS) &&                                     \
-     (defined(MEMORY_SANITIZER) || defined(ADDRESS_SANITIZER))) || \
-    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #define MAYBE_NormalRendererMetricsAreNotMapped \
   DISABLED_NormalRendererMetricsAreNotMapped
 #else
@@ -996,7 +992,7 @@ class InitialWebUIMetricsDropBrowserTest : public InitialWebUIBrowserTestBase {
 };
 
 // TODO(crbug.com/491012584): Flaky on ChromeOS MSan and Linux MSan.
-#if (BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)) && defined(MEMORY_SANITIZER)
+#if BUILDFLAG(IS_LINUX) && defined(MEMORY_SANITIZER)
 #define MAYBE_WebiumRendererMetricsDroppedIfNoRule \
   DISABLED_WebiumRendererMetricsDroppedIfNoRule
 #else
@@ -1278,13 +1274,6 @@ IN_PROC_BROWSER_TEST_F(InitialWebUISameStartupPopupBrowserTest,
   // kNoStartupWindow.
   startup_metric_utils::GetBrowser().ResetSessionForTesting();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, startup metrics logging requires the time origin to be
-  // initialized via RecordWebContentsStartTime(). Since this test uses
-  // kNoStartupWindow, the normal browser launch flow is bypassed and we must
-  // initialize it manually.
-  startup_metric_utils::GetBrowser().RecordWebContentsStartTime(t0);
-#endif
 
   // Reset static state of the manager.
   InitialWebUIWindowMetricsManager::ResetForTesting();
@@ -1381,7 +1370,6 @@ IN_PROC_BROWSER_TEST_F(InitialWebUISharedRendererBrowserTest,
 
 // Profile creation and destruction without a full ChromeOS user session is not
 // supported on ChromeOS (Ash).
-#if !BUILDFLAG(IS_CHROMEOS)
 class InitialWebUIProfileServiceShutdownBrowserTest
     : public InitialWebUIBrowserTestBase {
  public:
@@ -1519,7 +1507,6 @@ IN_PROC_BROWSER_TEST_F(InitialWebUISharedRendererProfilePrewarmingBrowserTest,
   EXPECT_EQ(first_toolbar->GetPrimaryMainFrame()->GetProcess(),
             toolbar->GetPrimaryMainFrame()->GetProcess());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -1630,7 +1617,6 @@ IN_PROC_BROWSER_TEST_F(InitialWebUIProfilePrewarmRefillBrowserTest,
 
 // Verifies that the refill runs once the taken toolbar paints, without waiting
 // for the deadline.
-#if !BUILDFLAG(IS_CHROMEOS)
 // In ChromeOS browser test environments, background window composition is
 // deferred until display activation, so DidFirstVisuallyNonEmptyPaint() does
 // not reliably fire without explicit window activation; on ChromeOS, the
@@ -1649,7 +1635,6 @@ IN_PROC_BROWSER_TEST_F(InitialWebUIProfilePrewarmRefillBrowserTest,
   ASSERT_TRUE(CreateBrowser(browser()->GetProfile()));
   EXPECT_TRUE(WaitForPrewarmedToolbar(service));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Verifies that when multiple windows open simultaneously (back to back without
 // waiting for paints), at most one window adopts the prewarmed spare while the
@@ -1907,7 +1892,6 @@ IN_PROC_BROWSER_TEST_F(InitialWebUIProfilePrewarmRefillOmniboxBrowserTest,
 
 // Profile keep-alives behave differently on ChromeOS (Ash), and profile
 // creation and destruction need a full ChromeOS user session there.
-#if !BUILDFLAG(IS_CHROMEOS)
 // Verifies that a profile kept alive without windows, as in background mode,
 // keeps no prewarmed toolbar, and that its next window restarts the refill.
 IN_PROC_BROWSER_TEST_F(InitialWebUIProfilePrewarmRefillBrowserTest,
@@ -1955,6 +1939,5 @@ IN_PROC_BROWSER_TEST_F(InitialWebUIProfilePrewarmRefillBrowserTest,
 
   EXPECT_TRUE(default_service->has_toolbar_contents_for_testing());
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace waap

@@ -88,10 +88,7 @@
     },
     {
       "id": 7,
-      "description": "GpuControlListEntryTest.ChromeOSEntry",
-      "os": {
-        "type": "chromeos"
-      },
+      "description": "GpuControlListEntryTest.GenericAnyOsEntry",
       "features": [
         "test_feature_0"
       ]
@@ -99,9 +96,6 @@
     {
       "id": 8,
       "description": "GpuControlListEntryTest.GlVersionGLESEntry",
-      "os": {
-        "type": "android"
-      },
       "gl_type": "gles",
       "gl_version": {
         "op": "=",
@@ -114,9 +108,6 @@
     {
       "id": 9,
       "description": "GpuControlListEntryTest.GlVersionANGLEEntry",
-      "os": {
-        "type": "android"
-      },
       "gl_type": "angle_gles",
       "gl_version": {
         "op": ">",
@@ -124,14 +115,14 @@
       },
       "features": [
         "test_feature_0"
-      ]
+      ],
+      "os": {
+        "type": "linux"
+      }
     },
     {
       "id": 10,
       "description": "GpuControlListEntryTest.GlVersionGLEntry",
-      "os": {
-        "type": "android"
-      },
       "gl_version": {
         "op": "<",
         "value": "4.0"
@@ -255,9 +246,6 @@
     {
       "id" : 22,
       "description": "GpuControlListEntryTest.NeedsMoreInfoForGLESVersionEntry",
-      "os": {
-        "type": "android"
-      },
       "gl_type": "gles",
       "gl_version": {
         "op": "<",
@@ -302,9 +290,6 @@
     {
       "id": 26,
       "description": "GpuControlListEntryTest.MachineModelName",
-      "os": {
-        "type": "android"
-      },
       "machine_model_name": [
         "Nexus 4", "XT1032", "GT-.*", "SCH-.*"
       ],
@@ -317,9 +302,6 @@
       "description": "GpuControlListEntryTest.MachineModelNameException",
       "exceptions": [
         {
-          "os": {
-            "type": "android"
-          },
           "machine_model_name": ["Nexus.*"]
         }
       ],
@@ -490,7 +472,7 @@
       "id": 40,
       "description": "GpuControlListEntryTest.OsVersionZeroLT",
       "os": {
-        "type": "android",
+        "type": "win",
         "version": {
           "op": "<",
           "value": "4.2"
@@ -504,7 +486,7 @@
       "id": 41,
       "description": "GpuControlListEntryTest.OsVersionZeroAny",
       "os": {
-        "type": "android"
+        "type": "win"
       },
       "features": [
         "test_feature_0"
@@ -878,9 +860,6 @@
     {
       "id": 72,
       "description": "GpuControlListEntryTest.SubpixelFontRendering",
-      "os": {
-        "type": "chromeos"
-      },
       "features": [
         "test_feature_0"
       ],
@@ -895,9 +874,6 @@
     {
       "id": 73,
       "description": "GpuControlListEntryTest.SubpixelFontRenderingDontCare",
-      "os": {
-        "type": "chromeos"
-      },
       "gl_renderer": "Mali.*",
       "features": [
         "test_feature_0"
@@ -1021,25 +997,19 @@
     {
       "id": 81,
       "description": "GpuControlListEntryTest.GlTypeEntry",
-      "os": {
-        "type": "android"
-      },
       "gl_type": "angle_vulkan",
       "features": [
         "test_feature_0"
-      ]
+      ],
+      "os": {
+        "type": "linux"
+      }
     },
     {
       "id": 82,
       "description": "GpuControlListEntryTest.GLES30Exception",
-      "os": {
-        "type": "android"
-      },
       "exceptions": [
         {
-          "os": {
-            "type": "android"
-          },
           "gl_type": "gles",
           "gl_version": {
             "op": ">=",
@@ -1054,14 +1024,8 @@
     {
       "id": 83,
       "description": "GpuControlListEntryTest.WrongANGLEException",
-      "os": {
-        "type": "android"
-      },
       "exceptions": [
         {
-          "os": {
-            "type": "android"
-          },
           "gl_renderer": "ANGLE.*"
         }
       ],
@@ -1072,21 +1036,18 @@
     {
       "id": 84,
       "description": "GpuControlListEntryTest.ANGLEException",
-      "os": {
-        "type": "android"
-      },
       "exceptions": [
         {
+          "gl_type": "angle_gles",
           "os": {
-            "type": "android"
-          },
-          "gl_type": "angle_gles"
+            "type": "linux"
+          }
         },
         {
+          "gl_type": "angle_vulkan",
           "os": {
-            "type": "android"
-          },
-          "gl_type": "angle_vulkan"
+            "type": "linux"
+          }
         }
       ],
       "features": [
@@ -1111,9 +1072,6 @@
     {
       "id": 86,
       "description": "GpuControlListEntryTest.GLVersionOnly",
-      "os": {
-        "type": "android"
-      },
       "gl_version": {
         "op": "<",
         "value": "3.1"

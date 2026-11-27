@@ -2,9 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
 import("//components/optimization_guide/features.gni")
 import("//mojo/public/tools/bindings/mojom.gni")
 
@@ -42,11 +39,6 @@ static_library("browser") {
     "//services/metrics/public/cpp:ukm_builders",
     "//services/network/public/cpp",
   ]
-
-  if (is_android) {
-    sources += [ "page_content_proto_provider_bridge.cc" ]
-    public_deps += [ "android:jni_headers" ]
-  }
 }
 
 source_set("page_context_eligibility_api") {
@@ -74,7 +66,7 @@ static_library("page_context_eligibility") {
   # On desktop, the internal library is built as a runtime data dependency.
   # On Android, it is packaged into the Chrome APK/bundle via loadable_modules
   # and dynamically loaded at runtime by OptimizationGuideLibraryHolder.
-  if (build_with_internal_optimization_guide && !is_android) {
+  if (build_with_internal_optimization_guide) {
     data_deps = [
       "//components/optimization_guide/internal:optimization_guide_internal",
     ]

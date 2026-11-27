@@ -17,10 +17,6 @@
 #include "base/test/bind.h"
 #include "base/test/scoped_feature_list.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_keyed_service_factory.h"
-#include "chrome/browser/actor/actor_keyed_service_fake.h"
-#include "chrome/browser/actor/actor_surface_registry.h"
-#include "chrome/browser/actor/actor_task.h"
 #include "chrome/browser/history/history_service_factory.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/test/base/chrome_render_view_host_test_harness.h"
@@ -45,22 +41,11 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/feed/feed_service_factory.h"
-#include "components/feed/core/v2/public/feed_service.h"  // nogncheck crbug.com/40147906
-#include "components/feed/core/v2/public/test/stub_feed_api.h"  // nogncheck crbug.com/40147906
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using testing::NiceMock;
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-class TestFeedApi : public feed::StubFeedApi {
- public:
-  MOCK_METHOD1(WasUrlRecentlyNavigatedFromFeed, bool(const GURL&));
-};
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class MockObserver {
  public:
@@ -81,15 +66,6 @@ class HistoryTabHelperTest : public ChromeRenderViewHostTestHarness {
   // ChromeRenderViewHostTestHarness:
   void SetUp() override {
     ChromeRenderViewHostTestHarness::SetUp();
-#if BUILDFLAG(IS_ANDROID)
-    feed::FeedServiceFactory::GetInstance()->SetTestingFactory(
-        profile(),
-        base::BindLambdaForTesting([&](content::BrowserContext* context) {
-          std::unique_ptr<KeyedService> result =
-              feed::FeedService::CreateForTesting(&test_feed_api_);
-          return result;
-        }));
-#endif  // BUILDFLAG(IS_ANDROID)
     history_service_ = HistoryServiceFactory::GetForProfile(
         profile(), ServiceAccessType::IMPLICIT_ACCESS);
     ASSERT_TRUE(history_service_);
@@ -183,9 +159,6 @@ class HistoryTabHelperTest : public ChromeRenderViewHostTestHarness {
  protected:
   base::CancelableTaskTracker tracker_;
   raw_ptr<history::HistoryService> history_service_;
-#if BUILDFLAG(IS_ANDROID)
-  TestFeedApi test_feed_api_;
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 TEST_F(HistoryTabHelperTest, ShouldConsiderForNtpMostVisited) {
@@ -639,100 +612,8 @@ TEST_F(HistoryTabHelperTest,
   EXPECT_EQ(args.context_annotations->response_code, 234);
 }
 
-TEST_F(HistoryTabHelperTest,
-       CreateAddPageArgsWithoutActorTaskSetsBrowsedSource) {
-  NiceMock<content::MockNavigationHandle> navigation_handle(web_contents());
-  navigation_handle.set_redirect_chain({GURL("https://someurl.com")});
 
-  history::HistoryAddPageArgs args =
-      history_tab_helper()->CreateHistoryAddPageArgs(
-          GURL("https://someurl.com"), base::Time(), 1, &navigation_handle);
 
-  EXPECT_EQ(args.visit_source, history::VisitSource::SOURCE_BROWSED);
-  EXPECT_FALSE(args.actor_task_id.has_value());
-}
-
-TEST_F(HistoryTabHelperTest,
-       CreateAddPageArgsPopulatesActorTaskIdFromServiceFallback) {
-  base::test::ScopedFeatureList scoped_feature_list(features::kGlicActor);
-
-  actor::ActorKeyedServiceFactory::GetInstance()->SetTestingFactory(
-      profile(), base::BindRepeating([](content::BrowserContext* context)
-                                         -> std::unique_ptr<KeyedService> {
-        return std::make_unique<actor::ActorKeyedServiceFake>(
-            Profile::FromBrowserContext(context));
-      }));
-
-  tabs::MockTabInterface mock_tab;
-  ON_CALL(mock_tab, GetProfile).WillByDefault(testing::Return(profile()));
-  tabs::TabLookupFromWebContents::CreateForWebContents(web_contents(),
-                                                       &mock_tab);
-
-  auto* actor_service = static_cast<actor::ActorKeyedServiceFake*>(
-      actor::ActorKeyedService::Get(profile()));
-  actor_service->GetSurfaceRegistry().OnTabCreated(mock_tab);
-  actor::TaskId task_id = actor_service->CreateTaskForTesting();
-  actor_service->GetTask(task_id)->AddTab(
-      mock_tab.GetHandle(), /*stop_task_on_detach=*/true, base::DoNothing());
-
-  // Mock navigation with no NavigationUIData (e.g. same-document navigation).
-  NiceMock<content::MockNavigationHandle> navigation_handle(web_contents());
-  navigation_handle.set_redirect_chain({GURL("https://someurl.com")});
-  ON_CALL(navigation_handle, GetNavigationUIData())
-      .WillByDefault(testing::Return(nullptr));
-
-  history::HistoryAddPageArgs args =
-      history_tab_helper()->CreateHistoryAddPageArgs(
-          GURL("https://someurl.com"), base::Time(), 1, &navigation_handle);
-
-  EXPECT_EQ(args.visit_source, history::VisitSource::SOURCE_ACTOR);
-  ASSERT_TRUE(args.actor_task_id.has_value());
-  EXPECT_EQ(args.actor_task_id.value(), task_id.value());
-}
-
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(HistoryTabHelperTest, CreateAddPageArgsPopulatesAppId) {
-  NiceMock<content::MockNavigationHandle> navigation_handle(web_contents());
-  navigation_handle.set_redirect_chain({GURL("https://someurl.com")});
-
-  std::string raw_response_headers = "HTTP/1.1 234 OK\r\n\r\n";
-  scoped_refptr<net::HttpResponseHeaders> response_headers =
-      net::HttpResponseHeaders::TryToCreate(raw_response_headers);
-  DCHECK(response_headers);
-  navigation_handle.set_response_headers(response_headers);
-
-  history_tab_helper()->SetAppId("org.chromium.testapp");
-
-  history::HistoryAddPageArgs args =
-      history_tab_helper()->CreateHistoryAddPageArgs(
-          GURL("https://someurl.com"), base::Time(), 1, &navigation_handle);
-
-  // Make sure the `app_id` is populated.
-  ASSERT_EQ(*args.app_id, "org.chromium.testapp");
-}
-
-TEST_F(HistoryTabHelperTest, NonFeedNavigationsDoContributeToMostVisited) {
-  GURL new_url("http://newurl.com");
-
-  EXPECT_CALL(test_feed_api_, WasUrlRecentlyNavigatedFromFeed(new_url))
-      .WillOnce(testing::Return(false));
-  web_contents_tester()->NavigateAndCommit(new_url,
-                                           ui::PAGE_TRANSITION_AUTO_BOOKMARK);
-
-  EXPECT_THAT(GetMostVisitedURLSet(), testing::Contains(new_url));
-}
-
-TEST_F(HistoryTabHelperTest, FeedNavigationsDoNotContributeToMostVisited) {
-  GURL new_url("http://newurl.com");
-  EXPECT_CALL(test_feed_api_, WasUrlRecentlyNavigatedFromFeed(new_url))
-      .WillOnce(testing::Return(true));
-  web_contents_tester()->NavigateAndCommit(new_url,
-                                           ui::PAGE_TRANSITION_AUTO_BOOKMARK);
-
-  EXPECT_THAT(GetMostVisitedURLSet(), testing::Not(testing::Contains(new_url)));
-}
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
 enum class MPArchType {
   kFencedFrame,

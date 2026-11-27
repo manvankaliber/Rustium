@@ -43,10 +43,6 @@
 // Some android builds use a buggy compiler that runs out of memory while
 // parsing the pragma (--cpu=armeabi-v7a).
 
-#elif defined(ANDROID)
-// Other android builds use a buggy compiler that crashes with an internal
-// error (Android NDK R9).
-
 #elif defined(__clang__)
 // Clang supports the standard C++ pragma for turning off this optimization.
 #pragma STDC FP_CONTRACT OFF

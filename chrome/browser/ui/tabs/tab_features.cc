@@ -15,17 +15,11 @@
 #include "base/no_destructor.h"
 #include "base/task/sequenced_task_runner.h"
 #include "base/time/default_tick_clock.h"
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/actor_surface_tab_helper.h"
-#include "chrome/browser/actor/actor_tab_data.h"
-#include "chrome/browser/actor/ui/actor_ui_tab_controller.h"
 #include "chrome/browser/banners/app_banner_manager_desktop.h"
 #include "chrome/browser/bookmarks/bookmark_model_factory.h"
 #include "chrome/browser/breadcrumbs/breadcrumb_manager_tab_helper.h"
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/chained_back_navigation_tracker.h"
-#include "chrome/browser/commerce/in_stock_notification/in_stock_notification_manager.h"
-#include "chrome/browser/commerce/shopping_service_factory.h"
 #include "chrome/browser/complex_tasks/task_tab_helper.h"
 #include "chrome/browser/content_settings/host_content_settings_map_factory.h"
 #include "chrome/browser/content_settings/mixed_content_settings_tab_helper.h"
@@ -47,18 +41,12 @@
 #include "chrome/browser/favicon/favicon_utils.h"
 #include "chrome/browser/file_system_access/file_system_access_permission_request_manager.h"
 #include "chrome/browser/file_system_access/file_system_access_tab_helper.h"
-#include "chrome/browser/glic/host/context/glic_page_features_manager.h"
-#include "chrome/browser/glic/host/glic_drag_and_drop_util.h"
-#include "chrome/browser/glic/suggestions/contextual_cueing_helper.h"
-#include "chrome/browser/glic/suggestions/glic_cue_tab_state.h"
-#include "chrome/browser/glic/suggestions/glic_cue_target.h"
 #include "chrome/browser/history/history_tab_helper.h"
 #include "chrome/browser/history/top_sites_factory.h"
 #include "chrome/browser/history_clusters/history_clusters_tab_helper.h"
 #include "chrome/browser/image_fetcher/image_fetcher_service_factory.h"
 #include "chrome/browser/indigo/indigo_cue_target.h"
 #include "chrome/browser/indigo/indigo_page_action_controller.h"
-#include "chrome/browser/lens/lens_suggestion_tool.h"
 #include "chrome/browser/loader/from_gws_navigation_and_keep_alive_request_observer.h"
 #include "chrome/browser/login_detection/login_detection_tab_helper.h"
 #include "chrome/browser/lookalikes/safety_tip_web_contents_observer.h"
@@ -133,14 +121,12 @@
 #include "chrome/browser/ui/bookmarks/bookmark_tab_helper.h"
 #include "chrome/browser/ui/browser_actions.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/commerce/commerce_ui_tab_helper.h"
 #include "chrome/browser/ui/context_highlight/context_highlight_tab_feature.h"
 #include "chrome/browser/ui/extensions/extension_side_panel_manager.h"
 #include "chrome/browser/ui/find_bar/find_bar_state.h"
 #include "chrome/browser/ui/focus_tab_after_navigation_helper.h"
 #include "chrome/browser/ui/intent_picker_tab_helper.h"
 #include "chrome/browser/ui/javascript_dialogs/javascript_tab_modal_dialog_manager_delegate_desktop.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/page_action/action_ids.h"
 #include "chrome/browser/ui/page_action/page_action_controller.h"
 #include "chrome/browser/ui/page_action/page_action_icon_type.h"
@@ -183,14 +169,11 @@
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/browser/ui/uma_browsing_activity_observer.h"
 #include "chrome/browser/ui/views/bookmarks/bookmark_page_action_controller.h"
-#include "chrome/browser/ui/views/commerce/discounts_page_action_view_controller.h"
-#include "chrome/browser/ui/views/commerce/price_insights_page_action_view_controller.h"
 #include "chrome/browser/ui/views/dictation/dictation_iph_controller.h"
 #include "chrome/browser/ui/views/file_system_access/file_system_access_page_action_controller.h"
 #include "chrome/browser/ui/views/intent_picker/intent_picker_view_page_action_controller.h"
 #include "chrome/browser/ui/views/js_optimization/js_optimizations_page_action_controller.h"
 #include "chrome/browser/ui/views/location_bar/cookie_controls/cookie_controls_page_action_controller.h"
-#include "chrome/browser/ui/views/location_bar/lens_overlay_homework_page_action_controller.h"
 #include "chrome/browser/ui/views/passwords/manage_passwords_page_action_controller.h"
 #include "chrome/browser/ui/views/side_panel/customize_chrome/side_panel_controller_views.h"
 #include "chrome/browser/ui/views/tab_sharing/tab_capture_contents_border_helper.h"
@@ -220,8 +203,7 @@
 #include "chrome/browser/metrics/desktop_session_duration/desktop_session_duration_observer.h"
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/contextual_tasks/contextual_tasks_tab_navigation_observer.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_tab_visit_tracker.h"
 #include "chrome/browser/contextual_tasks/search_journey_tab_feature.h"
@@ -236,23 +218,7 @@
 #include "chrome/browser/ui/search_promotion/search_promotion_navigation_observer.h"
 #include "components/feature_engagement/public/feature_constants.h"
 #endif
-#include "chrome/browser/glic/browser_ui/glic_tab_indicator_helper.h"
-#include "chrome/browser/glic/glic_gemini_web_warming_observer.h"
-#include "chrome/browser/glic/glic_selection_observer.h"
-#include "chrome/browser/glic/navigation_capture/glic_marketing_page_tab_helper.h"
-#include "chrome/browser/glic/public/features.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_keyed_service.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
-#include "chrome/browser/glic/public/widget/glic_side_panel_coordinator_impl.h"
-#include "chrome/browser/glic/selection/quick_answers_tool.h"
-#include "chrome/browser/glic/selection/selection_overlay_controller.h"
-#include "chrome/browser/glic/selection/selection_suggestion_tool.h"
-#include "chrome/browser/glic/service/glic_instance_helper.h"
 #include "chrome/browser/selection/suggestion_service.h"
-#include "chrome/browser/skills/skills_ui_tab_controller.h"
-#include "chrome/browser/skills/skills_update_observer.h"
 #include "chrome/browser/ui/contextual_search/tab_contextualization_controller.h"
 #include "chrome/browser/ui/tabs/features.h"
 #include "chrome/browser/ui/tabs/tab_attachment_tracker.h"
@@ -269,8 +235,6 @@
 #include "components/blocked_content/popup_opener_tab_helper.h"
 #include "components/breadcrumbs/core/breadcrumbs_status.h"
 #include "components/client_hints/browser/client_hints_web_contents_observer.h"
-#include "components/commerce/content/browser/commerce_tab_helper.h"
-#include "components/commerce/core/commerce_feature_list.h"
 #include "components/content_settings/browser/page_specific_content_settings.h"
 #include "components/facilitated_payments/core/features/features.h"
 #include "components/favicon/content/content_favicon_driver.h"
@@ -301,20 +265,8 @@
 #include "ui/accessibility/accessibility_features.h"
 #include "ui/base/unowned_user_data/user_data_factory.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/apps/app_service/app_service_proxy_factory.h"  // nogncheck
-#include "chrome/browser/ash/boot_times_recorder/boot_times_recorder_tab_helper.h"
-#include "chrome/browser/ash/growth/campaigns_manager_session_tab_helper.h"
-#include "chrome/browser/ash/mahi/web_contents/mahi_tab_helper.h"
-#include "chrome/browser/chromeos/gemini_app/gemini_app_tab_helper.h"
-#include "chrome/browser/chromeos/policy/dlp/dlp_content_tab_helper.h"
-#include "chrome/browser/ui/ash/google_one/google_one_offer_iph_tab_helper.h"
-#include "chrome/browser/ui/views/web_apps/protocol_handler_picker_coordinator.h"
-#include "chromeos/ash/experiences/isolated_web_app/cros_isolated_web_app_enabler.h"
-#endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/ui/hats/hats_helper.h"
 #include "chrome/browser/ui/performance_controls/performance_controls_hats_service_factory.h"
 #include "chrome/browser/ui/shared_highlighting/shared_highlighting_promo.h"
@@ -333,7 +285,6 @@
 #endif
 
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
-#include "chrome/browser/contextual_tasks/search_ai_mode_promo_tab_helper.h"
 #include "components/signin/public/base/signin_switches.h"
 #endif
 
@@ -559,12 +510,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
             tab, tab, *page_action_controller_);
   }
 
-  if (page_action_controller_->ActionExists(kActionCommercePriceInsights)) {
-    commerce_price_insights_page_action_view_controller_ =
-        GetUserDataFactory()
-            .CreateInstance<commerce::PriceInsightsPageActionViewController>(
-                tab, tab, *page_action_controller_);
-  }
 
   tab_dialogs_ = TabDialogs::Create(tab, tab.GetContents());
   if (page_action_controller_->ActionExists(kActionShowPasswordsBubbleOrPage)) {
@@ -581,12 +526,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
     cookie_controls_page_action_controller_->Init();
   }
 
-  if (page_action_controller_->ActionExists(kActionLensOverlayHomework)) {
-    lens_overlay_homework_page_action_controller_ =
-        GetUserDataFactory()
-            .CreateInstance<LensOverlayHomeworkPageActionController>(
-                tab, tab, *profile, *page_action_controller_);
-  }
 
   BookmarkTabHelper::CreateForWebContents(tab.GetContents());
   if (tab.GetBrowserWindowInterface()->GetType() ==
@@ -616,23 +555,11 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
       GetUserDataFactory().CreateInstance<tabs::PageContextEligibilityHelper>(
           tab, tab);
 
-  glic_web_drag_observer_ = std::make_unique<glic::GlicWebDragObserver>(tab);
 
-  commerce_tab_helper_ = std::make_unique<commerce::CommerceTabHelper>(
-      tab.GetContents(), profile->IsOffTheRecord(),
-      commerce::ShoppingServiceFactory::GetForBrowserContext(profile),
-      ISOLATED_WORLD_ID_CHROME_INTERNAL);
 
   // Features that are only enabled for normal browser windows. By default most
   // features should be instantiated in this block.
   if (tab.IsInNormalWindow()) {
-    lens_search_controller_ =
-        GetUserDataFactory().CreateInstance<LensSearchController>(tab, &tab);
-    lens_search_controller_->Initialize(
-        profile->GetVariationsClient(),
-        IdentityManagerFactory::GetForProfile(profile), profile->GetPrefs(),
-        SyncServiceFactory::GetForProfile(profile),
-        ThemeServiceFactory::GetForProfile(profile));
 
     permission_indicators_tab_data_ =
         GetUserDataFactory()
@@ -644,19 +571,8 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
 
     if (!profile->IsPrimaryOTRProfileWithRegularParent()) {
       // TODO(crbug.com/40863325): Consider using the in-memory cache instead.
-      commerce_ui_tab_helper_ =
-          GetUserDataFactory().CreateInstance<commerce::CommerceUiTabHelper>(
-              tab, tab,
-              commerce::ShoppingServiceFactory::GetForBrowserContext(profile),
-              BookmarkModelFactory::GetForBrowserContext(profile),
-              ImageFetcherServiceFactory::GetForKey(profile->GetProfileKey())
-                  ->GetImageFetcher(
-                      image_fetcher::ImageFetcherConfig::kNetworkOnly),
-              side_panel_registry_.get());
     }
 
-    contextual_cueing_helper_ = glic::ContextualCueingHelper::MaybeCreate(&tab);
-    glic_cue_tab_state_ = std::make_unique<glic::GlicCueTabState>(tab);
     contextual_search_cue_tab_state_ =
         std::make_unique<contextual_search::ContextualSearchCueTabState>(tab);
 
@@ -685,97 +601,13 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
                   *collaboration_messaging_tab_data_);
     }
 
-    if (base::FeatureList::IsEnabled(commerce::kInStockNotification) &&
-        !profile->IsPrimaryOTRProfileWithRegularParent()) {
-      in_stock_notification_manager_ =
-          GetUserDataFactory()
-              .CreateInstance<commerce::InStockNotificationManager>(tab, &tab);
-    }
 
-    if (glic::GlicEnabling::IsProfileEligible(profile)) {
-      glic_instance_helper_ =
-          GetUserDataFactory().CreateInstance<glic::GlicInstanceHelper>(tab,
-                                                                        &tab);
-      glic_tab_indicator_helper_ =
-          GetUserDataFactory().CreateInstance<glic::GlicTabIndicatorHelper>(
-              tab, &tab);
-      selection_suggestion_service_ =
-          GetUserDataFactory().CreateInstance<selection::SuggestionService>(
-              tab, &tab,
-              OptimizationGuideKeyedServiceFactory::GetForProfile(profile),
-              GoogleGroupsManagerFactory::GetForBrowserContext(profile));
-      if (base::FeatureList::IsEnabled(features::kGlicSelectionSuggestions)) {
-        glic_selection_suggestion_tool_ =
-            std::make_unique<glic::SelectionSuggestionTool>(tab);
-      }
-      if (base::FeatureList::IsEnabled(
-              features::kQuickAnswersSelectionSuggestions)) {
-        glic_quick_answers_tool_ =
-            std::make_unique<glic::QuickAnswersTool>(tab);
-      }
-      if (base::FeatureList::IsEnabled(lens::kLensSelectionSuggestions)) {
-        lens_suggestion_tool_ = std::make_unique<lens::LensSuggestionTool>(tab);
-      }
-      glic_selection_overlay_controller_ =
-          GetUserDataFactory().CreateInstance<glic::SelectionOverlayController>(
-              tab, &tab, profile->GetPrefs());
-      if (base::FeatureList::IsEnabled(features::kGlicWarmOnGeminiWeb)) {
-        glic_gemini_web_warming_observer_ =
-            std::make_unique<glic::GlicGeminiWebWarmingObserver>(&tab);
-      }
-
-      if (glic::GlicEnabling::IsEnabledForProfile(profile)) {
-        glic_selection_observer_ =
-            std::make_unique<glic::GlicSelectionObserver>(tab.GetContents());
-      }
-      if (base::FeatureList::IsEnabled(
-              features::kGlicSummarizeVideoSuggestion)) {
-        glic_page_features_manager_ =
-            GetUserDataFactory().CreateInstance<glic::GlicPageFeaturesManager>(
-                tab, &tab);
-      }
-    }
-    if (glic::GlicKeyedService::Get(profile)) {
-      glic_side_panel_coordinator_ =
-          GetUserDataFactory()
-              .CreateInstance<glic::GlicSidePanelCoordinatorImpl>(
-                  tab, &tab, side_panel_registry_.get());
-    }
     // TODO(crbug.com/433973411): Move this logic to a helper function.
-    if (base::FeatureList::IsEnabled(features::kGlicActor) &&
-        base::FeatureList::IsEnabled(features::kGlicActorUi) &&
-        profile->IsRegularProfile()) {
-      // The associated tab is passed to CreateInstance twice: for dependency
-      // injection callbacks and as a direct constructor argument.
-      actor_ui_tab_controller_ =
-          GetUserDataFactory().CreateInstance<actor::ui::ActorUiTabController>(
-              tab, tab, actor::ActorKeyedService::Get(profile));
-    }
-    if (glic::GetGlicProviderSpec(profile).SupportsFeature(
-            glic::GlicFeature::kSkills)) {
-      skills_ui_tab_controller_ =
-          GetUserDataFactory().CreateInstance<skills::SkillsUiTabController>(
-              tab, tab);
-    }
   }  // IsInNormalWindow() end.
 
-  if (base::FeatureList::IsEnabled(features::kGlicActor)) {
-    actor_tab_data_ =
-        GetUserDataFactory().CreateInstance<actor::ActorTabData>(tab, &tab);
-    actor_surface_tab_helper_ =
-        GetUserDataFactory().CreateInstance<actor::ActorSurfaceTabHelper>(tab,
-                                                                          tab);
-  }
 
   // This block instantiates the page action controllers that depends on the
   // `commerce_ui_tab_helper_` and not need to be created before.
-  if (commerce_ui_tab_helper_ &&
-      page_action_controller_->ActionExists(kActionCommerceDiscounts)) {
-    commerce_discounts_page_action_view_controller_ =
-        GetUserDataFactory()
-            .CreateInstance<commerce::DiscountsPageActionViewController>(
-                tab, tab, *page_action_controller_, *commerce_ui_tab_helper_);
-  }
 
   autofill_bubble_manager_ =
       GetUserDataFactory().CreateInstance<autofill::BubbleManagerImpl>(tab,
@@ -920,8 +752,7 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
       metrics::DesktopSessionDurationObserver::MaybeCreate(tab.GetContents());
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   inactive_window_mouse_event_controller_ =
       GetUserDataFactory().CreateInstance<InactiveWindowMouseEventController>(
           tab, tab);
@@ -976,7 +807,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
         GetUserDataFactory()
             .CreateInstance<contextual_cueing::ContextualCueingController>(
                 tab, &tab);
-    glic::GlicCueTarget::Register(tab);
     contextual_search::ContextualSearchCueTarget::Register(tab);
     if (contextual_tasks::IsABASearchJourneysEnabled()) {
       contextual_tasks::AbaSearchJourneyCueTarget::Register(tab);
@@ -1032,29 +862,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
       GetUserDataFactory().CreateInstance<lens::TabContextualizationController>(
           tab, &tab);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (apps::AppServiceProxyFactory::IsAppServiceAvailableForProfile(profile)) {
-    protocol_handler_picker_coordinator_ =
-        GetUserDataFactory()
-            .CreateInstance<web_app::ProtocolHandlerPickerCoordinator>(
-                tab, tab, apps::AppServiceProxyFactory::GetForProfile(profile));
-  }
-  google_one_offer_iph_tab_helper_ =
-      std::make_unique<GoogleOneOfferIphTabHelper>(tab.GetContents());
-  // Do not create for Incognito mode.
-  if (!profile->IsOffTheRecord()) {
-    campaigns_manager_session_tab_helper_ =
-        std::make_unique<CampaignsManagerSessionTabHelper>(tab.GetContents());
-  }
-  cros_isolated_web_app_enabler_ =
-      std::make_unique<ash::CrosIsolatedWebAppEnabler>(tab.GetContents());
-  gemini_app_tab_helper_ = GeminiAppTabHelper::MaybeCreate(tab.GetContents());
-  mahi_tab_helper_ = mahi::MahiTabHelper::MaybeCreate(tab.GetContents());
-  boot_times_recorder_tab_helper_ =
-      ash::BootTimesRecorderTabHelper::MaybeCreate(tab.GetContents());
-  dlp_content_tab_helper_ =
-      policy::DlpContentTabHelper::MaybeCreate(tab, tab.GetContents());
-#endif
 
   // The controller is created for all tabs but only affects back button
   // behavior for destination tabs with opener relationships.
@@ -1070,8 +877,7 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
         std::make_unique<dictation::DictationIphController>(tab);
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   if (base::FeatureList::IsEnabled(enterprise_reporting::kSaasUsageReporting)) {
     saas_usage_navigation_observer_ =
         std::make_unique<enterprise_reporting::SaasUsageNavigationObserver>(
@@ -1088,8 +894,7 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
       std::make_unique<SharedHighlightingPromo>(tab.GetContents());
 #endif
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   if (base::FeatureList::IsEnabled(multistep_filter::kMultistepFilter)) {
     filter_ui_controller_ =
         GetUserDataFactory()
@@ -1101,11 +906,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
   }
 #endif
 
-  if (glic::GetGlicProviderSpec(profile).SupportsFeature(
-          glic::GlicFeature::kSkills)) {
-    skills_update_observer_ =
-        std::make_unique<skills::SkillsUpdateObserver>(tab);
-  }
   if (base::FeatureList::IsEnabled(features::kIndigo)) {
     indigo_page_action_controller_ =
         std::make_unique<indigo::IndigoPageActionController>(
@@ -1142,16 +942,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
   tab_capture_contents_border_helper_ =
       GetUserDataFactory().CreateInstance<TabCaptureContentsBorderHelper>(tab,
                                                                           tab);
-
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  if (base::FeatureList::IsEnabled(switches::kEnableSearchAIModeSigninPromo) &&
-      base::FeatureList::IsEnabled(contextual_tasks::kContextualTasks)) {
-    search_ai_mode_promo_tab_helper_ =
-        GetUserDataFactory()
-            .CreateInstance<contextual_tasks::SearchAiModePromoTabHelper>(
-                tab, tab, tab.GetContents());
-  }
-#endif
 
 #if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
   captive_portal::CaptivePortalTabHelper::CreateForWebContents(
@@ -1195,8 +985,6 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
           tab.GetContents());
 #endif
 
-  glic_marketing_page_tab_helper_ =
-      glic::GlicMarketingPageTabHelper::MaybeCreate(tab.GetContents());
 
   tab_context_decryption_token_tab_helper_ =
       TabContextDecryptionTokenTabHelper::MaybeCreate(tab.GetContents());
@@ -1313,21 +1101,12 @@ void TabFeatures::Init(TabInterface& tab, Profile* profile) {
           .CreateInstance<chrome_browser_net::NetErrorTabHelper>(
               tab, tab, tab.GetContents());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Do not create for Incognito and Isolated mode.
-  if (!profile->IsPrimaryOTRProfileWithRegularParent()) {
-    supervised_user_navigation_observer_ =
-        GetUserDataFactory().CreateInstance<SupervisedUserNavigationObserver>(
-            tab, tab, tab.GetContents());
-  }
-#else
   // Do not create for OTR.
   if (!profile->IsOffTheRecord()) {
     supervised_user_navigation_observer_ =
         GetUserDataFactory().CreateInstance<SupervisedUserNavigationObserver>(
             tab, tab, tab.GetContents());
   }
-#endif
 
   browser_synced_tab_delegate_ =
       GetUserDataFactory().CreateInstance<BrowserSyncedTabDelegate>(
@@ -1731,11 +1510,6 @@ void TabFeatures::WillDiscardContents(tabs::TabInterface* tab,
             *tab, *tab, new_contents);
   }
 
-  if (glic_selection_observer_) {
-    glic_selection_observer_.reset();
-    glic_selection_observer_ =
-        std::make_unique<glic::GlicSelectionObserver>(new_contents);
-  }
 
   if (omnibox_autofill_bubble_controller_) {
     omnibox_autofill_bubble_controller_.reset();
@@ -1780,8 +1554,7 @@ void TabFeatures::WillDiscardContents(tabs::TabInterface* tab,
       std::make_unique<web_app::WindowManagementContentSettingObserver>(
           new_contents);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   if (saas_usage_navigation_observer_) {
     saas_usage_navigation_observer_ =
         std::make_unique<enterprise_reporting::SaasUsageNavigationObserver>(
@@ -1804,23 +1577,6 @@ void TabFeatures::WillDiscardContents(tabs::TabInterface* tab,
       metrics::DesktopSessionDurationObserver::MaybeCreate(new_contents);
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  google_one_offer_iph_tab_helper_ =
-      std::make_unique<GoogleOneOfferIphTabHelper>(new_contents);
-  if (campaigns_manager_session_tab_helper_) {
-    campaigns_manager_session_tab_helper_ =
-        std::make_unique<CampaignsManagerSessionTabHelper>(new_contents);
-  }
-  cros_isolated_web_app_enabler_ =
-      std::make_unique<ash::CrosIsolatedWebAppEnabler>(new_contents);
-  gemini_app_tab_helper_ = GeminiAppTabHelper::MaybeCreate(new_contents);
-  mahi_tab_helper_ = mahi::MahiTabHelper::MaybeCreate(new_contents);
-  boot_times_recorder_tab_helper_ =
-      ash::BootTimesRecorderTabHelper::MaybeCreate(new_contents);
-  dlp_content_tab_helper_.reset();
-  dlp_content_tab_helper_ =
-      policy::DlpContentTabHelper::MaybeCreate(*tab, new_contents);
-#endif
 
 #if BUILDFLAG(ENABLE_RLZ)
   chrome_rlz_tracker_web_contents_observer_ =
@@ -1831,17 +1587,6 @@ void TabFeatures::WillDiscardContents(tabs::TabInterface* tab,
   plugin_observer_.reset();
   plugin_observer_ = GetUserDataFactory().CreateInstance<PluginObserver>(
       *tab, *tab, new_contents);
-#endif
-
-#if BUILDFLAG(ENABLE_DICE_SUPPORT)
-  search_ai_mode_promo_tab_helper_.reset();
-  if (base::FeatureList::IsEnabled(switches::kEnableSearchAIModeSigninPromo) &&
-      base::FeatureList::IsEnabled(contextual_tasks::kContextualTasks)) {
-    search_ai_mode_promo_tab_helper_ =
-        GetUserDataFactory()
-            .CreateInstance<contextual_tasks::SearchAiModePromoTabHelper>(
-                *tab, *tab, new_contents);
-  }
 #endif
 
 #if BUILDFLAG(ENABLE_CAPTIVE_PORTAL_DETECTION)
@@ -1879,10 +1624,6 @@ void TabFeatures::WillDiscardContents(tabs::TabInterface* tab,
       std::make_unique<extensions::NavigationExtensionEnabler>(new_contents);
 #endif
 
-  if (glic_marketing_page_tab_helper_) {
-    glic_marketing_page_tab_helper_ =
-        glic::GlicMarketingPageTabHelper::MaybeCreate(new_contents);
-  }
 
   tab_context_decryption_token_tab_helper_ =
       TabContextDecryptionTokenTabHelper::MaybeCreate(new_contents);
@@ -2074,11 +1815,6 @@ void TabFeatures::WillDiscardContents(tabs::TabInterface* tab,
     }
   }
 
-  commerce_tab_helper_.reset();
-  commerce_tab_helper_ = std::make_unique<commerce::CommerceTabHelper>(
-      new_contents, profile->IsOffTheRecord(),
-      commerce::ShoppingServiceFactory::GetForBrowserContext(profile),
-      ISOLATED_WORLD_ID_CHROME_INTERNAL);
 
   if (auto* metrics_services_manager =
           g_browser_process->GetMetricsServicesManager()) {

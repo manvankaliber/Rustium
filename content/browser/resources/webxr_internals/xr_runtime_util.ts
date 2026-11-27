@@ -12,17 +12,9 @@ export function deviceIdToString(deviceId: XRDeviceId): string {
       return 'Fake Device';
     case XRDeviceId.ORIENTATION_DEVICE_ID:
       return 'Orientation Device';
-    // <if expr="enable_arcore">
-    case XRDeviceId.ARCORE_DEVICE_ID:
-      return 'ARCore Device';
-    // </if>
     // <if expr="enable_openxr">
     case XRDeviceId.OPENXR_DEVICE_ID:
       return 'OpenXR Device';
-    // </if>
-    // <if expr="enable_cardboard">
-    case XRDeviceId.CARDBOARD_DEVICE_ID:
-      return 'Cardboard Device';
     // </if>
     default:
       return '';

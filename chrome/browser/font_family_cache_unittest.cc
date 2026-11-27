@@ -19,7 +19,6 @@
 // Font family preferences are not registered on non-desktop Android (see
 // `PrefsTabHelper::RegisterProfilePrefs`), and `FontFamilyCache` is not used
 // there (see `ChromeContentBrowserClient::OverrideWebPreferences`).
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
 
 namespace {
 
@@ -147,5 +146,4 @@ TEST(FontFamilyCacheTest, DefaultCommonScript) {
   }
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) ||
         // BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)

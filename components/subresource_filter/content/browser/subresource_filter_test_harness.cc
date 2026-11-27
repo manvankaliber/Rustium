@@ -115,11 +115,6 @@ void SubresourceFilterTestHarness::SetUp() {
   NavigateAndCommit(GURL("https://example.first"));
 
   base::RunLoop().RunUntilIdle();
-#if BUILDFLAG(IS_ANDROID)
-  message_dispatcher_bridge_.SetMessagesEnabledForEmbedder(true);
-  messages::MessageDispatcherBridge::SetInstanceForTesting(
-      &message_dispatcher_bridge_);
-#endif
 }
 
 void SubresourceFilterTestHarness::TearDown() {
@@ -128,9 +123,6 @@ void SubresourceFilterTestHarness::TearDown() {
   ruleset_service_.reset();
 
   content::RenderViewHostTestHarness::TearDown();
-#if BUILDFLAG(IS_ANDROID)
-  messages::MessageDispatcherBridge::SetInstanceForTesting(nullptr);
-#endif
 }
 
 void SubresourceFilterTestHarness::InsertThrottle(

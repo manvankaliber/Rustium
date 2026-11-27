@@ -36,9 +36,6 @@
 #include "chrome/browser/ui/webui/signin/signin_email_confirmation_dialog.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#error This file should only be included on desktop.
-#endif
 
 class AccountInfo;
 class BrowserWindowInterface;
@@ -218,11 +215,9 @@ class SigninViewController {
       std::unique_ptr<signin::EnterpriseProfileCreationDialogParams>
           create_param);
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // If `error.message()` is not empty, shows the modal sign-in error dialog as
   // a browser-modal dialog on top of the `browser_`'s window.
   void ShowModalSigninErrorDialog(const SigninUIError& error);
-#endif
 
   // Returns true if the modal dialog is shown.
   bool ShowsModalDialog();

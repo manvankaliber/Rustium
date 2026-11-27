@@ -420,14 +420,6 @@ bool AllowProcessLockMismatchForNTP(const ProcessLock& expected_lock,
       expected_lock.GetProcessLockURL(), actual_lock.site_url());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-GURL NormalizeExternalFileUrl(const GURL& url) {
-  GURL::Replacements replacements;
-  replacements.ClearQuery();
-  replacements.ClearRef();
-  return url.ReplaceComponents(replacements);
-}
-#endif
 
 // Returns the ID that identifies `browser_context`, or a null token if
 // `browser_context` is null (which means that the corresponding operation
@@ -709,21 +701,6 @@ class ChildProcessSecurityPolicyImpl::ProcessState {
     request_file_set_.insert(file.StripTrailingSeparators());
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Grant navigation to a specific external file URL.
-  void GrantRequestOfExternalFileUrl(const GURL& url) {
-    CHECK(url.SchemeIs(kExternalFileScheme));
-    request_externalfile_set_.insert(NormalizeExternalFileUrl(url));
-  }
-
-  void GrantCommitOfExternalFileUrl(const GURL& url) {
-    CHECK(url.SchemeIs(kExternalFileScheme));
-    commit_externalfile_set_.insert(NormalizeExternalFileUrl(url));
-
-    // Commit access automatically implies request access.
-    request_externalfile_set_.insert(NormalizeExternalFileUrl(url));
-  }
-#endif
 
   // Revokes all permissions granted to a file.
   void RevokeAllPermissionsForFile(const base::FilePath& file) {
@@ -751,23 +728,6 @@ class ChildProcessSecurityPolicyImpl::ProcessState {
     return (it->second & permissions) == permissions;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Determine if the certain permissions have been granted to a content URI.
-  bool HasPermissionsForContentUri(const base::FilePath& file,
-                                   int permissions) const {
-    CHECK(!file.empty(), base::NotFatalUntil::M159);
-    CHECK(file.IsContentUri(), base::NotFatalUntil::M159);
-    if (!permissions) {
-      return false;
-    }
-    base::FilePath file_path = file.StripTrailingSeparators();
-    FileMap::const_iterator it = file_permissions_.find(file_path);
-    if (it != file_permissions_.end()) {
-      return (it->second & permissions) == permissions;
-    }
-    return false;
-  }
-#endif
 
   void grant_web_ui_bindings() { has_web_ui_bindings_ = true; }
 
@@ -801,11 +761,6 @@ class ChildProcessSecurityPolicyImpl::ProcessState {
       return true;
     }
 
-#if BUILDFLAG(IS_CHROMEOS)
-    if (url.SchemeIs(kExternalFileScheme)) {
-      return commit_externalfile_set_.contains(NormalizeExternalFileUrl(url));
-    }
-#endif
 
     // Check for permission for specific origin.
     if (CanCommitOrigin(url::Origin::Create(url))) {
@@ -838,17 +793,7 @@ class ChildProcessSecurityPolicyImpl::ProcessState {
       }
     }
 
-#if BUILDFLAG(IS_ANDROID)
-    if (url.SchemeIs(url::kContentScheme)) {
-      return request_file_set_.contains(base::FilePath(url.spec()));
-    }
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-    if (url.SchemeIs(kExternalFileScheme)) {
-      return request_externalfile_set_.contains(NormalizeExternalFileUrl(url));
-    }
-#endif
 
     // Otherwise, delegate to CanCommitURL. Unmentioned schemes are disallowed.
     // TODO(dcheng): It would be nice to avoid constructing the origin twice.
@@ -858,11 +803,6 @@ class ChildProcessSecurityPolicyImpl::ProcessState {
   // Determine if the certain permissions have been granted to a file.
   bool HasPermissionsForFile(const base::FilePath& file,
                              int permissions) const {
-#if BUILDFLAG(IS_ANDROID)
-    if (file.IsContentUri()) {
-      return HasPermissionsForContentUri(file, permissions);
-    }
-#endif
     if (!permissions || file.empty() || !file.IsAbsolute()) {
       return false;
     }
@@ -1072,11 +1012,6 @@ class ChildProcessSecurityPolicyImpl::ProcessState {
   // The set of files the child process is permitted to load.
   FileSet request_file_set_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // The set of specific URLs the child process is permitted to load.
-  URLSet request_externalfile_set_;
-  URLSet commit_externalfile_set_;
-#endif
 
   // The set of origins in Android WebView and <webview> tags that are allowed
   // to bypass some navigation checks. Limited to opaque origins loaded with
@@ -1467,15 +1402,6 @@ void ChildProcessSecurityPolicyImpl::GrantCommitURL(int child_id,
     GrantCommitURL(child_id, GURL(origin.Serialize()));
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // `externalfile:` URLs, like `file:` URLs, should result in grants to the
-  // specific resource referenced, not the entire scheme:
-  if (url.SchemeIs(kExternalFileScheme)) {
-    GrantCommitOfExternalFileUrl(ChildProcessId::FromUnsafeValue(child_id),
-                                 url);
-    return;
-  }
-#endif
 
   // TODO(dcheng): In the future, URLs with opaque origins would ideally carry
   // around an origin with them, so we wouldn't need to grant commit access to
@@ -1515,12 +1441,6 @@ void ChildProcessSecurityPolicyImpl::GrantRequestOfSpecificFile(
   // then we grant it the capability for that URL only. Canonicalize the path
   // via roundtrip to file:// URL so it will match the incoming URL we validate
   // against (crbug.com/382645162), except android content:// URLs.
-#if BUILDFLAG(IS_ANDROID)
-  if (path.IsContentUri()) {
-    state->GrantRequestOfSpecificFile(path);
-    return;
-  }
-#endif
   GURL url = net::FilePathToFileURL(path);
   base::FilePath canonical_path;
   if (net::FileURLToFilePath(url, &canonical_path)) {
@@ -1528,69 +1448,6 @@ void ChildProcessSecurityPolicyImpl::GrantRequestOfSpecificFile(
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ChildProcessSecurityPolicyImpl::GrantRequestOfExternalFileUrl(
-    ChildProcessId child_id,
-    const GURL& url) {
-  if (IsRustEnabled(GetRustPolicy(CpspRustFeature::kProcessState))) {
-    rust::child_process_security_policy::grant_request_of_external_file_url(
-        child_id, url);
-  }
-
-  // Note: We explicitly continue with C++ state update as well even when in
-  // Rust-only mode, since ProcessState::CanRequestURL has not yet been
-  // implemented in Rust. Once it is supported in Rust, this should be combined
-  // into a RUST_CPP_PROCESS_STATE_VOID_FUNCTION call.
-  GrantRequestOfExternalFileUrl_Cpp(child_id, url);
-}
-
-void ChildProcessSecurityPolicyImpl::GrantRequestOfExternalFileUrl_Cpp(
-    ChildProcessId child_id,
-    const GURL& url) {
-  if (!url.is_valid()) {
-    return;
-  }
-
-  base::AutoLock lock(lock_);
-  auto* state = process_states_.GetProcessStateForMutation(child_id);
-  if (!state) {
-    return;
-  }
-
-  state->GrantRequestOfExternalFileUrl(url);
-}
-
-void ChildProcessSecurityPolicyImpl::GrantCommitOfExternalFileUrl(
-    ChildProcessId child_id,
-    const GURL& url) {
-  if (IsRustEnabled(GetRustPolicy(CpspRustFeature::kProcessState))) {
-    rust::child_process_security_policy::grant_commit_of_external_file_url(
-        child_id, url);
-  }
-
-  // Note: We explicitly continue with C++ state update as well even when in
-  // Rust-only mode, since ProcessState::CanRequestURL has not yet been
-  // implemented in Rust. Once it is supported in Rust, this should be combined
-  // into a RUST_CPP_PROCESS_STATE_VOID_FUNCTION call.
-  GrantCommitOfExternalFileUrl_Cpp(child_id, url);
-}
-
-void ChildProcessSecurityPolicyImpl::GrantCommitOfExternalFileUrl_Cpp(
-    ChildProcessId child_id,
-    const GURL& url) {
-  if (!url.is_valid()) {
-    return;
-  }
-
-  base::AutoLock lock(lock_);
-  auto* state = process_states_.GetProcessStateForMutation(child_id);
-  if (!state) {
-    return;
-  }
-
-  state->GrantCommitOfExternalFileUrl(url);
-}
-#endif
 
 void ChildProcessSecurityPolicyImpl::GrantReadFile(ChildProcessId child_id,
                                                    const base::FilePath& file) {

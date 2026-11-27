@@ -333,9 +333,7 @@ TEST(TextEliderTest, ElideTextLongStrings) {
   std::u16string long_string_middle(
       data_scheme + std::u16string(number_of_as - number_of_trailing_as, 'a') +
       u"…" + std::u16string(number_of_trailing_as, 'a'));
-#if !BUILDFLAG(IS_IOS)
   long_string_middle += u"…";
-#endif
 
   const auto cases_middle = std::to_array<StringMappingTestCase>({
       {data_scheme + ten_a, data_scheme + ten_a},
@@ -359,9 +357,7 @@ TEST(TextEliderTest, ElideTextLongStrings) {
 
   std::u16string long_string_beginning(u"…" +
                                        std::u16string(number_of_as, 'a'));
-#if !BUILDFLAG(IS_IOS)
   long_string_beginning += u"…";
-#endif
 
   const auto cases_beginning = std::to_array<StringMappingTestCase>({
       {data_scheme + ten_a, data_scheme + ten_a},
@@ -882,22 +878,6 @@ TEST(TextEliderTest, ElideRectangleTextCheckLineWidth) {
   EXPECT_LE(GetStringWidthF(lines[1], font_list), kAvailableWidth);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// This test was created specifically to test a message from crbug.com/415213.
-// It tests that width of concatenation of words equals sum of widths of the
-// words.
-TEST(TextEliderTest, ElideRectangleTextCheckConcatWidthEqualsSumOfWidths) {
-  FontList font_list;
-  font_list = FontList("Noto Sans UI,ui-sans, 12px");
-  SetFontRenderParamsDeviceScaleFactor(1.25f);
-#define WIDTH(x) GetStringWidthF((x), font_list)
-  EXPECT_EQ(WIDTH(u"The administrator for this account has"),
-            WIDTH(u"The ") + WIDTH(u"administrator ") + WIDTH(u"for ") +
-                WIDTH(u"this ") + WIDTH(u"account ") + WIDTH(u"has"));
-#undef WIDTH
-  SetFontRenderParamsDeviceScaleFactor(1.0f);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST(TextEliderTest, ElideRectangleString) {
   struct Case {

@@ -262,10 +262,7 @@ def _RemoveKeystoneKeys(plist):
 def _AddGTMKeys(plist, platform):
     """Adds the GTM metadata keys. This must be called AFTER _AddVersionKeys()."""
     plist['GTMUserAgentID'] = plist['CFBundleName']
-    if platform == 'ios':
-        plist['GTMUserAgentVersion'] = plist['CFBundleVersion']
-    else:
-        plist['GTMUserAgentVersion'] = plist['CFBundleShortVersionString']
+    plist['GTMUserAgentVersion'] = plist['CFBundleShortVersionString']
 
 
 def _RemoveGTMKeys(plist):
@@ -395,7 +392,7 @@ def Main(argv):
     )
     parser.add_option(
         '--platform',
-        choices=('ios', 'mac', 'watchos'),
+        choices=('mac', 'watchos'),
         default='mac',
         help='The target platform of the bundle',
     )
@@ -511,7 +508,7 @@ def Main(argv):
             return 1
         # Map "target_os" passed from gn via the --platform parameter
         # to the platform as known by breakpad.
-        platform = {'mac': 'Mac', 'ios': 'iOS'}[options.platform]
+        platform = {'mac': 'Mac', }[options.platform]
         _AddBreakpadKeys(
             plist, options.branding, platform, options.use_breakpad_staging
         )

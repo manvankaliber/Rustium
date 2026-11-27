@@ -38,9 +38,6 @@
 #include "services/network/public/mojom/network_context.mojom.h"
 #include "third_party/blink/public/mojom/use_counter/metrics/web_feature.mojom.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/content_uri_utils.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "content/browser/network/network_service_process_tracker_win.h"
@@ -113,11 +110,6 @@ class NetworkInterfaceChangeHelper {
 #endif
 
 NetworkServiceClient::NetworkServiceClient()
-#if BUILDFLAG(IS_ANDROID)
-    : app_status_listener_(base::android::ApplicationStatusListener::New(
-          base::BindRepeating(&NetworkServiceClient::OnApplicationStateChange,
-                              base::Unretained(this))))
-#endif
 {
 
 #if BUILDFLAG(IS_MAC)
@@ -137,11 +129,11 @@ NetworkServiceClient::NetworkServiceClient()
 NetworkServiceClient::~NetworkServiceClient() {
   if (IsOutOfProcessNetworkService()) {
     net::CertDatabase::GetInstance()->RemoveObserver(this);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
     net::NetworkChangeNotifier::RemoveConnectionTypeObserver(this);
     net::NetworkChangeNotifier::RemoveMaxBandwidthObserver(this);
     net::NetworkChangeNotifier::RemoveIPAddressObserver(this);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
   }
 }
 
@@ -157,14 +149,8 @@ void NetworkServiceClient::OnPeerToPeerConnectionsCountChange(uint32_t count) {
   GetNetworkService()->OnPeerToPeerConnectionsCountChange(count);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void NetworkServiceClient::OnApplicationStateChange(
-    base::android::ApplicationState state) {
-  GetNetworkService()->OnApplicationStateChange(state);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 void NetworkServiceClient::OnConnectionTypeChanged(
     net::NetworkChangeNotifier::ConnectionType type) {
   network_change_manager_->OnNetworkChanged(
@@ -200,7 +186,7 @@ void NetworkServiceClient::OnIPAddressChanged(
       network::mojom::ConnectionSubtype(
           net::NetworkChangeNotifier::GetConnectionSubtype()));
 }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
 
 #if BUILDFLAG(IS_WIN)
 mojo::PendingRemote<network::mojom::SocketBroker>
@@ -220,7 +206,7 @@ NetworkServiceClient::BindURLLoaderNetworkServiceObserver() {
 
 void NetworkServiceClient::OnNetworkServiceInitialized(
     network::mojom::NetworkService* service) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   if (IsOutOfProcessNetworkService()) {
     CHECK(!net::NetworkChangeNotifier::CreateIfNeeded(),
           base::NotFatalUntil::M160);
@@ -250,7 +236,7 @@ void NetworkServiceClient::OnNetworkServiceInitialized(
     net::NetworkChangeNotifier::AddMaxBandwidthObserver(this);
     net::NetworkChangeNotifier::AddIPAddressObserver(this);
   }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
 }
 
 void NetworkServiceClient::OnSSLCertificateError(

@@ -118,10 +118,6 @@
 #include "ui/base/webui/web_ui_util.h"
 #include "ui/gfx/codec/png_codec.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/network/network_handler_test_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
 #if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
 #endif  // BUILDFLAG(IS_MAC)
@@ -209,13 +205,7 @@ class FakeContextualTasksUIInterface
   void OnActiveTabContextStatusChanged() override {}
   void SyncAutoSuggestedTabContext() override {}
   void ResetForNewThread(const base::Uuid& task_id, const GURL& url) override {}
-  void OnLensOverlayStateChanged(
-      bool is_showing,
-      std::optional<lens::LensOverlayInvocationSource> invocation_source)
-      override {}
-  bool IsLensOverlayShowing() const override { return false; }
-  void StartPlatformVoiceRecognition() override {}
-  void OnVoiceTranscribed(const std::string& query) override {}
+
   void OnPageContextEligibilityChecked(bool is_page_context_eligible) override {
   }
   bool IsActiveTabContextSuggestionShowing() const override { return false; }
@@ -271,11 +261,7 @@ class FakeContextualSearchboxHandler : public ContextualSearchboxHandler {
                                    web_contents,
                                    std::move(client),
                                    std::move(get_session_callback)) {}
-  ~FakeContextualSearchboxHandler() override {
-#if !BUILDFLAG(IS_ANDROID)
-    OnDrivePickerDisconnected();
-#endif
-  }
+  ~FakeContextualSearchboxHandler() override { OnDrivePickerDisconnected(); }
 
   using SearchboxHandler::client;
   using SearchboxHandler::SetAutocompleteControllerForTesting;
@@ -668,9 +654,6 @@ class ContextualSearchboxHandlerTest
   BrowserWindowFeatures browser_window_features_;
   testing::NiceMock<ui::MockBaseWindow> mock_base_window_;
   ui::UnownedUserDataHost unowned_user_data_host_;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::NetworkHandlerTestHelper network_handler_test_helper_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   raw_ptr<MockQueryController> query_controller_;
   raw_ptr<contextual_search::ContextualSearchService> service_;
   raw_ptr<MockContextualSearchMetricsRecorder> metrics_recorder_;
@@ -2753,7 +2736,6 @@ TEST_F(ContextualSearchboxHandlerTest,
        SubmitQuery_OmniboxPageActionInvocationSource) {
   omnibox::ChromeAimEntryPoint captured_aim_entry_point =
       omnibox::UNKNOWN_AIM_ENTRY_POINT;
-  std::optional<lens::LensOverlayInvocationSource> captured_invocation_source;
 
   EXPECT_CALL(query_controller(), CreateSearchUrl)
       .WillOnce(
@@ -2763,28 +2745,20 @@ TEST_F(ContextualSearchboxHandlerTest,
             std::move(callback).Run(GURL("https://www.google.com"));
           });
 
-  contextual_session_handle_->set_invocation_source(
-      lens::LensOverlayInvocationSource::kOmniboxPageAction);
   handler().SubmitQuery(kQueryText, 1, false, false, false, false,
                         /*is_voice_search=*/false);
 
   EXPECT_EQ(
       omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_COBROWSE_OMNIBOX_TAB_SEARCH,
       captured_aim_entry_point);
-  EXPECT_EQ(lens::LensOverlayInvocationSource::kOmniboxPageAction,
-            captured_invocation_source);
 }
 
 TEST_F(ContextualSearchboxHandlerTest, GetAimEntryPoint) {
-  contextual_session_handle_->set_invocation_source(
-      lens::LensOverlayInvocationSource::kOmniboxPageAction);
   EXPECT_EQ(
       omnibox::ChromeAimEntryPoint::DESKTOP_CHROME_COBROWSE_OMNIBOX_TAB_SEARCH,
       GetAimEntryPoint(metrics::OmniboxEventProto::OTHER_OMNIBOX_COMPOSEBOX,
                        contextual_session_handle_.get()));
 
-  contextual_session_handle_->set_invocation_source(
-      lens::LensOverlayInvocationSource::kOmniboxContextualQuery);
   EXPECT_EQ(
       omnibox::ChromeAimEntryPoint::
           DESKTOP_CHROME_OTHER_OMNIBOX_COMPOSEBOX_ENTRY_POINT,
@@ -2836,11 +2810,7 @@ TEST_F(ContextualSearchboxHandlerTest, SubmitQuery_NoContextualTasksService) {
 
 TEST_F(ContextualSearchboxHandlerTest, QueryAutocomplete_SetsLensInputs) {
   // Set suggest inputs on the client.
-  lens::proto::LensOverlaySuggestInputs suggest_inputs;
   suggest_inputs.set_encoded_image_signals("xyz");
-  EXPECT_CALL(*static_cast<TestOmniboxClient*>(handler().client()),
-              GetLensOverlaySuggestInputs())
-      .WillRepeatedly(testing::Return(suggest_inputs));
 
   // Set input state where `image_gen_upload_active` is false and active_tool is
   // not CANVAS.
@@ -2867,9 +2837,6 @@ TEST_F(ContextualSearchboxHandlerTest, QueryAutocomplete_SetsLensInputs) {
       /*is_on_focus=*/false, /*keyword=*/"",
       searchbox::mojom::InputMethod::kKeyboard);
 
-  EXPECT_TRUE(input.lens_overlay_suggest_inputs().has_value());
-  EXPECT_EQ(input.lens_overlay_suggest_inputs()->encoded_image_signals(),
-            "xyz");
 }
 
 TEST_F(ContextualSearchboxHandlerTest,
@@ -2896,11 +2863,7 @@ TEST_F(ContextualSearchboxHandlerTest,
 
 TEST_F(ContextualSearchboxHandlerTest,
        QueryAutocomplete_SetsLensInputs_InToolModes) {
-  lens::proto::LensOverlaySuggestInputs suggest_inputs;
   suggest_inputs.set_encoded_image_signals("xyz");
-  EXPECT_CALL(*static_cast<TestOmniboxClient*>(handler().client()),
-              GetLensOverlaySuggestInputs())
-      .WillRepeatedly(testing::Return(suggest_inputs));
 
   // 1. Case: `image_gen_upload_active = true`.
   {
@@ -2925,9 +2888,6 @@ TEST_F(ContextualSearchboxHandlerTest,
         omnibox::SuggestInventory::SUGGEST_INVENTORY_DEFAULT,
         /*is_on_focus=*/false, /*keyword=*/"",
         searchbox::mojom::InputMethod::kKeyboard);
-    EXPECT_TRUE(input.lens_overlay_suggest_inputs().has_value());
-    EXPECT_EQ(input.lens_overlay_suggest_inputs()->encoded_image_signals(),
-              "xyz");
   }
 
   // 2. Case: `active_tool = TOOL_MODE_CANVAS`.
@@ -2953,9 +2913,6 @@ TEST_F(ContextualSearchboxHandlerTest,
         omnibox::SuggestInventory::SUGGEST_INVENTORY_DEFAULT,
         /*is_on_focus=*/false, /*keyword=*/"",
         searchbox::mojom::InputMethod::kKeyboard);
-    EXPECT_TRUE(input.lens_overlay_suggest_inputs().has_value());
-    EXPECT_EQ(input.lens_overlay_suggest_inputs()->encoded_image_signals(),
-              "xyz");
   }
 }
 
@@ -3428,7 +3385,8 @@ TEST_F(ContextualSearchboxHandlerTestTabsTest, AddTabContext_DelayUpload) {
 
   histogram_tester_.ExpectUniqueSample(
       "ContextualSearch.AttachmentButtonUsed.NewTabPage",
-      contextual_search::ContextualSearchAttachmentButtonType::kSuggestedTab, 1);
+      contextual_search::ContextualSearchAttachmentButtonType::kSuggestedTab,
+      1);
 }
 
 TEST_F(ContextualSearchboxHandlerTestTabsTest, AddTabContext_RecentTab) {
@@ -3442,12 +3400,10 @@ TEST_F(ContextualSearchboxHandlerTestTabsTest, AddTabContext_RecentTab) {
       static_cast<MockTabContextualizationController*>(
           lens::TabContextualizationController::From(tab1));
   EXPECT_CALL(*tab_contextualization_controller, GetPageContext(testing::_))
-      .WillOnce(
-          [](lens::TabContextualizationController::GetPageContextCallback
-                 callback) {
-            std::move(callback).Run(
-                std::make_unique<lens::ContextualInputData>());
-          });
+      .WillOnce([](lens::TabContextualizationController::GetPageContextCallback
+                       callback) {
+        std::move(callback).Run(std::make_unique<lens::ContextualInputData>());
+      });
 
   EXPECT_CALL(query_controller(),
               StartFileUploadFlow(testing::_, testing::NotNull(), testing::_));
@@ -4738,7 +4694,8 @@ TEST_F(ContextualSearchboxHandlerTest,
   ASSERT_TRUE(handler().input_state_model());
   EXPECT_TRUE(handler().input_state_model()->IsSmartTabSharingActive());
 
-  // Simulate starting a new session (new model) and resetting input state model.
+  // Simulate starting a new session (new model) and resetting input state
+  // model.
   query_controller_ = nullptr;
   metrics_recorder_ = nullptr;
 
@@ -4765,7 +4722,8 @@ TEST_F(ContextualSearchboxHandlerTest,
   // Trigger model recreation.
   handler().GetValidInputStateForTesting();
 
-  // ResetInputStateModel() should have cleared the active state back to default (false).
+  // ResetInputStateModel() should have cleared the active state back to default
+  // (false).
   ASSERT_TRUE(handler().input_state_model());
   EXPECT_FALSE(handler().input_state_model()->IsSmartTabSharingActive());
   EXPECT_FALSE(handler().IsSmartTabSharingActive());
@@ -4816,7 +4774,6 @@ INSTANTIATE_TEST_SUITE_P(
         composebox_query::mojom::ContextUploadStatus::kUploadExpired,
         composebox_query::mojom::ContextUploadStatus::kUploadReplaced));
 
-#if !BUILDFLAG(IS_ANDROID)
 class MockScreenshareDelegate
     : public ContextualSearchboxScreenshareController::Delegate {
  public:
@@ -4859,20 +4816,3 @@ TEST_F(ContextualSearchboxHandlerTest, AddFileContextToPage_ForwardsToPage) {
   handler().AddFileContextToPage(token, std::move(file_info));
   mock_searchbox_page_.FlushForTesting();
 }
-#else
-TEST_F(ContextualSearchboxHandlerTest, StartScreenshare_AndroidAlwaysFails) {
-  base::test::TestFuture<const std::optional<base::UnguessableToken>&> future;
-  handler().StartScreenshare(/*prefer_entire_screen=*/false,
-                             future.GetCallback());
-  EXPECT_FALSE(future.Get().has_value());
-}
-
-// Tests that CaptureRegionScreenshot on Android immediately fails and returns
-// an empty token since desktop screen capture is unsupported on Android.
-TEST_F(ContextualSearchboxHandlerTest,
-       CaptureRegionScreenshot_AndroidAlwaysFails) {
-  base::test::TestFuture<const std::optional<base::UnguessableToken>&> future;
-  handler().CaptureRegionScreenshot(future.GetCallback());
-  EXPECT_FALSE(future.Get().has_value());
-}
-#endif

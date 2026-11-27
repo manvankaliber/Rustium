@@ -40,11 +40,9 @@ PhishingClassifier::~PhishingClassifier() {
 
 Scorer* PhishingClassifier::GetScorer() const {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-#if !BUILDFLAG(IS_IOS)
   if (!has_explicit_scorer_) {
     return ScorerStorage::GetInstance()->GetScorer();
   }
-#endif
   return scorer_;
 }
 

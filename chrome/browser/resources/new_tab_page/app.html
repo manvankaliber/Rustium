@@ -1,5 +1,4 @@
 <!-- #html_wrapper_imports_start
-import {SubmitButtonIconType} from 'chrome://resources/cr_components/composebox/common.js';
 #html_wrapper_imports_end -->
 <div id="content">
   ${this.enableThreadsRail_ ? html`
@@ -66,29 +65,6 @@ import {SubmitButtonIconType} from 'chrome://resources/cr_components/composebox/
             ?inert="${!this.realboxShown_}">
         </ntp-searchbox>
         <div id="dialogAnchor"></div>
-        ${this.showComposebox_ ? html`
-          <div id="composeboxDialog">
-            <ntp-composebox id="composebox"
-                  searchbox-layout-mode="Compact"
-                  searchbox-next-enabled
-                  ?disable-caret-color-animation="${!this.caretAnimationsEnabled_}"
-                  .usePecApi="${this.usePecApi_}"
-                  .showVoiceSearch="${true}"
-                  .smartTabSharingVisible="${this.smartTabSharingVisible_}"
-                  .contextManagementInComposeboxEnabled="${this.contextManagementInComposeboxEnabled_}"
-                  @context-menu-opened="${this.onComposeboxContextMenuOpened_}"
-                  @close-composebox="${this.onCloseComposebox_}"
-                  .focused="${this.composeboxFocused_}"
-                  @voice-search-action="${this.onComposeVoiceSearchAction_}"
-                  .submitButtonIconType="${SubmitButtonIconType.FORWARD}"
-                  .clearAllInputsWhenSubmittingQuery="${true}"
-                  .closeOnEscape="${false}"
-                  .energyEffectEnabled="${this.energyEffectEnabled_}"
-                  .energyEffectAnimationEnabled="${this.energyEffectAnimationEnabled_}"
-                  >
-              </ntp-composebox>
-          </div>
-        ` : ''}
         ${this.showLensUploadDialog_ ? html`
           <ntp-lens-upload-dialog id="lensUploadDialog"
               @close-lens-search="${this.onCloseLensSearch_}">
@@ -221,8 +197,6 @@ import {SubmitButtonIconType} from 'chrome://resources/cr_components/composebox/
                 .autosubmitEnabled="${
                   this.voiceSearchCoherenceRealboxAutoEndpointEnabled_}"
                 .dynamicTimeoutEnabled="${false}"
-                .androidContinuousRecognitionEnabled="${
-                  this.androidSpeechRecognition_}"
                 .queryLengthLimit="${this.voiceQueryLengthLimit_}"
                 .idleTimeout="${this.voiceAutoSubmitIdleTimeoutMs_}"
                 .manualSubmitIdleTimeout="${this.voiceManualSubmitIdleTimeoutMs_}"

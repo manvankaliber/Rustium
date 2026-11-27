@@ -122,34 +122,11 @@ void ProcessBoundSessionResponseHeaders(
 }
 #endif  // BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
 
-#if BUILDFLAG(ENABLE_MIRROR)
-// Returns false if adding secondary Google accounts is disallowed by the
-// SecondaryGoogleAccountSigninAllowed policy.
-bool IsSecondaryAccountAdditionAllowed(const PrefService& prefs) {
-#if BUILDFLAG(IS_ANDROID)
-  if (!base::FeatureList::IsEnabled(
-          switches::kSecondaryGoogleAccountsSigninAllowedOnAndroid)) {
-    return true;
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
-  return prefs.GetBoolean(
-      policy::policy_prefs::kSecondaryGoogleAccountSigninAllowed);
-}
-#endif  // BUILDFLAG(ENABLE_MIRROR)
 }  // namespace
 
-#if BUILDFLAG(IS_ANDROID)
-HeaderModificationDelegateImpl::HeaderModificationDelegateImpl(
-    Profile* profile,
-    bool incognito_enabled)
-    : profile_(profile),
-      cookie_settings_(CookieSettingsFactory::GetForProfile(profile_)),
-      incognito_enabled_(incognito_enabled) {}
-#else
 HeaderModificationDelegateImpl::HeaderModificationDelegateImpl(Profile* profile)
     : profile_(profile),
       cookie_settings_(CookieSettingsFactory::GetForProfile(profile_)) {}
-#endif
 
 HeaderModificationDelegateImpl::~HeaderModificationDelegateImpl() = default;
 
@@ -192,17 +169,11 @@ void HeaderModificationDelegateImpl::ProcessRequest(
   syncer::SyncService* sync_service =
       SyncServiceFactory::GetForProfile(profile_);
 
-#if BUILDFLAG(ENABLE_MIRROR)
-  bool is_secondary_account_addition_allowed =
-      IsSecondaryAccountAdditionAllowed(*profile_->GetPrefs());
-#endif
 
   ConsentLevel consent_level = ConsentLevel::kSignin;
-#if !BUILDFLAG(IS_ANDROID)
   if (!syncer::IsReplaceSyncPromosWithSignInPromosEnabled()) {
     consent_level = ConsentLevel::kSync;
   }
-#endif
 
   IdentityManager* identity_manager =
       IdentityManagerFactory::GetForProfile(profile_);
@@ -221,12 +192,6 @@ void HeaderModificationDelegateImpl::ProcessRequest(
 
   int incognito_mode_availability =
       static_cast<int>(IncognitoModePrefs::GetAvailability(profile_));
-#if BUILDFLAG(IS_ANDROID)
-  incognito_mode_availability =
-      incognito_enabled_
-          ? incognito_mode_availability
-          : static_cast<int>(policy::IncognitoModeAvailability::kDisabled);
-#endif
 
   // SyncService and IdentityManager updates are not atomic. There are edge
   // cases where SyncService thinks sync is enabled but IdentityManager has
@@ -243,9 +208,6 @@ void HeaderModificationDelegateImpl::ProcessRequest(
       incognito_mode_availability,
       AccountConsistencyModeManager::GetMethodForProfile(profile_),
       primary_account.gaia, consent_level, is_child_account,
-#if BUILDFLAG(ENABLE_MIRROR)
-      is_secondary_account_addition_allowed,
-#endif
       is_sync_feature_enabled,
 #if BUILDFLAG(ENABLE_DICE_SUPPORT)
       profile_->GetPrefs()->GetString(

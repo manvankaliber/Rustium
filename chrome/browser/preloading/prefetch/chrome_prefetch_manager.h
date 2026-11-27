@@ -11,10 +11,6 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "content/public/browser/web_contents_user_data.h"
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/379140429): Create `preloading_utils` and move this to it.
-inline constexpr char kCCTMetricsSuffix[] = "ChromeCustomTabs";
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Manages all prefetch triggers from the //chrome.
 class ChromePrefetchManager
@@ -25,11 +21,6 @@ class ChromePrefetchManager
 
   ~ChromePrefetchManager() override;
 
-#if BUILDFLAG(IS_ANDROID)
-  void StartPrefetchFromCCT(const GURL& prefetch_url,
-                            bool use_prefetch_proxy,
-                            const std::optional<url::Origin>& referring_origin);
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   explicit ChromePrefetchManager(content::WebContents* web_contents);

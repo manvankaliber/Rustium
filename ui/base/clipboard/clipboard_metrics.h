@@ -11,9 +11,6 @@
 
 namespace ui {
 
-#if BUILDFLAG(IS_CHROMEOS)
-class ClipboardData;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Used to log formats read/written from/to the platform clipboard.
 //
@@ -37,11 +34,6 @@ void RecordRead(ClipboardFormatMetric metric);
 void RecordWrite(ClipboardFormatMetric metric);
 void RecordWriteTextSizeMetrics(std::u16string_view text);
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Records the time interval between when the specified |data| was committed to
-// the clipboard and when it was read. Read time is assumed to be now.
-void RecordTimeIntervalBetweenCommitAndRead(const ui::ClipboardData* data);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace ui
 

@@ -60,11 +60,9 @@ class COMPONENT_EXPORT(UI_BASE_CLIPBOARD_TYPES) ClipboardFormatType {
   // See https://w3c.github.io/clipboard-apis/#clipboard-events-and-interfaces.
   static const ClipboardFormatType& DataTransferCustomType();
 
-#if !BUILDFLAG(IS_IOS)
   // Type used for bookmark entries formats, containing bookmark structure
   // consisting of individual bookmark nodes and/or bookmark folders.
   static const ClipboardFormatType& BookmarkEntriesType();
-#endif
 
 #if BUILDFLAG(IS_WIN)
   // ANSI formats. Only Windows differentiates between ANSI and UNICODE formats
@@ -85,14 +83,13 @@ class COMPONENT_EXPORT(UI_BASE_CLIPBOARD_TYPES) ClipboardFormatType {
   static const ClipboardFormatType& IDListType();
   static const ClipboardFormatType& MozUrlType();
 
-
   // Prevents clipboard data from being included in the clipboard history.
   static const ClipboardFormatType& ClipboardHistoryType();
   // Prevents clipboard data from being included in the cloud clipboard.
   static const ClipboardFormatType& UploadCloudClipboardType();
 #endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   // Type only used by Chromium to track the source URL of clipboard data.
   static const ClipboardFormatType& InternalSourceUrlType();
 #endif
@@ -173,7 +170,7 @@ class COMPONENT_EXPORT(UI_BASE_CLIPBOARD_TYPES) ClipboardFormatType {
   // FORMATETC:
   // https://docs.microsoft.com/en-us/windows/desktop/com/the-formatetc-structure
   CHROME_FORMATETC data_;
-#elif defined(USE_AURA) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#elif defined(USE_AURA)
   explicit ClipboardFormatType(std::string_view native_format);
   std::string data_;
 #elif BUILDFLAG(IS_APPLE)

@@ -40,9 +40,7 @@ class BinaryUploadService;
 class ClipboardRequestHandler;
 class ContentAnalysisDialogControllerBase;
 class FilesRequestHandlerBase;
-#if !BUILDFLAG(IS_ANDROID)
 class PagePrintRequestHandler;
-#endif
 
 // A class that performs deep scans of data (for example malicious or sensitive
 // content checks) before allowing a page to access it.
@@ -280,9 +278,7 @@ class ContentAnalysisDelegate : public ContentAnalysisDelegateBase,
   // testing derived classes.
   void TextRequestCallback(RequestHandlerResult result);
   void ImageRequestCallback(RequestHandlerResult result);
-#if !BUILDFLAG(IS_ANDROID)
   void PageRequestCallback(RequestHandlerResult result);
-#endif
 
   // Callback called after all files are scanned by `files_request_handler_`.
   void FilesRequestCallback(std::vector<RequestHandlerResult> results);
@@ -474,11 +470,9 @@ class ContentAnalysisDelegate : public ContentAnalysisDelegateBase,
   // Always nullptr for non-file content scanning.
   std::unique_ptr<FilesRequestHandlerBase> files_request_handler_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Responsible for managing the scan of printed pages.
   // Always nullptr for non-print content scanning.
   std::unique_ptr<PagePrintRequestHandler> page_print_request_handler_;
-#endif
 
   // Responsible for managing the scan of pasted text.
   // Always nullptr for non-text paste content scanning.
@@ -502,10 +496,8 @@ class ContentAnalysisDelegate : public ContentAnalysisDelegateBase,
   // Result updated in `ImageRequestCallback()`.
   RequestHandlerResult image_request_result_;
 
-#if !BUILDFLAG(IS_ANDROID)
   // Result updated in `PageRequestCallback()`.
   RequestHandlerResult page_print_request_result_;
-#endif
 
   // Indicate that `callback_` is currently being called. This is almost always
   // false, but in some cases UI thread tasks can run while `callback_` is not

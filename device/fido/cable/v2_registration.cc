@@ -46,13 +46,7 @@ class FCMHandler : public gcm::GCMAppHandler, public Registration {
     // number of new registrations with the FCM service. Thus this code does not
     // compile on other platforms. Check with //components/gcm_driver owners
     // before changing this.
-#if BUILDFLAG(IS_ANDROID)
-    gcm::GCMDriver* const gcm_driver = instance_id_->gcm_driver();
-    CHECK(gcm_driver->GetAppHandler(app_id()) == nullptr);
-    instance_id_->gcm_driver()->AddAppHandler(app_id(), this);
-#else
     NOTREACHED() << "Do not use outside of Android.";
-#endif
   }
 
   ~FCMHandler() override {

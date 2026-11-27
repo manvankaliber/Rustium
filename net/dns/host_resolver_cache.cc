@@ -1,477 +1,401 @@
-// Copyright 2023 The Chromium Authors
+// Copyright 2026 The Chromium Authors
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
-
+// STAGED DRAFT: not compiled or integrated.
 #include "net/dns/host_resolver_cache.h"
 
-#include <cstddef>
-#include <memory>
+#include <compare>
+#include <limits>
 #include <optional>
-#include <string>
 #include <string_view>
 #include <utility>
-#include <vector>
 
 #include "base/check_op.h"
+#include "base/memory/raw_ptr_exclusion.h"
+#include "base/notreached.h"
 #include "base/numerics/safe_conversions.h"
 #include "base/strings/string_number_conversions.h"
-#include "base/time/clock.h"
-#include "base/time/time.h"
-#include "net/base/network_anonymization_key.h"
-#include "net/base/network_handle.h"
+#include "base/time/tick_clock.h"
+#include "net/dns/host_resolver_cache_rust_ffi.h"
 #include "net/dns/host_resolver_internal_result.h"
-#include "net/dns/public/dns_query_type.h"
-#include "net/dns/public/host_resolver_source.h"
 #include "url/third_party/mozilla/url_parse.h"
 #include "url/url_canon.h"
 #include "url/url_canon_stdstring.h"
 
 namespace net {
+namespace {
+using V = HostResolverCacheRustValues;
+using Request = HostResolverCacheRustRequest;
+using Op = HostResolverCacheRustOp;
+extern "C" V HostResolverCacheRustService(void*, uint32_t, Request);
+static_assert(static_cast<int>(DnsQueryType::UNSPECIFIED) == 0);
+static_assert(static_cast<int>(HostResolverSource::ANY) == 0);
+static_assert(static_cast<int>(HostResolverSource::SYSTEM) == 1);
+static_assert(static_cast<int>(HostResolverSource::DNS) == 2);
+static_assert(static_cast<int>(HostResolverSource::MULTICAST_DNS) == 3);
+static_assert(static_cast<int>(HostResolverSource::LOCAL_ONLY) == 4);
+static_assert(static_cast<int>(HostResolverSource::MAX) == 4);
+static_assert(handles::kInvalidNetworkHandle == -1);
+static_assert(static_cast<int>(url::CanonHostInfo::Family::NEUTRAL) == 0);
+
+struct NakComparison {
+  RAW_PTR_EXCLUSION const NetworkAnonymizationKey* left;
+  RAW_PTR_EXCLUSION const NetworkAnonymizationKey* right;
+};
+extern "C" int32_t CompareNak(const void* opaque) {
+  const auto& pair = *static_cast<const NakComparison*>(opaque);
+  const auto order = *pair.left <=> *pair.right;
+  return order < 0 ? -1 : order > 0 ? 1 : 0;
+}
+bool KeyLess(std::string_view left_domain,
+             const NetworkAnonymizationKey& left_key,
+             handles::NetworkHandle left_network,
+             std::string_view right_domain,
+             const NetworkAnonymizationKey& right_key,
+             handles::NetworkHandle right_network) {
+  const NakComparison pair{&left_key, &right_key};
+  return host_resolver_cache_rust_key_less(
+      left_domain.compare(right_domain), &pair, CompareNak, left_network,
+      right_network);
+}
+}  // namespace
+
+// Invocation-local ownership and primitive executor. Readonly invocations never
+// receive a mutable cache pointer. There is no persistent Rust state or C++
+// policy selector; Rust requests each traversal/filter/erase/Value operation.
+struct HostResolverCacheRustContext {
+  using Cache = HostResolverCache;
+  using Iterator = Cache::EntryMap::const_iterator;
+  RAW_PTR_EXCLUSION const Cache* cache = nullptr;
+  RAW_PTR_EXCLUSION Cache* writable = nullptr;
+  RAW_PTR_EXCLUSION const Cache::Entry* direct_entry = nullptr;
+  std::string_view domain;
+  RAW_PTR_EXCLUSION const NetworkAnonymizationKey* nak = nullptr;
+  handles::NetworkHandle network = handles::kInvalidNetworkHandle;
+  DnsQueryType query_type = DnsQueryType::UNSPECIFIED;
+  HostResolverSource source = HostResolverSource::ANY;
+  std::optional<bool> secure;
+  std::string canonicalized;
+  std::optional<url::StdStringCanonOutput> canonical_output;
+  url::CanonHostInfo host_info;
+  Iterator range_first;
+  Iterator range_reverse;
+  Iterator cursor;
+  std::vector<Iterator> retained;
+  std::optional<Iterator> best;
+  std::unique_ptr<HostResolverInternalResult> pending;
+  RAW_PTR_EXCLUSION const HostResolverInternalResult* selected = nullptr;
+  base::ListValue list;
+  base::DictValue dict;
+  base::DictValue logging_dict;
+  base::Value nak_value;
+  base::Value result_value;
+  RAW_PTR_EXCLUSION const base::Value* restore_input = nullptr;
+  RAW_PTR_EXCLUSION const base::ListValue* restore_list = nullptr;
+  RAW_PTR_EXCLUSION const base::DictValue* restore_dict = nullptr;
+  RAW_PTR_EXCLUSION const base::Value* restore_nak_field = nullptr;
+  std::optional<NetworkAnonymizationKey> restored_nak;
+  std::unique_ptr<HostResolverInternalResult> restored_result;
+
+  explicit HostResolverCacheRustContext(const Cache& value) : cache(&value) {}
+  explicit HostResolverCacheRustContext(Cache& value)
+      : cache(&value), writable(&value) {}
+  explicit HostResolverCacheRustContext(const Cache::Entry& value)
+      : direct_entry(&value) {}
+
+  void Configure(std::string_view name,
+                 const NetworkAnonymizationKey& key,
+                 handles::NetworkHandle target,
+                 DnsQueryType query,
+                 HostResolverSource from,
+                 std::optional<bool> security) {
+    domain = name;
+    nak = &key;
+    network = target;
+    query_type = query;
+    source = from;
+    secure = security;
+  }
+
+  const Cache::Entry& EntryAt(uint64_t id) const {
+    if (direct_entry) return *direct_entry;
+    if (id == 0) return cursor->second;
+    if (id == std::numeric_limits<uint64_t>::max()) return best.value()->second;
+    return retained.at(base::checked_cast<size_t>(id - 1))->second;
+  }
+  const Cache::Key& CurrentKey() const { return cursor->first; }
+  Cache& Mutable() const { CHECK(writable); return *writable; }
+
+  V Run(uint32_t method, V args = {}) {
+    return host_resolver_cache_rust_run(this, HostResolverCacheRustService, method, args);
+  }
+
+  static V Dispatch(void* opaque, uint32_t operation, Request request) {
+    auto& s = *static_cast<HostResolverCacheRustContext*>(opaque);
+    const V v = request.values;
+    const std::string_view bytes = request.length == 0
+        ? std::string_view()
+        : std::string_view(reinterpret_cast<const char*>(request.data),
+                           request.length);
+    switch (static_cast<Op>(operation)) {
+      case Op::kSize: return {.a = s.cache->entries_.size()};
+      case Op::kCapacity: return {.a = s.cache->max_entries_};
+      case Op::kGeneration: return {.x = s.cache->staleness_generation_};
+      case Op::kSetGeneration:
+        s.Mutable().staleness_generation_ = static_cast<int>(v.x); return {};
+      case Op::kCanonicalize:
+        s.canonical_output.emplace(&s.canonicalized);
+        url::CanonicalizeHostVerbose(s.domain, url::Component(0, s.domain.size()),
+                                    &*s.canonical_output, &s.host_info);
+        return {.x = static_cast<int64_t>(s.host_info.family)};
+      case Op::kCompleteCanonical: s.canonical_output->Complete(); return {};
+      case Op::kOpenRange: {
+        const std::string_view name = v.a != 0 ? s.canonicalized : s.domain;
+        auto range = s.cache->entries_.equal_range(
+            Cache::KeyRef{name, raw_ref(*s.nak), s.network});
+        s.range_first = range.first; s.range_reverse = range.second; return {};
+      }
+      case Op::kStepBack:
+        if (s.range_reverse == s.range_first) return {};
+        --s.range_reverse; s.cursor = s.range_reverse; return {.a = 1};
+      case Op::kQuery:
+        return {.a = static_cast<uint64_t>(s.query_type),
+                .b = s.secure ? (*s.secure ? 2u : 1u) : 0u,
+                .x = static_cast<int64_t>(s.source)};
+      case Op::kEntry: {
+        const auto& e = s.EntryAt(v.a);
+        return {.a = static_cast<uint64_t>(e.result->query_type()),
+                .b = static_cast<uint64_t>(e.secure),
+                .x = static_cast<int64_t>(e.source), .y = e.staleness_generation};
+      }
+      case Op::kRetain:
+        s.retained.push_back(s.cursor); return {.a = s.retained.size()};
+      case Op::kRetainedCount: return {.a = s.retained.size()};
+      case Op::kCloseMatching:
+        s.canonical_output.reset(); std::string().swap(s.canonicalized); return {};
+      case Op::kTickNow: return {.x = s.cache->tick_clock_->NowTicks().ToInternalValue()};
+      case Op::kWallNow: return {.x = s.cache->clock_->Now().ToInternalValue()};
+      case Op::kAssertTimed:
+        DCHECK(s.EntryAt(v.a).result->timed_expiration().has_value()); return {};
+      case Op::kExpiration:
+        return {.a = static_cast<uint64_t>(s.EntryAt(v.a).result->expiration().has_value())};
+      case Op::kDifference: {
+        const auto& result = *s.EntryAt(v.a).result;
+        // Rust selects the time domain. Native base operators retain exact
+        // sentinel/saturation/diagnostic behavior at this scalar boundary.
+        const base::TimeDelta delta = v.b != 0
+            ? result.expiration().value() - base::TimeTicks::FromInternalValue(v.x)
+            : result.timed_expiration().value() - base::Time::FromInternalValue(v.y);
+        return {.x = delta.ToInternalValue()};
+      }
+      case Op::kMagnitude:
+        return {.x = base::TimeDelta::FromInternalValue(v.x).magnitude().ToInternalValue()};
+      case Op::kSelectResult:
+        s.selected = s.EntryAt(v.a).result.get(); return {};
+      case Op::kPreparePending:
+        DCHECK(s.pending); DCHECK(s.pending->timed_expiration().has_value());
+        s.domain = s.pending->domain_name(); s.query_type = s.pending->query_type();
+        return {};
+      case Op::kDropPending: s.pending.reset(); return {};
+      case Op::kEraseRetained:
+        s.Mutable().entries_.erase(s.retained.at(base::checked_cast<size_t>(v.a - 1)));
+        return {};
+      case Op::kInsertPending: {
+        std::string name = s.pending->domain_name();
+        s.Mutable().entries_.emplace(
+            Cache::Key(std::move(name), *s.nak, s.network),
+            Cache::Entry(std::move(s.pending), s.source, s.secure.value(),
+                         static_cast<int>(v.x)));
+        return {};
+      }
+      case Op::kBeginEntries: s.cursor = s.cache->entries_.cbegin(); s.best.reset(); return {};
+      case Op::kCursorValid: return {.a = static_cast<uint64_t>(s.cursor != s.cache->entries_.cend())};
+      case Op::kCursorNext: ++s.cursor; return {};
+      case Op::kEraseCursor:
+        s.cursor = s.Mutable().entries_.erase(s.cursor); return {};
+      case Op::kKeepBest: s.best = s.cursor; return {};
+      case Op::kEraseBest: s.Mutable().entries_.erase(s.best.value()); return {};
+      case Op::kCheckBest: CHECK(s.best.has_value()); return {};
+      case Op::kCheckCapacity:
+        CHECK_LE(s.cache->entries_.size(), s.cache->max_entries_); return {};
+      case Op::kListReset: s.list = base::ListValue(); return {};
+      case Op::kDictReset: s.dict = base::DictValue(); return {};
+      case Op::kDictInt: s.dict.Set(bytes, static_cast<int>(v.x)); return {};
+      case Op::kDictBool: s.dict.Set(bytes, v.a != 0); return {};
+      case Op::kNakValue:
+        s.nak_value = base::Value();
+        return {.a = static_cast<uint64_t>(s.CurrentKey().network_anonymization_key.ToValue(&s.nak_value))};
+      case Op::kNakDebugValue:
+        s.nak_value = base::Value(std::string(bytes) +
+            s.CurrentKey().network_anonymization_key.ToDebugString()); return {};
+      case Op::kDictNak: s.dict.Set(bytes, std::move(s.nak_value)); return {};
+      case Op::kResultValue: s.result_value = s.cursor->second.result->ToValue(); return {};
+      case Op::kDictResult: s.dict.Set(bytes, std::move(s.result_value)); return {};
+      case Op::kNetwork: return {.x = s.CurrentKey().target_network};
+      case Op::kDictNetwork: s.dict.Set(bytes, base::NumberToString(v.x)); return {};
+      case Op::kListAppend: s.list.Append(std::move(s.dict)); return {};
+      case Op::kLoggingReset: s.logging_dict = base::DictValue(); return {};
+      case Op::kCapacityInt: return {.x = base::checked_cast<int>(s.cache->max_entries_)};
+      case Op::kLoggingInt: s.logging_dict.Set(bytes, static_cast<int>(v.x)); return {};
+      case Op::kLoggingEntries:
+        s.logging_dict.Set(bytes, base::Value(std::move(s.list))); return {};
+      case Op::kRestoreList:
+        s.restore_list = s.restore_input->GetIfList();
+        return {.a = static_cast<uint64_t>(s.restore_list != nullptr),
+                .b = s.restore_list ? s.restore_list->size() : 0};
+      case Op::kRestoreDict:
+        s.restore_dict = (*s.restore_list)[base::checked_cast<size_t>(v.a)].GetIfDict();
+        return {.a = static_cast<uint64_t>(s.restore_dict != nullptr)};
+      case Op::kRestoreNakField:
+        s.restore_nak_field = s.restore_dict->Find(bytes);
+        return {.a = static_cast<uint64_t>(s.restore_nak_field != nullptr)};
+      case Op::kRestoreNak:
+        s.restored_nak.emplace();
+        return {.a = static_cast<uint64_t>(NetworkAnonymizationKey::FromValue(
+            *s.restore_nak_field, &*s.restored_nak))};
+      case Op::kRestoreSource: {
+        const base::Value* value = s.restore_dict->Find(bytes);
+        const std::optional<int> number = value ? value->GetIfInt() : std::nullopt;
+        return {.a = static_cast<uint64_t>(number.has_value()), .x = number.value_or(0)};
+      }
+      case Op::kRestoreSecure: {
+        const auto value = s.restore_dict->FindBool(bytes);
+        return {.a = static_cast<uint64_t>(value.has_value()), .b = static_cast<uint64_t>(value.value_or(false))};
+      }
+      case Op::kRestoreResult: {
+        const base::Value* value = s.restore_dict->Find(bytes);
+        s.restored_result = value ? HostResolverInternalResult::FromValue(*value) : nullptr;
+        return {.a = static_cast<uint64_t>(s.restored_result != nullptr),
+                .b = static_cast<uint64_t>(s.restored_result && s.restored_result->timed_expiration().has_value())};
+      }
+      case Op::kRestorePending:
+        s.pending = std::move(s.restored_result); s.nak = &*s.restored_nak;
+        s.network = v.y; s.source = static_cast<HostResolverSource>(v.x);
+        s.secure = v.a != 0; return {};
+      case Op::kRestoreReset:
+        s.restored_result.reset(); s.restored_nak.reset(); return {};
+    }
+    NOTREACHED();
+  }
+};
 
 namespace {
-
-constexpr std::string_view kNakKey = "network_anonymization_key";
-constexpr std::string_view kSourceKey = "source";
-constexpr std::string_view kSecureKey = "secure";
-constexpr std::string_view kResultKey = "result";
-constexpr std::string_view kStalenessGenerationKey = "staleness_generation";
-constexpr std::string_view kMaxEntriesKey = "max_entries";
-constexpr std::string_view kEntriesKey = "entries";
-constexpr std::string_view kTargetNetworkKey = "target_network";
-
+extern "C" V HostResolverCacheRustService(void* context, uint32_t op, Request request) {
+  return HostResolverCacheRustContext::Dispatch(context, op, request);
+}
 }  // namespace
 
 HostResolverCache::Key::~Key() = default;
-
-HostResolverCache::StaleLookupResult::StaleLookupResult(
-    const HostResolverInternalResult& result,
-    std::optional<base::TimeDelta> expired_by,
-    bool stale_by_generation)
-    : result(result),
-      expired_by(expired_by),
-      stale_by_generation(stale_by_generation) {}
-
-HostResolverCache::HostResolverCache(size_t max_results,
-                                     const base::Clock& clock,
-                                     const base::TickClock& tick_clock)
-    : max_entries_(max_results), clock_(clock), tick_clock_(tick_clock) {
-  DCHECK_GT(max_entries_, 0u);
+bool HostResolverCache::KeyComparator::operator()(const Key& a, const Key& b) const {
+  return KeyLess(a.domain_name, a.network_anonymization_key, a.target_network,
+                 b.domain_name, b.network_anonymization_key, b.target_network);
 }
-
+bool HostResolverCache::KeyComparator::operator()(const Key& a, const KeyRef& b) const {
+  return KeyLess(a.domain_name, a.network_anonymization_key, a.target_network,
+                 b.domain_name, *b.network_anonymization_key, b.target_network);
+}
+bool HostResolverCache::KeyComparator::operator()(const KeyRef& a, const Key& b) const {
+  return KeyLess(a.domain_name, *a.network_anonymization_key, a.target_network,
+                 b.domain_name, b.network_anonymization_key, b.target_network);
+}
+HostResolverCache::StaleLookupResult::StaleLookupResult(
+    const HostResolverInternalResult& result, std::optional<base::TimeDelta> expired_by,
+    bool stale_by_generation)
+    : result(result), expired_by(expired_by), stale_by_generation(stale_by_generation) {}
+HostResolverCache::HostResolverCache(size_t max_results, const base::Clock& clock,
+                                   const base::TickClock& tick_clock)
+    : max_entries_(max_results), clock_(clock), tick_clock_(tick_clock) {
+  DCHECK(host_resolver_cache_rust_capacity_valid(max_entries_));
+}
 HostResolverCache::~HostResolverCache() = default;
-
 HostResolverCache::HostResolverCache(HostResolverCache&&) = default;
-
 HostResolverCache& HostResolverCache::operator=(HostResolverCache&&) = default;
 
 const HostResolverInternalResult* HostResolverCache::Lookup(
-    std::string_view domain_name,
-    const NetworkAnonymizationKey& network_anonymization_key,
-    handles::NetworkHandle network,
-    DnsQueryType query_type,
-    HostResolverSource source,
+    std::string_view name, const NetworkAnonymizationKey& key,
+    handles::NetworkHandle target, DnsQueryType type, HostResolverSource source,
     std::optional<bool> secure) const {
-  std::vector<EntryMap::const_iterator> candidates =
-      LookupInternal(domain_name, network_anonymization_key, network,
-                     query_type, source, secure);
-
-  // Get the most secure, last-matching (which is first in the vector returned
-  // by LookupInternal()) non-expired result.
-  base::TimeTicks now_ticks = tick_clock_->NowTicks();
-  base::Time now = clock_->Now();
-  HostResolverInternalResult* most_secure_result = nullptr;
-  for (const EntryMap::const_iterator& candidate : candidates) {
-    DCHECK(candidate->second.result->timed_expiration().has_value());
-
-    if (candidate->second.IsStale(now, now_ticks, staleness_generation_)) {
-      continue;
-    }
-
-    // If the candidate is secure, or all results are insecure, no need to check
-    // any more.
-    if (candidate->second.secure || !secure.value_or(true)) {
-      return candidate->second.result.get();
-    } else if (most_secure_result == nullptr) {
-      most_secure_result = candidate->second.result.get();
-    }
-  }
-
-  return most_secure_result;
+  HostResolverCacheRustContext context(*this);
+  context.Configure(name, key, target, type, source, secure);
+  context.Run(2); return context.selected;
 }
-
-std::optional<HostResolverCache::StaleLookupResult>
-HostResolverCache::LookupStale(
-    std::string_view domain_name,
-    const NetworkAnonymizationKey& network_anonymization_key,
-    handles::NetworkHandle network,
-    DnsQueryType query_type,
-    HostResolverSource source,
+std::optional<HostResolverCache::StaleLookupResult> HostResolverCache::LookupStale(
+    std::string_view name, const NetworkAnonymizationKey& key,
+    handles::NetworkHandle target, DnsQueryType type, HostResolverSource source,
     std::optional<bool> secure) const {
-  std::vector<EntryMap::const_iterator> candidates =
-      LookupInternal(domain_name, network_anonymization_key, network,
-                     query_type, source, secure);
-
-  // Get the least expired, most secure result.
-  base::TimeTicks now_ticks = tick_clock_->NowTicks();
-  base::Time now = clock_->Now();
-  const Entry* best_match = nullptr;
-  base::TimeDelta best_match_time_until_expiration;
-  for (const EntryMap::const_iterator& candidate : candidates) {
-    DCHECK(candidate->second.result->timed_expiration().has_value());
-
-    base::TimeDelta candidate_time_until_expiration =
-        candidate->second.TimeUntilExpiration(now, now_ticks);
-
-    if (!candidate->second.IsStale(now, now_ticks, staleness_generation_) &&
-        (candidate->second.secure || !secure.value_or(true))) {
-      // If a non-stale candidate is secure, or all results are insecure, no
-      // need to check any more.
-      best_match = &candidate->second;
-      best_match_time_until_expiration = candidate_time_until_expiration;
-      break;
-    } else if (best_match == nullptr ||
-               (!candidate->second.IsStale(now, now_ticks,
-                                           staleness_generation_) &&
-                best_match->IsStale(now, now_ticks, staleness_generation_)) ||
-               candidate->second.staleness_generation >
-                   best_match->staleness_generation ||
-               (candidate->second.staleness_generation ==
-                    best_match->staleness_generation &&
-                candidate_time_until_expiration >
-                    best_match_time_until_expiration) ||
-               (candidate->second.staleness_generation ==
-                    best_match->staleness_generation &&
-                candidate_time_until_expiration ==
-                    best_match_time_until_expiration &&
-                candidate->second.secure && !best_match->secure)) {
-      best_match = &candidate->second;
-      best_match_time_until_expiration = candidate_time_until_expiration;
-    }
-  }
-
-  if (best_match == nullptr) {
-    return std::nullopt;
-  } else {
-    std::optional<base::TimeDelta> expired_by;
-    if (best_match_time_until_expiration.is_negative()) {
-      expired_by = best_match_time_until_expiration.magnitude();
-    }
-    return StaleLookupResult(
-        *best_match->result, expired_by,
-        best_match->staleness_generation != staleness_generation_);
-  }
+  HostResolverCacheRustContext context(*this);
+  context.Configure(name, key, target, type, source, secure);
+  const V result = context.Run(3);
+  if (result.a == 0) return std::nullopt;
+  const std::optional<base::TimeDelta> expired = result.b != 0
+      ? std::make_optional(base::TimeDelta::FromInternalValue(result.x)) : std::nullopt;
+  return StaleLookupResult(*context.selected, expired, result.y != 0);
 }
-
-void HostResolverCache::Set(
-    std::unique_ptr<HostResolverInternalResult> result,
-    const NetworkAnonymizationKey& network_anonymization_key,
-    handles::NetworkHandle target_network,
-    HostResolverSource source,
-    bool secure) {
-  Set(std::move(result), network_anonymization_key, target_network, source,
-      secure,
-      /*replace_existing=*/true, staleness_generation_);
+void HostResolverCache::Set(std::unique_ptr<HostResolverInternalResult> result,
+    const NetworkAnonymizationKey& key, handles::NetworkHandle target,
+    HostResolverSource source, bool secure) {
+  Set(std::move(result), key, target, source, secure, true, staleness_generation_);
 }
-
+void HostResolverCache::Set(std::unique_ptr<HostResolverInternalResult> result,
+    const NetworkAnonymizationKey& key, handles::NetworkHandle target,
+    HostResolverSource source, bool secure, bool replace_existing, int generation) {
+  HostResolverCacheRustContext context(*this);
+  context.Configure({}, key, target, DnsQueryType::UNSPECIFIED, source, secure);
+  context.pending = std::move(result);
+  context.Run(4, {.a = static_cast<uint64_t>(replace_existing), .x = generation});
+}
 void HostResolverCache::MakeAllResultsStale() {
-  ++staleness_generation_;
+  HostResolverCacheRustContext context(*this); context.Run(9);
 }
-
-base::Value HostResolverCache::Serialize() const {
-  // When serializing for persistence, we are not interested in entries that
-  // cannot be used once they will be restored.
-  return SerializeEntries(/*serialize_non_persistable_parameters=*/false);
+base::Value HostResolverCache::Serialize() const { return SerializeEntries(false); }
+base::Value HostResolverCache::SerializeEntries(bool logging) const {
+  HostResolverCacheRustContext context(*this);
+  context.Run(6, {.a = static_cast<uint64_t>(logging)});
+  return base::Value(std::move(context.list));
 }
-
-bool HostResolverCache::RestoreFromValue(const base::Value& value) {
-  const base::ListValue* list = value.GetIfList();
-  if (!list) {
-    return false;
-  }
-
-  for (const base::Value& list_value : *list) {
-    // Simply stop on reaching max size rather than attempting to figure out if
-    // any current entries should be evicted over the deserialized entries.
-    if (entries_.size() == max_entries_) {
-      return true;
-    }
-
-    const base::DictValue* dict = list_value.GetIfDict();
-    if (!dict) {
-      return false;
-    }
-
-    const base::Value* anonymization_key_value = dict->Find(kNakKey);
-    if (!anonymization_key_value) {
-      return false;
-    }
-    NetworkAnonymizationKey anonymization_key;
-    if (!NetworkAnonymizationKey::FromValue(*anonymization_key_value,
-                                            &anonymization_key)) {
-      // The key may be from an older version of Chrome, and use a format or
-      // values that are no longer supported (e.g., a NetworkIsolationPartition
-      // that has since been removed). Skip just this entry, rather than
-      // failing to restore the whole cache.
-      continue;
-    }
-
-    const base::Value* source_value = dict->Find(kSourceKey);
-    std::optional<HostResolverSource> source =
-        source_value == nullptr ? std::nullopt
-                                : HostResolverSourceFromValue(*source_value);
-    if (!source.has_value()) {
-      return false;
-    }
-
-    std::optional<bool> secure = dict->FindBool(kSecureKey);
-    if (!secure.has_value()) {
-      return false;
-    }
-
-    const base::Value* result_value = dict->Find(kResultKey);
-    std::unique_ptr<HostResolverInternalResult> result =
-        result_value == nullptr
-            ? nullptr
-            : HostResolverInternalResult::FromValue(*result_value);
-    if (!result || !result->timed_expiration().has_value()) {
-      return false;
-    }
-
-    // `staleness_generation_ - 1` to make entry stale-by-generation.
-    Set(std::move(result), anonymization_key, handles::kInvalidNetworkHandle,
-        source.value(), secure.value(),
-        /*replace_existing=*/false, staleness_generation_ - 1);
-  }
-
-  CHECK_LE(entries_.size(), max_entries_);
-  return true;
-}
-
 base::Value HostResolverCache::SerializeForLogging() const {
-  base::DictValue dict;
-
-  dict.Set(kMaxEntriesKey, base::checked_cast<int>(max_entries_));
-  dict.Set(kStalenessGenerationKey, staleness_generation_);
-
-  // Include all entries for debugging purposes, even those. Restoring from this
-  // serialization is not supported.
-  dict.Set(kEntriesKey,
-           SerializeEntries(/*serialize_non_persistable_parameters=*/true));
-
-  return base::Value(std::move(dict));
+  HostResolverCacheRustContext context(*this); context.Run(7);
+  return base::Value(std::move(context.logging_dict));
 }
-
-HostResolverCache::Entry::Entry(
-    std::unique_ptr<HostResolverInternalResult> result,
-    HostResolverSource source,
-    bool secure,
-    int staleness_generation)
-    : result(std::move(result)),
-      source(source),
-      secure(secure),
-      staleness_generation(staleness_generation) {}
-
-HostResolverCache::Entry::~Entry() = default;
-
-HostResolverCache::Entry::Entry(Entry&&) = default;
-
-HostResolverCache::Entry& HostResolverCache::Entry::operator=(Entry&&) =
-    default;
-
-bool HostResolverCache::Entry::IsStale(base::Time now,
-                                       base::TimeTicks now_ticks,
-                                       int current_staleness_generation) const {
-  return staleness_generation != current_staleness_generation ||
-         TimeUntilExpiration(now, now_ticks).is_negative();
+bool HostResolverCache::RestoreFromValue(const base::Value& value) {
+  HostResolverCacheRustContext context(*this); context.restore_input = &value;
+  return context.Run(8).a != 0;
 }
-
-base::TimeDelta HostResolverCache::Entry::TimeUntilExpiration(
-    base::Time now,
-    base::TimeTicks now_ticks) const {
-  if (result->expiration().has_value()) {
-    return result->expiration().value() - now_ticks;
-  } else {
-    DCHECK(result->timed_expiration().has_value());
-    return result->timed_expiration().value() - now;
-  }
-}
-
-std::vector<HostResolverCache::EntryMap::const_iterator>
-HostResolverCache::LookupInternal(
-    std::string_view domain_name,
-    const NetworkAnonymizationKey& network_anonymization_key,
-    handles::NetworkHandle network,
-    DnsQueryType query_type,
-    HostResolverSource source,
-    std::optional<bool> secure) const {
-  auto matches = std::vector<EntryMap::const_iterator>();
-
-  if (entries_.empty()) {
-    return matches;
-  }
-
-  std::string canonicalized;
-  url::StdStringCanonOutput output(&canonicalized);
-  url::CanonHostInfo host_info;
-
-  url::CanonicalizeHostVerbose(
-      domain_name, url::Component(0, domain_name.size()), &output, &host_info);
-
-  // For performance, when canonicalization can't canonicalize, minimize string
-  // copies and just reuse the input std::string_view. This optimization
-  // prevents easily reusing a MaybeCanoncalize util with similar code.
-  std::string_view lookup_name = domain_name;
-  if (host_info.family == url::CanonHostInfo::Family::NEUTRAL) {
-    output.Complete();
-    lookup_name = canonicalized;
-  }
-
-  auto range = entries_.equal_range(
-      KeyRef{lookup_name, raw_ref(network_anonymization_key), network});
-  if (range.first == entries_.cend() || range.second == entries_.cbegin() ||
-      range.first == range.second) {
-    return matches;
-  }
-
-  // Iterate in reverse order to return most-recently-added entry first.
-  auto it = --range.second;
-  while (true) {
-    if ((query_type == DnsQueryType::UNSPECIFIED ||
-         it->second.result->query_type() == DnsQueryType::UNSPECIFIED ||
-         query_type == it->second.result->query_type()) &&
-        (source == HostResolverSource::ANY || source == it->second.source) &&
-        (!secure.has_value() || secure.value() == it->second.secure)) {
-      matches.push_back(it);
-    }
-
-    if (it == range.first) {
-      break;
-    }
-    --it;
-  }
-
-  return matches;
-}
-
-void HostResolverCache::Set(
-    std::unique_ptr<HostResolverInternalResult> result,
-    const NetworkAnonymizationKey& network_anonymization_key,
-    handles::NetworkHandle target_network,
-    HostResolverSource source,
-    bool secure,
-    bool replace_existing,
-    int staleness_generation) {
-  DCHECK(result);
-  // Result must have at least a timed expiration to be a cacheable result.
-  DCHECK(result->timed_expiration().has_value());
-
-  std::vector<EntryMap::const_iterator> matches =
-      LookupInternal(result->domain_name(), network_anonymization_key,
-                     target_network, result->query_type(), source, secure);
-
-  if (!matches.empty() && !replace_existing) {
-    // Matches already present that are not to be replaced.
-    return;
-  }
-
-  for (const EntryMap::const_iterator& match : matches) {
-    entries_.erase(match);
-  }
-
-  std::string domain_name = result->domain_name();
-  entries_.emplace(
-      Key(std::move(domain_name), network_anonymization_key, target_network),
-      Entry(std::move(result), source, secure, staleness_generation));
-
-  if (entries_.size() > max_entries_) {
-    EvictEntries();
-  }
-}
-
-// Remove all stale entries, or if none stale, the soonest-to-expire,
-// least-secure entry.
 void HostResolverCache::EvictEntries() {
-  base::TimeTicks now_ticks = tick_clock_->NowTicks();
-  base::Time now = clock_->Now();
-
-  bool stale_found = false;
-  base::TimeDelta soonest_time_till_expriation = base::TimeDelta::Max();
-  std::optional<EntryMap::const_iterator> best_for_removal;
-
-  auto it = entries_.cbegin();
-  while (it != entries_.cend()) {
-    if (it->second.IsStale(now, now_ticks, staleness_generation_)) {
-      stale_found = true;
-      it = entries_.erase(it);
-    } else {
-      base::TimeDelta time_till_expiration =
-          it->second.TimeUntilExpiration(now, now_ticks);
-
-      if (!best_for_removal.has_value() ||
-          time_till_expiration < soonest_time_till_expriation ||
-          (time_till_expiration == soonest_time_till_expriation &&
-           best_for_removal.value()->second.secure && !it->second.secure)) {
-        soonest_time_till_expriation = time_till_expiration;
-        best_for_removal = it;
-      }
-
-      ++it;
-    }
-  }
-
-  if (!stale_found) {
-    CHECK(best_for_removal.has_value());
-    entries_.erase(best_for_removal.value());
-  }
-
-  CHECK_LE(entries_.size(), max_entries_);
+  HostResolverCacheRustContext context(*this); context.Run(5);
 }
-
-base::Value HostResolverCache::SerializeEntries(
-    bool serialize_non_persistable_parameters) const {
-  base::ListValue list;
-
-  for (const auto& [key, entry] : entries_) {
-    base::DictValue dict;
-
-    if (serialize_non_persistable_parameters) {
-      dict.Set(kStalenessGenerationKey, entry.staleness_generation);
-    }
-
-    base::Value anonymization_key_value;
-    if (!key.network_anonymization_key.ToValue(&anonymization_key_value)) {
-      if (!serialize_non_persistable_parameters) {
-        continue;
-      } else {
-        // If the caller doesn't care about anonymization keys that can be
-        // serialized and restored, construct a serialization just for the sake
-        // of logging information.
-        anonymization_key_value =
-            base::Value("Non-persistable network anonymization key: " +
-                        key.network_anonymization_key.ToDebugString());
-      }
-    }
-
-    if (!serialize_non_persistable_parameters) {
-      // Don't save entries associated with a specific network.
-      if (key.target_network != handles::kInvalidNetworkHandle) {
-        continue;
-      }
-    }
-
-    dict.Set(kNakKey, std::move(anonymization_key_value));
-    dict.Set(kSourceKey, ToValue(entry.source));
-    dict.Set(kSecureKey, entry.secure);
-    dict.Set(kResultKey, entry.result->ToValue());
-
-    if (serialize_non_persistable_parameters) {
-      dict.Set(kTargetNetworkKey, base::NumberToString(key.target_network));
-    }
-
-    list.Append(std::move(dict));
-  }
-
-  return base::Value(std::move(list));
+std::vector<HostResolverCache::EntryMap::const_iterator>
+HostResolverCache::LookupInternal(std::string_view name,
+    const NetworkAnonymizationKey& key, handles::NetworkHandle target,
+    DnsQueryType type, HostResolverSource source, std::optional<bool> secure) const {
+  HostResolverCacheRustContext context(*this);
+  context.Configure(name, key, target, type, source, secure);
+  context.Run(1); return std::move(context.retained);
 }
-
+bool HostResolverCache::AtMaxSizeForTesting() const {
+  return host_resolver_cache_rust_at_capacity(entries_.size(), max_entries_);
+}
+bool HostResolverCache::RustStaleFlags(bool generation, bool expired) {
+  return host_resolver_cache_rust_stale_result(generation, expired);
+}
+HostResolverCache::Entry::Entry(std::unique_ptr<HostResolverInternalResult> value,
+    HostResolverSource source, bool secure, int generation)
+    : result(std::move(value)), source(source), secure(secure), staleness_generation(generation) {}
+HostResolverCache::Entry::~Entry() = default;
+HostResolverCache::Entry::Entry(Entry&&) = default;
+HostResolverCache::Entry& HostResolverCache::Entry::operator=(Entry&&) = default;
+bool HostResolverCache::Entry::IsStale(base::Time now, base::TimeTicks ticks,
+                                    int generation) const {
+  HostResolverCacheRustContext context(*this);
+  return context.Run(11, {.a = static_cast<uint64_t>(ticks.ToInternalValue()),
+                          .b = static_cast<uint64_t>(now.ToInternalValue()),
+                          .x = generation}).a != 0;
+}
+base::TimeDelta HostResolverCache::Entry::TimeUntilExpiration(
+    base::Time now, base::TimeTicks ticks) const {
+  HostResolverCacheRustContext context(*this);
+  return base::TimeDelta::FromInternalValue(context.Run(10,
+      {.a = static_cast<uint64_t>(ticks.ToInternalValue()),
+       .b = static_cast<uint64_t>(now.ToInternalValue())}).x);
+}
 }  // namespace net

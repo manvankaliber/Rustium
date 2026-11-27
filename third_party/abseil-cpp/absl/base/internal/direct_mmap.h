@@ -27,11 +27,7 @@
 #ifdef __linux__
 
 #include <sys/types.h>
-#ifdef __BIONIC__
-#include <sys/syscall.h>
-#else
 #include <syscall.h>
-#endif
 
 #include <linux/unistd.h>
 #include <unistd.h>
@@ -43,7 +39,7 @@
 
 #ifdef __mips__
 // Include definitions of the ABI currently in use.
-#if defined(__BIONIC__) || !defined(__GLIBC__)
+#if !defined(__GLIBC__)
 // Android doesn't have sgidefs.h, but does have asm/sgidefs.h, which has the
 // definitions we need.
 #include <asm/sgidefs.h>
@@ -53,17 +49,6 @@
 #endif  // __mips__
 
 // SYS_mmap and SYS_munmap are not defined in Android.
-#ifdef __BIONIC__
-#pragma GCC visibility push(default)
-extern "C" void* __mmap2(void*, size_t, int, int, int, size_t);
-#pragma GCC visibility pop
-#if defined(__NR_mmap) && !defined(SYS_mmap)
-#define SYS_mmap __NR_mmap
-#endif
-#ifndef SYS_munmap
-#define SYS_munmap __NR_munmap
-#endif
-#endif  // __BIONIC__
 
 #if defined(__NR_mmap2) && !defined(SYS_mmap2)
 #define SYS_mmap2 __NR_mmap2
@@ -98,16 +83,9 @@ inline void* DirectMmap(void* start, size_t length, int prot, int flags, int fd,
     errno = EINVAL;
     return MAP_FAILED;
   }
-#ifdef __BIONIC__
-  // SYS_mmap2 has problems on Android API level <= 16.
-  // Workaround by invoking __mmap2() instead.
-  return __mmap2(start, length, prot, flags, fd,
-                 static_cast<size_t>(offset / pagesize));
-#else
   return reinterpret_cast<void*>(
       syscall(SYS_mmap2, start, length, prot, flags, fd,
               static_cast<unsigned long>(offset / pagesize)));  // NOLINT
-#endif
 #elif defined(__s390x__)
   // On s390x, mmap() arguments are passed in memory.
   unsigned long buf[6] = {reinterpret_cast<unsigned long>(start),  // NOLINT

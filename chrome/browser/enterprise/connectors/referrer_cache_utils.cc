@@ -70,9 +70,6 @@ bool IsReferrerChainNeededForEnterprise(
          service->IsConnectorEnabled(AnalysisConnector::DATA_COPIED) ||
          service->IsConnectorEnabled(AnalysisConnector::FILE_ATTACHED) ||
          service->IsConnectorEnabled(AnalysisConnector::FILE_DOWNLOADED) ||
-#if BUILDFLAG(IS_CHROMEOS)
-         service->IsConnectorEnabled(AnalysisConnector::FILE_TRANSFER) ||
-#endif
          service->IsConnectorEnabled(AnalysisConnector::PRINT) ||
          service->IsConnectorEnabled(AnalysisConnector::NETWORK_REQUEST) ||
          service->GetReportingSettings().has_value() ||

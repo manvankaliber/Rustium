@@ -427,19 +427,11 @@ export class DiscardsTabElement extends DiscardsTabElementBase {
    * @param tab The tab.
    * @return true iff the tab can be frozen.
    */
-  // <if expr="not is_android">
   protected canFreezeViaUi_(tab: TabDiscardsInfo): boolean {
     return tab.visibility !== LifecycleUnitVisibility.VISIBLE &&
         tab.state !== LifecycleUnitState.DISCARDED &&
         tab.state !== LifecycleUnitState.FROZEN;
   }
-  // </if>
-  // <if expr="is_android">
-  // TODO(crbug.com/40160563): Add FreezingPolicy to Android.
-  protected canFreezeViaUi_(_tab: TabDiscardsInfo): boolean {
-    return false;
-  }
-  // </if>
 
   /**
    * Tests whether a tab should show the reason why it cannot be discarded.

@@ -608,8 +608,7 @@ TEST_P(RemoteActorCredentialSharingControllerReauthTest,
       authenticator.get();
 
   std::u16string expected_message;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   expected_message = l10n_util::GetStringFUTF16(
       IDS_PASSWORD_MANAGER_FILLING_REAUTH, u"google.com");
 #endif
@@ -648,8 +647,7 @@ TEST_P(RemoteActorCredentialSharingControllerReauthTest,
       authenticator.get();
 
   std::u16string expected_message;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   expected_message = l10n_util::GetStringFUTF16(
       IDS_PASSWORD_MANAGER_FILLING_REAUTH, u"google.com");
 #endif

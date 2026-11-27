@@ -56,12 +56,12 @@ String LayoutThemeMobile::ExtraDefaultStyleSheet() {
       {LayoutThemeDefault::ExtraDefaultStyleSheet(),
        UncompressResourceAsASCIIString(IDR_UASTYLE_THEME_CHROMIUM_LINUX_CSS),
        UncompressResourceAsASCIIString(
-           IDR_UASTYLE_THEME_CHROMIUM_ANDROID_CSS)});
+           IDR_UASTYLE_THEME_CHROMIUM_MOBILE_CSS)});
   return stylesheet;
 }
 
 String LayoutThemeMobile::ExtraFullscreenStyleSheet() {
-  return UncompressResourceAsASCIIString(IDR_UASTYLE_FULLSCREEN_ANDROID_CSS);
+  return UncompressResourceAsASCIIString(IDR_UASTYLE_FULLSCREEN_MOBILE_CSS);
 }
 
 void LayoutThemeMobile::AdjustInnerSpinButtonStyle(

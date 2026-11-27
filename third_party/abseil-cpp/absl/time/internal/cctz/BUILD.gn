@@ -54,15 +54,6 @@ absl_source_set("time_zone") {
     # Work-around for https://github.com/llvm/llvm-project/issues/117630
     defines += [ "_XOPEN_SOURCE=700" ]
   }
-  if (is_fuchsia) {
-    deps += [
-      "//third_party/fuchsia-sdk/sdk/fidl/fuchsia.intl:fuchsia.intl_hlcpp",
-      "//third_party/fuchsia-sdk/sdk/pkg/async",
-      "//third_party/fuchsia-sdk/sdk/pkg/async-loop-cpp",
-      "//third_party/fuchsia-sdk/sdk/pkg/sys_cpp",
-      "//third_party/fuchsia-sdk/sdk/pkg/zx",
-    ]
-  }
 }
 
 absl_source_set("test_time_zone_names") {

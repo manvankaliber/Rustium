@@ -16,9 +16,6 @@ std::optional<SidePanelOpenTrigger> GetSidePanelOpenTriggerForPageAction(
   if (action_id == kActionSidePanelShowReadAnything) {
     return SidePanelOpenTrigger::kReadAnythingOmniboxChip;
   }
-  if (action_id == kActionSidePanelShowLensOverlayResults) {
-    return SidePanelOpenTrigger::kSideSearchPageAction;
-  }
   if (action_id == kActionSidePanelShowContextualTasks) {
     return SidePanelOpenTrigger::kContextualTasks;
   }

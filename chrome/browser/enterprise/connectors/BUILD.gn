@@ -25,7 +25,7 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (enterprise_cloud_content_analysis || is_android) {
+  if (enterprise_cloud_content_analysis) {
     sources += [
       "common_unittest.cc",
       "connectors_manager_unittest.cc",
@@ -37,13 +37,5 @@ source_set("unit_tests") {
       "//components/enterprise:test_support",
       "//components/enterprise/isolated_mode",
     ]
-
-    if (is_chromeos) {
-      deps += [
-        "//chrome/browser/enterprise/connectors/analysis:test_support",
-        "//chromeos/ash/components/policy/device_policy:test_support",
-        "//chromeos/components/mgs:test_support",
-      ]
-    }
   }
 }

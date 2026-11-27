@@ -7,13 +7,4 @@
 
 namespace blink {
 
-#if BUILDFLAG(IS_ANDROID)
-void RecordKeyboardShortcutForAndroid(
-    const KeyboardShortcut keyboard_shortcut) {
-  // This call must be identical with the call in
-  // content/public/android/java/src/org/chromium/content_public/browser/KeyboardShortcutRecorder.java
-  UMA_HISTOGRAM_ENUMERATION("InputMethod.PhysicalKeyboard.KeyboardShortcut",
-                            keyboard_shortcut);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 }  // namespace blink

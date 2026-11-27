@@ -2,12 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-if (is_android) {
-  import("//build/config/android/config.gni")
-  import("//build/config/android/rules.gni")
-  import("//third_party/jni_zero/jni_zero.gni")
-}
-
 source_set("ode") {
   sources = [
     "on_device_encryption_data_type_specific_metrics_reporter.cc",
@@ -36,49 +30,11 @@ source_set("ode") {
     "//components/sync/base",
   ]
 
-  if (!is_android) {
-    sources += [
-      "passkey_on_device_encryption_state_tracker.cc",
-      "passkey_on_device_encryption_state_tracker.h",
-    ]
-    public_deps += [ "//components/webauthn/core/browser:passkey_model" ]
-  }
-}
-
-if (is_android) {
-  generate_jni("jni_headers") {
-    visibility = [ ":*" ]
-    sources = [ "android/java/src/org/chromium/components/password_manager/ode/PasskeySecurityDomainChecker.java" ]
-  }
-
-  android_library("java") {
-    srcjar_deps = [ ":jni_headers" ]
-    sources = [ "android/java/src/org/chromium/components/password_manager/ode/PasskeySecurityDomainChecker.java" ]
-    deps = [
-      "//base:base_java",
-      "//base:service_loader_java",
-      "//build/android:build_java",
-      "//components/signin/public/android:java",
-      "//components/trusted_vault/android:java",
-      "//third_party/androidx:androidx_annotation_annotation_java",
-      "//third_party/jni_zero:jni_zero_java",
-    ]
-  }
-
-  robolectric_library("junit") {
-    sources = [ "android/junit/src/org/chromium/components/password_manager/ode/PasskeySecurityDomainCheckerTest.java" ]
-    deps = [
-      ":java",
-      "//base:base_java",
-      "//base:base_junit_test_support",
-      "//base:service_loader_java",
-      "//components/signin/public/android:java",
-      "//components/signin/public/android:signin_java_test_support",
-      "//components/trusted_vault/android:java",
-      "//third_party/junit",
-      "//third_party/mockito:mockito_java",
-    ]
-  }
+  sources += [
+    "passkey_on_device_encryption_state_tracker.cc",
+    "passkey_on_device_encryption_state_tracker.h",
+  ]
+  public_deps += [ "//components/webauthn/core/browser:passkey_model" ]
 }
 
 source_set("unit_tests") {
@@ -103,8 +59,6 @@ source_set("unit_tests") {
     "//testing/gtest",
   ]
 
-  if (!is_android) {
-    sources += [ "passkey_on_device_encryption_state_tracker_unittest.cc" ]
-    deps += [ "//components/webauthn/core/browser:test_support" ]
-  }
+  sources += [ "passkey_on_device_encryption_state_tracker_unittest.cc" ]
+  deps += [ "//components/webauthn/core/browser:test_support" ]
 }

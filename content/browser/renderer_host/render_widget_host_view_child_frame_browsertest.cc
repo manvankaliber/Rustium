@@ -69,8 +69,9 @@ class RenderWidgetHostViewChildFrameBrowserTest : public ContentBrowserTest {
             ->GetRenderWidgetHost()
             ->GetView();
     // Only interested in updated FrameSinkIds on child frames.
-    if (!child_view || !child_view->IsRenderWidgetHostViewChildFrame())
+    if (!child_view || !child_view->IsRenderWidgetHostViewChildFrame()) {
       return;
+    }
 
     // Ensure that the received viz::FrameSinkId was correctly set on the child
     // frame.
@@ -153,7 +154,7 @@ class AutoResizeWebContentsDelegate : public WebContentsDelegate {
 // d) When auto-resize is enabled for the nested main frame and the renderer
 // resizes the nested widget.
 // TODO(b/40945321): Flaky on Fuchsia and Linux.
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #define MAYBE_VisualPropertiesPropagation_VisibleViewportSize \
   DISABLED_VisualPropertiesPropagation_VisibleViewportSize
 #else
@@ -261,7 +262,6 @@ IN_PROC_BROWSER_TEST_F(RenderWidgetHostViewChildFrameBrowserTest,
 // RenderWidgetHostImpl - RenderWidget - `blink::RemoteFrame` -
 // CrossProcessFrameConnector, and this isn't Android-specific code.
 // For iOS, RenderWidgetHostViewIOS can't be resized, either.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   float scale_factor = root_rwh->GetDeviceScaleFactor();
 
   // Resize the top level widget to cause its |visible_viewport_size| to be
@@ -385,7 +385,6 @@ IN_PROC_BROWSER_TEST_F(RenderWidgetHostViewChildFrameBrowserTest,
   // frame of the nested WebContents that it can auto-resize. However this seems
   // to get through to the main frame's RenderWidget and propagate correctly but
   // no size change occurs in the renderer.
-#endif
 }
 
 // Validate that OOPIFs receive presentation feedbacks.
@@ -576,8 +575,7 @@ IN_PROC_BROWSER_TEST_F(RenderWidgetHostViewChildFrameBrowserTest,
 // Validate that the root widget's viewport segments are correctly propagated
 // via the SynchronizeVisualProperties cascade.
 // Flaky on Mac, Linux and Android (http://crbug/1089994).
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #define MAYBE_VisualPropertiesPropagation_RootViewportSegments \
   DISABLED_VisualPropertiesPropagation_RootViewportSegments
 #else

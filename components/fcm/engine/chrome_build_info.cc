@@ -9,7 +9,7 @@
 #include "build/build_config.h"
 #include "components/version_info/channel.h"
 #include "components/version_info/version_info.h"
-#include "google_apis/gcm/protocol/android_checkin.pb.h"
+#include "google_apis/gcm/protocol/device_checkin.pb.h"
 
 namespace fcm {
 
@@ -21,12 +21,6 @@ ChromePlatform GetPlatform() {
 #elif BUILDFLAG(IS_APPLE)
   // TODO(b/570485572): Distinguish between iOS and macOS.
   return ChromePlatform::kMac;
-#elif BUILDFLAG(IS_IOS)
-  return ChromePlatform::kIos;
-#elif BUILDFLAG(IS_ANDROID)
-  return ChromePlatform::kAndroid;
-#elif BUILDFLAG(IS_CHROMEOS)
-  return ChromePlatform::kCros;
 #elif BUILDFLAG(IS_LINUX)
   return ChromePlatform::kLinux;
 #else

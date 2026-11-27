@@ -23,7 +23,7 @@
 #include "base/logging.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <sys/syscall.h>
 #endif
 
@@ -51,10 +51,10 @@ constexpr int kCrashSignals[] = {
 #if defined(SIGEMT)
     SIGEMT,
 #endif  // defined(SIGEMT)
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     SIGXCPU,
     SIGXFSZ,
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 };
 
 // These are the non-core-generating but terminating signals.
@@ -91,9 +91,9 @@ constexpr int kTerminateSignals[] = {
     SIGXCPU,
     SIGXFSZ,
 #endif  // BUILDFLAG(IS_APPLE)
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     SIGIO,
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 };
 
 bool InstallHandlers(const std::vector<int>& signals,
@@ -318,7 +318,7 @@ void Signals::RestoreHandlerAndReraiseSignalOnReturn(
   // signals that do not re-raise autonomously), such as signals delivered via
   // kill() and asynchronous hardware faults such as SEGV_MTEAERR, which would
   // otherwise be lost when re-raising the signal via raise().
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   int retval = syscall(SYS_rt_tgsigqueueinfo,
                        getpid(),
                        syscall(SYS_gettid),
@@ -336,7 +336,7 @@ void Signals::RestoreHandlerAndReraiseSignalOnReturn(
   if (errno != EPERM) {
     _exit(kFailureExitCode);
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
   // Explicitly re-raise the signal if it will not re-raise itself. Because

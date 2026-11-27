@@ -38,14 +38,12 @@
 #include "ui/views/widget/widget.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/grit/generated_resources.h"
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/views/controls/button/md_text_button.h"
 #include "ui/views/test/button_test_api.h"
 #include "ui/views/test/widget_test.h"
 #include "ui/views/view_utils.h"
-#endif
 
 // Window capture through the getDisplayMedia() backend is available on Aura
 // and Mac.
@@ -489,7 +487,6 @@ IN_PROC_BROWSER_TEST_F(DevToolsWindowRecordingTest,
   CloseDevTools(window);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Returns the visible Stop button of the screen sharing notification, or
 // nullptr. ChromeOS shows the notification in the system tray instead.
 views::MdTextButton* FindNotificationStopButton() {
@@ -544,7 +541,6 @@ IN_PROC_BROWSER_TEST_F(DevToolsWindowRecordingTest, StopButtonInNotification) {
   EXPECT_GT(analysis.max_red, 0.1) << analysis;
   CloseDevTools(window);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Checks that the video follows the size of the browser window when the window
 // is resized, instead of letterboxing it into the initial size.

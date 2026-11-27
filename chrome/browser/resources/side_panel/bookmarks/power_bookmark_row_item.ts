@@ -63,9 +63,9 @@ export class PowerBookmarkRowItemElement extends CrLitElement {
         reflect: true,
       },
       imageUrls: {type: Object},
-      isPriceTracked: {type: Boolean},
+
       searchQuery: {type: String},
-      shoppingCollectionFolderId: {type: String},
+
       trailingIconTooltip: {type: String},
       listItemSize: {type: String},
       selectedBookmarks: {type: Array},
@@ -97,9 +97,9 @@ export class PowerBookmarkRowItemElement extends CrLitElement {
   accessor hasCheckbox: boolean = false;
   accessor hasFolders: boolean = false;
   accessor imageUrls: {[key: string]: string} = {};
-  accessor isPriceTracked: boolean = false;
+
   accessor searchQuery: string|undefined;
-  accessor shoppingCollectionFolderId: string = '';
+
   accessor trailingIconTooltip: string = '';
   accessor listItemSize: CrUrlListItemSize = CrUrlListItemSize.COMPACT;
   accessor selectedBookmarks: BookmarksTreeNode[] = [];
@@ -242,38 +242,13 @@ export class PowerBookmarkRowItemElement extends CrLitElement {
     this.dispatchEvent(this.createInputChangeEvent_(null));
   }
 
-  private isPriceTracked_(): boolean {
-    return !!this.bookmarksService_.getPriceTrackedInfo(this.bookmark);
-  }
 
-  protected showDiscountedPrice_(): boolean {
-    const bookmarkProductInfo =
-        this.bookmarksService_.getPriceTrackedInfo(this.bookmark);
-    if (bookmarkProductInfo) {
-      return bookmarkProductInfo.info.previousPrice.length > 0;
-    }
-    return false;
-  }
 
-  protected getCurrentPrice_(bookmark: BookmarksTreeNode): string {
-    const bookmarkProductInfo =
-        this.bookmarksService_.getPriceTrackedInfo(bookmark);
-    if (bookmarkProductInfo) {
-      return bookmarkProductInfo.info.currentPrice;
-    } else {
-      return '';
-    }
-  }
 
-  protected getPreviousPrice_(bookmark: BookmarksTreeNode): string {
-    const bookmarkProductInfo =
-        this.bookmarksService_.getPriceTrackedInfo(bookmark);
-    if (bookmarkProductInfo) {
-      return bookmarkProductInfo.info.previousPrice;
-    } else {
-      return '';
-    }
-  }
+
+
+
+
 
   protected getBookmarkForceHover_(): boolean {
     return this.bookmark === this.contextMenuBookmark;
@@ -285,9 +260,7 @@ export class PowerBookmarkRowItemElement extends CrLitElement {
         loadTimeData.getString('managedBookmarksFolderId');
   }
 
-  protected isShoppingCollection_(): boolean {
-    return this.bookmark?.id === this.shoppingCollectionFolderId;
-  }
+
 
   protected getBookmarkDescription_(bookmark: BookmarksTreeNode): string
       |undefined {
@@ -327,8 +300,7 @@ export class PowerBookmarkRowItemElement extends CrLitElement {
         imageUrls.push(imageUrl);
       }
     } else if (
-        this.canEdit_() && this.bookmark?.children &&
-        !this.isShoppingCollection_()) {
+        this.canEdit_() && this.bookmark?.children) {
       this.bookmark?.children.forEach(child => {
         const childImageUrl: string =
             Object.entries(this.imageUrls)
@@ -367,28 +339,12 @@ export class PowerBookmarkRowItemElement extends CrLitElement {
   }
 
   protected getBookmarkA11yDescription_(): string {
-    const bookmark = this.bookmark;
-    let description = '';
-    if (this.bookmarksService_.getPriceTrackedInfo(bookmark)) {
-      description += loadTimeData.getStringF(
-          'a11yDescriptionPriceTracking', this.getCurrentPrice_(bookmark));
-      const previousPrice = this.getPreviousPrice_(bookmark);
-      if (previousPrice) {
-        description += ' ' +
-            loadTimeData.getStringF(
-                'a11yDescriptionPriceChange', previousPrice);
-      }
-    }
-    return description;
+    return '';
   }
 
   protected getBookmarkDescriptionMeta_() {
-    const productInfo =
-        this.bookmarksService_.getAvailableProductInfo(this.bookmark);
-    if (productInfo && productInfo.info.currentPrice &&
-        !this.isPriceTracked_()) {
-      return productInfo.info.currentPrice;
-    }
+
+
 
     return '';
   }

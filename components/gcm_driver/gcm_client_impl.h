@@ -32,7 +32,7 @@
 #include "google_apis/gcm/engine/mcs_client.h"
 #include "google_apis/gcm/engine/registration_request.h"
 #include "google_apis/gcm/engine/unregistration_request.h"
-#include "google_apis/gcm/protocol/android_checkin.pb.h"
+#include "google_apis/gcm/protocol/device_checkin.pb.h"
 #include "google_apis/gcm/protocol/checkin.pb.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "net/http/http_status_code.h"

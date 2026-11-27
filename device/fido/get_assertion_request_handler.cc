@@ -44,9 +44,6 @@
 #include "device/fido/win/type_conversions.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "device/fido/cros/authenticator.h"
-#endif
 
 namespace device {
 

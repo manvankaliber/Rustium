@@ -30,9 +30,6 @@
 #elif BUILDFLAG(IS_WIN)
 #include <windows.h>
 #include "snapshot/win/process_snapshot_win.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/process.h>
-#include "snapshot/fuchsia/process_snapshot_fuchsia.h"
 #endif
 
 namespace crashpad {
@@ -59,8 +56,7 @@ TEST(CrashpadInfoClientOptions, TriStateFromCrashpadInfo) {
 class ScopedUnsetCrashpadInfoOptions {
  public:
   explicit ScopedUnsetCrashpadInfoOptions(CrashpadInfo* crashpad_info)
-      : crashpad_info_(crashpad_info) {
-  }
+      : crashpad_info_(crashpad_info) {}
 
   ScopedUnsetCrashpadInfoOptions(const ScopedUnsetCrashpadInfoOptions&) =
       delete;
@@ -86,9 +82,6 @@ CrashpadInfoClientOptions SelfProcessSnapshotAndGetCrashpadOptions() {
   ProcessSnapshotWin process_snapshot;
   EXPECT_TRUE(process_snapshot.Initialize(
       GetCurrentProcess(), ProcessSuspensionState::kRunning, 0, 0));
-#elif BUILDFLAG(IS_FUCHSIA)
-  ProcessSnapshotFuchsia process_snapshot;
-  EXPECT_TRUE(process_snapshot.Initialize(*zx::process::self()));
 #else
 #error Port.
 #endif  // BUILDFLAG(IS_APPLE)
@@ -157,8 +150,8 @@ TEST(CrashpadInfoClientOptions, TwoModules) {
 #if BUILDFLAG(IS_POSIX)
   ScopedModuleHandle module(
       dlopen(module_path.value().c_str(), RTLD_LAZY | RTLD_LOCAL));
-  ASSERT_TRUE(module.valid()) << "dlopen " << module_path.value() << ": "
-                              << dlerror();
+  ASSERT_TRUE(module.valid())
+      << "dlopen " << module_path.value() << ": " << dlerror();
 #elif BUILDFLAG(IS_WIN)
   ScopedModuleHandle module(LoadLibrary(module_path.value().c_str()));
   ASSERT_TRUE(module.valid())
@@ -252,8 +245,7 @@ class CrashpadInfoSizes_ClientOptions
 #if defined(__clang__)
 [[clang::no_sanitize("function")]]
 #endif
-inline CrashpadInfo*
-CallGetCrashpadInfo(CrashpadInfo* (*func)()) {
+inline CrashpadInfo* CallGetCrashpadInfo(CrashpadInfo* (*func)()) {
   return func();
 }
 

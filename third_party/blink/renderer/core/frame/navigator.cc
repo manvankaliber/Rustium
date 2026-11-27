@@ -59,7 +59,6 @@ bool Navigator::cookieEnabled() const {
   Settings* settings = DomWindow()->GetFrame()->GetSettings();
   bool cookie_enabled = settings && settings->GetCookieEnabled();
 
-#if !BUILDFLAG(IS_ANDROID)
   // We don't want to print this message for WebView, and the utility is much
   // lower for all Android platforms anyway, so it seems reasonable to skip.
   if (cookie_enabled && DomWindow()->Url().IsLocalFile()) {
@@ -73,7 +72,6 @@ bool Navigator::cookieEnabled() const {
             "please leave feedback on crbug.com/378604901."),
         /*discard_duplicates=*/true);
   }
-#endif
 
   return cookie_enabled;
 }

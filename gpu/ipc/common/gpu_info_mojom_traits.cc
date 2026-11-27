@@ -20,9 +20,9 @@ bool StructTraits<gpu::mojom::GpuDeviceDataView, gpu::GPUInfo::GPUDevice>::Read(
     gpu::GPUInfo::GPUDevice* out) {
   out->vendor_id = data.vendor_id();
   out->device_id = data.device_id();
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
   out->revision = data.revision();
-#endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
 #if BUILDFLAG(IS_WIN)
   out->sub_sys_id = data.sub_sys_id();
 #endif  // BUILDFLAG(IS_WIN)

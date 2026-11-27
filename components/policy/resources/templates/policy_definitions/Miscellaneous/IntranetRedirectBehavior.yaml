@@ -12,7 +12,6 @@ features:
   dynamic_refresh: true
   per_profile: false
 future_on:
-- fuchsia
 - android
 items:
 - caption: Use default browser behavior.

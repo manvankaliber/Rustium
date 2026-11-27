@@ -689,7 +689,7 @@ TEST_F(ChromeEnterpriseRealTimeUrlLookupServiceTest, CanCheckUrl) {
     scoped_feature_list.InitAndEnableFeature(
         kEnterpriseRealTimeUrlCheckUrlSkiplist);
     EXPECT_EQ(enterprise_rt_service()->CanCheckUrl(GURL("about:blank")),
-              !BUILDFLAG(IS_ANDROID));
+              !false);
     EXPECT_FALSE(
         enterprise_rt_service()->CanCheckUrl(GURL("chrome-native://newtab/")));
     EXPECT_FALSE(

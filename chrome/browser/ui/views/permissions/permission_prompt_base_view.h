@@ -20,9 +20,7 @@
 #include "ui/gfx/native_ui_types.h"
 #include "ui/views/bubble/bubble_dialog_delegate_view.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "chrome/browser/ui/views/media_preview/permission_prompt_previews_coordinator.h"
-#endif
 
 namespace content {
 class WebContents;
@@ -61,12 +59,10 @@ class PermissionPromptBaseView : public views::BubbleDialogDelegateView,
   // PictureInPictureOcclusionObserver:
   void OnOcclusionStateChanged(bool occluded) override;
 
-#if !BUILDFLAG(IS_CHROMEOS)
   const std::optional<PermissionPromptPreviewsCoordinator>&
   GetMediaPreviewsForTesting() const {
     return media_previews_;
   }
-#endif
 
  protected:
   // Adds Media (Camera / Mic) live preview feeds at `index` if the current
@@ -162,9 +158,7 @@ class PermissionPromptBaseView : public views::BubbleDialogDelegateView,
 
   base::WeakPtr<permissions::PermissionPrompt::Delegate>
       permission_prompt_delegate_;
-#if !BUILDFLAG(IS_CHROMEOS)
   std::optional<PermissionPromptPreviewsCoordinator> media_previews_;
-#endif
 };
 
 #endif  // CHROME_BROWSER_UI_VIEWS_PERMISSIONS_PERMISSION_PROMPT_BASE_VIEW_H_

@@ -84,7 +84,7 @@ TEST(StringPrintfTest, Grow) {
 #if BUILDFLAG(IS_WIN)
   UNSAFE_TODO(sprintf_s(ref, kRefSize, fmt, src.data(), src.data(), src.data(),
                         src.data(), src.data(), src.data(), src.data()));
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   UNSAFE_TODO(snprintf(ref, kRefSize, fmt, src.data(), src.data(), src.data(),
                        src.data(), src.data(), src.data(), src.data()));
 #endif

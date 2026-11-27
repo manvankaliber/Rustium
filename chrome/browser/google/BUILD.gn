@@ -4,8 +4,6 @@
 
 import("//build/config/chrome_build.gni")
 
-assert(!is_fuchsia, "Fuchsia shouldn't use anything in //chrome")
-
 source_set("google") {
   sources = [
     "google_brand.cc",
@@ -24,24 +22,6 @@ source_set("google") {
     "//components/prefs",
     "//content/public/browser",
   ]
-
-  if (is_chromeos) {
-    sources += [
-      "google_brand_chromeos.cc",
-      "google_brand_chromeos.h",
-      "google_brand_code_map_chromeos.cc",
-      "google_brand_code_map_chromeos.h",
-    ]
-
-    deps += [
-      "//ash/constants",
-      "//chrome/browser:browser_process",
-      "//chrome/browser:browser_process_platform_part",
-      "//chrome/browser/ash/policy/core",
-      "//chromeos/ash/components/system",
-      "//components/policy/core/common:common_constants",
-    ]
-  }
 
   if (is_win) {
     sources += [
@@ -94,10 +74,6 @@ source_set("unit_tests") {
     "//content/test:test_support",
     "//testing/gtest",
   ]
-
-  if (is_chromeos) {
-    sources += [ "google_brand_code_map_chromeos_unittest.cc" ]
-  }
 
   if (is_win && is_chrome_branded) {
     sources += [ "google_update_win_unittest.cc" ]

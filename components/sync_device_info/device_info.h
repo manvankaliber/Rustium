@@ -180,7 +180,6 @@ class DeviceInfo {
     kAndroid = 5,
     kIOS = 6,
     kChromeOsLacros = 7,
-    kFuchsia = 8
   };
 
   //

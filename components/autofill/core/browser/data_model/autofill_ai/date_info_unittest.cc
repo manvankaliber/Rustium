@@ -209,33 +209,6 @@ TEST(DateInfo, GetIcuDate_LocalizedPattern_AllPlatformLocales) {
   // their ICU data in `third_party/icu/filters/{android,chromeos,ios}.json`
   // to save binary size.
   constexpr std::u16string_view kRootLocaleDate [[maybe_unused]] = u"M12 7";
-#if BUILDFLAG(IS_ANDROID)
-  expected_dates.at("as") = u"Dec 7";         // Assamese
-  expected_dates.at("be") = kRootLocaleDate;  // Belarusian
-  expected_dates.at("bs") = kRootLocaleDate;  // Bosnian
-  expected_dates.at("or") = kRootLocaleDate;  // Odia
-#elif BUILDFLAG(IS_CHROMEOS)
-  expected_dates.at("mn") = kRootLocaleDate;  // Mongolian
-#elif BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK)
-  expected_dates.at("gl") = kRootLocaleDate;  // Galician
-  expected_dates.at("or") = kRootLocaleDate;  // Odia
-  expected_dates.at("pa") = kRootLocaleDate;  // Punjabi
-#elif BUILDFLAG(IS_IOS) && !BUILDFLAG(USE_BLINK)
-  expected_dates.at("bn") = kRootLocaleDate;    // Bengali
-  expected_dates.at("fa") = u"۱۷ سپتامبر";      // Persian
-  expected_dates.at("gl") = kRootLocaleDate;    // Galician
-  expected_dates.at("gu") = kRootLocaleDate;    // Gujarati
-  expected_dates.at("kn") = kRootLocaleDate;    // Kannada
-  expected_dates.at("ml") = kRootLocaleDate;    // Malayalam
-  expected_dates.at("mr") = kRootLocaleDate;    // Marathi
-  expected_dates.at("ms") = kRootLocaleDate;    // Malay
-  expected_dates.at("or") = kRootLocaleDate;    // Odia
-  expected_dates.at("pa") = kRootLocaleDate;    // Punjabi
-  expected_dates.at("ta") = kRootLocaleDate;    // Tamil
-  expected_dates.at("te") = kRootLocaleDate;    // Telugu
-  expected_dates.at("th") = u"7 ├เดือน: ธ.ค.┤";  // Thai
-  expected_dates.at("ur") = kRootLocaleDate;    // Urdu
-#endif
 
   // We loop over `kPlatformLocales`, not `expected_dates`, so that we limit
   // ourselves to those locales supported by the platform.

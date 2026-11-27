@@ -18,8 +18,7 @@ https://docs.google.com/document/d/1P8wLVS3xueI4p3EAPO4JJP6d1_zVp5SapQB0EW9iHQI/
 Clang is built using CMake. To run cmake, this script can be used:
 ```bash
   ./tools/clang/scripts/build.py     \
-    --without-android                \
-    --without-fuchsia                \
+                   \
     --extra-tools rewrite_templated_container_fields
 ```
 

@@ -185,8 +185,9 @@ class IndexedDBBrowserTestBase : public ContentBrowserTest {
                                const char* hash,
                                const char* expected_string) {
     GURL url = GetTestUrl("indexeddb", filename);
-    if (hash)
+    if (hash) {
       url = GURL(url.spec() + hash);
+    }
 
     std::u16string expected_title16(base::ASCIIToUTF16(expected_string));
     TitleWatcher title_watcher(shell->web_contents(), expected_title16);
@@ -195,8 +196,9 @@ class IndexedDBBrowserTestBase : public ContentBrowserTest {
   }
 
   storage::mojom::IndexedDBControl& GetControl(Shell* browser = nullptr) {
-    if (!browser)
+    if (!browser) {
       browser = shell();
+    }
     return browser->web_contents()
         ->GetBrowserContext()
         ->GetDefaultStoragePartition()
@@ -545,13 +547,7 @@ class IndexedDBBrowserTestWithSqlite : public IndexedDBBrowserTestBase {
 class IndexedDBBrowserTestWithSqliteErrorInjector
     : public IndexedDBBrowserTestWithSqlite {
  public:
-  void SetUp() override {
-#if BUILDFLAG(IS_FUCHSIA)
-    GTEST_SKIP() << "TODO(crbug.com/488755563): test doesn't work on Fuchsia";
-#else
-    IndexedDBBrowserTestBase::SetUp();
-#endif
-  }
+  void SetUp() override { IndexedDBBrowserTestBase::SetUp(); }
 
   void SetUpOnMainThread() override {
     IndexedDBBrowserTestBase::SetUpOnMainThread();
@@ -827,13 +823,13 @@ static void CopyLevelDBToProfile(
   ASSERT_TRUE(
       base::CopyDirectory(test_leveldb_data_dir, data_path, kRecursive));
 
-  if (!base::PathExists(test_blob_data_dir))
+  if (!base::PathExists(test_blob_data_dir)) {
     return;
+  }
   ASSERT_TRUE(base::CreateDirectory(blob_dest));
   ASSERT_TRUE(base::CopyDirectory(test_blob_data_dir, data_path, kRecursive));
   // For some reason touching files on Android fails with EPERM.
   // https://crbug.com/1045488
-#if !BUILDFLAG(IS_ANDROID)
   // The modification time of the saved blobs is used for File objects, so these
   // need to manually be set (they are clobbered both by the above copy
   // operation and by git).
@@ -841,7 +837,6 @@ static void CopyLevelDBToProfile(
     base::FilePath total_path = blob_dest.Append(time.relative_blob_path);
     ASSERT_TRUE(base::TouchFile(total_path, time.time, time.time));
   }
-#endif
 }
 
 class IndexedDBBrowserTestWithPreexistingLevelDB
@@ -897,15 +892,11 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithVersion3Schema, MigrationTest) {
   const GURL kTestUrl = GetTestUrl("indexeddb", "v3_migration_test.html");
   // For some reason setting empty file modification time on Android fails with
   // EPERM. https://crbug.com/1045488
-#if BUILDFLAG(IS_ANDROID)
-  SimpleTest(GURL(kTestUrl.spec() + "#ignoreTimes"));
-#else
   SimpleTest(kTestUrl);
-#endif
 }
 
-class IndexedDBBrowserTestWithVersion123456Schema : public
-    IndexedDBBrowserTestWithPreexistingLevelDB {
+class IndexedDBBrowserTestWithVersion123456Schema
+    : public IndexedDBBrowserTestWithPreexistingLevelDB {
   std::string EnclosingLevelDBDir() override { return "schema_version_123456"; }
 };
 
@@ -920,8 +911,8 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithVersion123456Schema,
   EXPECT_NE(original_size, new_size);
 }
 
-class IndexedDBBrowserTestWithVersion987654SSVData : public
-    IndexedDBBrowserTestWithPreexistingLevelDB {
+class IndexedDBBrowserTestWithVersion987654SSVData
+    : public IndexedDBBrowserTestWithPreexistingLevelDB {
   std::string EnclosingLevelDBDir() override { return "ssv_version_987654"; }
 };
 
@@ -936,13 +927,12 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithVersion987654SSVData,
   EXPECT_NE(original_size, new_size);
 }
 
-class IndexedDBBrowserTestWithCorruptLevelDB : public
-    IndexedDBBrowserTestWithPreexistingLevelDB {
+class IndexedDBBrowserTestWithCorruptLevelDB
+    : public IndexedDBBrowserTestWithPreexistingLevelDB {
   std::string EnclosingLevelDBDir() override { return "corrupt_leveldb"; }
 };
 
-IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithCorruptLevelDB,
-                       DestroyTest) {
+IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithCorruptLevelDB, DestroyTest) {
   const GURL kTestUrl = GetTestUrl("indexeddb", "open_bad_db.html");
   int64_t original_size = RequestUsage();
   EXPECT_GT(original_size, 0);
@@ -952,13 +942,12 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithCorruptLevelDB,
   EXPECT_NE(original_size, new_size);
 }
 
-class IndexedDBBrowserTestWithMissingSSTFile : public
-    IndexedDBBrowserTestWithPreexistingLevelDB {
+class IndexedDBBrowserTestWithMissingSSTFile
+    : public IndexedDBBrowserTestWithPreexistingLevelDB {
   std::string EnclosingLevelDBDir() override { return "missing_sst"; }
 };
 
-IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithMissingSSTFile,
-                       DestroyTest) {
+IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithMissingSSTFile, DestroyTest) {
   const GURL kTestUrl = GetTestUrl("indexeddb", "open_missing_table.html");
   int64_t original_size = RequestUsage();
   EXPECT_GT(original_size, 0);
@@ -1049,11 +1038,7 @@ IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTest, EmptyBlob) {
   // For some reason Android's futimes fails (EPERM) in this test. Do not assert
   // file times on Android, but do so on other platforms. crbug.com/467247
   // TODO(cmumford): Figure out why this is the case and fix if possible.
-#if BUILDFLAG(IS_ANDROID)
-  SimpleTest(GURL(kTestUrl.spec() + "#ignoreTimes"));
-#else
   SimpleTest(kTestUrl);
-#endif
 }
 
 IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTest, BlobsCountAgainstQuota) {
@@ -1164,22 +1149,13 @@ IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithSqliteErrorInjector,
 
 // Fuchsia deletes the database rather than recovering it, so these recovery
 // tests are disabled there.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_CorruptIndexRecovers DISABLED_CorruptIndexRecovers
-#else
 #define MAYBE_CorruptIndexRecovers CorruptIndexRecovers
-#endif
 IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithSqlite,
                        MAYBE_CorruptIndexRecovers) {
   RunCorruptIndexRecoveryTest(/*concurrent_rw_txn=*/false);
 }
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_CorruptIndexRecoversUnderConcurrentTransaction \
-  DISABLED_CorruptIndexRecoversUnderConcurrentTransaction
-#else
 #define MAYBE_CorruptIndexRecoversUnderConcurrentTransaction \
   CorruptIndexRecoversUnderConcurrentTransaction
-#endif
 IN_PROC_BROWSER_TEST_F(IndexedDBBrowserTestWithSqlite,
                        MAYBE_CorruptIndexRecoversUnderConcurrentTransaction) {
   RunCorruptIndexRecoveryTest(/*concurrent_rw_txn=*/true);
@@ -1200,7 +1176,7 @@ std::unique_ptr<net::test_server::HttpResponse> ServePath(
   return std::move(http_response);
 }
 
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_WIN)
 void CorruptDatabase(const base::FilePath& idb_data_path) {
   int num_files = 0;
   int num_errors = 0;
@@ -1238,8 +1214,9 @@ std::unique_ptr<net::test_server::HttpResponse> CorruptDBRequestHandler(
     IndexedDBBrowserTestBase* test,
     const net::test_server::HttpRequest& request) {
   std::string request_path;
-  if (path.find(s_corrupt_db_test_prefix) == std::string::npos)
+  if (path.find(s_corrupt_db_test_prefix) == std::string::npos) {
     return nullptr;
+  }
 
   request_path =
       request.relative_url.substr(std::string(s_corrupt_db_test_prefix).size());
@@ -1380,8 +1357,9 @@ const char s_indexeddb_test_prefix[] = "/indexeddb/test/";
 std::unique_ptr<net::test_server::HttpResponse> StaticFileRequestHandler(
     const std::string& path,
     const net::test_server::HttpRequest& request) {
-  if (path.find(s_indexeddb_test_prefix) == std::string::npos)
+  if (path.find(s_indexeddb_test_prefix) == std::string::npos) {
     return nullptr;
+  }
   std::string request_path =
       request.relative_url.substr(std::string(s_indexeddb_test_prefix).size());
   return ServePath(request_path);
@@ -1392,7 +1370,7 @@ std::unique_ptr<net::test_server::HttpResponse> StaticFileRequestHandler(
 // See TODO in CorruptDBRequestHandler.  Windows does not support nested
 // message loops on the IO thread, so run this test on other platforms.
 // iOS runs into difficulty with the nested IO message loop as well.
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_WIN)
 class IndexedDBBrowserTestWithCorruption
     : public IndexedDBLevelDBOnlyTest,
       public ::testing::WithParamInterface<const char*> {};
@@ -1442,7 +1420,7 @@ IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTestWithCorruption,
       std::string(s_corrupt_db_test_prefix) + "corrupted_open_db_recovery.html";
   SimpleTest(embedded_test_server()->GetURL(test_file));
 }
-#endif  // !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#endif
 
 // TODO: http://crbug.com/510520, flaky on all platforms
 IN_PROC_BROWSER_TEST_F(IndexedDBLevelDBOnlyTest,
@@ -1528,11 +1506,7 @@ IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTest, NullKeyPathPersistence) {
 
 // Disable this test on Android due to failures. See crbug.com/427529 and
 // crbug.com/1116464 for details.
-#if defined(ANDROID)
-#define MAYBE_ConnectionsClosedOnTabClose DISABLED_ConnectionsClosedOnTabClose
-#else
 #define MAYBE_ConnectionsClosedOnTabClose ConnectionsClosedOnTabClose
-#endif
 // Verify that open DB connections are closed when a tab is destroyed.
 IN_PROC_BROWSER_TEST_P(IndexedDBBrowserTest,
                        MAYBE_ConnectionsClosedOnTabClose) {

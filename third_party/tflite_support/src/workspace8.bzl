@@ -74,9 +74,3 @@ def tflite_support_workspace8():
         neverlink = True,
         default_visibility = ["@com_google_auto_value//:__pkg__"],
     )
-
-    http_archive(
-        name = "robolectric",
-        urls = ["https://github.com/robolectric/robolectric-bazel/archive/4.7.3.tar.gz"],
-        strip_prefix = "robolectric-bazel-4.7.3",
-    )

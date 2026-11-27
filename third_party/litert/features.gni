@@ -4,7 +4,7 @@
 
 declare_args() {
   # This enables building LiteRT with XNNPACK.
-  build_litert_with_xnnpack = current_cpu != "arm" && !is_fuchsia
+  build_litert_with_xnnpack = current_cpu != "arm"
 }
 
 declare_args() {

@@ -16,13 +16,11 @@ import {getCss as getSettingsSharedCss} from '../settings_shared_lit.css.js';
 
 // clang-format off
 
-// <if expr="not is_chromeos">
 import '../controls/settings_dropdown_menu.js';
 
 import type {DropdownMenuOptionList} from '../controls/settings_dropdown_menu.js';
 import {PageColors} from '../page_colors.mojom-webui.js';
 
-// </if>
 // <if expr="is_win or is_linux or is_macosx">
 import './ax_annotations_section.js';
 // </if>
@@ -63,7 +61,6 @@ export enum ToastAlertLevel {
 }
 // LINT.ThenChange(//chrome/browser/ui/toasts/toast_metrics.h:ToastAlertLevel)
 
-// <if expr="not is_chromeos">
 /**
  * The values that actually force a theme onto web content. For the other
  * values the web theme follows the operating system, so the "only on increased
@@ -76,18 +73,15 @@ const PAGE_COLORS_THEMES: PageColors[] = [
   PageColors.kAquatic,
   PageColors.kWhite,
 ];
-// </if>
 
 const SettingsA11yPageElementBase = SettingsViewMixinLit(
     PrefServiceObserverMixinLit(WebUiListenerMixinLit(CrLitElement)));
 
-// <if expr="not is_chromeos">
 export interface SettingsA11yPageElement {
   $: {
     toastToggle: SettingsToggleButtonElement,
   };
 }
-// </if>
 
 export class SettingsA11yPageElement extends SettingsA11yPageElementBase {
   static get is() {
@@ -109,12 +103,10 @@ export class SettingsA11yPageElement extends SettingsA11yPageElementBase {
       // <if expr="is_macosx or is_win">
       enableLiveCaption_: {type: Boolean},
       // </if>
-      // <if expr="not is_chromeos">
       numericUncheckedToastAlertValues_: {type: Array},
       showPageColors_: {type: Boolean},
       requestedA11yPageColorsPref_: {type: Object},
       pageColorsOptions_: {type: Array},
-      // </if>
 
       /**
        * Indicate whether a screen reader is enabled. Also, determine whether
@@ -143,7 +135,6 @@ export class SettingsA11yPageElement extends SettingsA11yPageElementBase {
   protected accessor enableLiveCaption_: boolean =
       loadTimeData.getBoolean('enableLiveCaption');
   // </if>
-  // <if expr="not is_chromeos">
   protected accessor numericUncheckedToastAlertValues_: ToastAlertLevel[] =
       [ToastAlertLevel.ACTIONABLE];
   protected accessor showPageColors_: boolean =
@@ -180,7 +171,6 @@ export class SettingsA11yPageElement extends SettingsA11yPageElementBase {
       name: loadTimeData.getString('pageColorsOptionWhite'),
     },
   ];
-  // </if>
 
   protected accessor hasScreenReader_: boolean = false;
   protected accessor showAxTreeFixingSection_: boolean =
@@ -199,13 +189,11 @@ export class SettingsA11yPageElement extends SettingsA11yPageElementBase {
     this.addWebUiListener(
         'screen-reader-state-changed', updateScreenReaderState);
 
-    // <if expr="not is_chromeos">
     if (this.showPageColors_) {
       this.mirrorPref(
           'settings.a11y.requested_page_colors',
           'requestedA11yPageColorsPref_');
     }
-    // </if>
   }
 
   // <if expr="is_win or is_linux or is_macosx">
@@ -262,19 +250,12 @@ export class SettingsA11yPageElement extends SettingsA11yPageElementBase {
   }
   // </if>
 
-  // <if expr="not is_chromeos">
   protected onFocusHighlightSettingsBooleanControlChange_(event: Event) {
     chrome.metricsPrivate.recordBoolean(
         'Accessibility.FocusHighlight.ToggleEnabled',
         (event.target as SettingsToggleButtonElement).checked);
   }
-  // </if>
 
-  // <if expr="is_chromeos">
-  protected onManageSystemAccessibilityFeaturesClick_() {
-    window.location.href = 'chrome://os-settings/osAccessibility';
-  }
-  // </if>
 
   /** private */
   protected onMoreFeaturesLinkClick_() {
@@ -295,7 +276,6 @@ export class SettingsA11yPageElement extends SettingsA11yPageElementBase {
   }
   // </if>
 
-  // <if expr="not is_chromeos">
   protected onToastAlertLevelChange_() {
     chrome.metricsPrivate.recordEnumerationValue(
         'Toast.FrequencyPrefChanged',
@@ -309,7 +289,6 @@ export class SettingsA11yPageElement extends SettingsA11yPageElementBase {
     return this.requestedA11yPageColorsPref_ !== undefined &&
         PAGE_COLORS_THEMES.includes(this.requestedA11yPageColorsPref_.value);
   }
-  // </if>
 
   // <if expr="is_linux">
   // SettingsViewMixin implementation.

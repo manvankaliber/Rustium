@@ -190,12 +190,7 @@ TEST(RunUntilTestWithThreadPool, TimesOutWhenMainThreadSleepsForever) {
   // TODO(crbug.com/368805258): The main thread on iOS seems to wakeup without
   // waiting for the delayed task to fire, causing the condition to be checked
   // early, unexpectedly.
-#if !BUILDFLAG(IS_IOS)
   EXPECT_GE(wait_time, TestTimeouts::tiny_timeout());
-#else
-  // Just check if RunUntil did it's job.
-  EXPECT_GE(wait_time, Milliseconds(1));
-#endif
   EXPECT_TRUE(done.IsSet());
 }
 

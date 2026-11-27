@@ -10,9 +10,6 @@ testonly = true
 _deps_files = [ "//DEPS" ]
 if (checkout_src_internal) {
   _deps_files += [ "//components/optimization_guide/internal/DEPS" ]
-  if (checkout_android) {
-    _deps_files += [ "//clank/DEPS" ]
-  }
 }
 
 _deps_file_args = []

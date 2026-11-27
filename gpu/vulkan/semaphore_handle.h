@@ -6,6 +6,7 @@
 #define GPU_VULKAN_SEMAPHORE_HANDLE_H_
 
 #include <vulkan/vulkan_core.h>
+
 #include <utility>
 
 #include "base/component_export.h"
@@ -14,10 +15,6 @@
 
 #if BUILDFLAG(IS_POSIX)
 #include "base/files/scoped_file.h"
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/zx/event.h>
 #endif
 
 #if BUILDFLAG(IS_WIN)
@@ -36,8 +33,6 @@ class COMPONENT_EXPORT(VULKAN) SemaphoreHandle {
   using PlatformHandle = base::ScopedFD;
 #elif BUILDFLAG(IS_WIN)
   using PlatformHandle = base::win::ScopedHandle;
-#elif BUILDFLAG(IS_FUCHSIA)
-  using PlatformHandle = zx::event;
 #endif
 
   SemaphoreHandle();
@@ -55,9 +50,7 @@ class COMPONENT_EXPORT(VULKAN) SemaphoreHandle {
 
   VkExternalSemaphoreHandleTypeFlagBits vk_handle_type() { return type_; }
 
-  bool is_valid() const {
-    return handle_.is_valid();
-  }
+  bool is_valid() const { return handle_.is_valid(); }
 
   // Returns underlying platform-specific handle for the semaphore. is_valid()
   // becomes false after this function returns.

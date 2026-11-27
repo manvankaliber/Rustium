@@ -230,7 +230,7 @@ TEST(SharedImageCopyManagerUnitTest, GetEffectiveCopyFormat) {
             viz::SinglePlaneFormat::kRGBA_8888);
   EXPECT_EQ(GetEffectiveCopyFormat(viz::MultiPlaneFormat::kNV12),
             viz::MultiPlaneFormat::kNV12);
-#if BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_OZONE)
   viz::SharedImageFormat nv12_external = viz::MultiPlaneFormat::kNV12;
   nv12_external.SetPrefersExternalSampler();
   EXPECT_EQ(GetEffectiveCopyFormat(nv12_external),
@@ -242,7 +242,7 @@ TEST(SharedImageCopyManagerUnitTest, GetEffectiveCopyFormat) {
 #endif
 }
 
-#if BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_OZONE)
 TEST(SharedImageCopyManagerUnitTest,
      CpuFallbackStrategySupportsExternalSamplerSourceOnly) {
   CPUReadbackUploadCopyStrategy strategy;
@@ -286,7 +286,7 @@ TEST(SharedImageCopyManagerUnitTest,
   EXPECT_TRUE(strategy.Copy(ext_src.get(), shm_rgba.get()));
   EXPECT_TRUE(ext_src->GetReadbackToMemoryCalledAndReset());
 }
-#endif  // BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_ANDROID)
+#endif
 
 #if BUILDFLAG(SKIA_USE_DAWN)
 class SharedImageCopyManagerTestWithGraphiteDawn : public SharedImageTestBase {

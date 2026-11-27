@@ -103,18 +103,12 @@ void FakeGCMDriverForInstanceID::AddAppHandler(const std::string& app_id,
 bool FakeGCMDriverForInstanceID::HasTokenForAppId(
     const std::string& app_id,
     const std::string& token) const {
-#if BUILDFLAG(IS_ANDROID)
-  // FCM registration tokens on Android should be handled by
-  // FakeInstanceIDWithSubtype.
-  NOTREACHED();
-#else
   for (const auto& [key, stored_token] : tokens_) {
     if (token == stored_token && base::StartsWith(key, app_id)) {
       return true;
     }
   }
   return false;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void FakeGCMDriverForInstanceID::WaitForAppIdBeforeConnection(

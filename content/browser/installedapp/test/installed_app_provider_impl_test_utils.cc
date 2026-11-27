@@ -57,7 +57,6 @@ FakeContentBrowserClientForQueryInstalledWebApps::
 FakeContentBrowserClientForQueryInstalledWebApps::
     ~FakeContentBrowserClientForQueryInstalledWebApps() = default;
 
-#if !BUILDFLAG(IS_ANDROID)
 void FakeContentBrowserClientForQueryInstalledWebApps::
     QueryInstalledWebAppsByManifestId(
         const GURL&,
@@ -77,6 +76,5 @@ void FakeContentBrowserClientForQueryInstalledWebApps::
 
   std::move(callback).Run(result);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace content

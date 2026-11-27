@@ -9,9 +9,7 @@ import type {CrButtonElement, SettingsToggleButtonElement} from 'chrome://settin
 import {CvcDeletionUserAction, loadTimeData, MetricsBrowserProxyImpl, OpenWindowProxyImpl, PrefService, PrivacyElementInteractions} from 'chrome://settings/settings.js';
 import {assertEquals, assertFalse, assertTrue} from 'chrome://webui-test/chai_assert.js';
 
-// <if expr="not is_chromeos">
 import type {TestPaymentsManager} from './autofill_fake_data.js';
-// </if>
 import {createCreditCardEntry} from './autofill_fake_data.js';
 import {createPaymentsPage, getDefaultExpectations, getFirstCreditCardEntry, getLocalAndServerCreditCardListItems, setupPaymentsPrefs} from './payments_page_test_utils.js';
 import {TestMetricsBrowserProxy} from './test_metrics_browser_proxy.js';
@@ -19,9 +17,6 @@ import {TestMetricsBrowserProxy} from './test_metrics_browser_proxy.js';
 import {TestOpenWindowProxy} from 'chrome://webui-test/test_open_window_proxy.js';
 import {eventToPromise, isVisible, microtasksFinished, whenAttributeIs} from 'chrome://webui-test/test_util.js';
 
-// <if expr="is_chromeos">
-import {TestPaymentsManager} from './autofill_fake_data.js';
-// </if>
 
 // clang-format on
 
@@ -349,11 +344,11 @@ suite('PaymentsPage', function() {
             page.shadowRoot.querySelector<SettingsToggleButtonElement>(
                 '#mandatoryAuthToggle');
 
-        // <if expr="is_win or is_macosx or is_chromeos">
+        // <if expr="is_win or is_macosx">
         assertTrue(!!mandatoryAuthToggle);
         assertFalse(mandatoryAuthToggle.checked);
         // </if>
-        // <if expr="not is_win and not is_macosx and not is_chromeos">
+        // <if expr="not is_win and (not is_macosx)">
         assertFalse(!!mandatoryAuthToggle);
         // </if>
       });
@@ -372,11 +367,11 @@ suite('PaymentsPage', function() {
         const mandatoryAuthToggle =
             page.shadowRoot.querySelector<SettingsToggleButtonElement>(
                 '#mandatoryAuthToggle');
-        // <if expr="is_win or is_macosx or is_chromeos">
+        // <if expr="is_win or is_macosx">
         assertTrue(!!mandatoryAuthToggle);
         assertTrue(mandatoryAuthToggle.checked);
         // </if>
-        // <if expr="not is_win and not is_macosx and not is_chromeos">
+        // <if expr="not is_win and (not is_macosx)">
         assertFalse(!!mandatoryAuthToggle);
         // </if>
       });
@@ -396,12 +391,12 @@ suite('PaymentsPage', function() {
             page.shadowRoot.querySelector<SettingsToggleButtonElement>(
                 '#mandatoryAuthToggle');
 
-        // <if expr="is_win or is_macosx or is_chromeos">
+        // <if expr="is_win or is_macosx">
         assertTrue(!!mandatoryAuthToggle);
         assertTrue(mandatoryAuthToggle.disabled);
         assertTrue(mandatoryAuthToggle.checked);
         // </if>
-        // <if expr="not is_win and not is_macosx and not is_chromeos">
+        // <if expr="not is_win and (not is_macosx)">
         assertFalse(!!mandatoryAuthToggle);
         // </if>
       });
@@ -421,12 +416,12 @@ suite('PaymentsPage', function() {
             page.shadowRoot.querySelector<SettingsToggleButtonElement>(
                 '#mandatoryAuthToggle');
 
-        // <if expr="is_win or is_macosx or is_chromeos">
+        // <if expr="is_win or is_macosx">
         assertTrue(!!mandatoryAuthToggle);
         assertTrue(mandatoryAuthToggle.disabled);
         assertFalse(mandatoryAuthToggle.checked);
         // </if>
-        // <if expr="not is_win and not is_macosx and not is_chromeos">
+        // <if expr="not is_win and (not is_macosx)">
         assertFalse(!!mandatoryAuthToggle);
         // </if>
       });
@@ -446,11 +441,11 @@ suite('PaymentsPage', function() {
             page.shadowRoot.querySelector<SettingsToggleButtonElement>(
                 '#mandatoryAuthToggle');
 
-        // <if expr="is_win or is_macosx or is_chromeos">
+        // <if expr="is_win or is_macosx">
         assertTrue(!!mandatoryAuthToggle);
         assertTrue(mandatoryAuthToggle.disabled);
         // </if>
-        // <if expr="not is_win and not is_macosx and not is_chromeos">
+        // <if expr="not is_win and (not is_macosx)">
         assertFalse(!!mandatoryAuthToggle);
         // </if>
       });
@@ -471,16 +466,15 @@ suite('PaymentsPage', function() {
             page.shadowRoot.querySelector<SettingsToggleButtonElement>(
                 '#mandatoryAuthToggle');
 
-        // <if expr="is_win or is_macosx or is_chromeos">
+        // <if expr="is_win or is_macosx">
         assertTrue(!!mandatoryAuthToggle);
         assertTrue(mandatoryAuthToggle.disabled);
         // </if>
-        // <if expr="not is_win and not is_macosx and not is_chromeos">
+        // <if expr="not is_win and (not is_macosx)">
         assertFalse(!!mandatoryAuthToggle);
         // </if>
       });
 
-  // <if expr="not is_chromeos">
   test('verifyReauthDoesTriggerUserAuthWhenClicked', async function() {
     loadTimeData.overrideValues({deviceAuthAvailable: true});
 
@@ -508,34 +502,7 @@ suite('PaymentsPage', function() {
     assertFalse(!!mandatoryAuthToggle);
     // </if>
   });
-  // </if>
 
-  // <if expr="is_chromeos">
-  test('verifyReauthDoesTriggerUserAuthWhenClicked', async function() {
-    const paymentsManager = new TestPaymentsManager();
-    paymentsManager.checkIfDeviceAuthAvailable = () => Promise.resolve(true);
-    PaymentsManagerImpl.setInstance(paymentsManager);
-
-    await setupPaymentsPrefs({
-      credit_card_enabled: {value: true},
-      types_blocked: {value: []},
-      payment_methods_mandatory_reauth: {value: false},
-    });
-    const page = document.createElement('settings-payments-page');
-    document.body.appendChild(page);
-    await microtasksFinished();
-    const mandatoryAuthToggle =
-        page.shadowRoot.querySelector<SettingsToggleButtonElement>(
-            '#mandatoryAuthToggle');
-
-    const expectations = getDefaultExpectations();
-    assertTrue(!!mandatoryAuthToggle);
-    mandatoryAuthToggle.click();
-    await microtasksFinished();
-    expectations.authenticateUserAndFlipMandatoryAuthToggle = 1;
-    paymentsManager.assertExpectations(expectations);
-  });
-  // </if>
 
   test('verifyReauthDoesNotTriggersUserAuthWhenNotClicked', async function() {
     loadTimeData.overrideValues({deviceAuthAvailable: true});
@@ -553,10 +520,10 @@ suite('PaymentsPage', function() {
         PaymentsManagerImpl.getInstance() as TestPaymentsManager;
     const expectations = getDefaultExpectations();
 
-    // <if expr="is_win or is_macosx or is_chromeos">
+    // <if expr="is_win or is_macosx">
     assertTrue(!!mandatoryAuthToggle);
     // </if>
-    // <if expr="not is_win and not is_macosx and not is_chromeos">
+    // <if expr="not is_win and (not is_macosx)">
     assertFalse(!!mandatoryAuthToggle);
     // </if>
     paymentsManagerProxy.assertExpectations(expectations);
@@ -610,50 +577,15 @@ suite('PaymentsPage', function() {
         page.shadowRoot.querySelector<SettingsToggleButtonElement>(
             '#mandatoryAuthToggle');
 
-    // <if expr="is_win or is_macosx or is_chromeos">
+    // <if expr="is_win or is_macosx">
     assertTrue(!!mandatoryAuthToggle);
     assertTrue(mandatoryAuthToggle.hasAttribute('no-set-pref'));
     // </if>
-    // <if expr="not is_win and not is_macosx and not is_chromeos">
+    // <if expr="not is_win and (not is_macosx)">
     assertFalse(!!mandatoryAuthToggle);
     // </if>
   });
 
-  //<if expr="is_chromeos">
-  test('verifyMandatoryAuthToggleShownWhenFlagEnabled', async function() {
-    loadTimeData.overrideValues({
-      deviceAuthAvailable: true,
-      mandatoryReauthFeatureFlagEnabled: true,
-    });
-
-    const page = await createPaymentsPage(
-        /*creditCards=*/[], /*ibans=*/[], /*payOverTimeIssuers=*/[], {
-          credit_card_enabled: {value: true},
-          payment_methods_mandatory_reauth: {value: true},
-        });
-
-    const mandatoryAuthToggle =
-        page.shadowRoot.querySelector('#mandatoryAuthToggle');
-    assertTrue(!!mandatoryAuthToggle);
-  });
-
-  test('verifyMandatoryAuthToggleHiddenWhenFlagDisabled', async function() {
-    loadTimeData.overrideValues({
-      deviceAuthAvailable: true,
-      mandatoryReauthFeatureFlagEnabled: false,
-    });
-
-    const page = await createPaymentsPage(
-        /*creditCards=*/[], /*ibans=*/[], /*payOverTimeIssuers=*/[], {
-          credit_card_enabled: {value: true},
-          payment_methods_mandatory_reauth: {value: true},
-        });
-
-    const mandatoryAuthToggle =
-        page.shadowRoot.querySelector('#mandatoryAuthToggle');
-    assertFalse(!!mandatoryAuthToggle);
-  });
-  //</if>
   // --------- End of Reauth Tests ---------
 
   test('verifyCvcStorageToggleIsShown', async function() {

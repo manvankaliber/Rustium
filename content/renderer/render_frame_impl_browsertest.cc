@@ -75,7 +75,7 @@
 #include "ui/gfx/geometry/point.h"
 #include "ui/native_theme/native_theme.h"
 
-#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN)
 #include "base/test/test_future.h"
 #include "content/public/renderer/key_system_support.h"
 #include "media/base/cdm_capability.h"
@@ -1403,7 +1403,7 @@ TEST_F(RenderFrameImplTest, SubframeMojoJSEnabled) {
       blink::WebV8Features::IsMojoJSEnabledForTesting(child_context));
 }
 
-#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN)
 namespace {
 
 // Sends `capabilities` when the observer is set, as the browser does.

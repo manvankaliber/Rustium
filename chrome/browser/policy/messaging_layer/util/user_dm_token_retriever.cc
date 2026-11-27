@@ -37,11 +37,7 @@ policy::DMToken GetDMToken(
 // Gets current active user profile
 Profile* GetUserProfile() {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M162);
-#if BUILDFLAG(IS_CHROMEOS)
-  return ProfileManager::GetActiveUserProfile();
-#else
   return ProfileManager::GetLastUsedProfile();
-#endif
 }
 
 // Processes retrieved DM token even if the retriever goes out of scope in the

@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 import("//build/config/features.gni")
 import("//net/features.gni")
-assert(is_win || is_mac || is_linux || is_chromeos || is_android)
+assert(is_win || is_mac || is_linux)
 
 source_set("navigation_predictor") {
   sources = [
@@ -65,38 +65,36 @@ source_set("impl") {
   ]
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [
-      "anchor_element_preloader_browsertest.cc",
-      "navigation_predictor_browsertest.cc",
-      "navigation_predictor_preconnect_client_browsertest.cc",
-      "search_engine_preconnector_browsertest.cc",
-    ]
-    deps = [
-      ":impl",
-      ":navigation_predictor",
-      "//chrome/browser/battery",
-      "//chrome/browser/predictors",
-      "//chrome/browser/preloading",
-      "//chrome/browser/preloading:prefs",
-      "//chrome/browser/preloading:test_support",
-      "//chrome/browser/search_engines",
-      "//chrome/browser/subresource_filter:test_support",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/common",
-      "//chrome/test:test_support",
-      "//chrome/test/base:browser_test_waiters",
-      "//components/no_state_prefetch/browser",
-      "//components/ukm:test_support",
-      "//content/test:test_support",
-    ]
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [
+    "anchor_element_preloader_browsertest.cc",
+    "navigation_predictor_browsertest.cc",
+    "navigation_predictor_preconnect_client_browsertest.cc",
+    "search_engine_preconnector_browsertest.cc",
+  ]
+  deps = [
+    ":impl",
+    ":navigation_predictor",
+    "//chrome/browser/battery",
+    "//chrome/browser/predictors",
+    "//chrome/browser/preloading",
+    "//chrome/browser/preloading:prefs",
+    "//chrome/browser/preloading:test_support",
+    "//chrome/browser/search_engines",
+    "//chrome/browser/subresource_filter:test_support",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/common",
+    "//chrome/test:test_support",
+    "//chrome/test/base:browser_test_waiters",
+    "//components/no_state_prefetch/browser",
+    "//components/ukm:test_support",
+    "//content/test:test_support",
+  ]
 
-    if (enable_device_bound_sessions) {
-      deps += [ "//chrome/browser/net" ]
-    }
+  if (enable_device_bound_sessions) {
+    deps += [ "//chrome/browser/net" ]
   }
 }
 

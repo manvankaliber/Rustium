@@ -31,9 +31,7 @@ export class VoiceLanguageModel {
   // them so they can be used as soon as they are available. This can happen
   // when a natural voice is installed (e.g. Danish) when there isn't an
   // equivalent system voice.
-  // <if expr="not is_chromeos">
   private possiblyDisabledLangs_: Set<string> = new Set();
-  // </if>
 
   // Set of languages of the browser and/or of the pages navigated to that we
   // need to download Natural voices for automatically
@@ -103,7 +101,6 @@ export class VoiceLanguageModel {
     this.availableVoices_ = voices;
   }
 
-  // <if expr="not is_chromeos">
   getPossiblyDisabledLangs(): Set<string> {
     return this.possiblyDisabledLangs_;
   }
@@ -115,7 +112,6 @@ export class VoiceLanguageModel {
   removePossiblyDisabledLang(lang: string): void {
     this.possiblyDisabledLangs_.delete(lang);
   }
-  // </if>
 
   getServerStatus(lang: string): VoicePackStatus|null {
     const status = this.cachedServerInstallState_.get(lang);

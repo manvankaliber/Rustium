@@ -28,7 +28,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <android/sync.h>
+#include <libsync/sync.h>
 
 /* Prototypes for deprecated functions that used to be declared in the legacy
  * android/sync.h. They've been moved here to make sure new code does not use

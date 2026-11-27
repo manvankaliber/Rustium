@@ -114,9 +114,7 @@ blink_modules_sources("webcodecs") {
   if (media_use_libvpx) {
     deps += [ "//third_party/libvpx" ]
   }
-  if (is_fuchsia) {
-    deps += [ "//media/fuchsia/video" ]
-  }
+
   public_deps = [ "//third_party/blink/renderer/modules/webaudio" ]
 }
 

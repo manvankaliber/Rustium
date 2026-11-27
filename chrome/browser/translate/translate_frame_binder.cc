@@ -7,9 +7,7 @@
 #include "build/build_config.h"
 #include "build/buildflag.h"
 #include "chrome/browser/translate/chrome_translate_client.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/read_anything/read_anything_controller.h"
-#endif
 #include "content/public/browser/render_frame_host.h"
 #include "content/public/browser/render_view_host.h"
 #include "content/public/browser/web_contents.h"
@@ -17,7 +15,6 @@
 
 namespace translate {
 
-#if !BUILDFLAG(IS_ANDROID)
 content::WebContents* GetTargetContents(
     content::WebContents* web_contents) {
   ReadAnythingControllerGlue* glue =
@@ -28,7 +25,6 @@ content::WebContents* GetTargetContents(
 
   return web_contents;
 }
-#endif
 
 void BindContentTranslateDriver(
     content::RenderFrameHost* render_frame_host,
@@ -45,9 +41,7 @@ void BindContentTranslateDriver(
   }
 
   content::WebContents* target_contents = web_contents;
-#if !BUILDFLAG(IS_ANDROID)
   target_contents = GetTargetContents(web_contents);
-#endif
 
   ChromeTranslateClient* const translate_client =
       ChromeTranslateClient::FromWebContents(target_contents);

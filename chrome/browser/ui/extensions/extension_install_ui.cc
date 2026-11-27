@@ -10,11 +10,7 @@
 #include "chrome/browser/profiles/profile.h"
 #include "extensions/buildflags/buildflags.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/extensions/extension_install_ui_android.h"
-#else
 #include "chrome/browser/ui/extensions/extension_install_ui_desktop.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -27,11 +23,7 @@ static bool g_disable_ui_for_tests = false;
 // static
 std::unique_ptr<ExtensionInstallUI> ExtensionInstallUI::Create(
     content::BrowserContext* context) {
-#if BUILDFLAG(IS_ANDROID)
-  return std::make_unique<ExtensionInstallUIAndroid>(context);
-#else
   return std::make_unique<ExtensionInstallUIDesktop>(context);
-#endif
 }
 
 ExtensionInstallUI::ExtensionInstallUI(content::BrowserContext* context)

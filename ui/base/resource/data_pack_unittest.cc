@@ -11,12 +11,14 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 #include "base/compiler_specific.h"
 #include "base/files/file.h"
 #include "base/files/file_path.h"
 #include "base/files/file_util.h"
 #include "base/files/scoped_temp_dir.h"
+#include "base/memory/ref_counted_memory.h"
 #include "base/path_service.h"
 #include "base/test/gmock_expected_support.h"
 #include "build/build_config.h"
@@ -448,6 +450,44 @@ TEST(DataPackTest, Misordered) {
 
   UNSAFE_TODO(ASSERT_FALSE(pack.LoadFromBuffer(
       {kSampleMisorderedPakContents, kSampleMisorderedPakSize})));
+}
+
+TEST(DataPackTest, FailedReloadPreservesExistingResources) {
+  DataPack pack(k100Percent);
+  UNSAFE_TODO(ASSERT_TRUE(
+      pack.LoadFromBuffer({kSamplePakContentsV4, kSamplePakSizeV4})));
+  const auto original = pack.GetStringView(4);
+  ASSERT_TRUE(original.has_value());
+
+  UNSAFE_TODO(EXPECT_FALSE(pack.LoadFromBuffer(
+      {kSampleMisorderedPakContents, kSampleMisorderedPakSize})));
+  EXPECT_EQ(pack.GetStringView(4), original);
+  EXPECT_EQ(pack.GetResourceTableSizeForTesting(), 4u);
+}
+
+TEST(DataPackTest, LookupBeforeLoading) {
+  DataPack pack(k100Percent);
+  EXPECT_FALSE(pack.HasResource(0));
+  EXPECT_FALSE(pack.HasResource(65535));
+  EXPECT_FALSE(pack.GetStringView(0).has_value());
+  EXPECT_FALSE(pack.GetStaticMemory(65535));
+}
+
+TEST(DataPackTest, AliasIndexModifiedAfterLoading) {
+  // Copy into mutable storage to model a pack changed after validation.
+  UNSAFE_TODO(std::vector<uint8_t> bytes(
+      kSampleCompressPakContentsV5,
+      kSampleCompressPakContentsV5 + kSampleCompressPakSizeV5));
+  DataPack pack(k100Percent);
+  ASSERT_TRUE(pack.LoadFromBuffer(bytes));
+  ASSERT_TRUE(pack.HasResource(10));
+  ASSERT_TRUE(pack.GetStringView(10).has_value());
+  // Version 5's first alias follows the resource table and sentinel.
+  const size_t alias = 12 + (pack.GetResourceTableSizeForTesting() + 1) * 6;
+  bytes[alias + 2] = 255;
+  bytes[alias + 3] = 255;
+  EXPECT_FALSE(pack.HasResource(10));
+  EXPECT_FALSE(pack.GetStringView(10).has_value());
 }
 
 }  // namespace ui

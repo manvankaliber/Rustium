@@ -1,20 +1,19 @@
 [
-  {
-    "os": [
-      "android",
-      "win",
-      "linux",
-      "mac",
-      "chromeos",
-      "fuchsia"
-    ],
-    "simple_policy_pref_mapping_test": {
-      "pref_name": "feedback_allowed",
-      "default_value": true,
-      "values_to_test": [
-        true,
-        false
-      ]
+    {
+        "os": [
+            "android",
+            "win",
+            "linux",
+            "mac",
+            "chromeos"
+        ],
+        "simple_policy_pref_mapping_test": {
+            "pref_name": "feedback_allowed",
+            "default_value": true,
+            "values_to_test": [
+                true,
+                false
+            ]
+        }
     }
-  }
 ]

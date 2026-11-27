@@ -75,8 +75,7 @@ def get_loader(test_paths: wptcommandline.TestPaths,
                                          verify=kwargs.get("verify"),
                                          debug=kwargs["debug"],
                                          extras=run_info_extras,
-                                         device_serials=kwargs.get("device_serial"),
-                                         adb_binary=kwargs.get("adb_binary"))
+                                         )
 
     subsuites = testloader.load_subsuites(logger,
                                           base_run_info,

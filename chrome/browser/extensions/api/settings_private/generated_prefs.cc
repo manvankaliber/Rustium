@@ -8,7 +8,6 @@
 #include "base/functional/callback.h"
 #include "build/build_config.h"
 #include "build/chromeos_buildflags.h"
-#include "chrome/browser/autofill/generated_find_and_fill_with_gemini_pref.h"
 #include "chrome/browser/content_settings/generated_cookie_prefs.h"
 #include "chrome/browser/content_settings/generated_javascript_optimizer_pref.h"
 #include "chrome/browser/content_settings/generated_permission_prompting_behavior_pref.h"
@@ -23,10 +22,6 @@
 #include "components/content_settings/core/common/pref_names.h"
 #include "components/permissions/features.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/extensions/api/settings_private/chromeos_resolve_time_zone_by_geolocation_method_short.h"
-#include "chrome/browser/extensions/api/settings_private/chromeos_resolve_time_zone_by_geolocation_on_off.h"
-#endif
 
 namespace extensions {
 namespace settings_private {
@@ -97,12 +92,6 @@ GeneratedPref* GeneratedPrefs::FindPrefImpl(const std::string& pref_name) {
 }
 
 void GeneratedPrefs::CreatePrefs() {
-#if BUILDFLAG(IS_CHROMEOS)
-  prefs_[kResolveTimezoneByGeolocationOnOff] =
-      CreateGeneratedResolveTimezoneByGeolocationOnOff(profile_);
-  prefs_[kResolveTimezoneByGeolocationMethodShort] =
-      CreateGeneratedResolveTimezoneByGeolocationMethodShort(profile_);
-#endif
   prefs_[content_settings::kCookieDefaultContentSetting] = std::make_unique<
       content_settings::GeneratedCookieDefaultContentSettingPref>(profile_);
   prefs_[content_settings::kThirdPartyCookieBlockingSetting] = std::make_unique<
@@ -125,8 +114,6 @@ void GeneratedPrefs::CreatePrefs() {
           profile_);
   prefs_[kGeneratedHttpsFirstModePref] =
       std::make_unique<GeneratedHttpsFirstModePref>(profile_);
-  prefs_[autofill::kGeneratedFindAndFillWithGeminiPref] =
-      std::make_unique<autofill::GeneratedFindAndFillWithGeminiPref>(profile_);
 }
 
 }  // namespace settings_private

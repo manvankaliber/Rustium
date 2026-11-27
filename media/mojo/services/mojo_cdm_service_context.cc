@@ -46,24 +46,6 @@ void MojoCdmServiceContext::UnregisterCdm(
   cdm_services_.erase(cdm_id);
 }
 
-#if BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
-base::UnguessableToken MojoCdmServiceContext::RegisterRemoteCdmContext(
-    chromeos::RemoteCdmContext* remote_context) {
-  CHECK(remote_context, base::NotFatalUntil::M163);
-  base::UnguessableToken cdm_id = GetNextCdmId();
-  remote_cdm_contexts_[cdm_id] = remote_context;
-  DVLOG(1) << __func__ << ": RemoteCdmContext registered with CDM ID "
-           << cdm_id;
-  return cdm_id;
-}
-
-void MojoCdmServiceContext::UnregisterRemoteCdmContext(
-    const base::UnguessableToken& cdm_id) {
-  DVLOG(1) << __func__ << ": cdm_id = " << cdm_id;
-  CHECK(remote_cdm_contexts_.count(cdm_id), base::NotFatalUntil::M163);
-  remote_cdm_contexts_.erase(cdm_id);
-}
-#endif  // BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
 
 std::unique_ptr<CdmContextRef> MojoCdmServiceContext::GetCdmContextRef(
     const base::UnguessableToken& cdm_id) {
@@ -81,12 +63,6 @@ std::unique_ptr<CdmContextRef> MojoCdmServiceContext::GetCdmContextRef(
     }
   }
 
-#if BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
-  // Try the remote contexts now.
-  auto remote_context = remote_cdm_contexts_.find(cdm_id);
-  if (remote_context != remote_cdm_contexts_.end())
-    return remote_context->second->GetCdmContextRef();
-#endif  // BUILDFLAG(ENABLE_OOP_VIDEO_DECODER)
 
   LOG(ERROR) << "CdmContextRef cannot be obtained for CDM ID: " << cdm_id;
   return nullptr;

@@ -306,7 +306,7 @@ class ChromiumWritableFile : public leveldb::WritableFile {
 
   std::string filename_;
   base::File file_;
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
   storage::FilesystemProxy* const filesystem_;
 #endif
   Type file_type_;
@@ -318,7 +318,7 @@ ChromiumWritableFile::ChromiumWritableFile(const std::string& fname,
                                            storage::FilesystemProxy* filesystem)
     : filename_(fname),
       file_(std::move(f)),
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
       filesystem_(filesystem),
 #endif
       file_type_(kOther) {
@@ -334,7 +334,7 @@ ChromiumWritableFile::ChromiumWritableFile(const std::string& fname,
 
 Status ChromiumWritableFile::SyncParent() {
   TRACE_EVENT0("leveldb", "SyncParent");
-#if defined(OS_POSIX) || defined(OS_FUCHSIA)
+#if defined(OS_POSIX)
   FilePath path = FilePath::FromUTF8Unsafe(parent_dir_);
   FileErrorOr<base::File> result = filesystem_->OpenFile(
       path, base::File::FLAG_OPEN | base::File::FLAG_READ);
@@ -481,19 +481,12 @@ Options::Options() {
 //
 // Currently log reuse is an experimental feature in leveldb. More info at:
 // https://github.com/google/leveldb/commit/251ebf5dc70129ad3
-#if BUILDFLAG(IS_CHROMEOS)
-  // Reusing logs on Chrome OS resulted in an unacceptably high leveldb
-  // corruption rate (at least for Indexed DB). More info at
-  // https://crbug.com/460568
-  reuse_logs = false;
-#else
   // Low end devices have limited RAM. Reusing logs will prevent the database
   // from being compacted on open and instead load the log file back into the
   // memory buffer which won't be written until it hits the maximum size
   // (leveldb::Options::write_buffer_size - 4MB by default). The downside here
   // is that databases opens take longer as the open is blocked on compaction.
   reuse_logs = !base::SysInfo::IsLowEndDeviceOrPartialLowEndModeEnabled();
-#endif
   // By default use a single shared block cache to conserve memory. The owner of
   // this object can create their own, or set to NULL to have leveldb create a
   // new db-specific block cache.

@@ -23,8 +23,6 @@
 # The goal is to drive the number of exceptions to zero, to make all
 # the bots behave similarly. whitespace
 {
-  'android_webview_unittests': {
-  },
   'blink_web_tests': {
     'modifications': {
       'V8 Blink Linux Future': {
@@ -56,7 +54,7 @@
   },
   'browser_tests': {
     'remove_from': [
-      'linux-chromeos-chrome-preuprev', # http://b/331706144
+       # http://b/331706144
     ],
     'modifications': {
       'Linux - Future (dbg)': {  # client.v8.chromium
@@ -64,41 +62,17 @@
           'shards': 10,
         },
       },
-      'linux-chromeos-chrome': {
-        # TODO(crbug.com/40614042): Promote out of experiment when the
-        # tests are green.
-        'args': [
-          '--test-launcher-filter-file=../../testing/buildbot/filters/chromeos.browser_tests.filter',
-        ],
-        'swarming': {
-          'shards': 20,
-        },
-      },
+
     },
   },
   'chrome_all_tast_tests': {
     'modifications': {
-      'chromeos-eve-chrome': {
-        'swarming': {
-          # Increased timeout to 4 hours due to shard timeout.
-          'hard_timeout': 14400,
-        }
-      },
-      # TODO(crbug.com/40727045): Move out of experimental if/when the bots are
-      # stable.
-      'chromeos-jacuzzi-chrome': {
-        'experiment_percentage': 100,
-      },
-      'chromeos-reven-chrome': {
-        'args': [
-          '--tast-shard-method=hash',
-        ],
-      },
+
     },
   },
   'content_browsertests': {
     'remove_from': [
-      'linux-chromeos-chrome-preuprev', # http://b/331706144
+       # http://b/331706144
     ],
   },
   'expected_color_pixel_gl_passthrough_ganesh_test': {
@@ -164,16 +138,11 @@
     'replacements': {
       # The V8 builders pass the V8 revision for ${got_revision}, so instead
       # use ${got_cr_revision}, which is only set on the V8 bots.
-      'Android V8 FYI Release': {
-        'args': {
-          '--git-revision': '${got_cr_revision}',
-        },
-      },
+
     },
   },
   'info_collection_tests': {
     'remove_from': [
-      'Android V8 FYI Release',
       'Linux V8 FYI Release (NVIDIA)',
       'Linux V8 FYI Release - pointer compression (NVIDIA)',
       'Mac V8 FYI Release (Intel)',
@@ -188,11 +157,7 @@
         },
       },
       # TODO(crbug.com/40630654): Remove these filters.
-      'linux-chromeos-chrome': {
-        'args': [
-          '--gtest_filter=-SadTabViewInteractiveUITest.ReloadMultipleSadTabs',
-        ],
-      },
+
     },
   },
   'litert_e2e_tests_gpu': {
@@ -216,9 +181,7 @@
   'net_unittests LKGM': {
     # TODO(b/319364912): vpython cannot be delivered via CIPD on skylab builders
     'remove_from': [
-      'chromeos-brya-chrome-dchecks-skylab',
-      'chromeos-brya-chrome-skylab',
-      'chromeos-brya-chrome-tests',
+
     ],
   },
   'notification_helper_unittests': {
@@ -262,16 +225,7 @@
   },
   'ozone_unittests': {
     'modifications': {
-      'linux-chromeos-chrome': {
-        'args': [
-          '--test-launcher-filter-file=../../testing/buildbot/filters/chromeos.ozone_unittests.filter',
-        ],
-      },
-      'linux-chromeos-chrome-preuprev': {
-        'args': [
-          '--test-launcher-filter-file=../../testing/buildbot/filters/chromeos.ozone_unittests.filter',
-        ],
-      },
+
     },
   },
   'pixel_skia_gold_gl_passthrough_ganesh_test': {
@@ -359,21 +313,12 @@
     'replacements': {
       # The V8 builders pass the V8 revision for ${got_revision}, so instead
       # use ${got_cr_revision}, which is only set on the V8 bots.
-      'Android V8 FYI Release': {
-        'args': {
-          '--git-revision': '${got_cr_revision}',
-        },
-      },
+
     },
   },
   'telemetry_perf_unittests': {
     'modifications': {
-      'chromeos-eve-chrome': {
-        'args': [
-          # TODO(crbug.com/40756418): Re-enable.
-          '--skip=benchmarks.benchmark_smoke_unittest.BenchmarkSmokeTest.wasmpspdfkit',
-        ],
-      },
+
     },
     'remove_from': [
       'Linux - Future (dbg)',  # client.v8.chromium
@@ -382,21 +327,12 @@
   'telemetry_unittests': {
     'remove_from': [
       # TODO(crbug.com/40727045): Restore when there's more DUTs
-      'chromeos-eve-chrome',
+
     ],
   },
   'unit_tests': {
     'modifications': {
-      'linux-chromeos-chrome': {
-        'args': [
-          '--test-launcher-filter-file=../../testing/buildbot/filters/chromeos.unit_tests.filter',
-        ],
-      },
-      'linux-chromeos-chrome-preuprev': {
-        'args': [
-          '--test-launcher-filter-file=../../testing/buildbot/filters/chromeos.unit_tests.filter',
-        ],
-      },
+
     },
   },
   'variations_smoke_tests': {

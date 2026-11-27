@@ -27,22 +27,12 @@ constexpr Shadow::ElevationColors kDefaultMdShadowColors = {
     SkColorSetA(SK_ColorBLACK, 0x3d),
     SkColorSetA(SK_ColorBLACK, 0x1f),
 };
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr Shadow::ElevationColors kDefaultChromeOSSystemUIShadowColors = {
-    SkColorSetA(SK_ColorBLACK, 0x3d),
-    SkColorSetA(SK_ColorBLACK, 0x1a),
-};
-#endif
 
 constexpr Shadow::ElevationColors GetDefaultElevationColors(
     Shadow::Style style) {
   switch (style) {
     case Shadow::Style::kMaterialDesign:
       return kDefaultMdShadowColors;
-#if BUILDFLAG(IS_CHROMEOS)
-    case Shadow::Style::kChromeOSSystemUI:
-      return kDefaultChromeOSSystemUIShadowColors;
-#endif
   }
 }
 
@@ -64,12 +54,6 @@ gfx::ShadowValues Shadow::MakeShadowValues(
       return gfx::ShadowValue::MakeMdShadowValues(
           elevation, shadow_colors.key_color, shadow_colors.ambient_color,
           is_pill_shaped);
-#if BUILDFLAG(IS_CHROMEOS)
-    case Style::kChromeOSSystemUI:
-      return gfx::ShadowValue::MakeChromeOSSystemUIShadowValues(
-          elevation, shadow_colors.key_color, shadow_colors.ambient_color,
-          is_pill_shaped);
-#endif
   }
 }
 

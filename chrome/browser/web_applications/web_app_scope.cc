@@ -17,9 +17,6 @@
 #include "url/origin.h"
 #include "url/url_constants.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/web_applications/chromeos_web_app_experiments.h"
-#endif
 
 namespace web_app {
 
@@ -137,12 +134,6 @@ bool WebAppScope::IsInScope(const GURL& url, WebAppScopeOptions options) const {
     }
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (ChromeOsWebAppExperiments::GetExtendedScopeScore(app_id_, url.spec()) >
-      0) {
-    return true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Check scope extensions.
   return GetScopeExtensionsScore(
@@ -181,10 +172,6 @@ int WebAppScope::GetScopeScore(const GURL& url,
     return score;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  score = std::max(score, ChromeOsWebAppExperiments::GetExtendedScopeScore(
-                              app_id_, url.spec()));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   return std::max(
       score, GetScopeExtensionsScore(app_id_, url, validated_scope_extensions_,

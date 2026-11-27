@@ -17,7 +17,6 @@
 #include "base/scoped_observation.h"
 #include "base/scoped_observation_traits.h"
 #include "build/build_config.h"
-#include "components/account_manager_core/account.h"
 #include "components/keyed_service/core/keyed_service.h"
 #include "components/signin/internal/identity_manager/primary_account_manager.h"
 #include "components/signin/internal/identity_manager/profile_oauth2_token_service.h"
@@ -36,17 +35,7 @@
 #include "components/signin/public/base/binding_key_registration_token_result.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "base/containers/flat_map.h"
-#include "base/time/time.h"
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace account_manager {
-class AccountManagerFacade;
-}
-#endif
 
 namespace network {
 class SharedURLLoaderFactory;
@@ -168,18 +157,6 @@ class IdentityManager : public KeyedService,
     // Called after removing an account info.
     virtual void OnExtendedAccountInfoRemoved(const AccountInfo& info) {}
 
-#if BUILDFLAG(IS_IOS)
-    // Called after the list of accounts in `GetAccountsOnDevice` changes.
-    virtual void OnAccountsOnDeviceChanged() {}
-    // Called once the batch of primary account changes ended.
-    // This method is also called for each single primary account event, when
-    // there is no batch.
-    // UI code should prefer this event instead of `OnPrimaryAccountChanged()`,
-    // to avoid UI glitches when the user wants to switch from one primary
-    // account to another (by showing sign-out temporary state).
-    // See `StartBatchOfPrimaryAccountChanges()`.
-    virtual void OnEndBatchOfPrimaryAccountChanges() {}
-#endif  // BUILDFLAG(IS_IOS)
 
     // Called on Shutdown(), for observers that aren't KeyedServices to remove
     // their observers.
@@ -190,18 +167,6 @@ class IdentityManager : public KeyedService,
   void AddObserver(Observer* observer);
   void RemoveObserver(Observer* observer);
 
-#if BUILDFLAG(IS_IOS)
-  // Whether a batch of primary account changes is in progress. See
-  // `OnEndBatchOfPrimaryAccountChanges()`.
-  bool IsBatchOfPrimaryAccountChangesInProgress() const;
-
-  // Starts a batch of primary account changes (e.g. when switching from one
-  // primary account to another). `OnEndBatchOfPrimaryAccountChanges()` is not
-  // sent on `OnPrimaryAccountChanged()` while the batch is running, and is sent
-  // when the returned `ScopedClosureRunner` is destructed.
-  // See `OnEndBatchOfPrimaryAccountChanges()`.
-  base::ScopedClosureRunner StartBatchOfPrimaryAccountChanges();
-#endif  // BUILDFLAG(IS_IOS)
 
   // Provides access to the core information of the user's primary account.
   // The primary account may or may not be blessed with the sync consent.
@@ -297,10 +262,6 @@ class IdentityManager : public KeyedService,
   // Returns true if a refresh token exists for |account_id|.
   bool HasAccountWithRefreshToken(const CoreAccountId& account_id) const;
 
-#if BUILDFLAG(IS_IOS)
-  bool HasAccountWithRefreshTokenOnDevice(
-      const CoreAccountId& account_id) const;
-#endif
 
   // Returns true if all refresh tokens have been loaded from disk.
   bool AreRefreshTokensLoaded() const;
@@ -412,12 +373,6 @@ class IdentityManager : public KeyedService,
   // device-level accounts. May be null if the system has no such notion.
   DeviceAccountsSynchronizer* GetDeviceAccountsSynchronizer();
 
-#if BUILDFLAG(IS_IOS)
-  // Gets all accounts on the device, including the ones from other profiles, in
-  // the order provided by the system (usually the order in which the accounts
-  // were added).
-  [[nodiscard]] std::vector<AccountInfo> GetAccountsOnDevice() const;
-#endif
 
   // Overrides the value of the given account capability for the account.
   // Passing `std::nullopt` clears the override.
@@ -491,10 +446,6 @@ class IdentityManager : public KeyedService,
     std::unique_ptr<DeviceAccountsSynchronizer> device_accounts_synchronizer;
     std::unique_ptr<DiagnosticsProvider> diagnostics_provider;
     raw_ptr<SigninClient> signin_client = nullptr;
-#if BUILDFLAG(IS_CHROMEOS)
-    raw_ptr<account_manager::AccountManagerFacade, DanglingUntriaged>
-        account_manager_facade = nullptr;
-#endif
 
     InitParameters();
     InitParameters(InitParameters&&);
@@ -542,49 +493,6 @@ class IdentityManager : public KeyedService,
   // new account is later added.
   void PrepareForAddingNewAccount();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Get the reference on the java IdentityManager.
-  base::android::ScopedJavaLocalRef<jobject> GetJavaObject() const;
-
-  // Get the reference on the java IdentityManager.
-  static IdentityManager* FromJavaObject(
-      JNIEnv* env,
-      const base::android::JavaRef<jobject>& j_identity_manager);
-
-  // Provide the reference on the java IdentityMutator.
-  base::android::ScopedJavaLocalRef<jobject> GetIdentityMutatorJavaObject();
-
-  // This method refreshes the AccountInfo associated with |account_id| when
-  // the existing account info is stale. Otherwise it's a no-op.
-  // This method triggers an OnExtendedAccountInfoUpdated() callback if the
-  // info was successfully fetched.
-  void RefreshAccountInfoIfStale(const CoreAccountId& account_id);
-
-  // Overloads for calls from java:
-  bool HasPrimaryAccount(JNIEnv* env) const;
-
-  base::android::ScopedJavaLocalRef<jobject> GetPrimaryAccountInfo(
-      JNIEnv* env) const;
-
-  base::android::ScopedJavaLocalRef<jobject> GetPrimaryAccountId(
-      JNIEnv* env) const;
-
-  base::android::ScopedJavaLocalRef<jobject> FindExtendedAccountInfoByAccountId(
-      JNIEnv* env,
-      const base::android::JavaRef<jobject>& j_account_id) const;
-
-  base::android::ScopedJavaLocalRef<jobject>
-  FindExtendedAccountInfoByEmailAddress(
-      JNIEnv* env,
-      const base::android::JavaRef<jstring>& j_email) const;
-
-  // Refreshes all accounts with refresh tokens if they are stale. See
-  // RefreshAccountInfoIfStale(const CoreAccountId&).
-  void RefreshAccountInfoIfStale(JNIEnv* env);
-
-  // Returns true if the browser allows the primary account to be cleared.
-  bool IsClearPrimaryAccountAllowed(JNIEnv* env) const;
-#endif
 
   // Returns a weak pointer of this.
   base::WeakPtr<IdentityManager> GetWeakPtr();
@@ -651,10 +559,6 @@ class IdentityManager : public KeyedService,
       std::string_view locale,
       std::string_view picture_url);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  friend account_manager::AccountManagerFacade* GetAccountManagerFacade(
-      IdentityManager* identity_manager);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Temporary access to getters (e.g. GetTokenService()).
   // TODO(crbug.com/40619310): Remove this friendship by
@@ -728,9 +632,6 @@ class IdentityManager : public KeyedService,
   AccountTrackerService* GetAccountTrackerService() const;
   AccountFetcherService* GetAccountFetcherService() const;
   GaiaCookieManagerService* GetGaiaCookieManagerService() const;
-#if BUILDFLAG(IS_CHROMEOS)
-  account_manager::AccountManagerFacade* GetAccountManagerFacade() const;
-#endif
 
   // Populates and returns an AccountInfo object corresponding to |account_id|,
   // which must be an account with a refresh token.
@@ -740,9 +641,6 @@ class IdentityManager : public KeyedService,
   // PrimaryAccountManager::Observer:
   void OnPrimaryAccountChanged(
       const PrimaryAccountChangeEvent& event_details) override;
-#if BUILDFLAG(IS_IOS)
-  void OnEndBatchOfPrimaryAccountChanges() override;
-#endif  // BUILDFLAG(IS_IOS)
 
   // ProfileOAuth2TokenServiceObserver:
   void OnRefreshTokenAvailable(const CoreAccountId& account_id) override;
@@ -753,10 +651,6 @@ class IdentityManager : public KeyedService,
                           const GoogleServiceAuthError& auth_error,
                           signin_metrics::SourceForRefreshTokenOperation
                               token_operation_source) override;
-#if BUILDFLAG(IS_IOS)
-  void OnAccountsOnDeviceChanged() override;
-  void OnAccountOnDeviceUpdated(const AccountInfo& account_info) override;
-#endif
 
   // GaiaCookieManagerService callbacks:
   void OnGaiaAccountsInCookieUpdated(
@@ -794,10 +688,6 @@ class IdentityManager : public KeyedService,
   std::unique_ptr<PrimaryAccountManager> primary_account_manager_;
   std::unique_ptr<AccountFetcherService> account_fetcher_service_;
   const raw_ptr<SigninClient> signin_client_;
-#if BUILDFLAG(IS_CHROMEOS)
-  const raw_ptr<account_manager::AccountManagerFacade, DanglingUntriaged>
-      account_manager_facade_;
-#endif
 
   std::unique_ptr<IdentityMutator> identity_mutator_;
 
@@ -824,10 +714,6 @@ class IdentityManager : public KeyedService,
   base::ObserverList<DiagnosticsObserver, true>::Unchecked
       diagnostics_observation_list_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Java-side IdentityManager object.
-  base::android::ScopedJavaGlobalRef<jobject> java_identity_manager_;
-#endif
   base::WeakPtrFactory<IdentityManager> weak_pointer_factory_;
 };
 
@@ -852,22 +738,5 @@ struct ScopedObservationTraits<signin::IdentityManager,
 
 }  // namespace base
 
-#if BUILDFLAG(IS_ANDROID)
-namespace jni_zero {
-template <>
-inline signin::IdentityManager* FromJniType<signin::IdentityManager*>(
-    JNIEnv* env,
-    const JavaRef<jobject>& j_identity_manager) {
-  return signin::IdentityManager::FromJavaObject(env, j_identity_manager);
-}
-
-template <>
-inline ScopedJavaLocalRef<jobject> ToJniType(
-    JNIEnv* env,
-    signin::IdentityManager* identity_manager) {
-  return identity_manager ? identity_manager->GetJavaObject() : nullptr;
-}
-}  // namespace jni_zero
-#endif
 
 #endif  // COMPONENTS_SIGNIN_PUBLIC_IDENTITY_MANAGER_IDENTITY_MANAGER_H_

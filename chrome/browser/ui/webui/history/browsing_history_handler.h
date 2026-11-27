@@ -31,9 +31,7 @@
 #include "mojo/public/cpp/bindings/remote.h"
 #include "ui/webui/resources/cr_components/history/history.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_web_ui_controller.h"  // nogncheck
-#endif
 
 namespace content {
 class WebContents;
@@ -58,10 +56,8 @@ class BrowsingHistoryHandler : public history::mojom::PageHandler,
 
   ~BrowsingHistoryHandler() override;
 
-#if !BUILDFLAG(IS_ANDROID)
   void SetSidePanelUIEmbedder(
       base::WeakPtr<TopChromeWebUIController::Embedder> side_panel_embedder);
-#endif
 
   void SetPage(mojo::PendingRemote<history::mojom::Page> pending_page) override;
 
@@ -112,12 +108,10 @@ class BrowsingHistoryHandler : public history::mojom::PageHandler,
   void GetSyncedDevicesForFiltering(
       GetSyncedDevicesForFilteringCallback callback) override;
   void GetTimePeriodOptions(GetTimePeriodOptionsCallback callback) override;
-#if !BUILDFLAG(IS_CHROMEOS)
   void ShouldShowHistoryPageHistorySyncPromo(
       ShouldShowHistoryPageHistorySyncPromoCallback callback) override;
   void RecordHistoryPageHistorySyncPromoDismissed() override;
   void IncrementHistoryPageHistorySyncPromoShownCount() override;
-#endif
 
   // For tests. This does not take the ownership of the clock. |clock| must
   // outlive the BrowsingHistoryHandler instance.
@@ -152,7 +146,6 @@ class BrowsingHistoryHandler : public history::mojom::PageHandler,
                            ObservingWebHistoryDeletions);
   FRIEND_TEST_ALL_PREFIXES(BrowsingHistoryHandlerTest, MdTruncatesTitles);
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
   int GetHistoryPageHistorySyncPromoShownCount() const;
   void IncrementHistoryPageHistorySyncPromoShownCountPref();
 
@@ -162,11 +155,8 @@ class BrowsingHistoryHandler : public history::mojom::PageHandler,
   bool IsHistoryPageHistorySyncPromoShownAfterDismissal() const;
   // Sets pref to true when the history sync promo was shown after dismissal.
   void SetHistoryPageHistorySyncPromoShownAfterDismissal();
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
   base::WeakPtr<TopChromeWebUIController::Embedder> side_panel_embedder_;
-#endif
 
   // signin::IdentityManager::Observer:
   void OnExtendedAccountInfoUpdated(const AccountInfo& info) override;

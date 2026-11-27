@@ -13,9 +13,7 @@
 #include "content/public/browser/browser_thread.h"
 #include "third_party/blink/public/common/storage_key/storage_key.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/storage_pressure_bubble.h"
-#endif
 
 namespace {
 
@@ -63,9 +61,7 @@ void StorageNotificationServiceImpl::MaybeShowStoragePressureNotification(
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   ShowStoragePressureBubble(storage_key.origin());
-#endif
   disk_pressure_notification_last_sent_at_ = base::TimeTicks::Now();
 }
 

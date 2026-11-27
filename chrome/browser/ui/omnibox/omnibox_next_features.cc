@@ -31,10 +31,8 @@
 #include "ui/accessibility/platform/ax_platform.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service.h"
 #include "chrome/browser/contextual_tasks/contextual_tasks_ui_service_factory.h"
-#endif
 
 namespace {
 constexpr base::FeatureState DISABLED = base::FEATURE_DISABLED_BY_DEFAULT;
@@ -311,25 +309,7 @@ omnibox::NTPComposeboxConfig GetNTPComposeboxConfig() {
 }
 
 bool ShouldShowAimContextMenuOption(Profile* profile) {
-  const auto* aim_eligibility_service =
-      AimEligibilityServiceFactory::GetForProfile(profile);
-  const auto* ai_mode_button_service =
-      AiModeButtonServiceFactory::GetForProfile(profile);
-  const auto* template_url_service =
-      TemplateURLServiceFactory::GetForProfile(profile);
-  const bool is_aim_entrypoint_enabled =
-      OmniboxFieldTrial::IsAimOmniboxEntrypointEnabled(aim_eligibility_service,
-                                                       ai_mode_button_service,
-                                                       template_url_service);
-
-  if (is_aim_entrypoint_enabled) {
-    return true;
-  }
-
-  const bool is_aim_context_entrypoint_enabled =
-      omnibox::IsAimPopupEnabled(profile);
-
-  return is_aim_context_entrypoint_enabled;
+  return false;
 }
 
 bool IsWebUIOmniboxPopupEnabled() {
@@ -348,7 +328,7 @@ bool IsWebUIOmniboxInBrowserViewEnabled() {
 }
 
 bool IsAimPopupFeatureEnabled() {
-  return base::FeatureList::IsEnabled(internal::kWebUIOmniboxAimPopup);
+  return false;
 }
 
 bool IsWebUIOmniboxDynamicAnimationEnabled() {
@@ -405,13 +385,7 @@ bool IsAimPopupEnabled(Profile* profile) {
 }
 
 bool ShouldCreateAimPopupPresenter(Profile* profile) {
-  if (!IsAimPopupFeatureEnabled()) {
-    return false;
-  }
-  if (!base::FeatureList::IsEnabled(kOmniboxAimPopupRequireEligibility)) {
-    return true;
-  }
-  return IsAimPopupEnabled(profile);
+  return false;
 }
 
 bool IsOmniboxEverywhereEligible(Profile* profile) {
@@ -484,7 +458,6 @@ bool IsDeepSearchEnabled(Profile* profile) {
 }
 
 bool AreContextualTasksEligible(Profile* profile) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!profile) {
     return false;
   }
@@ -505,9 +478,6 @@ bool AreContextualTasksEligible(Profile* profile) {
   }
 
   return true;
-#else
-  return false;
-#endif
 }
 
 std::unique_ptr<
@@ -555,10 +525,6 @@ const base::FeatureParam<bool> kShowContextMenuTabPreviews(
     &internal::kWebUIOmniboxAimPopup,
     "Omnibox_ShowContextMenuTabPreviews",
     true);
-const base::FeatureParam<bool> kShowLensSearchChip(
-    &internal::kWebUIOmniboxSimplification,
-    "Omnibox_ShowLensSearchChip",
-    false);
 const base::FeatureParam<bool> kShowSmartCompose(
     &internal::kWebUIOmniboxAimPopup,
     "Omnibox_ShowSmartCompose",

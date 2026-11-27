@@ -76,7 +76,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/actions/actions.h"
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "components/device_reauth/mock_device_authenticator.h"
 #endif
 
@@ -153,7 +153,7 @@ class TestPasswordManagerClient
         /*types=*/{syncer::UserSelectableType::kPasswords});
   }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   MOCK_METHOD(std::unique_ptr<device_reauth::DeviceAuthenticator>,
               GetDeviceAuthenticator,
               (),
@@ -2113,7 +2113,7 @@ TEST_F(ManagePasswordsUIControllerTest,
 
 // The following test is being run on platforms that support device
 // authentication, as on others the callback is stubbed to return `true`.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(ManagePasswordsUIControllerTest, PasswordDetails_IsntShownIfAuthFailed) {
   auto mock_authenticator =
       std::make_unique<device_reauth::MockDeviceAuthenticator>();
@@ -2551,7 +2551,7 @@ TEST_F(ManagePasswordsUIControllerTest, UsernameAdded) {
 
 TEST_F(ManagePasswordsUIControllerTest, IsDeviceAuthenticatorObtained) {
   base::MockCallback<base::OnceCallback<void(bool)>> result_callback;
-#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_WIN)
   EXPECT_CALL(result_callback, Run(/*success=*/true));
 #else
   auto mock_authenticator =
@@ -2650,7 +2650,7 @@ TEST_F(ManagePasswordsUIControllerTest, PasswordChangeFinishedSuccessfully) {
   ASSERT_EQ(controller()->GetState(), password_manager::ui::MANAGE_STATE);
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 TEST_F(ManagePasswordsUIControllerTest,
        ShouldShowBiometricAuthenticationForFillingPromo) {
   std::vector<PasswordForm> best_matches;

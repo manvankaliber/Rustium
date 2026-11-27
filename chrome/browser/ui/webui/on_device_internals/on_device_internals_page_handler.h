@@ -36,10 +36,6 @@ class PageHandler : public mojom::PageHandler,
   using Service = on_device_model::mojom::OnDeviceModelService;
   Service& GetService();
 
-#if BUILDFLAG(USE_CHROMEOS_MODEL_SERVICE)
-  using PlatformService = on_device_model::mojom::OnDeviceModelPlatformService;
-  PlatformService& GetPlatformService();
-#endif
 
   void OnModelAssetsLoaded(
       mojo::PendingReceiver<on_device_model::mojom::OnDeviceModel> model,
@@ -84,9 +80,6 @@ class PageHandler : public mojom::PageHandler,
   on_device_model::mojom::DevicePerformanceInfoPtr perf_info_;
   on_device_model::mojom::DeviceInfoPtr device_info_;
 
-#if BUILDFLAG(USE_CHROMEOS_MODEL_SERVICE)
-  mojo::Remote<PlatformService> platform_service_;
-#endif
   // Logger to receive the debug logs from the optimization guide service. Not
   // owned. Guaranteed to outlive |this|, since the logger is owned by the
   // optimization guide keyed service, while |this| is part of

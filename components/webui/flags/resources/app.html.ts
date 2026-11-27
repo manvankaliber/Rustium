@@ -83,11 +83,6 @@ export function getHtml(this: AppElement) {
     <div class="blurb-container">
       <span class="blurb-warning">$i18n{page-warning}</span>
       <span>$i18n{page-warning-explanation}</span>
-<if expr="is_chromeos">
-      <p id="owner-warning" ?hidden="${!this.data.showOwnerWarning}">
-        $i18n{owner-warning}
-      </p>
-</if>
     </div>
     <p id="promos" ?hidden="${!this.shouldShowPromos_()}">
       <!-- Those strings are not localized because they only
@@ -135,7 +130,6 @@ export function getHtml(this: AppElement) {
         </div>
         <div class="no-match" role="alert" hidden>$i18n{no-results}</div>
       </div>
-<if expr="not is_ios">
       <div id="tab-content-unavailable" class="tab-content"
           ?selected="${this.isTabSelected_(1)}"
           role="tabpanel" aria-labelledby="tab-unavailable" aria-hidden="false">
@@ -148,14 +142,12 @@ export function getHtml(this: AppElement) {
         </div>
         <div class="no-match" role="alert" hidden>$i18n{no-results}</div>
       </div>
-</if>
     </div>
     <div id="needs-restart" ?show="${this.needsRestart}"
         role="${this.getNeedsRestartRole_()}">
       <div class="flex-container">
         <div class="flex restart-notice">$i18n{flagsRestartNotice}</div>
         <div class="flex">
-<if expr="not is_ios">
           <cr-button id="experiment-restart-button" class="action-button"
               ?disabled="${!this.needsRestart}"
               @click="${this.onRestartButtonClick_}"
@@ -163,7 +155,6 @@ export function getHtml(this: AppElement) {
               @blur="${this.onRestartButtonBlur_}">
             $i18n{relaunch}
           </cr-button>
-</if>
         </div>
       </div>
     </div>

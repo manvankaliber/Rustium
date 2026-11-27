@@ -52,10 +52,6 @@
 #include "util/posix/signals.h"
 #include "util/thread/thread.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <android/api-level.h>
-#include <android/set_abort_message.h>
-#endif
 
 namespace crashpad {
 namespace test {
@@ -139,9 +135,6 @@ constexpr char kTestAnnotationValue[] = "value_of_annotation";
 constexpr char kTestAttachmentName[] = "test_attachment";
 constexpr char kTestAttachmentContent[] = "attachment_content";
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr char kTestAbortMessage[] = "test abort message";
-#endif
 
 void ValidateAttachment(const CrashReportDatabase::UploadReport* report) {
   auto attachments = report->GetAttachments();
@@ -182,14 +175,6 @@ void ValidateDump(const StartHandlerForSelfTestOptions& options,
   ProcessSnapshotMinidump minidump_snapshot;
   ASSERT_TRUE(minidump_snapshot.Initialize(report->Reader()));
 
-#if BUILDFLAG(IS_ANDROID)
-  if (android_get_device_api_level() >= 29) {
-    const auto& annotations = minidump_snapshot.AnnotationsSimpleMap();
-    auto abort_message = annotations.find("abort_message");
-    ASSERT_NE(annotations.end(), abort_message);
-    EXPECT_EQ(kTestAbortMessage, abort_message->second);
-  }
-#endif
   ValidateAttachment(report);
 
   ValidateExtraMemory(options, minidump_snapshot);
@@ -416,9 +401,6 @@ CRASHPAD_CHILD_TEST_MAIN(StartHandlerForSelfTestChild) {
     client.SetLastChanceExceptionHandler(HandleCrashSuccessfullyAfterReporting);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  android_set_abort_message(kTestAbortMessage);
-#endif
 
   if (options.crash_non_main_thread) {
     CrashThread thread(options, &client);

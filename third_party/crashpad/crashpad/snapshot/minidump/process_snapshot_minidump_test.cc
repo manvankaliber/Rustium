@@ -883,7 +883,7 @@ TEST(ProcessSnapshotMinidump, System) {
   minidump_system_info.ProcessorRevision = 3;
   minidump_system_info.NumberOfProcessors = 8;
   minidump_system_info.ProductType = kMinidumpOSTypeServer;
-  minidump_system_info.PlatformId = kMinidumpOSFuchsia;
+  minidump_system_info.PlatformId = kMinidumpOSLinux;
   minidump_system_info.MajorVersion = 3;
   minidump_system_info.MinorVersion = 4;
   minidump_system_info.BuildNumber = 56;
@@ -939,7 +939,7 @@ TEST(ProcessSnapshotMinidump, System) {
   EXPECT_EQ(s->CPURevision(), 3UL);
   EXPECT_EQ(s->CPUVendor(), "GenuineIntel");
   EXPECT_EQ(s->GetOperatingSystem(),
-            SystemSnapshot::OperatingSystem::kOperatingSystemFuchsia);
+            SystemSnapshot::OperatingSystem::kOperatingSystemLinux);
   EXPECT_EQ(s->OSVersionFull(), "MyOSVersion");
 
   int major, minor, bugfix;
@@ -962,7 +962,7 @@ TEST(ProcessSnapshotMinidump, ThreadContextARM64) {
 
   minidump_system_info.ProcessorArchitecture = kMinidumpCPUArchitectureARM64;
   minidump_system_info.ProductType = kMinidumpOSTypeServer;
-  minidump_system_info.PlatformId = kMinidumpOSFuchsia;
+  minidump_system_info.PlatformId = kMinidumpOSLinux;
   minidump_system_info.CSDVersionRva = WriteString(&string_file, "");
 
   MINIDUMP_DIRECTORY minidump_system_info_directory = {};
@@ -1052,7 +1052,7 @@ TEST(ProcessSnapshotMinidump, ThreadContextX86_64) {
 
   minidump_system_info.ProcessorArchitecture = kMinidumpCPUArchitectureAMD64;
   minidump_system_info.ProductType = kMinidumpOSTypeServer;
-  minidump_system_info.PlatformId = kMinidumpOSFuchsia;
+  minidump_system_info.PlatformId = kMinidumpOSLinux;
   minidump_system_info.CSDVersionRva = WriteString(&string_file, "");
 
   MINIDUMP_DIRECTORY minidump_system_info_directory = {};
@@ -1469,7 +1469,7 @@ TEST(ProcessSnapshotMinidump, Exception) {
 
   minidump_system_info.ProcessorArchitecture = kMinidumpCPUArchitectureARM64;
   minidump_system_info.ProductType = kMinidumpOSTypeServer;
-  minidump_system_info.PlatformId = kMinidumpOSFuchsia;
+  minidump_system_info.PlatformId = kMinidumpOSLinux;
   minidump_system_info.CSDVersionRva = WriteString(&string_file, "");
 
   MINIDUMP_DIRECTORY minidump_system_info_directory = {};

@@ -101,12 +101,6 @@ _builder(
 )
 
 _builder(
-    name = "linux-chromeos-asan-rel",
-    contact_team_email = "chrome-sanitizer-builder-owners@google.com",
-    mirror_of = "ci/ChromiumOS ASAN Release",
-)
-
-_builder(
     name = "linux-msan-chained-origins-rel",
     contact_team_email = "chrome-sanitizer-builder-owners@google.com",
     mirror_of = "ci/MSAN Release (chained origins)",
@@ -141,12 +135,6 @@ _builder(
     contact_team_email = "chrome-sanitizer-builder-owners@google.com",
     mirror_of = "ci/UBSan vptr Release",
 )
-
-_mirror_builder(name = "android-desktop-x64-libfuzzer-asan", executable = "recipe:chromium/fuzz")
-
-_mirror_builder(name = "android-desktop-x64-asan-rel")
-
-_mirror_builder(name = "android-arm64-libfuzzer-hwasan", executable = "recipe:chromium/fuzz")
 
 _fuzzer_upload_mirror_builder(
     name = "mac-arm64-libfuzzer-asan-rel",
@@ -220,8 +208,6 @@ def _test_builder(**kwargs):
         },
         **kwargs
     )
-
-_test_builder(name = "chromeos-x64-libfuzzer-asan-rel-tests")
 
 _test_builder(name = "linux-x64-libfuzzer-asan-dbg-tests")
 

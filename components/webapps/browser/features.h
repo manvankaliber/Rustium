@@ -22,12 +22,6 @@ inline constexpr int kTotalDaysToStoreMLGuardrails = 180;
 // Min icon size when using favicon to install webapp.
 inline constexpr int kMinimumFaviconSize = 48;
 
-#if BUILDFLAG(IS_ANDROID)
-BASE_DECLARE_FEATURE(kWebApkInstallFailureNotification);
-BASE_DECLARE_FEATURE(kAndroidAutoMintedTWA);
-BASE_DECLARE_FEATURE(kAlwaysShowInstallDisambiguationDialog);
-BASE_DECLARE_FEATURE(kAndroidInstallAnyPageAsDiyAppStopgap);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 BASE_DECLARE_FEATURE(kInstallableRootFaviconFallback);
 

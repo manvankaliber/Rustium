@@ -28,7 +28,7 @@
 #include "media/base/video_decoder_config.h"
 #include "media/base/video_frame.h"
 #include "media/base/video_frame_layout.h"
-#include "media/gpu/chromeos/fourcc.h"
+#include "media/gpu/linux/fourcc.h"
 #include "media/gpu/media_gpu_export.h"
 #include "media/gpu/v4l2/v4l2_device_poller.h"
 #include "media/gpu/v4l2/v4l2_queue.h"

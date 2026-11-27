@@ -255,13 +255,11 @@ ExtensionActionViewModel::ExtensionActionViewModel(
 }
 
 ExtensionActionViewModel::~ExtensionActionViewModel() {
-#if !BUILDFLAG(IS_ANDROID)
   // On Android, the UI is destroyed by the Java coordinator before the native
   // model is destroyed.
   // TODO(crbug.com/574714884): CHECK-exclusion: Convert to a CHECK once we are
   // confident it won't be triggered.
   DCHECK(!IsShowingPopup());
-#endif
   delegate_->DetachFromModel();
 }
 

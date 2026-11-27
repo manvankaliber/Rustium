@@ -420,7 +420,6 @@ class GWSPageLoadMetricsObserverContextMenuNaviBrowserTest
     : public GWSPageLoadMetricsObserverBrowserTest {
  public:
   GWSPageLoadMetricsObserverContextMenuNaviBrowserTest() {
-    feature_list_.InitAndDisableFeature(lens::features::kLensOverlay);
   }
 
  private:

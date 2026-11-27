@@ -14,7 +14,7 @@ using testing::ElementsAre;
 namespace blink {
 
 // Death tests don't work properly on Android.
-#if defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#if defined(GTEST_HAS_DEATH_TEST)
 
 class PaintControllerUnderInvalidationTest
     : private ScopedPaintUnderInvalidationCheckingForTest,
@@ -341,6 +341,6 @@ TEST_F(PaintControllerUnderInvalidationTest,
   }
 }
 
-#endif  // defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 }  // namespace blink

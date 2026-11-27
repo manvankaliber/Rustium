@@ -337,9 +337,8 @@ class ContextLostIntegrationTest(gpu_integration_test.GpuIntegrationTest):
     self, test_path: str
   ) -> None:
     os_name = self.browser.platform.GetOSName()
-    if os_name != 'android':
-      logging.info('Skipping test because not running on Android')
-      return
+    logging.info('Skipping test because not running on Android')
+    return
 
     self.RestartBrowserIfNecessaryWithArgs(
       [

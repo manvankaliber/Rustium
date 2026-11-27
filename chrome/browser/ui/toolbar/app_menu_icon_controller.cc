@@ -30,7 +30,6 @@
 
 namespace {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Maps an upgrade level to a severity level. When |show_very_low_upgrade_level|
 // is true, VERY_LOW through HIGH all return Severity::LOW. Otherwise, VERY_LOW
 // is ignored and LOW through HIGH return their respective Severity level, with
@@ -89,7 +88,6 @@ AppMenuIconController::Severity SeverityFromError(GlobalError* error) {
   }
   NOTREACHED();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Return true if the browser is updating on the dev or canary channels.
 bool IsUnstableChannel() {
@@ -150,7 +148,6 @@ void AppMenuIconController::UpdateDelegate() {
 
 AppMenuIconController::TypeAndSeverity
 AppMenuIconController::GetTypeAndSeverity() const {
-#if !BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   // Display the badge immediately if a restart is scheduled. By default in
   // production, the first nudge interval (14 days) occurs well after upgrade
@@ -184,7 +181,6 @@ AppMenuIconController::GetTypeAndSeverity() const {
                         ->GetHighestSeverityGlobalErrorWithAppMenuItem()) {
     return {IconType::kGlobalError, SeverityFromError(error)};
   }
-#endif
 
   return {IconType::kNone, Severity::kNone};
 }

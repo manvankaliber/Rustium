@@ -24,11 +24,11 @@
 #include "partition_alloc/partition_alloc_check.h"
 #include "partition_alloc/thread_isolation/thread_isolation.h"
 
-#if PA_BUILDFLAG(IS_ANDROID) || PA_BUILDFLAG(IS_LINUX)
+#if PA_BUILDFLAG(IS_LINUX)
 #include <sys/prctl.h>
 #endif
 
-#if PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
 #include <sys/resource.h>
 #endif
 
@@ -88,9 +88,6 @@ uintptr_t SystemAllocPagesInternal(uintptr_t hint,
     // call, they must be set initially. iOS has per-thread W^X state that
     // takes precedence over the mapping's permissions for MAP_JIT regions.
     // See https://developer.apple.com/forums/thread/672804
-#if PA_BUILDFLAG(IS_IOS)
-    access_flag = PROT_READ | PROT_WRITE | PROT_EXEC;
-#endif
   }
 #endif
 

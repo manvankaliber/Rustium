@@ -1038,9 +1038,6 @@ public class ByteStringTest {
   /** Tests ByteString uses Arrays based byte copier when running under Hotstop VM. */
   @Test
   public void testByteArrayCopier() throws Exception {
-    if (Android.isOnAndroidDevice()) {
-      return;
-    }
     Field field = ByteString.class.getDeclaredField("byteArrayCopier");
     field.setAccessible(true);
     Object byteArrayCopier = field.get(null);

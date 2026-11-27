@@ -28,12 +28,7 @@
 #include "mediapipe/framework/port/ret_check.h"
 #include "mediapipe/util/resource_util.h"
 #include "tensorflow/lite/interpreter.h"  // from @litert
-#if defined(MEDIAPIPE_MOBILE)
-#include "mediapipe/util/android/file/base/file.h"
-#include "mediapipe/util/android/file/base/helpers.h"
-#else
 #include "mediapipe/framework/port/file_helpers.h"
-#endif
 
 namespace mediapipe {
 

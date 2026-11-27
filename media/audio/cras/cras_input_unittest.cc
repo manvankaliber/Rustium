@@ -25,9 +25,6 @@
 
 // cras_util.h defines custom min/max macros which break compilation, so ensure
 // it's not included until last.  #if avoids presubmit errors.
-#if BUILDFLAG(USE_CRAS)
-#include "media/audio/cras/cras_input.h"
-#endif
 
 using testing::_;
 using testing::AtLeast;

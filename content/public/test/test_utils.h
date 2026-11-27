@@ -24,9 +24,6 @@
 #include "third_party/blink/public/mojom/fetch/fetch_api_request.mojom-forward.h"
 #include "third_party/blink/public/mojom/loader/referrer.mojom-forward.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include <jni.h>
-#endif
 
 namespace base {
 class CommandLine;

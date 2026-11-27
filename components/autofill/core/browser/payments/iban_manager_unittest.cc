@@ -111,14 +111,7 @@ class IbanManagerTest : public testing::Test {
     Suggestion iban_suggestion(SuggestionType::kIbanEntry);
     const std::u16string iban_identifier =
         iban.GetIdentifierStringForAutofillDisplay();
-    if constexpr (BUILDFLAG(IS_ANDROID)) {
-      if (!iban.nickname().empty()) {
-        iban_suggestion.main_text.value = iban.nickname();
-        iban_suggestion.minor_texts.emplace_back(iban_identifier);
-      } else {
-        iban_suggestion.main_text.value = iban_identifier;
-      }
-    } else {
+    {
       if (iban.nickname().empty()) {
         iban_suggestion.main_text = Suggestion::Text(
             iban_identifier, Suggestion::Text::IsPrimary(true));

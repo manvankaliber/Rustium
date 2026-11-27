@@ -2,7 +2,6 @@ use cfg_aliases::cfg_aliases;
 
 fn main() {
     cfg_aliases! {
-        android: { target_os = "android" },
         dragonfly: { target_os = "dragonfly" },
         ios: { target_os = "ios" },
         freebsd: { target_os = "freebsd" },
@@ -21,7 +20,6 @@ fn main() {
         apple_targets: { any(ios, macos, watchos, tvos, visionos) },
         bsd: { any(freebsd, dragonfly, netbsd, openbsd, apple_targets) },
         bsd_without_apple: { any(freebsd, dragonfly, netbsd, openbsd) },
-        linux_android: { any(android, linux) },
         freebsdlike: { any(dragonfly, freebsd) },
         netbsdlike: { any(netbsd, openbsd) },
         solarish: { any(illumos, solaris) },

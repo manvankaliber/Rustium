@@ -21,11 +21,7 @@
 #include "components/prefs/pref_service.h"
 #include "components/safe_browsing/core/common/safe_browsing_prefs.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/safety_hub/password_status_check_result_android.h"
-#else  // BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/safety_hub/extensions_result.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -58,9 +54,7 @@ SafetyHubModuleInfoElement::SafetyHubModuleInfoElement(
 SafetyHubMenuNotificationService::SafetyHubMenuNotificationService(
     PrefService* pref_service,
     RevokedPermissionsService* revoked_permissions_service,
-#if !BUILDFLAG(IS_ANDROID)
     PasswordStatusCheckService* password_check_service,
-#endif  // !BUILDFLAG(IS_ANDROID)
     Profile* profile) {
   pref_service_ = std::move(pref_service);
   const base::DictValue& stored_notifications =
@@ -90,7 +84,6 @@ SafetyHubMenuNotificationService::SafetyHubMenuNotificationService(
 // Extensions are not available on Android, so we cannot fetch any information
 // about them. Passwords are handled by GMS Core on Android and our
 // PasswordStatusCheckService is not compatible with GMS Core.
-#if !BUILDFLAG(IS_ANDROID)
   pref_dict_key_map_.emplace(safety_hub::SafetyHubModuleType::EXTENSIONS,
                              "extensions");
   SetInfoElement(
@@ -111,16 +104,6 @@ SafetyHubMenuNotificationService::SafetyHubMenuNotificationService(
                             base::Unretained(password_check_service)),
         stored_notifications);
   }
-#else   // !BUILDFLAG(IS_ANDROID)
-  pref_dict_key_map_.emplace(safety_hub::SafetyHubModuleType::PASSWORDS,
-                             "passwords");
-  SetInfoElement(
-      safety_hub::SafetyHubModuleType::PASSWORDS,
-      MenuNotificationPriority::HIGH, kPasswordCheckNotificationInterval,
-      base::BindRepeating(&PasswordStatusCheckResultAndroid::GetResult,
-                          base::Unretained(pref_service)),
-      stored_notifications);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Listen for changes to the Safe Browsing pref to accommodate the trigger
   // logic.

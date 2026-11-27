@@ -88,12 +88,6 @@ class AccountPreviewDataServiceImpl : public AccountPreviewDataService,
       const GaiaId& gaia_id,
       base::OnceCallback<void(std::optional<AccountPreviewPreference>)>
           callback) override;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void GetPreferredAccountForSigninAsync(
-      base::OnceCallback<void(std::optional<AccountPreviewPreference>)>
-          callback,
-      base::TimeDelta timeout) override;
-#endif
 
   // Retrieves the cached preview data. Exposed specifically for testing.
   // Note: This may not be available if the browser restarted and no fetch has
@@ -101,12 +95,6 @@ class AccountPreviewDataServiceImpl : public AccountPreviewDataService,
   std::optional<AccountPreviewData> GetAccountPreviewData(
       const GaiaId& gaia_id) const;
 
-#if BUILDFLAG(IS_ANDROID)
-  void UpdateExternalAppAccount(
-      const std::optional<std::string>& email) override;
-
-  std::optional<GaiaId> GetExternalAppAccountForTesting() const;
-#endif
 
   bool HasActiveFetcherForTesting(const GaiaId& gaia_id) const;
   AccountPreviewDataFetcher* GetFetcherForTesting(const GaiaId& gaia_id) const;
@@ -182,14 +170,6 @@ class AccountPreviewDataServiceImpl : public AccountPreviewDataService,
   void WriteSwitchingAccountToPrefs(
       std::optional<AccountPreviewPreference> preference);
 
-#if BUILDFLAG(IS_ANDROID)
-  std::optional<GaiaId> ReadExternalAppAccountFromPrefs() const;
-  void WriteExternalAppAccountToPrefs(const GaiaId& gaia_id,
-                                      base::Time timestamp);
-  void ClearExternalAppAccount();
-  void CleanUpExternalAppAccountIfExpired();
-  void CleanUpExternalAppAccountIfNotOnDevice();
-#endif
 
   raw_ptr<SigninClient> signin_client_ = nullptr;
   raw_ptr<IdentityManager> identity_manager_ = nullptr;
@@ -203,9 +183,6 @@ class AccountPreviewDataServiceImpl : public AccountPreviewDataService,
 
   std::unique_ptr<PersistentRepeatingTimer> repeating_timer_;
   base::OnceClosure deferred_fetch_on_loaded_tokens_callback_;
-#if BUILDFLAG(IS_ANDROID)
-  base::OnceClosure deferred_external_app_account_update_callback_;
-#endif
 
   base::OnceClosure fetch_complete_callback_for_testing_;
   base::OnceClosure all_data_available_callback_for_testing_;
@@ -239,18 +216,6 @@ class AccountPreviewDataServiceImpl : public AccountPreviewDataService,
   base::ScopedObservation<IdentityManager, IdentityManager::Observer>
       identity_manager_observation_{this};
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  struct PendingPreferredAccountRequest;
-  // Called when a preferred account request times out.
-  void OnPendingPreferredAccountRequestTimedOut(
-      PendingPreferredAccountRequest* request);
-  void ResolvePendingPreferredAccountRequests(
-      std::optional<AccountPreviewPreference> preference);
-  // Requests originating from `GetPreferredAccountForSigninAsync()` that
-  // wait for the preferred account computation to complete.
-  std::vector<std::unique_ptr<PendingPreferredAccountRequest>>
-      pending_preferred_account_requests_;
-#endif
 
   base::WeakPtrFactory<AccountPreviewDataServiceImpl> weak_ptr_factory_{this};
 };

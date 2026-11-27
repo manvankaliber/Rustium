@@ -13,7 +13,7 @@
 import os
 import pathlib
 
-from path_utils import isInAshFolder, getTargetPath
+from path_utils import getTargetPath
 
 _CWD = os.getcwd().replace('\\', '/')
 _HERE_DIR = os.path.dirname(__file__)
@@ -58,14 +58,6 @@ _allowed_compiler_options = {
   'types': None,
 }
 
-_ash_configs = [
-  'ash/webui/camera_app_ui/resources/tsconfig_base.json',
-  'ash/webui/recorder_app_ui/resources/tsconfig_base.json',
-  'chrome/browser/resources/chromeos/desk_api/tsconfig_base.json',
-  'chrome/test/data/webui/chromeos/ash_common/tsconfig_base.json',
-  'tools/typescript/tsconfig_base_polymer_cros.json',
-  'third_party/cros-components/tsconfig_base.json',
-]
 
 
 def validateTsconfigJson(tsconfig, tsconfig_file, is_base_tsconfig):
@@ -74,8 +66,6 @@ def validateTsconfigJson(tsconfig, tsconfig_file, is_base_tsconfig):
   if 'third_party/material_web_components/tsconfig_base.json' in tsconfig_file:
     return True, None
 
-  if 'third_party/cros-components/tsconfig_base.json' in tsconfig_file:
-    return True, None
 
   # TODO(b/267329383): Migrate A11y to TypeScript. Accessibility code has
   # different requirements for the migration because of this we need both
@@ -104,23 +94,15 @@ def validateTsconfigJson(tsconfig, tsconfig_file, is_base_tsconfig):
           + 'ts_library() instead.',
         )
 
-    if 'ui/file_manager' in tsconfig_file:
-      # File manager uses ts_library() in an unsupported way. Just return true
-      # here for this special case.
-      return True, None
 
     if not is_base_tsconfig:
       for param, param_value in tsconfig['compilerOptions'].items():
         if param not in _allowed_compiler_options:
-          if (
-            param != 'useDefineForClassFields'
-            or tsconfig_file not in _ash_configs
-          ):
-            return (
-              False,
-              f'Disallowed |{param}| flag detected in '
-              + f'\'{tsconfig_file}\'.',
-            )
+          return (
+            False,
+            f'Disallowed |{param}| flag detected in '
+            + f'\'{tsconfig_file}\'.',
+          )
         else:
           allowed_values = _allowed_compiler_options[param]
           if allowed_values is not None and param_value not in allowed_values:
@@ -139,46 +121,8 @@ def validateTsconfigJson(tsconfig, tsconfig_file, is_base_tsconfig):
 # Note 2: Only add a directory here if you are in the process of migrating
 # legacy JS code to TS. Any new entries here should be accompanied by a bug
 # tracking the TS migration.
-def validateJavaScriptAllowed(source_dir, out_dir, platform):
-  # Special case for iOS, which sets the root src/ directory as the source
-  # directory for the ts_library() call, see
-  # ios/web/public/js_messaging/compile_ts.gni.
-  # We don't want to generally allow allow_js anywhere in src/ so check the
-  # output directory against the standard ios directories instead. This is a
-  # really broad check so also use the platform to make sure this is not abused
-  # elsewhere; the iOS use case of using allowJs broadly is not supported.
-  if platform == 'ios' and '/ios/' in out_dir:
-    return True, None
+def validateJavaScriptAllowed(source_dir, out_dir):
 
-  if platform == 'chromeos_ash':
-    # Anything in these ChromeOS-specific directories is allowed to use allow_js.
-    # TODO (rbpotter): If possible, standardize the build setup in some of these
-    # folders such that they can be more accurately specified in the list below.
-    ash_directories = [
-      'ash/webui/annotator/resources/untrusted/',
-      'ash/webui/camera_app_ui/',
-      'ash/webui/common/resources/',
-      'ash/webui/file_manager/resources/labs/',
-      # TODO(b/314827247): Migrate media_app_ui to TypeScript and remove
-      # exception.
-      'ash/webui/media_app_ui/',
-      # TODO(b/313562946): Migrate help_app_ui mojo pipeline to TypeScript and
-      # remove.
-      'ash/webui/help_app_ui/',
-      # TODO(b/267329383): Migrate A11y to TypeScript.
-      'chrome/browser/resources/chromeos/accessibility',
-      'chrome/browser/resources/chromeos/account_manager',
-      'chrome/browser/resources/chromeos/drive_internals',
-      'chrome/browser/resources/chromeos/sys_internals',
-      'chrome/test/data/webui/chromeos',
-      'chrome/test/data/webui/chromeos/ash_common',
-      'chrome/test/data/webui/chromeos/nearby_share',
-      'chrome/test/data/webui/cr_components/chromeos',
-      'ui/file_manager/',
-    ]
-    for directory in ash_directories:
-      if directory in source_dir:
-        return True, None
 
   # Specific exceptions for directories that are still migrating to TS.
   migrating_directories = [
@@ -211,21 +155,8 @@ def validateJavaScriptAllowed(source_dir, out_dir, platform):
   )
 
 
-def isMappingAllowed(is_ash_target, target_path, mapping_path):
-  if is_ash_target:
-    return True
-
-  return not isInAshFolder(mapping_path) or target_path in exceptions
 
 
-# TODO (https://www.crbug.com/1412158): Remove all exceptions below and this
-# function; these build targets rely on implicitly unmapped dependencies.
-def isUnsupportedJsTarget(gen_dir, root_gen_dir):
-  target_path = getTargetPath(gen_dir, root_gen_dir)
-  exceptions = [
-    'chrome/browser/resources/chromeos/accessibility/select_to_speak',
-  ]
-  return target_path in exceptions
 
 
 # |root_dir| shouldn't refer to any parent directories. Specifically it should
@@ -233,7 +164,7 @@ def isUnsupportedJsTarget(gen_dir, root_gen_dir):
 #   - within the folder tree starting at the ts_library() target's location
 #   - within the folder tree starting at the ts_library() target's corresponding
 #     target_gen_dir location.
-def validateRootDir(root_dir, gen_dir, root_gen_dir, is_ios):
+def validateRootDir(root_dir, gen_dir, root_gen_dir):
   root_gen_dir_from_build = os.path.normpath(
     os.path.join(gen_dir, root_gen_dir)
   ).replace('\\', '/')
@@ -241,25 +172,7 @@ def validateRootDir(root_dir, gen_dir, root_gen_dir, is_ios):
     '\\', '/'
   )
 
-  # Broadly special casing ios/ for now, since compile_ts.gni relies on
-  # unsupported behavior of setting the root_dir to src/.
-  # TODO (https://www.crbug.com/493269336): Make iOS TypeScript build tools use
-  # ts_library in a supported way, or change them to not rely on ts_library.
-  if is_ios and (
-    'ios' in pathlib.Path(target_path).parts
-    or 'ios_internal' in pathlib.Path(target_path).parts
-  ):
-    return True, None
 
-  # Legacy cases supported for backward-compatibility. Do not add new targets
-  # here. The existing exceptions should be removed over time.
-  exceptions = [
-    # ChromeOS cases
-    'ash/webui/color_internals/mojom',
-  ]
-
-  if target_path in exceptions:
-    return True, None
 
   target_path_src = os.path.relpath(
     os.path.join(_SRC_DIR, target_path), _CWD

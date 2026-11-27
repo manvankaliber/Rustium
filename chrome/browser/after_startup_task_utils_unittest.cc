@@ -32,9 +32,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/abseil-cpp/absl/strings/str_format.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#endif
 
 namespace {
 
@@ -167,7 +164,6 @@ class AfterStartupTaskTest : public testing::Test {
   }
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 
 // Arbitrary, since this uses a mock clock, as long as it's less than the
 // kStartupDelayFailsafeTimeout feature param.
@@ -325,7 +321,6 @@ INSTANTIATE_TEST_SUITE_P(
         StartupObserverFeatureParams::kFeatureEnabledWaitForLoad,
         StartupObserverFeatureParams::kFeatureEnabledWaitForLoadOrTimeout));
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -396,7 +391,6 @@ TEST_F(AfterStartupTaskTest, PostTask) {
   EXPECT_EQ(2, ui_thread_->ran_task_count());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 TEST_F(AfterStartupTaskTest, StartupInProgressRef_NoRefs) {
   base::HistogramTester histogram_tester;
@@ -901,29 +895,3 @@ TEST_P(StartupObserverTest, SilentLaunchCompletesImmediately) {
       "Startup.BrowserStartupCompleteReason",
       StartupIsCompleteReason::kStartupRegistrationDone, 1);
 }
-
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_P(StartupObserverTest,
-       ChromeOSLoginManagerWithNoStartupWindowStillObservesPages) {
-  base::test::ScopedCommandLine scoped_command_line;
-  scoped_command_line.GetProcessCommandLine()->AppendSwitch(
-      switches::kNoStartupWindow);
-  scoped_command_line.GetProcessCommandLine()->AppendSwitch(
-      ash::switches::kLoginManager);
-
-  AfterStartupTaskUtils::BeginMonitoringStartupCompletionForTesting(graph());
-
-  auto page_node = CreateNode<PageNodeImpl>();
-  page_node->SetType(PageType::kTab);
-  page_node->SetIsVisible(true);
-
-  if (ExpectImmediateStartupComplete()) {
-    return;
-  }
-
-  page_node->SetLoadingState(PageNode::LoadingState::kLoadedIdle);
-  ExpectVisiblePageLoaded();
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#endif  // !BUILDFLAG(IS_ANDROID)

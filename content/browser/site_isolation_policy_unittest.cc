@@ -82,34 +82,6 @@ TEST_F(SiteIsolationPolicyTest, DisableSiteIsolationSwitch) {
   EXPECT_FALSE(SiteIsolationPolicy::IsErrorPageIsolationEnabled(false));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Since https://crbug.com/910273, the kDisableSiteIsolationForPolicy switch is
-// only available/used on Android.
-TEST_F(SiteIsolationPolicyTest, DisableSiteIsolationForPolicySwitch) {
-  // Skip this test if the --site-per-process switch is present (e.g. on Site
-  // Isolation Android chromium.fyi bot).  The test is still valid if
-  // SitePerProcess is the default (e.g. via ContentBrowserClient's
-  // ShouldEnableStrictSiteIsolation method) - don't skip the test in such case.
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-          switches::kSitePerProcess)) {
-    return;
-  }
-
-  SiteIsolationPolicy::DisableFlagCachingForTesting();
-  base::test::ScopedCommandLine scoped_command_line;
-  base::CommandLine* command_line = scoped_command_line.GetProcessCommandLine();
-  command_line->AppendSwitch(switches::kDisableSiteIsolationForPolicy);
-  EXPECT_FALSE(SiteIsolationPolicy::UseDedicatedProcessesForAllSites());
-  EXPECT_FALSE(SiteIsolationPolicy::AreIsolatedOriginsEnabled());
-  EXPECT_FALSE(SiteIsolationPolicy::AreDynamicIsolatedOriginsEnabled());
-
-  // Main frame error page isolation should not be affected by
-  // --disable-site-isolation-... switches, but subframe error page isolation
-  // should be disabled.
-  EXPECT_TRUE(SiteIsolationPolicy::IsErrorPageIsolationEnabled(true));
-  EXPECT_FALSE(SiteIsolationPolicy::IsErrorPageIsolationEnabled(false));
-}
-#endif
 
 // Check that subframe error page isolation is turned off when the embedder
 // disables partial site isolation (e.g., when chrome/ is running on a

@@ -22,11 +22,6 @@
 #include "gpu/vulkan/vulkan_instance.h"
 #endif
 
-#if BUILDFLAG(SKIA_USE_DAWN) && BUILDFLAG(IS_CHROMEOS)
-#include "gpu/command_buffer/service/dawn_context_provider.h"
-#include "gpu/command_buffer/service/drm_modifiers_filter_dawn.h"
-#include "third_party/dawn/include/dawn/webgpu_cpp.h"  // nogncheck
-#endif
 
 
 
@@ -40,9 +35,6 @@ void InitializePlatformForGpu(bool enable_native_gpu_memory_buffers,
   params.single_process = single_process;
   params.enable_native_gpu_memory_buffers = enable_native_gpu_memory_buffers;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  params.allow_sync_and_real_buffer_page_flip_testing = true;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ui::OzonePlatform::InitializeForGPU(params);
 }
 
@@ -93,14 +85,6 @@ void AfterSandboxEntryAndSetDrmModifiersFilter(
     filter_set = true;
   }
 #endif  // BUILDFLAG(ENABLE_VULKAN)
-#if BUILDFLAG(SKIA_USE_DAWN) && BUILDFLAG(IS_CHROMEOS)
-  if (params.dawn_context_provider && factory->SupportsDrmModifiersFilter()) {
-    CHECK(!filter_set);
-    factory->SetDrmModifiersFilter(std::make_unique<DrmModifiersFilterDawn>(
-        params.dawn_context_provider->GetDevice().GetAdapter()));
-    filter_set = true;
-  }
-#endif  // BUILDFLAG(SKIA_USE_DAWN) && BUILDFLAG(IS_CHROMEOS)
 }
 
 } // namespace gpu::gpu_init_internal

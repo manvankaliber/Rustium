@@ -23,9 +23,6 @@
 #include "chrome/browser/win/parental_controls.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/partner_browser_customizations.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 using policy::IncognitoModeAvailability;
 
@@ -66,10 +63,6 @@ void IncognitoModePrefs::RegisterProfilePrefs(
   registry->RegisterIntegerPref(
       policy::policy_prefs::kIncognitoModeAvailability,
       static_cast<int>(kDefaultAvailability));
-#if BUILDFLAG(IS_ANDROID)
-  registry->RegisterBooleanPref(prefs::kIncognitoReauthenticationForAndroid,
-                                false);
-#endif
 }
 
 // static
@@ -136,8 +129,6 @@ bool IncognitoModePrefs::IsIncognitoTypeAllowed(
 bool IncognitoModePrefs::ArePlatformParentalControlsEnabled() {
 #if BUILDFLAG(IS_WIN)
   return GetWinParentalControls().logging_required;
-#elif BUILDFLAG(IS_ANDROID)
-  return android::PartnerBrowserCustomizations::IsIncognitoDisabled();
 #else
   return false;
 #endif

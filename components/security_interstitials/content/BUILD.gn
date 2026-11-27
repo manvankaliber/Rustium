@@ -105,21 +105,12 @@ static_library("security_interstitial_page") {
     deps += [ "//components/captive_portal/content" ]
   }
 
-  if (is_win || is_mac || is_fuchsia) {
+  if (is_win || is_mac) {
     deps += [ "//components/wifi" ]
   }
 
   if (is_win) {
     sources += [ "captive_portal_helper_win.cc" ]
-  }
-
-  if (is_android) {
-    sources += [
-      "captive_portal_helper_android.cc",
-      "captive_portal_helper_android.h",
-    ]
-    deps +=
-        [ "//components/security_interstitials/content/android:jni_headers" ]
   }
 
   if (enable_guest_view) {

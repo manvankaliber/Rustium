@@ -23,13 +23,10 @@
     <output filename="permission_element_strings_en-GB.pak" type="data_package" lang="en-GB" />
     <output filename="permission_element_strings_en-US.pak" type="data_package" lang="en" />
     <output filename="permission_element_strings_es.pak" type="data_package" lang="es" />
-    <if expr="is_ios">
-      <!-- iOS uses es-MX for es-419 -->
-      <output filename="permission_element_strings_es-MX.pak" type="data_package" lang="es-419" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="permission_element_strings_es-419.pak" type="data_package" lang="es-419" />
-    </if>
+
     <output filename="permission_element_strings_et.pak" type="data_package" lang="et" />
     <output filename="permission_element_strings_eu.pak" type="data_package" lang="eu" />
     <output filename="permission_element_strings_fa.pak" type="data_package" lang="fa" />
@@ -70,13 +67,10 @@
     <output filename="permission_element_strings_nb.pak" type="data_package" lang="no" />
     <output filename="permission_element_strings_pa.pak" type="data_package" lang="pa" />
     <output filename="permission_element_strings_pl.pak" type="data_package" lang="pl" />
-    <if expr="is_ios">
-      <!-- iOS uses pt for pt-BR -->
-      <output filename="permission_element_strings_pt.pak" type="data_package" lang="pt-BR" />
-    </if>
-    <if expr="not is_ios">
+
+
       <output filename="permission_element_strings_pt-BR.pak" type="data_package" lang="pt-BR" />
-    </if>
+
     <output filename="permission_element_strings_pt-PT.pak" type="data_package" lang="pt-PT" />
     <output filename="permission_element_strings_or.pak" type="data_package" lang="or" />
     <output filename="permission_element_strings_ro.pak" type="data_package" lang="ro" />

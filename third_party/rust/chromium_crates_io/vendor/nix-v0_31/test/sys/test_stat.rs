@@ -65,7 +65,7 @@ fn assert_stat_results(stat_result: Result<FileStat>) {
 
 #[cfg(not(any(target_os = "netbsd", target_os = "redox")))]
 // (Android's st_blocks is ulonglong which is always non-negative.)
-#[cfg_attr(target_os = "android", allow(unused_comparisons))]
+
 #[allow(clippy::absurd_extreme_comparisons)] // Not absurd on all OSes
 fn assert_lstat_results(stat_result: Result<FileStat>) {
     let stats = stat_result.expect("stat call failed");

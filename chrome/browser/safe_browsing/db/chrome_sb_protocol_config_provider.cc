@@ -32,9 +32,6 @@ std::string GetProtocolConfigClientName() {
 #endif
 
   // Mark client string to allow server to differentiate mobile.
-#if BUILDFLAG(IS_ANDROID)
-  client_name.append("-a");
-#endif
 
 #endif  // BUILDFLAG(IS_WIN)
 

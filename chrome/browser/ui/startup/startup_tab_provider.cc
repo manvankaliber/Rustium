@@ -58,14 +58,12 @@
 #include "chrome/browser/shell_integration.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/search/search.h"
 #include "chrome/browser/ui/webui/new_tab_page/new_tab_page_ui.h"
 #include "chrome/browser/ui/webui/whats_new/whats_new_util.h"
 #include "chrome/common/webui_url_constants.h"
 #include "extensions/browser/extension_registry.h"
 #include "extensions/common/manifest_handlers/chrome_url_overrides_handler.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #include "chrome/browser/headless/headless_mode_util.h"
@@ -191,13 +189,11 @@ CommandLineTabsPresent StartupTabProviderImpl::HasCommandLineTabs(
                     : CommandLineTabsPresent::kNo;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 StartupTabs StartupTabProviderImpl::GetNewFeaturesTabs(
     bool whats_new_enabled) const {
   return GetNewFeaturesTabsForState(whats_new_enabled);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // static
 StartupTabs StartupTabProviderImpl::GetInitialPrefsTabsForState(
@@ -279,7 +275,6 @@ StartupTabs StartupTabProviderImpl::GetNewTabPageTabsForState(
   return tabs;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // static
 StartupTabs StartupTabProviderImpl::GetNewFeaturesTabsForState(
     bool whats_new_enabled) {
@@ -290,7 +285,6 @@ StartupTabs StartupTabProviderImpl::GetNewFeaturesTabsForState(
   return tabs;
 }
 
-#endif
 
 // static
 GURL StartupTabProviderImpl::GetTriggeredResetSettingsUrl() {

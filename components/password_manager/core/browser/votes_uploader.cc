@@ -609,7 +609,6 @@ void VotesUploader::MaybeSendSingleUsernameVotes() {
 // was added, but Android votes were never evaluated.
 // TODO(crbug.com/40279590): Verify if the votes are produced as expected on
 // Android and enable UFF voting.
-#if !BUILDFLAG(IS_ANDROID)
   bool should_send_votes =
       (should_send_username_first_flow_votes_ ||
        std::ranges::any_of(single_username_votes_data_,
@@ -639,7 +638,6 @@ void VotesUploader::MaybeSendSingleUsernameVotes() {
       }
     }
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Don't set is_most_recent_single_username_candidate for FPF votes, since
   // this is unrelated to FPF.

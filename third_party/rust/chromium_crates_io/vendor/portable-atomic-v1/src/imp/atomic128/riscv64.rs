@@ -32,7 +32,7 @@ mod fallback;
 
 #[cfg(not(portable_atomic_no_outline_atomics))]
 #[cfg(any(test, not(any(target_feature = "zacas", portable_atomic_target_feature = "zacas"))))]
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg(target_os = "linux")]
 #[path = "../detect/riscv_linux.rs"]
 mod detect;
 

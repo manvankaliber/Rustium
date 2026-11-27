@@ -5,8 +5,7 @@ features:
   can_be_recommended: false
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 items:
 - caption: Enable background graphics printing mode by default
   name: enabled

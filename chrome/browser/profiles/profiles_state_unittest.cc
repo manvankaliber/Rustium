@@ -29,16 +29,11 @@
 #include "content/public/test/browser_task_environment.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "chrome/browser/startup_data.h"
-#endif
 
 namespace {
 
 constexpr char kProfile1[] = "Profile 1";
 
-#if !BUILDFLAG(IS_ANDROID)
 // Params for the parameterized test IsGuestModeRequestedTest.
 struct IsGuestModeRequestedTestParams {
   bool has_switch;
@@ -60,11 +55,9 @@ const IsGuestModeRequestedTestParams kIsGuestModeRequestedParams[] {
   {  false,       false,          false,         false},
 };
 // clang-format on
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
-#if !BUILDFLAG(IS_ANDROID)
 class IsGuestModeRequestedTest
     : public testing::TestWithParam<IsGuestModeRequestedTestParams> {};
 
@@ -181,23 +174,7 @@ INSTANTIATE_TEST_SUITE_P(ProfilesState,
                          IsGuestModeEnabledTest,
                          testing::Bool());
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID)
-// On Android, multiple profiles are only enabled with kAndroidMultiprofile.
-TEST(ProfilesStateTest, MultipleProfilesFollowAndroidMultiprofileFeature) {
-  {
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndEnableFeature(chrome::android::kAndroidMultiprofile);
-    EXPECT_TRUE(profiles::IsMultipleProfilesEnabled());
-  }
-  {
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndDisableFeature(chrome::android::kAndroidMultiprofile);
-    EXPECT_FALSE(profiles::IsMultipleProfilesEnabled());
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class GetLastUsedProfileBaseNameTest : public testing::Test {
  public:
@@ -205,10 +182,6 @@ class GetLastUsedProfileBaseNameTest : public testing::Test {
     local_state_.registry()->RegisterStringPref(prefs::kProfileLastUsed,
                                                 std::string());
     local_state_.registry()->RegisterDictionaryPref(prefs::kProfileAttributes);
-#if BUILDFLAG(IS_ANDROID)
-    feature_list_.InitAndEnableFeature(
-        features::kAndroidMultiprofileStartupData);
-#endif
   }
 
  protected:
@@ -225,14 +198,8 @@ class GetLastUsedProfileBaseNameTest : public testing::Test {
     return profiles::GetLastUsedProfileBaseName(local_state_);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void TestProfileBaseNameForStartupImpl(bool startup_data_enabled);
-#endif
 
   TestingPrefServiceSimple local_state_;
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList feature_list_;
-#endif
 };
 
 TEST_F(GetLastUsedProfileBaseNameTest, ReturnsInitialProfileWhenUnset) {
@@ -257,51 +224,8 @@ TEST_F(GetLastUsedProfileBaseNameTest, ReturnsKnownLastUsedProfile) {
   EXPECT_EQ(base::FilePath::FromASCII(kProfile1), GetLastUsedProfileBaseName());
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(GetLastUsedProfileBaseNameTest, AndroidIgnoresUnknownProfile) {
-  SetLastUsedProfile(kProfile1);
-  EXPECT_EQ(base::FilePath::FromASCII(chrome::kInitialProfile),
-            GetLastUsedProfileBaseName());
-
-  SetLastUsedProfile("..");
-  EXPECT_EQ(base::FilePath::FromASCII(chrome::kInitialProfile),
-            GetLastUsedProfileBaseName());
-}
-
-TEST_F(GetLastUsedProfileBaseNameTest,
-       AndroidReturnsUnknownLastUsedProfileWhenDisabled) {
-  base::test::ScopedFeatureList disabled;
-  disabled.InitAndDisableFeature(features::kAndroidMultiprofileStartupData);
-  SetLastUsedProfile(kProfile1);
-
-  EXPECT_EQ(base::FilePath::FromASCII(kProfile1), GetLastUsedProfileBaseName());
-}
-
-TEST_F(GetLastUsedProfileBaseNameTest, AndroidStartsWithLastUsedProfile) {
-  TestProfileBaseNameForStartupImpl(/*startup_data_enabled=*/true);
-}
-
-TEST_F(GetLastUsedProfileBaseNameTest,
-       AndroidStartsWithInitialProfileWhenDisabled) {
-  TestProfileBaseNameForStartupImpl(/*startup_data_enabled=*/false);
-}
-
-void GetLastUsedProfileBaseNameTest::TestProfileBaseNameForStartupImpl(
-    bool startup_data_enabled) {
-  base::test::ScopedFeatureList feature_list;
-  feature_list.InitWithFeatureState(features::kAndroidMultiprofileStartupData,
-                                    startup_data_enabled);
-  SetLastUsedProfile(kProfile1);
-  AddKnownProfile(kProfile1);
-
-  EXPECT_EQ(base::FilePath::FromASCII(
-                startup_data_enabled ? kProfile1 : chrome::kInitialProfile),
-            StartupData::GetProfileBaseNameForStartup(local_state_));
-}
-#else
 TEST_F(GetLastUsedProfileBaseNameTest, ReturnsUnknownLastUsedProfile) {
   SetLastUsedProfile(kProfile1);
 
   EXPECT_EQ(base::FilePath::FromASCII(kProfile1), GetLastUsedProfileBaseName());
 }
-#endif  // BUILDFLAG(IS_ANDROID)

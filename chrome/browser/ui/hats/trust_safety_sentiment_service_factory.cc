@@ -57,8 +57,7 @@ TrustSafetySentimentServiceFactory::BuildServiceInstanceForBrowserContext(
     content::BrowserContext* context) const {
   // TrustSafetySentimentSurvey is conducted only for Windows, MacOS and Linux
   // currently.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || \
-    (BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS))
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 
   // TrustSafetySentimentSurvey is conducted only in English currently.
   static constexpr auto kSurveyLocales =

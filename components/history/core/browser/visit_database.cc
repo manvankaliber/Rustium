@@ -341,29 +341,13 @@ bool VisitDatabase::FillVisitVectorWithOptions(sql::Statement& statement,
       }
 
       bool is_actor_visit = false;
-#if !BUILDFLAG(IS_IOS)
       is_actor_visit = visit.source == SOURCE_ACTOR;
-#endif
 
       // Make sure the (URLID, is_actor_visit) is unique.
       DedupeKey key = std::make_pair(visit.url_id, is_actor_visit);
       auto it = found_urls.find(key);
 
       if (it != found_urls.end()) {
-#if defined(ANDROID)
-        // The visit with app ID is preferred. Replace the already added visit
-        // with a new one if it doesn't have an app ID but the new one does.
-        VisitRow& ov = it->second;
-        if (!ov.app_id && visit.app_id) {
-          auto is_matched = [ov](VisitRow v) {
-            return ov.url_id == v.url_id && ov.source == v.source;
-          };
-          auto pos = std::find_if(visits->begin(), visits->end(), is_matched);
-          CHECK(pos != visits->end());
-          *pos = visit;
-          found_urls[key] = visit;
-        }
-#endif
         continue;
       }
       found_urls[key] = visit;
@@ -607,7 +591,6 @@ bool VisitDatabase::PrepareVisibleVisitsQuery(
 
 // TODO(crbug.com/457641486) Clean up preprocessor statements once feature is
 // rolled out.
-#if !BUILDFLAG(IS_IOS)
   sql += ", IFNULL(visit_source.source, 1)";
   joins += " LEFT JOIN visit_source ON visits.id = visit_source.id";
 
@@ -621,7 +604,6 @@ bool VisitDatabase::PrepareVisibleVisitsQuery(
     where_clauses.push_back("visit_source.source = ?");
     binding_values.push_back(SOURCE_ACTOR);
   }
-#endif
 
   if (options.policy_for_404_visits == VisitQuery404sPolicy::kExclude404s) {
     joins +=

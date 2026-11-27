@@ -114,7 +114,7 @@ class FieldTrialToStruct(unittest.TestCase):
   _MULTIPLE_PLATFORM_CONFIG = {
     'Trial1': [
       {
-        'platforms': ['windows', 'ios', 'android_desktop'],
+        'platforms': ['windows', 'android_desktop'],
         'is_low_end_device': 'true',
         'experiments': [
           {
@@ -131,7 +131,7 @@ class FieldTrialToStruct(unittest.TestCase):
           },
         ],
       },
-      {'platforms': ['ios'], 'experiments': [{'name': 'IOSOnly'}]},
+      {'platforms': [], 'experiments': [{'name': 'IOSOnly'}]},
     ],
     'Trial2': [
       {'platforms': ['windows', 'mac'], 'experiments': [{'name': 'OtherGroup'}]}
@@ -140,7 +140,7 @@ class FieldTrialToStruct(unittest.TestCase):
 
   def test_FieldTrialToDescriptionMultipleSinglePlatformMultipleTrial(self):
     result = fieldtrial_to_struct._FieldTrialConfigToDescription(
-      self._MULTIPLE_PLATFORM_CONFIG, ['ios']
+      self._MULTIPLE_PLATFORM_CONFIG, []
     )
     expected = {
       'elements': {
@@ -214,7 +214,7 @@ class FieldTrialToStruct(unittest.TestCase):
 
   def test_FieldTrialToDescriptionMultiplePlatforms(self):
     result = fieldtrial_to_struct._FieldTrialConfigToDescription(
-      self._MULTIPLE_PLATFORM_CONFIG, ['ios', 'android_desktop']
+      self._MULTIPLE_PLATFORM_CONFIG, ['android_desktop']
     )
     expected = {
       'elements': {

@@ -56,11 +56,6 @@ class GIN_EXPORT V8Initializer {
       base::MemoryMappedFile::Region* snapshot_file_region,
       V8SnapshotFileType snapshot_file_type);
 
-#if BUILDFLAG(IS_ANDROID)
-  static base::FilePath GetSnapshotFilePath(
-      bool abi_32_bit,
-      V8SnapshotFileType snapshot_file_type);
-#endif
 
 #if BUILDFLAG(IS_WIN)
   // Returns the resolved path for a V8 startup data file (`file_name`),

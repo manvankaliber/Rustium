@@ -15,11 +15,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/chromeos/policy/dlp/dlp_content_tab_helper.h"
-#include "chrome/test/base/chrome_render_view_host_test_harness.h"
-#include "content/public/browser/web_contents.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -107,19 +102,5 @@ TEST_F(ChromeExtensionsAPIClientTest, ShouldHideBrowserNetworkRequest) {
       nullptr /* context */, WebRequestInfo(std::move(params))));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-using ChromeExtensionsAPIClientDlpTest = ChromeRenderViewHostTestHarness;
-
-TEST_F(ChromeExtensionsAPIClientDlpTest,
-       AttachWebContentsHelpersCreatesDlpTabHelper) {
-  auto ignore_dlp_rules_manager =
-      policy::DlpContentTabHelper::IgnoreDlpRulesManagerForTesting();
-
-  ChromeExtensionsAPIClient client;
-  client.AttachWebContentsHelpers(web_contents());
-  EXPECT_NE(nullptr,
-            policy::DlpContentTabHelper::FromWebContents(web_contents()));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace extensions

@@ -201,18 +201,6 @@ CC_BASE_EXPORT BASE_DECLARE_FEATURE(kThrottleMainFrameTo60Hz);
 // and Worker requestAnimationFrame() to 60Hz.
 CC_BASE_EXPORT BASE_DECLARE_FEATURE(kThrottleOffscreenCanvasTo60Hz);
 
-#if BUILDFLAG(IS_ANDROID)
-// Same as above, for WebView.
-CC_BASE_EXPORT BASE_DECLARE_FEATURE(kThrottleMainFrameTo60HzWebView);
-
-// Same as above, for Desktop Android.
-CC_BASE_EXPORT BASE_DECLARE_FEATURE(kThrottleMainFrameTo60HzDesktopAndroid);
-
-// When enabled, compositor limit settings (such as visible GPU memory limit,
-// prepaint percentage, and image decode cache budget) on Desktop Android are
-// unified with other desktop platforms. This is only for Chromium, not WebView.
-CC_BASE_EXPORT BASE_DECLARE_FEATURE(kDesktopAndroidUnifiedCompositorLimits);
-#endif
 
 // When enabled, clients can request a high framerate, which disables
 // throttling. This is intended to be used when the client knows that the
@@ -276,14 +264,6 @@ CC_BASE_EXPORT BASE_DECLARE_FEATURE_PARAM(
 CC_BASE_EXPORT BASE_DECLARE_FEATURE(
     kScrollJankV4MetricFastScrollContinuityRequiresSameDirection);
 
-#if BUILDFLAG(IS_ANDROID)
-// When enabled, the V4 scroll jank metric will report statistics via
-// `View.reportAppJankStats()` on Android at the end of each damaging scroll.
-CC_BASE_EXPORT BASE_DECLARE_FEATURE(
-    kScrollJankV4MetricReportAndroidAppJankStats);
-
-bool ShouldScrollJankV4MetricReportAndroidAppJankStats();
-#endif
 
 // When enabled, AsyncLayerTreeFrameSink will generate its own BeginFrameArgs
 // when auto_needs_begin_frame_ is enabled.

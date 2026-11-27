@@ -10,10 +10,8 @@
 #include "net/base/url_util.h"
 #include "net/test/embedded_test_server/embedded_test_server.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/web_applications/test/web_app_install_test_utils.h"
 #include "chrome/browser/web_applications/web_app_provider.h"
-#endif
 
 AppBannerManagerBrowserTestBase::AppBannerManagerBrowserTestBase() = default;
 
@@ -24,10 +22,8 @@ void AppBannerManagerBrowserTestBase::SetUpOnMainThread() {
 
   PlatformBrowserTest::SetUpOnMainThread();
 
-#if !BUILDFLAG(IS_ANDROID)
   web_app::test::WaitUntilReady(
       web_app::WebAppProvider::GetForTest(browser()->GetProfile()));
-#endif
 }
 
 GURL AppBannerManagerBrowserTestBase::GetBannerURL() {

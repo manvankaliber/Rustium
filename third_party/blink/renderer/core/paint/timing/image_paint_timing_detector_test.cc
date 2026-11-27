@@ -1333,15 +1333,7 @@ TEST_P(ImagePaintTimingDetectorTest, LargestImagePaint_FullViewportImage) {
       entry, UkmPaintTiming::kLCPDebugging_HasViewportImageName, true);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/1353921): This test is flaky on Android. Fix it.
-// https://chrome-swarming.appspot.com/task?id=60c68038be22f011
-// The first EXPECT_EQ(0u, events.size()) below failed.
-#define MAYBE_LargestImagePaint_Detached_Frame \
-  DISABLED_LargestImagePaint_Detached_Frame
-#else
 #define MAYBE_LargestImagePaint_Detached_Frame LargestImagePaint_Detached_Frame
-#endif
 
 TEST_P(ImagePaintTimingDetectorTest, MAYBE_LargestImagePaint_Detached_Frame) {
   using trace_analyzer::Query;

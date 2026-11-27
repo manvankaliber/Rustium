@@ -36,9 +36,7 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "third_party/abseil-cpp/absl/container/flat_hash_map.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "components/autofill/core/browser/payments/test_credit_card_fido_authenticator.h"
-#endif
 
 
 namespace autofill::autofill_metrics {
@@ -173,21 +171,15 @@ void AutofillMetricsBaseTest::SetUpHelper() {
   CreateAutofillDriver();
   autofill_driver().SetLocalFrameToken(test::MakeLocalFrameToken());
 
-#if !BUILDFLAG(IS_IOS)
   test_api(*autofill_manager().GetCreditCardAccessManager())
       .set_fido_authenticator(std::make_unique<TestCreditCardFidoAuthenticator>(
           &autofill_driver(), &autofill_client()));
-#endif
 
   // Initialize the TestPersonalDataManager with some default data.
   CreateTestAutofillProfiles();
 
   // Mandatory re-auth is required for credit card autofill on automotive, so
   // the authenticator response needs to be properly mocked.
-#if BUILDFLAG(IS_ANDROID)
-  payments_autofill_client()
-      .SetUpDeviceBiometricAuthenticatorSuccessOnAutomotive();
-#endif
 }
 
 void AutofillMetricsBaseTest::TearDownHelper() {
@@ -235,11 +227,9 @@ void AutofillMetricsBaseTest::RecreateProfile() {
 void AutofillMetricsBaseTest::SetFidoEligibility(bool is_verifiable) {
   CreditCardAccessManager& access_manager =
       *autofill_manager().GetCreditCardAccessManager();
-#if !BUILDFLAG(IS_IOS)
   static_cast<TestCreditCardFidoAuthenticator*>(
       access_manager.GetOrCreateFidoAuthenticator())
       ->SetUserVerifiable(is_verifiable);
-#endif
   static_cast<payments::TestPaymentsNetworkInterface*>(
       payments_autofill_client().GetPaymentsNetworkInterface())
       ->AllowFidoRegistration(true);
@@ -340,9 +330,7 @@ void AutofillMetricsBaseTest::CreateCreditCards(
     CreditCard local_credit_card = test::GetCreditCard();
     local_credit_card.set_guid(kTestLocalCardId);
     if (include_cvc_in_cards) {
-#if !BUILDFLAG(IS_IOS)
       local_credit_card.set_cvc(u"123");
-#endif
     }
     paydm().AddCreditCard(local_credit_card);
   }
@@ -358,9 +346,7 @@ void AutofillMetricsBaseTest::CreateCreditCards(
           CreditCard::VirtualCardEnrollmentState::kEnrolled);
     }
     if (include_cvc_in_cards) {
-#if !BUILDFLAG(IS_IOS)
       masked_server_credit_card.set_cvc(u"123");
-#endif
     }
     personal_data().test_payments_data_manager().AddServerCreditCard(
         masked_server_credit_card);

@@ -24,29 +24,7 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "base/test/scoped_running_on_chromeos.h"
-#include "chrome/browser/ash/drive/drive_integration_service.h"
-#include "chrome/browser/ash/drive/drive_integration_service_factory.h"
-#include "chrome/browser/ash/file_manager/path_util.h"
-#include "chrome/browser/ash/file_manager/volume_manager.h"
-#include "chrome/browser/ash/login/users/fake_chrome_user_manager.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#include "chrome/test/base/testing_browser_process.h"
-#include "chromeos/ash/components/dbus/cros_disks/cros_disks_client.h"
-#include "chromeos/ash/components/disks/disk_mount_manager.h"
-#include "chromeos/ash/components/disks/fake_disk_mount_manager.h"
-#include "components/drive/drive_pref_names.h"
-#include "components/user_manager/scoped_user_manager.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/functional/bind.h"
-#include "base/functional/callback_helpers.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#endif
 
 using safe_browsing::FileTypePolicies;
 
@@ -71,15 +49,6 @@ TEST(DownloadPrefsTest, RegisterPrefs) {
   TestingProfile profile;
   DownloadPrefs prefs(&profile);
 
-#if BUILDFLAG(IS_ANDROID)
-  // Download prompt prefs should be registered correctly.
-  histogram_tester.ExpectBucketCount("MobileDownload.DownloadPromptStatus",
-                                     DownloadPromptStatus::SHOW_INITIAL, 1);
-  int prompt_status = profile.GetTestingPrefService()->GetInteger(
-      prefs::kPromptForDownloadAndroid);
-  EXPECT_EQ(prompt_status,
-            static_cast<int>(DownloadPromptStatus::SHOW_INITIAL));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 TEST(DownloadPrefsTest, NoAutoOpenByUserForDisallowedFileTypes) {
@@ -377,24 +346,15 @@ TEST(DownloadPrefsTest, Pdf) {
   EXPECT_FALSE(prefs.IsAutoOpenByUserUsed());
   EXPECT_FALSE(prefs.IsAutoOpenEnabled(kURL, kPdfFile));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // ChromeOS always has a "SystemReader" that opens in a tab.
-  EXPECT_TRUE(prefs.ShouldOpenPdfInSystemReader());
-#elif BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   EXPECT_FALSE(prefs.ShouldOpenPdfInSystemReader());
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   prefs.SetShouldOpenPdfInSystemReader(true);
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Using the system reader does not imply auto-open on ChromeOS.
-  EXPECT_FALSE(prefs.IsAutoOpenByUserUsed());
-  EXPECT_FALSE(prefs.IsAutoOpenEnabled(kURL, kPdfFile));
-  EXPECT_TRUE(prefs.ShouldOpenPdfInSystemReader());
-#elif BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   EXPECT_TRUE(prefs.IsAutoOpenByUserUsed());
   EXPECT_TRUE(prefs.IsAutoOpenEnabled(kURL, kPdfFile));
   EXPECT_TRUE(prefs.ShouldOpenPdfInSystemReader());
@@ -513,221 +473,6 @@ TEST(DownloadPrefsTest, DefaultPathChangedToInvalidValue) {
             download_prefs.GetDefaultDownloadDirectory());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void ExpectValidDownloadDir(Profile* profile,
-                            DownloadPrefs* prefs,
-                            base::FilePath path) {
-  profile->GetPrefs()->SetString(prefs::kDownloadDefaultDirectory,
-                                 path.value());
-  EXPECT_TRUE(prefs->DownloadPath().IsAbsolute());
-  EXPECT_EQ(prefs->DownloadPath(), path);
-}
 
-TEST(DownloadPrefsTest, DownloadDirSanitization) {
-  content::BrowserTaskEnvironment task_environment;
-
-  TestingProfile profile(base::FilePath("/home/chronos/u-0123456789abcdef"));
-  DownloadPrefs prefs(&profile);
-  const base::FilePath default_dir =
-      prefs.GetDefaultDownloadDirectoryForProfile();
-  AccountId account_id = AccountId::FromUserEmailGaiaId(
-      profile.GetProfileUserName(), GaiaId("12345"));
-  const std::string drivefs_profile_salt = "a";
-  base::FilePath removable_media_dir;
-  base::FilePath android_files_dir;
-  base::FilePath linux_files_dir;
-
-  removable_media_dir = ash::CrosDisksClient::GetRemovableDiskMountPoint();
-  android_files_dir = base::FilePath(file_manager::util::GetAndroidFilesPath());
-  linux_files_dir = file_manager::util::GetCrostiniMountDirectory(&profile);
-
-  // Test a valid subdirectory of downloads.
-  ExpectValidDownloadDir(&profile, &prefs, default_dir.AppendASCII("testdir"));
-
-  // Test with an invalid path outside the permitted paths.
-  profile.GetPrefs()->SetString(prefs::kDownloadDefaultDirectory,
-                                "/home/chronos");
-  EXPECT_EQ(prefs.DownloadPath(), default_dir);
-
-  // Test with an invalid path containing parent references.
-  base::FilePath parent_reference = default_dir.AppendASCII("..");
-  profile.GetPrefs()->SetString(prefs::kDownloadDefaultDirectory,
-                                parent_reference.value());
-  EXPECT_EQ(prefs.DownloadPath(), default_dir);
-
-  // Test a valid path for Android files.
-  ExpectValidDownloadDir(&profile, &prefs,
-                         android_files_dir.AppendASCII("Documents"));
-  // Test with an invalid path for Android files (can't directly download to
-  // "Android Files").
-  profile.GetPrefs()->SetString(prefs::kDownloadDefaultDirectory,
-                                android_files_dir.value());
-  EXPECT_EQ(prefs.DownloadPath(), default_dir);
-
-  // Linux files root.
-  ExpectValidDownloadDir(&profile, &prefs, linux_files_dir);
-  // Linux files/testdir.
-  ExpectValidDownloadDir(&profile, &prefs,
-                         linux_files_dir.AppendASCII("testdir"));
-
-  // Test with a valid path for Removable media.
-  ExpectValidDownloadDir(&profile, &prefs,
-                         removable_media_dir.AppendASCII("MY_USB_KEY"));
-  // Test with an invalid path for Removable media (must have a disk
-  // sub-directory).
-  profile.GetPrefs()->SetString(prefs::kDownloadDefaultDirectory,
-                                removable_media_dir.value());
-  EXPECT_EQ(prefs.DownloadPath(), default_dir);
-
-  // DriveFS
-  {
-    // Create new profile for enabled feature to work.
-    TestingProfile profile2(base::FilePath("/home/chronos/u-0123456789abcdef"));
-    DownloadPrefs prefs2(&profile2);
-    user_manager::TypedScopedUserManager<ash::FakeChromeUserManager>
-        user_manager{std::make_unique<ash::FakeChromeUserManager>()};
-    const auto* user = user_manager->AddUser(account_id);
-    ash::ProfileHelper::Get()->SetUserToProfileMappingForTesting(user,
-                                                                 &profile2);
-    profile2.GetPrefs()->SetString(drive::prefs::kDriveFsProfileSalt,
-                                   drivefs_profile_salt);
-    auto* integration_service =
-        drive::DriveIntegrationServiceFactory::GetForProfile(&profile2);
-    integration_service->SetEnabled(true);
-
-    // My Drive root.
-    ExpectValidDownloadDir(
-        &profile2, &prefs2,
-        base::FilePath(
-            "/media/fuse/drivefs-84675c855b63e12f384d45f033826980/root"));
-    // My Drive/foo.
-    ExpectValidDownloadDir(
-        &profile2, &prefs2,
-        base::FilePath(
-            "/media/fuse/drivefs-84675c855b63e12f384d45f033826980/root/foo"));
-    // Invalid path without one of the drive roots.
-    const base::FilePath default_dir2 =
-        prefs2.GetDefaultDownloadDirectoryForProfile();
-    profile2.GetPrefs()->SetString(
-        prefs::kDownloadDefaultDirectory,
-        "/media/fuse/drivefs-84675c855b63e12f384d45f033826980");
-    EXPECT_EQ(prefs2.DownloadPath(), default_dir2);
-    profile2.GetPrefs()->SetString(prefs::kDownloadDefaultDirectory,
-                                   "/media/fuse/drivefs-something-else/root");
-    EXPECT_EQ(prefs2.DownloadPath(), default_dir2);
-  }
-
-  // Temp for OneDrive.
-  {
-    base::test::ScopedFeatureList scoped_feature_list;
-    scoped_feature_list.InitAndEnableFeature(ash::features::kSkyVault);
-
-    base::FilePath temp_path;
-    base::GetTempDir(&temp_path);
-    ExpectValidDownloadDir(&profile, &prefs, temp_path);
-  }
-}
-
-// Tests that download path is correct when migrated from old format.
-TEST(DownloadPrefsTest, DownloadPathWithMigrationFromOldFormat) {
-  content::BrowserTaskEnvironment task_environment;
-  base::FilePath default_download_dir =
-      DownloadPrefs::GetDefaultDownloadDirectory();
-  base::FilePath path_from_pref = default_download_dir.Append("a").Append("b");
-  ash::disks::FakeDiskMountManager disk_mount_manager;
-  ash::disks::DiskMountManager::InitializeForTesting(&disk_mount_manager);
-
-  TestingProfile profile(base::FilePath("/home/chronos/u-0123456789abcdef"));
-  base::test::ScopedRunningOnChromeOS running_on_chromeos;
-  // Using a managed pref to set the download dir.
-  profile.GetTestingPrefService()->SetManagedPref(
-      prefs::kDownloadDefaultDirectory, base::FilePathToValue(path_from_pref));
-
-  DownloadPrefs prefs(&profile);
-  // The relative path should be preserved after migration.
-  EXPECT_EQ(prefs.DownloadPath(),
-            base::FilePath("/home/chronos/u-0123456789abcdef/MyFiles/a/b"));
-}
-
-// Tests that default download path pref is migrated from old format.
-TEST(DownloadPrefsTest, DefaultDownloadPathPrefMigrationFromOldFormat) {
-  content::BrowserTaskEnvironment task_environment;
-  ash::disks::FakeDiskMountManager disk_mount_manager;
-  ash::disks::DiskMountManager::InitializeForTesting(&disk_mount_manager);
-
-  TestingProfile profile(base::FilePath("/home/chronos/u-0123456789abcdef"));
-  base::test::ScopedRunningOnChromeOS running_on_chromeos;
-
-  DownloadPrefs prefs(&profile);
-  // The relative path should be preserved after migration.
-  EXPECT_EQ(
-      profile.GetTestingPrefService()->GetFilePath(
-          prefs::kDownloadDefaultDirectory),
-      base::FilePath("/home/chronos/u-0123456789abcdef/MyFiles/Downloads"));
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_ANDROID)
-// Verifies the returned value of PromptForDownload()
-// when prefs::kPromptForDownload is managed by enterprise policy,
-TEST(DownloadPrefsTest, ManagedPromptForDownload) {
-  content::BrowserTaskEnvironment task_environment_;
-  TestingProfile profile;
-  profile.GetTestingPrefService()->SetManagedPref(
-      prefs::kPromptForDownload, std::make_unique<base::Value>(true));
-  DownloadPrefs prefs(&profile);
-
-  profile.GetPrefs()->SetInteger(
-      prefs::kPromptForDownloadAndroid,
-      static_cast<int>(DownloadPromptStatus::DONT_SHOW));
-  EXPECT_TRUE(prefs.PromptForDownload());
-
-  profile.GetTestingPrefService()->SetManagedPref(
-      prefs::kPromptForDownload, std::make_unique<base::Value>(false));
-  EXPECT_FALSE(prefs.PromptForDownload());
-}
-
-TEST(DownloadPrefsTest, PromptForDownload_AndroidDesktopSystemFileDialog) {
-  content::BrowserTaskEnvironment task_environment;
-  base::android::device_info::set_is_desktop_for_testing(true);
-  base::ScopedClosureRunner reset_desktop(base::BindOnce(
-      &base::android::device_info::reset_is_desktop_for_testing));
-  base::test::ScopedFeatureList scoped_feature_list(
-      download::features::kEnableDownloadSaveAsSystemFileDialog);
-
-  TestingProfile profile;
-  DownloadPrefs prefs(&profile);
-
-  // Even though kPromptForDownloadAndroid defaults to SHOW_INITIAL,
-  // PromptForDownload() should default to false (from
-  // prefs::kPromptForDownload).
-  EXPECT_FALSE(prefs.PromptForDownload());
-
-  profile.GetPrefs()->SetBoolean(prefs::kPromptForDownload, true);
-  profile.GetPrefs()->SetInteger(
-      prefs::kPromptForDownloadAndroid,
-      static_cast<int>(DownloadPromptStatus::DONT_SHOW));
-  EXPECT_TRUE(prefs.PromptForDownload());
-
-  profile.GetPrefs()->SetBoolean(prefs::kPromptForDownload, false);
-  profile.GetPrefs()->SetInteger(
-      prefs::kPromptForDownloadAndroid,
-      static_cast<int>(DownloadPromptStatus::SHOW_PREFERENCE));
-  EXPECT_FALSE(prefs.PromptForDownload());
-
-  // When the feature is disabled on desktop, fallback to
-  // kPromptForDownloadAndroid.
-  {
-    base::test::ScopedFeatureList disabled_feature_list;
-    disabled_feature_list.InitAndDisableFeature(
-        download::features::kEnableDownloadSaveAsSystemFileDialog);
-    EXPECT_TRUE(prefs.PromptForDownload());
-  }
-
-  // When not on desktop, fallback to kPromptForDownloadAndroid.
-  base::android::device_info::set_is_desktop_for_testing(false);
-  EXPECT_TRUE(prefs.PromptForDownload());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace

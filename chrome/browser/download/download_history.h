@@ -121,15 +121,8 @@ class DownloadHistory : public download::AllDownloadItemNotifier::Observer {
   // table.
   void QueryCallback(std::vector<history::DownloadRow> rows);
 
-#if BUILDFLAG(IS_ANDROID)
-  void RetrieveDisplayNamesAndLoadHistoryDownloads(
-      std::vector<history::DownloadRow> rows);
-  void LoadHistoryDownloads(const std::vector<history::DownloadRow>& rows,
-                            download::DisplayNames display_names);
-#else
   // Called to create all history downloads.
   void LoadHistoryDownloads(const std::vector<history::DownloadRow>& rows);
-#endif
 
   // May add |item| to |history_|.
   void MaybeAddToHistory(download::DownloadItem* item);

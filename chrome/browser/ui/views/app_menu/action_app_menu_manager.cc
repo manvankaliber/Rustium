@@ -21,14 +21,12 @@
 #include "chrome/browser/browser_process.h"
 #include "chrome/browser/defaults.h"
 #include "chrome/browser/enterprise/isolated_mode/isolated_mode_settings_service_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/media/router/media_router_feature.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/profiles/profile_manager.h"
 #include "chrome/browser/profiles/profiles_state.h"
 #include "chrome/browser/search/background/ntp_custom_background_service_factory.h"
 #include "chrome/browser/sharing_hub/sharing_hub_features.h"
-#include "chrome/browser/ttc/core/ttc_keyed_service.h"
 #include "chrome/browser/ui/actions/actions_util.h"
 #include "chrome/browser/ui/actions/chrome_action_id.h"
 #include "chrome/browser/ui/actions/command_action_updater.h"
@@ -44,11 +42,6 @@
 #include "chrome/browser/global_features.h"
 #include "chrome/browser/lifetime/scheduled_restart_manager.h"
 #endif
-#if BUILDFLAG(IS_CHROMEOS)
-#include "content/public/browser/navigation_controller.h"
-#include "content/public/browser/navigation_entry.h"
-#include "ui/display/screen.h"
-#endif
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/browser/feedback/report_unsafe_site_dialog.h"
@@ -58,7 +51,6 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_utils.h"
 #include "chrome/browser/send_tab_to_self/send_tab_to_self_util.h"
 #include "chrome/browser/ui/color/chrome_color_id.h"
-#include "chrome/browser/ui/lens/lens_overlay_entry_point_controller.h"
 #include "chrome/browser/ui/profiles/profile_view_utils.h"
 #include "chrome/browser/ui/tabs/features.h"
 #include "chrome/browser/ui/tabs/vertical_tab_strip_state_controller.h"
@@ -120,31 +112,12 @@
 
 namespace {
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool IsRequestingTabletSite(BrowserWindowInterface* browser) {
-  if (!browser || !browser->GetTabStripModel()) {
-    return false;
-  }
-  content::WebContents* current_tab =
-      browser->GetTabStripModel()->GetActiveWebContents();
-  if (!current_tab) {
-    return false;
-  }
-  content::NavigationEntry* entry =
-      current_tab->GetController().GetLastCommittedEntry();
-  if (!entry) {
-    return false;
-  }
-  return entry->GetIsOverridingUserAgent();
-}
-#endif
 
 bool ArePromotionsEnabled() {
   PrefService* local_state = g_browser_process->local_state();
   return local_state && local_state->GetBoolean(prefs::kPromotionsEnabled);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::u16string GetProfileName(Profile* profile) {
   if (profile->IsIncognitoProfile() ||
       profile->IsEnterpriseIsolatedModeProfile()) {
@@ -160,7 +133,6 @@ std::u16string GetProfileName(Profile* profile) {
   }
   return std::u16string();
 }
-#endif
 
 bool ShouldAllowOpenInChrome(BrowserWindowInterface* browser) {
   // Isolated Web Apps shouldn't be opened in Chrome.
@@ -617,11 +589,9 @@ void ActionAppMenuManager::AddNotificationActions(actions::ActionItem* root) {
           return;
         }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
         maybe_add_notification(
             kActionSetBrowserAsDefault,
             {.element_id = AppMenuModel::kSetBrowserAsDefaultMenuItem});
-#endif
       });
 }
 
@@ -697,7 +667,6 @@ void ActionAppMenuManager::AddYourChromeActions(actions::ActionItem* root) {
 
         Profile* profile = browser_window_interface_->GetProfile();
 
-#if !BUILDFLAG(IS_CHROMEOS)
         std::u16string profile_name = GetProfileName(profile);
         std::optional<std::u16string> chip_text;
         if (!profile->IsOffTheRecord() && !profile->IsGuestSession() &&
@@ -737,7 +706,6 @@ void ActionAppMenuManager::AddYourChromeActions(actions::ActionItem* root) {
              .item_height = AppMenuActionItem::ItemHeight::kExpanded,
              .element_id = AppMenuModel::kProfileMenuItem});
         section.AddDivider(ui::MenuSeparatorType::MENU_ITEM_SEPARATOR);
-#endif
 
         if (!profile->IsGuestSession()) {
           section.AddSubmenu(
@@ -837,9 +805,7 @@ void ActionAppMenuManager::AddYourChromeActions(actions::ActionItem* root) {
                     {.text_override = l10n_util::GetStringUTF16(
                          bookmark_manager_string_id)});
 
-#if !BUILDFLAG(IS_CHROMEOS)
                 sub_builder.AddAction(kActionImportSettings);
-#endif
 
                 sub_builder.AddDivider();
 
@@ -947,46 +913,8 @@ void ActionAppMenuManager::AddToolsAndActionsActions(
 
         Profile* profile = browser_window_interface_->GetProfile();
 
-        if (glic::GlicEnabling::IsEnabledForProfile(profile)) {
-          section.AddAction(
-              kActionOpenGlic,
-              {.new_badge_feature = &features::kGlicAppMenuNewBadge});
-        }
 
-        if (ttc::TtcKeyedService* service = ttc::TtcKeyedService::Get(profile);
-            service && service->IsEnabled()) {
-          section.AddAction(kActionShowTtcMenu);
-        }
 
-        if (auto* controller = lens::LensOverlayEntryPointController::From(
-                browser_window_interface_);
-            controller && controller->IsEnabled()) {
-          const bool show_ask_google =
-              contextual_tasks::ShouldShowAskGoogleContextMenu(profile);
-          const bool use_submenu =
-              contextual_tasks::ShouldUseContextualTasksContextMenuSubmenu(
-                  profile);
-          auto add_items = [show_ask_google](AppMenuBuilder& target) {
-            if (show_ask_google) {
-              target.AddAction(
-                  kActionAskGoogleAboutThisPageFromAppMenu,
-                  {.new_badge_feature =
-                       &contextual_tasks::kContextualTasksUpdatedEntryPoints,
-                   .element_id = AppMenuModel::kAskGoogleAboutThisPageItem});
-            }
-            target.AddAction(
-                kActionShowLensOverlayFromAppMenu,
-                {.new_badge_feature = &lens::features::kLensOverlay,
-                 .element_id = AppMenuModel::kShowLensOverlay});
-          };
-          if (use_submenu) {
-            section.AddSubmenu(
-                kActionContextualTasksSubmenu, add_items,
-                {.element_id = AppMenuModel::kContextualTasksSubmenuItem});
-          } else {
-            add_items(section);
-          }
-        }
 
         section.AddAction(kActionShowTranslate);
 
@@ -1075,33 +1003,11 @@ void ActionAppMenuManager::AddToolsAndActionsActions(
                  l10n_util::GetStringUTF16(save_and_share_string_id),
              .element_id = AppMenuModel::kSaveAndShareMenuItem});
 
-#if BUILDFLAG(IS_CHROMEOS)
-        if (display::Screen::Get()->InTabletMode()) {
-          section.AddAction(
-              kActionToggleRequestTabletSite,
-              {.text_override =
-                   l10n_util::GetStringUTF16(IDS_TOGGLE_REQUEST_TABLET_SITE),
-               .icon_override = ui::ImageModel::FromVectorIcon(
-                   IsRequestingTabletSite(browser_window_interface_.get())
-                       ? (features::IsRoundedIconsEnabled()
-                              ? kMobileCheckIcon
-                              : kRequestMobileSiteCheckedOldIcon)
-                       : (features::IsRoundedIconsEnabled()
-                              ? kMobileIcon
-                              : kRequestMobileSiteUncheckedOldIcon),
-                   ui::kColorMenuIcon, ui::SimpleMenuModel::kDefaultIconSize)});
-        }
-#endif
 
         section.AddSubmenu(
             kActionDeveloperSubmenu,
             [this](AppMenuBuilder& sub) {
-#if BUILDFLAG(IS_CHROMEOS)
-              const bool is_tablet_mode =
-                  display::Screen::Get()->InTabletMode();
-#else
               const bool is_tablet_mode = false;
-#endif
               if (!is_tablet_mode) {
                 sub.AddAction(kActionTabSearch,
                               {.icon_override = ui::ImageModel::FromVectorIcon(
@@ -1161,9 +1067,6 @@ void ActionAppMenuManager::AddToolsAndActionsActions(
                       {.element_id = ToolsMenuModel::kPerformanceMenuItem})
                   .AddAction(kActionTaskManagerAppMenu);
 
-#if BUILDFLAG(IS_CHROMEOS)
-              sub.AddAction(kActionTakeScreenshot);
-#endif
 
               sub.AddDivider().AddAction(kActionDevTools);
 
@@ -1206,13 +1109,7 @@ void ActionAppMenuManager::AddFooterActions(actions::ActionItem* root) {
 
               sub.AddAction(kActionChromeEnterpriseReleaseNotes);
 
-#if BUILDFLAG(IS_CHROMEOS) && defined(OFFICIAL_BUILD)
-              sub.AddAction(
-                  kActionHelpPageViaMenu,
-                  {.text_override = l10n_util::GetStringUTF16(IDS_GET_HELP)});
-#else
               sub.AddAction(kActionHelpPageViaMenu);
-#endif
 
               Profile* profile = browser_window_interface->GetProfile();
               if (chrome::CanShowFeedback(profile)) {
@@ -1235,7 +1132,6 @@ void ActionAppMenuManager::AddFooterActions(actions::ActionItem* root) {
         }
         section.AddAction(kActionOptions);
 
-#if !BUILDFLAG(IS_CHROMEOS)
         Profile* profile = browser_window_interface->GetProfile();
         if (ShouldDisplayManagedUi(profile)) {
           section.AddAction(
@@ -1245,7 +1141,6 @@ void ActionAppMenuManager::AddFooterActions(actions::ActionItem* root) {
                .icon_override =
                    ui::ImageModel::FromVectorIcon(GetManagedUiIcon(profile))});
         }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
       });
 }
 
@@ -1322,11 +1217,9 @@ void ActionAppMenuManager::AddWebAppActions(actions::ActionItem* root) {
         }
       });
 
-#if !BUILDFLAG(IS_CHROMEOS)
   if (app_browser_controller->IsInstalled()) {
     builder.AddSection(DisplayType::kFooter, [](AppMenuBuilder& section) {
       section.AddAction(kActionUninstallWebApp);
     });
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }

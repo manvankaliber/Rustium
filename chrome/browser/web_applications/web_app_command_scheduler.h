@@ -39,9 +39,6 @@
 #include "components/webapps/browser/uninstall_result_code.h"
 #include "components/webapps/isolated_web_apps/types/iwa_version.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/web_applications/isolated_web_apps/policy/isolated_web_app_cache_client.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_MAC)
 #include "chrome/browser/web_applications/scheduler/rewrite_diy_icons_result.h"
@@ -104,16 +101,6 @@ struct SynchronizeOsOptions;
 struct WebAppIconDiagnosticResult;
 struct WebAppInstallInfo;
 
-#if BUILDFLAG(IS_CHROMEOS)
-class CleanupBundleCacheSuccess;
-class CleanupBundleCacheError;
-class CopyBundleToCacheSuccess;
-enum class CopyBundleToCacheError;
-class GetBundleCachePathSuccess;
-enum class GetBundleCachePathError;
-class RemoveObsoleteBundleVersionsError;
-class RemoveObsoleteBundleVersionsSuccess;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // The command scheduler is the main API to access the web app system. The
 // scheduler internally ensures:
@@ -328,45 +315,6 @@ class WebAppCommandScheduler {
                               std::optional<IwaVersion>)> callback,
       const base::Location& call_location = FROM_HERE);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Gets the path to an IWA bundle in the cache for a given `session_type`. If
-  // `version` is not provided, it returns the path to the newest cached
-  // version.
-  void GetIsolatedWebAppBundleCachePath(
-      const IsolatedWebAppUrlInfo& url_info,
-      const std::optional<IwaVersion>& version,
-      IwaCacheClient::SessionType session_type,
-      base::OnceCallback<void(
-          base::expected<GetBundleCachePathSuccess, GetBundleCachePathError>)>
-          callback,
-      const base::Location& call_location = FROM_HERE);
-
-  // Copies an IWA bundle file to the cache for a given `session_type`.
-  void CopyIsolatedWebAppBundleToCache(
-      const IsolatedWebAppUrlInfo& url_info,
-      IwaCacheClient::SessionType session_type,
-      base::OnceCallback<void(base::expected<CopyBundleToCacheSuccess,
-                                             CopyBundleToCacheError>)> callback,
-      const base::Location& call_location = FROM_HERE);
-
-  // Cleans all IWA cached bundles for a given `session_type` that are not in
-  // the `iwas_to_keep_in_cache` list.
-  void CleanupIsolatedWebAppBundleCache(
-      const std::vector<web_package::SignedWebBundleId>& iwas_to_keep_in_cache,
-      IwaCacheClient::SessionType session_type,
-      base::OnceCallback<void(
-          base::expected<CleanupBundleCacheSuccess, CleanupBundleCacheError>)>
-          callback,
-      const base::Location& call_location = FROM_HERE);
-
-  void RemoveObsoleteIsolatedWebAppVersionsCache(
-      const IsolatedWebAppUrlInfo& url_info,
-      IwaCacheClient::SessionType session_type,
-      base::OnceCallback<
-          void(base::expected<RemoveObsoleteBundleVersionsSuccess,
-                              RemoveObsoleteBundleVersionsError>)> callback,
-      const base::Location& call_location = FROM_HERE);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Gets the StoragePartitionConfig for a <controlledframe> within the given
   // Isolated Web App. If the partition is persistent (not `in_memory`), it is
@@ -636,18 +584,6 @@ class WebAppCommandScheduler {
       base::OnceClosure done,
       const base::Location& location = FROM_HERE);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Records the explicit user choice for "Opening supported links" in
-  // `WebApp::user_link_capturing_preference`. On ChromeOS, App Service keeps
-  // the effective link capturing state. This method does not change App Service
-  // or other apps. Will CHECK-fail if `app_id` is empty. Does nothing if the
-  // app is not installed or is a System Web App. See b/578641259.
-  void SetUserLinkCapturingChoiceOnChromeOs(
-      const webapps::AppId& app_id,
-      bool open_in_app,
-      base::OnceClosure done,
-      const base::Location& location = FROM_HERE);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Runs a series of icon health checks for `app_id`. See
   // `WebAppIconDiagnosticResult` for more information on what diagnostics are

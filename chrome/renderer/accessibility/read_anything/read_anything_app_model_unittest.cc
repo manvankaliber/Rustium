@@ -2358,7 +2358,6 @@ TEST_F(ReadAnythingAppModelTest, IsWhatsNew_FalseForOtherPage) {
 
   EXPECT_FALSE(model().IsWhatsNew());
 }
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ReadAnythingAppModelTest, IsWhatsNew_TrueForWhatsNewPage) {
   ui::AXTreeID tree_id = SetupTree("chrome://whats-new/");
   model().SetRootTreeId(tree_id);
@@ -2455,7 +2454,6 @@ TEST_F(ReadAnythingAppModelTest,
   EXPECT_FALSE(model().has_selection());
 }
 
-#endif
 
 TEST_F(ReadAnythingAppModelTest,
        CheckedStateChanged_DoesNotTriggerDistillationOnOther) {
@@ -4885,7 +4883,6 @@ TEST_F(ReadAnythingAppModelScreen2xTest,
   EXPECT_EQ(model().active_tree_id(), child_tree_id);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ReadAnythingAppModelScreen2xTest,
        CheckedStateChanged_TriggersDistillationOnWhatsNew) {
   ui::AXTreeID tree_id = SetupTree("chrome://whats-new/");
@@ -4903,7 +4900,6 @@ TEST_F(ReadAnythingAppModelScreen2xTest,
 
   EXPECT_TRUE(model().requires_distillation());
 }
-#endif
 
 TEST_F(ReadAnythingAppModelTest, IsEmpty_ReadabilityMainContent) {
   model().set_side_panel_distillation_mode_for_testing(

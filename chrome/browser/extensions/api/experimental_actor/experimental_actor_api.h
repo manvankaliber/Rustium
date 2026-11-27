@@ -5,8 +5,6 @@
 #ifndef CHROME_BROWSER_EXTENSIONS_API_EXPERIMENTAL_ACTOR_EXPERIMENTAL_ACTOR_API_H_
 #define CHROME_BROWSER_EXTENSIONS_API_EXPERIMENTAL_ACTOR_EXPERIMENTAL_ACTOR_API_H_
 
-#include "chrome/browser/actor/actor_keyed_service.h"
-#include "chrome/browser/actor/tab_observation_strategy.h"
 #include "chrome/common/actor.mojom-forward.h"
 #include "components/actor/core/aggregated_journal.h"
 #include "components/actor/core/task_id.h"
@@ -75,26 +73,6 @@ class ExperimentalActorPerformActionsFunction
  protected:
   ~ExperimentalActorPerformActionsFunction() override;
   ResponseAction Run() override;
-  void OnActionsFinished(
-      actor::TaskId task_id,
-      base::TimeTicks start_time,
-      bool skip_async_observation_information,
-      std::optional<page_content_annotations::ScreenshotOptions::
-                        ScreenshotCollectionOptions>
-          screenshot_collection_options,
-      std::vector<actor::ActionResultWithLatencyInfo> action_results,
-      actor::TabObservationStrategy observation_strategy);
-  void OnObservationResult(
-      base::TimeTicks start_time,
-      std::vector<actor::ActionResultWithLatencyInfo> action_results,
-      actor::TaskId task_id,
-      bool skip_async_observation_information,
-      std::optional<page_content_annotations::ScreenshotOptions::
-                        ScreenshotCollectionOptions>
-          screenshot_collection_options,
-      std::unique_ptr<optimization_guide::proto::ActionsResult> response,
-      std::unique_ptr<actor::AggregatedJournal::PendingAsyncEntry>
-          journal_entry);
   DECLARE_EXTENSION_FUNCTION("experimentalActor.performActions",
                              EXPERIMENTALACTOR_PERFORMACTIONS)
 };
@@ -111,8 +89,6 @@ class ExperimentalActorRequestTabObservationFunction
  protected:
   ~ExperimentalActorRequestTabObservationFunction() override;
   ResponseAction Run() override;
-  void OnObservationFinished(
-      actor::ActorKeyedService::TabObservationResult observation_result);
   DECLARE_EXTENSION_FUNCTION("experimentalActor.requestTabObservation",
                              EXPERIMENTALACTOR_REQUESTTABOBSERVATION)
 };

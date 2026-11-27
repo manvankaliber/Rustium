@@ -25,15 +25,8 @@
 #include "gtest/gtest.h"
 #include "absl/types/span.h"
 
-#ifdef __ANDROID__
-// Android assert messages only go to system log, so death tests cannot inspect
-// the message for matching.
-#define ABSL_EXPECT_DEATH_IF_SUPPORTED(statement, regex) \
-  EXPECT_DEATH_IF_SUPPORTED(statement, ".*")
-#else
 #define ABSL_EXPECT_DEATH_IF_SUPPORTED(statement, regex) \
   EXPECT_DEATH_IF_SUPPORTED(statement, regex)
-#endif
 
 namespace {
 

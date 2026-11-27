@@ -325,19 +325,6 @@ INSTANTIATE_TEST_SUITE_P(
     PredictionSourceTest,
     PredictionBasedPermissionUiExpectedPredictionSourceTest,
     testing::ValuesIn<PredictionSourceTestCase>({
-#if BUILDFLAG(IS_ANDROID)
-        {/*test_name=*/"UseCpssV1OnAndroid",
-         /*enabled_features=*/{},
-         /*disabled_features=*/
-         {permissions::features::kPermissionDedicatedCpssSettingAndroid},
-         /*expected_prediction_source=*/PredictionSource::kOnDeviceCpssV1Model},
-        {/*test_name=*/"UseServerSideOnAndroid",
-         /*enabled_features=*/
-         {permissions::features::kPermissionDedicatedCpssSettingAndroid},
-         /*disabled_features=*/{},
-         /*expected_prediction_source=*/
-         PredictionSource::kServerSideCpssV3Model},
-#else
         {/*test_name=*/"UseServerSideOnDesktop",
          /*enabled_features=*/{},
          /*disabled_features=*/{},
@@ -349,7 +336,6 @@ INSTANTIATE_TEST_SUITE_P(
          /*disabled_features=*/{},
          /*expected_prediction_source=*/
          PredictionSource::kOnDeviceAiv4AndServerSideModel},
-#endif
     }),
     /*name_generator=*/
     [](const testing::TestParamInfo<

@@ -100,7 +100,6 @@ export class BrowserProxy {
         result => result.message);
   }
 
-  // <if expr="not is_ios and not is_android">
   static checkPromotionEligibility(): Promise<boolean> {
     if (policyPageMojoMigrationEnabled) {
       return this.getInstance().handler.checkPromotionEligibility().then(
@@ -125,7 +124,6 @@ export class BrowserProxy {
       chrome.send('recordBannerRedirected');
     }
   }
-  // </if>
 
   static getPolicies(reason: GetPoliciesReason): Promise<string> {
     if (policyPageMojoMigrationEnabled) {
@@ -146,7 +144,6 @@ export class BrowserProxy {
     }
   }
 
-  // <if expr="not is_chromeos">
   // Uploads the enterprise browser and profile reports. The returned promise
   // resolves once the uploads have completed, successfully or not.
   static uploadReport(): Promise<void> {
@@ -156,7 +153,6 @@ export class BrowserProxy {
       return sendWithPromise('uploadReport');
     }
   }
-  // </if>
 
   static listenForStatusUpdated(
       callback: (status: Record<string, Status>) => void) {

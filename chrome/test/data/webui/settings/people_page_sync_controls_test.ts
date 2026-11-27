@@ -201,141 +201,8 @@ suite('SyncControlsTest', function() {
     assertFalse(syncControls.hidden);
   });
 
-  // <if expr="is_chromeos">
-  test('SyncCookiesSupported', async function() {
-    // Sync everything enabled.
-    assertTrue(syncEverything.checked);
-    assertFalse(customizeSync.checked);
-
-    // The cookies element is not visible when syncCookiesSupported is disabled
-    // (default).
-    let cookieListItem =
-        syncControls.shadowRoot.querySelector('#cookiesSyncItem:not([hidden])');
-    assertFalse(!!cookieListItem);
-
-    // Enable syncCookiesSupported.
-    syncControls.syncStatus = {
-      disabled: false,
-      hasError: false,
-      signedInState: SignedInState.SYNCING,
-      statusAction: StatusAction.NO_ACTION,
-      syncCookiesSupported: true,
-    };
-    await microtasksFinished();
-    // The cookies element is now visible.
-    cookieListItem =
-        syncControls.shadowRoot.querySelector('#cookiesSyncItem:not([hidden])');
-    assertTrue(!!cookieListItem);
-    // Cookies checkbox is disabled.
-    let cookiesCheckbox: CrToggleElement =
-        syncControls.shadowRoot.querySelector('#cookiesCheckbox')!;
-    assertTrue(!!cookiesCheckbox);
-    assertTrue(cookiesCheckbox.disabled);
-    assertTrue(cookiesCheckbox.checked);
-
-    // Customize sync enabled.
-    customizeSync.click();
-    await eventToPromise('selected-changed', radioGroup);
-    assertFalse(syncEverything.checked);
-    assertTrue(customizeSync.checked);
-
-    // Cookies checkbox is enabled.
-    cookiesCheckbox =
-        syncControls.shadowRoot.querySelector('#cookiesCheckbox')!;
-    assertTrue(!!cookiesCheckbox);
-    assertFalse(cookiesCheckbox.disabled);
-    assertTrue(cookiesCheckbox.checked);
-  });
-  // </if>
 });
 
-// <if expr="is_chromeos">
-suite('SyncControlsSubpageTest', function() {
-  let syncControls: SettingsSyncControlsElement;
-  let browserProxy: TestSyncBrowserProxy;
-
-  setup(async function() {
-    browserProxy = new TestSyncBrowserProxy();
-    SyncBrowserProxyImpl.setInstance(browserProxy);
-
-    loadTimeData.overrideValues({replaceSyncPromosWithSignInPromos: false});
-    resetRouterForTesting();
-
-    document.body.innerHTML = window.trustedTypes!.emptyHTML;
-
-    syncControls = document.createElement('settings-sync-controls');
-    const router = Router.getInstance();
-    router.navigateTo(router.getRoutes().SYNC_ADVANCED);
-    document.body.appendChild(syncControls);
-
-    syncControls.syncStatus = {
-      disabled: false,
-      hasError: false,
-      signedInState: SignedInState.SYNCING,
-      statusAction: StatusAction.NO_ACTION,
-    };
-    await microtasksFinished();
-
-    assertEquals(router.getRoutes().SYNC_ADVANCED, router.getCurrentRoute());
-  });
-
-  test('SignedOut', async function() {
-    syncControls.syncStatus = {
-      disabled: false,
-      hasError: false,
-      signedInState: SignedInState.SIGNED_OUT,
-      statusAction: StatusAction.NO_ACTION,
-    };
-    await microtasksFinished();
-    const router = Router.getInstance();
-    assertEquals(router.getRoutes().SYNC.path, router.getCurrentRoute().path);
-  });
-
-  test('PassphraseError', async function() {
-    syncControls.syncStatus = {
-      disabled: false,
-      hasError: true,
-      signedInState: SignedInState.SYNCING,
-      statusAction: StatusAction.ENTER_PASSPHRASE,
-    };
-    await microtasksFinished();
-    const router = Router.getInstance();
-    assertEquals(
-        router.getRoutes().SYNC_ADVANCED.path, router.getCurrentRoute().path);
-  });
-
-  test('SyncPaused', async function() {
-    syncControls.syncStatus = {
-      disabled: false,
-      hasError: true,
-      signedInState: SignedInState.SYNCING,
-      statusAction: StatusAction.REAUTHENTICATE,
-    };
-    await microtasksFinished();
-    const router = Router.getInstance();
-    assertEquals(router.getRoutes().SYNC.path, router.getCurrentRoute().path);
-  });
-
-  test(
-      'NavigateToAccountSettingsWhenReplacingWithSigninPromoAndNotSyncing',
-      async function() {
-        loadTimeData.overrideValues({replaceSyncPromosWithSignInPromos: true});
-        resetRouterForTesting();
-        const router = Router.getInstance();
-        router.navigateTo(routes.SYNC_ADVANCED);
-
-        syncControls.syncStatus = {
-          disabled: false,
-          hasError: false,
-          signedInState: SignedInState.SIGNED_IN,
-          statusAction: StatusAction.NO_ACTION,
-        };
-        await microtasksFinished();
-
-        assertEquals(routes.ACCOUNT, router.getCurrentRoute());
-      });
-});
-// </if>
 
 suite('SyncControlsAccountSettingsTest', function() {
   let syncControls: SettingsSyncControlsElement;
@@ -357,12 +224,7 @@ suite('SyncControlsAccountSettingsTest', function() {
     pluralStringProxy = new TestPluralStringProxy();
     PluralStringProxyImpl.setInstance(pluralStringProxy);
 
-    // <if expr="is_chromeos">
-    loadTimeData.overrideValues({replaceSyncPromosWithSignInPromos: true});
-    // </if>
-    // <if expr="not is_chromeos">
     loadTimeData.overrideValues({unoPhase2FollowUp: true});
-    // </if>
     resetRouterForTesting();
 
     document.body.innerHTML = window.trustedTypes!.emptyHTML;
@@ -420,12 +282,7 @@ suite('SyncControlsAccountSettingsTest', function() {
     // ChromeOS, the Cookies Sync indicator (which is only compiled on ChromeOS)
     // is also hidden by default in this test setup since cookies sync is
     // disabled, resulting in 4 hidden indicators instead of 3.
-    // <if expr="is_chromeos">
-    const hiddenIndicators = shown ? 4 : policyIndicators.length;
-    // </if>
-    // <if expr="not is_chromeos">
     const hiddenIndicators = shown ? 3 : policyIndicators.length;
-    // </if>
     let countHiddenIndicators = 0;
     for (const indicator of policyIndicators) {
       if (!isVisible(indicator)) {

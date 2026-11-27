@@ -618,26 +618,7 @@ items!({
         atomic_int!(all_critical_session, AtomicI32, i32, 4);
         atomic_int!(all_critical_session, AtomicU32, u32, 4);
     });
-    #[cfg(any(
-        test,
-        all(
-            feature = "fallback",
-            not(all(
-                target_arch = "riscv32",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                any(
-                    target_feature = "zacas",
-                    portable_atomic_target_feature = "zacas",
-                    all(
-                        feature = "fallback",
-                        not(portable_atomic_no_outline_atomics),
-                        any(target_os = "linux", target_os = "android"),
-                    ),
-                ),
-            )),
-        ),
-    ))]
+    #[cfg(any(test, all(feature = "fallback", not(all(target_arch = "riscv32", not(any(miri, portable_atomic_sanitize_thread)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), any(target_feature = "zacas", portable_atomic_target_feature = "zacas", all(feature = "fallback", not(portable_atomic_no_outline_atomics), target_os = "linux")))))))]
     #[cfg_attr(
         portable_atomic_no_cfg_target_has_atomic,
         cfg(any(test, portable_atomic_no_atomic_64))
@@ -650,26 +631,7 @@ items!({
         atomic_int!(all_critical_session, AtomicI64, i64, 8);
         atomic_int!(all_critical_session, AtomicU64, u64, 8);
     });
-    #[cfg(any(
-        test,
-        all(
-            feature = "fallback",
-            not(all(
-                target_arch = "riscv64",
-                not(any(miri, portable_atomic_sanitize_thread)),
-                any(not(portable_atomic_no_asm), portable_atomic_unstable_asm),
-                any(
-                    target_feature = "zacas",
-                    portable_atomic_target_feature = "zacas",
-                    all(
-                        feature = "fallback",
-                        not(portable_atomic_no_outline_atomics),
-                        any(target_os = "linux", target_os = "android"),
-                    ),
-                ),
-            )),
-        ),
-    ))]
+    #[cfg(any(test, all(feature = "fallback", not(all(target_arch = "riscv64", not(any(miri, portable_atomic_sanitize_thread)), any(not(portable_atomic_no_asm), portable_atomic_unstable_asm), any(target_feature = "zacas", portable_atomic_target_feature = "zacas", all(feature = "fallback", not(portable_atomic_no_outline_atomics), target_os = "linux")))))))]
     items!({
         atomic_int!(all_critical_session, AtomicI128, i128, 16);
         atomic_int!(all_critical_session, AtomicU128, u128, 16);

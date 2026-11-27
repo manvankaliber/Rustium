@@ -30,9 +30,6 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/network/network_handler_test_helper.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
@@ -126,9 +123,6 @@ class DrivePickerHostUITest : public testing::Test {
  protected:
   content::BrowserTaskEnvironment task_environment_;
   content::RenderViewHostTestEnabler rvh_test_enabler_;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::NetworkHandlerTestHelper network_handler_test_helper_;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   std::unique_ptr<TestingProfile> profile_;
   std::unique_ptr<IdentityTestEnvironmentProfileAdaptor>
       identity_test_env_adaptor_;

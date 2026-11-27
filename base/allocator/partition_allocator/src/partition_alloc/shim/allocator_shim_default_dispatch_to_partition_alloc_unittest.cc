@@ -16,7 +16,7 @@
 #include "partition_alloc/partition_alloc_constants.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
 #include <malloc.h>
 #endif
 
@@ -84,7 +84,7 @@ INSTANTIATE_TEST_SUITE_P(All,
 #if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
 
 // Platforms on which we override weak libc symbols.
-#if PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#if PA_BUILDFLAG(IS_LINUX)
 
 PA_NOINLINE void FreeForTest(void* data) {
   free(data);
@@ -144,7 +144,7 @@ TEST(PartitionAllocAsMalloc, Mallinfo) {
 #endif
 }
 
-#endif  // PA_BUILDFLAG(IS_LINUX) || PA_BUILDFLAG(IS_CHROMEOS)
+#endif
 
 #endif  // PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
 

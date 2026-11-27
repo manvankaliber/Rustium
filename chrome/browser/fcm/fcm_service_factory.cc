@@ -14,9 +14,6 @@
 #include "components/fcm/fcm_service.h"
 #include "components/fcm/features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/fcm/fcm_driver_android.h"
-#endif
 
 // static
 fcm::FcmService* FcmServiceFactory::GetForProfile(Profile* profile) {
@@ -43,13 +40,6 @@ FcmServiceFactory::BuildServiceInstanceForBrowserContext(
     return nullptr;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, FCM messages and Installation IDs are managed through the
-  // platform Firebase SDK via FcmDriverAndroid.
-  auto driver = std::make_unique<fcm::FcmDriverAndroid>();
-  return std::make_unique<fcm::FcmService>(std::move(driver));
-#else
   // TODO(crbug.com/545114635): Implement FCM service for Desktop.
   return nullptr;
-#endif
 }

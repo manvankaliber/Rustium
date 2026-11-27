@@ -25,10 +25,6 @@
 #include "ui/base/ui_base_features.h"
 #include "ui/base/ui_base_switches.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/android/device_info.h"
-#endif
 
 // TODO(crbug.com/40625383): Move the baselines to skia gold for easier
 //   rebaselining when all platforms are supported.
@@ -46,12 +42,7 @@ namespace content {
 class FormControlsBrowserTest : public ContentBrowserTest {
  public:
   FormControlsBrowserTest() {
-#if BUILDFLAG(IS_ANDROID)
-    // TODO(crbug.com/391378106): On Android the graphite results are different
-    // enough to need separate expected images. Force using ganesh until either
-    // all Android bots are running graphite or these tests support skia gold.
-    feature_list_.InitAndDisableFeature(features::kSkiaGraphite);
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
     // On Windows, the baseline images were generated with Skia Graphite enabled
     // via fieldtrial_testing_config.json. Explicitly enable Graphite so tests
     // also match the baselines in branded builds, where
@@ -61,8 +52,7 @@ class FormControlsBrowserTest : public ContentBrowserTest {
 #endif
   }
 
-#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN) || \
-    (OS_LINUX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN) || OS_LINUX
   typedef cc::FuzzyPixelComparator PixelComparatorType;
 #else
   typedef cc::AlphaDiscardingExactPixelComparator PixelComparatorType;
@@ -97,19 +87,6 @@ class FormControlsBrowserTest : public ContentBrowserTest {
     platform_suffix = "_win";
 #elif BUILDFLAG(IS_LINUX)
     platform_suffix = "_linux";
-#elif BUILDFLAG(IS_CHROMEOS)
-    platform_suffix = "_chromeos";
-#elif BUILDFLAG(IS_ANDROID)
-    int sdk_int = base::android::android_info::sdk_int();
-    if (sdk_int >= base::android::android_info::SDK_VERSION_T) {
-      platform_suffix = "_android_T";
-    } else {
-      platform_suffix = "_android";
-    }
-#elif BUILDFLAG(IS_FUCHSIA)
-    platform_suffix = "_fuchsia";
-#elif BUILDFLAG(IS_IOS)
-    platform_suffix = "_ios";
 #endif
 
     base::FilePath dir_test_data;
@@ -139,17 +116,7 @@ class FormControlsBrowserTest : public ContentBrowserTest {
                           .SetErrorPixelsPercentageLimit(26.f)
                           .SetAvgAbsErrorLimit(20.f)
                           .SetAbsErrorLimit(120);
-#elif BUILDFLAG(IS_ANDROID)
-    // Different versions of android may have slight differences in rendering.
-    // Some versions have more significant differences than others, which are
-    // tracked separately in separate baseline image files. The less significant
-    // differences are accommodated for with this fuzzy pixel comparator.
-    auto comparator = cc::FuzzyPixelComparator()
-                          .DiscardAlpha()
-                          .SetErrorPixelsPercentageLimit(11.f)
-                          .SetAvgAbsErrorLimit(20.f)
-                          .SetAbsErrorLimit(140);
-#elif BUILDFLAG(IS_WIN) || (OS_LINUX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_WIN) || OS_LINUX
     // This also applies to different versions of other OSes.
     auto comparator = cc::FuzzyPixelComparator()
                           .DiscardAlpha()
@@ -171,15 +138,6 @@ class FormControlsBrowserTest : public ContentBrowserTest {
 
   // Check if the test can run on the current system.
   bool SkipTestForOldAndroidVersions() const {
-#if BUILDFLAG(IS_ANDROID)
-    // Lower versions of android running on older devices, ex Nexus 5, render
-    // form controls with a too large of a difference -- >20% error -- to
-    // pixel compare.
-    if (base::android::android_info::sdk_int() <
-        base::android::android_info::SDK_VERSION_OREO) {
-      return true;
-    }
-#endif  // BUILDFLAG(IS_ANDROID)
     return false;
   }
 
@@ -193,8 +151,9 @@ class FormControlsBrowserTest : public ContentBrowserTest {
 #define MAYBE_Checkbox Checkbox
 #endif
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_Checkbox) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_checkbox",
           "<input type=checkbox>"
@@ -207,20 +166,13 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_Checkbox) {
           "</script>",
           /* screenshot_width */ 130,
           /* screenshot_height */ 40, [](PixelComparatorType& comparator) {
-#if BUILDFLAG(IS_ANDROID)
-            // For the checkbox test, allow larger absolute errors in exchange
-            // for less total error. Some Android test machines draw the
-            // checkmark without antialiasing.
-            comparator.SetErrorPixelsPercentageLimit(3.f)
-                .SetAvgAbsErrorLimit(45.f)
-                .SetAbsErrorLimit(200);
-#endif
           });
 }
 
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Radio) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_radio",
           "<input type=radio>"
@@ -241,8 +193,9 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Radio) {
 #define MAYBE_DarkModeTextSelection DarkModeTextSelection
 #endif
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_DarkModeTextSelection) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_dark_mode_text_selection",
           "<meta name=\"color-scheme\" content=\"dark\">"
@@ -260,8 +213,9 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_DarkModeTextSelection) {
 }
 
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Input) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_input",
           "<style>body {margin: 8px} input {width: 150px; "
@@ -283,27 +237,17 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Input) {
 }
 
 // The test fails on Windows ARM64: crbug.com/401594933.
-#if BUILDFLAG(IS_CHROMEOS) || (BUILDFLAG(IS_WIN) && defined(ARCH_CPU_ARM64))
+#if BUILDFLAG(IS_WIN) && defined(ARCH_CPU_ARM64)
 #define MAYBE_Textarea DISABLED_Textarea
 #else
 #define MAYBE_Textarea Textarea
 #endif
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_Textarea) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   std::string screenshot_filename = "form_controls_browsertest_textarea";
-#if BUILDFLAG(IS_ANDROID)
-  if (base::CommandLine::ForCurrentProcess()->HasSwitch(
-          blink::switches::kEnableDesktopAndroidScrollbars) &&
-      // This feature is not ready for non-desktop devices. See
-      // crbug.com/522529331.
-      base::android::device_info::is_desktop()) {
-    // Desktop style scrollbars have large thickness than mobile scrollbars
-    // which affects the size of the textarea resizer.
-    screenshot_filename += "_with_desktop_scrollbars";
-  }
-#endif
 
   RunTest(screenshot_filename,
           R"HTML(
@@ -319,17 +263,13 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_Textarea) {
            <textarea disabled></textarea>)HTML",
           /* screenshot_width */ 200,
           /* screenshot_height */ 260, [](PixelComparatorType& comparator) {
-#if BUILDFLAG(IS_ANDROID)
-            // For the textarea test, allow slightly larger percentage of
-            // pixels with error.
-            comparator.SetErrorPixelsPercentageLimit(12.f);
-#endif
           });
 }
 
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Button) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_button",
           R"HTML(
@@ -358,8 +298,9 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Button) {
 #define MAYBE_ColorInput ColorInput
 #endif
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_ColorInput) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_color_input",
           R"HTML(
@@ -383,8 +324,9 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_ColorInput) {
 #define MAYBE_Select Select
 #endif
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_Select) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_select",
           R"HTML(
@@ -403,11 +345,6 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_Select) {
           <select disabled></select><br>)HTML",
           /* screenshot_width */ 200,
           /* screenshot_height */ 200, [](PixelComparatorType& comparator) {
-#if BUILDFLAG(IS_ANDROID)
-            // For the select test, allow larger absolute errors in exchange
-            // for less average error.
-            comparator.SetAvgAbsErrorLimit(8.f).SetAbsErrorLimit(200);
-#endif
           });
 }
 
@@ -417,15 +354,15 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_Select) {
 // TODO(crbug.com/448656594): The test fails on Android. Probably we need
 // separate baselines for phone and tablet devices.
 // TODO(crbug.com/449053040): Re-enable the test on Linux.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 #define MAYBE_MultiSelect DISABLED_MultiSelect
 #else
 #define MAYBE_MultiSelect MultiSelect
 #endif
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_MultiSelect) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_multi_select",
           R"HTML(
@@ -450,8 +387,9 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, MAYBE_MultiSelect) {
 }
 
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Progress) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
 #if BUILDFLAG(IS_MAC) && !defined(ARCH_CPU_ARM64)
   // The pixel comparison fails on Mac Intel GPUs with Graphite due to MSAA
@@ -479,8 +417,9 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Progress) {
 }
 
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Meter) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_meter",
           R"HTML(
@@ -506,8 +445,9 @@ IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Meter) {
 }
 
 IN_PROC_BROWSER_TEST_F(FormControlsBrowserTest, Range) {
-  if (SkipTestForOldAndroidVersions())
+  if (SkipTestForOldAndroidVersions()) {
     return;
+  }
 
   RunTest("form_controls_browsertest_range",
           R"HTML(

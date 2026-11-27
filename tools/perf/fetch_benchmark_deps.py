@@ -135,7 +135,7 @@ def main(args):
   parser.add_argument(
     '--platform',
     '-p',
-    choices=['win', 'linux', 'mac', 'android'],
+    choices=['win', 'linux', 'mac', ],
     help=(
       'Only fetch benchmarks for the specified platform '
       '(win, linux, mac, android)'

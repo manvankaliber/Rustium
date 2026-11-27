@@ -57,13 +57,12 @@ class CvcStorageMetricsTest
       card_.set_guid(kCardGuid);
       test_paydm().AddCreditCard(card_);
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
       // Disable mandatory reauth as it is not part of this test and will
       // interfere with the card retrieval flow.
       autofill_client().GetPrefs()->SetBoolean(
           prefs::kAutofillPaymentMethodsMandatoryReauth, false);
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_IOS)
     } else {
       // Add a masked server card.
@@ -125,12 +124,8 @@ class CvcStorageMetricsTest
 TEST_P(CvcStorageMetricsTest, LogShownMetrics) {
   base::HistogramTester histogram_tester;
   base::test::ScopedFeatureList features;
-#if !BUILDFLAG(IS_IOS)
   features.InitAndEnableFeature(
       features::kAutofillEnableCvcStorageAndFillingStandaloneFormEnhancement);
-#else
-  features.InitWithFeatures({}, {});
-#endif
   test_paydm().SetIsPaymentCvcStorageEnabled(true);
 
   // Simulate activating the autofill popup for the credit card field.

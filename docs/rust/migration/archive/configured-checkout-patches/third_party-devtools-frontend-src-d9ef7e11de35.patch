@@ -1,0 +1,66 @@
+diff --git a/test/api/BUILD.gn b/test/api/BUILD.gn
+index 3efb20ed75..88dc1a6f81 100644
+--- a/test/api/BUILD.gn
++++ b/test/api/BUILD.gn
+@@ -8,7 +8,6 @@ import("../../scripts/build/typescript/typescript.gni")
+ 
+ if (build_with_chromium) {
+   import("//build/config/cast.gni")
+-  import("//build/config/chromeos/args.gni")
+ }
+ 
+ # API tests import `describe`, `it` and `setup` from mocha-interface.ts and
+@@ -51,8 +50,7 @@ node_script_test("devtools_api_tests") {
+   ]
+ 
+   if (build_with_chromium) {
+-    if (!is_ios && !is_android && !is_castos && !is_fuchsia &&
+-        !is_chromeos_device) {
++    if (!is_fuchsia) {
+       data_deps += [ "//chrome" ]
+     }
+   } else {
+diff --git a/test/e2e/BUILD.gn b/test/e2e/BUILD.gn
+index 6e747cb120..d42db0feee 100644
+--- a/test/e2e/BUILD.gn
++++ b/test/e2e/BUILD.gn
+@@ -9,7 +9,6 @@ import("../../scripts/build/typescript/typescript.gni")
+ 
+ if (build_with_chromium) {
+   import("//build/config/cast.gni")
+-  import("//build/config/chromeos/args.gni")
+ }
+ 
+ group("e2e") {
+@@ -93,8 +92,7 @@ node_script_test("devtools_e2e_tests") {
+   ]
+ 
+   if (build_with_chromium) {
+-    if (!is_ios && !is_android && !is_castos && !is_fuchsia &&
+-        !is_chromeos_device) {
++    if (!is_fuchsia) {
+       data_deps += [ "//chrome" ]
+     }
+   } else {
+diff --git a/test/unit/BUILD.gn b/test/unit/BUILD.gn
+index 60a3cbf294..8be2f96cb8 100644
+--- a/test/unit/BUILD.gn
++++ b/test/unit/BUILD.gn
+@@ -9,7 +9,6 @@ import("../../scripts/build/typescript/typescript.gni")
+ 
+ if (build_with_chromium) {
+   import("//build/config/cast.gni")
+-  import("//build/config/chromeos/args.gni")
+ }
+ 
+ ts_library("browser-globals") {
+@@ -94,8 +93,7 @@ node_script_test("devtools_unit_tests") {
+   ]
+ 
+   if (build_with_chromium) {
+-    if (!is_ios && !is_android && !is_castos && !is_fuchsia &&
+-        !is_chromeos_device) {
++    if (!is_fuchsia) {
+       data_deps += [ "//chrome" ]
+     }
+   } else {

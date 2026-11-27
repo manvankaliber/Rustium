@@ -20,9 +20,6 @@
 #include "media/mojo/mojom/cdm_document_service.mojom.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/attestation/platform_verification_flow.h"
-#endif
 
 // Implements media::mojom::CdmDocumentService. Can only be used on the
 // UI thread because PlatformVerificationFlow and the pref service lives on the
@@ -45,12 +42,6 @@ class CdmDocumentServiceImpl final
       base::SelfDeletingPassKey key);
 
   // media::mojom::CdmDocumentService implementation.
-#if BUILDFLAG(IS_CHROMEOS)
-  void ChallengePlatform(const std::string& service_id,
-                         const std::string& challenge,
-                         ChallengePlatformCallback callback) final;
-  void IsVerifiedAccessEnabled(IsVerifiedAccessEnabledCallback callback) final;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 #if BUILDFLAG(ENABLE_CDM_STORAGE_ID)
   void GetStorageId(uint32_t version, GetStorageIdCallback callback) final;
 #endif  // BUILDFLAG(ENABLE_CDM_STORAGE_ID)
@@ -78,26 +69,12 @@ class CdmDocumentServiceImpl final
   // |this| can only be destructed as a DocumentService.
   ~CdmDocumentServiceImpl() final;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  using PlatformVerificationResult =
-      ash::attestation::PlatformVerificationFlow::Result;
-
-  void OnPlatformChallenged(ChallengePlatformCallback callback,
-                            PlatformVerificationResult result,
-                            const std::string& signed_data,
-                            const std::string& signature,
-                            const std::string& platform_key_certificate);
-#endif
 
 #if BUILDFLAG(ENABLE_CDM_STORAGE_ID)
   void OnStorageIdResponse(GetStorageIdCallback callback,
                            const std::vector<uint8_t>& storage_id);
 #endif  // BUILDFLAG(ENABLE_CDM_STORAGE_ID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-  scoped_refptr<ash::attestation::PlatformVerificationFlow>
-      platform_verification_flow_;
-#endif
 
 #if BUILDFLAG(IS_WIN)
   // See comments in OnCdmEvent() implementation.

@@ -135,7 +135,7 @@ BASE_DECLARE_FEATURE(kOmniboxWebUIPopupShareAcrossWindows);
 inline constexpr base::FeatureParam<bool>
     kOmniboxWebUIPopupShareDropIdleOnMemoryPressure{
         &kOmniboxWebUIPopupShareAcrossWindows, "drop_idle_on_memory_pressure",
-        BUILDFLAG(IS_CHROMEOS)};
+        false};
 // When true, idle shared popups are destroyed from moderate memory pressure
 // on, not only under critical pressure.
 inline constexpr base::FeatureParam<bool>
@@ -150,7 +150,7 @@ inline constexpr base::FeatureParam<base::TimeDelta>
     kOmniboxWebUIPopupShareActiveWindowPopupIdleTimeout{
         &kOmniboxWebUIPopupShareAcrossWindows,
         "active_window_popup_idle_timeout",
-        BUILDFLAG(IS_CHROMEOS) ? base::Seconds(60) : base::TimeDelta::Max()};
+        false ? base::Seconds(60) : base::TimeDelta::Max()};
 BASE_DECLARE_FEATURE(kOmniboxAimPopupRequireEligibility);
 BASE_DECLARE_FEATURE(kWebUISearchboxWithoutModelController);
 
@@ -182,12 +182,6 @@ BASE_DECLARE_FEATURE(kOmniboxFuseboxUserEdGuidedTour);
 BASE_DECLARE_FEATURE(kDefaultTypedNavigationsToHttps);
 extern const char kDefaultTypedNavigationsToHttpsTimeoutParam[];
 
-BASE_DECLARE_FEATURE(kOverrideAndroidOmniboxSpareRendererDelay);
-// The delay value in milliseconds.
-inline constexpr base::FeatureParam<int> kOmniboxSpareRendererDelayMs{
-    &kOverrideAndroidOmniboxSpareRendererDelay,
-    "omnibox_spare_renderer_delay_ms", 1000};
-
 // Omnibox ML scoring.
 BASE_DECLARE_FEATURE(kLogUrlScoringSignals);
 BASE_DECLARE_FEATURE(kEnableHistoryScoringSignalsAnnotatorForSearches);
@@ -204,18 +198,15 @@ BASE_DECLARE_FEATURE(kOmniboxTouchDownTriggerForPrefetch);
 
 // Allows for off-main-thread (OMT) prefetch of search suggestions upon touch
 // down on Android.
-BASE_DECLARE_FEATURE(kOmniboxPrefetchSelectedSuggestionsOmtAndroid);
 
 // Enables simultaneous prefetch and navigation on Enter KeyDown in Omnibox.
 BASE_DECLARE_FEATURE(kOmniboxSearchPrefetchOnEnterKeyDown);
 
 // Surfaces recent tabs, including tabs from other devices, as suggestions in
 // the Android Tab Search overlay.
-BASE_DECLARE_FEATURE(kAndroidTabSearchRecentTabs);
 
 // Shows a close button on open tab suggestions in the Android Tab Search
 // overlay, allowing users to close tabs directly from the suggestions list.
-BASE_DECLARE_FEATURE(kAndroidTabSearchCloseTabButton);
 
 // Site search/Keyword mode related features.
 BASE_DECLARE_FEATURE(kOmniboxSiteSearch);
@@ -263,11 +254,7 @@ BASE_DECLARE_FEATURE(kPreconnectNonSearchOmniboxSuggestions);
 BASE_DECLARE_FEATURE(kComposeboxUsesChromeComposeClient);
 inline constexpr base::FeatureParam<std::string> kComposeboxClientOverride{
     &kComposeboxUsesChromeComposeClient, "composebox_client_name_override",
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    "chrome-mobile-aim"
-#else
     "chrome-compose"
-#endif
 };
 
 // Controls whether or not contextual composebox should display suggestions.
@@ -318,28 +305,6 @@ extern const base::FeatureParam<bool>
 extern const base::FeatureParam<bool> kVoiceSearchCoherenceRealboxAutoEndpoint;
 extern const base::FeatureParam<bool> kVoiceSearchCoherenceRealboxHelperText;
 extern const base::FeatureParam<bool> kVoiceSearchCoherenceRealboxKeepLegacyUi;
-
-#if BUILDFLAG(IS_ANDROID)
-BASE_DECLARE_FEATURE(kDiagnostics);
-BASE_DECLARE_FEATURE(kForceAndroidRealbox);
-BASE_DECLARE_FEATURE(kSuppressIntermediateACUpdatesOnLowEndDevices);
-// Delay focusTab to prioritize navigation (https://crbug.com/374852568).
-BASE_DECLARE_FEATURE(kPostDelayedTaskFocusTab);
-BASE_DECLARE_FEATURE(kResetSuggestionsScroll);
-// If enabled, typed-text autocomplete requests are started right after the
-// next frame is drawn, instead of after a fixed 30ms delay.
-BASE_DECLARE_FEATURE(kOmniboxPostFrameAutocompleteStart);
-BASE_DECLARE_FEATURE(kOmniboxSessionlessVoiceSearch);
-BASE_DECLARE_FEATURE(kSuppressStatusIconDuringHttpNavigation);
-BASE_DECLARE_FEATURE(kOmniboxAndroidIntranetRedirect);
-// If enabled, the Omnibox, New Tab Page and toolbar mic buttons delegate voice
-// capture and transcription to the Android Google App Voice Plate.
-BASE_DECLARE_FEATURE(kOmniboxVoicePlateIntent);
-// If enabled, Omnibox suggestion icons are rasterized from the native
-// gfx::VectorIcon definitions (shared with desktop) instead of being sourced
-// from Android XML drawables.
-BASE_DECLARE_FEATURE(kOmniboxNativeVectorIcons);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // If enabled, X-Geo headers are sent for all search navigations on all
 // platforms.

@@ -27,7 +27,7 @@
 
 #if BUILDFLAG(IS_WIN)
 #include "base/base_paths_win.h"
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
 #include "base/nix/xdg_util.h"
 #elif BUILDFLAG(IS_MAC)
 #include "base/apple/foundation_util.h"

@@ -11,9 +11,7 @@
 #include "third_party/blink/renderer/platform/wtf/std_lib_extras.h"
 #include "ui/native_theme/overlay_scrollbar_constants.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "third_party/blink/renderer/platform/theme/web_theme_engine_android.h"
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 #include "third_party/blink/renderer/platform/theme/web_theme_engine_mac.h"
 #else
 #include "third_party/blink/renderer/platform/theme/web_theme_engine_default.h"
@@ -23,9 +21,7 @@ namespace blink {
 
 namespace {
 std::unique_ptr<WebThemeEngine> CreateWebThemeEngine() {
-#if BUILDFLAG(IS_ANDROID)
-  return std::make_unique<WebThemeEngineAndroid>();
-#elif BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
   return std::make_unique<WebThemeEngineMac>();
 #else
   return std::make_unique<WebThemeEngineDefault>();

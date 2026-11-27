@@ -39,13 +39,7 @@
 #include "ui/base/unowned_user_data/unowned_user_data_host.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/scoped_java_ref.h"
-#include "chrome/browser/android/framebust_intervention/framebust_blocked_delegate_android.h"
-#include "components/messages/android/mock_message_dispatcher_bridge.h"
-#else
 #include "chrome/browser/ui/blocked_content/framebust_block_tab_helper.h"
-#endif
 
 class PopupOpenerTabHelperTest : public ChromeRenderViewHostTestHarness {
  public:
@@ -73,20 +67,8 @@ class PopupOpenerTabHelperTest : public ChromeRenderViewHostTestHarness {
     popup_blocker_tab_helper_ =
         std::make_unique<blocked_content::PopupBlockerTabHelper>(
             tab_, web_contents());
-#if BUILDFLAG(IS_ANDROID)
-    message_dispatcher_bridge_.SetMessagesEnabledForEmbedder(true);
-    messages::MessageDispatcherBridge::SetInstanceForTesting(
-        &message_dispatcher_bridge_);
-    blocked_content::FramebustBlockedMessageDelegate::CreateForWebContents(
-        web_contents());
-    framebust_blocked_message_delegate_ =
-        blocked_content::FramebustBlockedMessageDelegate::FromWebContents(
-            web_contents());
-#endif
-#if !BUILDFLAG(IS_ANDROID)
     framebust_block_tab_helper_ =
         std::make_unique<FramebustBlockTabHelper>(tab_, web_contents());
-#endif
 
     // The tick clock needs to be advanced manually so it isn't set to null,
     // which the code uses to determine if it is set yet.
@@ -96,15 +78,10 @@ class PopupOpenerTabHelperTest : public ChromeRenderViewHostTestHarness {
   }
 
   void TearDown() override {
-#if !BUILDFLAG(IS_ANDROID)
     framebust_block_tab_helper_.reset();
-#endif
     popup_blocker_tab_helper_.reset();
     popup_opener_tab_helper_.reset();
     popups_.clear();
-#if BUILDFLAG(IS_ANDROID)
-    messages::MessageDispatcherBridge::SetInstanceForTesting(nullptr);
-#endif
     ChromeRenderViewHostTestHarness::TearDown();
   }
 
@@ -137,17 +114,8 @@ class PopupOpenerTabHelperTest : public ChromeRenderViewHostTestHarness {
 
   base::SimpleTestTickClock* raw_clock() { return &raw_clock_; }
 
-#if BUILDFLAG(IS_ANDROID)
-  messages::MessageWrapper* message_wrapper() {
-    return framebust_blocked_message_delegate_->message_for_testing();
-  }
-#endif
 
   void expect_message() {
-#if BUILDFLAG(IS_ANDROID)
-    EXPECT_CALL(message_dispatcher_bridge_, EnqueueMessage)
-        .WillOnce(testing::Return(true));
-#endif
   }
 
  private:
@@ -159,13 +127,7 @@ class PopupOpenerTabHelperTest : public ChromeRenderViewHostTestHarness {
       popup_opener_tab_helper_;
   std::unique_ptr<blocked_content::PopupBlockerTabHelper>
       popup_blocker_tab_helper_;
-#if BUILDFLAG(IS_ANDROID)
-  messages::MockMessageDispatcherBridge message_dispatcher_bridge_;
-  raw_ptr<blocked_content::FramebustBlockedMessageDelegate>
-      framebust_blocked_message_delegate_;
-#else
   std::unique_ptr<FramebustBlockTabHelper> framebust_block_tab_helper_;
-#endif
 };
 
 // Navigate to a site without pop-ups, verify the user popup settings are not
@@ -237,13 +199,9 @@ TEST_F(PopupOpenerTabHelperTest,
 class BlockTabUnderDisabledTest : public PopupOpenerTabHelperTest {
  public:
   void ExpectUIShown(bool shown) {
-#if BUILDFLAG(IS_ANDROID)
-    EXPECT_EQ(shown, !!message_wrapper());
-#else
     EXPECT_EQ(shown, FramebustBlockTabHelper::From(
                          tabs::TabInterface::GetFromContents(web_contents()))
                          ->HasBlockedUrls());
-#endif
   }
 };
 

@@ -16,9 +16,7 @@
 #include "device/gamepad/public/cpp/gamepad_features.h"
 #include "device/gamepad/simulated_gamepad_data_fetcher.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "device/gamepad/gamepad_platform_data_fetcher_android.h"
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 #include "base/win/windows_version.h"
 #include "device/gamepad/gameinput_data_fetcher.h"
 #include "device/gamepad/nintendo_data_fetcher.h"
@@ -31,7 +29,7 @@
 #include "device/gamepad/nintendo_data_fetcher.h"
 #include "device/gamepad/xbox_data_fetcher_mac.h"
 #endif
-#elif (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(USE_UDEV)
+#elif BUILDFLAG(IS_LINUX) && defined(USE_UDEV)
 #include "device/gamepad/gamepad_platform_data_fetcher_linux.h"
 #include "device/gamepad/nintendo_data_fetcher.h"
 #endif
@@ -39,11 +37,7 @@
 namespace device {
 
 void AddGamepadPlatformDataFetchers(GamepadDataFetcherManager* manager) {
-#if BUILDFLAG(IS_ANDROID)
-
-  manager->AddFactory(new GamepadPlatformDataFetcherAndroid::Factory());
-
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 
   if (base::win::GetVersion() >= base::win::Version::WIN11 &&
       base::FeatureList::IsEnabled(
@@ -64,7 +58,7 @@ void AddGamepadPlatformDataFetchers(GamepadDataFetcherManager* manager) {
   manager->AddFactory(new XboxDataFetcher::Factory());
 #endif
 
-#elif (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)) && defined(USE_UDEV)
+#elif BUILDFLAG(IS_LINUX) && defined(USE_UDEV)
 
   manager->AddFactory(new GamepadPlatformDataFetcherLinux::Factory(
       base::SequencedTaskRunner::GetCurrentDefault()));

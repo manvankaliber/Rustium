@@ -87,7 +87,6 @@ std::u16string GenerateExpirationDateString(
 
 }  // namespace
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(SaveAndFillDialogControllerImplTest, CorrectStringsAreReturned) {
   base::test::ScopedFeatureList feature_list(
       features::kAutofillEnableWalletBranding);
@@ -201,7 +200,6 @@ TEST_F(SaveAndFillDialogControllerImplTest, FormatExpirationDateInput) {
   EXPECT_EQ(new_cursor_position, 5U);
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 TEST_F(SaveAndFillDialogControllerImplTest, IsValidCvc) {
   // Empty CVC is invalid since it's required.

@@ -154,8 +154,9 @@ base::expected<void, std::string> ParsedNetLog::InitFromFileContents(
 
 // Returns the event at index |i|, or nullptr if there is none.
 const base::DictValue* ParsedNetLog::GetEvent(size_t i) const {
-  if (!events || i >= events->size())
+  if (!events || i >= events->size()) {
     return nullptr;
+  }
 
   return (*events)[i].GetIfDict();
 }
@@ -403,7 +404,6 @@ class FileNetLogObserverBoundedTest : public ::testing::Test,
   base::FilePath GetConstantsPath() const {
     return GetInprogressDirectory().AppendASCII("constants.json");
   }
-
 
  protected:
   std::unique_ptr<FileNetLogObserver> logger_;
@@ -706,13 +706,14 @@ TEST_P(FileNetLogObserverTest, PreExistingFileBroken) {
   ASSERT_TRUE(scratch_dir_.CreateUniqueTempDir());
   base::File file;
   EXPECT_FALSE(file.IsValid());
-  if (IsBounded())
+  if (IsBounded()) {
     logger_ = FileNetLogObserver::CreateBoundedPreExisting(
         scratch_dir_.GetPath(), std::move(file), kLargeFileSize,
         NetLogCaptureMode::kDefault, nullptr);
-  else
+  } else {
     logger_ = FileNetLogObserver::CreateUnboundedPreExisting(
         std::move(file), NetLogCaptureMode::kDefault, nullptr);
+  }
   logger_->StartObserving(NetLog::Get());
 
   // Send dummy event.
@@ -803,12 +804,6 @@ TEST_P(FileNetLogObserverTest, AddEventsFromMultipleThreads) {
   const size_t kNumThreads = 10;
   std::vector<std::unique_ptr<base::Thread>> threads(kNumThreads);
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // TODO(crbug.com/40625862): Diagnosting logging to determine where
-  // this test sometimes hangs.
-  LOG(ERROR) << "Create and start threads.";
-#endif
-
   // Start all the threads. Waiting for them to start is to hopefuly improve
   // the odds of hitting interesting races once events start being added.
   for (size_t i = 0; i < threads.size(); ++i) {
@@ -818,17 +813,9 @@ TEST_P(FileNetLogObserverTest, AddEventsFromMultipleThreads) {
     threads[i]->WaitUntilThreadStarted();
   }
 
-#if BUILDFLAG(IS_FUCHSIA)
-  LOG(ERROR) << "Create and start observing.";
-#endif
-
   CreateAndStartObserving(nullptr);
 
   const size_t kNumEventsAddedPerThread = 200;
-
-#if BUILDFLAG(IS_FUCHSIA)
-  LOG(ERROR) << "Posting tasks.";
-#endif
 
   // Add events in parallel from all the threads.
   for (size_t i = 0; i < kNumThreads; ++i) {
@@ -837,35 +824,19 @@ TEST_P(FileNetLogObserverTest, AddEventsFromMultipleThreads) {
                                   kNumEventsAddedPerThread, kDummyEventSize));
   }
 
-#if BUILDFLAG(IS_FUCHSIA)
-  LOG(ERROR) << "Joining all threads.";
-#endif
-
   // Join all the threads.
   threads.clear();
-
-#if BUILDFLAG(IS_FUCHSIA)
-  LOG(ERROR) << "Stop observing.";
-#endif
 
   // Stop observing.
   TestClosure closure;
   logger_->StopObserving(nullptr, closure.closure());
   closure.WaitForResult();
 
-#if BUILDFLAG(IS_FUCHSIA)
-  LOG(ERROR) << "Read log from disk and verify.";
-#endif
-
   // Verify the written log.
   ASSERT_OK_AND_ASSIGN(std::unique_ptr<ParsedNetLog> log,
                        ReadNetLogFromDisk(log_path_));
   // Check that the expected number of events were written to disk.
   EXPECT_EQ(kNumEventsAddedPerThread * kNumThreads, log->events->size());
-
-#if BUILDFLAG(IS_FUCHSIA)
-  LOG(ERROR) << "Teardown.";
-#endif
 }
 
 // Sends enough events to the observer to completely fill one file, but not
@@ -1062,8 +1033,9 @@ TEST_F(FileNetLogObserverBoundedTest, PartiallyOverwriteFiles) {
   // have been written to a file.
   int events_per_file = (kFileSize - 1) / kEventSize + 1;
   int events_in_last_file = kNumEvents % events_per_file;
-  if (!events_in_last_file)
+  if (!events_in_last_file) {
     events_in_last_file = events_per_file;
+  }
   int num_events_in_files =
       (kTotalNumFiles - 1) * events_per_file + events_in_last_file;
 

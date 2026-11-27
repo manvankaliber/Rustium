@@ -39,34 +39,9 @@
 #include "ui/color/color_provider.h"
 #include "ui/views/controls/webview/webview.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
-    : WebUIToolbarWebViewTestBase(
-          {features::kInitialWebUI, features::kWebUIPinnedToolbarActions,
-           // Enable another control to prevent WebView going to 0 width.
-           features::kWebUIReloadButton,
-           features::kSkipIPCChannelPausingForNonGuests,
-           features::kWebUIInProcessResourceLoadingV2,
-           // `WebUIPinnedToolbarActionsBrowserTest.LensOverlayResultsIcon`
-           // depends on `kRoundedIcons`.
-           features::kRoundedIcons,
-           // Facilitate testing kActionSidePanelShowComments
-           collaboration::features::kCollaborationComments,
-           // Facilitate testing kActionsSidePanelShowContextualTasks
-           contextual_tasks::kContextualTasks,
-           contextual_tasks::kContextualTasksForceEntryPointEligibility,
-           // Facilitate testing kActionSendSharedTabGroupFeedback
-           data_sharing::features::kDataSharingFeature,
-// Facilitate testing kActionSidePanelShowGlic
-#if BUILDFLAG(IS_CHROMEOS)
-           chromeos::features::kFeatureManagementGlic,
-#endif  // BUILDFLAG(IS_CHROMEOS)
-           features::kGlic},
-          {}),
-      kActionMappings{
+    : kActionMappings{
           {kActionNewIncognitoWindow,
            toolbar_ui_api::mojom::PinnedToolbarAction::kNewIncognitoWindow},
           {kActionShowPasswordsBubbleOrPage,
@@ -87,16 +62,12 @@ WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
            toolbar_ui_api::mojom::PinnedToolbarAction::
                kSidePanelShowHistoryCluster},
 // ChromeOS doesn't support download button.
-#if !BUILDFLAG(IS_CHROMEOS)
           {kActionShowDownloads,
            toolbar_ui_api::mojom::PinnedToolbarAction::kShowDownloads},
-#endif  // !BUILDFLAG(IS_CHROMEOS)
           {kActionClearBrowsingData,
            toolbar_ui_api::mojom::PinnedToolbarAction::kClearBrowsingData},
           {kActionPrint, toolbar_ui_api::mojom::PinnedToolbarAction::kPrint},
-          {kActionSidePanelShowLensOverlayResults,
-           toolbar_ui_api::mojom::PinnedToolbarAction::
-               kSidePanelShowLensOverlayResults},
+
           {kActionShowTranslate,
            toolbar_ui_api::mojom::PinnedToolbarAction::kShowTranslate},
           {kActionQrCodeGenerator,
@@ -125,9 +96,7 @@ WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
           {kActionSidePanelShowCustomizeChrome,
            toolbar_ui_api::mojom::PinnedToolbarAction::
                kSidePanelShowCustomizeChrome},
-          {kActionSidePanelShowShoppingInsights,
-           toolbar_ui_api::mojom::PinnedToolbarAction::
-               kSidePanelShowShoppingInsights},
+
           {kActionSidePanelShowMerchantTrust,
            toolbar_ui_api::mojom::PinnedToolbarAction::
                kSidePanelShowMerchantTrust},
@@ -136,8 +105,7 @@ WebUIPinnedToolbarActionsTestBase::WebUIPinnedToolbarActionsTestBase()
                kSendSharedTabGroupFeedback},
           {kActionSidePanelShowComments,
            toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowComments},
-          {kActionSidePanelShowGlic,
-           toolbar_ui_api::mojom::PinnedToolbarAction::kSidePanelShowGlic},
+
       } {
 }
 

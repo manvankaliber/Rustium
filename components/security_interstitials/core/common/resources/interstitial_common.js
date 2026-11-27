@@ -142,18 +142,9 @@ export function sendCommand(cmd) {
     }
     return;
   }
-  // <if expr="not is_ios">
   if (window.domAutomationController) {
     window.domAutomationController.send(cmd);
   }
-  // </if>
-  // <if expr="is_ios">
-  // Send commands for iOS committed interstitials.
-  /** @suppress {undefinedVars|missingProperties} */ (function() {
-    window.webkit.messageHandlers['IOSInterstitialMessage'].postMessage(
-        {'command': cmd.toString()});
-  })();
-  // </if>
 }
 
 /**
@@ -166,23 +157,3 @@ export function preventDefaultOnPoundLinkClicks() {
     anchor.addEventListener('click', e => e.preventDefault());
   }
 }
-
-// <if expr="is_ios">
-/**
- * Ensures interstitial pages on iOS aren't loaded from cache, which breaks
- * the commands due to ErrorRetryStateMachine::DidFailProvisionalNavigation
- * not getting triggered.
- */
-function setupIosRefresh() {
-  const load = () => {
-    window.location.replace(loadTimeData.getString('url_to_reload'));
-  };
-  window.addEventListener('pageshow', function(e) {
-    window.onpageshow = load;
-  }, {once: true});
-}
-// </if>
-
-// <if expr="is_ios">
-document.addEventListener('DOMContentLoaded', setupIosRefresh);
-// </if>

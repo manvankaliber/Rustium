@@ -16,7 +16,8 @@
 // Q: Doesn't //base already provide these in string_number_conversions.h, with
 //    functions like base::StringToInt()?
 //
-// A: Yes, and those functions are used under the hood by these implementations.
+// A: Yes. These APIs now use the Rust protocol-number parser, preserving their
+//    original format and error-classification contracts.
 //
 //    However using the base::StringTo*() has historically led to subtle bugs
 //    in the context of parsing network protocols:

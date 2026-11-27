@@ -5,8 +5,7 @@
 import("//mojo/public/tools/bindings/mojom.gni")
 import("//ui/webui/webui_features.gni")
 
-assert(is_linux || is_chromeos || is_win || is_mac)
-assert(!is_fuchsia, "Fuchsia shouldn't use anything in //chrome")
+assert(is_linux || is_win || is_mac)
 
 mojom("mojo_bindings") {
   sources = [ "tab_search.mojom" ]
@@ -41,7 +40,6 @@ source_set("tab_search") {
     "//base:i18n",
     "//chrome/app:command_ids",
     "//chrome/browser/favicon",
-    "//chrome/browser/glic/resources:grit",
     "//chrome/browser/profiles:profile",
     "//chrome/browser/resources/tab_group_shared:resources",
     "//chrome/browser/resources/tab_search:resources",

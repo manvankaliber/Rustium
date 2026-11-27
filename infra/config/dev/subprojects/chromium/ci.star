@@ -110,68 +110,6 @@ def ci_builder(*, name, resultdb_bigquery_exports = None, **kwargs):
         **kwargs
     )
 
-###############################################################################
-# NOTE: If you change any of the following builders, please make sure the
-# GCE image roller that watches these builders is similarly up-to-date. See
-# http://shortn/_F1oktuhGEV.
-###############################################################################
-
-ci_builder(
-    name = "android-arm64-rel-dev",
-    description_html = "Run chromium tests on Android arm64 devices.",
-    builder_spec = builder_config.builder_spec(
-        gclient_config = builder_config.gclient_config(
-            config = "chromium",
-            apply_configs = [
-                "android",
-            ],
-        ),
-        chromium_config = builder_config.chromium_config(
-            config = "main_builder",
-            apply_configs = ["mb"],
-            build_config = builder_config.build_config.RELEASE,
-            target_arch = builder_config.target_arch.ARM,
-            target_bits = 64,
-            target_platform = builder_config.target_platform.ANDROID,
-        ),
-        android_config = builder_config.android_config(
-            config = "base_config",
-        ),
-    ),
-    gn_args = gn_args.config(
-        configs = [
-            "android_builder",
-            "android_with_static_analysis",
-            "release_builder",
-            "remoteexec",
-            "minimal_symbols",
-            "arm64",
-            "strip_debug_info",
-        ],
-    ),
-    targets = targets.bundle(
-        targets = [
-            "chromium_dev_android_gtests",
-        ],
-        mixins = [
-            targets.mixin(
-                swarming = targets.swarming(
-                    dimensions = {
-                        "os": "Android",
-                    },
-                    expiration_sec = 10800,
-                ),
-            ),
-            "chromium_tests_pool",
-            "has_native_resultdb_integration",
-        ],
-    ),
-    targets_settings = targets.settings(
-        os_type = targets.os_type.ANDROID,
-    ),
-    contact_team_email = "clank-engprod@google.com",
-)
-
 ci_builder(
     name = "linux-rel-jammy-dev",
     description_html = "Run chromium tests on Linux Jammy.",

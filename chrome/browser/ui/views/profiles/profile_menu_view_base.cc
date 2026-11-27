@@ -77,8 +77,6 @@
 #include "ui/views/view_class_properties.h"
 #include "ui/views/view_tracker.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 

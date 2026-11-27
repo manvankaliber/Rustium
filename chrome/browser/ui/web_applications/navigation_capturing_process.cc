@@ -61,10 +61,6 @@
 #include "ui/base/page_transition_types.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ui/ash/system_web_apps/system_web_app_ui_utils.h"
-#include "chrome/browser/web_applications/chromeos_web_app_experiments.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace web_app {
 
@@ -379,23 +375,6 @@ NavigationCapturingProcess::MaybeHandleAppNavigation(
     const NavigateParams& params) {
   Profile* profile = params.initiating_profile;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // System Web Apps should not be going through the navigation capturing
-  // process.
-  const std::optional<ash::SystemWebAppType> capturing_system_app_type =
-      ash::GetCapturingSystemAppForURL(profile, params.url);
-  if (capturing_system_app_type.has_value()) {
-    if (params.browser && GetSystemWebAppType(params.browser) ==
-                              capturing_system_app_type.value()) {
-      RecordInitialNavigationCapturingResult(
-          NavigationCapturingInitialResult::kNotHandled);
-      return nullptr;
-    }
-    // This process should never be called for URLS captured by system web apps
-    // from a non-system-web-app browser.
-    NOTREACHED();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   if (!AreWebAppsUserInstallable(profile) ||
       GetBrowserWindowCreationStatusForProfile(*profile) !=
@@ -735,15 +714,7 @@ NavigationCapturingProcess::GetInitialNavigationParamsOverride(
       return AuxiliaryContextInAppWindow(app_window);
     }
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // This case is only reachable on CrOS for apps that were specifically
-    // opted in to the original version of auxiliary context capturing. The
-    // generally available version only captures auxiliary contexts created by a
-    // web app, and in the score of that same web app.
-    return AuxiliaryContext();
-#else
     NOTREACHED();
-#endif
   }
   debug_data_.Set("is_auxiliary_browsing_context", false);
 
@@ -1574,21 +1545,6 @@ bool NavigationCapturingProcess::
     return true;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Check application-specific flags.
-  if (first_navigation_app_id_.has_value() &&
-      ::web_app::ChromeOsWebAppExperiments::
-          IsNavigationCapturingReimplEnabledForTargetApp(
-              *first_navigation_app_id_)) {
-    return true;
-  }
-  if (source_browser_app_id_.has_value() &&
-      ::web_app::ChromeOsWebAppExperiments::
-          IsNavigationCapturingReimplEnabledForSourceApp(
-              *source_browser_app_id_, navigation_params_url_)) {
-    return true;
-  }
-#endif
 
   return false;
 }

@@ -209,9 +209,7 @@ class NewTabPageHandler
   void MaybeLaunchInteractionSurvey(std::string_view interaction,
                                     const std::string& module_id,
                                     int delay_time_ms = 0);
-#if !BUILDFLAG(IS_ANDROID)
   void MaybeShowWebstoreToast();
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   void RecordModuleInteraction(const std::string& module_id);
 
@@ -219,7 +217,6 @@ class NewTabPageHandler
                                  const std::string& key);
 
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   // Returns a HaTS trigger id associated with the given combination of user
   // interaction and module id if one exists, or nullptr otherwise to indicate
   // that there is no configured survey trigger id for such combination. The
@@ -228,7 +225,6 @@ class NewTabPageHandler
   const std::string& GetSurveyTriggerIdForModuleAndInteraction(
       std::string_view interaction,
       const std::string& module_id);
-#endif
 
   void SetModuleHidden(const std::string& module_id, bool hidden);
 
@@ -239,9 +235,7 @@ class NewTabPageHandler
                                bool disabled);
 
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   void TryShowRealboxContextualMenuIPH(ui::TrackedElement* element);
-#endif
 
   // Synchronizes Microsoft module enablement with their current authentication
   // state. The return value indicates whether the modules should be considered
@@ -253,11 +247,9 @@ class NewTabPageHandler
       theme_service_observation_{this};
   base::ScopedObservation<MicrosoftAuthService, MicrosoftAuthServiceObserver>
       microsoft_auth_service_observation_{this};
-#if !BUILDFLAG(IS_ANDROID)
   base::ScopedObservation<new_tab_footer::NewTabFooterController,
                           new_tab_footer::NewTabFooterControllerObserver>
       footer_controller_observation_{this};
-#endif
 
   raw_ptr<NtpCustomBackgroundService> const ntp_custom_background_service_;
   raw_ptr<search_provider_logos::LogoService> const logo_service_;
@@ -286,9 +278,7 @@ class NewTabPageHandler
                           NtpCustomBackgroundServiceObserver>
       ntp_custom_background_service_observation_{this};
 // TODO(b/502297163): Implement for Android.
-#if !BUILDFLAG(IS_ANDROID)
   base::DictValue interaction_module_id_trigger_dict_;
-#endif
   // Notifies this when the browser window context changes.
   base::CallbackListSubscription browser_window_changed_subscription_;
   // Triggered when the searchbox's contextual menu entrypoint is displayed.

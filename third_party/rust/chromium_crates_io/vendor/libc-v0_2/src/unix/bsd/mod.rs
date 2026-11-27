@@ -422,13 +422,7 @@ pub const POLLWRBAND: c_short = 0x100;
 
 cfg_if! {
     // Not yet implemented on NetBSD, and not present on iOS/tvOS/watchOS/visionOS.
-    if #[cfg(not(any(
-        target_os = "netbsd",
-        target_os = "ios",
-        target_os = "tvos",
-        target_os = "watchos",
-        target_os = "visionos",
-    )))] {
+    if #[cfg(not(any(target_os = "netbsd", target_os = "tvos", target_os = "watchos", target_os = "visionos")))] {
         pub const BIOCGBLEN: c_ulong = 0x40044266;
         pub const BIOCSBLEN: c_ulong = 0xc0044266;
         pub const BIOCFLUSH: c_uint = 0x20004268;
@@ -466,12 +460,7 @@ pub const ITIMER_PROF: c_int = 2;
 
 cfg_if! {
     // Not present on iOS/tvOS/watchOS/visionOS
-    if #[cfg(not(any(
-        target_os = "ios",
-        target_os = "tvos",
-        target_os = "watchos",
-        target_os = "visionos",
-    )))] {
+    if #[cfg(not(any(target_os = "tvos", target_os = "watchos", target_os = "visionos")))] {
         // net/route.h
 
         pub const RTF_UP: c_int = 0x1;

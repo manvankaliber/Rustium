@@ -60,7 +60,6 @@
 namespace viz {
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 constexpr float kAvgAbsoluteErrorLimit = 8.f;
 constexpr int kMaxAbsoluteErrorLimit = 32;
 
@@ -70,7 +69,6 @@ cc::FuzzyPixelComparator GetDefaultFuzzyPixelComparator() {
       .SetAvgAbsErrorLimit(kAvgAbsoluteErrorLimit)
       .SetAbsErrorLimit(kMaxAbsoluteErrorLimit);
 }
-#endif
 
 base::FilePath GetTestFilePath(const base::FilePath::CharType* basename) {
   base::FilePath test_dir;
@@ -99,7 +97,6 @@ void DeleteSharedImage(
   client_shared_image->UpdateDestructionSyncToken(sync_token);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 struct ReadbackTextureInfo {
   ReadbackTextureInfo(const gfx::Size& size,
                       SkColorType color_type,
@@ -302,7 +299,6 @@ std::vector<uint8_t> GeneratePixels(size_t num_bytes,
 
   return result;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -577,7 +573,6 @@ TEST_P(ReadbackPixelTestRGBA, ExecutesCopyRequest) {
       actual = scoped_bitmap.value().bitmap();
       break;
     }
-#if !BUILDFLAG(IS_ANDROID)
     case CopyOutputResult::Destination::kSharedImage: {
       const gfx::Size size = result->size();
       actual.allocPixels(SkImageInfo::Make(size.width(), size.height(),
@@ -587,7 +582,6 @@ TEST_P(ReadbackPixelTestRGBA, ExecutesCopyRequest) {
                          result->size(), actual);
       break;
     }
-#endif
     default:
       NOTREACHED();
   }
@@ -611,15 +605,9 @@ INSTANTIATE_TEST_SUITE_P(
         testing::Values(RendererType::kSkiaGL),
         // Result scaling: Scale by half?
         testing::Values(true, false),
-#if BUILDFLAG(IS_ANDROID)
-        // Exclude NativeTexture for Android test.
-        testing::Values(CopyOutputResult::Destination::kSystemMemory)));
-#else
         testing::Values(CopyOutputResult::Destination::kSystemMemory,
                         CopyOutputResult::Destination::kSharedImage)));
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 class ReadbackPixelTestRGBAWithBlit
     : public ReadbackPixelTest,
       public testing::WithParamInterface<
@@ -1135,6 +1123,5 @@ INSTANTIATE_TEST_SUITE_P(
                         LetterboxingBehavior::kLetterbox),
         testing::Bool()  // Should behave as if COR is populating a GMB?
         ));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace viz

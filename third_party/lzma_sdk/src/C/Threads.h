@@ -13,7 +13,7 @@
 
 // #define Z7_AFFINITY_DISABLE
 #if defined(__linux__)
-#if !defined(__APPLE__) && !defined(_AIX) && !defined(__ANDROID__)
+#if !defined(__APPLE__) && !defined(_AIX)
 #ifndef Z7_AFFINITY_DISABLE
 #define Z7_AFFINITY_SUPPORTED
 // #pragma message(" ==== Z7_AFFINITY_SUPPORTED")

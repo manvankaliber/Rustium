@@ -72,10 +72,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/gfx/image/image_unittest_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/android/scoped_java_ref.h"
-#endif
 
 namespace autofill {
 namespace {
@@ -1856,8 +1852,7 @@ TEST_F(PaymentsDataManagerSyncTransportModeTest,
 }
 
 // Sync Transport mode is only for Win, Mac, and Linux.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_F(PaymentsDataManagerSyncTransportModeTest,
        ServerCardsShowInTransportMode) {
   SetUpTwoCardTypes();
@@ -1888,7 +1883,6 @@ TEST_F(PaymentsDataManagerSyncTransportModeTest,
 
 // Test that ensure local data is not lost on sign-in.
 // Clearing/changing the primary account is not supported on CrOS.
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(PaymentsDataManagerTest, KeepExistingLocalDataOnSignIn) {
   // Sign out.
   identity_test_env_.ClearPrimaryAccount();
@@ -1925,7 +1919,6 @@ TEST_F(PaymentsDataManagerTest, KeepExistingLocalDataOnSignIn) {
   EXPECT_EQ(local_card.Compare(*payments_data_manager().GetCreditCards()[0]),
             0);
 }
-#endif
 
 // Tests that all the non settings origins of autofill credit cards are cleared
 // even if sync is disabled.
@@ -2163,427 +2156,8 @@ TEST_P(PaymentsDataManagerServerTest, GetExpiredCreditCardBenefits) {
           merchant_origin_for_merchant_benefit));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(PaymentsDataManagerTest, HasMaskedBankAccounts_PaymentMethodsDisabled) {
-  BankAccount bank_account1 = test::CreatePixBankAccount(1234L);
-  BankAccount bank_account2 = test::CreatePixBankAccount(5678L);
-  ASSERT_TRUE(GetServerDataTable()->SetMaskedBankAccounts(
-      {bank_account1, bank_account2}));
-  // We need to call `Refresh()` to ensure that the BankAccounts are loaded
-  // again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
 
-  // Disable payment methods prefs.
-  prefs::SetAutofillPaymentMethodsEnabled(prefs_.get(), false);
-
-  // Verify that no bank accounts are loaded into PaymentsDataManager because
-  // the AutofillPaymentMethodsEnabled pref is set to false.
-  EXPECT_FALSE(payments_data_manager().HasMaskedBankAccounts());
-}
-
-TEST_F(PaymentsDataManagerTest, HasMaskedBankAccounts_NoMaskedBankAccounts) {
-  // If the user doesn't have any masked bank accounts, or if the masked bank
-  // accounts are not synced to PaymentsDatamanager, HasMaskedBankAccounts
-  // should return false.
-  EXPECT_FALSE(payments_data_manager().HasMaskedBankAccounts());
-}
-
-TEST_F(PaymentsDataManagerTest, HasMaskedBankAccounts_MaskedBankAccountsExist) {
-  BankAccount bank_account1 = test::CreatePixBankAccount(1234L);
-  BankAccount bank_account2 = test::CreatePixBankAccount(5678L);
-  ASSERT_TRUE(GetServerDataTable()->SetMaskedBankAccounts(
-      {bank_account1, bank_account2}));
-
-  // We need to call `Refresh()` to ensure that the BankAccounts are loaded
-  // again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  EXPECT_TRUE(payments_data_manager().HasMaskedBankAccounts());
-}
-
-TEST_F(PaymentsDataManagerTest, GetMaskedBankAccounts_PaymentMethodsDisabled) {
-  BankAccount bank_account1 = test::CreatePixBankAccount(1234L);
-  BankAccount bank_account2 = test::CreatePixBankAccount(5678L);
-  ASSERT_TRUE(GetServerDataTable()->SetMaskedBankAccounts(
-      {bank_account1, bank_account2}));
-  // We need to call `Refresh()` to ensure that the BankAccounts are loaded
-  // again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  // Disable payment methods prefs.
-  prefs::SetAutofillPaymentMethodsEnabled(prefs_.get(), false);
-
-  // Verify that no bank accounts are loaded into PaymentsDataManager because
-  // the AutofillPaymentMethodsEnabled pref is set to false.
-  EXPECT_THAT(payments_data_manager().GetMaskedBankAccounts(),
-              testing::IsEmpty());
-}
-
-TEST_F(PaymentsDataManagerTest, GetMaskedBankAccounts_DatabaseUpdated) {
-  BankAccount bank_account1 = test::CreatePixBankAccount(1234L);
-  BankAccount bank_account2 = test::CreatePixBankAccount(5678L);
-  ASSERT_TRUE(GetServerDataTable()->SetMaskedBankAccounts(
-      {bank_account1, bank_account2}));
-
-  // Since the PaymentsDataManager was initialized before adding the masked
-  // bank accounts to the WebDatabase, we expect GetMaskedBankAccounts to return
-  // an empty list.
-  base::span<const BankAccount> bank_accounts =
-      payments_data_manager().GetMaskedBankAccounts();
-  EXPECT_EQ(bank_accounts.size(), 0u);
-
-  // We need to call `Refresh()` to ensure that the BankAccounts are loaded
-  // again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  bank_accounts = payments_data_manager().GetMaskedBankAccounts();
-  EXPECT_EQ(bank_accounts.size(), 2u);
-}
-
-TEST_F(PaymentsDataManagerTest,
-       MaskedBankAccountsIconsFetched_DatabaseUpdated) {
-  MockAutofillImageFetcher mock_image_fetcher;
-  test_api(payments_data_manager()).SetImageFetcher(&mock_image_fetcher);
-
-  BankAccount bank_account1(1234L, u"nickname", GURL("http://www.example1.com"),
-                            u"bank_name", u"account_number",
-                            BankAccount::AccountType::kChecking);
-  BankAccount bank_account2(5678L, u"nickname", GURL("http://www.example2.com"),
-                            u"bank_name", u"account_number",
-                            BankAccount::AccountType::kChecking);
-  ASSERT_TRUE(GetServerDataTable()->SetMaskedBankAccounts(
-      {bank_account1, bank_account2}));
-
-  EXPECT_CALL(mock_image_fetcher, FetchPixAccountImagesForURLs);
-
-  // We need to call `Refresh()` to ensure that the BankAccounts are loaded
-  // again from the WebDatabase which triggers the call to fetch icons from
-  // image fetcher.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-}
-
-TEST_F(PaymentsDataManagerTest, HasEwalletAccounts_ExpOff) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(
-      features::kAutofillSyncEwalletAccounts);
-  sync_pb::PaymentInstrument payment_instrument_1 =
-      test::CreatePaymentInstrumentWithEwalletAccount(1234L);
-  sync_pb::PaymentInstrument payment_instrument_2 =
-      test::CreatePaymentInstrumentWithEwalletAccount(2345L);
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstruments(
-      {payment_instrument_1, payment_instrument_2}));
-
-  // Refresh the PaymentsDataManager. Under normal circumstances with the flag
-  // on, this step would load the eWallet payment instruments from the
-  // WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  // Verify that no eWallet accounts are loaded into PaymentsDataManager because
-  // the experiment is turned off.
-  EXPECT_FALSE(payments_data_manager().HasEwalletAccounts());
-}
-
-TEST_F(PaymentsDataManagerTest, HasEwalletAccounts_PaymentMethodsDisabled) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  sync_pb::PaymentInstrument payment_instrument_1 =
-      test::CreatePaymentInstrumentWithEwalletAccount(1234L);
-  sync_pb::PaymentInstrument payment_instrument_2 =
-      test::CreatePaymentInstrumentWithEwalletAccount(2345L);
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstruments(
-      {payment_instrument_1, payment_instrument_2}));
-
-  // Refresh the PaymentsDataManager. Under normal circumstances with the flag
-  // on, this step would load the bank accounts from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  // Disable payment methods prefs.
-  prefs::SetAutofillPaymentMethodsEnabled(prefs_.get(), false);
-
-  // Verify that no eWallet accounts are loaded into PaymentsDataManager because
-  // the AutofillPaymentMethodsEnabled pref is set to false.
-  EXPECT_FALSE(payments_data_manager().HasEwalletAccounts());
-}
-
-TEST_F(PaymentsDataManagerTest, HasEwalletAccounts_NoEwalletAccounts) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-
-  // If the user doesn't have any eWallet accounts, or if the eWallet accounts
-  // are not synced to PaymentsDatamanager, HasEwalletAccounts should return
-  // false.
-  EXPECT_FALSE(payments_data_manager().HasEwalletAccounts());
-}
-
-TEST_F(PaymentsDataManagerTest, HasEwalletAccounts_EwalletAccountsExist) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  sync_pb::PaymentInstrument payment_instrument_1 =
-      test::CreatePaymentInstrumentWithEwalletAccount(1234L);
-  sync_pb::PaymentInstrument payment_instrument_2 =
-      test::CreatePaymentInstrumentWithEwalletAccount(2345L);
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstruments(
-      {payment_instrument_1, payment_instrument_2}));
-
-  // Refresh the PaymentsDataManager. Under normal circumstances with the flag
-  // on, this step would load the bank accounts from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  EXPECT_TRUE(payments_data_manager().HasEwalletAccounts());
-}
-
-TEST_F(PaymentsDataManagerTest, GetEwalletAccounts_ExpOff) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(
-      features::kAutofillSyncEwalletAccounts);
-  sync_pb::PaymentInstrument payment_instrument_1 =
-      test::CreatePaymentInstrumentWithEwalletAccount(1234L);
-  sync_pb::PaymentInstrument payment_instrument_2 =
-      test::CreatePaymentInstrumentWithEwalletAccount(2345L);
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstruments(
-      {payment_instrument_1, payment_instrument_2}));
-
-  base::span<const Ewallet> ewallet_accounts =
-      payments_data_manager().GetEwalletAccounts();
-  // Since the PaymentsDataManager was initialized before adding the eWallet
-  // payment instruments to the WebDatabase, we expect GetEwalletAccounts to
-  // return an empty list.
-  EXPECT_EQ(ewallet_accounts.size(), 0u);
-
-  // Refresh the PaymentsDataManager. Under normal circumstances with the flag
-  // on, this step would load the bank accounts from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  // Verify that no eWallet accounts are loaded into PaymentsDataManager because
-  // the experiment is turned off.
-  ewallet_accounts = payments_data_manager().GetEwalletAccounts();
-  EXPECT_EQ(ewallet_accounts.size(), 0u);
-}
-
-TEST_F(PaymentsDataManagerTest, GetEwalletAccounts_PaymentMethodsDisabled) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  sync_pb::PaymentInstrument payment_instrument_1 =
-      test::CreatePaymentInstrumentWithEwalletAccount(1234L);
-  sync_pb::PaymentInstrument payment_instrument_2 =
-      test::CreatePaymentInstrumentWithEwalletAccount(2345L);
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstruments(
-      {payment_instrument_1, payment_instrument_2}));
-
-  // We need to call `Refresh()` to ensure that the eWallet payment instruments
-  // are loaded again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  // Disable payment methods prefs.
-  prefs::SetAutofillPaymentMethodsEnabled(prefs_.get(), false);
-
-  // Verify that no eWallet accounts are loaded into PaymentsDataManager because
-  // the AutofillPaymentMethodsEnabled pref is set to false.
-  EXPECT_THAT(payments_data_manager().GetEwalletAccounts(), testing::IsEmpty());
-}
-
-TEST_F(PaymentsDataManagerTest, GetEwalletAccounts_DatabaseUpdated) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  sync_pb::PaymentInstrument payment_instrument_1 =
-      test::CreatePaymentInstrumentWithEwalletAccount(1234L);
-  sync_pb::PaymentInstrument payment_instrument_2 =
-      test::CreatePaymentInstrumentWithEwalletAccount(2345L);
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstruments(
-      {payment_instrument_1, payment_instrument_2}));
-
-  // Since the PaymentsDataManager was initialized before adding the eWallet
-  // payment instruments to the WebDatabase, we expect GetEwalletAccounts to
-  // return an empty list.
-  base::span<const Ewallet> ewallet_accounts =
-      payments_data_manager().GetEwalletAccounts();
-  EXPECT_EQ(ewallet_accounts.size(), 0u);
-
-  // We need to call `Refresh()` to ensure that the eWallet payment instruments
-  // are loaded again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  ewallet_accounts = payments_data_manager().GetEwalletAccounts();
-  EXPECT_EQ(ewallet_accounts.size(), 2u);
-}
-
-TEST_F(PaymentsDataManagerTest, GetEwalletAccounts_VerifyFields) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  sync_pb::PaymentInstrument payment_instrument =
-      test::CreatePaymentInstrumentWithEwalletAccount(1234L);
-  payment_instrument.mutable_ewallet_details()->add_supported_payment_link_uris(
-      "supported_payment_link_uri_2");
-  ASSERT_TRUE(
-      GetServerDataTable()->SetPaymentInstruments({payment_instrument}));
-
-  // Since the PaymentsDataManager was initialized before adding the eWallet
-  // payment instruments to the WebDatabase, we expect GetEwalletAccounts to
-  // return an empty list.
-  base::span<const Ewallet> ewallet_accounts =
-      payments_data_manager().GetEwalletAccounts();
-  EXPECT_EQ(ewallet_accounts.size(), 0u);
-
-  // We need to call `Refresh()` to ensure that the eWallet payment instruments
-  // are loaded again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  ewallet_accounts = payments_data_manager().GetEwalletAccounts();
-  EXPECT_EQ(ewallet_accounts.size(), 1u);
-
-  const Ewallet ewallet_account = ewallet_accounts.front();
-  EXPECT_EQ(ewallet_account.payment_instrument().instrument_id(),
-            payment_instrument.instrument_id());
-  EXPECT_EQ(ewallet_account.payment_instrument().instrument_id(),
-            payment_instrument.instrument_id());
-  EXPECT_EQ(ewallet_account.payment_instrument().nickname(),
-            base::UTF8ToUTF16(payment_instrument.nickname()));
-  EXPECT_EQ(ewallet_account.payment_instrument().display_icon_url().spec(),
-            payment_instrument.display_icon_url());
-  EXPECT_EQ(ewallet_account.payment_instrument().is_fido_enrolled(),
-            payment_instrument.device_details().is_fido_enrolled());
-  EXPECT_EQ(
-      ewallet_account.ewallet_name(),
-      base::UTF8ToUTF16(payment_instrument.ewallet_details().ewallet_name()));
-  EXPECT_EQ(ewallet_account.account_display_name(),
-            base::UTF8ToUTF16(
-                payment_instrument.ewallet_details().account_display_name()));
-  EXPECT_EQ(ewallet_account.supported_payment_link_uris().size(),
-            static_cast<size_t>(payment_instrument.ewallet_details()
-                                    .supported_payment_link_uris()
-                                    .size()));
-}
-
-TEST_F(PaymentsDataManagerTest, EwalletAccountsIconsFetched_DatabaseUpdated) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  MockAutofillImageFetcher mock_image_fetcher;
-  test_api(payments_data_manager()).SetImageFetcher(&mock_image_fetcher);
-
-  sync_pb::PaymentInstrument payment_instrument;
-  payment_instrument.set_instrument_id(1234L);
-  payment_instrument.set_display_icon_url("http://www.example1.com");
-  payment_instrument.mutable_ewallet_details();
-  ASSERT_TRUE(
-      GetServerDataTable()->SetPaymentInstruments({payment_instrument}));
-
-  EXPECT_CALL(mock_image_fetcher, FetchCreditCardArtImagesForURLs);
-
-  // We need to call `Refresh()` to ensure that the eWallet payment instruments
-  // are loaded again from the WebDatabase which triggers the call to fetch
-  // icons from image fetcher.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-}
-
-TEST_F(
-    PaymentsDataManagerTest,
-    GetEwalletAccounts_PaymentsDataManagerRefreshedTwice_NoDuplicatedEwalletAccounts) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  sync_pb::PaymentInstrument payment_instrument_1 =
-      test::CreatePaymentInstrumentWithEwalletAccount(1234L);
-  sync_pb::PaymentInstrument payment_instrument_2 =
-      test::CreatePaymentInstrumentWithEwalletAccount(2345L);
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstruments(
-      {payment_instrument_1, payment_instrument_2}));
-
-  // Since the PaymentsDataManager was initialized before adding the eWallet
-  // payment instruments to the WebDatabase, we expect GetEwalletAccounts to
-  // return an empty list.
-  base::span<const Ewallet> ewallet_accounts =
-      payments_data_manager().GetEwalletAccounts();
-  EXPECT_EQ(ewallet_accounts.size(), 0u);
-
-  // We need to call `Refresh()` to ensure that the eWallet payment instruments
-  // are loaded again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  ewallet_accounts = payments_data_manager().GetEwalletAccounts();
-  EXPECT_EQ(ewallet_accounts.size(), 2u);
-
-  // Invoke `Refresh()` again.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  ewallet_accounts = payments_data_manager().GetEwalletAccounts();
-  EXPECT_EQ(ewallet_accounts.size(), 2u);
-}
-
-// Tests that eWallet data is unchanged when the `kAutofillBnplEnabled` pref
-// is turned on/off.
-TEST_F(
-    PaymentsDataManagerTest,
-    OnPaymentInstrumentEnabledPrefChange_BnplEnabledPrefChanged_EwalletsUnchanged) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      {features::kAutofillSyncEwalletAccounts,
-       features::kAutofillEnableBuyNowPayLaterSyncing},
-      {});
-  sync_pb::PaymentInstrument ewallet_1 =
-      test::CreatePaymentInstrumentWithEwalletAccount(1234L);
-  sync_pb::PaymentInstrument ewallet_2 =
-      test::CreatePaymentInstrumentWithEwalletAccount(2345L);
-  sync_pb::PaymentInstrument linked_issuer =
-      test::CreatePaymentInstrumentWithLinkedBnplIssuer(
-          3456L, std::string(kBnplAffirmIssuerId), "USD",
-          /*min_price_in_micros=*/0,
-          /*max_price_in_micros=*/35'000'000);
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstruments(
-      {ewallet_1, ewallet_2, linked_issuer}));
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstrumentCreationOptions(
-      {test::CreatePaymentInstrumentCreationOptionWithBnplIssuer("5678")}));
-
-  // Since the PaymentsDataManager was initialized before adding the
-  // payment instruments to the WebDatabase, we expect `GetEwalletAccounts()`
-  // and `GetBnplIssuers()` to return an empty list.
-  EXPECT_EQ(payments_data_manager().GetEwalletAccounts().size(), 0U);
-  EXPECT_EQ(payments_data_manager().GetBnplIssuers().size(), 0U);
-
-  // We need to call `Refresh()` to ensure that the payment instruments
-  // are loaded again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  EXPECT_EQ(payments_data_manager().GetBnplIssuers().size(), 2U);
-  EXPECT_EQ(payments_data_manager().GetUnlinkedBnplIssuers().size(), 1U);
-  EXPECT_EQ(payments_data_manager().GetLinkedBnplIssuers().size(), 1U);
-  EXPECT_EQ(payments_data_manager().GetEwalletAccounts().size(), 2U);
-
-  ASSERT_TRUE(prefs::IsAutofillBnplEnabled(prefs_.get()));
-  prefs::SetAutofillBnplEnabled(prefs_.get(), false);
-  WaitForOnPaymentsDataChanged();
-
-  EXPECT_TRUE(payments_data_manager().GetBnplIssuers().empty());
-  EXPECT_TRUE(payments_data_manager().GetUnlinkedBnplIssuers().empty());
-  EXPECT_TRUE(payments_data_manager().GetLinkedBnplIssuers().empty());
-  EXPECT_EQ(payments_data_manager().GetEwalletAccounts().size(), 2U);
-
-  prefs::SetAutofillBnplEnabled(prefs_.get(), true);
-  WaitForOnPaymentsDataChanged();
-
-  EXPECT_EQ(payments_data_manager().GetBnplIssuers().size(), 2U);
-  EXPECT_EQ(payments_data_manager().GetUnlinkedBnplIssuers().size(), 1U);
-  EXPECT_EQ(payments_data_manager().GetLinkedBnplIssuers().size(), 1U);
-  EXPECT_EQ(payments_data_manager().GetEwalletAccounts().size(), 2U);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Tests that no linked BNPL issuers are returned if the BNPL sync flag is off.
 TEST_P(PaymentsDataManagerServerTest, GetLinkedBnplIssuers_FlagOff) {
   base::test::ScopedFeatureList scoped_feature_list;
@@ -3012,7 +2586,6 @@ TEST_F(PaymentsDataManagerTest,
                 category_benefit.benefit_category()));
 }
 
-#if !BUILDFLAG(IS_IOS)
 TEST_F(PaymentsDataManagerTest,
        TestNoImageFetchingAttemptForCardsWithInvalidCardArtUrls) {
   base::HistogramTester histogram_tester;
@@ -3083,7 +2656,6 @@ TEST_P(PaymentsDataManagerStartupBenefitsTest,
       "Autofill.PaymentMethods.CardBenefitsIsEnabled.Startup",
       IsBenefitsPrefTurnedOn(), 1);
 }
-#endif  // !BUILDFLAG(IS_IOS)
 
 // Tests that on startup if payment methods are disabled we don't log if
 // benefits are enabled/disabled.
@@ -3130,18 +2702,7 @@ class PaymentsDataManagerIsCardEligibleForBenefitsTest
   void TearDown() override { TearDownTest(); }
 };
 
-#if BUILDFLAG(IS_IOS)
 
-// Tests that `IsCardEligibleForBenefits` returns `false` for iOS platforms.
-TEST_F(PaymentsDataManagerIsCardEligibleForBenefitsTest, UnsupportedPlatform) {
-  CreditCard card = test::GetMaskedServerCard();
-  card.set_benefit_source(kAmexCardBenefitSource);
-  EXPECT_FALSE(payments_data_manager().IsCardEligibleForBenefits(card));
-}
-
-#endif  // BUILDFLAG(IS_IOS)
-
-#if !BUILDFLAG(IS_IOS)
 
 // Tests that `IsCardEligibleForBenefits` returns `false` when the benefit
 // source is invalid.
@@ -3348,7 +2909,6 @@ TEST_F(PaymentsDataManagerIsCardEligibleForBenefitsTest,
   EXPECT_FALSE(payments_data_manager().IsCardEligibleForBenefits(card));
 }
 
-#endif  // !BUILDFLAG(IS_IOS)
 
 // Params:
 // 1. App Locale.
@@ -3872,7 +3432,6 @@ TEST_F(PaymentsDataManagerSyncTransportModeTest,
             AutofillMetrics::PaymentsSigninState::kSignedIn);
 
 // ClearPrimaryAccount is not supported on CrOS.
-#if !BUILDFLAG(IS_CHROMEOS)
   // Check that the sync state is |SignedOut| when the account info is empty.
   {
     identity_test_env_.ClearPrimaryAccount();
@@ -3880,18 +3439,12 @@ TEST_F(PaymentsDataManagerSyncTransportModeTest,
     EXPECT_EQ(payments_data_manager().GetPaymentsSigninStateForMetrics(),
               AutofillMetrics::PaymentsSigninState::kSignedOut);
   }
-#endif
 
   // Simulate that the user has enabled the sync feature.
-#if BUILDFLAG(IS_CHROMEOS)
-  // MakePrimaryAccountAvailable is not supported on CrOS.
-  sync_service_.SetSignedIn(signin::ConsentLevel::kSync);
-#else
   AccountInfo account_info = identity_test_env_.MakePrimaryAccountAvailable(
       "syncuser@example.com", signin::ConsentLevel::kSync);
   sync_service_.SetSignedIn(signin::ConsentLevel::kSync,
                             account_info.GetCoreAccountInfo());
-#endif
 
   // Check that the sync state is |SignedInAndSyncFeature| if the sync feature
   // is enabled.
@@ -3900,35 +3453,11 @@ TEST_F(PaymentsDataManagerSyncTransportModeTest,
       AutofillMetrics::PaymentsSigninState::kSignedInAndSyncFeatureEnabled);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(PaymentsDataManagerTest,
-       AutofillPaymentMethodsMandatoryReauthAlwaysEnabledOnAutomotive) {
-  if (!base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should only run on automotive.";
-  }
 
-  EXPECT_TRUE(payments_data_manager().IsPaymentMethodsMandatoryReauthEnabled());
-
-  EXPECT_CHECK_DEATH_WITH(
-      {
-        payments_data_manager().SetPaymentMethodsMandatoryReauthEnabled(false);
-      },
-      "This feature should not be able to be turned off on automotive "
-      "devices.");
-
-  EXPECT_TRUE(payments_data_manager().IsPaymentMethodsMandatoryReauthEnabled());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Test that setting the `kAutofillEnablePaymentsMandatoryReauth` pref works
 // correctly.
 TEST_F(PaymentsDataManagerTest, AutofillPaymentMethodsMandatoryReauthEnabled) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   EXPECT_FALSE(
       payments_data_manager().IsPaymentMethodsMandatoryReauthEnabled());
@@ -3938,10 +3467,9 @@ TEST_F(PaymentsDataManagerTest, AutofillPaymentMethodsMandatoryReauthEnabled) {
   EXPECT_FALSE(
       payments_data_manager().IsPaymentMethodsMandatoryReauthEnabled());
 }
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#endif
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Test that
 // `PaymentsDataManager::ShouldShowPaymentMethodsMandatoryReauthPromo()`
 // only returns that we should show the promo when we are below the max counter
@@ -3949,11 +3477,6 @@ TEST_F(PaymentsDataManagerTest, AutofillPaymentMethodsMandatoryReauthEnabled) {
 TEST_F(
     PaymentsDataManagerTest,
     ShouldShowPaymentMethodsMandatoryReauthPromo_MaxValueForPromoShownCounterReached) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   base::HistogramTester histogram_tester;
   for (int i = 0; i < prefs::kMaxValueForMandatoryReauthPromoShownCounter;
@@ -3981,13 +3504,6 @@ TEST_F(
 // returns that we should not show the promo if the user already opted in.
 TEST_F(PaymentsDataManagerTest,
        ShouldShowPaymentMethodsMandatoryReauthPromo_UserOptedInAlready) {
-#if BUILDFLAG(IS_ANDROID)
-  // Opt-in prompts are not shown on automotive as mandatory reauth is always
-  // enabled.
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   base::HistogramTester histogram_tester;
 
@@ -4007,11 +3523,6 @@ TEST_F(PaymentsDataManagerTest,
 // returns that we should not show the promo if the user has already opted out.
 TEST_F(PaymentsDataManagerTest,
        ShouldShowPaymentMethodsMandatoryReauthPromo_UserOptedOut) {
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::device_info::is_automotive()) {
-    GTEST_SKIP() << "This test should not run on automotive.";
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   base::HistogramTester histogram_tester;
   // Simulate user is already opted out.
@@ -4024,7 +3535,7 @@ TEST_F(PaymentsDataManagerTest,
       "ReauthOfferOptInDecision2",
       autofill_metrics::MandatoryReauthOfferOptInDecision::kAlreadyOptedOut, 1);
 }
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID) ||
+#endif
         // BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(PaymentsDataManagerTest, SaveCardLocallyIfNewWithNewCard) {
@@ -4153,159 +3664,7 @@ TEST_F(PaymentsDataManagerTest, RecordLocalCardAdded) {
       "Autofill.PaymentsDataManager.LocalCardAdded", true, 1);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Tests that unlinked eWallet creation options are successfully loaded from the
-// WebDatabase and cached in the PaymentsDataManager when Refresh() is called.
-TEST_P(PaymentsDataManagerServerTest,
-       GetEwalletCreationOptions_EwalletCreationOptionsCacheUpdated) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      ::payments::facilitated::kEnableEwalletNewAccountLinking);
-
-  // Create an eWallet payment creation option.
-  sync_pb::PaymentInstrumentCreationOption creation_option;
-  creation_option.set_id("1234");
-
-  sync_pb::EwalletCreationOption* ewallet_option =
-      creation_option.mutable_ewallet_creation_option();
-  ewallet_option->set_issuer_id("shopeepay");
-  ewallet_option->set_issuer_display_name("ShopeePay");
-  ewallet_option->add_supported_payment_link_uris("shopeepay://.*");
-
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstrumentCreationOptions(
-      {creation_option}));
-
-  EXPECT_THAT(payments_data_manager().GetEwalletCreationOptions(),
-              testing::IsEmpty());
-
-  // We need to call `Refresh()` to ensure that the eWallet creation options
-  // are loaded again from the WebDatabase.
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  EXPECT_THAT(payments_data_manager().GetEwalletCreationOptions(),
-              testing::UnorderedElementsAre(Ewallet(
-                  /*instrument_id=*/0, /*nickname=*/u"",
-                  /*display_icon_url=*/GURL(), /*ewallet_name=*/u"shopeepay",
-                  /*account_display_name=*/u"ShopeePay",
-                  /*supported_payment_link_uris=*/{u"shopeepay://.*"},
-                  /*is_fido_enrolled=*/false)));
-}
-
-// Tests that no unlinked eWallet creation options are cached in the
-// PaymentsDataManager if the eWallet sync/caching feature is disabled.
-TEST_P(PaymentsDataManagerServerTest,
-       GetEwalletCreationOptions_FlagDisabled_EwalletCreationOptionsNotCached) {
-  base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitAndDisableFeature(
-      ::payments::facilitated::kEnableEwalletNewAccountLinking);
-
-  sync_pb::PaymentInstrumentCreationOption creation_option;
-  creation_option.set_id("1234");
-  creation_option.mutable_ewallet_creation_option()->set_issuer_display_name(
-      "ShopeePay");
-
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstrumentCreationOptions(
-      {creation_option}));
-
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  EXPECT_THAT(payments_data_manager().GetEwalletCreationOptions(),
-              testing::IsEmpty());
-}
-
-// Tests that calling ClearAllServerDataForTesting() clears all cached unlinked
-// eWallet creation options.
-TEST_P(PaymentsDataManagerServerTest,
-       ClearAllServerData_ClearsEwalletCreationOptions) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      ::payments::facilitated::kEnableEwalletNewAccountLinking);
-
-  sync_pb::PaymentInstrumentCreationOption creation_option;
-  creation_option.set_id("1234");
-  creation_option.mutable_ewallet_creation_option()->set_issuer_display_name(
-      "ShopeePay");
-
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstrumentCreationOptions(
-      {creation_option}));
-
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  ASSERT_THAT(payments_data_manager().GetEwalletCreationOptions(),
-              testing::Not(testing::IsEmpty()));
-
-  payments_data_manager().ClearAllServerDataForTesting();
-
-  EXPECT_THAT(payments_data_manager().GetEwalletCreationOptions(),
-              testing::IsEmpty());
-}
-
-// This test ensures that if the server accidentally returns duplicate unlinked
-// eWallet issuers it is handled gracefully in Chrome.
-TEST_P(PaymentsDataManagerServerTest,
-       GetEwalletCreationOptions_DuplicateIssuers) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      ::payments::facilitated::kEnableEwalletNewAccountLinking);
-
-  // Create an eWallet payment creation option.
-  sync_pb::PaymentInstrumentCreationOption creation_option;
-  creation_option.set_id("1234");
-
-  sync_pb::EwalletCreationOption* ewallet_option =
-      creation_option.mutable_ewallet_creation_option();
-  ewallet_option->set_issuer_id("shopeepay");
-  ewallet_option->set_issuer_display_name("ShopeePay");
-  ewallet_option->add_supported_payment_link_uris("shopeepay://.*");
-
-  sync_pb::PaymentInstrumentCreationOption creation_option_2 = creation_option;
-  creation_option_2.set_id("5678");
-
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstrumentCreationOptions(
-      {creation_option, creation_option_2}));
-
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  EXPECT_THAT(payments_data_manager().GetEwalletCreationOptions(),
-              testing::UnorderedElementsAre(Ewallet(
-                  /*instrument_id=*/0, /*nickname=*/u"",
-                  /*display_icon_url=*/GURL(), /*ewallet_name=*/u"shopeepay",
-                  /*account_display_name=*/u"ShopeePay",
-                  /*supported_payment_link_uris=*/{u"shopeepay://.*"},
-                  /*is_fido_enrolled=*/false)));
-}
-
-// Tests that eWallet creation options are not returned if the
-// overall payment methods preference is disabled.
-TEST_P(PaymentsDataManagerServerTest,
-       GetEwalletCreationOptions_PaymentMethodsDisabled) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      ::payments::facilitated::kEnableEwalletNewAccountLinking);
-
-  sync_pb::PaymentInstrumentCreationOption creation_option;
-  creation_option.set_id("1234");
-  creation_option.mutable_ewallet_creation_option()->set_issuer_display_name(
-      "ShopeePay");
-
-  ASSERT_TRUE(GetServerDataTable()->SetPaymentInstrumentCreationOptions(
-      {creation_option}));
-
-  payments_data_manager().Refresh();
-  WaitForOnPaymentsDataChanged();
-
-  ASSERT_THAT(payments_data_manager().GetEwalletCreationOptions(),
-              testing::Not(testing::IsEmpty()));
-
-  // Disable overall payment methods pref.
-  prefs::SetAutofillPaymentMethodsEnabled(prefs_.get(), false);
-
-  EXPECT_THAT(payments_data_manager().GetEwalletCreationOptions(),
-              testing::IsEmpty());
-}
-#endif  // BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_P(
     PaymentsDataManagerServerTest,
     GetUnlinkedBnplIssuersWhenBnplSyncFeatureDisabled_UnlinkedBnplIssuersNotCached) {

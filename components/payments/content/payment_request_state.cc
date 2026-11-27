@@ -124,12 +124,7 @@ base::WeakPtr<PaymentRequestSpec> PaymentRequestState::GetSpec() const {
   return spec_;
 }
 
-void PaymentRequestState::GetTwaPackageName(
-    GetTwaPackageNameCallback callback) {
-  GetPaymentRequestDelegate()->GetTwaPackageName(
-      base::BindOnce(&PaymentRequestState::OnGetTwaPackageName,
-                     weak_ptr_factory_.GetWeakPtr(), std::move(callback)));
-}
+
 
 const GURL& PaymentRequestState::GetTopOrigin() {
   return top_origin_;
@@ -194,21 +189,7 @@ void PaymentRequestState::OnDoneCreatingPaymentApps() {
   if (--number_of_payment_app_factories_ > 0U)
     return;
 
-  if (IsInTwa()) {
-    // If a preferred payment app is present (e.g. Play Billing within a TWA),
-    // all other payment apps are ignored.
-    bool has_preferred_app = std::ranges::any_of(
-        available_apps_, [](const auto& app) { return app->IsPreferred(); });
-    if (has_preferred_app) {
-      std::erase_if(available_apps_,
-                    [](const auto& app) { return !app->IsPreferred(); });
 
-      // By design, only one payment app can be preferred.
-      DCHECK_EQ(available_apps_.size(), 1u);
-      if (available_apps_.size() > 1)
-        available_apps_.resize(1);
-    }
-  }
 
   SetDefaultProfileSelections();
 
@@ -355,13 +336,7 @@ void PaymentRequestState::CheckRequestedMethodsSupported(
   if (!spec_)
     return;
 
-  if (!are_requested_methods_supported_ &&
-      get_all_payment_apps_error_.empty() &&
-      spec_->payment_method_identifiers_set().contains(
-          methods::kGooglePlayBilling) &&
-      !IsInTwa()) {
-    get_all_payment_apps_error_ = errors::kAppStoreMethodOnlySupportedInTwa;
-  }
+
 
   std::move(callback).Run(are_requested_methods_supported_,
                           get_all_payment_apps_error_,
@@ -712,17 +687,9 @@ void PaymentRequestState::OnAddressNormalized(
                                                       app_locale_));
 }
 
-void PaymentRequestState::OnGetTwaPackageName(
-    GetTwaPackageNameCallback callback,
-    const std::string& twa_package_name) {
-  DCHECK(!get_all_apps_finished_);
-  twa_package_name_ = twa_package_name;
-  std::move(callback).Run(twa_package_name);
-}
 
-bool PaymentRequestState::IsInTwa() const {
-  return !twa_package_name_.empty();
-}
+
+
 
 bool PaymentRequestState::GetCanMakePaymentValue() const {
   return are_requested_methods_supported_ ||

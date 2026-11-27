@@ -16,8 +16,7 @@ class PolicyMap;
 
 namespace enterprise_net {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 // Returns true if the browser/device is managed (either via CBCM device
 // affiliation IDs or trusted OS/platform management such as EMM/MDM/AD).
 // Trusted OS/platform management only counts when the

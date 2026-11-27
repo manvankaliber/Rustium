@@ -33,7 +33,7 @@
 #include "base/win/windows_types.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include "base/test/scoped_locale.h"
 #endif
 
@@ -298,8 +298,7 @@ struct UpdateClientUtilsUTF8StringTypeTestCase {
 
 class UpdateClientUtilsUTF8StringTypeTest
     : public ::testing::TestWithParam<UpdateClientUtilsUTF8StringTypeTestCase> {
-#if !defined(SYSTEM_NATIVE_UTF8) && \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
+#if !defined(SYSTEM_NATIVE_UTF8) && BUILDFLAG(IS_LINUX)
  protected:
   base::ScopedLocale locale_{"en_US.UTF-8"};
 #endif

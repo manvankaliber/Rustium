@@ -489,7 +489,6 @@ GoogleSearchMode GoogleSearchModeFromUrl(const GURL& url) {
     } else if (value_str == "nws") {
       mode = GoogleSearchMode::kNews;
     } else if (value_str == "shop") {
-      mode = GoogleSearchMode::kShopping;
     } else if (value_str == "vid") {
       mode = GoogleSearchMode::kVideos;
     } else if (value_str == "bks") {

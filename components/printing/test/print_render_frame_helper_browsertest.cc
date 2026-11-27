@@ -98,7 +98,6 @@ const char kMultipageHTML[] =
     "<div>page3</div>"
     "</body></html>";
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // A simple webpage with a button to print itself with.
 const char kPrintOnUserAction[] =
     "<body>"
@@ -161,7 +160,6 @@ const char kHTMLWithManyLinesOfText[] =
     "<p>The quick brown fox jumped over the lazy dog.</p>"
     "</body></html>";
 #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
 class FakePrintPreviewUI : public mojom::PrintPreviewUI {
@@ -490,12 +488,6 @@ class TestPrintManagerHost
     std::move(quit_closure_).Run();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetupScriptedPrintAndroid(
-      SetupScriptedPrintAndroidCallback callback) override {
-    std::move(callback).Run();
-  }
-#endif
 
   uint32_t number_pages_ = 0;
   bool is_setup_scripted_print_preview_ = false;
@@ -655,13 +647,6 @@ class PrintRenderFrameHelperTestBase : public content::RenderViewTest {
     base::RunLoop().RunUntilIdle();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void OnInitiatePrint() {
-    GetPrintRenderFrameHelper()->InitiatePrintAndroid();
-  }
-
-  void OnFinishPrint() { GetPrintRenderFrameHelper()->FinishPrintAndroid(); }
-#endif
 
   void OnPrintPagesInFrame(std::string_view frame_name) {
     blink::WebFrame* frame =
@@ -779,11 +764,7 @@ class PrintRenderFrameHelperTestBase : public content::RenderViewTest {
 
 // RenderViewTest-based tests crash on Android
 // http://crbug.com/187500
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PrintRenderFrameHelperTest DISABLED_PrintRenderFrameHelperTest
-#else
 #define MAYBE_PrintRenderFrameHelperTest PrintRenderFrameHelperTest
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class MAYBE_PrintRenderFrameHelperTest : public PrintRenderFrameHelperTestBase {
  public:
@@ -795,87 +776,6 @@ class MAYBE_PrintRenderFrameHelperTest : public PrintRenderFrameHelperTestBase {
   ~MAYBE_PrintRenderFrameHelperTest() override = default;
 };
 
-#if BUILDFLAG(IS_ANDROID)
-class PrintRenderFrameHelperAndroidTest
-    : public PrintRenderFrameHelperTestBase {
- public:
-  PrintRenderFrameHelperAndroidTest() = default;
-  ~PrintRenderFrameHelperAndroidTest() override = default;
-};
-
-TEST_F(PrintRenderFrameHelperAndroidTest, AndroidThreeStagePrintLifecycle) {
-  LoadHTML(kBeforeAfterPrintHtml);
-  ExpectNoBeforeNoAfterPrintEvent();
-  print_manager()->SetExpectedPagesCount(1);
-
-  // Stage 1: `InitiatePrintAndroid()` dispatches `beforeprint` early.
-  OnInitiatePrint();
-  ExpectOneBeforeNoAfterPrintEvent();
-
-  // Redundant `InitiatePrintAndroid()` calls should not dispatch `beforeprint`
-  // again.
-  OnInitiatePrint();
-  ExpectOneBeforeNoAfterPrintEvent();
-
-  // Stage 2: `PrintRequestedPages()` prints the document.
-  // It does not re-dispatch `beforeprint` or prematurely dispatch `afterprint`.
-  OnPrintPages();
-  VerifyPagesPrinted(true);
-  ExpectOneBeforeNoAfterPrintEvent();
-
-  // Stage 3: `FinishPrintAndroid()` concludes the session and dispatches
-  // `afterprint`.
-  OnFinishPrint();
-  ExpectOneBeforeOneAfterPrintEvent();
-
-  // Redundant `FinishPrintAndroid()` calls should safely no-op.
-  OnFinishPrint();
-  ExpectOneBeforeOneAfterPrintEvent();
-}
-
-TEST_F(PrintRenderFrameHelperAndroidTest, AndroidWindowPrint) {
-  LoadHTML(kBeforeAfterPrintHtml);
-  ExpectNoBeforeNoAfterPrintEvent();
-  print_manager()->SetExpectedPagesCount(1);
-
-  // `window.print()` dispatches `beforeprint`, but `afterprint` is deferred.
-  PrintWithJavaScript();
-  ExpectOneBeforeNoAfterPrintEvent();
-
-  // Framework requests the document via `onWrite()`.
-  OnPrintPages();
-  VerifyPagesPrinted(true);
-  ExpectOneBeforeNoAfterPrintEvent();
-
-  // Session concludes and dispatches `afterprint`.
-  OnFinishPrint();
-  ExpectOneBeforeOneAfterPrintEvent();
-
-  // Redundant `FinishPrintAndroid()` calls should safely no-op.
-  OnFinishPrint();
-  ExpectOneBeforeOneAfterPrintEvent();
-}
-
-TEST_F(PrintRenderFrameHelperAndroidTest,
-       WindowPrintAfterInitiatePrintBailsOut) {
-  LoadHTML(kBeforeAfterPrintHtml);
-  ExpectNoBeforeNoAfterPrintEvent();
-  print_manager()->SetExpectedPagesCount(1);
-
-  // Initiate print puts the frame into `print_in_progress_`.
-  OnInitiatePrint();
-  ExpectOneBeforeNoAfterPrintEvent();
-
-  // `window.print()` while `print_in_progress_` is already true should
-  // immediately bail out without re-dispatching `beforeprint` or printing.
-  PrintWithJavaScript();
-  ExpectOneBeforeNoAfterPrintEvent();
-
-  // `FinishPrintAndroid()` cleans up the session and dispatches `afterprint`.
-  OnFinishPrint();
-  ExpectOneBeforeOneAfterPrintEvent();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // This tests only for platforms without print preview.
 #if !BUILDFLAG(ENABLE_PRINT_PREVIEW)
@@ -1887,12 +1787,7 @@ TEST_F(MAYBE_PrintRenderFrameHelperTest, PrintWithIframe) {
 
 // RenderViewTest-based tests crash on Android
 // http://crbug.com/187500
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PrintRenderFrameHelperPdfTest \
-  DISABLED_PrintRenderFrameHelperPdfTest
-#else
 #define MAYBE_PrintRenderFrameHelperPdfTest PrintRenderFrameHelperPdfTest
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class MAYBE_PrintRenderFrameHelperPdfTest
     : public PrintRenderFrameHelperTestBase {
@@ -1959,7 +1854,6 @@ TEST_F(MAYBE_PrintRenderFrameHelperPdfTest, PrintPdfParams) {
 }
 
 // These print preview tests do not work on Chrome OS yet.
-#if !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_PRINT_PREVIEW)
 class PrintRenderFrameHelperPreviewTest
@@ -1989,9 +1883,6 @@ class PrintRenderFrameHelperPreviewTest
     PrintRenderFrameHelper* print_render_frame_helper =
         GetPrintRenderFrameHelper();
     print_render_frame_helper->InitiatePrintPreview(
-#if BUILDFLAG(IS_CHROMEOS)
-        mojo::NullAssociatedRemote(),
-#endif
         /*has_selection=*/false);
     print_render_frame_helper->PrintPreview(print_settings().Clone());
     preview_ui()->WaitUntilPreviewUpdate();
@@ -2026,9 +1917,6 @@ class PrintRenderFrameHelperPreviewTest
         GetPrintRenderFrameHelperForFrame(render_frame);
     print_render_frame_helper->SetPrintPreviewUI(preview_ui->BindReceiver());
     print_render_frame_helper->InitiatePrintPreview(
-#if BUILDFLAG(IS_CHROMEOS)
-        mojo::NullAssociatedRemote(),
-#endif
         has_selection);
 
     print_render_frame_helper->PrintPreview(print_settings().Clone());
@@ -2152,9 +2040,6 @@ class PrintRenderFrameHelperPreviewTest
                  static_cast<int>(mojom::MarginType::kDefaultMargins))
             .Set(kSettingPagesPerSheet, 1)
             .Set(kSettingPreviewModifiable, true)
-#if BUILDFLAG(IS_CHROMEOS)
-            .Set(kSettingPreviewIsFromArc, false)
-#endif
             .Set(kSettingHeaderFooterEnabled, false)
             .Set(kSettingShouldPrintBackgrounds, false)
             .Set(kSettingShouldPrintSelectionOnly, false);
@@ -4002,9 +3887,6 @@ TEST_F(PrintRenderFrameHelperPreviewTest,
 
   print_manager()->set_job_settings(print_settings());
   GetPrintRenderFrameHelper()->InitiatePrintPreview(
-#if BUILDFLAG(IS_CHROMEOS)
-      mojo::NullAssociatedRemote(),
-#endif
       /*has_selection=*/false);
   GetPrintRenderFrameHelper()->PrintPreview(print_settings().Clone());
   VerifyPrintPreviewGenerated(false);
@@ -4020,6 +3902,5 @@ TEST_F(PrintRenderFrameHelperPreviewTest,
 
 #endif  // BUILDFLAG(ENABLE_PRINT_PREVIEW)
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace printing

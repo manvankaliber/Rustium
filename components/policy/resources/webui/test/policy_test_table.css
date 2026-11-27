@@ -59,9 +59,6 @@ button:active {
 
   #namespace-header {
     border-radius: var(--element-border-radius) 0 0 0;
-<if expr="is_android or is_ios">
-    display: none;
-</if>
   }
 
   #header-remove-btn-cell {

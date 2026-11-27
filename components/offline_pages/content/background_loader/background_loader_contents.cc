@@ -108,12 +108,6 @@ content::WebContents* BackgroundLoaderContents::AddNewContents(
   return nullptr;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool BackgroundLoaderContents::ShouldBlockMediaRequest(const GURL& url) {
-  // Background pages should not have access to media.
-  return true;
-}
-#endif
 
 void BackgroundLoaderContents::RequestMediaAccessPermission(
     content::WebContents* contents,

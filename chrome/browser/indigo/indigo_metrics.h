@@ -112,8 +112,6 @@ inline constexpr char kShownEntryPointHistogram[] =
     "Indigo.PageAction.ShownEntryPoint";
 inline constexpr char kClickedEntryPointHistogram[] =
     "Indigo.PageAction.ClickedEntryPoint";
-inline constexpr char kMaybeInvokeGlicResultHistogramName[] =
-    "Indigo.Glic.MaybeInvokeResult";
 inline constexpr char kPanelActuallyShowingOnCallbackHistogramName[] =
     "Indigo.Glic.PanelActuallyShowingOnCallback";
 

@@ -148,13 +148,8 @@ function getSuggestionsSummaryItemCssClass(data: TemplateData): string {
 function reloadButtonClick(e: Event) {
   const url = (e.target as HTMLElement).dataset['url'];
   if (window.errorPageController) {
-    // <if expr="is_ios">
-    window.errorPageController.reloadButtonClick(url);
-    // </if>
 
-    // <if expr="not is_ios">
     window.errorPageController.reloadButtonClick();
-    // </if>
   } else {
     assert(url);
     window.location.href = url;
@@ -231,7 +226,7 @@ function getDetailsButtonText(
 function getButtonsCssClass(): string {
   let primaryControlOnLeft = true;
   // clang-format off
-  // <if expr="is_macosx or is_ios or is_linux or is_chromeos or is_android">
+  // <if expr="is_macosx or is_linux">
   // clang-format on
   primaryControlOnLeft = false;
   // </if>

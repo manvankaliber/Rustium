@@ -5,7 +5,7 @@ use nix::sys::sendfile::*;
 use tempfile::tempfile;
 
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         use nix::unistd::{pipe, read};
     } else if #[cfg(any(freebsdlike, apple_targets))] {
         use std::net::Shutdown;
@@ -16,7 +16,7 @@ cfg_if! {
     }
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 fn test_sendfile_linux() {
     const CONTENTS: &[u8] = b"abcdef123456";

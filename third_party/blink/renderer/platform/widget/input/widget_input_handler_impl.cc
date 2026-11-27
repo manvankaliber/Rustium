@@ -248,17 +248,6 @@ void WidgetInputHandlerImpl::InputWasProcessed() {
     std::move(input_processed_ack_).Run();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void WidgetInputHandlerImpl::AttachSynchronousCompositor(
-    mojo::PendingRemote<mojom::blink::SynchronousCompositorControlHost>
-        control_host,
-    mojo::PendingAssociatedRemote<mojom::blink::SynchronousCompositorHost> host,
-    mojo::PendingAssociatedReceiver<mojom::blink::SynchronousCompositor>
-        compositor_receiver) {
-  input_handler_manager_->AttachSynchronousCompositor(
-      std::move(control_host), std::move(host), std::move(compositor_receiver));
-}
-#endif
 
 void WidgetInputHandlerImpl::GetFrameWidgetInputHandler(
     mojo::PendingAssociatedReceiver<mojom::blink::FrameWidgetInputHandler>

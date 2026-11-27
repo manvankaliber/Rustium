@@ -21,7 +21,6 @@ export function getHtml(this: SettingsAboutPageElement) {
   <div class="cr-row two-line">
     <!-- Set the icon from the iconset (when it's obsolete/EOL and
       when update is done) or set the src (when it's updating). -->
-<if expr="not is_chromeos">
     <div class="icon-container" ?hidden="${!this.shouldShowIcons_()}">
       <cr-icon ?hidden="${this.shouldShowThrobber_()}"
           icon="${this.getUpdateStatusIcon_()}">
@@ -29,9 +28,7 @@ export function getHtml(this: SettingsAboutPageElement) {
       <img id="throbber" src="chrome://resources/images/throbber_small.svg"
           ?hidden="${!this.shouldShowThrobber_()}">
     </div>
-</if>
     <div class="flex cr-padded-text">
-<if expr="not is_chromeos">
       <div id="updateStatusMessage" ?hidden="${!this.showUpdateStatus_}">
         <div role="alert" aria-live="polite"
             .innerHTML="${this.getUpdateStatusMessage_()}">
@@ -50,10 +47,8 @@ export function getHtml(this: SettingsAboutPageElement) {
           $i18n{learnMore}
         </a>
       </span>
-</if>
       <div class="secondary">$i18n{aboutBrowserVersion}</div>
     </div>
-<if expr="not is_chromeos">
     <div class="separator" ?hidden="${!this.showButtonContainer_}"></div>
     <span id="buttonContainer" ?hidden="${!this.showButtonContainer_}">
       <cr-button id="relaunch" ?hidden="${!this.showRelaunch_}"
@@ -61,7 +56,6 @@ export function getHtml(this: SettingsAboutPageElement) {
         $i18n{aboutRelaunch}
       </cr-button>
     </span>
-</if>
   </div>
 <if expr="_google_chrome and is_macosx">
   ${!this.promoteUpdaterStatus_.hidden ? html`
@@ -119,13 +113,11 @@ export function getHtml(this: SettingsAboutPageElement) {
       <a id="tos" href="$i18n{aboutTermsURL}">$i18n{aboutProductTos}</a>
     </div>
 </if>
-<if expr="not is_chromeos">
     ${this.shouldShowRelaunchDialog ? html`
       <relaunch-confirmation-dialog .restartType="${RestartType.RELAUNCH}"
           @close="${this.onRelaunchDialogClose}">
       </relaunch-confirmation-dialog>
     ` : ''}
-</if>
   </div>
 </settings-section>
 <!--_html_template_end_-->`;

@@ -43,9 +43,6 @@
 #include "ui/base/interaction/element_tracker.h"
 #include "ui/views/interaction/element_tracker_views.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_pref_names.h"
-#endif
 
 WebUIToolbarWebViewTestBase::WebUIToolbarWebViewTestBase()
     : WebUIToolbarWebViewTestBase(
@@ -234,15 +231,10 @@ void WebUIToolbarWebViewTestBase::EnableBatterySaverButton(
   if (!webui_web_contents) {
     webui_web_contents = GetWebUIWebContents();
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  g_browser_process->local_state()->SetBoolean(ash::prefs::kPowerBatterySaver,
-                                               true);
-#else
   g_browser_process->local_state()->SetInteger(
       performance_manager::user_tuning::prefs::kBatterySaverModeState,
       static_cast<int>(performance_manager::user_tuning::prefs::
                            BatterySaverModeState::kEnabled));
-#endif
 
   // Verify the button element becomes visible.
   EXPECT_TRUE(WaitForButtonVisible(webui_web_contents, "#battery-saver"));

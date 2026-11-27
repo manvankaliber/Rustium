@@ -19,8 +19,6 @@
 
 #if BUILDFLAG(ENABLE_PDF)
 #include "components/page_content_annotations/content/pdf_content_fetcher.h"
-#elif BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/page_content_annotations/android/pdf_content_fetcher_android.h"
 #endif
 
 namespace page_content_annotations {
@@ -47,9 +45,6 @@ void FetchPageContext(
 #if BUILDFLAG(ENABLE_PDF)
   fetch_pdf_content_callback =
       base::BindRepeating(&FetchPdfContentForWebContents);
-#elif BUILDFLAG(IS_ANDROID)
-  fetch_pdf_content_callback =
-      base::BindRepeating(&FetchPdfContentForWebContentsAndroid);
 #endif
 
   manager->Fetch(options, std::move(progress_listener),

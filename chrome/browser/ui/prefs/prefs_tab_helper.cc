@@ -51,16 +51,10 @@
 #include "third_party/icu/source/common/unicode/uscript.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "components/browser_ui/accessibility/android/font_size_prefs_android.h"
-#include "ui/base/device_form_factor.h"
-#else  // !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_webui_user_profile.h"
 #include "chrome/browser/ui/zoom/chrome_zoom_level_prefs.h"
-#endif
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
 #include "chrome/browser/themes/theme_service.h"
 #include "chrome/browser/themes/theme_service_factory.h"
 #endif
@@ -69,8 +63,7 @@
 #include <windows.h>
 #endif
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 // If a font name in prefs default values starts with a comma, consider it's a
 // comma-separated font list and resolve it to the first available font.
 #define PREFS_FONT_LIST 1
@@ -94,7 +87,6 @@ BASE_FEATURE(kDeferScriptFontPrefResolution, base::FEATURE_ENABLED_BY_DEFAULT);
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
 // Registers a preference under the path |pref_name| for each script used for
 // per-script font prefs.
 // For example, for WEBKIT_WEBPREFS_FONTS_SERIF ("fonts.serif"):
@@ -134,7 +126,6 @@ ALL_FONT_SCRIPTS(WEBKIT_WEBPREFS_FONTS_STANDARD)
     }
   }
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
 // On Windows with antialiasing we want to use an alternate fixed font like
@@ -167,8 +158,7 @@ constexpr auto kFontDefaults = std::to_array<FontDefault>({
     {prefs::kWebKitCursiveFontFamily, IDS_CURSIVE_FONT_FAMILY},
     {prefs::kWebKitFantasyFontFamily, IDS_FANTASY_FONT_FAMILY},
     {prefs::kWebKitMathFontFamily, IDS_MATH_FONT_FAMILY},
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_LINUX) || BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
     {prefs::kWebKitStandardFontFamilyJapanese,
      IDS_STANDARD_FONT_FAMILY_JAPANESE},
     {prefs::kWebKitFixedFontFamilyJapanese, IDS_FIXED_FONT_FAMILY_JAPANESE},
@@ -210,17 +200,7 @@ constexpr auto kFontDefaults = std::to_array<FontDefault>({
     {prefs::kWebKitCursiveFontFamilyTraditionalHan,
      IDS_CURSIVE_FONT_FAMILY_TRADITIONAL_HAN},
 #endif
-#if BUILDFLAG(IS_CHROMEOS)
-    {prefs::kWebKitStandardFontFamilyArabic, IDS_STANDARD_FONT_FAMILY_ARABIC},
-    {prefs::kWebKitSerifFontFamilyArabic, IDS_SERIF_FONT_FAMILY_ARABIC},
-    {prefs::kWebKitSansSerifFontFamilyArabic,
-     IDS_SANS_SERIF_FONT_FAMILY_ARABIC},
-    {prefs::kWebKitFixedFontFamilyKorean, IDS_FIXED_FONT_FAMILY_KOREAN},
-    {prefs::kWebKitFixedFontFamilySimplifiedHan,
-     IDS_FIXED_FONT_FAMILY_SIMPLIFIED_HAN},
-    {prefs::kWebKitFixedFontFamilyTraditionalHan,
-     IDS_FIXED_FONT_FAMILY_TRADITIONAL_HAN},
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
     {prefs::kWebKitFixedFontFamilyArabic, IDS_FIXED_FONT_FAMILY_ARABIC},
     {prefs::kWebKitSansSerifFontFamilyArabic,
      IDS_SANS_SERIF_FONT_FAMILY_ARABIC},
@@ -321,7 +301,6 @@ void OverrideFontFamily(blink::web_pref::WebPreferences* prefs,
   (*map)[script] = base::UTF8ToUTF16(pref_value);
 }
 
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
 void RegisterLocalizedFontPref(user_prefs::PrefRegistrySyncable* registry,
                                const char* path,
                                int default_message_id) {
@@ -331,18 +310,13 @@ void RegisterLocalizedFontPref(user_prefs::PrefRegistrySyncable* registry,
   CHECK(success, base::NotFatalUntil::M162);
   registry->RegisterIntegerPref(path, val);
 }
-#endif
 
 // Returns the profile whose prefs `contents` uses. For a WebContents in
 // TopChromeWebUIProfile, which has no user prefs, this is its user profile.
 Profile* GetProfileForPrefs(WebContents* contents) {
-#if BUILDFLAG(IS_ANDROID)
-  return Profile::FromBrowserContext(contents->GetBrowserContext());
-#else
   Profile* profile = webui::GetUserProfile(contents);
   CHECK(profile);
   return profile;
-#endif
 }
 
 }  // namespace
@@ -352,7 +326,6 @@ PrefsTabHelper::PrefsTabHelper(WebContents* contents)
       profile_(GetProfileForPrefs(contents)) {
   PrefService* prefs = profile_->GetPrefs();
   if (prefs) {
-#if !BUILDFLAG(IS_ANDROID)
     // If the tab is in an incognito profile, we track changes in the default
     // zoom level of the parent profile instead.
     Profile* profile_to_track = profile_->GetOriginalProfile();
@@ -372,7 +345,6 @@ PrefsTabHelper::PrefsTabHelper(WebContents* contents)
         FontPrefChangeNotifierFactory::GetForProfile(profile_),
         base::BindRepeating(&PrefsTabHelper::OnWebPrefChanged,
                             base::Unretained(this)));
-#endif  // !BUILDFLAG(IS_ANDROID)
 
     PrefWatcher::Get(profile_)->RegisterHelper(this);
   }
@@ -381,7 +353,7 @@ PrefsTabHelper::PrefsTabHelper(WebContents* contents)
       GetWebContents().GetMutableRendererPrefs();
   renderer_preferences_util::UpdateFromSystemSettings(render_prefs, profile_);
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
   ThemeServiceFactory::GetForProfile(profile_)->AddObserver(this);
 #endif
 }
@@ -389,7 +361,7 @@ PrefsTabHelper::PrefsTabHelper(WebContents* contents)
 PrefsTabHelper::~PrefsTabHelper() {
   PrefWatcher::Get(profile_)->UnregisterHelper(this);
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_MAC)
   ThemeServiceFactory::GetForProfile(profile_)->RemoveObserver(this);
 #endif
 }
@@ -423,20 +395,6 @@ void PrefsTabHelper::RegisterProfilePrefs(
       !base::FeatureList::IsEnabled(features::kNoReferrers));
   registry->RegisterBooleanPref(prefs::kEnableEncryptedMedia, true);
   registry->RegisterBooleanPref(prefs::kScrollToTextFragmentEnabled, true);
-#if BUILDFLAG(IS_ANDROID)
-  registry->RegisterDoublePref(browser_ui::prefs::kWebKitFontScaleFactor, 1.0);
-  registry->RegisterIntegerPref(prefs::kAccessibilityTextSizeContrastFactor, 0);
-  registry->RegisterBooleanPref(prefs::kAccessibilityForceEnableZoom,
-                                pref_defaults.force_enable_zoom);
-  registry->RegisterBooleanPref(prefs::kWebKitPasswordEchoEnabledPhysical,
-                                pref_defaults.password_echo_enabled_physical);
-  registry->RegisterBooleanPref(prefs::kWebKitPasswordEchoEnabledTouch,
-                                pref_defaults.password_echo_enabled_touch);
-  registry->RegisterIntegerPref(prefs::kAccessibilityFontWeightAdjustment, 0);
-  registry->RegisterBooleanPref(
-      prefs::kAccessibilityTouchpadOverscrollHistoryNavigation, true);
-
-#endif
 
   bool force_dark_mode_enabled =
       base::FeatureList::IsEnabled(blink::features::kForceWebContentsDarkMode)
@@ -498,7 +456,6 @@ void PrefsTabHelper::RegisterProfilePrefs(
   }
 
 // Register font prefs.  This is only configurable on desktop Chrome.
-#if !BUILDFLAG(IS_ANDROID) || BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
   RegisterFontFamilyPrefs(registry, base::flat_set<std::string_view>(
                                         std::move(fonts_with_defaults)));
 
@@ -507,7 +464,6 @@ void PrefsTabHelper::RegisterProfilePrefs(
   registry->RegisterIntegerPref(prefs::kWebKitMinimumFontSize, 0);
   RegisterLocalizedFontPref(registry, prefs::kWebKitMinimumLogicalFontSize,
                             IDS_MINIMUM_LOGICAL_FONT_SIZE);
-#endif
 }
 
 // static
@@ -570,9 +526,7 @@ void PrefsTabHelper::OnWebPrefChanged(const std::string& pref_name) {
 
 void PrefsTabHelper::NotifyWebkitPreferencesChanged(
     const std::string& pref_name) {
-#if !BUILDFLAG(IS_ANDROID)
   OnFontFamilyPrefChanged(pref_name);
-#endif
 
   GetWebContents().OnWebPreferencesChanged();
 }

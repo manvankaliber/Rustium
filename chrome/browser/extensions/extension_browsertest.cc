@@ -62,26 +62,7 @@
 #include "chrome/test/base/ui_test_utils.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/base_switches.h"
-#include "base/check.h"
-#include "chrome/browser/android/tab_android.h"
-#include "chrome/browser/browser_process.h"
-#include "chrome/browser/flags/android/chrome_feature_list.h"
-#include "chrome/browser/profiles/profile_manager.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#include "chrome/test/base/android/android_ui_test_utils.h"
-#include "components/feed/feed_feature_list.h"
-#include "components/prefs/pref_service.h"
-#include "content/public/browser/web_contents.h"
-#include "content/public/test/test_launcher.h"
-#include "extensions/browser/state_store.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_switches.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -171,36 +152,6 @@ void ExtensionProtocolTestResourcesHandler(const base::FilePath& test_dir_root,
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Waits for pending writes to `profile`'s prefs (which include ExtensionPrefs)
-// and its extension StateStores to complete. On Android, the browser test
-// process exits without an orderly browser shutdown (the profile isn't
-// destroyed and nothing waits on background file writes), so writes still
-// pending at the end of a PRE_ test can be lost before the next stage reads
-// them from disk.
-void FlushPersistentExtensionState(Profile* profile) {
-  base::test::TestFuture<void> prefs_committed;
-  profile->GetPrefs()->CommitPendingWrite(prefs_committed.GetCallback());
-  ASSERT_TRUE(prefs_committed.Wait())
-      << "Timed out waiting for prefs to be committed to disk.";
-
-  ExtensionSystem* extension_system = ExtensionSystem::Get(profile);
-  if (!extension_system) {
-    return;
-  }
-  for (StateStore* store :
-       {extension_system->state_store(), extension_system->rules_store(),
-        extension_system->dynamic_user_scripts_store()}) {
-    if (!store) {
-      continue;
-    }
-    base::test::TestFuture<void> store_flushed;
-    store->FlushForTesting(store_flushed.GetCallback());
-    ASSERT_TRUE(store_flushed.Wait())
-        << "Timed out waiting for an extension StateStore to flush.";
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -223,13 +174,6 @@ ExtensionBrowserTest::ExtensionBrowserTest(ContextType context_type)
       verifier_format_override_(crx_file::VerifierFormat::CRX3) {
   EXPECT_TRUE(temp_dir_.CreateUniqueTempDir());
 
-#if BUILDFLAG(IS_ANDROID)
-  feature_list_.InitWithFeatures(
-      /*enabled_features=*/
-      {// Enable incognito windows on Android.
-       feed::kAndroidOpenIncognitoAsWindow},
-      /*disabled_features=*/{});
-#endif
 }
 
 ExtensionBrowserTest::~ExtensionBrowserTest() = default;
@@ -272,10 +216,8 @@ void ExtensionBrowserTest::SetUpCommandLine(base::CommandLine* command_line) {
   PlatformBrowserTest::SetUpCommandLine(command_line);
 
   // On Android, these are handled in SetUpOnMainThread().
-#if !BUILDFLAG(IS_ANDROID)
   base::PathService::Get(chrome::DIR_TEST_DATA, &test_data_dir_);
   test_data_dir_ = test_data_dir_.AppendASCII("extensions");
-#endif
 
   if (!ShouldEnableContentVerification()) {
     ignore_content_verification_ =
@@ -287,38 +229,17 @@ void ExtensionBrowserTest::SetUpCommandLine(base::CommandLine* command_line) {
         std::make_unique<ScopedInstallVerifierBypassForTest>();
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (set_chromeos_user_) {
-    // This makes sure that we create the Default profile first, with no
-    // ExtensionService and then the real profile with one, as we do when
-    // running on chromeos.
-    command_line->AppendSwitchASCII(ash::switches::kLoginUser,
-                                    "testuser@gmail.com");
-    command_line->AppendSwitchASCII(ash::switches::kLoginProfile, "user");
-  }
-#endif
 
   if (ShouldAllowMV2Extensions()) {
     mv2_enabler_.emplace();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Disable the first-run experience (FRE) so that when a function under
-  // test launches an Intent for ChromeTabbedActivity, ChromeTabbedActivity
-  // will be shown instead of FirstRunActivity.
-  command_line->AppendSwitch("disable-fre");
-#endif
 }
 
 void ExtensionBrowserTest::SetUpOnMainThread() {
   PlatformBrowserTest::SetUpOnMainThread();
 
   // On non-Android, these are handled in SetUpCommandLine().
-#if BUILDFLAG(IS_ANDROID)
-  RegisterPathProvider();
-  base::PathService::Get(chrome::DIR_TEST_DATA, &test_data_dir_);
-  test_data_dir_ = test_data_dir_.AppendASCII("extensions");
-#endif
 
   SetUpTestProtocolHandler();
   registry_observation_.Observe(ExtensionRegistry::Get(profile()));
@@ -355,22 +276,6 @@ void ExtensionBrowserTest::TearDownOnMainThread() {
   PlatformBrowserTest::TearDownOnMainThread();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void ExtensionBrowserTest::PostRunTestOnMainThread() {
-  PlatformBrowserTest::PostRunTestOnMainThread();
-
-  // Flushing after the base class also covers state changes made during
-  // subclass teardown and tab closing. GetLoadedProfiles() excludes incognito
-  // profiles, whose persisted prefs and extension StateStores belong to their
-  // original profile.
-  if (content::IsPreTest()) {
-    for (Profile* loaded_profile :
-         g_browser_process->profile_manager()->GetLoadedProfiles()) {
-      FlushPersistentExtensionState(loaded_profile);
-    }
-  }
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void ExtensionBrowserTest::OnExtensionLoaded(
     content::BrowserContext* browser_context,
@@ -873,33 +778,8 @@ bool ExtensionBrowserTest::GetCurrentTabTitle(std::u16string* title) {
 content::WebContents* ExtensionBrowserTest::PlatformOpenURLOffTheRecord(
     Profile* profile,
     const GURL& url) {
-#if BUILDFLAG(IS_ANDROID)
-  // Android doesn't have an OpenURLOffTheRecord() helper so we roll our own.
-  Profile* incognito_profile =
-      profile->GetPrimaryOTRProfile(/*create_if_needed=*/true);
-  CHECK(incognito_profile);
-  BrowserWindowCreateParams params(*incognito_profile,
-                                   /*from_user_gesture=*/false);
-  base::test::TestFuture<BrowserWindowInterface*> future;
-  CreateBrowserWindow(std::move(params), future.GetCallback());
-
-  BrowserWindowInterface* browser = future.Get();
-  CHECK(browser);
-  TabListInterface* tab_list = TabListInterface::From(browser);
-  CHECK(tab_list);
-  // Android windows open with an existing tab.
-  CHECK_EQ(tab_list->GetTabCount(), 1);
-  content::WebContents* web_contents = tab_list->GetTab(0)->GetContents();
-  CHECK(web_contents);
-  // This blocks until the navigation completes. The return value is ignored
-  // because some tests intentionally navigate to blocked URLs which fail to
-  // load.
-  (void)content::NavigateToURL(web_contents, url);
-  return web_contents;
-#else
   BrowserWindowInterface* otr_browser = OpenURLOffTheRecord(profile, url);
   return otr_browser->GetTabStripModel()->GetActiveWebContents();
-#endif
 }
 
 BrowserWindowInterface* ExtensionBrowserTest::CreateBrowserWindowWithType(
@@ -929,19 +809,9 @@ BrowserWindowInterface* ExtensionBrowserTest::CreateIncognitoBrowserWindow() {
 
 content::RenderFrameHost* ExtensionBrowserTest::NavigateToURLInNewTab(
     const GURL& url) {
-#if BUILDFLAG(IS_ANDROID)
-  // Navigate and block until navigation finishes.
-  android_ui_test_utils::OpenUrlInNewTab(profile(), GetActiveWebContents(),
-                                         url);
-  content::WebContents* new_web_contents = GetActiveWebContents();
-  // Mimic BROWSER_TEST_WAIT_FOR_LOAD_STOP like above.
-  content::WaitForLoadStop(new_web_contents);
-  return content::ConvertToRenderFrameHost(new_web_contents);
-#else
   return ui_test_utils::NavigateToURLWithDisposition(
       browser(), url, ui::mojom::WindowOpenDisposition::kNewForegroundTab,
       ui_test_utils::BROWSER_TEST_WAIT_FOR_LOAD_STOP);
-#endif
 }
 
 void ExtensionBrowserTest::OpenWindow(content::WebContents* contents,

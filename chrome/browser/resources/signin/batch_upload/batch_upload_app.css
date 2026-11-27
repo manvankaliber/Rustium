@@ -94,14 +94,14 @@
 #action-row {
   column-gap: 8px;
   display: flex;
-<if expr="not (is_macosx or is_linux or is_chromeos)">
+<if expr="not (is_macosx or is_linux)">
   justify-content: flex-end;
 </if>
   margin-top: 16px;
   padding-inline-start: var(--batch-upload-dialog-padding);
   padding-inline-end: var(--batch-upload-dialog-padding);
 
-<if expr="is_macosx or is_linux or is_chromeos">
+<if expr="is_macosx or is_linux">
   flex-flow: row-reverse;
   justify-content: flex-start;
 </if>

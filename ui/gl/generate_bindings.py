@@ -1895,16 +1895,6 @@ GL_FUNCTIONS_WITHOUT_EXPLICIT_CONTEXT = [
   },
   {
     'return_type': 'void',
-    'arguments': 'GLuint memory, GLuint64 size, GLenum handleType, GLuint handle',
-    'versions': [
-      {
-        'name': 'glImportMemoryZirconHandleANGLE',
-        'extensions': ['GL_ANGLE_memory_object_fuchsia'],
-      }
-    ],
-  },
-  {
-    'return_type': 'void',
     'names': ['glImportSemaphoreFdEXT'],
     'arguments': 'GLuint semaphore, GLenum handleType, GLint fd',
   },
@@ -1912,16 +1902,6 @@ GL_FUNCTIONS_WITHOUT_EXPLICIT_CONTEXT = [
     'return_type': 'void',
     'names': ['glImportSemaphoreWin32HandleEXT'],
     'arguments': 'GLuint semaphore, GLenum handleType, void* handle',
-  },
-  {
-    'return_type': 'void',
-    'arguments': 'GLuint semaphore, GLenum handleType, GLuint handle',
-    'versions': [
-      {
-        'name': 'glImportSemaphoreZirconHandleANGLE',
-        'extensions': ['GL_ANGLE_semaphore_fuchsia'],
-      }
-    ],
   },
   {
     'return_type': 'void',

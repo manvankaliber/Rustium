@@ -10,22 +10,15 @@ description: >-
 # Automated Tracing & Performance Telemetry
 
 This skill guides the agent through the process of automated tracing in Chromium
-to capture performance profiles on Desktop or Android Device/Emulator.
+to capture performance profiles on Desktop.
 
 ## 1. Prerequisites
 
-### For Desktop (Linux/Mac/Windows)
+### For Desktop (Linux/macOS/Windows)
 
 - A compiled Chrome executable (typically `out/Default/chrome`).
 - A targeted **Scenario/Story** (e.g., `omnibox:search` inside the `desktop_ui`
   benchmark).
-
-### For Android (Device/Emulator)
-
-- A compiled Chrome Android APK (typically
-  `out/emulator/apks/ChromePublic.apk`).
-- A pre-connected Android device or running emulator.
-- A targeted **Scenario/Story** (e.g., `system_health.common_mobile` benchmark).
 
 ______________________________________________________________________
 
@@ -55,21 +48,7 @@ ______________________________________________________________________
 
 ## 3. Execution & Capture Workflow
 
-### Step A: Identify Target Android Device (Android Only)
-
-Before running the benchmark on Android, identify the connected device/emulator:
-
-1. Run `adb devices` to list the attached devices.
-2. Select the target device serial based on the following rules:
-   - **Zero devices found**: Abort the execution and ask the user to connect a
-     device or start an emulator.
-   - **One device found**: Automatically select this device serial.
-   - **Multiple devices found**:
-     - If a specific `device` argument/serial is provided, match against it.
-     - Otherwise, present the list of connected devices to the user and ask them
-       to select one.
-
-### Step B: Execute Telemetry Benchmark
+### Step A: Execute Telemetry Benchmark
 
 Select either **Cold Run** (default) or **Warm Run** based on the investigation
 requirements.
@@ -91,19 +70,6 @@ virtual display wrapper:
   --output-dir=out/e2e_nla_run_{parent_session_id}/capture/
 ```
 
-**For Android (Device/Emulator):** Run the `run_benchmark` command with the
-`--device` argument set to the identified device serial:
-
-```bash
-vpython3 tools/perf/run_benchmark run {benchmark_name} \
-  --story={story_name} \
-  --browser=exact \
-  --browser-executable=out/emulator/apks/ChromePublic.apk \
-  --device={device_serial} \
-  --extra-chrome-categories=omnibox,navigation,blink,cc,gpu,toplevel,net,Java \
-  --output-dir=out/e2e_nla_run_{parent_session_id}/capture/
-```
-
 #### 2. For Warm Runs (GPU & HTTP Caches Warmed)
 
 To capture a warm run (bypassing GPU shader compilation and static network
@@ -111,20 +77,6 @@ loading), you should use the automated wrapper script `run_warm_benchmark.py`.
 
 The script automatically coordinates the warmup run, profile migration/cleanup,
 final warm run, and temporary directory deletion.
-
-*For Android:*
-
-```bash
-vpython3 .agents/skills/automated-tracing/scripts/run_warm_benchmark.py \
-  --benchmark={benchmark_name} \
-  --story={story_name} \
-  --browser-executable=out/emulator/apks/ChromePublic.apk \
-  --device={device_serial} \
-  --output-dir=out/e2e_nla_run_{parent_session_id}/capture/ \
-  [--delete-state] \
-  --extra-chrome-categories=omnibox,navigation,blink,cc,gpu,toplevel,net,Java \
-  [extra_args...]
-```
 
 *For Desktop:*
 
@@ -162,6 +114,6 @@ Report back to the caller with the absolute path of the captured trace:
 {
   "status": "SUCCESS",
   "trace_file_path": "out/e2e_nla_run_{parent_session_id}/capture/artifacts/run_{timestamp}/{story_sanitized}_1/trace/trace.pb",
-  "build_dir": "out/emulator/"
+  "build_dir": "out/Default/"
 }
 ```

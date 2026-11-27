@@ -22,19 +22,10 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/disks/disk_mount_manager.h"
-#include "chromeos/ash/components/disks/mock_disk_mount_manager.h"
-#endif
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/extensions/api/image_writer_private/image_writer_utility_client.h"
-#endif
 
 namespace extensions::image_writer {
 
-#if BUILDFLAG(IS_CHROMEOS)
-class ImageWriterFakeImageBurnerClient;
-#endif
 
 inline constexpr char kDummyExtensionId[] = "DummyExtension";
 
@@ -69,22 +60,6 @@ class MockOperationManager : public OperationManager {
                     const std::string& error_message));
 };
 
-#if BUILDFLAG(IS_CHROMEOS)
-// A mock for the DiskMountManager that will successfully call the unmount
-// callback.
-class UnmountingMockDiskMountManager : public ash::disks::MockDiskMountManager {
- public:
-  UnmountingMockDiskMountManager();
-  ~UnmountingMockDiskMountManager() override;
-
-  void UnmountDeviceRecursively(
-      const std::string& device_path,
-      UnmountDeviceRecursivelyCallbackType callback) override;
-
- private:
-  Disks disks_;
-};
-#endif
 
 struct SimulateProgressInfo {
   SimulateProgressInfo(const std::vector<int>& progress_list,
@@ -95,7 +70,6 @@ struct SimulateProgressInfo {
   bool will_succeed;
 };
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 // Test fake for `ImageWriterUtilityClient`, which wraps the out-of-process
 // `chrome::mojom::RemovableStorageWriter` utility service used on Windows,
 // macOS, and Linux (`enable_removable_storage_writer`). ChromeOS uses the
@@ -155,21 +129,18 @@ class FakeImageWriterClient : public ImageWriterUtilityClient {
   std::optional<SimulateProgressInfo> simulate_on_write_;
   std::optional<SimulateProgressInfo> simulate_on_verify_;
 };
-#endif  // !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 
 class ImageWriterTestUtils {
  public:
   ImageWriterTestUtils();
   virtual ~ImageWriterTestUtils();
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
   using UtilityClientCreationCallback =
       base::OnceCallback<void(FakeImageWriterClient*)>;
   void RunOnUtilityClientCreation(UtilityClientCreationCallback callback);
 
   // Called when an instance of utility client is created.
   void OnUtilityClientCreated(FakeImageWriterClient* client);
-#endif
 
   // Verifies that the data in image_path was written to the file at
   // device_path.  This is different from base::ContentsEqual because the device
@@ -194,15 +165,10 @@ class ImageWriterTestUtils {
   base::FilePath test_image_path_;
   base::FilePath test_device_path_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  std::unique_ptr<ImageWriterFakeImageBurnerClient> image_burner_client_;
-  bool concierge_client_initialized_ = false;
-#elif !BUILDFLAG(IS_ANDROID)
   scoped_refptr<FakeImageWriterClient> client_;
   ImageWriterUtilityClient::ImageWriterUtilityClientFactory
       utility_client_factory_;
   base::OnceCallback<void(FakeImageWriterClient*)> client_creation_callback_;
-#endif
 };
 
 // Base class for unit tests that manages creating image and device files.

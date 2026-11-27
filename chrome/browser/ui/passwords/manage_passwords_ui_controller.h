@@ -221,7 +221,6 @@ class ManagePasswordsUIController
   void OnDialogHidden() override;
   void AuthenticateUserWithMessage(const std::u16string& message,
                                    AvailabilityCallback callback) override;
-  void MaybeShowIOSPasswordPromo() override;
   void RelaunchChrome() override;
   void NavigateToPasswordChangeSettings() override;
   void OnMouseEntered() override;
@@ -486,7 +485,7 @@ class ManagePasswordsUIController
   // once the error is resolved.
   CoreAccountId account_id_for_error_resolution_;
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   bool was_biometric_authentication_for_filling_promo_shown_ = false;
 #endif
 

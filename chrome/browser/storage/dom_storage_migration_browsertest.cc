@@ -248,17 +248,6 @@ IN_PROC_BROWSER_TEST_P(DOMStorageMigrationBrowserTest, Migration) {
   EXPECT_FALSE(base::PathExists(LevelDbDir(storage_type())));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// Android always deletes all session storage on startup, which prevents
-// migration.  Only test local storage migration on Android.
-INSTANTIATE_TEST_SUITE_P(
-    /*no prefix*/,
-    DOMStorageMigrationBrowserTest,
-    ::testing::Values(storage::StorageType::kLocalStorage),
-    /*name_generator=*/
-    [](const testing::TestParamInfo<DOMStorageMigrationBrowserTest::ParamType>&
-           info) { return ToTestName(info.param); });
-#else
 INSTANTIATE_TEST_SUITE_P(
     /*no prefix*/,
     DOMStorageMigrationBrowserTest,
@@ -267,4 +256,3 @@ INSTANTIATE_TEST_SUITE_P(
     /*name_generator=*/
     [](const testing::TestParamInfo<DOMStorageMigrationBrowserTest::ParamType>&
            info) { return ToTestName(info.param); });
-#endif

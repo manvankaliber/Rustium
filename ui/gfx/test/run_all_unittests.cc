@@ -22,16 +22,11 @@
 #include "mojo/core/embedder/embedder.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include "skia/ext/test_fonts.h"  // nogncheck
-#endif
-
 namespace {
 
 class GfxTestSuite : public base::TestSuite {
  public:
-  GfxTestSuite(int argc, char** argv) : base::TestSuite(argc, argv) {
-  }
+  GfxTestSuite(int argc, char** argv) : base::TestSuite(argc, argv) {}
 
   GfxTestSuite(const GfxTestSuite&) = delete;
   GfxTestSuite& operator=(const GfxTestSuite&) = delete;
@@ -50,15 +45,6 @@ class GfxTestSuite : public base::TestSuite {
     ASSERT_TRUE(base::PathService::Get(ui::UI_TEST_PAK, &ui_test_pak_path));
     ui::ResourceBundle::InitSharedInstanceWithPakPath(ui_test_pak_path);
 
-#if BUILDFLAG(IS_ANDROID)
-    // Android needs a discardable memory allocator when loading fallback fonts.
-    base::DiscardableMemoryAllocator::SetInstance(
-        &discardable_memory_allocator);
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-    skia::InitializeSkFontMgrForTest();
-#endif
 
     gfx::InitializeFonts();
   }

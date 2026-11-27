@@ -7,8 +7,6 @@
 #include "base/metrics/user_metrics.h"
 #include "build/build_config.h"
 #include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/glic/glic_pref_names.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sessions/tab_restore_service_factory.h"
 #include "chrome/browser/ui/browser_commands.h"
@@ -27,10 +25,6 @@
 #include "components/sessions/core/tab_restore_service.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ui/frame/desks/move_to_desks_menu_delegate.h"
-#include "chromeos/ui/frame/desks/move_to_desks_menu_model.h"
-#endif
 
 #if BUILDFLAG(IS_LINUX)
 #include "chrome/common/pref_names.h"
@@ -61,16 +55,6 @@ bool SystemMenuModelDelegate::IsCommandIdChecked(int command_id) const {
 }
 
 bool SystemMenuModelDelegate::IsCommandIdEnabled(int command_id) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (command_id == chromeos::MoveToDesksMenuModel::kMenuCommandId) {
-    return chromeos::MoveToDesksMenuDelegate::ShouldShowMoveToDesksMenu();
-  }
-#endif
-  // Disable the glic toggle pin if it is showing and glic is not enabled.
-  if (command_id == IDC_GLIC_TOGGLE_PIN) {
-    return glic::GlicEnabling::IsEnabledForProfile(browser_->GetProfile());
-  }
-
 #if BUILDFLAG(IS_WIN)
   if (features::IsMenuSimplificationEnabled()) {
     BrowserView* browser_view = BrowserView::GetBrowserViewForBrowser(browser_);
@@ -104,15 +88,6 @@ bool SystemMenuModelDelegate::IsCommandIdVisible(int command_id) const {
       return is_maximized;
   }
 #endif
-#if BUILDFLAG(IS_CHROMEOS)
-  if (command_id == chromeos::MoveToDesksMenuModel::kMenuCommandId) {
-    return chromeos::MoveToDesksMenuDelegate::ShouldShowMoveToDesksMenu();
-  }
-#endif
-  if (command_id == IDC_GLIC_TOGGLE_PIN) {
-    return glic::GlicEnabling::IsEnabledForProfile(browser_->GetProfile());
-  }
-
   if (command_id == IDC_TAB_SCROLL_BUTTONS_TOGGLE_PIN) {
     if (base::FeatureList::IsEnabled(tabs::kTabStripUnification)) {
       return !BrowserView::GetBrowserViewForBrowser(browser_)
@@ -132,7 +107,6 @@ bool SystemMenuModelDelegate::GetAcceleratorForCommandId(
 bool SystemMenuModelDelegate::IsItemForCommandIdDynamic(int command_id) const {
   return std::set{IDC_RESTORE_TAB,
                   IDC_TAB_SEARCH_TOGGLE_PIN,
-                  IDC_GLIC_TOGGLE_PIN,
                   IDC_TOGGLE_VERTICAL_TABS,
                   IDC_TOGGLE_VERTICAL_TABS_COLLAPSE,
                   IDC_TOGGLE_VERTICAL_TABS_EXPAND_ON_HOVER,
@@ -229,12 +203,6 @@ std::u16string SystemMenuModelDelegate::GetLabelForCommandId(
                       prefs::kTabSearchPinnedToTabstrip)
                       ? IDS_TAB_STRIP_UNPIN_TAB_SEARCH
                       : IDS_TAB_STRIP_PIN_TAB_SEARCH;
-      break;
-    case IDC_GLIC_TOGGLE_PIN:
-      string_id = browser_->GetProfile()->GetPrefs()->GetBoolean(
-                      glic::prefs::kGlicPinnedToTabstrip)
-                      ? IDS_GLIC_UNPIN
-                      : IDS_GLIC_PIN;
       break;
     case IDC_TAB_SCROLL_BUTTONS_TOGGLE_PIN:
       string_id = browser_->GetProfile()->GetPrefs()->GetBoolean(

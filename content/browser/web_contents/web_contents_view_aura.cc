@@ -192,7 +192,7 @@ class WebDragSourceAura : public content::WebContentsObserver,
   raw_ptr<aura::Window> window_;
 };
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 // Fill out the OSExchangeData with a file contents, synthesizing a name if
 // necessary.
 void PrepareDragForFileContents(const DropData& drop_data,
@@ -275,7 +275,7 @@ void PrepareDragData(RenderFrameHost& source_rfh,
     PrepareDragForDownload(source_rfh, drop_data, provider);
   }
 #endif
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
   // We set the file contents before the URL because the URL also sets file
   // contents (to a .URL shortcut).  We want to prefer file content data over
   // a shortcut so we add it first.
@@ -727,15 +727,7 @@ void WebContentsViewAura::SetDelegateForTesting(
 void WebContentsViewAura::PrepareDropData(
     DropData* drop_data,
     const ui::OSExchangeData& data) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  // TODO(b/256022714): Using `IsRendererTainted()` breaks the Files app. Always
-  // setting this to false is currently believed to be safe-ish because ChromeOS
-  // separates URL and filename metadata and does not implement the DownloadURL
-  // protocol.
-  drop_data->did_originate_from_renderer = false;
-#else
   drop_data->did_originate_from_renderer = data.IsRendererTainted();
-#endif
   drop_data->is_from_privileged = data.IsFromPrivileged();
   drop_data->drag_id = data.GetChromeDragId();
 
@@ -819,23 +811,6 @@ void WebContentsViewAura::PrepareDropData(
     }
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // The 'fs/*' custom-data types are produced by the ChromeOS Files SWA to
-  // describe filesystem entries it transfers between its own windows. Consumers
-  // such as the Files app resolve them via privileged APIs, so only retain them
-  // when the drag source is a chrome:// WebUI page. This mirrors the source
-  // check performed by file_manager::util::ParseFileSystemSources.
-  if (!drop_data->custom_data.empty()) {
-    const ui::DataTransferEndpoint* source = data.GetSource();
-    const bool from_webui = source && source->IsUrlType() &&
-                            source->GetURL()->SchemeIs(kChromeUIScheme);
-    if (!from_webui) {
-      std::erase_if(drop_data->custom_data, [](const auto& kv) {
-        return kv.first.starts_with(u"fs/");
-      });
-    }
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 }
 
 void WebContentsViewAura::EndDrag(
@@ -1514,7 +1489,7 @@ void WebContentsViewAura::OnMouseEvent(ui::MouseEvent* event) {
     // Linux window managers like to handle raise-on-click themselves.  If we
     // raise-on-click manually, this may override user settings that prevent
     // focus-stealing.
-#if !BUILDFLAG(IS_LINUX) && !BUILDFLAG(IS_CHROMEOS)
+#if !BUILDFLAG(IS_LINUX)
     // It is possible for the web-contents to be destroyed while it is being
     // activated. Use a weak-ptr to track whether that happened or not.
     // More in https://crbug.com/1040725

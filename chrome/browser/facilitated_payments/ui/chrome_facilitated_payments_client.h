@@ -20,12 +20,6 @@
 #include "components/facilitated_payments/core/utils/facilitated_payments_ui_utils.h"
 #include "ui/base/unowned_user_data/scoped_unowned_user_data.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/facilitated_payments/ui/android/facilitated_payments_controller.h"
-#include "components/facilitated_payments/android/device_delegate_android.h"
-#include "components/facilitated_payments/core/browser/payment_link_manager.h"
-#include "components/facilitated_payments/core/browser/pix_account_linking_manager.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace url {
 class Origin;
@@ -85,10 +79,6 @@ class ChromeFacilitatedPaymentsClient
   GetFacilitatedPaymentsDriverForFrame(
       content::RenderFrameHost* render_frame_host);
 
-#if BUILDFLAG(IS_ANDROID)
-  virtual void SetFacilitatedPaymentsControllerForTesting(
-      std::unique_ptr<FacilitatedPaymentsController> controller);
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   content::WebContents& GetWebContents() const { return *web_contents_; }
@@ -110,38 +100,6 @@ class ChromeFacilitatedPaymentsClient
   payments::facilitated::DeviceDelegate* GetDeviceDelegate() final;
   bool IsWebContentsVisibleOrOccluded() final;
   strike_database::StrikeDatabase* GetStrikeDatabase() final;
-#if BUILDFLAG(IS_ANDROID)
-  void ShowPixPaymentPrompt(
-      base::span<const autofill::BankAccount> bank_account_suggestions,
-      base::OnceCallback<void(int64_t)> on_payment_account_selected) final;
-  void ShowPaymentLinkPrompt(
-      base::span<const autofill::Ewallet> ewallet_suggestions,
-      std::unique_ptr<payments::facilitated::FacilitatedPaymentsAppInfoList>
-          app_suggestions,
-      base::OnceCallback<void(payments::facilitated::SelectedFopData)>
-          on_fop_selected) final;
-  void ShowProgressScreen(payments::facilitated::ProgressScreenType type) final;
-  void ShowErrorScreen() final;
-  void DismissPrompt() final;
-  void SetUiEventListener(
-      base::RepeatingCallback<void(payments::facilitated::UiEvent)>
-          ui_event_listener) final;
-  void InitPixAccountLinkingFlow(
-      const url::Origin& pix_payment_page_origin) final;
-  void ShowPixAccountLinkingPrompt(
-      int strike_count,
-      base::OnceCallback<void()> on_accepted,
-      base::OnceCallback<void()> on_declined) final;
-  void ShowPixAccountLinkingSuccessScreen() final;
-  void ShowAccountLinkingPrompt(
-      const payments::facilitated::AccountLinkingParams& params,
-      base::OnceCallback<void()> on_accepted,
-      base::OnceCallback<void()> on_declined,
-      base::OnceCallback<void()> on_dismissed) final;
-  void ShowAccountLinkingFailureNotification(
-      payments::facilitated::FacilitatedPaymentsType fop_type) final;
-  bool HasScreenlockOrBiometricSetup() final;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Register any allowlists with the OptimizationGuide framework, so that
   // individual features can later request to check whether the current main
@@ -153,12 +111,6 @@ class ChromeFacilitatedPaymentsClient
   std::unique_ptr<payments::facilitated::FacilitatedPaymentsNetworkInterface>
       facilitated_payments_network_interface_;
 
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<FacilitatedPaymentsController>
-      facilitated_payments_controller_;
-
-  payments::facilitated::DeviceDelegateAndroid device_delegate_;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // The optimization guide decider to help determine whether the current main
   // frame URL is eligible for facilitated payments.

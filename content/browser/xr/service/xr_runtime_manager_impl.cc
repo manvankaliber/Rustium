@@ -44,9 +44,7 @@
 #include "services/device/public/mojom/sensor_provider.mojom.h"
 #include "ui/gl/gl_switches.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "content/browser/xr/service/isolated_device_provider.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace content {
 
@@ -78,11 +76,6 @@ std::optional<device::mojom::XRDeviceId> GetForcedRuntime(
 
   switch (mode) {
     case device::mojom::XRSessionMode::kImmersiveAr:
-#if BUILDFLAG(ENABLE_ARCORE)
-      if (IsForcedRuntime(cmd_line, switches::kWebXrRuntimeArCore)) {
-        return device::mojom::XRDeviceId::ARCORE_DEVICE_ID;
-      }
-#endif
 #if BUILDFLAG(ENABLE_OPENXR)
       if (IsForcedRuntime(cmd_line, switches::kWebXrRuntimeOpenXr)) {
         return device::mojom::XRDeviceId::OPENXR_DEVICE_ID;
@@ -93,11 +86,6 @@ std::optional<device::mojom::XRDeviceId> GetForcedRuntime(
 #if BUILDFLAG(ENABLE_OPENXR)
       if (IsForcedRuntime(cmd_line, switches::kWebXrRuntimeOpenXr)) {
         return device::mojom::XRDeviceId::OPENXR_DEVICE_ID;
-      }
-#endif
-#if BUILDFLAG(ENABLE_CARDBOARD)
-      if (IsForcedRuntime(cmd_line, switches::kWebXrRuntimeCardboard)) {
-        return device::mojom::XRDeviceId::CARDBOARD_DEVICE_ID;
       }
 #endif
       break;
@@ -174,7 +162,6 @@ XRRuntimeManagerImpl::GetOrCreateRuntimeManagerInternal(
   }
 
   // Then add any other "built-in" providers
-#if !BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(ENABLE_OPENXR)
   // The isolated XR device service only hosts OpenXR, and launching it starts
   // a utility process that loads the graphics stack and the runtime's driver
@@ -190,7 +177,6 @@ XRRuntimeManagerImpl::GetOrCreateRuntimeManagerInternal(
 #else
   providers.push_back(std::make_unique<IsolatedVRDeviceProvider>());
 #endif  // BUILDFLAG(ENABLE_OPENXR)
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   const bool is_orientation_provider_forced =
       IsForcedRuntime(base::CommandLine::ForCurrentProcess(),
@@ -315,14 +301,6 @@ BrowserXRRuntimeImpl* XRRuntimeManagerImpl::GetImmersiveVrRuntime() {
   }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(ENABLE_CARDBOARD)
-  auto* cardboard = GetRuntime(device::mojom::XRDeviceId::CARDBOARD_DEVICE_ID);
-  if (cardboard) {
-    return cardboard;
-  }
-#endif
-#endif
 
   return nullptr;
 }
@@ -344,13 +322,6 @@ BrowserXRRuntimeImpl* XRRuntimeManagerImpl::GetImmersiveArRuntime() {
   }
 #endif
 
-#if BUILDFLAG(ENABLE_ARCORE)
-  auto* arcore_runtime =
-      GetRuntime(device::mojom::XRDeviceId::ARCORE_DEVICE_ID);
-  if (arcore_runtime && arcore_runtime->SupportsArBlendMode()) {
-    return arcore_runtime;
-  }
-#endif
 
   return nullptr;
 }

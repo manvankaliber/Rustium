@@ -31,9 +31,6 @@
 #include "ui/gfx/overlay_plane_data.h"
 #include "ui/gl/ca_renderer_layer_params.h"
 
-#if BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS)
-#include "gpu/ipc/common/ios/be_layer_hierarchy_transport.h"
-#endif
 
 #if BUILDFLAG(SKIA_USE_DAWN)
 #include "gpu/command_buffer/service/dawn_context_provider.h"
@@ -58,7 +55,6 @@ BASE_FEATURE(kAVFoundationOverlays,
              "avfoundation-overlays",
              base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_MAC)
 // Record the delay from the system CVDisplayLink or CADisplaylink source to
 // CrGpuMain OnVSyncPresentation().
 void RecordVSyncCallbackDelay(base::TimeDelta delay) {
@@ -67,7 +63,6 @@ void RecordVSyncCallbackDelay(base::TimeDelta delay) {
       /*min=*/base::Microseconds(10),
       /*max=*/base::Milliseconds(33), /*bucket_count=*/50);
 }
-#endif  // BUILDFLAG(IS_MAC)
 
 id<MTLDevice> GetMTLDevice(scoped_refptr<SharedContextState> context_state) {
 #if BUILDFLAG(SKIA_USE_DAWN)
@@ -125,55 +120,22 @@ ImageTransportSurfaceOverlayMacEGL::ImageTransportSurfaceOverlayMacEGL(
       !av_disabled_at_command_line, std::move(buffer_presented_callback),
       std::move(gl_make_current_callback), GetMTLDevice(context_state));
 
-#if BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS)
-  // The BELayerHierarchy needs to be created on a thread that supports
-  // libdispatch, so we proxy over to the main dispatch queue to do that.
-  CALayer* root_ca_layer = ca_layer_tree_coordinator_->root_ca_layer();
-  __block xpc_object_t ipc_representation;
-  dispatch_sync(dispatch_get_main_queue(), ^{
-    NSError* error = nullptr;
-    layer_hierarchy_ = [BELayerHierarchy layerHierarchyWithError:&error];
-    layer_hierarchy_.layer = root_ca_layer;
-    ipc_representation = [layer_hierarchy_.handle createXPCRepresentation];
-  });
-
-  BELayerHierarchyTransport* transport =
-      BELayerHierarchyTransport::GetInstance();
-  CHECK(transport);
-  transport->ForwardBELayerHierarchyToBrowser(surface_handle,
-                                              ipc_representation);
-#endif
 }
 
 // For testing
 ImageTransportSurfaceOverlayMacEGL::ImageTransportSurfaceOverlayMacEGL(
     std::unique_ptr<ui::CALayerTreeCoordinator> ca_layer_tree_coordinator
-#if BUILDFLAG(IS_MAC)
     ,
     std::unique_ptr<ui::VSyncCallbackMac> vsync_callback_mac
-#endif
     )
     : ca_layer_tree_coordinator_(std::move(ca_layer_tree_coordinator)),
-#if BUILDFLAG(IS_MAC)
       vsync_callback_mac_(std::move(vsync_callback_mac)),
-#endif
       weak_ptr_factory_(this) {
 }
 
 ImageTransportSurfaceOverlayMacEGL::~ImageTransportSurfaceOverlayMacEGL() {
   ca_layer_tree_coordinator_.reset();
 
-#if BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_IOS_TVOS)
-  // Capture and retain the BELayerHierarchy in a local __block var before
-  // dropping the member var ref. Do this before dispatch_async() to avoid a
-  // dealloc race between the block and the member var releasing the last ref.
-  __block BELayerHierarchy* layer_hierarchy =
-      std::exchange(layer_hierarchy_, nil);
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [layer_hierarchy invalidate];
-    layer_hierarchy = nil;
-  });
-#endif
 }
 
 void ImageTransportSurfaceOverlayMacEGL::Present(
@@ -198,7 +160,6 @@ void ImageTransportSurfaceOverlayMacEGL::Present(
   ca_layer_tree_coordinator_->Present(std::move(completion_callback),
                                       std::move(presentation_callback));
 
-#if BUILDFLAG(IS_MAC)
   if (display_link_mac_ && !vsync_callback_mac_) {
     vsync_callback_mac_ =
         display_link_mac_->RegisterCallback(base::BindRepeating(
@@ -227,7 +188,6 @@ void ImageTransportSurfaceOverlayMacEGL::Present(
       return;
     }
   }
-#endif
 
   CommitPresentedFrameToCA();
 }
@@ -246,10 +206,8 @@ void ImageTransportSurfaceOverlayMacEGL::CommitPresentedFrameToCA() {
   {
     base::TimeTicks display_time;
     base::TimeDelta frame_interval;
-#if BUILDFLAG(IS_MAC)
     display_time = GetDisplaytime(base::TimeTicks::Now());
     frame_interval = frame_interval_;
-#endif
     TRACE_EVENT1("gpu", "CommitPresentedFrameToCA", "now_to_display",
                  (display_time - base::TimeTicks::Now()).InMicroseconds());
     ca_layer_tree_coordinator_->CommitPresentedFrameToCA(frame_interval,
@@ -277,16 +235,13 @@ bool ImageTransportSurfaceOverlayMacEGL::Resize(
 
 void ImageTransportSurfaceOverlayMacEGL::SetMaxPendingSwaps(
     int max_pending_swaps) {
-#if BUILDFLAG(IS_MAC)
   cap_max_pending_swaps_ = max_pending_swaps;
 
   // MaxCALayerTrees is equal to the number of max_pending_swaps + one
   // that has been displayed.
   ca_layer_tree_coordinator_->SetMaxCALayerTrees(cap_max_pending_swaps_ + 1);
-#endif
 }
 
-#if BUILDFLAG(IS_MAC)
 void ImageTransportSurfaceOverlayMacEGL::SetVSyncDisplayID(int64_t display_id,
                                                            bool force_update) {
   if (display_id_ == display_id && !force_update) {
@@ -378,5 +333,4 @@ void ImageTransportSurfaceOverlayMacEGL::OnVSyncPresentation(
     vsync_callback_mac_ = nullptr;
   }
 }
-#endif
 }  // namespace gpu

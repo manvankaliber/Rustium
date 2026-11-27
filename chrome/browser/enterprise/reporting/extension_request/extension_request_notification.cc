@@ -27,9 +27,6 @@
 #include "ui/message_center/public/cpp/notification_delegate.h"
 #include "ui/native_theme/native_theme.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/strings/string_split.h"
-#endif
 
 namespace enterprise_reporting {
 namespace {
@@ -42,14 +39,8 @@ constexpr char kExtensionRequestNotifierId[] =
 constexpr char kChromeWebstoreUrl[] =
     "https://chrome.google.com/webstore/detail/";
 
-#if BUILDFLAG(IS_ANDROID)
-constexpr NotificationHandler::Type kNotificationType =
-    NotificationHandler::Type::EXTENSION_REQUEST;
-constexpr char kAndroidNotificationIdPrefix[] = "ext_req|";
-#else
 constexpr NotificationHandler::Type kNotificationType =
     NotificationHandler::Type::TRANSIENT;
-#endif
 
 // The elements order of array below must match the order in enum
 // ExtensionRequestNotification::NotifyType.
@@ -89,35 +80,13 @@ std::string ExtensionRequestNotification::GetNotificationId() const {
 std::string ExtensionRequestNotification::CreateNotificationId(
     NotifyType notify_type,
     const ExtensionIds& extension_ids) {
-#if BUILDFLAG(IS_ANDROID)
-  return std::string(kAndroidNotificationIdPrefix) +
-         kNotificationIds[notify_type] + "|" +
-         base::JoinString(extension_ids, ",");
-#else
   return kNotificationIds[notify_type];
-#endif
 }
 
 // static
 std::vector<std::string> ExtensionRequestNotification::ParseExtensionIds(
     const std::string& notification_id) {
-#if BUILDFLAG(IS_ANDROID)
-  CHECK(base::StartsWith(notification_id, kAndroidNotificationIdPrefix),
-        base::NotFatalUntil::M161);
-  if (!base::StartsWith(notification_id, kAndroidNotificationIdPrefix)) {
-    return {};
-  }
-  size_t last_separator = notification_id.rfind('|');
-  if (last_separator == std::string::npos ||
-      last_separator == notification_id.size() - 1) {
-    return {};
-  }
-  std::string ids_str = notification_id.substr(last_separator + 1);
-  return base::SplitString(ids_str, ",", base::TRIM_WHITESPACE,
-                           base::SPLIT_WANT_NONEMPTY);
-#else
   return {};
-#endif
 }
 
 void ExtensionRequestNotification::Show(NotificationCloseCallback callback) {
@@ -130,11 +99,7 @@ void ExtensionRequestNotification::Show(NotificationCloseCallback callback) {
   const std::u16string body = l10n_util::GetPluralStringFUTF16(
       kNotificationBodies[notify_type_], extension_ids_.size());
   GURL original_url("https://chrome.google.com/webstore");
-#if BUILDFLAG(IS_ANDROID)
-  int icon_size = message_center::kNotificationIconSize;
-#else
   int icon_size = message_center::kSmallImageSize;
-#endif
   auto icon = ui::ImageModel::FromVectorIcon(
       features::IsRoundedIconsEnabled() ? vector_icons::kDomainIcon
                                         : vector_icons::kBusinessOldIcon,

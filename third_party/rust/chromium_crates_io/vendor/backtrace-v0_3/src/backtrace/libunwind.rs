@@ -179,15 +179,7 @@ mod uw {
 
     cfg_if::cfg_if! {
         // available since GCC 4.2.0, should be fine for our purpose
-        if #[cfg(all(
-            not(all(target_os = "android", target_arch = "arm")),
-            not(all(target_os = "freebsd", target_arch = "arm")),
-            not(all(target_os = "linux", target_arch = "arm")),
-            not(all(target_os = "horizon", target_arch = "arm")),
-            not(all(target_os = "rtems", target_arch = "arm")),
-            not(all(target_os = "vita", target_arch = "arm")),
-            not(all(target_os = "nuttx", target_arch = "arm")),
-        ))] {
+        if #[cfg(all(not(all(target_os = "freebsd", target_arch = "arm")), not(all(target_os = "linux", target_arch = "arm")), not(all(target_os = "horizon", target_arch = "arm")), not(all(target_os = "rtems", target_arch = "arm")), not(all(target_os = "vita", target_arch = "arm")), not(all(target_os = "nuttx", target_arch = "arm"))))] {
             unsafe extern "C" {
                 pub fn _Unwind_GetIP(ctx: *mut _Unwind_Context) -> libc::uintptr_t;
                 pub fn _Unwind_FindEnclosingFunction(pc: *mut c_void) -> *mut c_void;

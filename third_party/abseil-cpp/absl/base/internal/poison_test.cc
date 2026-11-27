@@ -25,10 +25,6 @@ namespace base_internal {
 namespace {
 
 TEST(PoisonTest, CrashesOnDereference) {
-#ifdef __ANDROID__
-  GTEST_SKIP() << "On Android, poisoned pointer dereference times out instead "
-                  "of crashing.";
-#endif
   int* poisoned_ptr = static_cast<int*>(get_poisoned_pointer());
   EXPECT_DEATH_IF_SUPPORTED(std::cout << *poisoned_ptr, "");
   EXPECT_DEATH_IF_SUPPORTED(std::cout << *(poisoned_ptr - 10), "");

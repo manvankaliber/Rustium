@@ -8,7 +8,7 @@
 #include "base/functional/bind.h"
 #if BUILDFLAG(IS_WIN)
 #include "crypto/unexportable_key_win.h"
-#elif BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_IOS_TVOS)
+#elif BUILDFLAG(IS_APPLE)
 #include "crypto/apple/unexportable_key_apple.h"
 #endif
 
@@ -48,7 +48,7 @@ std::unique_ptr<UnexportableKeyProvider> GetUnexportableKeyProvider(
 
 #if BUILDFLAG(IS_WIN)
   return GetUnexportableKeyProviderWin();
-#elif BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_IOS_TVOS)
+#elif BUILDFLAG(IS_APPLE)
   return apple::GetUnexportableKeyProviderApple(std::move(config));
 #else
   return nullptr;

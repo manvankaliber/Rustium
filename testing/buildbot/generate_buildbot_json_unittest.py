@@ -463,54 +463,6 @@ FOO_GPU_TELEMETRY_TEST_WATERFALL_ANDROID_WEBVIEW = """\
 ]
 """
 
-FOO_GPU_TELEMETRY_TEST_WATERFALL_FUCHSIA = """\
-[
-  {
-    'project': 'chromium',
-    'bucket': 'ci',
-    'name': 'chromium.test',
-    'machines': {
-      'Fake Tester': {
-        'os_type': 'fuchsia',
-        'browser_config': 'fuchsia-chrome',
-        'swarming': {
-          'dimensions': {
-            'kvm': '1',
-          },
-        },
-        'test_suites': {
-          'gpu_telemetry_tests': 'composition_tests',
-        },
-      },
-    },
-  },
-]
-"""
-
-FOO_GPU_TELEMETRY_TEST_WATERFALL_CAST_STREAMING = """\
-[
-  {
-    'project': 'chromium',
-    'bucket': 'ci',
-    'name': 'chromium.test',
-    'machines': {
-      'Fake Tester': {
-        'os_type': 'fuchsia',
-        'browser_config': 'not-a-real-browser',
-        'swarming': {
-          'dimensions': {
-            'kvm': '1',
-          },
-        },
-        'test_suites': {
-          'cast_streaming_tests': 'composition_tests',
-        },
-      },
-    },
-  },
-]
-"""
-
 FOO_GPU_TELEMETRY_TEST_WATERFALL_SKYLAB = """\
 [
   {
@@ -1805,26 +1757,6 @@ GPU_TELEMETRY_GN_ISOLATE_MAP_ANDROID_WEBVIEW = """\
 }
 """
 
-GPU_TELEMETRY_GN_ISOLATE_MAP_FUCHSIA = """\
-{
-  'telemetry_gpu_integration_test_fuchsia': {
-    'label': '//chrome/test:telemetry_gpu_integration_test_fuchsia',
-    'type': 'script',
-    'module_name': '//chrome/test:telemetry_gpu_integration_test_fuchsia',
-      }
-}
-"""
-
-GPU_TELEMETRY_GN_ISOLATE_MAP_CAST_STREAMING = """\
-{
-  'telemetry_gpu_integration_test_fuchsia': {
-    'label': '//chrome/test:telemetry_gpu_integration_test_fuchsia',
-    'type': 'script',
-    'module_name': '//chrome/test:telemetry_gpu_integration_test_fuchsia',
-      }
-}
-"""
-
 GPU_TELEMETRY_GN_ISOLATE_MAP_MODULE_SCHEME = """\
 {
   'telemetry_gpu_integration_test': {
@@ -2202,16 +2134,6 @@ class UnitTest(TestCase):
     fbb.check_output_file_consistency(verbose=True)
     self.assertFalse(fbb.printed_lines)
 
-  def test_isolated_script_tests_android(self):
-    fbb = FakeBBGen(
-      self.args,
-      FOO_ISOLATED_SCRIPTS_WATERFALL_ANDROID,
-      GOOD_COMPOSITION_TEST_SUITES,
-      LUCI_MILO_CFG,
-      exceptions=NO_BAR_TEST_EXCEPTIONS,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
   def test_script_with_args(self):
     fbb = FakeBBGen(
@@ -2291,65 +2213,8 @@ class UnitTest(TestCase):
     fbb.check_output_file_consistency(verbose=True)
     self.assertFalse(fbb.printed_lines)
 
-  def test_gpu_telemetry_tests_android(self):
-    fbb = FakeBBGen(
-      self.args,
-      FOO_GPU_TELEMETRY_TEST_WATERFALL_ANDROID,
-      COMPOSITION_SUITE_WITH_TELEMETRY_TEST,
-      LUCI_MILO_CFG,
-      exceptions=NO_BAR_TEST_EXCEPTIONS,
-      gn_isolate_map=GPU_TELEMETRY_GN_ISOLATE_MAP_ANDROID,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
-  def test_gpu_telemetry_tests_android_webview(self):
-    fbb = FakeBBGen(
-      self.args,
-      FOO_GPU_TELEMETRY_TEST_WATERFALL_ANDROID_WEBVIEW,
-      COMPOSITION_SUITE_WITH_TELEMETRY_TEST,
-      LUCI_MILO_CFG,
-      exceptions=NO_BAR_TEST_EXCEPTIONS,
-      gn_isolate_map=GPU_TELEMETRY_GN_ISOLATE_MAP_ANDROID_WEBVIEW,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
-  def test_gpu_telemetry_tests_fuchsia(self):
-    fbb = FakeBBGen(
-      self.args,
-      FOO_GPU_TELEMETRY_TEST_WATERFALL_FUCHSIA,
-      COMPOSITION_SUITE_WITH_TELEMETRY_TEST,
-      LUCI_MILO_CFG,
-      exceptions=NO_BAR_TEST_EXCEPTIONS,
-      gn_isolate_map=GPU_TELEMETRY_GN_ISOLATE_MAP_FUCHSIA,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
-
-  def test_gpu_telemetry_tests_cast_streaming(self):
-    fbb = FakeBBGen(
-      self.args,
-      FOO_GPU_TELEMETRY_TEST_WATERFALL_CAST_STREAMING,
-      COMPOSITION_SUITE_WITH_TELEMETRY_TEST,
-      LUCI_MILO_CFG,
-      exceptions=NO_BAR_TEST_EXCEPTIONS,
-      gn_isolate_map=GPU_TELEMETRY_GN_ISOLATE_MAP_CAST_STREAMING,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
-
-  def test_gpu_telemetry_tests_skylab(self):
-    fbb = FakeBBGen(
-      self.args,
-      FOO_GPU_TELEMETRY_TEST_WATERFALL_SKYLAB,
-      COMPOSITION_SUITE_WITH_TELEMETRY_TEST_SKYLAB,
-      LUCI_MILO_CFG,
-      exceptions=NO_BAR_TEST_EXCEPTIONS,
-      gn_isolate_map=GPU_TELEMETRY_GN_ISOLATE_MAP,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
   def test_nvidia_gpu_telemetry_tests(self):
     fbb = FakeBBGen(
@@ -2443,20 +2308,7 @@ class UnitTest(TestCase):
     fbb.printed_lines = []
     self.assertFalse(fbb.printed_lines)
 
-  def test_android_output_options(self):
-    fbb = FakeBBGen(self.args, ANDROID_WATERFALL, FOO_TEST_SUITE, LUCI_MILO_CFG)
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
-  def test_android_swarming(self):
-    fbb = FakeBBGen(
-      self.args,
-      ANDROID_WATERFALL,
-      FOO_TEST_SUITE_ANDROID_SWARMING,
-      LUCI_MILO_CFG,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
   def test_nonexistent_removal_raises(self):
     fbb = FakeBBGen(
@@ -2496,15 +2348,6 @@ class UnitTest(TestCase):
     fbb.check_output_file_consistency(verbose=True)
     self.assertFalse(fbb.printed_lines)
 
-  def test_chromeos_trigger_script_output(self):
-    fbb = FakeBBGen(
-      self.args,
-      FOO_CHROMEOS_TRIGGER_SCRIPT_WATERFALL,
-      FOO_TEST_SUITE,
-      LUCI_MILO_CFG,
-    )
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
   def test_relative_pyl_file_dir(self):
     self.set_args('--pyl-files-dir=relative/path')
@@ -3548,12 +3391,7 @@ TEST_QUERY_BOTS_OUTPUT = {
         'merge': {'script': '//testing/merge_scripts/standard_gtest_merge.py'},
         'name': 'foo_test',
         'swarming': {
-          'dimensions': {
-            'device_os': 'LMY41U',
-            'device_os_type': 'user',
-            'device_type': 'hammerhead',
-            'os': 'Android',
-          },
+
         },
       }
     ]
@@ -3570,12 +3408,7 @@ TEST_QUERY_BOTS_OUTPUT = {
         'merge': {'script': '//testing/merge_scripts/standard_gtest_merge.py'},
         'name': 'foo_test',
         'swarming': {
-          'dimensions': {
-            'device_os': 'KTU84P',
-            'device_os_type': 'userdebug',
-            'device_type': 'hammerhead',
-            'os': 'Android',
-          },
+
         },
       }
     ],
@@ -3599,12 +3432,7 @@ TEST_QUERY_BOTS_TESTS_OUTPUT = {
       'merge': {'script': '//testing/merge_scripts/standard_gtest_merge.py'},
       'name': 'foo_test',
       'swarming': {
-        'dimensions': {
-          'device_os': 'LMY41U',
-          'device_os_type': 'user',
-          'device_type': 'hammerhead',
-          'os': 'Android',
-        },
+
       },
     }
   ],
@@ -3619,12 +3447,7 @@ TEST_QUERY_BOTS_TESTS_OUTPUT = {
       'merge': {'script': '//testing/merge_scripts/standard_gtest_merge.py'},
       'name': 'foo_test',
       'swarming': {
-        'dimensions': {
-          'device_os': 'KTU84P',
-          'device_os_type': 'userdebug',
-          'device_type': 'hammerhead',
-          'os': 'Android',
-        },
+
       },
     }
   ],
@@ -3644,12 +3467,7 @@ TEST_QUERY_BOT_OUTPUT = {
       },
       'name': 'foo_test',
       'swarming': {
-        'dimensions': {
-          'device_os': 'KTU84P',
-          'device_os_type': 'userdebug',
-          'device_type': 'hammerhead',
-          'os': 'Android',
-        },
+
       },
     },
   ],
@@ -3664,12 +3482,7 @@ TEST_QUERY_BOT_TESTS_OUTPUT = [
     'merge': {'script': '//testing/merge_scripts/standard_gtest_merge.py'},
     'name': 'foo_test',
     'swarming': {
-      'dimensions': {
-        'device_os': 'LMY41U',
-        'device_os_type': 'user',
-        'device_type': 'hammerhead',
-        'os': 'Android',
-      },
+
     },
   }
 ]
@@ -3722,18 +3535,6 @@ TEST_QUERY_TEST_BOTS_NO_BOTS_OUTPUT = []
 class QueryTests(TestCase):
   """Tests for the query feature."""
 
-  def test_query_bots(self):
-    self.set_args('--query=bots')
-    fbb = FakeBBGen(
-      self.args,
-      ANDROID_WATERFALL,
-      GOOD_COMPOSITION_TEST_SUITES,
-      LUCI_MILO_CFG,
-      mixins=SWARMING_MIXINS_SORTED,
-    )
-    fbb.query(fbb.args)
-    query_json = json.loads(''.join(fbb.printed_lines))
-    self.assertEqual(query_json, TEST_QUERY_BOTS_OUTPUT)
 
   def test_query_bots_invalid(self):
     self.set_args('--query=bots/blah/blah')
@@ -3761,18 +3562,6 @@ class QueryTests(TestCase):
     fbb.query(fbb.args)
     self.assertFalse(fbb.printed_lines)
 
-  def test_query_bots_tests(self):
-    self.set_args('--query=bots/tests')
-    fbb = FakeBBGen(
-      self.args,
-      ANDROID_WATERFALL,
-      GOOD_COMPOSITION_TEST_SUITES,
-      LUCI_MILO_CFG,
-      mixins=SWARMING_MIXINS_SORTED,
-    )
-    fbb.query(fbb.args)
-    query_json = json.loads(''.join(fbb.printed_lines))
-    self.assertEqual(query_json, TEST_QUERY_BOTS_TESTS_OUTPUT)
 
   def test_query_invalid_bots_tests(self):
     self.set_args('--query=bots/tdfjdk')
@@ -3788,19 +3577,6 @@ class QueryTests(TestCase):
       self.assertEqual(cm.exception.code, 1)
     self.assertTrue(fbb.printed_lines)
 
-  def test_query_bot(self):
-    self.set_args('--query=bot/Fake Android K Tester')
-    fbb = FakeBBGen(
-      self.args,
-      ANDROID_WATERFALL,
-      GOOD_COMPOSITION_TEST_SUITES,
-      LUCI_MILO_CFG,
-      mixins=SWARMING_MIXINS_SORTED,
-    )
-    fbb.query(fbb.args)
-    query_json = json.loads(''.join(fbb.printed_lines))
-    self.maxDiff = None  # pragma pylint: disable=attribute-defined-outside-init
-    self.assertEqual(query_json, TEST_QUERY_BOT_OUTPUT)
 
   def test_query_bot_invalid_id(self):
     self.set_args('--query=bot/bot1')
@@ -3844,18 +3620,6 @@ class QueryTests(TestCase):
       self.assertEqual(cm.exception.code, 1)
     self.assertTrue(fbb.printed_lines)
 
-  def test_query_bot_tests(self):
-    self.set_args('--query=bot/Fake Android L Tester/tests')
-    fbb = FakeBBGen(
-      self.args,
-      ANDROID_WATERFALL,
-      GOOD_COMPOSITION_TEST_SUITES,
-      LUCI_MILO_CFG,
-      mixins=SWARMING_MIXINS_SORTED,
-    )
-    fbb.query(fbb.args)
-    query_json = json.loads(''.join(fbb.printed_lines))
-    self.assertEqual(query_json, TEST_QUERY_BOT_TESTS_OUTPUT)
 
   def test_query_tests(self):
     self.set_args('--query=tests')
@@ -5341,74 +5105,10 @@ class MatrixCompositionTests(TestCase):
     ):
       fbb.check_input_file_consistency(verbose=True)
 
-  def test_good_skylab_matrix_with_variants(self):
-    fbb = FakeBBGen(
-      self.args,
-      MATRIX_SKYLAB_WATERFALL,
-      MATRIX_COMPOUND_SKYLAB_REF,
-      LUCI_MILO_CFG,
-      exceptions=EMPTY_SKYLAB_TEST_EXCEPTIONS,
-      variants=SKYLAB_VARIANTS,
-    )
-    fbb.check_input_file_consistency(verbose=True)
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
-  def test_good_skylab_matrix_with_tfc(self):
-    fbb = FakeBBGen(
-      self.args,
-      MATRIX_SKYLAB_WATERFALL,
-      MATRIX_COMPOUND_SKYLAB_TFC_REF,
-      LUCI_MILO_CFG,
-      exceptions=EMPTY_SKYLAB_TEST_EXCEPTIONS,
-    )
-    fbb.check_input_file_consistency(verbose=True)
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
-  def test_good_skylab_matrix_with_build_target_variant_and_variants(self):
-    fbb = FakeBBGen(
-      self.args,
-      MATRIX_SKYLAB_WATERFALL_WITH_BUILD_TARGET_VARIANT,
-      MATRIX_COMPOUND_SKYLAB_REF,
-      LUCI_MILO_CFG,
-      exceptions=EMPTY_SKYLAB_TEST_EXCEPTIONS,
-      variants=SKYLAB_VARIANTS_WITH_BUILD_VARIANT,
-    )
-    fbb.check_input_file_consistency(verbose=True)
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
-  def test_enabled_and_disabled_skylab_matrix_with_variants(self):
-    """Test with disabled variants"""
-    fbb = FakeBBGen(
-      self.args,
-      MATRIX_SKYLAB_WATERFALL,
-      ENABLED_AND_DISABLED_MATRIX_COMPOUND_SKYLAB_REF,
-      LUCI_MILO_CFG,
-      exceptions=EMPTY_SKYLAB_TEST_EXCEPTIONS,
-      variants=ENABLED_AND_DISABLED_VARIANTS,
-    )
-    # some skylab test variant is disabled; the corresponding skylab tests
-    # is not generated.
-    fbb.check_input_file_consistency(verbose=True)
-    fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
-  def test_invalid_skylab_matrix_with_variants(self):
-    fbb = FakeBBGen(
-      self.args,
-      MATRIX_SKYLAB_WATERFALL_WITH_NO_CROS_BOARD,
-      MATRIX_COMPOUND_SKYLAB_REF,
-      LUCI_MILO_CFG,
-      exceptions=EMPTY_SKYLAB_TEST_EXCEPTIONS,
-      variants=SKYLAB_VARIANTS,
-    )
-    with self.assertRaisesRegex(
-      generate_buildbot_json.BBGenErr, 'skylab tests must specify cros_board.'
-    ):
-      fbb.check_output_file_consistency(verbose=True)
-    self.assertFalse(fbb.printed_lines)
 
 
 MAC_TEST_SUITE = """\

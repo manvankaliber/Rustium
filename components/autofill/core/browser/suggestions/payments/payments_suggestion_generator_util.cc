@@ -119,7 +119,7 @@ std::vector<const CreditCard*> DeduplicateCreditCardsForSuggestions(
 }
 
 bool ShouldSplitCardNameAndLastFourDigits() {
-  return !BUILDFLAG(IS_IOS);
+  return !false;
 }
 
 // Returns whether the `suggestion_canon` is a valid match given
@@ -230,16 +230,8 @@ GetSuggestionMainTextAndMinorTextForCard(const CreditCard& credit_card,
 
   if (kCvcFieldTypes.contains(trigger_field_type)) {
     CHECK(!credit_card.cvc().empty());
-#if BUILDFLAG(IS_ANDROID)
-    return create_text(l10n_util::GetStringFUTF16(
-        IDS_AUTOFILL_CVC_SUGGESTION_MAIN_TEXT,
-        credit_card.CardNameForAutofillDisplay(GetDisplayNicknameForCreditCard(
-            credit_card,
-            client.GetPersonalDataManager().payments_data_manager()))));
-#else
     return create_text(
         l10n_util::GetStringUTF16(IDS_AUTOFILL_CVC_SUGGESTION_MAIN_TEXT));
-#endif
   }
 
   return create_text(credit_card.GetInfo(
@@ -247,13 +239,11 @@ GetSuggestionMainTextAndMinorTextForCard(const CreditCard& credit_card,
       client.GetPersonalDataManager().payments_data_manager().app_locale()));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 Suggestion::Text GetBenefitTextWithTermsAppended(
     const std::u16string& benefit_text) {
   return Suggestion::Text(l10n_util::GetStringFUTF16(
       IDS_AUTOFILL_CREDIT_CARD_BENEFIT_TEXT_FOR_SUGGESTIONS, benefit_text));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // Set the labels to be shown in the suggestion. Note that this does not
 // account for virtual cards.
@@ -283,10 +273,6 @@ void SetSuggestionLabelsForCard(
 
   // If the focused field is a card number field.
   if (trigger_field_type == CREDIT_CARD_NUMBER) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    suggestion.labels = {{Suggestion::Text(
-        credit_card.GetInfo(CREDIT_CARD_EXP_DATE_2_DIGIT_YEAR, app_locale))}};
-#else
     std::vector<std::vector<Suggestion::Text>> labels;
 
     // If the main text is the card's nickname or product description,
@@ -326,7 +312,6 @@ void SetSuggestionLabelsForCard(
               : credit_card.DescriptiveExpiration(app_locale))});
     }
     suggestion.labels = std::move(labels);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
     return;
   }
 
@@ -349,19 +334,7 @@ void SetSuggestionLabelsForCard(
   // If the focused field is not a card number field AND the card number is NOT
   // empty.
 
-  if constexpr (BUILDFLAG(IS_IOS) || BUILDFLAG(IS_ANDROID)) {
-    if (client.ShouldFormatForLargeKeyboardAccessory()) {
-      suggestion.labels = {
-          {Suggestion::Text(credit_card.CardNameAndLastFourDigits(
-              nickname, GetCreditCardObfuscationLength()))}};
-    } else {
-      // On Mobile, the label is formatted as "••1234".
-      suggestion.labels = {{Suggestion::Text(
-          credit_card.ObfuscatedNumberWithVisibleLastFourDigits(
-              GetCreditCardObfuscationLength()))}};
-    }
-    return;
-  }
+  {}
 
   if (ShouldUseNewFopDisplay()) {
     suggestion.labels = {{Suggestion::Text(credit_card.NetworkAndLastFourDigits(
@@ -430,52 +403,6 @@ void AdjustVirtualCardSuggestionContent(Suggestion& suggestion,
       IDS_AUTOFILL_VIRTUAL_CARD_SUGGESTION_OPTION_VALUE);
   const std::u16string& virtual_card_disabled_label = l10n_util::GetStringUTF16(
       IDS_AUTOFILL_VIRTUAL_CARD_DISABLED_SUGGESTION_OPTION_VALUE);
-#if BUILDFLAG(IS_IOS)
-  suggestion.minor_texts = {};
-  suggestion.minor_texts.emplace_back(suggestion.main_text.value);
-  if (suggestion.IsAcceptable()) {
-    suggestion.main_text.value = virtual_card_label;
-  } else {
-    suggestion.main_text.value = virtual_card_disabled_label;
-  }
-
-#elif BUILDFLAG(IS_ANDROID)
-  // The keyboard accessory chips can only accommodate 2 strings which are
-  // displayed on a single row. The minor_text and the labels are
-  // concatenated, so we have: String 1 = main_text, String 2 = minor_text +
-  // labels.
-  // There is a limit on the size of the keyboard accessory chips. When the
-  // suggestion content exceeds this limit, the card name or the cardholder
-  // name can be truncated, the last 4 digits should never be truncated.
-  // Contents in the main_text are automatically truncated from the right end
-  // on the Android side when the size limit is exceeded, so the card name and
-  // the cardholder name is appended to the main_text.
-  // Here we modify the `Suggestion` members to make it suitable for showing
-  // on the keyboard accessory.
-  // Card number field:
-  // Before: main_text = card name, minor_text = last 4 digits, labels =
-  // expiration date.
-  // After: main_text = virtual card label + card name, minor_text = last 4
-  // digits, labels = null.
-  // Cardholder name field:
-  // Before: main_text = cardholder name, minor_text = null, labels = last 4
-  // digits.
-  // After: main_text = virtual card label + cardholder name, minor_text is
-  // empty, labels = last 4 digits.
-  if (ShouldSplitCardNameAndLastFourDigits()) {
-    suggestion.main_text.value =
-        base::StrCat({virtual_card_label, u"  ", suggestion.main_text.value});
-  } else {
-    suggestion.minor_texts = {};
-    suggestion.minor_texts.emplace_back(suggestion.main_text.value);
-    suggestion.main_text.value = virtual_card_label;
-  }
-  if (trigger_field_type == CREDIT_CARD_NUMBER) {
-    // The expiration date is not shown for the card number field, so it is
-    // removed.
-    suggestion.labels = {};
-  }
-#else   // Desktop dropdown.
   // The label fields will be consistent regardless of focused field.
   if (ShouldUseNewFopDisplay() || trigger_field_type == CREDIT_CARD_NUMBER) {
     // Reset the labels as we only show benefit and virtual card label to
@@ -512,7 +439,6 @@ void AdjustVirtualCardSuggestionContent(Suggestion& suggestion,
     suggestion.labels.push_back(std::vector<Suggestion::Text>{
         Suggestion::Text(virtual_card_disabled_label)});
   }
-#endif  // BUILDFLAG(IS_IOS)
 }
 
 // Returns display name based on `issuer_id` in a vector.
@@ -523,23 +449,6 @@ std::u16string GetDisplayNameForIssuerId(const std::string& issuer_id) {
   return u"";
 }
 
-#if BUILDFLAG(IS_ANDROID)
-std::u16string CreateCardInfoRetrievalIphDescriptionText(
-    Suggestion suggestion) {
-  std::u16string description_text;
-  if (!suggestion.iph_metadata.iph_params.empty() &&
-      !suggestion.iph_metadata.iph_params.front().empty()) {
-    description_text = l10n_util::GetStringFUTF16(
-        IDS_AUTOFILL_CARD_INFO_RETRIEVAL_SUGGESTION_IPH_BUBBLE_LABEL,
-        suggestion.iph_metadata.iph_params.front());
-  } else {
-    description_text = l10n_util::GetStringUTF16(
-        IDS_AUTOFILL_CARD_INFO_RETRIEVAL_SUGGESTION_IPH_BUBBLE_FALLBACK_LABEL);
-  }
-
-  return description_text;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Returns the lowest eligible price in all `bnpl_issuers`.
 std::u16string GetBnplPriceLowerBound(
@@ -641,9 +550,7 @@ void SetCardArtURL(Suggestion& suggestion,
     return;
   }
 
-  if constexpr (BUILDFLAG(IS_ANDROID)) {
-    suggestion.custom_icon = Suggestion::CustomIconUrl(card_art_url);
-  } else {
+  {
     const gfx::Image* image = client.GetPersonalDataManager()
                                   .payments_data_manager()
                                   .GetCachedCardArtImageForUrl(card_art_url);
@@ -706,15 +613,8 @@ std::optional<Suggestion::Text> GetCreditCardBenefitSuggestionLabel(
   const std::u16string& benefit_description = std::visit(
       [](const CreditCardBenefitBase& b) { return b.benefit_description(); },
       benefit.value());
-#if BUILDFLAG(IS_ANDROID)
-  // The TTF bottom sheet displays a separate `Terms apply for card benefits`
-  // message after listing all card suggestion, so it should not be appended
-  // to each one like on Desktop.
-  return std::optional<Suggestion::Text>(benefit_description);
-#else
   return std::optional<Suggestion::Text>(
       GetBenefitTextWithTermsAppended(benefit_description));
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 BnplSuggestionUpdateResult MaybeUpdateDesktopSuggestionsWithBnpl(
@@ -821,7 +721,6 @@ Suggestion CreateBnplSuggestion(
         GetBnplPriceLowerBound(bnpl_issuers)))}};
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   using IssuerId = BnplIssuer::IssuerId;
   auto issuer_present = [&bnpl_issuers](IssuerId issuer_id) {
     return std::ranges::contains(bnpl_issuers, issuer_id,
@@ -841,7 +740,6 @@ Suggestion CreateBnplSuggestion(
     bnpl_suggestion.iph_metadata = Suggestion::IPHMetadata(
         &feature_engagement::kIPHAutofillBnplAffirmOrZipSuggestionFeature);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   Suggestion::PaymentsPayload payments_payload;
   payments_payload.extracted_amount_in_micros =
@@ -1013,12 +911,8 @@ Suggestion CreateManagePaymentMethodsEntry(SuggestionType suggestion_type,
   // On Android and Desktop, Google Pay branding is shown along with Settings.
   // So Google Pay Icon is just attached to an existing menu item.
   if (with_gpay_logo) {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    suggestion.icon = Suggestion::Icon::kGooglePay;
-#else
     suggestion.icon = Suggestion::Icon::kSettings;
     suggestion.trailing_icon = Suggestion::Icon::kGooglePay;
-#endif
   } else {
     suggestion.icon = Suggestion::Icon::kSettings;
   }
@@ -1032,9 +926,6 @@ Suggestion CreateManageCreditCardsSuggestion(bool with_gpay_logo) {
 
 Suggestion CreateSaveAndFillSuggestion(const AutofillClient& client,
                                        bool& display_gpay_logo) {
-#if BUILDFLAG(IS_IOS)
-  Suggestion save_and_fill(SuggestionType::kSaveAndFillCreditCardEntry);
-#else
   Suggestion save_and_fill(
       l10n_util::GetStringUTF16(IDS_AUTOFILL_SAVE_AND_FILL_SUGGESTION_TITLE),
       SuggestionType::kSaveAndFillCreditCardEntry);
@@ -1047,7 +938,6 @@ Suggestion CreateSaveAndFillSuggestion(const AutofillClient& client,
         IDS_AUTOFILL_LOCAL_SAVE_AND_FILL_SUGGESTION_DESCRIPTION))}};
   }
   save_and_fill.icon = Suggestion::Icon::kSaveAndFill;
-#endif  // !BUILDFLAG(IS_IOS)
   return save_and_fill;
 }
 
@@ -1279,20 +1169,11 @@ std::vector<CreditCard> GetOrderedCardsToSuggest(
 }
 
 bool ShouldUseNewFopDisplay() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  return false;
-#else
   return true;
-#endif
 }
 
 int GetCreditCardObfuscationLength() {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // On Android and iOS, the obfuscation length is 2.
-  return 2;
-#else
   return ShouldUseNewFopDisplay() ? 2 : 4;
-#endif
 }
 
 Suggestion CreateCreditCardSuggestion(
@@ -1333,10 +1214,6 @@ Suggestion CreateCreditCardSuggestion(
         &feature_engagement::kIPHAutofillCardInfoRetrievalSuggestionFeature);
     suggestion.iph_metadata.iph_params = {
         GetDisplayNameForIssuerId(credit_card.issuer_id())};
-#if BUILDFLAG(IS_ANDROID)
-    suggestion.iph_description_text =
-        CreateCardInfoRetrievalIphDescriptionText(suggestion);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
   // For virtual cards, make some adjustments for the suggestion contents.
@@ -1350,8 +1227,7 @@ Suggestion CreateCreditCardSuggestion(
         l10n_util::GetStringUTF16(IDS_AUTOFILL_A11Y_ANNOUNCE_FILLED_FORM);
   }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   // Newly-synced cards start with a `use_count()` of 1.
   if (credit_card.card_creation_source() ==
           CreditCard::CardCreationSource::kCreationSourceNonChromePayments &&

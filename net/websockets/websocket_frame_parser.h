@@ -59,33 +59,10 @@ class NET_EXPORT WebSocketFrameParser {
   WebSocketError websocket_error() const { return websocket_error_; }
 
  private:
-  // Tries to decode a frame header from |data|.
-  // If successful, this function updates |current_frame_header_| and returns
-  // the number of consumed bytes in |data|. If there is not enough data in the
-  // remaining buffer to parse a frame header, this function returns 0 without
-  // doing anything. This function may update |websocket_error_| if it observes
-  // a corrupt frame.
-  size_t DecodeFrameHeader(base::span<const uint8_t> data);
-
-  // Decodes frame payload and creates a WebSocketFrameChunk object.
-  // This function updates |frame_offset_| after parsing. This function returns
-  // a frame object even if no payload data is available at this moment, so the
-  // receiver could make use of frame header information. If the end of frame is
-  // reached, this function clears |current_frame_header_| and resets
-  // |frame_offset_|.
-  std::unique_ptr<WebSocketFrameChunk> DecodeFramePayload(
-      bool first_chunk,
-      base::span<uint8_t>* data);
-
-  // Internal buffer to store the data to parse header.
-  std::vector<uint8_t> incomplete_header_buffer_;
-
-  // Frame header of the current frame (includes the masking key if masked).
-  std::unique_ptr<WebSocketFrameHeader> current_frame_header_;
-
-  // Amount of payload data read so far for the current frame.
-  uint64_t frame_offset_ = 0;
-
+  // Rust owns all incremental parsing state. C++ owns public chunk objects
+  // and caller-backed mutable payload spans, never parser policy.
+  // Opaque Rust allocation is outside PartitionAlloc.
+  RAW_PTR_EXCLUSION void* rust_parser_ = nullptr;
   WebSocketError websocket_error_ = kWebSocketNormalClosure;
 };
 

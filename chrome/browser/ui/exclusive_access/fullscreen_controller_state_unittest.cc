@@ -1012,7 +1012,6 @@ TEST_F(FullscreenControllerStateUnitTest,
   second_window.set_exclusive_access_manager(nullptr);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Creating a `TestingProfile` in a death test subprocess fails on ChromeOS
 // because `UnitTestTestSuite::Run()` initializes Blink before `TestSuite`
 // initializes ICU, causing `TimezoneSettingsStubImpl` to hit a DCHECK in
@@ -1075,7 +1074,6 @@ TEST_F(FullscreenControllerDeathTest,
       base::BindLambdaForTesting([&]() { DetachTab(0).reset(); }));
   EXPECT_CHECK_DEATH(GetFullscreenController()->ExitFullscreenModeForTab(tab));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 // Reproduction test for crbug.com/581334769:
 // When the top-level document enters fullscreen first and a cross-site OOPIF

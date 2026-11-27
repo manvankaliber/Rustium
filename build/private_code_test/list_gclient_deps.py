@@ -15,9 +15,7 @@ _KNOWN_RECURSEDEPS = (
     # any sub-deps under their directory via `use_relative_paths = True` are
     # already covered by prefix matching), and checked-out internal DEPS files
     # on supported platforms are also passed via `--deps-file` from BUILD.gn.
-    'src/clank',
     'src/components/optimization_guide/internal',
-    'src/ios_internal',
     # Public repos: do not contain chrome-internal dependencies used in
     # Chromium builds.
     'src/third_party/angle',
@@ -37,9 +35,9 @@ def _parse_deps_file(deps_path, root_dir, source_filter):
 
     # By default, paths in DEPS files are relative to the .gclient root (e.g.
     # 'src/foo'). When `use_relative_paths = True` is set in a recursed DEPS
-    # file (e.g. //clank/DEPS), paths in `deps` and `recursedeps` are relative
+    # file (e.g. //third_party/angle/DEPS), paths in `deps` and `recursedeps` are relative
     # to that DEPS file's directory and must be prefixed with `rel_prefix`
-    # ('src/clank') to normalize them to .gclient-root-relative paths.
+    # ('src/third_party/angle') to normalize them to .gclient-root-relative paths.
     rel_dir = deps_path.parent.relative_to(root_dir).as_posix()
     rel_prefix = posixpath.normpath(posixpath.join('src', rel_dir))
     use_relative_paths = scope.get('use_relative_paths', False)

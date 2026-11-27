@@ -11,9 +11,7 @@ source_set("navigator") {
     "browser_navigator_params_utils.h",
   ]
 
-  if (!is_android) {
-    public += [ "browser_navigator_tab_modal.h" ]
-  }
+  public += [ "browser_navigator_tab_modal.h" ]
 
   public_deps = [
     "//base",
@@ -67,44 +65,29 @@ source_set("impl") {
     "//url",
   ]
 
-  if (is_chromeos) {
-    deps += [
-      "//ash",
-      "//chrome/browser/ash/boca/on_task",
-      "//chrome/browser/ui/ash/system_web_apps",
-      "//chrome/browser/ui/chromeos/locked_state",
-    ]
-  }
+  sources += [
+    "browser_navigator.cc",
+    "browser_navigator_tab_modal.cc",
+  ]
 
-  if (is_android) {
-    deps += [ "//chrome/browser/android:tabs_public" ]
-  }
-
-  if (!is_android) {
-    sources += [
-      "browser_navigator.cc",
-      "browser_navigator_tab_modal.cc",
-    ]
-
-    deps += [
-      "//chrome/browser/apps/app_service",
-      "//chrome/browser/apps/link_capturing",
-      "//chrome/browser/ui:browser_init_state",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:singleton_tabs",
-      "//chrome/browser/ui:status_bubble",
-      "//chrome/browser/ui/browser_ui_controller",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/location_bar",
-      "//chrome/browser/ui/tabs:features",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/waap:waap_utils",
-      "//chrome/browser/ui/waap:window_metrics_manager",
-      "//chrome/browser/ui/web_applications",
-      "//chrome/browser/ui/web_applications:launch_utils",
-      "//chrome/browser/ui/window_feature_controller",
-    ]
-  }
+  deps += [
+    "//chrome/browser/apps/app_service",
+    "//chrome/browser/apps/link_capturing",
+    "//chrome/browser/ui:browser_init_state",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:singleton_tabs",
+    "//chrome/browser/ui:status_bubble",
+    "//chrome/browser/ui/browser_ui_controller",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/location_bar",
+    "//chrome/browser/ui/tabs:features",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/waap:waap_utils",
+    "//chrome/browser/ui/waap:window_metrics_manager",
+    "//chrome/browser/ui/web_applications",
+    "//chrome/browser/ui/web_applications:launch_utils",
+    "//chrome/browser/ui/window_feature_controller",
+  ]
 }
 
 source_set("unit_tests") {
@@ -126,82 +109,55 @@ source_set("unit_tests") {
     "//testing/gtest",
     "//ui/base/unowned_user_data",
   ]
-
-  if (is_android) {
-    deps += [
-      "//chrome/android:chrome_jni_headers",
-      "//chrome/browser/android:tabs_public",
-      "//chrome/browser/content_settings:content_settings_factory",
-      "//chrome/browser/ui/android/tab_model",
-      "//components/content_settings/core/browser",
-      "//components/content_settings/core/common",
-    ]
-  }
 }
 
-if (!is_android) {
-  source_set("browser_tests") {
-    testonly = true
-    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-    sources = [
-      "browser_navigator_browsertest.cc",
-      "browser_navigator_browsertest.h",
-      "window_open_split_tab_browsertest.cc",
+source_set("browser_tests") {
+  testonly = true
+  defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+  sources = [
+    "browser_navigator_browsertest.cc",
+    "browser_navigator_browsertest.h",
+    "window_open_split_tab_browsertest.cc",
+  ]
+
+  deps = [
+    ":impl",
+    "//base",
+    "//chrome/app:command_ids",
+    "//chrome/browser/file_system_access",
+    "//chrome/browser/picture_in_picture",
+    "//chrome/browser/prefs",
+    "//chrome/browser/renderer_host",
+    "//chrome/browser/ui:browser_commands",
+    "//chrome/browser/ui:browser_init_state",
+    "//chrome/browser/ui:browser_tabstrip",
+    "//chrome/browser/ui:browser_window_header",
+    "//chrome/browser/ui:chrome_pages",
+    "//chrome/browser/ui:singleton_tabs",
+    "//chrome/browser/ui/browser_window",
+    "//chrome/browser/ui/browser_window:create_browser_window",
+    "//chrome/browser/ui/page_info",
+    "//chrome/browser/ui/search:test_support_ui",
+    "//chrome/browser/ui/tabs:features",
+    "//chrome/browser/ui/tabs:tab_strip",
+    "//chrome/browser/ui/window_feature_controller",
+    "//chrome/test:test_support",
+    "//components/captive_portal/content",
+    "//components/split_tabs",
+    "//components/tabs:public",
+    "//content/test:test_support",
+    "//testing/gtest",
+    "//third_party/blink/public/common:headers",
+  ]
+
+  if (use_ozone) {
+    deps += [ "//ui/ozone" ]
+  }
+
+  if (is_win) {
+    deps += [
+      "//components/viz/common",
+      "//ui/gfx",
     ]
-
-    if (is_chromeos) {
-      sources += [ "browser_navigator_browsertest_chromeos.cc" ]
-    }
-
-    deps = [
-      ":impl",
-      "//base",
-      "//chrome/app:command_ids",
-      "//chrome/browser/file_system_access",
-      "//chrome/browser/picture_in_picture",
-      "//chrome/browser/prefs",
-      "//chrome/browser/renderer_host",
-      "//chrome/browser/ui:browser_commands",
-      "//chrome/browser/ui:browser_init_state",
-      "//chrome/browser/ui:browser_tabstrip",
-      "//chrome/browser/ui:browser_window_header",
-      "//chrome/browser/ui:chrome_pages",
-      "//chrome/browser/ui:singleton_tabs",
-      "//chrome/browser/ui/browser_window",
-      "//chrome/browser/ui/browser_window:create_browser_window",
-      "//chrome/browser/ui/page_info",
-      "//chrome/browser/ui/search:test_support_ui",
-      "//chrome/browser/ui/tabs:features",
-      "//chrome/browser/ui/tabs:tab_strip",
-      "//chrome/browser/ui/window_feature_controller",
-      "//chrome/test:test_support",
-      "//components/captive_portal/content",
-      "//components/split_tabs",
-      "//components/tabs:public",
-      "//content/test:test_support",
-      "//testing/gtest",
-      "//third_party/blink/public/common:headers",
-    ]
-
-    if (is_chromeos) {
-      deps += [
-        "//chrome/browser/ash/boca/on_task",
-        "//chrome/browser/ui/ash/multi_user",
-        "//chrome/browser/ui/ash/session",
-        "//chrome/browser/ui/chromeos/locked_state",
-        "//components/account_id:test_support",
-      ]
-    }
-
-    if (use_ozone) {
-      deps += [ "//ui/ozone" ]
-    }
-
-    if (is_win) {
-      deps += [
-        "//components/viz/common",
-        "//ui/gfx",
-      ]
-    }
   }
 }

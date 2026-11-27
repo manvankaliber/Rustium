@@ -39,7 +39,6 @@ typedef uint32_t MojoPlatformHandleType;
 
 // The |MojoPlatformHandle| value represents a Fuchsia system handle. Only
 // usable on Fuchsia hosts.
-#define MOJO_PLATFORM_HANDLE_TYPE_FUCHSIA_HANDLE ((MojoPlatformHandleType)4)
 
 // The |MojoPlatformHandle| value represents a Mach send right (e.g. a value
 // opaquely of type |mach_port_t|). Only usable on macOS hosts.

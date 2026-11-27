@@ -93,7 +93,6 @@ ${this.showResetProfileBanner_ ? html`
     ` : '')}
   </div>
 
-<if expr="not is_chromeos">
   ${cache(!this.settingsRefresh2026Enabled_ &&
       this.showPage_(this.pageVisibility_?.defaultBrowser) ? html`
     <div slot="view" id="defaultBrowser">
@@ -102,7 +101,6 @@ ${this.showResetProfileBanner_ ? html`
       ` : '')}
     </div>
   ` : '')}
-</if>
 
   ${cache(!this.settingsRefresh2026Enabled_ &&
       this.showPage_(this.pageVisibility_?.onStartup) ? html`
@@ -116,15 +114,9 @@ ${this.showResetProfileBanner_ ? html`
   ${cache(this.showPage_(this.pageVisibility_?.languages) ? html`
     <div slot="view" id="languages">
       ${cache(this.renderPlugin_(this.routes_.LANGUAGES) ? html`
-<if expr="is_chromeos">
-        <settings-languages-page-index-cros>
-        </settings-languages-page-index-cros>
-</if>
-<if expr="not is_chromeos">
         <settings-languages-page-index
             ?in-search-mode="${this.inSearchMode_}">
         </settings-languages-page-index>
-</if>
       ` : '')}
     </div>
   ` : '')}
@@ -157,7 +149,6 @@ ${this.showResetProfileBanner_ ? html`
     </div>
   ` : '')}
 
-<if expr="not is_chromeos">
   ${cache(!this.settingsRefresh2026Enabled_ &&
       this.showPage_(this.pageVisibility_?.system) ? html`
     <div slot="view" id="system">
@@ -166,7 +157,6 @@ ${this.showResetProfileBanner_ ? html`
       ` : '')}
     </div>
   ` : '')}
-</if>
 
   ${cache(!this.settingsRefresh2026Enabled_ &&
       this.showPage_(this.pageVisibility_?.reset) ? html`

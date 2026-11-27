@@ -731,8 +731,7 @@ TEST_F(AutofillWalletSyncBridgeTest,
 // Test that PaymentInstrumentCreationOption data is correctly returned from
 // GetAllLocalData(). This is separated from the overall tests due to the
 // buildflag dependencies.
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_F(AutofillWalletSyncBridgeTest,
        GetAllDataForDebugging_ShouldReturnPaymentInstrumentCreationOptionData) {
   sync_pb::PaymentInstrumentCreationOption creation_option =
@@ -986,8 +985,7 @@ TEST_F(AutofillWalletSyncBridgeTest, MergeFullSyncData_NewCloudTokenData) {
                            EqualsSpecifics(cloud_token_data_specifics2)));
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Tests that when a new payment instrument creation options are sent by the
 // server, the client only keeps the new data.
 TEST_F(AutofillWalletSyncBridgeTest,
@@ -1076,8 +1074,7 @@ TEST_F(AutofillWalletSyncBridgeTest, MergeFullSyncData_NoCloudTokenData) {
   EXPECT_TRUE(GetAllLocalData().empty());
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Tests that when the server sends no payment instrument creation options, the
 // client should delete all it's existing data.
 TEST_F(AutofillWalletSyncBridgeTest,
@@ -1287,8 +1284,7 @@ TEST_F(AutofillWalletSyncBridgeTest, MergeFullSyncData_SetsNewMaskedIban) {
   EXPECT_THAT(iban_vector, UnorderedElementsAre(testing::Pointee(server_iban)));
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 // Test that all field values for a payment instrument creation option sent from
 // the server are copied on the payment instrument creation option on the
 // client.
@@ -1423,8 +1419,7 @@ TEST_F(AutofillWalletSyncBridgeTest, ApplyDisableSyncChanges_Ibans) {
   EXPECT_TRUE(GetAllLocalData().empty());
 }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 TEST_F(AutofillWalletSyncBridgeTest,
        ApplyDisableSyncChanges_PaymentInstrumentCreationOptions) {
   // Create a payment instrument creation option on the client.
@@ -1870,268 +1865,6 @@ TEST_F(AutofillWalletSyncBridgeTestWithBenefitSyncDisabled,
               UnorderedElementsAre(EqualsSpecifics(card_specifics)));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(AutofillWalletSyncBridgeTest, ApplyDisableSyncChanges_BankAccount) {
-  // Create one bank account on the client.
-  table()->SetMaskedBankAccounts(
-      {test::CreatePixBankAccount(/*instrument_id=*/1234)});
-
-  EXPECT_CALL(*backend(), CommitChanges());
-  EXPECT_CALL(*backend(),
-              NotifyOnAutofillChangedBySync(syncer::AUTOFILL_WALLET_DATA));
-  EXPECT_CALL(*backend(), NotifyOfIbanChanged).Times(0);
-
-  // ApplyDisableSyncChanges indicates to the bridge that sync is stopping
-  // because it was disabled.
-  bridge()->ApplyDisableSyncChanges(
-      std::make_unique<syncer::InMemoryMetadataChangeList>());
-
-  EXPECT_TRUE(GetAllLocalData().empty());
-}
-
-// Tests that when the server sends the same data as the client has, nothing
-// changes on the client.
-TEST_F(AutofillWalletSyncBridgeTest, MergeFullSyncData_SameBankAccountData) {
-  // Create one bank account on the client.
-  BankAccount existing_bank_account =
-      test::CreatePixBankAccount(/*instrument_id=*/1234);
-  EXPECT_TRUE(table()->SetMaskedBankAccounts({existing_bank_account}));
-  std::vector<BankAccount> bank_accounts;
-  table()->GetMaskedBankAccounts(bank_accounts);
-  ASSERT_EQ(bank_accounts.size(), 1U);
-
-  // Create the bank account on the server.
-  AutofillWalletSpecifics bank_account_specifics;
-  SetAutofillWalletSpecificsFromBankAccount(existing_bank_account,
-                                            &bank_account_specifics);
-
-  StartSyncing({bank_account_specifics});
-
-  table()->GetMaskedBankAccounts(bank_accounts);
-  EXPECT_EQ(bank_accounts.size(), 1U);
-  EXPECT_THAT(GetAllLocalData(),
-              UnorderedElementsAre(EqualsSpecifics(bank_account_specifics)));
-}
-
-// Tests that when the server sends a new bank account, it gets added to the
-// database.
-TEST_F(AutofillWalletSyncBridgeTest, MergeFullSyncData_NewBankAccount) {
-  // Create one bank account on the client.
-  BankAccount existing_bank_account =
-      test::CreatePixBankAccount(/*instrument_id=*/1234);
-  EXPECT_TRUE(table()->SetMaskedBankAccounts({existing_bank_account}));
-  std::vector<BankAccount> bank_accounts;
-  table()->GetMaskedBankAccounts(bank_accounts);
-  ASSERT_EQ(bank_accounts.size(), 1U);
-  AutofillWalletSpecifics existing_bank_account_specifics;
-  SetAutofillWalletSpecificsFromBankAccount(existing_bank_account,
-                                            &existing_bank_account_specifics);
-
-  // Create the bank account on the server.
-  BankAccount new_bank_account =
-      test::CreatePixBankAccount(/*instrument_id=*/9999);
-  AutofillWalletSpecifics new_bank_account_specifics;
-  SetAutofillWalletSpecificsFromBankAccount(new_bank_account,
-                                            &new_bank_account_specifics);
-
-  StartSyncing({new_bank_account_specifics, existing_bank_account_specifics});
-
-  table()->GetMaskedBankAccounts(bank_accounts);
-  EXPECT_EQ(bank_accounts.size(), 2U);
-  EXPECT_THAT(
-      GetAllLocalData(),
-      UnorderedElementsAre(EqualsSpecifics(existing_bank_account_specifics),
-                           EqualsSpecifics(new_bank_account_specifics)));
-}
-
-// Tests that when the server sends an updated bank account, it gets updated in
-// the database.
-TEST_F(AutofillWalletSyncBridgeTest, MergeFullSyncData_UpdatedBankAccount) {
-  // Create one bank account on the client.
-  BankAccount existing_bank_account =
-      test::CreatePixBankAccount(/*instrument_id=*/1234);
-  EXPECT_TRUE(table()->SetMaskedBankAccounts({existing_bank_account}));
-  std::vector<BankAccount> bank_accounts;
-  table()->GetMaskedBankAccounts(bank_accounts);
-  ASSERT_EQ(bank_accounts.size(), 1U);
-
-  // Update the bank account on the server. Only the instrument id is the same
-  // as the existing bank account.
-  BankAccount udpated_bank_account(
-      existing_bank_account.payment_instrument().instrument_id(),
-      u"updated_nickname", GURL("http://www.example-updated.com"),
-      u"updated_bank_name", u"account_number_suffix_updated",
-      BankAccount::AccountType::kSavings);
-
-  AutofillWalletSpecifics updated_bank_account_specifics;
-  SetAutofillWalletSpecificsFromBankAccount(udpated_bank_account,
-                                            &updated_bank_account_specifics);
-
-  StartSyncing({updated_bank_account_specifics});
-
-  table()->GetMaskedBankAccounts(bank_accounts);
-  EXPECT_EQ(bank_accounts.size(), 1U);
-  EXPECT_THAT(
-      GetAllLocalData(),
-      UnorderedElementsAre(EqualsSpecifics(updated_bank_account_specifics)));
-}
-
-// Tests that when the server deletes a bank account, it gets removed from the
-// database.
-TEST_F(AutofillWalletSyncBridgeTest, MergeFullSyncData_RemoveBankAccount) {
-  // Create one bank account on the client.
-  BankAccount bank_account_1 =
-      test::CreatePixBankAccount(/*instrument_id=*/1234);
-  BankAccount bank_account_2 =
-      test::CreatePixBankAccount(/*instrument_id=*/9999);
-  EXPECT_TRUE(table()->SetMaskedBankAccounts({bank_account_1, bank_account_2}));
-  std::vector<BankAccount> bank_accounts;
-  table()->GetMaskedBankAccounts(bank_accounts);
-  ASSERT_EQ(bank_accounts.size(), 2U);
-  AutofillWalletSpecifics bank_account_1_specifics;
-  SetAutofillWalletSpecificsFromBankAccount(bank_account_1,
-                                            &bank_account_1_specifics);
-
-  // Remove bank account 2 on the server.
-  StartSyncing({bank_account_1_specifics});
-
-  table()->GetMaskedBankAccounts(bank_accounts);
-  EXPECT_EQ(bank_accounts.size(), 1U);
-  EXPECT_THAT(GetAllLocalData(),
-              UnorderedElementsAre(EqualsSpecifics(bank_account_1_specifics)));
-}
-
-// Tests that when the server sends the same data as the client has, nothing
-// changes on the client.
-TEST_F(AutofillWalletSyncBridgeTest,
-       MergeFullSyncData_SameEwalletPaymentInstrumentData) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  // Create one ewallet payment instrument on the client.
-  sync_pb::PaymentInstrument existing_ewallet_payment_instrument =
-      test::CreatePaymentInstrumentWithEwalletAccount(/*instrument_id=*/1234);
-  EXPECT_TRUE(
-      table()->SetPaymentInstruments({existing_ewallet_payment_instrument}));
-  std::vector<sync_pb::PaymentInstrument> payment_instruments;
-  table()->GetPaymentInstruments(payment_instruments);
-  ASSERT_EQ(payment_instruments.size(), 1U);
-
-  // Create the eWallet payment instrument on the server.
-  AutofillWalletSpecifics ewallet_account_specifics;
-  SetAutofillWalletSpecificsFromPaymentInstrument(
-      existing_ewallet_payment_instrument, ewallet_account_specifics);
-
-  StartSyncing({ewallet_account_specifics});
-
-  table()->GetPaymentInstruments(payment_instruments);
-  EXPECT_EQ(payment_instruments.size(), 1U);
-  EXPECT_THAT(GetAllLocalData(),
-              UnorderedElementsAre(EqualsSpecifics(ewallet_account_specifics)));
-}
-
-// Tests that when the server sends a new ewallet account, it gets added to the
-// database.
-TEST_F(AutofillWalletSyncBridgeTest,
-       MergeFullSyncData_NewEwalletPaymentInstrument) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  // Create one ewallet payment instrument on the client.
-  sync_pb::PaymentInstrument existing_ewallet_payment_instrument =
-      test::CreatePaymentInstrumentWithEwalletAccount(/*instrument_id=*/1234);
-  EXPECT_TRUE(
-      table()->SetPaymentInstruments({existing_ewallet_payment_instrument}));
-  std::vector<sync_pb::PaymentInstrument> payment_instruments;
-  table()->GetPaymentInstruments(payment_instruments);
-  ASSERT_EQ(payment_instruments.size(), 1U);
-  AutofillWalletSpecifics existing_ewallet_account_specifics;
-  SetAutofillWalletSpecificsFromPaymentInstrument(
-      existing_ewallet_payment_instrument, existing_ewallet_account_specifics);
-
-  // Create the ewallet payment instrument on the server.
-  sync_pb::PaymentInstrument new_ewallet_payment_instrument =
-      test::CreatePaymentInstrumentWithEwalletAccount(/*instrument_id=*/9999);
-  AutofillWalletSpecifics new_ewallet_account_specifics;
-  SetAutofillWalletSpecificsFromPaymentInstrument(
-      new_ewallet_payment_instrument, new_ewallet_account_specifics);
-
-  StartSyncing(
-      {new_ewallet_account_specifics, existing_ewallet_account_specifics});
-
-  table()->GetPaymentInstruments(payment_instruments);
-  EXPECT_EQ(payment_instruments.size(), 2U);
-  EXPECT_THAT(
-      GetAllLocalData(),
-      UnorderedElementsAre(EqualsSpecifics(existing_ewallet_account_specifics),
-                           EqualsSpecifics(new_ewallet_account_specifics)));
-}
-
-// Tests that when the server sends an updated ewallet account, it gets updated
-// in the database.
-TEST_F(AutofillWalletSyncBridgeTest,
-       MergeFullSyncData_UpdatedEwalletPaymentInstrument) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  // Create one ewallet payment instrument on the client.
-  sync_pb::PaymentInstrument existing_ewallet_payment_instrument =
-      test::CreatePaymentInstrumentWithEwalletAccount(/*instrument_id=*/1234);
-  EXPECT_TRUE(
-      table()->SetPaymentInstruments({existing_ewallet_payment_instrument}));
-  std::vector<sync_pb::PaymentInstrument> payment_instruments;
-  table()->GetPaymentInstruments(payment_instruments);
-  ASSERT_EQ(payment_instruments.size(), 1U);
-
-  // Update the ewallet payment instrument on the server. Only the instrument id
-  // is the same as the existing ewallet payment instrument.
-  sync_pb::PaymentInstrument udpated_ewallet_payment_instrument;
-  udpated_ewallet_payment_instrument.set_instrument_id(1234);
-  sync_pb::EwalletDetails* ewallet =
-      udpated_ewallet_payment_instrument.mutable_ewallet_details();
-  ewallet->set_ewallet_name("updated_ewallet_name");
-  ewallet->set_account_display_name("updated_account_display_name");
-
-  AutofillWalletSpecifics updated_ewallet_account_specifics;
-  SetAutofillWalletSpecificsFromPaymentInstrument(
-      udpated_ewallet_payment_instrument, updated_ewallet_account_specifics);
-
-  StartSyncing({updated_ewallet_account_specifics});
-
-  table()->GetPaymentInstruments(payment_instruments);
-  EXPECT_EQ(payment_instruments.size(), 1U);
-  EXPECT_THAT(
-      GetAllLocalData(),
-      UnorderedElementsAre(EqualsSpecifics(updated_ewallet_account_specifics)));
-}
-
-// Tests that when the server deletes a eWallet payment instrument, it gets
-// removed from the database.
-TEST_F(AutofillWalletSyncBridgeTest,
-       MergeFullSyncData_RemoveEwalletPaymentInstrument) {
-  base::test::ScopedFeatureList scoped_feature_list(
-      features::kAutofillSyncEwalletAccounts);
-  // Create two ewallet payment instruments on the client.
-  sync_pb::PaymentInstrument ewallet_payment_instrument_1 =
-      test::CreatePaymentInstrumentWithEwalletAccount(/*instrument_id=*/1234);
-  sync_pb::PaymentInstrument ewallet_payment_instrument_2 =
-      test::CreatePaymentInstrumentWithEwalletAccount(/*instrument_id=*/9999);
-  EXPECT_TRUE(table()->SetPaymentInstruments(
-      {ewallet_payment_instrument_1, ewallet_payment_instrument_2}));
-  std::vector<sync_pb::PaymentInstrument> payment_instruments;
-  table()->GetPaymentInstruments(payment_instruments);
-  ASSERT_EQ(payment_instruments.size(), 2U);
-
-  AutofillWalletSpecifics ewallet_payment_instrument_1_specifics;
-  SetAutofillWalletSpecificsFromPaymentInstrument(
-      ewallet_payment_instrument_1, ewallet_payment_instrument_1_specifics);
-
-  // Remove ewallet payment instrument 2 on the server.
-  StartSyncing({ewallet_payment_instrument_1_specifics});
-
-  table()->GetPaymentInstruments(payment_instruments);
-  EXPECT_EQ(payment_instruments.size(), 1U);
-  EXPECT_THAT(GetAllLocalData(), UnorderedElementsAre(EqualsSpecifics(
-                                     ewallet_payment_instrument_1_specifics)));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 }  // namespace autofill

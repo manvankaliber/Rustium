@@ -650,9 +650,7 @@ class GarbageCollectingSourceObserver final
   }
   void SourceChangedCaptureConfiguration() override {}
   void SourceChangedCaptureHandle() override {}
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   void SourceChangedZoomLevel(int) override {}
-#endif
 
   void Trace(Visitor* visitor) const override {
     MediaStreamSource::Observer::Trace(visitor);

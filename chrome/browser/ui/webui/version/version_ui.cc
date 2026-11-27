@@ -46,18 +46,8 @@
 #include "ui/webui/webui_util.h"
 #include "v8/include/v8-version-string.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/android/apk_info.h"
-#include "chrome/browser/ui/android/android_about_app_info.h"
-#else
 #include "chrome/browser/ui/webui/theme_source.h"  // nogncheck
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "build/util/LASTCHANGE_commit_position.h"
-#include "chrome/browser/ui/webui/version/version_handler_chromeos.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
@@ -97,17 +87,7 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
       {version_ui::kVariationsSourceName,
        IDS_VERSION_UI_VARIATIONS_SOURCE_NAME},
       {version_ui::kVariationsSeedName, IDS_VERSION_UI_VARIATIONS_SEED_NAME},
-#if BUILDFLAG(IS_CHROMEOS)
-      {version_ui::kARC, IDS_ARC_LABEL},
-      {version_ui::kPlatform, IDS_PLATFORM_LABEL},
-      {version_ui::kCustomizationId, IDS_VERSION_UI_CUSTOMIZATION_ID},
-      {version_ui::kFirmwareVersion, IDS_VERSION_UI_FIRMWARE_VERSION},
-#else
       {version_ui::kOSName, IDS_VERSION_UI_OS},
-#endif  // BUILDFLAG(IS_CHROMEOS)
-#if BUILDFLAG(IS_ANDROID)
-      {version_ui::kGmsName, IDS_VERSION_UI_GMS},
-#endif  // BUILDFLAG(IS_ANDROID)
   };
   html_source->AddLocalizedStrings(kStrings);
 
@@ -117,11 +97,6 @@ void CreateAndAddVersionUIDataSource(Profile* profile) {
   html_source->SetDefaultResource(IDR_VERSION_UI_ABOUT_VERSION_HTML);
   html_source->UseStringsJs();
 
-#if BUILDFLAG(IS_ANDROID)
-  html_source->AddResourcePath("images/product_logo.png", IDR_PRODUCT_LOGO);
-  html_source->AddResourcePath("images/product_logo_white.png",
-                               IDR_PRODUCT_LOGO_WHITE);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::string GetProductModifier() {
@@ -138,13 +113,7 @@ std::string GetProductModifier() {
 }
 
 std::string_view GetVersionInformationalSuffix() {
-#if BUILDFLAG(IS_CHROMEOS) && CHROMIUM_COMMIT_POSITION_IS_MAIN
-  // Adds the revision number as a suffix to the version number if the chrome
-  // is built from the main branch.
-  return "-r" CHROMIUM_COMMIT_POSITION_NUMBER;
-#else
   return "";
-#endif
 }
 
 }  // namespace
@@ -153,18 +122,14 @@ VersionUI::VersionUI(content::WebUI* web_ui)
     : content::WebUIController(web_ui) {
   Profile* profile = Profile::FromWebUI(web_ui);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  web_ui->AddMessageHandler(std::make_unique<VersionHandlerChromeOS>());
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   web_ui->AddMessageHandler(std::make_unique<VersionHandlerWindows>());
 #else
   web_ui->AddMessageHandler(std::make_unique<VersionHandler>());
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
   // Set up the chrome://theme/ source.
   content::URLDataSource::Add(profile, std::make_unique<ThemeSource>(profile));
-#endif
 
   CreateAndAddVersionUIDataSource(profile);
 }
@@ -173,16 +138,6 @@ VersionUI::~VersionUI() = default;
 
 // static
 int VersionUI::VersionProcessorVariation() {
-#if BUILDFLAG(IS_ANDROID)
-  // When building for Android, "unused" strings are removed. However, binaries
-  // of both bitnesses are stripped of strings based on string analysis of one
-  // bitness. Search the code for "generate_resource_allowlist" for more
-  // information. Therefore, make sure both the IDS_VERSION_UI_32BIT and
-  // IDS_VERSION_UI_64BIT strings are marked as always used so that they’re
-  // never stripped. https://crbug.com/40145503
-  IDS_VERSION_UI_32BIT;
-  IDS_VERSION_UI_64BIT;
-#endif  // BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_MAC)
   switch (base::mac::GetCPUType()) {
     case base::mac::CPUType::kIntel:
@@ -272,25 +227,10 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
 
 #if BUILDFLAG(IS_MAC)
   html_source->AddString(version_ui::kOSType, base::mac::GetOSDisplayName());
-#elif !BUILDFLAG(IS_CHROMEOS)
+#else
   html_source->AddString(version_ui::kOSType, version_info::GetOSType());
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_ANDROID)
-  std::string os_info = AndroidAboutAppInfo::GetOsInfo();
-  os_info +=
-      "; " + base::NumberToString(base::android::android_info::sdk_int());
-  std::string code_name(base::android::android_info::codename());
-  os_info += "; " + code_name;
-  html_source->AddString(version_ui::kOSVersion, os_info);
-  html_source->AddString(
-      version_ui::kTargetSdkVersion,
-      base::NumberToString(base::android::apk_info::target_sdk_version()));
-  html_source->AddString(version_ui::kGmsVersion,
-                         AndroidAboutAppInfo::GetGmsInfo());
-  html_source->AddString(version_ui::kVersionCode,
-                         base::android::apk_info::package_version_code());
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
   html_source->AddString(
@@ -335,7 +275,6 @@ void VersionUI::AddVersionDetailStrings(content::WebUIDataSource* html_source) {
                          version_info::GetSanitizerList());
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // static
 std::u16string VersionUI::GetAnnotatedVersionStringForUi() {
   return l10n_util::GetStringFUTF16(
@@ -348,4 +287,3 @@ std::u16string VersionUI::GetAnnotatedVersionStringForUi() {
       base::UTF8ToUTF16(GetProductModifier()),
       l10n_util::GetStringUTF16(VersionUI::VersionProcessorVariation()));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

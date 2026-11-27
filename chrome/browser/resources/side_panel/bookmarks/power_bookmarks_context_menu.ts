@@ -8,8 +8,8 @@ import '//resources/cr_elements/cr_action_menu/cr_action_menu.js';
 import '//resources/cr_elements/cr_icon_button/cr_icon_button.js';
 import '//resources/cr_elements/icons.html.js';
 
-import type {BrowserProxy as PriceTrackingBrowserProxy} from '//resources/cr_components/commerce/price_tracking.mojom-webui.js';
-import {browserProxyFactory as priceTrackingBrowserProxyFactory} from '//resources/cr_components/commerce/price_tracking.mojom-webui.js';
+
+
 import type {CrActionMenuElement} from '//resources/cr_elements/cr_action_menu/cr_action_menu.js';
 import {assert, assertNotReachedCase} from 'chrome://resources/js/assert.js';
 import {loadTimeData} from 'chrome://resources/js/load_time_data.js';
@@ -37,7 +37,6 @@ export enum MenuItemId {
   EDIT = 4,
   ADD_TO_BOOKMARKS_BAR = 5,
   REMOVE_FROM_BOOKMARKS_BAR = 6,
-  TRACK_PRICE = 7,
   RENAME = 8,
   DELETE = 9,
   DIVIDER = 10,
@@ -67,8 +66,7 @@ export class PowerBookmarksContextMenuElement extends CrLitElement {
   static override get properties() {
     return {
       bookmarks_: {type: Array},
-      priceTracked_: {type: Boolean},
-      priceTrackingEligible_: {type: Boolean},
+
       isInSplitView_: {type: Boolean},
       offTheRecordCount_: {type: Number},
     };
@@ -76,22 +74,20 @@ export class PowerBookmarksContextMenuElement extends CrLitElement {
 
   private bookmarksApi_: BookmarksApiProxy =
       BookmarksApiProxyImpl.getInstance();
-  private priceTrackingProxy_: PriceTrackingBrowserProxy =
-      priceTrackingBrowserProxyFactory.getInstance();
+
   private accessor bookmarks_: BookmarksTreeNode[] = [];
-  private accessor priceTracked_: boolean = false;
-  private accessor priceTrackingEligible_: boolean = false;
+
+
   private accessor isInSplitView_: boolean = false;
   private accessor offTheRecordCount_: number = 0;
 
   showAt(
       target: HTMLElement, bookmarks: BookmarksTreeNode[],
-      priceTracked: boolean, priceTrackingEligible: boolean,
       isInSplitView: boolean, offTheRecordCount: number,
       onShown: Function = () => {}) {
     this.bookmarks_ = bookmarks;
-    this.priceTracked_ = priceTracked;
-    this.priceTrackingEligible_ = priceTrackingEligible;
+
+
     this.isInSplitView_ = isInSplitView;
     this.offTheRecordCount_ = offTheRecordCount;
     this.updateComplete.then(() => {
@@ -101,12 +97,12 @@ export class PowerBookmarksContextMenuElement extends CrLitElement {
   }
 
   showAtPosition(
-      event: MouseEvent, bookmarks: BookmarksTreeNode[], priceTracked: boolean,
-      priceTrackingEligible: boolean, isInSplitView: boolean,
+      event: MouseEvent, bookmarks: BookmarksTreeNode[],
+      isInSplitView: boolean,
       offTheRecordCount: number, onShown: Function = () => {}) {
     this.bookmarks_ = bookmarks;
-    this.priceTracked_ = priceTracked;
-    this.priceTrackingEligible_ = priceTrackingEligible;
+
+
     this.isInSplitView_ = isInSplitView;
     this.offTheRecordCount_ = offTheRecordCount;
     const menuMargin = 20;
@@ -299,17 +295,7 @@ export class PowerBookmarksContextMenuElement extends CrLitElement {
       });
     }
 
-    if (this.priceTrackingEligible_) {
-      menuItems.push(
-          {id: MenuItemId.DIVIDER},
-          {
-            id: MenuItemId.TRACK_PRICE,
-            label: this.priceTracked_ ?
-                loadTimeData.getString('menuUntrackPrice') :
-                loadTimeData.getString('menuTrackPrice'),
-          },
-      );
-    }
+
 
     menuItems.push({id: MenuItemId.DIVIDER});
 
@@ -429,24 +415,6 @@ export class PowerBookmarksContextMenuElement extends CrLitElement {
         } else {
           this.bookmarksApi_.contextMenuRemoveFromBookmarksBar(
               this.bookmarks_[0]!.id, ActionSource.kBookmark);
-        }
-        break;
-      case MenuItemId.TRACK_PRICE:
-        assert(this.bookmarks_.length === 1);
-        if (editingDisabledByPolicy(this.bookmarks_)) {
-          this.dispatchDisabledFeatureEvent_();
-        } else {
-          if (this.priceTracked_) {
-            this.priceTrackingProxy_.handler.untrackPriceForBookmark(
-                BigInt(this.bookmarks_[0]!.id));
-            chrome.metricsPrivate.recordUserAction(
-                'Commerce.PriceTracking.SidePanel.Untrack.ContextMenu');
-          } else {
-            this.priceTrackingProxy_.handler.trackPriceForBookmark(
-                BigInt(this.bookmarks_[0]!.id));
-            chrome.metricsPrivate.recordUserAction(
-                'Commerce.PriceTracking.SidePanel.Track.ContextMenu');
-          }
         }
         break;
       case MenuItemId.EDIT:

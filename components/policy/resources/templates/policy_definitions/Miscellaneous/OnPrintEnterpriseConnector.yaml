@@ -56,8 +56,7 @@ features:
   cloud_only: true
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 owners:
 - file://chrome/browser/enterprise/connectors/OWNERS
 - domfc@chromium.org

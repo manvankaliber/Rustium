@@ -40,7 +40,6 @@
 #include "base/test/launcher/test_launcher.h"
 #include "base/test/scoped_block_tests_writing_to_special_dirs.h"
 #include "base/test/test_suite.h"
-#include "base/test/test_support_ios.h"
 #include "base/test/test_switches.h"
 #include "base/test/test_timeouts.h"
 #include "base/time/time.h"
@@ -57,9 +56,6 @@
 #include "ui/base/buildflags.h"
 #include "ui/base/ui_base_features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/app/android/content_main_android.h"
-#endif
 
 #if BUILDFLAG(IS_POSIX)
 #include "base/files/file_descriptor_watcher_posix.h"
@@ -342,11 +338,6 @@ int LaunchTestsInternal(TestLauncherDelegate* launcher_delegate,
   g_launcher_delegate = launcher_delegate;
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-#if BUILDFLAG(IS_ANDROID)
-  // The ContentMainDelegate is set for browser tests on Android by the
-  // browser test target and is not created by the |launcher_delegate|.
-  ContentMainParams params(GetContentMainDelegateForTesting());
-#else
   std::unique_ptr<ContentMainDelegate> content_main_delegate(
       launcher_delegate->CreateContentMainDelegate());
   ContentClientCreator::Create(content_main_delegate.get());
@@ -354,7 +345,6 @@ int LaunchTestsInternal(TestLauncherDelegate* launcher_delegate,
   // test launching.
   RegisterContentSchemes();
   ContentMainParams params(content_main_delegate.get());
-#endif
 
 #if BUILDFLAG(IS_WIN)
   sandbox::SandboxInterfaceInfo sandbox_info = {nullptr};
@@ -370,21 +360,17 @@ int LaunchTestsInternal(TestLauncherDelegate* launcher_delegate,
   if (seatbelt.sandbox_required) {
     CHECK(seatbelt.server->InitializeSandbox());
   }
-#elif !BUILDFLAG(IS_ANDROID)
+#else
   params.argc = argc;
   params.argv = const_cast<const char**>(argv);
 #endif  // BUILDFLAG(IS_WIN)
 
-#if !BUILDFLAG(IS_ANDROID)
   // This needs to be before trying to run tests as otherwise utility processes
   // end up being launched as a test, which leads to rerunning the test.
   // ContentMain is not run on Android in the test process, and is run via
   // java for child processes.
   if (command_line->HasSwitch(switches::kProcessType) ||
       command_line->HasSwitch(switches::kLaunchAsBrowser)) {
-#if BUILDFLAG(IS_IOS)
-    base::AtExitManager at_exit;
-#endif
     // The main test process has this initialized by the base::TestSuite. But
     // child processes don't have a TestSuite, and must initialize this
     // explicitly before ContentMain.
@@ -400,7 +386,6 @@ int LaunchTestsInternal(TestLauncherDelegate* launcher_delegate,
     return exit_code;
 #endif
   }
-#endif
 
   if (command_line->HasSwitch(switches::kSingleProcessTests) ||
       (command_line->HasSwitch(switches::kSingleProcess) &&
@@ -408,7 +393,6 @@ int LaunchTestsInternal(TestLauncherDelegate* launcher_delegate,
       command_line->HasSwitch(base::kGTestListTestsFlag) ||
       command_line->HasSwitch(base::kGTestHelpFlag)) {
     g_params = &params;
-#if !BUILDFLAG(IS_ANDROID)
     base::ScopedTempDir tmp_dir;
     const std::string user_data_dir_switch =
         launcher_delegate->GetUserDataDirectoryCommandLineSwitch();
@@ -431,11 +415,8 @@ int LaunchTestsInternal(TestLauncherDelegate* launcher_delegate,
         command_line->AppendSwitchPath(user_data_dir_switch, tmp_dir.GetPath());
       }
     }
-#endif  // !BUILDFLAG(IS_ANDROID)
     int exit_code = launcher_delegate->RunTestSuite(argc, argv);
-#if !BUILDFLAG(IS_ANDROID) && !EXPENSIVE_TEST_LOGIC_IS_ON() && \
-    !defined(LEAK_SANITIZER) && !defined(ADDRESS_SANITIZER) && \
-    !defined(THREAD_SANITIZER) && !defined(MEMORY_SANITIZER)
+#if !EXPENSIVE_TEST_LOGIC_IS_ON() && !defined(LEAK_SANITIZER) && !defined(ADDRESS_SANITIZER) && !defined(THREAD_SANITIZER) && !defined(MEMORY_SANITIZER)
     if (command_line->HasSwitch(switches::kSingleProcessTests) &&
         !command_line->HasSwitch(base::kGTestListTestsFlag) &&
         !command_line->HasSwitch(base::kGTestHelpFlag)) {
@@ -569,17 +550,6 @@ int LaunchTests(TestLauncherDelegate* launcher_delegate,
     return 0;
   }
 
-#if BUILDFLAG(IS_IOS)
-  // We need to spawn the UIApplication up for testing, that is done via
-  // RunTestsFromIOSApp. We do not want to do this for subprocesses that
-  // do not require a UIApplication.
-  if (!command_line->HasSwitch(switches::kProcessType) &&
-      !command_line->HasSwitch(switches::kLaunchAsBrowser)) {
-    base::InitIOSRunHook(base::BindOnce(&LaunchTestsInternal, launcher_delegate,
-                                        parallel_jobs, argc, argv));
-    return base::RunTestsFromIOSApp();
-  }
-#endif
 
   return LaunchTestsInternal(launcher_delegate, parallel_jobs, argc, argv);
 }

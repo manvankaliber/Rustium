@@ -595,80 +595,6 @@ std::unique_ptr<ZoneInfoSource> AndroidZoneInfoSource::Open(
   return nullptr;
 }
 
-// A zoneinfo source for use inside Fuchsia components. This attempts to
-// read zoneinfo files from one of several known paths in a component's
-// incoming namespace. [Config data][1] is preferred, but package-specific
-// resources are also supported.
-//
-// Fuchsia's implementation supports `FileZoneInfoSource::Version()`.
-//
-// [1]:
-// https://fuchsia.dev/fuchsia-src/development/components/data#using_config_data_in_your_component
-class FuchsiaZoneInfoSource : public FileZoneInfoSource {
- public:
-  static std::unique_ptr<ZoneInfoSource> Open(const std::string& name);
-  std::string Version() const override { return version_; }
-
- private:
-  explicit FuchsiaZoneInfoSource(FilePtr fp, std::string version)
-      : FileZoneInfoSource(std::move(fp)), version_(std::move(version)) {}
-  std::string version_;
-};
-
-std::unique_ptr<ZoneInfoSource> FuchsiaZoneInfoSource::Open(
-    const std::string& name) {
-  // Use of the "file:" prefix is intended for testing purposes only.
-  const std::size_t pos = (name.compare(0, 5, "file:") == 0) ? 5 : 0;
-
-  // Reject unsafe paths (e.g., "../../etc/passwd").
-  if (UnsafePath(name, pos)) {
-    return nullptr;
-  }
-
-  // Prefixes where a Fuchsia component might find zoneinfo files,
-  // in descending order of preference.
-  const auto kTzdataPrefixes = {
-      // The tzdata from `config-data`.
-      "/config/data/tzdata/",
-      // The tzdata bundled in the component's package.
-      "/pkg/data/tzdata/",
-      // General data storage.
-      "/data/tzdata/",
-      // The recommended path for routed-in tzdata files.
-      // See for details:
-      // https://fuchsia.dev/fuchsia-src/concepts/process/namespaces?hl=en#typical_directory_structure
-      "/config/tzdata/",
-  };
-  const auto kEmptyPrefix = {""};
-  const bool name_absolute = (pos != name.size() && name[pos] == '/');
-  const auto prefixes = name_absolute ? kEmptyPrefix : kTzdataPrefixes;
-
-  // Fuchsia builds place zoneinfo files at "<prefix><format><name>".
-  for (const std::string prefix : prefixes) {
-    std::string path = prefix;
-    if (!prefix.empty()) path += "zoneinfo/tzif2/";  // format
-    path.append(name, pos, std::string::npos);
-
-    auto fp = FOpen(path.c_str());
-    if (fp == nullptr) continue;
-
-    std::string version;
-    if (!prefix.empty()) {
-      // Fuchsia builds place the version in "<prefix>revision.txt".
-      std::ifstream version_stream(prefix + "revision.txt");
-      if (version_stream.is_open()) {
-        // revision.txt should contain no newlines, but to be
-        // defensive we read just the first line.
-        std::getline(version_stream, version);
-      }
-    }
-
-    return std::unique_ptr<ZoneInfoSource>(
-        new FuchsiaZoneInfoSource(std::move(fp), std::move(version)));
-  }
-
-  return nullptr;
-}
 
 }  // namespace
 
@@ -931,7 +857,6 @@ bool TimeZoneInfo::Load(const std::string& name) {
       name, [](const std::string& n) -> std::unique_ptr<ZoneInfoSource> {
         if (auto z = FileZoneInfoSource::Open(n)) return z;
         if (auto z = AndroidZoneInfoSource::Open(n)) return z;
-        if (auto z = FuchsiaZoneInfoSource::Open(n)) return z;
         return nullptr;
       });
   return zip != nullptr && Load(zip.get());

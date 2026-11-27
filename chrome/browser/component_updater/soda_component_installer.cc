@@ -219,10 +219,8 @@ SodaComponentInstallerPolicy::GetInstallerAttributes() const {
 
 void UpdateSodaInstallDirPref(PrefService* prefs,
                               const base::FilePath& install_dir) {
-#if !BUILDFLAG(IS_ANDROID)
   prefs->SetFilePath(prefs::kSodaBinaryPath,
                      install_dir.Append(speech::kSodaBinaryRelativePath));
-#endif
 }
 
 void RegisterSodaComponent(ComponentUpdateService* cus,

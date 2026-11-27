@@ -3,17 +3,6 @@
 # found in the LICENSE file.
 
 import("//build/config/chrome_build.gni")
-import("//tools/json_to_struct/json_to_struct.gni")
-if (is_android) {
-  import("//build/config/android/config.gni")
-  import("//build/config/android/rules.gni")
-}
-
-json_to_struct("ai_mode_button_config") {
-  source = "ai_mode_button_config.json"
-  schema_file = "ai_mode_button_config_schema.json"
-  namespace = "ai_mode_button_config"
-}
 
 static_library("search_engines") {
   sources = [
@@ -73,7 +62,6 @@ static_library("search_engines") {
   ]
 
   public_deps = [
-    ":ai_mode_button_config",
     ":search_engine_pref_names",
     ":search_engine_type",
     ":search_engine_utils",
@@ -130,20 +118,7 @@ static_library("search_engines") {
     "//url",
   ]
 
-  if (!is_fuchsia) {
-    deps += [ "//components/variations/service" ]
-  }
-
-  if (is_android) {
-    sources += [
-      "android/template_url_android.cc",
-      "android/template_url_android.h",
-      "android/template_url_service_android.cc",
-      "android/template_url_service_android.h",
-    ]
-
-    deps += [ "//components/search_engines/android:jni_headers" ]
-  }
+  deps += [ "//components/variations/service" ]
 
   deps += [
     "//components/resources:components_scaled_resources_grit",
@@ -154,7 +129,7 @@ static_library("search_engines") {
     deps += [ "//third_party/search_engines_data:resources" ]
   }
 
-  if (is_linux || is_win || is_mac || is_chromeos) {
+  if (is_linux || is_win || is_mac) {
     sources += [
       "enterprise/search_aggregator_policy_handler.cc",
       "enterprise/search_aggregator_policy_handler.h",
@@ -287,41 +262,23 @@ source_set("unit_tests") {
     "//url",
   ]
 
-  if (is_linux || is_win || is_mac || is_chromeos) {
+  if (is_linux || is_win || is_mac) {
     sources += [
       "enterprise/search_aggregator_policy_handler_unittest.cc",
       "enterprise/site_search_policy_handler_unittest.cc",
     ]
   }
 
-  if (!is_ios) {
-    sources += [ "enterprise/default_search_policy_handler_unittest.cc" ]
+  sources += [ "enterprise/default_search_policy_handler_unittest.cc" ]
 
-    deps += [
-      "//components/policy:generated",
-      "//components/policy/core/browser:test_support",
-    ]
-  }
-
-  if (is_android) {
-    sources += [ "android/template_url_service_android_unittest.cc" ]
-    deps += [ "//components/search_engines/android:jni_headers" ]
-  }
+  deps += [
+    "//components/policy:generated",
+    "//components/policy/core/browser:test_support",
+  ]
 
   # TODO(crbug.com/40031409): Fix code that adds exit-time destructors and
   # enable the diagnostic by removing this line.
   configs += [ "//build/config/compiler:no_exit_time_destructors" ]
-}
-
-if (is_android) {
-  java_cpp_enum("search_engine_enums_java") {
-    sources = [
-      "choice_made_location.h",
-      "search_engine_settings_data_provider.h",
-      "search_engine_type.h",
-      "template_url_starter_pack_data.h",
-    ]
-  }
 }
 
 component("search_engines_switches") {

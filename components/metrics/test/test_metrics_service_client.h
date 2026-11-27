@@ -40,9 +40,6 @@ class TestMetricsServiceClient : public MetricsServiceClient {
   variations::SyntheticTrialRegistry* GetSyntheticTrialRegistry() override;
   metrics::MetricsService* GetMetricsService() override;
   void SetMetricsClientId(const std::string& client_id) override;
-#if BUILDFLAG(IS_CHROMEOS)
-  bool ShouldUploadMetricsForUserId(uint64_t user_id) override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
   int32_t GetProduct() override;
   std::string GetApplicationLocale() override;
   const network_time::NetworkTimeTracker* GetNetworkTimeTracker() override;
@@ -57,9 +54,6 @@ class TestMetricsServiceClient : public MetricsServiceClient {
       std::string_view mime_type,
       MetricsLogUploader::MetricServiceType service_type,
       const MetricsLogUploader::UploadCallback& on_upload_complete) override;
-#if BUILDFLAG(IS_ANDROID)
-  bool IsJobSchedulerSupported() const override;
-#endif  // BUILDFLAG(IS_ANDROID)
   base::TimeDelta GetStandardUploadInterval() override;
   bool IsReportingPolicyManaged() override;
   EnableMetricsDefault GetMetricsReportingDefaultState() override;

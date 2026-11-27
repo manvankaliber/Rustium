@@ -20,21 +20,11 @@ BASE_DECLARE_FEATURE_PARAM(bool,
                            kSendEmptyGestureScrollUpdateFilterOutEmptyUpdates);
 COMPONENT_EXPORT(UI_BASE_FEATURES)
 BASE_DECLARE_FEATURE(kExperimentalFlingAnimation);
-#if BUILDFLAG(IS_ANDROID)
-COMPONENT_EXPORT(UI_BASE_FEATURES)
-BASE_DECLARE_FEATURE(kDesktopFlingCurveOnAndroid);
-COMPONENT_EXPORT(UI_BASE_FEATURES)
-BASE_DECLARE_FEATURE(kSuppressOverscrollGlow);
-#endif
 
 COMPONENT_EXPORT(UI_BASE_FEATURES) BASE_DECLARE_FEATURE(kFocusFollowsCursor);
 COMPONENT_EXPORT(UI_BASE_FEATURES)
 BASE_DECLARE_FEATURE(kDragDropOnlySynthesizeHttpOrHttpsUrlsFromText);
 
-#if BUILDFLAG(IS_CHROMEOS)
-COMPONENT_EXPORT(UI_BASE_FEATURES)
-BASE_DECLARE_FEATURE(kSettingsShowsPerKeyboardSettings);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 COMPONENT_EXPORT(UI_BASE_FEATURES) BASE_DECLARE_FEATURE(kSystemKeyboardLock);
 COMPONENT_EXPORT(UI_BASE_FEATURES)
 BASE_DECLARE_FEATURE(kUiCompositorScrollWithLayers);
@@ -92,10 +82,6 @@ COMPONENT_EXPORT(UI_BASE_FEATURES)
 BASE_DECLARE_FEATURE(kDetectSpaceChangeViaOcclusion);
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-COMPONENT_EXPORT(UI_BASE_FEATURES)
-bool IsImprovedKeyboardShortcutsEnabled();
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 COMPONENT_EXPORT(UI_BASE_FEATURES)
 BASE_DECLARE_FEATURE(kTouchTextEditingRedesign);
@@ -131,19 +117,6 @@ COMPONENT_EXPORT(UI_BASE_FEATURES) bool IsKeyboardAccessibleTooltipEnabled();
 COMPONENT_EXPORT(UI_BASE_FEATURES)
 BASE_DECLARE_FEATURE(kApplyScrollRailingInRenderer);
 
-#if BUILDFLAG(IS_CHROMEOS)
-COMPONENT_EXPORT(UI_BASE_FEATURES) BASE_DECLARE_FEATURE(kDeprecateAltClick);
-
-COMPONENT_EXPORT(UI_BASE_FEATURES)
-bool IsDeprecateAltClickEnabled();
-
-COMPONENT_EXPORT(UI_BASE_FEATURES)
-BASE_DECLARE_FEATURE(kNotificationsIgnoreRequireInteraction);
-
-COMPONENT_EXPORT(UI_BASE_FEATURES)
-bool IsNotificationsIgnoreRequireInteractionEnabled();
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_OZONE)
 COMPONENT_EXPORT(UI_BASE_FEATURES)
@@ -347,7 +320,7 @@ BASE_DECLARE_FEATURE(kChromeDarkNeutrals26);
 COMPONENT_EXPORT(UI_BASE_FEATURES)
 BASE_DECLARE_FEATURE(kDarkModeSurfaceTokens);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // When enabled, reads the system accent color from the xdg-desktop-portal (the
 // org.freedesktop.appearance "accent-color" setting) and applies it as the
 // NativeTheme user color.

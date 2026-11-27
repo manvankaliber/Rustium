@@ -76,9 +76,6 @@ inline constexpr char kChromeUIBlinkWorkerOOMURL[] =
     "chrome://blink-oom/worker/";
 inline constexpr char kChromeUIV8OOMURL[] = "chrome://v8-oom/";
 
-#if BUILDFLAG(IS_ANDROID)
-inline constexpr char kChromeUIGpuJavaCrashURL[] = "chrome://gpu-java-crash/";
-#endif
 inline constexpr char kChromeUICrashRustURL[] = "chrome://crash/rust";
 #if BUILDFLAG(IS_WIN)
 inline constexpr char kChromeUIBrowserHeapCorruptionURL[] =

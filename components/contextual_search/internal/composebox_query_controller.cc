@@ -65,10 +65,8 @@
 #include "third_party/lens_server_proto/lens_overlay_visual_search_interaction_data.pb.h"
 #include "third_party/omnibox_proto/chrome_aim_entry_point.pb.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "services/data_decoder/public/cpp/decode_image.h"
 #include "third_party/skia/include/core/SkBitmap.h"
-#endif  // !BUILDFLAG(IS_IOS)
 
 using endpoint_fetcher::CredentialsMode;
 using endpoint_fetcher::EndpointFetcher;
@@ -1178,13 +1176,6 @@ void ComposeboxQueryController::StartFileUploadFlow(
   }
   // Create a file info struct to hold the file upload data.
   auto file_info = std::make_unique<FileInfo>();
-#if BUILDFLAG(IS_IOS)
-  // Ensure the app doesn't suspend while we are uploading a file. By creating a
-  // ScopedCriticalAction, we tell the system that a critical task is running,
-  // granting a grace period if the app is backgrounded.
-  file_info->background_action =
-      std::make_unique<base::ios::ScopedCriticalAction>("ComposeboxFileUpload");
-#endif
   file_info->file_token = file_token;
   if (file_info->selection_time.is_null()) {
     file_info->selection_time = base::Time::Now();
@@ -2313,7 +2304,6 @@ void ComposeboxQueryController::ProcessDecodedImageAndContinue(
     scoped_refptr<base::RefCountedData<std::vector<uint8_t>>>
         original_image_data,
     const SkBitmap& bitmap) {
-#if !BUILDFLAG(IS_IOS)
   scoped_refptr<lens::RefCountedLensOverlayClientLogs> ref_counted_logs =
       base::MakeRefCounted<lens::RefCountedLensOverlayClientLogs>();
 
@@ -2383,7 +2373,6 @@ void ComposeboxQueryController::ProcessDecodedImageAndContinue(
                      request_id, CreateClientContext(), ref_counted_logs,
                      std::move(callback), page_url, page_title, file_name,
                      image_type));
-#endif  // !BUILDFLAG(IS_IOS)
 }
 
 void ComposeboxQueryController::CreateImageUploadRequest(
@@ -2396,7 +2385,6 @@ void ComposeboxQueryController::CreateImageUploadRequest(
     UploadImageType image_type,
     std::optional<std::string> mime_type_string,
     RequestBodyProtoCreatedCallback callback) {
-#if !BUILDFLAG(IS_IOS)
   CHECK(image_options.has_value());
 
   // Blink's image decoder does not support HEIC/HEIF on non-iOS platforms.
@@ -2434,7 +2422,6 @@ void ComposeboxQueryController::CreateImageUploadRequest(
                      image_options.value(), std::move(callback), page_url,
                      page_title, file_name, image_type,
                      std::move(mime_type_string), refcounted_image_data));
-#endif  // !BUILDFLAG(IS_IOS)
 }
 
 void ComposeboxQueryController::CreateUploadRequestBodiesAndContinue(
@@ -2911,9 +2898,6 @@ void ComposeboxQueryController::HandleUploadResponse(
   if (response->http_status_code != google_apis::ApiErrorCode::HTTP_SUCCESS) {
     file_info->upload_error_type =
         contextual_search::ContextUploadErrorType::kServerError;
-#if BUILDFLAG(IS_IOS)
-    file_info->background_action.reset();
-#endif
     UpdateContextUploadStatus(
         file_token, contextual_search::ContextUploadStatus::kUploadFailed,
         contextual_search::ContextUploadErrorType::kServerError);
@@ -2930,9 +2914,6 @@ void ComposeboxQueryController::HandleUploadResponse(
   if (file_info->upload_status ==
           contextual_search::ContextUploadStatus::kUploadStarted &&
       file_info->num_outstanding_network_requests_ == 0) {
-#if BUILDFLAG(IS_IOS)
-    file_info->background_action.reset();
-#endif
     UpdateContextUploadStatus(
         file_token, contextual_search::ContextUploadStatus::kUploadSuccessful,
         std::nullopt);

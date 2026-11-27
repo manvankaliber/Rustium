@@ -47,7 +47,7 @@
 #include "chrome/browser/web_applications/scope_extension_info.h"
 #include "chrome/browser/web_applications/url_pattern_with_regex_matcher.h"
 #include "chrome/browser/web_applications/user_display_mode.h"
-#include "chrome/browser/web_applications/web_app_chromeos_data.h"
+#include "chrome/browser/web_applications/legacy_platform_app_data.h"
 #include "chrome/browser/web_applications/web_app_constants.h"
 #include "chrome/browser/web_applications/web_app_helpers.h"
 #include "chrome/browser/web_applications/web_app_install_info.h"
@@ -74,8 +74,7 @@
 #include "ui/gfx/geometry/size.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "components/webapps/isolated_web_apps/scheme.h"
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
@@ -260,7 +259,7 @@ WebApp::WebApp(const webapps::ManifestId& manifest_id,
       start_url_(start_url),
       scope_(scope),
       chromeos_data_(IsChromeOsDataMandatory()
-                         ? std::make_optional<WebAppChromeOsData>()
+                         ? std::make_optional<LegacyPlatformAppData>()
                          : std::nullopt),
       manifest_id_(manifest_id),
       parent_app_id_(parent_app_id) {
@@ -288,7 +287,7 @@ WebApp::WebApp(const webapps::ManifestId& manifest_id,
 
 WebApp::WebApp(const sync_pb::WebAppSpecifics& sync_proto)
     : chromeos_data_(IsChromeOsDataMandatory()
-                         ? std::make_optional<WebAppChromeOsData>()
+                         ? std::make_optional<LegacyPlatformAppData>()
                          : std::nullopt),
       sync_proto_(sync_proto),
       manifest_id_(sync_proto.has_relative_manifest_id()
@@ -428,10 +427,10 @@ bool WebApp::WasInstalledByUser() const {
 }
 
 bool WebApp::WasInstalledByTrustedSources() const {
-  // WebAppChromeOsData::oem_installed is not included here as
+  // LegacyPlatformAppData::oem_installed is not included here as
   // we would like to keep WebAppManagement::kOem and
-  // WebAppChromeOsData::oem_installed separate.
-  // WebAppChromeOsData::oem_installed will be migrated to
+  // LegacyPlatformAppData::oem_installed separate.
+  // LegacyPlatformAppData::oem_installed will be migrated to
   // WebAppManagement::kOem eventually.
   return sources_.Has(WebAppManagement::kDefault) ||
          sources_.Has(WebAppManagement::kPolicy) ||
@@ -531,8 +530,8 @@ void WebApp::SetDisplayModeOverride(
   display_mode_override_ = std::move(display_mode_override);
 }
 
-void WebApp::SetWebAppChromeOsData(
-    std::optional<WebAppChromeOsData> chromeos_data) {
+void WebApp::SetLegacyPlatformAppData(
+    std::optional<LegacyPlatformAppData> chromeos_data) {
   chromeos_data_ = std::move(chromeos_data);
 }
 
@@ -727,8 +726,7 @@ void WebApp::SetCurrentOsIntegrationStates(
 
 void WebApp::SetIsolationData(IsolationData isolation_data) {
   CHECK(manifest_id_.is_valid()
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
         && manifest_id_.value().SchemeIs(webapps::kIsolatedAppScheme))
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
@@ -1032,9 +1030,6 @@ WebApp::ClientData::ClientData(const ClientData& client_data) = default;
 
 base::Value WebApp::ClientData::AsDebugValue() const {
   base::DictValue root;
-#if BUILDFLAG(IS_CHROMEOS)
-  root.Set("system_web_app_data", OptionalAsDebugValue(system_web_app_data));
-#endif
   return base::Value(std::move(root));
 }
 
@@ -1143,9 +1138,6 @@ bool WebApp::operator==(const WebApp& other) const {
         app.sync_proto_,
         app.manifest_url_,
         app.manifest_id_,
-#if BUILDFLAG(IS_CHROMEOS)
-        app.client_data_.system_web_app_data,
-#endif
         app.file_handler_approval_state_,
         app.window_controls_overlay_enabled_,
         app.launch_handler_,

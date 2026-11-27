@@ -33,10 +33,6 @@
 #include "ui/views/widget/widget.h"
 #include "ui/views/window/dialog_delegate.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ui/base/window_properties.h"
-#include "ui/aura/window.h"  // nogncheck
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "ui/base/win/message_box_win.h"
@@ -208,7 +204,7 @@ chrome::MessageBoxResult MessageBoxDialog::Show(
   dialog->set_close_on_deactivate(g_message_box_is_showing_sync);
 
   // System modals have no parent and are only supported on ChromeOS Ash.
-  const bool is_modal = parent || BUILDFLAG(IS_CHROMEOS);
+  const bool is_modal = parent || false;
   views::Widget* widget = nullptr;
   if (is_modal) {
     dialog->SetModalType(parent ? ui::mojom::ModalType::kWindow
@@ -247,14 +243,6 @@ bool MessageBoxDialog::ShouldShowCloseButton() const {
 
 void MessageBoxDialog::OnWidgetActivationChanged(views::Widget* widget,
                                                  bool active) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (GetWidget()->GetNativeWindow()->GetProperty(
-          chromeos::kIsShowingInOverviewKey)) {
-    // Prevent this from closing while starting overview mode for better UX.
-    // See crbug.com/40631180.
-    return;
-  }
-#endif
 
   if (!active && close_on_deactivate_) {
     GetWidget()->Close();

@@ -144,12 +144,6 @@ TopChromeWebUIProfileImpl::GetPolicySchemaRegistryService() {
   return nullptr;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-policy::UserCloudPolicyManagerAsh*
-TopChromeWebUIProfileImpl::GetUserCloudPolicyManagerAsh() {
-  NOTREACHED();
-}
-#else
 policy::UserCloudPolicyManager*
 TopChromeWebUIProfileImpl::GetUserCloudPolicyManager() {
   NOTREACHED();
@@ -159,7 +153,6 @@ policy::ProfileCloudPolicyManager*
 TopChromeWebUIProfileImpl::GetProfileCloudPolicyManager() {
   NOTREACHED();
 }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 policy::CloudPolicyManager* TopChromeWebUIProfileImpl::GetCloudPolicyManager() {
   NOTREACHED();
@@ -200,14 +193,6 @@ bool TopChromeWebUIProfileImpl::WasCreatedByVersionOrLater(
   return true;
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void TopChromeWebUIProfileImpl::ChangeAppLocale(const std::string& locale,
-                                                AppLocaleChangedVia) {}
-
-void TopChromeWebUIProfileImpl::OnLogin() {}
-
-void TopChromeWebUIProfileImpl::InitChromeOSPreferences() {}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 bool TopChromeWebUIProfileImpl::IsNewProfile() const {
   return false;

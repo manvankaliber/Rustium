@@ -4,6 +4,7 @@
 
 #include <pthread.h>
 #include <sched.h>
+#include <sys/resource.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -20,12 +21,6 @@
 #include "partition_alloc/partition_alloc_base/logging.h"
 #include "partition_alloc/partition_alloc_base/threading/platform_thread_for_testing.h"
 #include "partition_alloc/partition_alloc_base/threading/platform_thread_internal_posix.h"
-
-#if PA_BUILDFLAG(IS_FUCHSIA)
-#include <zircon/process.h>
-#else
-#include <sys/resource.h>
-#endif
 
 #if PA_BUILDFLAG(USE_PARTITION_ALLOC_AS_MALLOC)
 #include "partition_alloc/stack/stack.h"

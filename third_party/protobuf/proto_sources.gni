@@ -352,7 +352,6 @@ javaproto_sources = [
   "$_java_dir/AbstractParser.java",
   "$_java_dir/AbstractProtobufList.java",
   "$_java_dir/AllocatedBuffer.java",
-  "$_java_dir/Android.java",
   "$_java_dir/ArrayDecoders.java",
   "$_java_dir/BooleanArrayList.java",
   "$_java_dir/BufferAllocator.java",

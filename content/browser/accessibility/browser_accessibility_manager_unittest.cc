@@ -29,10 +29,6 @@
 #include "ui/accessibility/platform/test_ax_platform_tree_manager_delegate.h"
 #include "ui/accessibility/test_ax_tree_update.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/accessibility/browser_accessibility_android.h"
-#include "content/browser/accessibility/browser_accessibility_manager_android.h"
-#endif
 
 namespace content {
 
@@ -43,7 +39,6 @@ struct FiredGeneratedEvent {
   ui::AXNodeID node_id;
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 gfx::AcceleratedWidget MakeAcceleratedWidget(uintptr_t value) {
 #if BUILDFLAG(IS_WIN)
   return reinterpret_cast<gfx::AcceleratedWidget>(value);
@@ -51,7 +46,6 @@ gfx::AcceleratedWidget MakeAcceleratedWidget(uintptr_t value) {
   return static_cast<gfx::AcceleratedWidget>(value);
 #endif
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class CountingAXTreeObserver : public ui::AXTreeObserver {
  public:
@@ -85,13 +79,8 @@ ui::BrowserAccessibilityManager* CreateBrowserAccessibilityManager(
     const ui::AXTreeUpdate& initial_tree,
     ui::AXNodeIdDelegate& node_id_delegate,
     ui::AXPlatformTreeManagerDelegate* delegate) {
-#if BUILDFLAG(IS_ANDROID)
-  return content::BrowserAccessibilityManagerAndroid::Create(
-      initial_tree, node_id_delegate, delegate);
-#else
   return ui::BrowserAccessibilityManager::Create(initial_tree, node_id_delegate,
                                                  delegate);
-#endif
 }
 
 }  // anonymous namespace
@@ -1426,18 +1415,11 @@ TEST_F(BrowserAccessibilityManagerTest, TestShouldFireEventForNode) {
   EXPECT_TRUE(manager->ShouldFireEventForNode(manager->GetFromID(1)));
   EXPECT_TRUE(manager->ShouldFireEventForNode(manager->GetFromID(11)));
   EXPECT_TRUE(manager->ShouldFireEventForNode(manager->GetFromID(111)));
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, ShouldFireEventForNode walks up the ancestor that's a leaf node
-  // node and the event is fired on the updated target.
-  EXPECT_TRUE(manager->ShouldFireEventForNode(manager->GetFromID(1111)));
-#else
   EXPECT_FALSE(manager->ShouldFireEventForNode(manager->GetFromID(1111)));
-#endif
 }
 
 // Desktop keeps MENU_POPUP_END on the menu that just became ignored. Android
 // retargets generated events, so it does not use this exact path.
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(BrowserAccessibilityManagerTest,
        MenuPopupEndFiresWhenMenuBecomesIgnored) {
   ui::AXNodeData root;
@@ -1485,7 +1467,6 @@ TEST_F(BrowserAccessibilityManagerTest,
   }
   EXPECT_TRUE(found_menu_popup_end);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(BrowserAccessibilityManagerTest, NestedChildRoot) {
   ui::AXNodeData root;
@@ -1618,110 +1599,5 @@ TEST_F(BrowserAccessibilityManagerTest, TestOnNodeReparented) {
   // hence the normal tree update process cannot be followed.
 }
 
-#if BUILDFLAG(IS_ANDROID)
-// On Android, the Selection API only allows character offsets
-// (`OFFSET_TYPE_TEXT`) on nodes where
-// `BrowserAccessibilityAndroid::IsTextSelectable()` is true (text nodes,
-// Android TextView candidates, and text fields). For unignored leaf nodes that
-// are not text-selectable on Android (such as `kButton` or `kImage`),
-// `ConvertChromeSelectionPositionToAndroid` performs an Android-specific
-// adjustment: it converts text positions at the start and end of the leaf into
-// tree positions (`BEFORE_TEXT` and child index 0 with `anchor_child_count ==
-// 0`) and represents them as child-offset positions (`OFFSET_TYPE_CHILD`)
-// before and after the node on its unignored parent.
-TEST_F(BrowserAccessibilityManagerTest,
-       GetSelectionRangeOnNonTextSelectableLeaf) {
-  ui::AXNodeData root;
-  root.id = 1;
-  root.role = ax::mojom::Role::kRootWebArea;
-  root.child_ids = {2};
-
-  ui::AXNodeData button;
-  button.id = 2;
-  button.role = ax::mojom::Role::kButton;
-  button.SetNameFrom(ax::mojom::NameFrom::kValue);
-  button.SetName("Submit");
-
-  ui::AXTreeUpdate update = MakeAXTreeUpdateForTesting(root, button);
-  update.tree_data.sel_is_backward = false;
-  update.tree_data.sel_anchor_object_id = button.id;
-  update.tree_data.sel_anchor_offset = 0;
-  update.tree_data.sel_anchor_affinity = ax::mojom::TextAffinity::kDownstream;
-  update.tree_data.sel_focus_object_id = button.id;
-  update.tree_data.sel_focus_offset = 6;
-  update.tree_data.sel_focus_affinity = ax::mojom::TextAffinity::kDownstream;
-
-  std::unique_ptr<ui::BrowserAccessibilityManager> manager(
-      CreateBrowserAccessibilityManager(
-          update, node_id_delegate_,
-          test_browser_accessibility_delegate_.get()));
-  auto* android_manager =
-      static_cast<BrowserAccessibilityManagerAndroid*>(manager.get());
-
-  std::optional<BrowserAccessibilityManagerAndroid::SelectionRange> range =
-      android_manager->GetSelectionRange();
-  ASSERT_TRUE(range.has_value());
-
-  ASSERT_NE(nullptr, range->anchor.node);
-  EXPECT_EQ(root.id, range->anchor.node->GetId());
-  EXPECT_EQ(0, range->anchor.offset);
-  EXPECT_EQ(ExtendedSelectionOffsetType::OFFSET_TYPE_CHILD,
-            range->anchor.offset_type);
-
-  ASSERT_NE(nullptr, range->focus.node);
-  EXPECT_EQ(root.id, range->focus.node->GetId());
-  EXPECT_EQ(1, range->focus.offset);
-  EXPECT_EQ(ExtendedSelectionOffsetType::OFFSET_TYPE_CHILD,
-            range->focus.offset_type);
-}
-
-// Verifies that tree positions directly on a container with children resolve
-// to child-offset positions before the target child when
-// `child_index < anchor_child_count` and after the last child when
-// `child_index == anchor_child_count`.
-TEST_F(BrowserAccessibilityManagerTest,
-       GetSelectionRangeOnContainerTreePositions) {
-  ui::AXNodeData root;
-  root.id = 1;
-  root.role = ax::mojom::Role::kRootWebArea;
-  root.child_ids = {2};
-
-  ui::AXNodeData image;
-  image.id = 2;
-  image.role = ax::mojom::Role::kImage;
-
-  ui::AXTreeUpdate update = MakeAXTreeUpdateForTesting(root, image);
-  update.tree_data.sel_is_backward = false;
-  update.tree_data.sel_anchor_object_id = root.id;
-  update.tree_data.sel_anchor_offset = 0;
-  update.tree_data.sel_anchor_affinity = ax::mojom::TextAffinity::kDownstream;
-  update.tree_data.sel_focus_object_id = root.id;
-  update.tree_data.sel_focus_offset = 1;
-  update.tree_data.sel_focus_affinity = ax::mojom::TextAffinity::kDownstream;
-
-  std::unique_ptr<ui::BrowserAccessibilityManager> manager(
-      CreateBrowserAccessibilityManager(
-          update, node_id_delegate_,
-          test_browser_accessibility_delegate_.get()));
-  auto* android_manager =
-      static_cast<BrowserAccessibilityManagerAndroid*>(manager.get());
-
-  std::optional<BrowserAccessibilityManagerAndroid::SelectionRange> range =
-      android_manager->GetSelectionRange();
-  ASSERT_TRUE(range.has_value());
-
-  ASSERT_NE(nullptr, range->anchor.node);
-  EXPECT_EQ(root.id, range->anchor.node->GetId());
-  EXPECT_EQ(0, range->anchor.offset);
-  EXPECT_EQ(ExtendedSelectionOffsetType::OFFSET_TYPE_CHILD,
-            range->anchor.offset_type);
-
-  ASSERT_NE(nullptr, range->focus.node);
-  EXPECT_EQ(root.id, range->focus.node->GetId());
-  EXPECT_EQ(1, range->focus.offset);
-  EXPECT_EQ(ExtendedSelectionOffsetType::OFFSET_TYPE_CHILD,
-            range->focus.offset_type);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace content

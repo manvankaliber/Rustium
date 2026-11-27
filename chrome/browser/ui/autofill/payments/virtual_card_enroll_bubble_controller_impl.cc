@@ -16,15 +16,9 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/base/page_transition_types.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/android/autofill/autofill_vcn_enroll_bottom_sheet_bridge.h"
-#include "components/autofill/core/browser/payments/autofill_virtual_card_enrollment_bottom_sheet_delegate_mobile.h"
-#include "components/infobars/core/infobar.h"  // nogncheck
-#else
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace autofill {
 namespace {
@@ -95,11 +89,6 @@ void VirtualCardEnrollBubbleControllerImpl::ReshowBubble() {
 
 void VirtualCardEnrollBubbleControllerImpl::ShowConfirmationBubbleView(
     PaymentsRpcResult result) {
-#if BUILDFLAG(IS_ANDROID)
-  if (autofill_vcn_enroll_bottom_sheet_bridge_) {
-    autofill_vcn_enroll_bottom_sheet_bridge_->Hide();
-  }
-#else  // !BUILDFLAG(IS_ANDROID)
   DoNotShowNextQueuedBubbleGuard guard = DoNotShowNextQueuedBubble();
 
   HideBubble(/*initiated_by_bubble_manager=*/false);
@@ -119,7 +108,6 @@ void VirtualCardEnrollBubbleControllerImpl::ShowConfirmationBubbleView(
                         .credit_card.NetworkAndLastFourDigits());
   // Show enrollment confirmation bubble.
   QueueOrShowBubble();
-#endif
 }
 
 const VirtualCardEnrollUiModel&
@@ -139,7 +127,6 @@ VirtualCardEnrollBubbleControllerImpl::GetVirtualCardBubbleView() const {
   return bubble_view();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void VirtualCardEnrollBubbleControllerImpl::HideIconAndBubble() {
   HideBubble(/*initiated_by_bubble_manager=*/false);
   ResetBubble();
@@ -153,14 +140,12 @@ bool VirtualCardEnrollBubbleControllerImpl::IsEnrollmentInProgress() const {
 bool VirtualCardEnrollBubbleControllerImpl::IsEnrollmentComplete() const {
   return enrollment_status_ == EnrollmentStatus::kCompleted;
 }
-#endif
 
 void VirtualCardEnrollBubbleControllerImpl::OnAcceptButton(
     bool did_switch_to_loading_state) {
   std::move(accept_virtual_card_callback_).Run();
   decline_virtual_card_callback_.Reset();
 
-#if !BUILDFLAG(IS_ANDROID)
   if (did_switch_to_loading_state) {
     // When user clicks "Accept", the bubble closing is delayed since we wait
     // for the enrollment to finish on the server.
@@ -180,16 +165,13 @@ void VirtualCardEnrollBubbleControllerImpl::OnAcceptButton(
     is_icon_visible_ = false;
     LogVirtualCardEnrollmentLoadingViewShown(/*is_shown=*/false);
   }
-#endif
 }
 
 void VirtualCardEnrollBubbleControllerImpl::OnDeclineButton() {
   std::move(decline_virtual_card_callback_).Run();
   accept_virtual_card_callback_.Reset();
 
-#if !BUILDFLAG(IS_ANDROID)
   is_icon_visible_ = false;
-#endif
 }
 
 void VirtualCardEnrollBubbleControllerImpl::OnLinkClicked(
@@ -239,9 +221,6 @@ void VirtualCardEnrollBubbleControllerImpl::LogBubbleCloseMetrics(
   };
 
   const bool result_metric_already_recorded = [&] {
-#if BUILDFLAG(IS_ANDROID)
-    return false;
-#else
     switch (enrollment_status_) {
       case EnrollmentStatus::kPaymentsServerRequestInFlight:
         LogVirtualCardEnrollmentLoadingViewResult(get_metric(closed_reason));
@@ -252,7 +231,6 @@ void VirtualCardEnrollBubbleControllerImpl::LogBubbleCloseMetrics(
         return false;
     }
     NOTREACHED();
-#endif
   }();
 
   // If the result metric wasn't already recorded, record it here.
@@ -279,7 +257,6 @@ void VirtualCardEnrollBubbleControllerImpl::OnBubbleClosed(
     LogBubbleCloseMetrics(closed_reason);
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   // If the bubble is closed with the enrollment_status_ as
   // kCompleted, hide the bubble and icon and reset bubble to its initial
   // state.
@@ -287,7 +264,6 @@ void VirtualCardEnrollBubbleControllerImpl::OnBubbleClosed(
     ResetBubble();
     UpdatePageActionIcon();
   }
-#endif
 }
 
 base::OnceCallback<void(PaymentsUiClosedReason)>
@@ -303,22 +279,13 @@ VirtualCardEnrollBubbleControllerImpl::GetConfirmationUiParams() const {
 }
 
 bool VirtualCardEnrollBubbleControllerImpl::IsIconVisible() const {
-#if BUILDFLAG(IS_ANDROID)
-  return false;
-#else
   return is_icon_visible_;
-#endif
 }
 
 bool VirtualCardEnrollBubbleControllerImpl::ShouldReshowOnTabVisible() const {
-#if !BUILDFLAG(IS_ANDROID)
   return reprompt_required_;
-#else
-  return false;
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 bool VirtualCardEnrollBubbleControllerImpl::ShouldShowPageAction() {
   return IsIconVisible();
 }
@@ -327,18 +294,8 @@ std::optional<actions::ActionId>
 VirtualCardEnrollBubbleControllerImpl::GetActionIdForPageAction() {
   return kActionVirtualCardEnroll;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void VirtualCardEnrollBubbleControllerImpl::DoShowBubble() {
-#if BUILDFLAG(IS_ANDROID)
-  auto delegate_mobile =
-      std::make_unique<AutofillVirtualCardEnrollmentBottomSheetDelegateMobile>(
-          this);
-  autofill_vcn_enroll_bottom_sheet_bridge_ =
-      std::make_unique<AutofillVCNEnrollBottomSheetBridge>();
-  autofill_vcn_enroll_bottom_sheet_bridge_->RequestShowContent(
-      web_contents(), std::move(delegate_mobile));
-#else
   // If bubble is already showing for another card, close it.
   if (bubble_view()) {
     HideBubble(/*initiated_by_bubble_manager=*/false);
@@ -369,7 +326,6 @@ void VirtualCardEnrollBubbleControllerImpl::DoShowBubble() {
   if (enrollment_status_ == EnrollmentStatus::kCompleted) {
     return;
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // If the dialog is to be shown again because user clicked on links, do not
   // log metrics.
@@ -388,12 +344,8 @@ void VirtualCardEnrollBubbleControllerImpl::DoShowBubble() {
 }
 
 bool VirtualCardEnrollBubbleControllerImpl::CanBeReshown() const {
-#if !BUILDFLAG(IS_ANDROID)
   return enrollment_status_ != EnrollmentStatus::kCompleted &&
          enrollment_status_ != EnrollmentStatus::kNone;
-#else
-  NOTREACHED();
-#endif
 }
 
 BubbleType VirtualCardEnrollBubbleControllerImpl::GetBubbleType() const {
@@ -405,7 +357,6 @@ VirtualCardEnrollBubbleControllerImpl::GetBubbleControllerBaseWeakPtr() {
   return weak_ptr_factory_.GetWeakPtr();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 bool VirtualCardEnrollBubbleControllerImpl::IsWebContentsActive() {
   BrowserWindowInterface* active_browser =
       GlobalBrowserCollection::GetInstance()->GetActiveBrowser();
@@ -423,7 +374,6 @@ void VirtualCardEnrollBubbleControllerImpl::ResetBubble() {
   enrollment_status_ = EnrollmentStatus::kNone;
   confirmation_ui_params_.reset();
 }
-#endif
 
 WEB_CONTENTS_USER_DATA_KEY_IMPL(VirtualCardEnrollBubbleControllerImpl);
 

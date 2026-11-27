@@ -35,14 +35,6 @@ bool IsDelegatedCompositingEnabled() {
 }
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-bool LowLatencyUsageSupportedForCanvas() {
-  // Low-latency usage on Android is possible only with SurfaceControl.
-  return ::features::IsAndroidSurfaceControlEnabled() &&
-         base::FeatureList::IsEnabled(
-             features::kLowLatencyUsageSupportedForCanvas);
-}
-#endif
 
 }  // namespace
 
@@ -159,14 +151,6 @@ bool LowLatencyUsageSupportedForCanvas2D() {
       .SharedImageInterface()
       ->GetCapabilities()
       .shared_image_swap_chain;
-#elif BUILDFLAG(IS_ANDROID)
-  return LowLatencyUsageSupportedForCanvas();
-#elif BUILDFLAG(IS_CHROMEOS)
-  // Low-latency usage is always supported for Canvas2D on ChromeOS.
-  // NOTE: Conceptually this should be gated on the same underlying capability
-  // as low-latency WebGL is gated on (atomic DRM). However, historically that
-  // gate was never applied for low-latency Canvas2D.
-  return true;
 #else
   // NOTE: crbug.com/41435781 would need to be resolved in order to support
   // low-latency usage on Mac (currently setting the desynchronized attribute
@@ -182,15 +166,7 @@ bool LowLatencyUsageSupportedForWebGL(gpu::SharedImageInterface* sii) {
     return g_low_latency_usage_supported_for_webgl_for_testing.value();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  return LowLatencyUsageSupportedForCanvas();
-#elif BUILDFLAG(IS_CHROMEOS)
-  // Whether WebGL canvases should be given low-latency usage is specified on a
-  // per-board basis by passing (or not) the relevant command-line flag.
-  static const bool enabled = base::CommandLine::ForCurrentProcess()->HasSwitch(
-      blink::switches::kEnableOverlaysAndLowLatencyUsageForWebGL);
-  return enabled;
-#elif BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   return sii && sii->GetCapabilities().shared_image_swap_chain;
 #else
   // NOTE: crbug.com/41435781 would need to be resolved in order to support
@@ -214,12 +190,6 @@ bool UseOverlaysForWebGL() {
   // We could consider extending this to other platforms that use delegated
   // compositing (e.g., Windows).
   return IsDelegatedCompositingEnabled();
-#elif BUILDFLAG(IS_CHROMEOS)
-  // Whether WebGL canvases should be placed in overlays is specified on a
-  // per-board basis by passing (or not) the relevant command-line flag.
-  static const bool enabled = base::CommandLine::ForCurrentProcess()->HasSwitch(
-      blink::switches::kEnableOverlaysAndLowLatencyUsageForWebGL);
-  return enabled;
 #else
   return false;
 #endif

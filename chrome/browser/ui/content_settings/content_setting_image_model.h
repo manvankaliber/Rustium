@@ -56,9 +56,6 @@ class ContentSettingImageModel {
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kClipboardRWElementId);
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kStorageAccessElementId);
   // Notifications has global ID kNotificationContentSettingImageView.
-#if BUILDFLAG(ENABLE_SMART_CARD)
-  DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kSmartCardIconElementId);
-#endif
 #if BUILDFLAG(IS_WIN)
   DECLARE_CLASS_ELEMENT_IDENTIFIER_VALUE(kProtectedMediaElementId);
 #endif

@@ -13,9 +13,6 @@
 #include "sandbox/linux/seccomp-bpf-helpers/baseline_policy.h"
 #include "sandbox/policy/export.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "sandbox/linux/seccomp-bpf-helpers/baseline_policy_android.h"
-#endif
 
 namespace sandbox::policy {
 
@@ -25,10 +22,8 @@ namespace sandbox::policy {
 // as a "kernel attack surface reduction" layer, it's implementation-defined.
 class SANDBOX_POLICY_EXPORT BPFBasePolicy : public bpf_dsl::Policy {
  public:
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   BPFBasePolicy();
-#elif BUILDFLAG(IS_ANDROID)
-  explicit BPFBasePolicy(const BaselinePolicyAndroid::RuntimeOptions& options);
 #endif
 
   BPFBasePolicy(const BPFBasePolicy&) = delete;

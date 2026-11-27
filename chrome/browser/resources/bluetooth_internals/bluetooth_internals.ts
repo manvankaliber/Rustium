@@ -15,9 +15,6 @@ import {AdapterProperty, getAdapterBroker} from './adapter_broker.js';
 import type {AdapterBroker} from './adapter_broker.js';
 import {AdapterPage} from './adapter_page.js';
 import type {BluetoothInternalsHandlerRemote} from './bluetooth_internals.mojom-webui.js';
-// <if expr="is_chromeos">
-import {BluetoothInternalsHandler} from './bluetooth_internals.mojom-webui.js';
-// </if>
 import {DebugLogPage} from './debug_log_page.js';
 import type {DeviceInfo} from './device.mojom-webui.js';
 import {DeviceCollection} from './device_collection.js';
@@ -191,23 +188,6 @@ function setupAdapterSystem(response: {info: AdapterInfo}) {
     });
   });
 
-  // <if expr="is_chromeos">
-  adapterPage.pageDiv.addEventListener('restart-bluetooth-click', () => {
-    const restartBluetoothBtn =
-        document.querySelector<HTMLButtonElement>('#restart-bluetooth-btn');
-    assert(restartBluetoothBtn);
-    restartBluetoothBtn.textContent = 'Restarting system Bluetooth..';
-    BluetoothInternalsHandler.getRemote()
-        .restartSystemBluetooth()
-        .catch((e) => {
-          console.error('Failed to restart system Bluetooth', e);
-        })
-        .finally(() => {
-          restartBluetoothBtn.textContent = 'Restart system Bluetooth';
-          restartBluetoothBtn.disabled = false;
-        });
-  });
-  // </if>
 }
 
 function setupDeviceSystem(response: {devices: DeviceInfo[]}) {

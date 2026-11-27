@@ -78,8 +78,7 @@ enum CameraAvailability {
 enum VideoCaptureDeviceEnumerationMode {
   // Returns the device list without supported formats or pan, tilt, and zoom
   // support.
-  [EnableIf=is_win]
-  kDevicesOnly,
+  [EnableIf=is_win] kDevicesOnly,
   // Returns the device list, supported formats, and pan, tilt, and zoom
   // support.
   kDevicesWithCapabilities,
@@ -96,8 +95,7 @@ enum VideoCaptureApi {
   ANDROID_API2_LEGACY,
   ANDROID_API2_FULL,
   ANDROID_API2_LIMITED,
-  FUCHSIA_CAMERA3,
-  VIRTUAL_DEVICE,
+  VIRTUAL_DEVICE = 11,
   UNKNOWN,
   WEBRTC_LINUX_PIPEWIRE_SINGLE_PLANE,
 };
@@ -235,14 +233,7 @@ enum VideoCaptureError {
   kMacAvFoundationReceivedAVCaptureSessionRuntimeErrorNotification,
   kAndroidApi2ErrorConfiguringCamera,
   kCrosHalV3DeviceDelegateFailedToFlush,
-  kFuchsiaCameraDeviceDisconnected,
-  kFuchsiaCameraStreamDisconnected,
-  kFuchsiaSysmemDidNotSetImageFormat,
-  kFuchsiaSysmemInvalidBufferIndex,
-  kFuchsiaSysmemInvalidBufferSize,
-  kFuchsiaUnsupportedPixelFormat,
-  kFuchsiaFailedToMapSysmemBuffer,
-  kCrosHalV3DeviceContextDuplicatedClient,
+  kCrosHalV3DeviceContextDuplicatedClient = 120,
   kDesktopCaptureDeviceMacFailedStreamCreate,
   kDesktopCaptureDeviceMacFailedStreamStart,
   kCrosHalV3BufferManagerFailedToReserveBuffers,
@@ -445,4 +436,5 @@ enum DeviceEnumerationResult {
   kErrorCaptureServiceCrash,
   kErrorCaptureServiceDroppedRequest,
 };
+
 // LINT.ThenChange(//tools/metrics/histograms/metadata/media/enums.xml:DeviceEnumerationResult)

@@ -172,7 +172,6 @@ TEST_F(MostVisitedPrefObserverTest, DynamicPrefChange_PersonalShortcuts) {
   prefs()->SetBoolean(ntp_prefs::kNtpPersonalShortcutsVisible, false);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(MostVisitedPrefObserverTest,
        EnterpriseShortcutsPolicy_InitSetsVisibilityIfUnset) {
   base::DictValue shortcut_item;
@@ -235,7 +234,6 @@ TEST_F(MostVisitedPrefObserverTest,
 
   EXPECT_FALSE(prefs()->HasPrefPath(ntp_prefs::kNtpEnterpriseShortcutsVisible));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 TEST_F(MostVisitedPrefObserverTest, ResetProfilePrefs) {
   prefs()->SetBoolean(ntp_prefs::kNtpCustomLinksVisible, false);

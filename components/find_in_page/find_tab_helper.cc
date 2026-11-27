@@ -165,7 +165,6 @@ void FindTabHelper::OnSearchCompleted() {
 }
 
 void FindTabHelper::RecordAndResetSessionMetrics() {
-#if !BUILDFLAG(IS_ANDROID)
   // Only record metrics if at least one active search completed during the
   // session.
   if (last_completed_match_count_.has_value()) {
@@ -184,7 +183,6 @@ void FindTabHelper::RecordAndResetSessionMetrics() {
     }
     base::UmaHistogramEnumeration("FindInPage.SessionOutcome", outcome);
   }
-#endif
   last_completed_match_count_.reset();
   had_zero_match_ = false;
   ended_with_empty_query_ = false;
@@ -206,18 +204,6 @@ std::u16string FindTabHelper::GetInitialSearchText() {
                    : std::u16string();
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void FindTabHelper::ActivateNearestFindResult(float x, float y) {
-  if (!find_op_aborted_ && !find_text_.empty()) {
-    GetWebContents().ActivateNearestFindResult(x, y);
-  }
-}
-
-void FindTabHelper::RequestFindMatchRects(int current_version) {
-  if (!find_op_aborted_ && !find_text_.empty())
-    GetWebContents().RequestFindMatchRects(current_version);
-}
-#endif
 
 void FindTabHelper::DidReceiveFindReply(int request_id,
                                         int number_of_matches,

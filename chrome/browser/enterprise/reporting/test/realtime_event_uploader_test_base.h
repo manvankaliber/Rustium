@@ -18,9 +18,7 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "components/enterprise/browser/controller/fake_browser_dm_token_storage.h"
-#endif
 
 namespace enterprise_reporting {
 
@@ -75,10 +73,8 @@ class RealtimeEventUploaderTestBase : public testing::Test {
 
   content::BrowserTaskEnvironment task_environment_;
   std::unique_ptr<TestingProfileManager> profile_manager_;
-#if !BUILDFLAG(IS_CHROMEOS)
   std::unique_ptr<policy::FakeBrowserDMTokenStorage>
       fake_browser_dm_token_storage_;
-#endif
   network::TestURLLoaderFactory test_url_loader_factory_;
 };
 

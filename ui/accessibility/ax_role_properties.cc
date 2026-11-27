@@ -12,7 +12,7 @@ namespace ui {
 
 namespace {
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN)
 constexpr bool kExposeLayoutTableAsDataTable = true;
 #else
 constexpr bool kExposeLayoutTableAsDataTable = false;

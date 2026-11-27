@@ -8,7 +8,6 @@
 Prints "1" if Chrome targets should be built with hermetic Xcode.
 Prints "2" if Chrome targets should be built with hermetic Xcode, but the OS
 version does not meet the minimum requirements of the hermetic version of Xcode.
-Prints "3" if FORCE_MAC_TOOLCHAIN is set for an iOS target_os
 Otherwise prints "0".
 
 Usage:
@@ -48,8 +47,6 @@ def main():
     args = parser.parse_args()
 
     force_toolchain = os.environ.get('FORCE_MAC_TOOLCHAIN')
-    if force_toolchain and args.platform == 'ios':
-        return "3"
     allow_corp = args.platform == 'mac' and _IsCorpMachine()
     if force_toolchain or allow_corp:
         if not mac_toolchain.PlatformMeetsHermeticXcodeRequirements():

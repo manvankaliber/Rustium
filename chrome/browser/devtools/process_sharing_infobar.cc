@@ -27,16 +27,7 @@
 namespace {
 
 void OptOutAndRestart(base::WeakPtr<content::WebContents> web_contents) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (!web_contents) {
-    return;
-  }
-  PrefService* prefs =
-      Profile::FromBrowserContext(web_contents->GetBrowserContext())
-          ->GetPrefs();
-#else
   PrefService* prefs = g_browser_process->local_state();
-#endif
   // Note: Both ChromeOS owner and non-owner use PrefServiceFlagsStorage
   // under the hood. OwnersFlagsStorage has additional functionalities
   // for setting flags but since we are just reading the storage assume

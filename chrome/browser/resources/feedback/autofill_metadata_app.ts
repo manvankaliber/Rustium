@@ -3,10 +3,6 @@
 // found in the LICENSE file.
 
 import '/shared/key_value_pair_viewer/key_value_pair_viewer.js';
-// <if expr="is_chromeos">
-import './js/jelly_colors.js';
-
-// </if>
 
 import type {KeyValuePairEntry} from '/shared/key_value_pair_viewer/key_value_pair_entry.js';
 import {CrLitElement} from 'chrome://resources/lit/v3_0/lit.rollup.js';

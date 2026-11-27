@@ -31,15 +31,6 @@ source_set("structured") {
     "structured_metrics_service.h",
   ]
 
-  if (is_chromeos) {
-    sources += [
-      "flushed_map.cc",
-      "flushed_map.h",
-      "storage_manager.cc",
-      "storage_manager.h",
-    ]
-  }
-
   public_deps = [
     ":common",
     ":events",
@@ -62,21 +53,6 @@ source_set("structured") {
     "//crypto",
     "//third_party/protobuf:protobuf_lite",
   ]
-}
-
-if (is_chromeos) {
-  source_set("external_metrics") {
-    sources = [
-      "external_metrics.cc",
-      "external_metrics.h",
-    ]
-    deps = [
-      ":common",
-      ":proto",
-      ":structured_events",
-      "//base",
-    ]
-  }
 }
 
 component("events") {
@@ -181,10 +157,6 @@ action("gen_structured_events_cpp") {
     "--target",
     "chromium",
   ]
-
-  if (is_chromeos) {
-    args += [ "--cros_events" ]
-  }
 }
 
 action("gen_structured_events_ts") {
@@ -265,16 +237,6 @@ action("gen_structured_metrics_validator") {
     "--output",
     rebase_path(outdir, root_build_dir),
   ]
-
-  if (is_chromeos) {
-    sources += [ "//tools/metrics/structured/sync/structured_chromiumos.xml" ]
-
-    args += [
-      "--cros_events",
-      "--cros_input",
-      rebase_path(sources[1], root_build_dir),
-    ]
-  }
 }
 
 source_set("structured_metrics_validator") {
@@ -324,10 +286,6 @@ source_set("unit_tests") {
     "structured_metrics_service_unittest.cc",
   ]
 
-  if (is_chromeos) {
-    sources += [ "flushed_map_unittest.cc" ]
-  }
-
   deps = [
     ":events",
     ":proto",
@@ -345,12 +303,6 @@ source_set("unit_tests") {
     "//components/prefs:test_support",
     "//testing/gtest",
   ]
-
-  if (is_chromeos) {
-    sources += [ "external_metrics_unittest.cc" ]
-
-    deps += [ ":external_metrics" ]
-  }
 }
 
 # Convenience testing target

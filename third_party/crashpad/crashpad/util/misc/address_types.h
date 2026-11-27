@@ -25,10 +25,8 @@
 #include <mach/mach_types.h>
 #elif BUILDFLAG(IS_WIN)
 #include "util/win/address_types.h"
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 #include "util/linux/address_types.h"
-#elif BUILDFLAG(IS_FUCHSIA)
-#include <zircon/types.h>
 #else
 #error "Unhandled OS type"
 #endif
@@ -55,15 +53,10 @@ using VMSize = mach_vm_size_t;
 using VMAddress = WinVMAddress;
 using VMSize = WinVMSize;
 
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
 
 using VMAddress = LinuxVMAddress;
 using VMSize = LinuxVMSize;
-
-#elif BUILDFLAG(IS_FUCHSIA)
-
-using VMAddress = zx_vaddr_t;
-using VMSize = size_t;
 
 #endif
 

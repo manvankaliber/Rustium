@@ -584,11 +584,6 @@ TEST_P(GLTextureMipmapTest, GenerateMipmapWithMismatchedLevels3D) {
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_X86_FAMILY)
-  // TODO(crbug.com/551065272): Figure out why this fails with an incomplete
-  // framebuffer error on Android x86/x64.
-  GTEST_SKIP() << "Skipping test on Android x86/x64";
-#else
   GLuint tex = 0;
   glGenTextures(1, &tex);
   glBindTexture(GL_TEXTURE_3D, tex);
@@ -642,7 +637,6 @@ TEST_P(GLTextureMipmapTest, GenerateMipmapWithMismatchedLevels3D) {
 
   glDeleteTextures(1, &tex);
   glDeleteFramebuffers(1, &fbo);
-#endif  // BUILDFLAG(IS_ANDROID) && defined(ARCH_CPU_X86_FAMILY)
 }
 
 // Test that calling glGenerateMipmap on a 2D array texture with mismatched

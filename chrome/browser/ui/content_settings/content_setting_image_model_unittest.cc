@@ -1042,7 +1042,6 @@ TEST_F(ContentSettingImageModelTest,
 }
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 TEST_F(ContentSettingImageModelTest, StorageAccess) {
   auto content_setting_image_model =
       ContentSettingImageModel::CreateForContentType(
@@ -1096,40 +1095,7 @@ TEST_F(ContentSettingImageModelTest, StorageAccess) {
   content_setting_image_model->Update(web_contents());
   EXPECT_FALSE(content_setting_image_model->is_visible());
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(ENABLE_SMART_CARD)
-
-TEST_F(ContentSettingImageModelTest, SmartCard) {
-  auto content_setting_image_model =
-      ContentSettingImageModel::CreateForContentType(
-          ContentSettingImageModel::ImageType::kSmartCard);
-  EXPECT_FALSE(content_setting_image_model->is_visible());
-
-  auto* content_settings = PageSpecificContentSettings::GetForFrame(
-      web_contents()->GetPrimaryMainFrame());
-
-  // Connection starts.
-  content_settings->OnDeviceUsed(ContentSettingsType::SMART_CARD_GUARD);
-  content_setting_image_model->Update(web_contents());
-  EXPECT_TRUE(content_setting_image_model->is_visible());
-  EXPECT_EQ(content_setting_image_model->icon(),
-            &(features::IsRoundedIconsEnabled()
-                  ? vector_icons::kSmartCardReaderIcon
-                  : vector_icons::kSmartCardReaderOldIcon));
-
-  // Last connection ends.
-  content_settings->OnLastDeviceConnectionLost(
-      ContentSettingsType::SMART_CARD_GUARD);
-  content_setting_image_model->Update(web_contents());
-  // Still visible.
-  EXPECT_TRUE(content_setting_image_model->is_visible());
-
-  task_environment()->AdvanceClock(base::Seconds(15));
-  content_setting_image_model->Update(web_contents());
-  EXPECT_FALSE(content_setting_image_model->is_visible());
-}
-#endif  // BUILDFLAG(ENABLE_SMART_CARD)
 
 #if BUILDFLAG(IS_WIN)
 TEST_F(ContentSettingImageModelTest, ProtectedMediaIdentifier_Allowed) {

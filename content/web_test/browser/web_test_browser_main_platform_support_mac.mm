@@ -11,9 +11,7 @@
 #include "net/test/test_data_directory.h"
 
 // This file is also used in iOS, so we skip including AppKit.h in the iOS port.
-#if BUILDFLAG(IS_MAC)
 #include <AppKit/AppKit.h>
-#endif
 
 namespace content {
 
@@ -51,11 +49,9 @@ void WebTestBrowserPlatformInitialize() {
 
   DontShowPopupMenus();
 
-#if BUILDFLAG(IS_MAC)
   // Expand the network service sandbox to allow reading the test TLS
   // certificates.
   SetNetworkTestCertsDirectoryForTesting(net::GetTestCertsDirectory());
-#endif
 }
 
 }  // namespace content

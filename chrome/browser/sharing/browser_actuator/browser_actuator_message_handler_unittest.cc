@@ -57,10 +57,6 @@ namespace {
 class BrowserActuatorMessageHandlerTest : public testing::Test {
  public:
   BrowserActuatorMessageHandlerTest() {
-    feature_list_.InitWithFeatures(
-        {browser_actuator::kBrowserActuator,
-         browser_actuator::kEnableBrowserActuatorForGlicExperimentalTriggering},
-        {});
   }
 
   void SetUp() override {
@@ -155,9 +151,7 @@ TEST_F(BrowserActuatorMessageHandlerTest,
       message.mutable_actuator_downstream_message();
   bundled->set_session_id("bundled_session_123");
 
-  components_sharing_message::GlicExperimentalTriggering triggering;
   triggering.set_context_id("test_context_123");
-  triggering.set_glic_experimental_triggering_version(1);
   triggering.mutable_request()->mutable_trigger_actuation_request();
   const std::string serialized_triggering = triggering.SerializeAsString();
 
@@ -298,8 +292,6 @@ TEST_F(BrowserActuatorMessageHandlerTest,
 TEST_F(BrowserActuatorMessageHandlerTest,
        SkipsExperimentalTriggeringPayloadWhenFeatureDisabled) {
   base::test::ScopedFeatureList disabled_triggering;
-  disabled_triggering.InitAndDisableFeature(
-      browser_actuator::kEnableBrowserActuatorForGlicExperimentalTriggering);
 
   components_sharing_message::SharingMessage message;
   browser_actuator::ActuatorDownstreamMessage* bundled =
@@ -349,12 +341,6 @@ TEST_F(BrowserActuatorMessageHandlerTest,
 class BrowserActuatorFcmIntegrationTest : public testing::Test {
  protected:
   BrowserActuatorFcmIntegrationTest() {
-    feature_list_.InitWithFeatures(
-        {browser_actuator::kBrowserActuator,
-         browser_actuator::transport::kBrowserActuatorChannelEnabled,
-         browser_actuator::kBrowserActuatorInternals,
-         browser_actuator::kEnableBrowserActuatorForGlicExperimentalTriggering},
-        {});
   }
 
   void SetUp() override {
@@ -537,9 +523,7 @@ class EchoTriggeringHandler
       : session_(session) {}
   void OnMessage(browser_actuator::transport::PayloadType payload_type,
                  std::string_view serialized_payload) override {
-    components_sharing_message::GlicExperimentalTriggering parsed;
     ASSERT_TRUE(parsed.ParseFromString(std::string(serialized_payload)));
-    components_sharing_message::GlicExperimentalTriggering reply;
     reply.set_context_id("ack:" + parsed.context_id());
     EXPECT_TRUE(session_->SendUpstreamMessage(payload_type, reply).has_value());
   }
@@ -564,106 +548,5 @@ class EchoTriggeringFactory
   }
 };
 
-TEST_F(BrowserActuatorFcmIntegrationTest,
-       FcmGlicExperimentalTriggeringStartsChannelAndSendsUpstreamReply) {
-  browser_actuator::transport::FakeProtoStreamServer stream_server(
-      &test_url_loader_factory_, browser_actuator::GetWatchSessionsEndPoint());
-  browser_actuator::transport::TransportService* service =
-      browser_actuator::transport::TransportServiceFactory::GetForProfile(
-          profile_.get());
-  ASSERT_NE(service, nullptr);
-  EchoTriggeringFactory triggering_factory;
-  service->GetChannel()->GetHandlerFactoryRegistry()->RegisterFactory(
-      &triggering_factory);
-  base::ScopedClosureRunner unregister_runner(base::BindOnce(
-      [](browser_actuator::transport::TransportService* s,
-         browser_actuator::transport::TransportHandlerFactory* f) {
-        s->GetChannel()->GetHandlerFactoryRegistry()->UnregisterFactory(f);
-      },
-      service, &triggering_factory));
-
-  components_sharing_message::SharingMessage sharing_msg;
-  auto* bundled = sharing_msg.mutable_actuator_downstream_message();
-  bundled->set_session_id("glic-fcm-session-1");
-  bundled->set_sequence_number(0);
-
-  browser_actuator::ControlCommand start_cmd;
-  start_cmd.mutable_start_session();
-  auto* start_typed = bundled->add_typed_payloads();
-  start_typed->set_payload_type(
-      browser_actuator::ACTUATOR_DOWNSTREAM_PAYLOAD_TYPE_CONTROL_COMMAND);
-  start_typed->mutable_proto_payload()->set_type_url(
-      std::string(browser_actuator::transport::ExpectedTypeUrl(
-          browser_actuator::transport::PayloadType::kControl)));
-  start_typed->mutable_proto_payload()->set_value(
-      start_cmd.SerializeAsString());
-
-  components_sharing_message::GlicExperimentalTriggering triggering;
-  triggering.set_context_id("glic-fcm-session-1");
-  triggering.set_glic_experimental_triggering_version(1);
-  triggering.mutable_request()->mutable_trigger_actuation_request();
-
-  auto* typed = bundled->add_typed_payloads();
-  typed->set_payload_type(
-      browser_actuator::
-          ACTUATOR_DOWNSTREAM_PAYLOAD_TYPE_EXPERIMENTAL_TRIGGERING);
-  typed->mutable_proto_payload()->set_type_url(
-      std::string(browser_actuator::transport::ExpectedTypeUrl(
-          browser_actuator::transport::PayloadType::kExperimentalTriggering)));
-  typed->mutable_proto_payload()->set_value(triggering.SerializeAsString());
-
-  gcm::IncomingMessage fcm_msg;
-  fcm_msg.message_id = "0:1563805165426489%0bb84dcff9fd7ece";
-  ASSERT_TRUE(sharing_msg.SerializeToString(&fcm_msg.raw_data));
-
-  fcm_handler_->OnMessage(kSharingFCMAppID, fcm_msg);
-
-  stream_server.WaitForConnection();
-  ASSERT_EQ(stream_server.last_watch_request().sessions_size(), 1);
-  EXPECT_EQ(stream_server.last_watch_request().sessions(0).session_id(),
-            "glic-fcm-session-1");
-
-  // 1. Wait for StartSessionAck from the StartSession control payload.
-  browser_actuator::SendSessionMessageRequest ack_req =
-      WaitForUpstreamRequest();
-  EXPECT_EQ(ack_req.actuator_upstream_message().session_id(),
-            "glic-fcm-session-1");
-
-  // 2. Wait for the GlicExperimentalTriggering reply.
-  browser_actuator::SendSessionMessageRequest upstream_req =
-      WaitForUpstreamRequest();
-  const auto& upstream_msg = upstream_req.actuator_upstream_message();
-  EXPECT_EQ(upstream_msg.session_id(), "glic-fcm-session-1");
-  EXPECT_FALSE(upstream_msg.has_responding_to_sequence_number());
-  ASSERT_EQ(upstream_msg.typed_payloads_size(), 1);
-  EXPECT_EQ(
-      upstream_msg.typed_payloads(0).payload_type(),
-      browser_actuator::ACTUATOR_UPSTREAM_PAYLOAD_TYPE_EXPERIMENTAL_TRIGGERING);
-  components_sharing_message::GlicExperimentalTriggering reply;
-  ASSERT_TRUE(reply.ParseFromString(
-      upstream_msg.typed_payloads(0).proto_payload().value()));
-  EXPECT_EQ(reply.context_id(), "ack:glic-fcm-session-1");
-
-  // chrome://browser-actuator-internals records the FCM wake-up before the
-  // reply that it triggered.
-  std::optional<browser_actuator::transport::SessionSnapshot> recorded =
-      GetRecordedSession("glic-fcm-session-1");
-  ASSERT_TRUE(recorded.has_value());
-  EXPECT_EQ(recorded->total_downstream_messages, 2u);
-  EXPECT_EQ(recorded->total_upstream_messages, 2u);
-  ASSERT_EQ(recorded->events.size(), 4u);
-  EXPECT_TRUE(recorded->events[0].is_downstream);
-  EXPECT_THAT(recorded->events[0].payload_types,
-              testing::ElementsAre("Control"));
-  EXPECT_FALSE(recorded->events[1].is_downstream);
-  EXPECT_THAT(recorded->events[1].payload_types,
-              testing::ElementsAre("Control"));
-  EXPECT_TRUE(recorded->events[2].is_downstream);
-  EXPECT_THAT(recorded->events[2].payload_types,
-              testing::ElementsAre("ExperimentalTriggering"));
-  EXPECT_FALSE(recorded->events[3].is_downstream);
-  EXPECT_THAT(recorded->events[3].payload_types,
-              testing::ElementsAre("ExperimentalTriggering"));
-}
 
 }  // namespace

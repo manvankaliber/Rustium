@@ -40,11 +40,6 @@ POLICY_EXPORT BASE_DECLARE_FEATURE(kUseCECFlagInPolicyData);
 // accommodate large enterprise policy sets.
 POLICY_EXPORT BASE_DECLARE_FEATURE(kUserPolicyCacheSizeLimit2MB);
 
-#if BUILDFLAG(IS_ANDROID)
-// Enables policy initialization for signed-in users in new entry points.
-POLICY_EXPORT BASE_DECLARE_FEATURE(
-    kInitializePoliciesForSignedInUserInNewEntryPoints);
-#endif
 
 // Enables a configurable delay for policy registration.
 POLICY_EXPORT BASE_DECLARE_FEATURE(kCustomPolicyRegistrationDelay);

@@ -227,19 +227,6 @@ bool PopulateSecuritySignalsDict(
       signals_dict.Set("distribution_version",
                        os_report.distribution_version());
     }
-#elif BUILDFLAG(IS_ANDROID)
-    signals_dict.Set("has_potentially_harmful_apps",
-                     os_report.has_potentially_harmful_apps());
-    signals_dict.Set("verified_apps_enabled",
-                     os_report.verified_apps_enabled());
-    signals_dict.Set("security_patch_ms",
-                     base::NumberToString(os_report.security_patch_ms()));
-#elif BUILDFLAG(IS_IOS)
-    if (os_report.has_ios_specific_attributes() &&
-        os_report.ios_specific_attributes().has_vendor_id()) {
-      signals_dict.Set("vendor_id",
-                       os_report.ios_specific_attributes().vendor_id());
-    }
 #endif
   }
 

@@ -250,7 +250,7 @@ bool CommandStorageManager::ShouldWriteEncryptedFiles() const {
     case EncryptSessionStorageStage::kWriteBothReadPreferEncrypted:
     case EncryptSessionStorageStage::kWriteEncryptedReadPreferEncrypted:
       // On iOS, SessionRestore and AppRestore do not use CommandStorageBackend.
-      return session_type_ == SessionType::kTabRestore || !BUILDFLAG(IS_IOS);
+      return session_type_ == SessionType::kTabRestore || !false;
     case EncryptSessionStorageStage::kClearOnly:
       return false;
   }

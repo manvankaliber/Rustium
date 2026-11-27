@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0 OR MIT
 
 /*
-Run-time CPU feature detection on AArch64/Arm/PowerPC64 Linux/Android/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
+Run-time CPU feature detection on AArch64/Arm/PowerPC64 Linux/FreeBSD/OpenBSD by parsing ELF auxiliary vectors.
 
 Supported platforms:
 - Linux 6.4+ (through prctl)
@@ -44,15 +44,6 @@ Supported platforms:
 - Picolibc 1.4.6+ (through getauxval)
   https://github.com/picolibc/picolibc/commit/19bfe51d62ad7e32533c7f664b5bca8e26286e31
   The implementation always return 0 (as of 1.8.12): https://github.com/picolibc/picolibc/blob/1.8.12/libc/misc/getauxval.c
-- Android 4.3+ (API level 18+) (through getauxval)
-  https://android.googlesource.com/platform/bionic.git/+/2c5153b043b44e9935a334ae9b2d5a4bc5258b40
-  https://android.googlesource.com/platform/bionic.git/+/655e430b28d7404f763e7ebefe84fba5a387666d
-  Always available on:
-  - 64-bit architectures (Android 5.0+ (API level 21+) https://android-developers.googleblog.com/2014/10/whats-new-in-android-50-lollipop.html)
-  Not always available on:
-  - arm
-  Since Rust 1.68, std requires API level 19+ https://blog.rust-lang.org/2023/01/09/android-ndk-update-r25
-  Since Rust 1.82, std requires API level 21+ https://github.com/rust-lang/rust/pull/120593
 - FreeBSD 12.0+ and 11.4+ (through elf_aux_info)
   https://github.com/freebsd/freebsd-src/commit/0b08ae2120cdd08c20a2b806e2fcef4d0a36c470
   https://github.com/freebsd/freebsd-src/blob/release/11.4.0/sys/sys/auxv.h
@@ -102,10 +93,10 @@ called directly instead of using dlsym by `--cfg portable_atomic_outline_atomics
 
 Also, note that dlsym usually not working with static linking.
 
-# Linux/Android
+# Linux
 
 As of Rust 1.69, is_aarch64_feature_detected always uses dlsym by default
-on AArch64 Linux/Android, but on some platforms, we can safely assume
+on AArch64 Linux, but on some platforms, we can safely assume
 getauxval is linked to the binary (see the above).
 
 See also https://github.com/rust-lang/stdarch/pull/1375
@@ -144,7 +135,7 @@ so we use it (see aarch64_aa64reg.rs).
 include!("common.rs");
 
 use self::os::ffi;
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg(target_os = "linux")]
 mod os {
     // libc requires Rust 1.63
     #[cfg_attr(test, allow(dead_code))]
@@ -176,39 +167,10 @@ mod os {
             // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
             // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
             // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
-            // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/dlfcn.h
-            #[cfg(any(
-                test,
-                not(any(
-                    all(
-                        target_os = "linux",
-                        any(
-                            all(
-                                target_env = "gnu",
-                                any(
-                                    target_arch = "aarch64",
-                                    all(target_arch = "powerpc64", target_endian = "little"),
-                                ),
-                            ),
-                            target_env = "musl",
-                            target_env = "ohos",
-                        ),
-                    ),
-                    all(target_os = "android", target_pointer_width = "64"),
-                    portable_atomic_outline_atomics,
-                )),
-            ))]
-            #[cfg(not(all(target_os = "android", target_pointer_width = "32")))]
-            pub(crate) const RTLD_DEFAULT: *mut c_void = core::ptr::null_mut();
-            #[cfg(all(target_os = "android", target_pointer_width = "32"))]
-            #[allow(clippy::cast_sign_loss)]
-            pub(crate) const RTLD_DEFAULT: *mut c_void =
-                crate::utils::ptr::without_provenance_mut(-1_isize as usize);
+            #[cfg(any(test, not(any(all(target_os = "linux", any(all(target_env = "gnu", any(target_arch = "aarch64", all(target_arch = "powerpc64", target_endian = "little"))), target_env = "musl", target_env = "ohos")), portable_atomic_outline_atomics))))]
 
-            // Defined in sys/system_properties.h.
-            // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/system_properties.h
-            #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-            pub(crate) const PROP_VALUE_MAX: c_int = 92;
+            pub(crate) const RTLD_DEFAULT: *mut c_void = core::ptr::null_mut();
+
         });
 
         sys_fn!({
@@ -219,27 +181,8 @@ mod os {
                 // https://git.musl-libc.org/cgit/musl/tree/include/sys/auxv.h?h=v1.2.5
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/sys/auxv.h
                 // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/sys/auxv.h
-                // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/auxv.h
                 // https://github.com/picolibc/picolibc/blob/1.8.12/libc/include/sys/auxv.h
-                #[cfg(any(
-                    test,
-                    all(
-                        target_os = "linux",
-                        any(
-                            all(
-                                target_env = "gnu",
-                                any(
-                                    target_arch = "aarch64",
-                                    all(target_arch = "powerpc64", target_endian = "little"),
-                                ),
-                            ),
-                            target_env = "musl",
-                            target_env = "ohos",
-                        ),
-                    ),
-                    all(target_os = "android", target_pointer_width = "64"),
-                    portable_atomic_outline_atomics,
-                ))]
+                #[cfg(any(test, all(target_os = "linux", any(all(target_env = "gnu", any(target_arch = "aarch64", all(target_arch = "powerpc64", target_endian = "little"))), target_env = "musl", target_env = "ohos")), portable_atomic_outline_atomics))]
                 pub(crate) fn getauxval(type_: c_ulong) -> c_ulong;
 
                 // Defined in dlfcn.h.
@@ -248,37 +191,9 @@ mod os {
                 // https://git.musl-libc.org/cgit/musl/tree/include/dlfcn.h?h=v1.2.5
                 // https://github.com/wbx-github/uclibc-ng/blob/v1.0.47/include/dlfcn.h
                 // https://github.com/kernkonzept/l4re-core/blob/r-2026-W07/libc/uclibc-ng/contrib/uclibc/include/dlfcn.h
-                // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/dlfcn.h
-                #[cfg(any(
-                    test,
-                    not(any(
-                        all(
-                            target_os = "linux",
-                            any(
-                                all(
-                                    target_env = "gnu",
-                                    any(
-                                        target_arch = "aarch64",
-                                        all(target_arch = "powerpc64", target_endian = "little"),
-                                    ),
-                                ),
-                                target_env = "musl",
-                                target_env = "ohos",
-                            ),
-                        ),
-                        all(target_os = "android", target_pointer_width = "64"),
-                        portable_atomic_outline_atomics,
-                    )),
-                ))]
+                #[cfg(any(test, not(any(all(target_os = "linux", any(all(target_env = "gnu", any(target_arch = "aarch64", all(target_arch = "powerpc64", target_endian = "little"))), target_env = "musl", target_env = "ohos")), portable_atomic_outline_atomics))))]
                 pub(crate) fn dlsym(handle: *mut c_void, symbol: *const c_char) -> *mut c_void;
 
-                // Defined in sys/system_properties.h.
-                // https://android.googlesource.com/platform/bionic.git/+/refs/tags/android-16.0.0_r1/libc/include/sys/system_properties.h
-                #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-                pub(crate) fn __system_property_get(
-                    name: *const c_char,
-                    value: *mut c_char,
-                ) -> c_int;
             }
         });
     }
@@ -286,24 +201,7 @@ mod os {
     pub(super) type GetauxvalTy = unsafe extern "C" fn(ffi::c_ulong) -> ffi::c_ulong;
     pub(super) fn getauxval(type_: ffi::c_ulong) -> ffi::c_ulong {
         cfg_sel!({
-            #[cfg(any(
-                all(
-                    target_os = "linux",
-                    any(
-                        all(
-                            target_env = "gnu",
-                            any(
-                                target_arch = "aarch64",
-                                all(target_arch = "powerpc64", target_endian = "little"),
-                            ),
-                        ),
-                        target_env = "musl",
-                        target_env = "ohos",
-                    ),
-                ),
-                all(target_os = "android", target_pointer_width = "64"),
-                portable_atomic_outline_atomics,
-            ))]
+            #[cfg(any(all(target_os = "linux", any(all(target_env = "gnu", any(target_arch = "aarch64", all(target_arch = "powerpc64", target_endian = "little"))), target_env = "musl", target_env = "ohos")), portable_atomic_outline_atomics))]
             {
                 let getauxval: GetauxvalTy = ffi::getauxval;
             }
@@ -564,26 +462,7 @@ mod arch {
     #[cold]
     #[must_use]
     pub(crate) fn _detect(mut info: CpuInfo) -> CpuInfo {
-        #[cfg(target_os = "android")]
-        {
-            // Samsung Exynos 9810 has a bug that big and little cores have different
-            // ISAs. And on older Android (pre-9), the kernel incorrectly reports
-            // that features available only on some cores are available on all cores.
-            // https://reviews.llvm.org/D114523
-            let mut arch = [0_u8; ffi::PROP_VALUE_MAX as usize];
-            // SAFETY: we've passed a valid C string and a buffer with max length.
-            let len = unsafe {
-                ffi::__system_property_get(
-                    c!("ro.arch").as_ptr(),
-                    arch.as_mut_ptr().cast::<ffi::c_char>(),
-                )
-            };
-            // On Exynos, ro.arch is not available on Android 12+, but it is fine
-            // because Android 9+ includes the fix.
-            if len > 0 && arch.starts_with(b"exynos9810") {
-                return info;
-            }
-        }
+
 
         macro_rules! check {
             ($x:ident, $flag:ident, $bit:ident) => {
@@ -747,27 +626,9 @@ mod tests {
 
     use super::*;
 
-    #[allow(clippy::cast_sign_loss)]
-    #[cfg(all(target_arch = "aarch64", target_os = "android"))]
-    #[test]
-    fn test_android() {
-        use std::{slice, str};
-        unsafe {
-            let mut arch = [1; ffi::PROP_VALUE_MAX as usize];
-            let len = ffi::__system_property_get(
-                c!("ro.arch").as_ptr(),
-                arch.as_mut_ptr().cast::<ffi::c_char>(),
-            );
-            assert!(len >= 0);
-            test_helper::eprintln_nocapture!("ro.arch=raw={:?},len={}", arch, len);
-            test_helper::eprintln_nocapture!(
-                "ro.arch={:?}",
-                str::from_utf8(slice::from_raw_parts(arch.as_ptr(), len as usize)).unwrap()
-            );
-        }
-    }
 
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_dlsym_getauxval() {
         unsafe {
@@ -779,7 +640,6 @@ mod tests {
                     target_os = "linux",
                     any(target_env = "gnu", target_env = "musl", target_env = "ohos"),
                 ),
-                target_os = "android",
             )) {
                 assert!(!ptr.is_null());
             } else if option_env!("CI").is_some() {
@@ -852,7 +712,7 @@ mod tests {
         }
     }
 
-    #[cfg(any(target_os = "linux", target_os = "android"))]
+    #[cfg(target_os = "linux")]
     #[cfg(not(all(target_arch = "aarch64", target_pointer_width = "32")))] // no PR_GET_AUXV
     #[test]
     fn test_alternative() {
@@ -871,7 +731,7 @@ mod tests {
         // (Actually 6.5? https://github.com/torvalds/linux/commit/636e348353a7cc52609fdba5ff3270065da140d5)
         //
         // This is currently used only for testing.
-        #[cfg(not(target_os = "android"))]
+
         #[cfg(not(portable_atomic_no_asm_syscall))]
         fn getauxval_pr_get_auxv_no_libc(type_: c_ulong) -> Result<c_ulong, c_int> {
             use crate::utils::{RegISize, RegSize};
@@ -959,7 +819,7 @@ mod tests {
                 eprintln!("kernel version: {}.{} (no pr_get_auxv)", major, minor);
                 for &at in &[ffi::AT_HWCAP, ffi::AT_HWCAP2, ffi::AT_HWCAP3, ffi::AT_HWCAP4] {
                     assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
-                    #[cfg(not(target_os = "android"))]
+
                     #[cfg(not(portable_atomic_no_asm_syscall))]
                     assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
                 }
@@ -969,7 +829,7 @@ mod tests {
                     if cfg!(all(valgrind, target_arch = "powerpc64")) {
                         // TODO: valgrind bug (as of Valgrind 3.26)
                         assert_eq!(getauxval_pr_get_auxv_libc(at).unwrap_err(), -1);
-                        #[cfg(not(target_os = "android"))]
+
                         #[cfg(not(portable_atomic_no_asm_syscall))]
                         assert_eq!(getauxval_pr_get_auxv_no_libc(at).unwrap_err(), -libc::EINVAL);
                     } else if cfg!(all(valgrind, target_arch = "aarch64"))
@@ -977,12 +837,12 @@ mod tests {
                     {
                         // TODO: valgrind bug (result value mismatch) (as of Valgrind 3.26)
                         assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
-                        #[cfg(not(target_os = "android"))]
+
                         #[cfg(not(portable_atomic_no_asm_syscall))]
                         assert_ne!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
                     } else {
                         assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_libc(at).unwrap());
-                        #[cfg(not(target_os = "android"))]
+
                         #[cfg(not(portable_atomic_no_asm_syscall))]
                         assert_eq!(os::getauxval(at), getauxval_pr_get_auxv_no_libc(at).unwrap());
                     }
@@ -992,7 +852,7 @@ mod tests {
                         os::getauxval(at),
                         getauxval_pr_get_auxv_libc(at).unwrap_or_default()
                     );
-                    #[cfg(not(target_os = "android"))]
+
                     #[cfg(not(portable_atomic_no_asm_syscall))]
                     assert_eq!(
                         os::getauxval(at),

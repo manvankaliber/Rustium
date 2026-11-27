@@ -9,16 +9,6 @@ import type {SettingsSyncControlsElement} from './sync_controls.js';
 
 export function getHtml(this: SettingsSyncControlsElement) {
   return html`<!--_html_template_start_-->
-<if expr="is_chromeos">
-<div ?hidden="${this.isAccountSettingsPage_}">
-  <div class="settings-box first">
-    <localized-link class="secondary"
-        localized-string="$i18n{browserSyncFeatureLabel}"
-        link-url="$i18n{osSyncSettingsUrl}">
-    </localized-link>
-  </div>
-</div>
-</if>
 
 ${!this.isAccountSettingsPage_ ? html`
   <div id="sync-data-radio" class="cr-row first">
@@ -52,15 +42,7 @@ ${!this.isAccountSettingsPage_ ? html`
     <h2 class="cr-title-text flex">$i18n{accountDataTypesHeading}</h2>
   </div>
   <div class="cr-row continuation">
-<if expr="is_chromeos">
-    <localized-link class="cr-secondary-text flex"
-        localized-string="$i18n{accountDataTypesBody}"
-        link-url="$i18n{osSyncSettingsUrl}">
-    </localized-link>
-</if>
-<if expr="not is_chromeos">
     <div class="cr-secondary-text flex">$i18n{accountDataTypesBody}</div>
-</if>
   </div>
   <div class="cr-row continuation"
       ?hidden="${!this.shouldShowBatchUploadPromo_()}">
@@ -329,44 +311,6 @@ ${!this.isAccountSettingsPage_ ? html`
     </cr-toggle>
   </div>
 
-<if expr="is_chromeos">
-  <div class="list-item" id="cookiesSyncItem"
-      ?hidden="${this.hideCookieItem_()}">
-    <div>
-      $i18n{cookiesCheckboxLabel}
-    </div>
-    <cr-policy-indicator indicator-type="userPolicy"
-        ?hidden="${!this.showPolicyIndicator_(this.syncPrefs?.cookiesManaged)}">
-    </cr-policy-indicator>
-    <cr-toggle id="cookiesCheckbox"
-        .checked="${!!this.syncPrefs?.cookiesSynced}"
-        @change="${this.onSingleSyncDataTypeChange_}" ?disabled="${
-            this.disableTypeCheckBox_(this.syncPrefs?.cookiesManaged)}"
-        aria-label="$i18n{cookiesCheckboxLabel}"
-        data-type="${UserSelectableType.COOKIES}" data-pref="cookiesSynced">
-    </cr-toggle>
-  </div>
-
-  <div class="list-item"
-      ?hidden="${
-          !!this.syncPrefs && !this.syncPrefs.wifiConfigurationsRegistered}">
-    <div id="wifiConfigurationsCheckboxLabel">
-      $i18n{wifiConfigurationsCheckboxLabel}
-    </div>
-    <cr-policy-indicator indicator-type="userPolicy"
-        ?hidden="${!this.showPolicyIndicator_(
-            this.syncPrefs?.wifiConfigurationsManaged)}">
-    </cr-policy-indicator>
-    <cr-toggle id="wifiToggle"
-        .checked="${!!this.syncPrefs?.wifiConfigurationsSynced}"
-        @change="${this.onSingleSyncDataTypeChange_}"
-        ?disabled="${this.disableTypeCheckBox_(
-            this.syncPrefs?.wifiConfigurationsManaged)}"
-        aria-labelledby="wifiConfigurationsCheckboxLabel"
-        data-pref="wifiConfigurationsSynced">
-    </cr-toggle>
-  </div>
-</if>
 </div>
 <!--_html_template_end_-->`;
 }

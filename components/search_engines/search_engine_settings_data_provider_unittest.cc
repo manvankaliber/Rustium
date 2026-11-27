@@ -31,12 +31,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/search_engines_data/resources/definitions/prepopulated_engines.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/jni_android.h"
-#include "base/android/jni_array.h"
-#include "components/omnibox/common/omnibox_feature_configs.h"
-#include "components/omnibox/common/omnibox_features.h"
-#endif
 
 namespace search_engines {
 
@@ -1038,86 +1032,5 @@ TEST_F(SearchEngineSettingsDataProviderNonSplitRegionTest,
                                      &TemplateURL::prepopulate_id));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(SearchEngineSettingsDataProviderTest,
-       GetDisabledStarterPackIdsForAndroid) {
-  // Enable features
-  {
-    omnibox_feature_configs::ScopedConfigForTesting<
-        omnibox_feature_configs::ContextualSearch>
-        scoped_config;
-    scoped_config.Get().starter_pack_page = true;
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndEnableFeature(omnibox::kStarterPackExpansion);
-
-    auto disabled_ids =
-        SearchEngineSettingsDataProvider::GetDisabledStarterPackIdsForAndroid();
-    EXPECT_FALSE(
-        disabled_ids.Has(template_url_starter_pack_data::StarterPackId::kPage));
-    EXPECT_FALSE(disabled_ids.Has(
-        template_url_starter_pack_data::StarterPackId::kGemini));
-
-    // @bookmarks is disabled by default.
-    EXPECT_TRUE(disabled_ids.Has(
-        template_url_starter_pack_data::StarterPackId::kBookmarks));
-  }
-
-  // Disable features
-  {
-    omnibox_feature_configs::ScopedConfigForTesting<
-        omnibox_feature_configs::ContextualSearch>
-        scoped_config;
-    scoped_config.Get().starter_pack_page = false;
-    base::test::ScopedFeatureList feature_list;
-    feature_list.InitAndDisableFeature(omnibox::kStarterPackExpansion);
-
-    auto disabled_ids =
-        SearchEngineSettingsDataProvider::GetDisabledStarterPackIdsForAndroid();
-    EXPECT_TRUE(
-        disabled_ids.Has(template_url_starter_pack_data::StarterPackId::kPage));
-    EXPECT_TRUE(disabled_ids.Has(
-        template_url_starter_pack_data::StarterPackId::kGemini));
-
-    // @bookmarks is disabled by default.
-    EXPECT_TRUE(disabled_ids.Has(
-        template_url_starter_pack_data::StarterPackId::kBookmarks));
-  }
-}
-TEST_F(SearchEngineSettingsDataProviderSplitRegionTest,
-       RecordsSettingsPageLoadMetricsViaJni) {
-  template_url_service().Load();
-  TemplateURL* legacy_dse = template_url_service().Add(
-      CreatePrepopulatedEngine(TemplateURLPrepopulateData::yahoo_jp));
-  template_url_service().SetUserSelectedDefaultSearchProvider(legacy_dse);
-
-  auto provider = CreateProvider();
-  std::vector<const TemplateURL*> default_urls =
-      provider->GetTemplateUrlsByCategory(TemplateUrlCategory::kDefault);
-  ASSERT_FALSE(default_urls.empty());
-
-  std::vector<int64_t> ids;
-  ids.reserve(default_urls.size());
-  for (const TemplateURL* turl : default_urls) {
-    ids.push_back(turl->id().value());
-  }
-
-  JNIEnv* env = base::android::AttachCurrentThread();
-  base::android::ScopedJavaLocalRef<jlongArray> j_ids =
-      base::android::ToJavaLongArray(env, ids);
-
-  provider->MaybeRecordSettingsPageLoadMetrics(env, j_ids);
-
-  histogram_tester().ExpectUniqueSample(kCountOnSettingsPageLoadHistogram, 1,
-                                        1);
-  histogram_tester().ExpectUniqueSample(kDseTypeOnSettingsPageLoadHistogram,
-                                        OseSplitType::kLegacy, 1);
-  histogram_tester().ExpectUniqueSample(kEngineStateOnSettingsPageLoadHistogram,
-                                        OseSplitEngineState::kLegacyDse, 1);
-
-  // Subsequent calls on the same provider instance are a no-op.
-  provider->MaybeRecordSettingsPageLoadMetrics(env, j_ids);
-  histogram_tester().ExpectTotalCount(kCountOnSettingsPageLoadHistogram, 1);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace search_engines

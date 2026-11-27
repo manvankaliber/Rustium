@@ -151,11 +151,6 @@ export class SettingsSyncControlsElement extends
       this.syncBrowserProxy_.didNavigateToSyncPage();
     }
     if (currentRoute === routes.ACCOUNT) {
-      // <if expr="is_chromeos">
-      if (!loadTimeData.getBoolean('replaceSyncPromosWithSignInPromos')) {
-        return;
-      }
-      // </if>
 
       this.isAccountSettingsPage_ = true;
       this.syncBrowserProxy_.didNavigateToAccountSettingsPage();
@@ -262,11 +257,6 @@ export class SettingsSyncControlsElement extends
   }
 
   override currentRouteChanged(newRoute: Route, oldRoute?: Route) {
-    // <if expr="is_chromeos">
-    if (!loadTimeData.getBoolean('replaceSyncPromosWithSignInPromos')) {
-      return;
-    }
-    // </if>
 
     this.isAccountSettingsPage_ = newRoute === routes.ACCOUNT;
 
@@ -398,23 +388,11 @@ export class SettingsSyncControlsElement extends
     return this.isAccountSettingsPage_ && !!this.syncStatus?.disabled;
   }
 
-  // <if expr="is_chromeos">
-  protected hideCookieItem_(): boolean {
-    return !this.syncStatus?.syncCookiesSupported ||
-        (!!this.syncPrefs && !this.syncPrefs.cookiesRegistered);
-  }
-  // </if>
 
   private syncStatusChanged_() {
     const router = Router.getInstance();
     if (router.getCurrentRoute() === routes.SYNC_ADVANCED &&
         this.syncControlsHidden_()) {
-      // <if expr="is_chromeos">
-      if (!loadTimeData.getBoolean('replaceSyncPromosWithSignInPromos')) {
-        router.navigateTo(routes.SYNC);
-        return;
-      }
-      // </if>
 
       // Try to navigate the user to the account page, where they can find the
       // toggles. If the page does not exist, they will be redirected to the

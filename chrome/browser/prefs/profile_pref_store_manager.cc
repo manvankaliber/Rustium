@@ -40,11 +40,7 @@ const std::wstring* g_preference_validation_registry_path_for_testing = nullptr;
 // Preference tracking and protection is not required on platforms where other
 // apps do not have access to chrome's persistent storage.
 const bool ProfilePrefStoreManager::kPlatformSupportsPreferenceTracking =
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-    false;
-#else
     true;
-#endif
 
 ProfilePrefStoreManager::ProfilePrefStoreManager(
     const base::FilePath& profile_path,

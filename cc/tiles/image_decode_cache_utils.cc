@@ -11,11 +11,6 @@
 #include "base/system/sys_info.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#include "base/feature_list.h"
-#include "cc/base/features.h"
-#endif
 
 namespace cc {
 
@@ -26,14 +21,7 @@ size_t ImageDecodeCacheUtils::GetWorkingSetBytesForImageDecode(
   // Desktop Android and uses `kDefaultWorkingSet` (see
   // `layer_tree_settings.cc`).
   base::ByteSize decoded_image_working_set_budget = kDefaultWorkingSet;
-#if BUILDFLAG(IS_ANDROID)
-  const bool use_desktop_limits =
-      base::android::device_info::is_desktop() &&
-      base::FeatureList::IsEnabled(
-          features::kDesktopAndroidUnifiedCompositorLimits);
-#else
   constexpr bool use_desktop_limits = true;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   if (use_desktop_limits && for_renderer) {
     const bool using_low_memory_policy = base::SysInfo::IsLowEndDevice();

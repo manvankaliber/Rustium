@@ -34,16 +34,6 @@ class TestAccountPreviewDataService : public AccountPreviewDataService {
       const GaiaId& gaia_id,
       base::OnceCallback<void(std::optional<AccountPreviewPreference>)>
           callback) override;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  void GetPreferredAccountForSigninAsync(
-      base::OnceCallback<void(std::optional<AccountPreviewPreference>)>
-          callback,
-      base::TimeDelta timeout) override;
-#endif
-#if BUILDFLAG(IS_ANDROID)
-  void UpdateExternalAppAccount(
-      const std::optional<std::string>& email) override;
-#endif
 
   // If `set_defer_callbacks(true)` is set, `GetPreviewPreferenceForAccount`
   // stores the callback instead of immediately invoking it with `preference_`.
@@ -71,28 +61,6 @@ class TestAccountPreviewDataService : public AccountPreviewDataService {
     return std::move(pending_callback_);
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // If `set_defer_preferred_account_requests(true)` is set,
-  // `GetPreferredAccountForSigninAsync()` stores the callbacks instead of
-  // posting them with `preferred_account_for_signin_`, which simulates an
-  // ongoing preferred account computation (ignoring `timeout`).
-  // Call `RunPendingPreferredAccountRequests(std::nullopt)` to simulate a
-  // timeout.
-  void set_defer_preferred_account_requests(bool defer) {
-    defer_preferred_account_requests_ = defer;
-  }
-
-  // Updates `preferred_account_for_signin_` to `preference` and runs the
-  // callbacks stored by `GetPreferredAccountForSigninAsync()`, which
-  // simulates the completion of the preferred account computation.
-  void RunPendingPreferredAccountRequests(
-      std::optional<AccountPreviewPreference> preference);
-
-  std::optional<base::TimeDelta> last_preferred_account_request_timeout()
-      const {
-    return last_preferred_account_request_timeout_;
-  }
-#endif
 
  private:
   bool defer_callbacks_ = false;
@@ -101,12 +69,6 @@ class TestAccountPreviewDataService : public AccountPreviewDataService {
   std::optional<AccountPreviewPreference> preferred_account_for_switching_;
   base::OnceCallback<void(std::optional<AccountPreviewPreference>)>
       pending_callback_;
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  bool defer_preferred_account_requests_ = false;
-  std::optional<base::TimeDelta> last_preferred_account_request_timeout_;
-  std::vector<base::OnceCallback<void(std::optional<AccountPreviewPreference>)>>
-      pending_preferred_account_requests_;
-#endif
 };
 
 }  // namespace signin

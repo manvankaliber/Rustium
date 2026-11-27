@@ -1228,9 +1228,7 @@ void InspectorPageAgent::DidResizeMainFrame() {
   if (!inspected_frames_->Root()->IsOutermostMainFrame()) {
     return;
   }
-#if !BUILDFLAG(IS_ANDROID)
   PageLayoutInvalidated(true);
-#endif
   GetFrontend()->frameResized();
 }
 

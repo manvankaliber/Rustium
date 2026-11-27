@@ -22,12 +22,12 @@
 #include "third_party/libyuv/include/libyuv.h"
 #include "ui/gfx/gpu_memory_buffer_handle.h"
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #include <sys/mman.h>
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
 
 #if BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)
-#include "media/gpu/chromeos/platform_video_frame_utils.h"
+#include "media/gpu/linux/platform_video_frame_utils.h"
 #include "media/gpu/video_frame_mapper.h"
 #include "media/gpu/video_frame_mapper_factory.h"
 #endif  // BUILDFLAG(USE_LINUX_VIDEO_ACCELERATION)

@@ -4,7 +4,7 @@
 
 #include "chrome/browser/web_applications/preinstalled_web_apps/youtube.h"
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/functional/bind.h"
 #include "base/strings/utf_string_conversions.h"
 #include "build/build_config.h"
@@ -21,11 +21,7 @@ ExternalInstallOptions GetConfigForYouTube() {
   ExternalInstallOptions options(
       /*install_url=*/GURL(
           "https://www.youtube.com/s/notifications/manifest/cr_install.html"),
-#if BUILDFLAG(IS_CHROMEOS)
-      /*user_display_mode=*/mojom::UserDisplayMode::kStandalone,
-#else
       /*user_display_mode=*/mojom::UserDisplayMode::kBrowser,
-#endif  // BUILDFLAG(IS_CHROMEOS)
       /*install_source=*/ExternalInstallSource::kExternalDefault);
 
   options.user_type_allowlist = {"unmanaged", "managed"};
@@ -46,7 +42,7 @@ ExternalInstallOptions GetConfigForYouTube() {
         LoadBundledIcons({IDR_PREINSTALLED_WEB_APPS_YOUTUBE_ICON_192_PNG});
     return info;
   });
-  options.expected_app_id = ash::kYoutubeAppId;
+  options.expected_app_id = webapps::kYoutubeAppId;
 
   return options;
 }

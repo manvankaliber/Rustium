@@ -17,7 +17,7 @@ namespace base {
 
 namespace internal {
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 // Platforms for which it is possible to track ownership of file descriptors.
 //
 // On Android, fdsan is used.
@@ -33,7 +33,7 @@ struct BASE_EXPORT ScopedFDCloseTraits : public ScopedGenericOwnershipTracking {
                       int fd);
 };
 
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
 
 struct BASE_EXPORT ScopedFDCloseTraits {
   static int InvalidValue() { return -1; }
@@ -53,7 +53,7 @@ struct ScopedFILECloser {
 
 }  // namespace internal
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 namespace subtle {
 
 #if !defined(COMPONENT_BUILD)
@@ -88,11 +88,11 @@ void BASE_EXPORT EnableFDOwnershipEnforcement(bool enabled);
 void BASE_EXPORT ResetFDOwnership();
 
 }  // namespace subtle
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
 
 // -----------------------------------------------------------------------------
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 // A low-level Posix file descriptor closer class. Use this when writing
 // platform-specific code, especially that does non-file-like things with the
 // FD (like sockets).
@@ -110,11 +110,11 @@ using ScopedFD = ScopedGeneric<int, internal::ScopedFDCloseTraits>;
 // Automatically closes `FILE*`s.
 using ScopedFILE = std::unique_ptr<FILE, internal::ScopedFILECloser>;
 
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 // Queries the ownership status of an FD, i.e. whether it is currently owned by
 // a ScopedFD in the calling process.
 bool BASE_EXPORT IsFDOwned(int fd);
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX)
+#endif
 
 }  // namespace base
 

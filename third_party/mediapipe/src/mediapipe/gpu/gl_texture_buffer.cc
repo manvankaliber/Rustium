@@ -373,35 +373,6 @@ void GlTextureBuffer::ViewDoneWriting(const GlTextureView& view,
     Updated(view.gl_context()->CreateSyncToken());
   }
 
-#ifdef __ANDROID__
-  // On (some?) Android devices, the texture may need to be explicitly
-  // detached from the current framebuffer.
-  // TODO: is this necessary even with the unbind in BindFramebuffer?
-  // It is not clear if this affected other contexts too, but let's keep it
-  // while in doubt.
-  GLint type = GL_NONE;
-  glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                        GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
-                                        &type);
-  if (type == GL_TEXTURE) {
-    GLint color_attachment = 0;
-    glGetFramebufferAttachmentParameteriv(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                                          GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
-                                          &color_attachment);
-    if (color_attachment == name()) {
-      glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
-  }
-
-  // Some Android drivers log a GL_INVALID_ENUM error after the first
-  // glGetFramebufferAttachmentParameteriv call if there is no bound object,
-  // even though it should be ok to ask for the type and get back GL_NONE.
-  // Let's just ignore any pending errors here.
-  GLenum error;
-  while ((error = glGetError()) != GL_NO_ERROR) {
-  }
-
-#endif  // __ANDROID__
 }
 
 void ReadTexture(GlContext& ctx, const GlTextureView& view,

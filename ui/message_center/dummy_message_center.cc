@@ -9,15 +9,12 @@
 // and link with Android implementations of Chrome which do not have
 // notification systems yet. This is to avoid spreading compile-time flags
 // everywhere in the code.
-#if !(BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA))
-#error This file should only be used in Android and Fuchsia.
-#endif
+#error This file should only be used in Android.
 
 namespace message_center {
 
 // static
-void MessageCenter::Initialize() {
-}
+void MessageCenter::Initialize() {}
 
 // static
 MessageCenter* MessageCenter::Get() {
@@ -25,13 +22,10 @@ MessageCenter* MessageCenter::Get() {
 }
 
 // static
-void MessageCenter::Shutdown() {
-}
+void MessageCenter::Shutdown() {}
 
-MessageCenter::MessageCenter() {
-}
+MessageCenter::MessageCenter() {}
 
-MessageCenter::~MessageCenter() {
-}
+MessageCenter::~MessageCenter() {}
 
 }  // namespace message_center

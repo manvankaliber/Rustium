@@ -16,17 +16,6 @@ namespace autofill {
 // <textarea>, or contenteditable) where Autofill context menu items can appear.
 bool ShouldShowAutofillContextMenu(const content::ContextMenuParams& params);
 
-// Returns true if the AtMemory manual fallback item should be added to the
-// context menu for `rfh` and `params`.
-bool ShouldShowAtMemoryContextMenuItem(
-    content::RenderFrameHost& rfh,
-    const content::ContextMenuParams& params);
-
-// Triggers the AtMemory search popup on the field identified by `params`.
-void ExecuteAtMemoryContextMenuCommand(
-    content::RenderFrameHost& rfh,
-    const content::ContextMenuParams& params);
-
 // Returns true if password manual fallback items should be added to the context
 // menu for `rfh` and `params`.
 bool ShouldAddPasswordsManualFallbackItem(

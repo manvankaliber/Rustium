@@ -81,12 +81,10 @@ export class TestHistoryBrowserProxy extends BaseTestBrowserProxy implements
     this.handler.setResultFor(
         'getTimePeriodOptions', Promise.resolve({options: []}));
 
-    // <if expr="not is_chromeos">
     this.handler.setResultFor(
         'shouldShowHistoryPageHistorySyncPromo', Promise.resolve({
           shouldShow: false,
         }));
-    // </if>
   }
 
   getInitialIdentityState(): Promise<HistoryIdentityState> {

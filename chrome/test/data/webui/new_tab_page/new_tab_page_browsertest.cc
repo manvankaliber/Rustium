@@ -15,11 +15,6 @@
 #include "components/search/ntp_features.h"
 #include "content/public/test/browser_test.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/command_line.h"
-#include "content/public/browser/web_contents.h"
-#include "ui/gfx/switches.h"
-#endif
 
 // Base fixture for the NTP Mocha tests.
 class NewTabPageMochaBrowserTest : public WebUIMochaBrowserTest {
@@ -28,20 +23,6 @@ class NewTabPageMochaBrowserTest : public WebUIMochaBrowserTest {
     set_test_loader_host(chrome::kChromeUINewTabPageHost);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetUpCommandLine(base::CommandLine* command_line) override {
-    WebUIMochaBrowserTest::SetUpCommandLine(command_line);
-    // Lab devices run with animations off, which makes pages prefer reduced
-    // motion. Tests that set the preference themselves need the default.
-    command_line->AppendSwitch(switches::kForcePrefersNoReducedMotion);
-  }
-
-  void OnWebContentsAvailable(content::WebContents* web_contents) override {
-    // With a hardware keyboard attached, opening the NTP focuses the omnibox,
-    // so the page gets no focus events. Move focus back to the page.
-    web_contents->Focus();
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 };
 
 class NewTabPageBrowserTest : public NewTabPageMochaBrowserTest {
@@ -50,11 +31,6 @@ class NewTabPageBrowserTest : public NewTabPageMochaBrowserTest {
     scoped_feature_list_.InitWithFeatures(
         /*enabled_features=*/
         {
-#if BUILDFLAG(IS_ANDROID)
-            // Customization buttons on the WebUI NTP are feature-flagged on
-            // Android.
-            ntp_features::kNtpCustomizeWebUiAndroid,
-#endif
         },
         /*disabled_features=*/{omnibox::kAimServerEligibilityEnabled,
                                ntp_realbox::kNtpRealboxNext,
@@ -311,13 +287,8 @@ IN_PROC_BROWSER_TEST_F(NewTabPageAppTest, Misc) {
 }
 
 // TODO(crbug.com/571327206): The OneGoogleBar is disabled on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_OgbThemingRemoveScrim DISABLED_OgbThemingRemoveScrim
-#define MAYBE_OgbScrim DISABLED_OgbScrim
-#else
 #define MAYBE_OgbThemingRemoveScrim OgbThemingRemoveScrim
 #define MAYBE_OgbScrim OgbScrim
-#endif
 IN_PROC_BROWSER_TEST_F(NewTabPageAppTest, MAYBE_OgbThemingRemoveScrim) {
   RunTest("new_tab_page/app_test.js",
           "runMochaSuite('NewTabPageAppTest OgbThemingRemoveScrim')");

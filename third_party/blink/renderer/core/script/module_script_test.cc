@@ -143,8 +143,9 @@ class ModuleScriptTest : public ::testing::Test, public ModuleTestBase {
       builder.Append(String("1 + "));
     }
     builder.Append(String("0;"));
-    if (suffix)
+    if (suffix) {
       builder.Append(String(suffix));
+    }
     return builder.ToString();
   }
 
@@ -204,8 +205,9 @@ class ModuleScriptTest : public ::testing::Test, public ModuleTestBase {
   static bool HandlerCachedMetadataWasDiscarded(
       CachedMetadataHandler* cache_handler) {
     auto* handler = static_cast<ScriptCachedMetadataHandler*>(cache_handler);
-    if (!handler)
+    if (!handler) {
       return false;
+    }
     return handler->cached_metadata_discarded_;
   }
 
@@ -623,16 +625,8 @@ TEST_F(ModuleScriptTest, V8CodeCacheWithHashChecking) {
   }
 }
 
-#if BUILDFLAG(IS_FUCHSIA) && defined(__OPTIMIZE_SIZE__)
-// WebUI bundled cache is not used on Fuchsia, and since we disable caching
-// by default on Fuchsia size-optimized builds (overriding kDefault to kNone),
-// this test (which uses kDefault) will fail due to early return.
-#define MAYBE_LoadingSupportsWebUIBundledCodeCaching \
-  DISABLED_LoadingSupportsWebUIBundledCodeCaching
-#else
 #define MAYBE_LoadingSupportsWebUIBundledCodeCaching \
   LoadingSupportsWebUIBundledCodeCaching
-#endif
 TEST_F(ModuleScriptTest, MAYBE_LoadingSupportsWebUIBundledCodeCaching) {
   // Initialize the modulator.
   V8TestingScope scope;

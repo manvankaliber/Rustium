@@ -119,11 +119,7 @@ constexpr int kNotificationBorderThickness = 1;
 constexpr int kMarginBetweenItemsInList = 8;
 
 // Horizontal & vertical space around & between popup notifications.
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr int kMarginBetweenPopups = 8;
-#else
 constexpr int kMarginBetweenPopups = 10;
-#endif
 
 // Radius of the rounded corners of a notification.
 // The corners are only rounded in Chrome OS.
@@ -134,11 +130,7 @@ constexpr int kNotificationResizeAnimationDurationMs = 200;
 
 // Returns the width of the notification.
 inline int GetNotificationWidth() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return kChromeOSNotificationWidth;
-#else
   return kNotificationWidth;
-#endif
 }
 
 // Returns the character limit per line; character limit = pixels per line *

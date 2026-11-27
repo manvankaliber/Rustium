@@ -74,11 +74,6 @@ foreach(lang, policy_templates_languages) {
   ]
 }
 
-# Android outputs.
-policy_templates_android_policy_path =
-    "$policy_templates_base_dir/android/values-v21/restriction_values.xml"
-policy_templates_android_outputs = [ policy_templates_android_policy_path ]
-
 # Common outputs.
 policy_templates_doc_path =
     "$policy_templates_base_dir/common/html/\${lang}/chrome_policy_list.html"
@@ -143,8 +138,3 @@ foreach(lang, policy_templates_languages) {
   policy_templates_win_google_outputs +=
       [ "$policy_templates_base_dir/windows/admx/${lang}/google.adml" ]
 }
-
-# iOS outputs
-policy_templates_ios_app_config_path =
-    "$policy_templates_base_dir/ios/appconfig.xml"
-policy_templates_ios_outputs = [ policy_templates_ios_app_config_path ]

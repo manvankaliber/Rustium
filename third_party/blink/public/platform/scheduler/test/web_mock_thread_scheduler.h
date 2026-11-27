@@ -37,10 +37,6 @@ class WebMockThreadScheduler : public WebThreadScheduler {
   MOCK_METHOD0(CreateWebAgentGroupScheduler,
                std::unique_ptr<WebAgentGroupScheduler>());
   MOCK_METHOD1(SetRendererBackgrounded, void(bool));
-#if BUILDFLAG(IS_ANDROID)
-  MOCK_METHOD0(PauseTimersForAndroidWebView, void());
-  MOCK_METHOD0(ResumeTimersForAndroidWebView, void());
-#endif
   MOCK_METHOD0(OnNavigate, void());
   MOCK_METHOD1(AddTaskObserver, void(base::TaskObserver*));
   MOCK_METHOD1(RemoveTaskObserver, void(base::TaskObserver*));

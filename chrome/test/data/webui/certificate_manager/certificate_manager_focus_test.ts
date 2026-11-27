@@ -144,43 +144,7 @@ suite('CertificateManagerV2FocusTest', () => {
   });
   // </if>
 
-  // <if expr="is_chromeos">
-  test('Copy extensions client certs hash', async () => {
-    const getCertificatesResolver = new PromiseResolver<void>();
-    testHandler.setCertificatesCallback((source: CertificateSource) => {
-      if (source === CertificateSource.kExtensionsClientCert) {
-        getCertificatesResolver.resolve();
-        return {
-          certs: [
-            {
-              sha256hashHex: 'deadbeef4',
-              displayName: 'cert4',
-              isDeletable: false,
-            },
-          ],
-        };
-      }
-      return {certs: []};
-    });
 
-    initializeElement();
-    await getCertificatesResolver.promise;
-    await microtasksFinished();
-    assertFalse(certManager.$.toast.open);
-
-    const entries =
-        certManager.$.extensionsClientCerts.$.certs.querySelectorAll(
-            'certificate-entry');
-    assertEquals(1, entries.length, 'no certs displayed');
-
-    assertEquals('', await navigator.clipboard.readText());
-    entries[0]!.$.copy.click();
-    assertTrue(certManager.$.toast.open);
-    assertEquals('deadbeef4', await navigator.clipboard.readText());
-  });
-  // </if>
-
-  // <if expr="not is_chromeos">
   test('Check Focus when going in and out of platform subpage', async () => {
     const metadata: CertManagementMetadata = {
       includeSystemTrustStore: true,
@@ -215,15 +179,12 @@ suite('CertificateManagerV2FocusTest', () => {
     const linkRow = (newElementInFocus.getRootNode() as ShadowRoot).host;
     assertEquals('viewOsImportedCerts', linkRow.id);
   });
-  // </if>
 
   test('Check Focus when going in and out of user certs subpage', async () => {
     const metadata: CertManagementMetadata = {
-      // <if expr="not is_chromeos">
       includeSystemTrustStore: true,
       numUserAddedSystemCerts: 5,
       isIncludeSystemTrustStoreManaged: true,
-      // </if>
       numPolicyCerts: 0,
       numUserCerts: 0,
       showUserCertsUi: true,

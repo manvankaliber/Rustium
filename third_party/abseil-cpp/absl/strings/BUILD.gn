@@ -957,9 +957,6 @@ absl_test("str_format_convert_test") {
     "//third_party/abseil-cpp/absl/numeric:int128",
     "//third_party/abseil-cpp/absl/types:span",
   ]
-  if (is_fuchsia) {
-    sources = []
-  }
 }
 
 absl_test("str_format_output_test") {

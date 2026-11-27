@@ -10,22 +10,15 @@ import {TestBrowserProxy} from 'chrome://webui-test/test_browser_proxy.js';
  */
 export class TestLifetimeBrowserProxy extends TestBrowserProxy implements
     LifetimeBrowserProxy {
-  // <if expr="not is_chromeos">
   private shouldShowRelaunchDialog_: boolean = false;
   private relaunchConfirmationDialogDescription_: string|null = null;
-  // </if>
 
   constructor() {
     super([
       'restart', 'relaunch',
 
-      // <if expr="not is_chromeos">
       'shouldShowRelaunchDialog', 'getRelaunchConfirmationDialogDescription',
-      // </if>
 
-      // <if expr="is_chromeos">
-      'signOutAndRestart', 'factoryReset',
-      // </if>
     ]);
   }
 
@@ -37,7 +30,6 @@ export class TestLifetimeBrowserProxy extends TestBrowserProxy implements
     this.methodCalled('relaunch');
   }
 
-  // <if expr="not is_chromeos">
   shouldShowRelaunchConfirmationDialog(alwaysShowDialog: boolean) {
     this.methodCalled('shouldShowRelaunchDialog', alwaysShowDialog);
     return Promise.resolve(this.shouldShowRelaunchDialog_);
@@ -56,15 +48,5 @@ export class TestLifetimeBrowserProxy extends TestBrowserProxy implements
         'getRelaunchConfirmationDialogDescription', isVersionUpdate);
     return Promise.resolve(this.relaunchConfirmationDialogDescription_);
   }
-  // </if>
 
-  // <if expr="is_chromeos">
-  signOutAndRestart() {
-    this.methodCalled('signOutAndRestart');
-  }
-
-  factoryReset(requestTpmFirmwareUpdate: boolean) {
-    this.methodCalled('signOutAndRestart', requestTpmFirmwareUpdate);
-  }
-  //  </if>
 }

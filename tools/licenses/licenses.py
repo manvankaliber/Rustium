@@ -22,6 +22,7 @@ import sys
 import tempfile
 from typing import Any, Dict, List, Optional, Union
 
+import license_bundle
 from spdx_writer import SpdxWriter
 
 _REPOSITORY_ROOT = os.path.abspath(
@@ -84,8 +85,6 @@ PRUNE_PATHS = set(
   [
     # Placeholder directory only, not third-party code.
     os.path.join('third_party', 'adobe'),
-    # Will remove it once converted private sdk using cipd.
-    os.path.join('third_party', 'android_tools_internal'),
     # Only README.md, not third-party code.
     os.path.join('third_party', 'crubit'),
     # Build files only, not third-party code.
@@ -129,8 +128,6 @@ PRUNE_PATHS = set(
     os.path.join('third_party', 'psutils'),
     os.path.join('third_party', 'sawbuck'),
     os.path.join('third_party', 'wix'),
-    # See crbug.com/350472
-    os.path.join('chrome', 'browser', 'resources', 'chromeos', 'quickoffice'),
     # Proprietary barcode detection library.
     os.path.join('third_party', 'barhopper'),
     # Internal Chrome Build only for proprietary webref library.
@@ -170,7 +167,6 @@ ADDITIONAL_PATHS_FILENAME = 'additional_readme_paths.json'
 #   - Directories that contain example code, or build tooling.
 #   - Nested third_party code inside other third_party libraries.
 ADDITIONAL_PATHS = (
-  os.path.join('chrome', 'test', 'chromeos', 'autotest'),
   os.path.join('chrome', 'test', 'data'),
   os.path.join('third_party', 'boringssl', 'src', 'third_party', 'fiat'),
   os.path.join(
@@ -375,59 +371,6 @@ NOT_SHIPPED = "NOT_SHIPPED"
 YES = "yes"
 NO = "no"
 
-# Paths for libraries that we have checked are not shipped on iOS. These are
-# left out of the licenses file primarily because we don't want to cause a
-# firedrill due to someone thinking that Chrome for iOS is using LGPL code
-# when it isn't.
-# This is a temporary hack; the real solution is crbug.com/178215
-KNOWN_NON_IOS_LIBRARIES = set(
-  [
-    os.path.join('base', 'third_party', 'symbolize'),
-    os.path.join('base', 'third_party', 'xdg_mime'),
-    os.path.join('base', 'third_party', 'xdg_user_dirs'),
-    os.path.join('chrome', 'installer', 'mac', 'third_party', 'bsdiff'),
-    os.path.join('chrome', 'installer', 'mac', 'third_party', 'xz'),
-    os.path.join('chrome', 'test', 'data', 'third_party', 'spaceport'),
-    os.path.join('chrome', 'third_party', 'mozilla_security_manager'),
-    os.path.join('third_party', 'angle'),
-    os.path.join('third_party', 'apple_apsl'),
-    os.path.join('third_party', 'apple_sample_code'),
-    os.path.join('third_party', 'ashmem'),
-    os.path.join('third_party', 'blink'),
-    os.path.join('third_party', 'bspatch'),
-    os.path.join('third_party', 'cld'),
-    os.path.join('third_party', 'flot'),
-    os.path.join('third_party', 'gtk+'),
-    os.path.join('third_party', 'iaccessible2'),
-    os.path.join('third_party', 'isimpledom'),
-    os.path.join('third_party', 'jsoncpp'),
-    os.path.join('third_party', 'libcxx', 'libc++'),
-    os.path.join('third_party', 'libcxx', 'libc++abi'),
-    os.path.join('third_party', 'libevent'),
-    os.path.join('third_party', 'libjpeg'),
-    os.path.join('third_party', 'libusb'),
-    os.path.join('third_party', 'libxslt'),
-    os.path.join('third_party', 'lss'),
-    os.path.join('third_party', 'lzma_sdk'),
-    os.path.join('third_party', 'mesa'),
-    os.path.join('third_party', 'mozc'),
-    os.path.join('third_party', 'mozilla'),
-    os.path.join('third_party', 'npapi'),
-    os.path.join('third_party', 'ots'),
-    os.path.join('third_party', 'perfetto'),
-    os.path.join('third_party', 're2'),
-    os.path.join('third_party', 'safe_browsing'),
-    os.path.join('third_party', 'smhasher'),
-    os.path.join('third_party', 'swiftshader'),
-    os.path.join('third_party', 'swig'),
-    os.path.join('third_party', 'talloc'),
-    os.path.join('third_party', 'usb_ids'),
-    os.path.join('third_party', 'wtl'),
-    os.path.join('third_party', 'yasm'),
-    os.path.join('v8', 'strongtalk'),
-  ]
-)
-
 SAFE_RECIPROCAL_HOSTS = {
   "chromium.googlesource.com",
   "dawn.googlesource.com",
@@ -451,6 +394,11 @@ _read_paths = set()
 
 
 def _read_file(path):
+  archived = license_bundle.archived_bytes(path)
+  if archived is not None:
+    _read_paths.add(str(license_bundle.ROOT / 'LICENSE'))
+    _read_paths.add(license_bundle.__file__)
+    return archived.decode('utf-8', errors='replace')
   _read_paths.add(path)
   return pathlib.Path(path).read_text(encoding='utf-8', errors='replace')
 
@@ -499,7 +447,8 @@ def _ResolvePath(path, filename, root):
     absolute_path = os.path.join(root, path, os.path.normpath(filename))
   if not _IsPathInsideRoot(root, absolute_path):
     return None
-  if os.path.exists(absolute_path):
+  if (os.path.exists(absolute_path)
+      or license_bundle.archived_bytes(absolute_path) is not None):
     return os.path.relpath(absolute_path, root)
   return None
 
@@ -1327,6 +1276,9 @@ def _ResolveGitLicenseUrl(lic_full_path: str) -> Optional[str]:
 def _CalculateLicenseUrl(scan_root: str, lic_path: str) -> str:
   """Calculates the repository URL for a single license file."""
   lic_full_path = os.path.abspath(os.path.join(scan_root, lic_path))
+  if license_bundle.archived_bytes(lic_full_path) is not None:
+    lic_full_path = str(license_bundle.ROOT / 'LICENSE')
+    lic_path = 'LICENSE'
   git_url = _ResolveGitLicenseUrl(lic_full_path)
   if git_url:
     return git_url
@@ -1432,7 +1384,7 @@ def GenerateNoticeFilePlainText(
 ) -> str:
   """Generate a plain-text THIRD_PARTY_NOTICE file which can be used when you
   ship a part of Chromium code (specified by gn_target) as a stand-alone
-  library (e.g., //ios/web_view).
+  library (e.g., //components/cronet).
 
   The THIRD_PARTY_NOTICE file contains licenses of third-party libraries
   which gn_target depends on. Each notice contains the following information:
@@ -1458,7 +1410,7 @@ def GenerateLicenseFilePlainText(
 ) -> str:
   """Generate a plain-text LICENSE file which can be used when you ship a part
   of Chromium code (specified by gn_target) as a stand-alone library
-  (e.g., //ios/web_view).
+  (e.g., //components/cronet).
 
   The LICENSE file contains licenses of both Chromium and third-party
   libraries which gn_target depends on."""
@@ -1636,8 +1588,6 @@ def main():
     args.extra_allowed_dirs
   )
   args.exclude_dirs = action_helpers.parse_gn_list(args.exclude_dirs)
-  if (not args.exclude_dirs) and args.target_os == 'ios':
-    args.exclude_dirs = list(KNOWN_NON_IOS_LIBRARIES)
 
   for p in (
     args.extra_third_party_dirs + args.extra_allowed_dirs + args.exclude_dirs

@@ -22,13 +22,11 @@ class LeakDetectionCheckFactoryImpl : public LeakDetectionCheckFactory {
       scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory,
       version_info::Channel channel) const override;
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<BulkLeakCheck> TryCreateBulkLeakCheck(
       BulkLeakCheckDelegateInterface* delegate,
       signin::IdentityManager* identity_manager,
       scoped_refptr<network::SharedURLLoaderFactory> url_loader_factory)
       const override;
-#endif  // !BUILDFLAG(IS_ANDROID)
 };
 
 }  // namespace password_manager

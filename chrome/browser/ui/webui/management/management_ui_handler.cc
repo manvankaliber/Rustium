@@ -56,7 +56,6 @@
 #include "content/public/browser/web_contents.h"
 #include "extensions/buildflags/buildflags.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/apps/app_service/app_icon_source.h"
 #include "chrome/browser/device_api/managed_configuration_api.h"
 #include "chrome/browser/device_api/managed_configuration_api_factory.h"
@@ -64,7 +63,6 @@
 #include "chrome/browser/web_applications/web_app_provider.h"
 #include "chrome/browser/web_applications/web_app_registrar.h"
 #include "chrome/browser/web_applications/web_app_utils.h"
-#endif
 
 #include "build/android_buildflags.h"
 #include "net/base/load_flags.h"
@@ -73,14 +71,9 @@
 #include "ui/base/l10n/l10n_util.h"
 #include "ui/base/webui/web_ui_util.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/media/webrtc/multi_capture/multi_capture_data_service.h"
-#include "chrome/browser/media/webrtc/multi_capture/multi_capture_data_service_factory.h"
-#else
 #include "chrome/browser/enterprise/signals/user_permission_service_factory.h"
 #include "chrome/browser/ui/managed_ui.h"  // nogncheck crbug.com/40147906
 #include "components/device_signals/core/browser/user_permission_service.h"  // nogncheck
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "chrome/browser/extensions/extension_util.h"
@@ -113,14 +106,12 @@ enum class ReportingType {
 
 namespace {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 
 bool IsBrowserManaged() {
   return g_browser_process->browser_policy_connector()
       ->HasMachineLevelPolicies();
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 base::ListValue GetPermissionsForExtension(
@@ -200,7 +191,6 @@ void AddThreatProtectionPermission(const char* title,
 }
 
 bool IsSaasReportingEnabled(content::WebUI* web_ui) {
-#if !BUILDFLAG(IS_CHROMEOS)
   if (!base::FeatureList::IsEnabled(
           enterprise_reporting::kSaasUsageReporting)) {
     return false;
@@ -212,9 +202,6 @@ bool IsSaasReportingEnabled(content::WebUI* web_ui) {
          !g_browser_process->local_state()
               ->GetList(enterprise_reporting::kSaasUsageDomainUrlsForBrowser)
               .empty();
-#else
-  return false;
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 }  // namespace
@@ -225,21 +212,17 @@ ManagementUIHandler::ManagementUIHandler(Profile* profile) {
                               kOnPremReportingExtensionBetaId};
 #endif
   UpdateAccountManagedState(profile);
-#if !BUILDFLAG(IS_CHROMEOS)
   UpdateBrowserManagedState();
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 ManagementUIHandler::~ManagementUIHandler() {
   DisallowJavascript();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::unique_ptr<ManagementUIHandler> ManagementUIHandler::Create(
     Profile* profile) {
   return std::make_unique<ManagementUIHandler>(profile);
 }
-#endif  //  !BUILDFLAG(IS_CHROMEOS)
 
 void ManagementUIHandler::RegisterMessages() {
   web_ui()->RegisterMessageCallback(
@@ -408,12 +391,10 @@ void ManagementUIHandler::AddBrowserReportingInfo(
     report_sources->Append(std::move(data));
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   auto device_signal_data = GetDeviceSignalGrantedMessage();
   if (!device_signal_data.empty()) {
     report_sources->Append(std::move(device_signal_data));
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 }
 
 void ManagementUIHandler::AddProfileReportingInfo(
@@ -443,12 +424,10 @@ void ManagementUIHandler::AddProfileReportingInfo(
     report_sources->Append(std::move(data));
   }
 
-#if !BUILDFLAG(IS_CHROMEOS)
   auto device_signal_data = GetDeviceSignalGrantedMessage();
   if (!device_signal_data.empty()) {
     report_sources->Append(std::move(device_signal_data));
   }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   base::DictValue learn_more_data;
   learn_more_data.Set("messageId", kProfileReportingLearnMore);
   report_sources->Append(std::move(learn_more_data));
@@ -457,7 +436,6 @@ void ManagementUIHandler::AddProfileReportingInfo(
 base::DictValue ManagementUIHandler::GetContextualManagedData(
     Profile* profile) {
   base::DictValue response;
-#if !BUILDFLAG(IS_CHROMEOS)
   int message_id = IDS_MANAGEMENT_NOT_MANAGED_NOTICE;
   if (browser_managed_) {
     message_id = IDS_MANAGEMENT_BROWSER_NOTICE;
@@ -483,7 +461,6 @@ base::DictValue ManagementUIHandler::GetContextualManagedData(
       l10n_util::GetStringUTF16(IDS_MANAGEMENT_MANAGED_WEBSITES_EXPLANATION));
 
   response.Set("managed", managed());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
   return response;
 }
@@ -496,24 +473,16 @@ base::DictValue ManagementUIHandler::GetThreatProtectionInfo(Profile* profile) {
     const char* title;
     const char* permission;
   } analysis_connector_permissions[] = {
-#if !BUILDFLAG(IS_ANDROID)
       {enterprise_connectors::FILE_ATTACHED, kManagementOnFileAttachedEvent,
        kManagementOnFileAttachedVisibleData},
-#endif
       {enterprise_connectors::FILE_DOWNLOADED, kManagementOnFileDownloadedEvent,
        kManagementOnFileDownloadedVisibleData},
-#if !BUILDFLAG(IS_ANDROID)
       {enterprise_connectors::BULK_DATA_ENTRY, kManagementOnBulkDataEntryEvent,
        kManagementOnBulkDataEntryVisibleData},
       {enterprise_connectors::DATA_COPIED, kManagementOnDataCopiedEvent,
        kManagementOnDataCopiedVisibleData},
       {enterprise_connectors::PRINT, kManagementOnPrintEvent,
        kManagementOnPrintVisibleData},
-#endif
-#if BUILDFLAG(IS_CHROMEOS)
-      {enterprise_connectors::FILE_TRANSFER, kManagementOnFileTransferEvent,
-       kManagementOnFileTransferVisibleData},
-#endif
   };
   auto* connectors_service =
       enterprise_connectors::ConnectorsServiceFactory::GetForBrowserContext(
@@ -545,16 +514,6 @@ base::DictValue ManagementUIHandler::GetThreatProtectionInfo(Profile* profile) {
                                   &info);
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  const auto* multi_capture_data_service =
-      multi_capture::MultiCaptureDataServiceFactory::GetForBrowserContext(
-          profile);
-  if (multi_capture_data_service &&
-      multi_capture_data_service->IsMultiCaptureAllowedForAnyApp()) {
-    AddThreatProtectionPermission(kManagementScreenCaptureEvent,
-                                  kManagementScreenCaptureData, &info);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   const std::string enterprise_manager =
       connectors_service->GetManagementDomain();
@@ -576,7 +535,6 @@ base::DictValue ManagementUIHandler::GetThreatProtectionInfo(Profile* profile) {
 base::ListValue ManagementUIHandler::GetManagedWebsitesInfo(
     Profile* profile) const {
   base::ListValue managed_websites;
-#if !BUILDFLAG(IS_ANDROID)
   auto* managed_configuration =
       ManagedConfigurationAPIFactory::GetForProfile(profile);
 
@@ -587,14 +545,12 @@ base::ListValue ManagementUIHandler::GetManagedWebsitesInfo(
   for (const auto& entry : managed_configuration->GetManagedOrigins()) {
     managed_websites.Append(entry.Serialize());
   }
-#endif
   return managed_websites;
 }
 
 base::ListValue ManagementUIHandler::GetApplicationsInfo(
     Profile* profile) const {
   base::ListValue applications;
-#if !BUILDFLAG(IS_ANDROID)
   auto* provider = web_app::WebAppProvider::GetForWebApps(profile);
   // Only display web apps for the profile that contains them.
   if (provider == nullptr || !provider->is_registry_ready()) {
@@ -625,7 +581,6 @@ base::ListValue ManagementUIHandler::GetApplicationsInfo(
       applications.Append(std::move(app_info));
     }
   }
-#endif
   return applications;
 }
 
@@ -635,7 +590,6 @@ policy::PolicyService* ManagementUIHandler::GetPolicyService() {
       ->policy_service();
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 device_signals::UserPermissionService*
 ManagementUIHandler::GetUserPermissionService() {
   return enterprise_signals::UserPermissionServiceFactory::GetForProfile(
@@ -655,7 +609,6 @@ base::DictValue ManagementUIHandler::GetDeviceSignalGrantedMessage() {
   }
   return base::DictValue();
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 bool ManagementUIHandler::managed() const {
   return account_managed() || browser_managed_;
@@ -670,14 +623,12 @@ void ManagementUIHandler::RegisterPrefChange(
 }
 
 void ManagementUIHandler::UpdateManagedState() {
-#if !BUILDFLAG(IS_CHROMEOS)
   bool is_account_updated =
       UpdateAccountManagedState(Profile::FromWebUI(web_ui()));
   bool is_browser_updated = UpdateBrowserManagedState();
   if (is_account_updated || is_browser_updated) {
     FireWebUIListener("managed_data_changed");
   }
-#endif
 }
 
 bool ManagementUIHandler::UpdateAccountManagedState(Profile* profile) {
@@ -691,14 +642,12 @@ bool ManagementUIHandler::UpdateAccountManagedState(Profile* profile) {
   return is_updated;
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 bool ManagementUIHandler::UpdateBrowserManagedState() {
   bool new_managed = IsBrowserManaged();
   bool is_updated = (new_managed != browser_managed_);
   browser_managed_ = new_managed;
   return is_updated;
 }
-#endif
 
 std::string ManagementUIHandler::GetAccountManager(Profile* profile) const {
   std::optional<std::string> manager = GetAccountManagerIdentity(profile);

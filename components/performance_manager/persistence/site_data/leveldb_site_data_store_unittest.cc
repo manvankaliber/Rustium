@@ -125,8 +125,9 @@ class LevelDBSiteDataStoreTest : public ::testing::Test {
         [](SiteDataProto* receiving_proto, bool* success,
            std::optional<SiteDataProto> proto_opt) {
           *success = proto_opt.has_value();
-          if (proto_opt)
+          if (proto_opt) {
             receiving_proto->CopyFrom(proto_opt.value());
+          }
         },
         base::Unretained(receiving_proto), base::Unretained(&success));
     db_->ReadSiteDataFromStore(origin, std::move(init_callback));
@@ -188,8 +189,9 @@ TEST_F(LevelDBSiteDataStoreTest, RemoveEntries) {
 
   // Verify that the origins were removed correctly.
   SiteDataProto proto_temp;
-  for (const auto& iter : site_origins_to_remove)
+  for (const auto& iter : site_origins_to_remove) {
     EXPECT_FALSE(ReadFromDB(iter, &proto_temp));
+  }
 
   for (auto iter = site_origins.begin() + site_origins.size() / 2;
        iter != site_origins.end(); ++iter) {
@@ -202,8 +204,9 @@ TEST_F(LevelDBSiteDataStoreTest, RemoveEntries) {
   WaitForAsyncOperationsToComplete();
 
   // Verify that no origin remains.
-  for (auto iter : site_origins)
+  for (auto iter : site_origins) {
     EXPECT_FALSE(ReadFromDB(iter, &proto_temp));
+  }
 }
 
 TEST_F(LevelDBSiteDataStoreTest, GetDatabaseSize) {
@@ -246,13 +249,7 @@ TEST_F(LevelDBSiteDataStoreTest, DatabaseRecoveryTest) {
   // manifest files.
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-// TODO(crbug.com/40221281): Re-enable when DatabaseOpeningFailure works on
-// Fuchsia.
-#define MAYBE_DatabaseOpeningFailure DISABLED_DatabaseOpeningFailure
-#else
 #define MAYBE_DatabaseOpeningFailure DatabaseOpeningFailure
-#endif
 // Ensure that there's no fatal failures if we try using the data store after
 // failing to open it (all the events will be ignored).
 TEST_F(LevelDBSiteDataStoreTest, MAYBE_DatabaseOpeningFailure) {

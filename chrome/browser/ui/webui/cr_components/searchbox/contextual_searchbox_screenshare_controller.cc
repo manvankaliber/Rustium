@@ -9,7 +9,6 @@
 #include "build/build_config.h"
 #include "content/public/browser/web_contents.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "base/base64.h"
 #include "base/functional/bind.h"
 #include "base/strings/strcat.h"
@@ -120,7 +119,6 @@ constexpr base::TimeDelta kDefaultScreenCaptureDelay = base::Milliseconds(500);
 BASE_FEATURE(kOmniboxEverywhereNativeScreenPicker,
              base::FEATURE_ENABLED_BY_DEFAULT);
 #endif
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 ContextualSearchboxScreenshareController::
     ContextualSearchboxScreenshareController(
@@ -131,23 +129,19 @@ ContextualSearchboxScreenshareController::
     : web_contents_(web_contents),
       host_(host),
       delegate_(delegate)
-#if !BUILDFLAG(IS_ANDROID)
       ,
       picker_factory_(picker_factory)
-#endif
 {
 }
 
 ContextualSearchboxScreenshareController::
     ~ContextualSearchboxScreenshareController() {
-#if !BUILDFLAG(IS_ANDROID)
   if (IsScreenshareInProgress()) {
     NotifyScreensharePickerClosed();
   }
   if (pending_screenshare_callback_) {
     std::move(pending_screenshare_callback_).Run(std::nullopt);
   }
-#endif
 }
 
 void ContextualSearchboxScreenshareController::ShowScreenshotMenu(
@@ -168,26 +162,17 @@ void ContextualSearchboxScreenshareController::OnScreenshotMenuClosed() {
 void ContextualSearchboxScreenshareController::StartScreenshare(
     bool prefer_entire_screen,
     StartScreenshareCallback callback) {
-#if !BUILDFLAG(IS_ANDROID)
   StartScreenshareInternal(prefer_entire_screen, /*is_region_capture=*/false,
                            std::move(callback));
-#else
-  std::move(callback).Run(std::nullopt);
-#endif
 }
 
 void ContextualSearchboxScreenshareController::CaptureRegionScreenshot(
     CaptureRegionScreenshotCallback callback) {
-#if !BUILDFLAG(IS_ANDROID)
   StartScreenshareInternal(/*prefer_entire_screen=*/true,
                            /*is_region_capture=*/true, std::move(callback));
-#else
-  std::move(callback).Run(std::nullopt);
-#endif
 }
 
 bool ContextualSearchboxScreenshareController::CancelChromeDefaultPicker() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!screenshare_picker_controller_) {
     return false;
   }
@@ -208,12 +193,8 @@ bool ContextualSearchboxScreenshareController::CancelChromeDefaultPicker() {
 
   NotifyScreensharePickerClosed();
   return true;
-#else
-  return false;
-#endif
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void ContextualSearchboxScreenshareController::StartScreenshareInternal(
     bool prefer_entire_screen,
     bool is_region_capture,
@@ -652,4 +633,3 @@ bool ContextualSearchboxScreenshareController::IsScreenshareInProgress() const {
          is_native_picker_open_ || is_region_overlay_open_ ||
          pending_screenshare_callback_;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

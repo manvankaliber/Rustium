@@ -88,19 +88,14 @@ declare_args() {
   # For details on the current state of modules in Chromium see
   # https://chromium.googlesource.com/chromium/src/+/main/docs/modules.md
   #
-  # TODO(https://crbug.com/440260716): Enable for Cronet in AOSP once gn2bp
-  # supports copy targets.
   use_clang_modules =
       use_custom_libcxx &&
       # Clang modules doesn't work with translation_unit used in codesearch
       # pipeline http://b/436082487.
       !enable_kythe_annotations && is_clang &&
       clang_modules_platform_supported && using_tested_sysroot &&
-      # Disabled when cross-compiling iOS on non-macOS hosts because the Xcode
-      # SDK modulemaps are not configured for cross-host builds.
-      !(current_os == "ios" && host_os != "mac") &&
       # icecc doesn't handle headers in modulemap config.
-      !is_cronet_for_aosp_build && cc_wrapper != "icecc" &&
+      cc_wrapper != "icecc" &&
       # Due to libc++ headers having different dependencies in different
       # language modes, see crbug.com/507307601
       use_cxx23 &&
@@ -124,27 +119,8 @@ export_libcxxabi_from_executables =
     use_custom_libcxx && !is_apple && !is_win && !is_component_build &&
     (is_asan || is_ubsan_vptr)
 
-# On Android, many shared libraries get loaded from the context of a JRE.  In
-# this case, there's no "main executable" to export libc++abi from.  We could
-# export libc++abi from each "toplevel" shared library instead, but that would
-# require adding an explicit dependency for each one, and might introduce
-# subtle, hard-to-fix problems down the line if the dependency is missing.
-#
-# export_libcxxabi_from_executables was added to avoid having an RPATH set in
-# static sanitizer builds just for executables to find libc++.  But on Android,
-# the Bionic dynamic loader doesn't even look at RPATH; instead, LD_LIBRARY_PATH
-# is set for tests. Because of this, we make libc++ a shared library on android
-# since it should get loaded properly.
-if (is_android && export_libcxxabi_from_executables) {
-  export_libcxxabi_from_executables = false
-  libcxx_is_shared = true
-}
-
 libcxx_prefix = "//third_party/libc++/src"
 libcxxabi_prefix = "//third_party/libc++abi/src"
-
-assert(!(is_ios && libcxx_is_shared),
-       "Can't build libc++ as a shared library on iOS.")
 
 if (libcxx_is_shared) {
   libcxx_target_type = "shared_library"

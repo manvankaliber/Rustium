@@ -119,7 +119,6 @@ _CPP_HEADERS = frozenset(
         'indstream.h',
         'iomanip',
         'iomanip.h',
-        'ios',
         'iosfwd',
         'iostream',
         'iostream.h',

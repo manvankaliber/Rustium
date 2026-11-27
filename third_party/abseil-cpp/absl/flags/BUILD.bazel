@@ -532,7 +532,6 @@ cc_test(
     copts = ABSL_TEST_COPTS,
     linkopts = ABSL_DEFAULT_LINKOPTS,
     tags = [
-        "no_test_fuchsia_x64",
         "no_test_wasm",
     ],
     deps = [

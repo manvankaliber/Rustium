@@ -305,87 +305,6 @@ def main_linux(options, args, results_collector):
   return result
 
 
-def check_android_binaries(binaries, target_dir, options, results_collector,
-                           binaries_to_print=None):
-  """Common method for printing size information for Android targets.
-
-  Prints size information for each element of binaries in target_dir.
-  If binaries_to_print is specified, the name of each binary from
-  binaries is replaced with corresponding element of binaries_to_print
-  in output. Returns the first non-zero exit status of any command it
-  executes, or zero on success.
-  """
-  result = 0
-  if not binaries_to_print:
-    binaries_to_print = binaries
-
-  for (binary, binary_to_print) in zip(binaries, binaries_to_print):
-    this_result, this_sizes = check_linux_binary(target_dir, binary, options,
-                                                 results_collector)
-    if result == 0:
-      result = this_result
-    for name, identifier, _, value, units in this_sizes:
-      name = name.replace('/', '_').replace(binary, binary_to_print)
-      identifier = identifier.replace(binary, binary_to_print)
-      results_collector.add_result(name, identifier, value, units)
-
-  return result
-
-
-def main_android(options, args, results_collector):
-  """Print appropriate size information about built Android targets.
-
-  Returns the first non-zero exit status of any command it executes,
-  or zero on success.
-  """
-  target_dir = os.path.join(build_directory.GetBuildOutputDirectory(SRC_DIR),
-                            options.target)
-
-  binaries = [
-      'chrome_public_apk/libs/armeabi-v7a/libchrome.so',
-      'lib/libchrome.so',
-      'libchrome.so',
-  ]
-
-  return check_android_binaries(binaries, target_dir, options,
-                                results_collector)
-
-
-def main_android_webview(options, args, results_collector):
-  """Print appropriate size information about Android WebViewChromium targets.
-
-  Returns the first non-zero exit status of any command it executes,
-  or zero on success.
-  """
-  target_dir = os.path.join(build_directory.GetBuildOutputDirectory(SRC_DIR),
-                            options.target)
-
-  binaries = ['lib/libwebviewchromium.so',
-              'libwebviewchromium.so']
-
-  return check_android_binaries(binaries, target_dir, options,
-                                results_collector)
-
-
-def main_android_cronet(options, args, results_collector):
-  """Print appropriate size information about Android Cronet targets.
-
-  Returns the first non-zero exit status of any command it executes,
-  or zero on success.
-  """
-  target_dir = os.path.join(build_directory.GetBuildOutputDirectory(SRC_DIR),
-                            options.target)
-  # Use version in binary file name, but not in printed output.
-  binaries_with_paths = glob.glob(os.path.join(target_dir,'libcronet.*.so'))
-  num_binaries = len(binaries_with_paths)
-  assert num_binaries == 1, "Got %d binaries" % (num_binaries,)
-  binaries = [os.path.basename(binaries_with_paths[0])]
-  binaries_to_print = ['libcronet.so']
-
-  return check_android_binaries(binaries, target_dir, options,
-                                results_collector, binaries_to_print)
-
-
 def main_win(options, args, results_collector):
   """Print appropriate size information about built Windows targets.
 
@@ -450,9 +369,6 @@ def main():
     default_platform = None
 
   main_map = {
-    'android' : main_android,
-    'android-webview' : main_android_webview,
-    'android-cronet' : main_android_cronet,
     'linux' : main_linux,
     'mac' : main_mac,
     'win' : main_win,

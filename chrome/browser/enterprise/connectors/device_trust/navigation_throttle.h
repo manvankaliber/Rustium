@@ -16,9 +16,7 @@ namespace device_signals {
 class UserPermissionService;
 }  // namespace device_signals
 
-#if !BUILDFLAG(IS_ANDROID)
 class ConsentRequester;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 namespace enterprise_connectors {
 
@@ -81,9 +79,7 @@ class DeviceTrustNavigationThrottle : public content::NavigationThrottle {
   // to true.
   void OnConsentPrefUpdated();
 
-#if !BUILDFLAG(IS_ANDROID)
   std::unique_ptr<ConsentRequester> consent_requester_;
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Only set to true when a challenge response (or timeout) resumed the
   // throttled navigation.

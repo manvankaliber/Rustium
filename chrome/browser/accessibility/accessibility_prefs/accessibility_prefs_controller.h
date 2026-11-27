@@ -32,9 +32,6 @@ class AccessibilityPrefsController : public ProfileManagerObserver {
 
  private:
   void Init();
-#if BUILDFLAG(IS_ANDROID)
-  void OnAccessibilityPerformanceFilteringAllowedChanged();
-#endif
   void OnRendererAccessibilityEnabledChanged();
 
   raw_ptr<PrefService> local_state_prefs_;

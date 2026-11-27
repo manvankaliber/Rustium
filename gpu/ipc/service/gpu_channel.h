@@ -168,9 +168,6 @@ class GPU_IPC_SERVICE_EXPORT GpuChannel : public IPC::Listener,
 
   mojom::GpuChannel& GetGpuChannelForTesting();
 
-#if BUILDFLAG(IS_ANDROID)
-  const CommandBufferStub* GetOneStub() const;
-#endif
 
 #if BUILDFLAG(IS_WIN)
   bool CreateDCOMPTexture(
@@ -204,14 +201,6 @@ class GPU_IPC_SERVICE_EXPORT GpuChannel : public IPC::Listener,
       mojo::PendingAssociatedRemote<mojom::CommandBufferClient> client,
       mojom::GpuChannel::CreateCommandBufferCallback callback);
   void DestroyCommandBuffer(int32_t routing_id);
-
-#if BUILDFLAG(IS_FUCHSIA)
-  void RegisterSysmemBufferCollection(mojo::PlatformHandle service_handle,
-                                      mojo::PlatformHandle sysmem_token,
-                                      const viz::SharedImageFormat& format,
-                                      gfx::BufferUsage usage,
-                                      bool register_with_image_pipe);
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
  private:
   friend class GpuChannelMessageFilter;

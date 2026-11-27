@@ -38,9 +38,6 @@
 #include "url/gurl.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#endif
 
 namespace webrtc_text_log {
 
@@ -88,10 +85,6 @@ class WebRtcLoggingControllerTest : public ::testing::Test {
       : browser_context_(nullptr),
         test_shared_url_loader_factory_(
             test_url_loader_factory_.GetSafeWeakWrapper()) {
-#if BUILDFLAG(IS_CHROMEOS)
-    ash::system::StatisticsProvider::SetTestProvider(
-        &fake_statistics_provider_);
-#endif
     TestingBrowserProcess::GetGlobal()->SetSharedURLLoaderFactory(
         test_shared_url_loader_factory_);
 
@@ -107,9 +100,6 @@ class WebRtcLoggingControllerTest : public ::testing::Test {
     if (browser_context_) {
       UnloadMainTestProfile();
     }
-#if BUILDFLAG(IS_CHROMEOS)
-    ash::system::StatisticsProvider::SetTestProvider(nullptr);
-#endif
   }
 
   void LoadMainTestProfile(std::optional<bool> text_log_collection_allowed) {
@@ -213,9 +203,6 @@ class WebRtcLoggingControllerTest : public ::testing::Test {
   scoped_refptr<network::SharedURLLoaderFactory>
       test_shared_url_loader_factory_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::system::FakeStatisticsProvider fake_statistics_provider_;
-#endif
 };
 
 TEST_F(WebRtcLoggingControllerTest, ManagedProfileWithTruePolicy) {

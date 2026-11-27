@@ -53,69 +53,11 @@
 #include "base/mac/mac_util.h"
 #endif
 
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_IOS)
-#include <sys/socket.h>
-#include <unistd.h>
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include <lib/sys/cpp/component_context.h>
-
-#include "base/fuchsia/fuchsia_logging.h"
-#include "base/fuchsia/process_context.h"
-#include "ui/ozone/public/ozone_switches.h"
-#endif
 
 namespace content {
 
 namespace {
 
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_IOS)
-// Fuchsia doesn't support stdin stream for packaged apps, and stdout from
-// run-test-suite not only has extra emissions from the Fuchsia test
-// infrastructure, it also merges stderr and stdout together. Combined, these
-// mean that when running content_shell on Fuchsia it's not possible to use
-// stdin to pass list of tests or to reliably use stdout to emit results. To
-// workaround this issue for web tests we redirect stdin and stdout to a TCP
-// socket connected to the web test runner. The runner uses --stdio-redirect to
-// specify address and port for stdin and stdout redirection.
-//
-// iOS is in a similar situation where the simulator does not support the use of
-// the stdin stream for applications. Therefore, iOS also redirects stdin and
-// stdout to a TCP socket that is connected to the web test runner.
-constexpr char kStdioRedirectSwitch[] = "stdio-redirect";
-
-void ConnectStdioSocket(const std::string& host_and_port) {
-  std::string host;
-  int port;
-  net::IPAddress address;
-  if (!net::ParseHostAndPort(host_and_port, &host, &port) ||
-      !address.AssignFromIPLiteral(host)) {
-    LOG(FATAL) << "Invalid stdio address: " << host_and_port;
-  }
-
-  sockaddr_storage sockaddr_storage;
-  sockaddr* addr = reinterpret_cast<sockaddr*>(&sockaddr_storage);
-  socklen_t addr_len = sizeof(sockaddr_storage);
-  net::IPEndPoint endpoint(address, port);
-  bool converted = endpoint.ToSockAddr(addr, &addr_len);
-  CHECK(converted);
-
-  int fd = socket(addr->sa_family, SOCK_STREAM, 0);
-  PCHECK(fd >= 0);
-  int result = connect(fd, addr, addr_len);
-  PCHECK(result == 0) << "Failed to connect to " << host_and_port;
-
-  result = dup2(fd, STDIN_FILENO);
-  PCHECK(result == STDIN_FILENO) << "Failed to dup socket to stdin";
-
-  result = dup2(fd, STDOUT_FILENO);
-  PCHECK(result == STDOUT_FILENO) << "Failed to dup socket to stdout";
-
-  PCHECK(close(fd) == 0);
-}
-
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 void RunOneTest(const content::TestInfo& test_info,
                 content::WebTestControlHost* web_test_control_host,
@@ -131,12 +73,6 @@ void RunOneTest(const content::TestInfo& test_info,
 }
 
 void RunTests(content::BrowserMainRunner* main_runner) {
-#if BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_IOS)
-  if (auto& cmd_line = *base::CommandLine::ForCurrentProcess();
-      cmd_line.HasSwitch(kStdioRedirectSwitch)) {
-    ConnectStdioSocket(cmd_line.GetSwitchValueASCII(kStdioRedirectSwitch));
-  }
-#endif  // BUILDFLAG(IS_FUCHSIA)
   TRACE_EVENT0("shell", "WebTestBrowserMainRunner::RunTests");
   content::WebTestControlHost test_controller;
   {
@@ -208,7 +144,7 @@ void WebTestBrowserMainRunner::Initialize() {
 
   // On IOS, we always use hardware GL for the web test as content_browsertests.
   // See also https://crrev.com/c/4885954.
-  if constexpr (!BUILDFLAG(IS_IOS)) {
+  {
     // only default to a software GL if the flag isn't already specified.
     if (!command_line.HasSwitch(switches::kUseGpuInTests) &&
         !command_line.HasSwitch(switches::kUseGL)) {
@@ -219,8 +155,9 @@ void WebTestBrowserMainRunner::Initialize() {
   }
   command_line.AppendSwitchASCII(switches::kTouchEventFeatureDetection,
                                  switches::kTouchEventFeatureDetectionEnabled);
-  if (!command_line.HasSwitch(switches::kForceDeviceScaleFactor))
+  if (!command_line.HasSwitch(switches::kForceDeviceScaleFactor)) {
     command_line.AppendSwitchASCII(switches::kForceDeviceScaleFactor, "1.0");
+  }
 
   if (!command_line.HasSwitch(switches::kAutoplayPolicy)) {
     command_line.AppendSwitchASCII(
@@ -264,8 +201,9 @@ void WebTestBrowserMainRunner::Initialize() {
   // If kEnableGpuRasterization is specified, the Gpu process always reports
   // that it can gpu raster, and the renderer will use it. Otherwise, we don't
   // want to choose at runtime, and we ensure that gpu raster is disabled.
-  if (!command_line.HasSwitch(switches::kEnableGpuRasterization))
+  if (!command_line.HasSwitch(switches::kEnableGpuRasterization)) {
     command_line.AppendSwitch(switches::kDisableGpuRasterization);
+  }
 
 #if BUILDFLAG(IS_MAC)
   // If Graphite is not explicitly disabled, enable it. This is to use
@@ -285,8 +223,9 @@ void WebTestBrowserMainRunner::Initialize() {
 
   // If the virtual test suite didn't specify a display color space, then
   // force sRGB.
-  if (!command_line.HasSwitch(switches::kForceDisplayColorProfile))
+  if (!command_line.HasSwitch(switches::kForceDisplayColorProfile)) {
     command_line.AppendSwitchASCII(switches::kForceDisplayColorProfile, "srgb");
+  }
 
   // We want stable/baseline results when running web tests.
   command_line.AppendSwitch(switches::kDisableSkiaRuntimeOpts);
@@ -303,8 +242,9 @@ void WebTestBrowserMainRunner::Initialize() {
 
   // The check here ensures that a test's custom value for the switch is not
   // overwritten by the default one.
-  if (!command_line.HasSwitch(switches::kUseFakeDeviceForMediaStream))
+  if (!command_line.HasSwitch(switches::kUseFakeDeviceForMediaStream)) {
     command_line.AppendSwitch(switches::kUseFakeDeviceForMediaStream);
+  }
 
   // Always run with fake FedCM UI.
   command_line.AppendSwitch(switches::kUseFakeUIForFedCM);
@@ -312,8 +252,7 @@ void WebTestBrowserMainRunner::Initialize() {
   // Disable the backgrounding of renderers to make running tests faster.
   command_line.AppendSwitch(switches::kDisableRendererBackgrounding);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_LINUX)
   content::WebTestBrowserPlatformInitialize();
 #endif
 

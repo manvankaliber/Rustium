@@ -28,10 +28,6 @@ TEST(ParseOverlayStrategiesTest, ParseFullList) {
   EXPECT_THAT(strategies, UnorderedElementsAre(OverlayStrategy::kFullscreen,
                                                OverlayStrategy::kSingleOnTop,
                                                OverlayStrategy::kUnderlay
-#if BUILDFLAG(ENABLE_CAST_OVERLAY_STRATEGY)
-                                               ,
-                                               OverlayStrategy::kUnderlayCast
-#endif
                                                ));
 }
 

@@ -80,9 +80,6 @@ class InstallableIconFetcher {
   // Ends the fetch with an error.
   void EndWithError(InstallableStatusCode code);
 
-#if BUILDFLAG(IS_DESKTOP_ANDROID)
-  void OnHomeScreenIconGenerated(const GURL& page_url, const SkBitmap& bitmap);
-#endif
 
   base::WeakPtr<content::WebContents> web_contents_;
 

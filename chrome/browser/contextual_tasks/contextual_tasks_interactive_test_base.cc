@@ -159,7 +159,6 @@ UserVariation ContextualTasksInteractiveTestBase::GetUserVariation() const {
 
 void ContextualTasksInteractiveTestBase::SetUpCommandLine(
     base::CommandLine* command_line) {
-  LensOverlayInteractiveTestBase::SetUpCommandLine(command_line);
   if (GetUserVariation() == UserVariation::kIncognito) {
     command_line->AppendSwitch(::switches::kIncognito);
   }
@@ -170,10 +169,9 @@ std::vector<base::test::FeatureRefAndParams>
 ContextualTasksInteractiveTestBase::GetDefaultEnabledFeatures() {
   return {
       {kContextualTasks, {}},
-      {lens::features::kLensOverlay, {}},
-      {lens::features::kLensOverlayContextualSearchbox,
-       {{"use-pdfs-as-context", "true"}, {"auto-focus-searchbox", "false"}}},
-      {lens::features::kLensOverlayTranslateButton, {}},
+
+
+
       {media::kContextMenuSearchForVideoFrame, {}},
   };
 }
@@ -196,7 +194,6 @@ void ContextualTasksInteractiveTestBase::SetUpFeatureList() {
 
 void ContextualTasksInteractiveTestBase::SetUpBrowserContextKeyedServices(
     content::BrowserContext* context) {
-  LensOverlayInteractiveTestBase::SetUpBrowserContextKeyedServices(context);
 
   IdentityTestEnvironmentProfileAdaptor::
       SetIdentityTestEnvironmentFactoriesOnBrowserContext(context);
@@ -216,7 +213,6 @@ void ContextualTasksInteractiveTestBase::SetUpBrowserContextKeyedServices(
 
 void ContextualTasksInteractiveTestBase::SetUpOnMainThread() {
   TestTabContextualizationController::screenshot_color_ = SK_ColorRED;
-  LensOverlayInteractiveTestBase::SetUpOnMainThread();
 
   if (GetUserVariation() == UserVariation::kSignedIn) {
     identity_test_env_adaptor_ =
@@ -287,7 +283,6 @@ void ContextualTasksInteractiveTestBase::SetUpOnMainThread() {
                  url.path() == cluster_info_url.path()) ||
                 (url.host() == composebox_cluster_info_url.host() &&
                  url.path() == composebox_cluster_info_url.path())) {
-              lens::LensOverlayServerClusterInfoResponse response;
               response.set_search_session_id("test_search_session_id");
               std::string response_string;
               CHECK(response.SerializeToString(&response_string));
@@ -300,7 +295,6 @@ void ContextualTasksInteractiveTestBase::SetUpOnMainThread() {
                  url.path() == upload_url.path()) ||
                 (url.host() == composebox_upload_url.host() &&
                  url.path() == composebox_upload_url.path())) {
-              lens::LensOverlayServerResponse response;
               std::string response_string;
               CHECK(response.SerializeToString(&response_string));
               content::URLLoaderInterceptor::WriteResponse(
@@ -316,7 +310,6 @@ void ContextualTasksInteractiveTestBase::TearDownOnMainThread() {
   identity_test_env_adaptor_.reset();
   url_loader_interceptor_.reset();
   contextual_tasks::SetForcedEmbeddedPageHostOverride(std::nullopt);
-  LensOverlayInteractiveTestBase::TearDownOnMainThread();
 }
 
 std::unique_ptr<KeyedService>

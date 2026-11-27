@@ -56,9 +56,7 @@ class TestChromePaymentRequestDelegate : public ChromePaymentRequestDelegate {
     observer_ = observer;
   }
 
-  void set_twa_package_name(const std::string& twa_package_name) {
-    twa_package_name_ = twa_package_name;
-  }
+
 
   void set_has_authenticator(bool has_authenticator) {
     has_authenticator_ = has_authenticator;
@@ -80,7 +78,7 @@ class TestChromePaymentRequestDelegate : public ChromePaymentRequestDelegate {
   std::unique_ptr<webauthn::InternalAuthenticator> CreateInternalAuthenticator()
       const override;
   std::string GetInvalidSslCertificateErrorMessage() override;
-  void GetTwaPackageName(GetTwaPackageNameCallback callback) const override;
+
   const base::WeakPtr<PaymentUIObserver> GetPaymentUIObserver() const override;
 
   // Not owned so must outlive the PaymentRequest object;
@@ -90,7 +88,6 @@ class TestChromePaymentRequestDelegate : public ChromePaymentRequestDelegate {
   base::WeakPtr<PaymentUIObserver> payment_ui_observer_;
   base::WeakPtr<PaymentRequestDialogView::ObserverForTest> observer_;
 
-  std::string twa_package_name_;
 
   bool has_authenticator_ = true;
 

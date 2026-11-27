@@ -951,7 +951,7 @@ AutofillPrivateGetPayOverTimeIssuerListFunction::Run() {
 
 ExtensionFunction::ResponseAction
 AutofillPrivateAuthenticateUserAndFlipMandatoryAuthToggleFunction::Run() {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   PaymentsDataManager* paydm = payments_data_manager();
   if (!paydm) {
     return RespondNow(Error(
@@ -991,14 +991,14 @@ AutofillPrivateAuthenticateUserAndFlipMandatoryAuthToggleFunction::Run() {
   return RespondNow(
       Error(base::StrCat({"Authenticate user and flip mandatory auth toggle - ",
                           kErrorDeviceAuthUnavailable})));
-#endif  // BUILDFLAG (IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
 }
 
 // Update the Mandatory auth toggle pref and log whether the auth was successful
 // or not.
 void AutofillPrivateAuthenticateUserAndFlipMandatoryAuthToggleFunction::
     UpdateMandatoryAuthTogglePref(bool reauth_succeeded) {
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   PaymentsDataManager* paydm = payments_data_manager();
   if (!paydm) {
     return;
@@ -1040,7 +1040,7 @@ ExtensionFunction::ResponseAction AutofillPrivateGetLocalCardFunction::Run() {
     LogMandatoryReauthSettingsPageEditCardEvent(
         MandatoryReauthAuthenticationFlowEvent::kFlowStarted);
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     // Based on the result of the auth, we will be asynchronously returning the
     // card if the user can edit the local card.
     autofill_client()
@@ -1109,13 +1109,13 @@ AutofillPrivateCheckIfDeviceAuthAvailableFunction::Run() {
   // TODO(crbug.com/467173735): Check with ChromeOS team on the implementation
   // details. It is still in active discussion with the ChromeOS team on how to
   // implement this.
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   autofill::ContentAutofillClient* client =
       autofill::ContentAutofillClient::FromWebContents(GetSenderWebContents());
   if (client) {
     return RespondNow(WithArguments(autofill::SupportsDeviceReauth(*client)));
   }
-#endif  // BUILDFLAG (IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
   return RespondNow(Error(base::StrCat(
       {"Check if device auth available - ", kErrorDeviceAuthUnavailable})));
 }
@@ -1410,9 +1410,9 @@ AutofillPrivateGetEntityInstanceByGuidFunction::Run() {
   }
 
   std::u16string message;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   message = l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_VIEWING_REAUTH);
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
   authenticator_->AuthenticateWithMessage(
       message,
       base::BindOnce(
@@ -1692,9 +1692,9 @@ AutofillPrivateAuthenticateUserBeforeViewingEntityDataFunction::Run() {
   }
 
   std::u16string message;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   message = l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_VIEWING_REAUTH);
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
   authenticator_->AuthenticateWithMessage(
       message,
       base::BindOnce(
@@ -1741,10 +1741,10 @@ AutofillPrivateToggleAutofillAiReauthRequirementFunction::Run() {
   }
 
   std::u16string message;
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   message =
       l10n_util::GetStringUTF16(IDS_AUTOFILL_AI_UPDATE_REAUTH_REQUIREMENT);
-#endif  // BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#endif
   authenticator_->AuthenticateWithMessage(
       message,
       base::BindOnce(&AutofillPrivateToggleAutofillAiReauthRequirementFunction::

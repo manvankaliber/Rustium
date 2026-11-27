@@ -695,12 +695,9 @@ export class ContextualActionMenuElement extends
     }
     switch (model) {
       // We don't have a string for the regular model in the client code.
-      case ModelMode.kGeminiRegular:
-        return '';
-      case ModelMode.kGeminiProAutoroute:
-        return this.i18n('geminiModelAuto');
-      case ModelMode.kGeminiPro:
-        return this.i18n('geminiModelThinking');
+
+
+
       default:
         return '';
     }
@@ -1360,15 +1357,11 @@ export class ContextualActionMenuElement extends
     // Fallback to legacy hardcoded model mapping if flag is disabled or no icon
     // is specified in config.
     switch (mode) {
-      case ModelMode.kGeminiRegular:
-        return 'composebox:acute';
-      case ModelMode.kGeminiProAutoroute:
-        return 'composebox:autorenew';
-      case ModelMode.kGeminiPro:
-      case ModelMode.kGeminiProNoGenUi:
-        return 'composebox:timer';
-      case ModelMode.kGeminiFlashLatest:
-        return 'composebox:bolt';
+
+
+
+
+
       default:
         return undefined;
     }

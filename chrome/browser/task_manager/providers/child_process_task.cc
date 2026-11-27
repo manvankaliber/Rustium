@@ -38,11 +38,9 @@
 #include "services/service_manager/public/cpp/interface_provider.h"
 #include "ui/base/l10n/l10n_util.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/extensions/chrome_content_browser_client_extensions_part.h"  // nogncheck
 #include "extensions/browser/extension_registry.h"  // nogncheck
 #include "extensions/common/extension_set.h"        // nogncheck
-#endif
 
 namespace task_manager {
 
@@ -73,9 +71,6 @@ std::u16string GetLocalizedTitle(const std::u16string& title,
         case ChildProcessTask::ProcessSubtype::kSpareRenderProcess:
           return l10n_util::GetStringUTF16(
               IDS_TASK_MANAGER_SPARE_RENDERER_PREFIX);
-        case ChildProcessTask::ProcessSubtype::kGlicRenderProcess:
-          return l10n_util::GetStringUTF16(
-              IDS_TASK_MANAGER_GLIC_RENDERER_PREFIX);
         case ChildProcessTask::ProcessSubtype::kUnknownRenderProcess:
           return l10n_util::GetStringUTF16(
               IDS_TASK_MANAGER_UNKNOWN_RENDERER_PREFIX);
@@ -179,22 +174,6 @@ bool ChildProcessTask::Kill() {
     return false;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (process_type_ == content::PROCESS_TYPE_RENDERER) {
-    if (auto* host =
-            content::RenderProcessHost::FromID(unique_child_process_id_);
-        host) {
-      return host->Shutdown(content::RESULT_CODE_KILLED);
-    }
-  }
-
-  if (auto* host =
-          content::BrowserChildProcessHost::FromID(unique_child_process_id_);
-      host) {
-    host->GetHost()->ForceShutdown();
-    return true;
-  }
-#endif
 
   return Task::Kill();
 }
@@ -249,7 +228,6 @@ Task::SubType ChildProcessTask::GetSubType() const {
   switch (process_subtype_) {
     case ChildProcessTask::ProcessSubtype::kSpareRenderProcess:
       return Task::SubType::kSpareRenderer;
-    case ChildProcessTask::ProcessSubtype::kGlicRenderProcess:
     case ChildProcessTask::ProcessSubtype::kUnknownRenderProcess:
       return Task::SubType::kUnknownRenderer;
     default:

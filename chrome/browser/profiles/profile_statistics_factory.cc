@@ -22,9 +22,6 @@
 #include "device/fido/mac/credential_store.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "device/fido/cros/credential_store.h"
-#endif
 
 // static
 ProfileStatistics* ProfileStatisticsFactory::GetForProfile(Profile* profile) {
@@ -66,9 +63,6 @@ ProfileStatisticsFactory::BuildServiceInstanceForBrowserContext(
       std::make_unique<::device::fido::mac::TouchIdCredentialStore>(
           ChromeWebAuthenticationDelegate::TouchIdAuthenticatorConfigForProfile(
               profile));
-#elif BUILDFLAG(IS_CHROMEOS)
-      std::make_unique<
-          ::device::fido::cros::PlatformAuthenticatorCredentialStore>();
 #else
       nullptr;
 #endif

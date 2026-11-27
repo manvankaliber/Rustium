@@ -21,7 +21,6 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/contextual_search/searchbox_context_data.h"
 #include "chrome/browser/ui/location_bar/location_bar.h"
-#include "chrome/browser/ui/omnibox/ai_mode_page_action_controller.h"
 #include "chrome/browser/ui/omnibox/chrome_omnibox_client.h"
 #include "chrome/browser/ui/omnibox/omnibox_controller.h"
 #include "chrome/browser/ui/omnibox/omnibox_edit_model.h"
@@ -316,20 +315,6 @@ void WebuiOmniboxHandler::QueryAutocomplete(
   }
 }
 
-void WebuiOmniboxHandler::OpenLensSearch() {
-  // Every popup Lens entrypoint, including the Lens icon (click or keyboard),
-  // ends up here. Opening Lens counts as using the IPH's promoted feature.
-  if (omnibox::kAskGLensIconIph.Get()) {
-    if (auto* const user_education =
-            BrowserUserEducationInterface::MaybeGetForWebUiContents(
-                web_contents_.get())) {
-      user_education->NotifyFeaturePromoFeatureUsed(
-          feature_engagement::kIPHOmniboxAskGLensIconFeature,
-          FeaturePromoFeatureUsedAction::kClosePromoIfPresent);
-    }
-  }
-  edit_model()->OpenLensSearch();
-}
 
 void WebuiOmniboxHandler::AddTabContext(
     int32_t tab_id,
@@ -365,8 +350,6 @@ void WebuiOmniboxHandler::AddTabContext(
   }
 
   if (source == searchbox::mojom::TabAttachmentSource::kCurrentTabChip) {
-    context->invocation_source =
-        lens::LensOverlayInvocationSource::kOmniboxPageAction;
   }
 
   auto tab_attachment = searchbox::mojom::TabAttachment::New();
@@ -430,7 +413,7 @@ void WebuiOmniboxHandler::OpenCurrentSelection(
 }
 
 void WebuiOmniboxHandler::SetAimButtonVisible(bool visible) {
-  page_->SetAimButtonVisible(visible);
+  page_->SetAimButtonVisible(false);
 }
 
 void WebuiOmniboxHandler::DetachFromOmniboxController() {
@@ -556,23 +539,7 @@ void WebuiOmniboxHandler::OnFocusChanged(bool focused) {
 //   due to the fact that `AutocompleteController::Start()` gets invoked on
 //   *every* keystroke in the Omnibox.
 void WebuiOmniboxHandler::OnStart(AutocompleteController* controller,
-                                  const AutocompleteInput& input) {
-  const AutocompleteProviderClient* client =
-      autocomplete_controller()->autocomplete_provider_client();
-  bool cobrowse_blocked = (omnibox::kAskGCoBrowse.Get() ||
-                           omnibox::kAskGCoBrowseWithVisualSelection.Get()) &&
-                          client && !client->ShouldOpenCoBrowsePanel();
-  bool composebox_blocked = omnibox::kAskGComposeBox.Get() && client &&
-                            !client->ShouldOpenComposeboxForAskG();
-  bool ask_g_fallback_to_lens = cobrowse_blocked || composebox_blocked;
-  // Check if there are zero suggest (either on NTP or on web) or the
-  // input text is empty (necessary because `IsZeroSuggest()` is false on
-  // clobber).
-  page_->UpdateLensSearchEligibility(
-      ContextualSearchProvider::LensEntrypointEligible(input, client) &&
-      !ask_g_fallback_to_lens &&
-      (input.IsZeroSuggest() || input.text().empty()));
-}
+                                  const AutocompleteInput& input) {}
 
 void WebuiOmniboxHandler::OnResultChanged(AutocompleteController* controller,
                                           bool default_match_changed) {
@@ -659,20 +626,7 @@ void WebuiOmniboxHandler::OnTabDidInsert(tabs::TabInterface* tab) {
 }
 
 void WebuiOmniboxHandler::UpdateAimButtonVisibility() {
-  if (omnibox_controller() &&
-      omnibox_controller()->client()->IsChromeOmniboxClient()) {
-    auto* client =
-        static_cast<ChromeOmniboxClient*>(omnibox_controller()->client());
-    if (LocationBar* location_bar = client->GetLocationBar()) {
-      if (auto* ai_mode_controller = omnibox::AiModePageActionController::From(
-              location_bar->GetBrowser())) {
-        ai_mode_controller->UpdatePageAction();
-      }
-      SetAimButtonVisible(
-          omnibox::AiModePageActionController::ShouldShowPageAction(
-              profile_, *location_bar));
-    }
-  }
+  SetAimButtonVisible(false);
 }
 
 WebuiOmniboxHandler::WebContentsObserver::WebContentsObserver(

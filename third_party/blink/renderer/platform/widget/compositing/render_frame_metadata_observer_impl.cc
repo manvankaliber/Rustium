@@ -16,9 +16,6 @@
 namespace blink {
 
 namespace {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-constexpr float kEdgeThreshold = 10.0f;
-#endif
 }  // namespace
 
 RenderFrameMetadataObserverImpl::RenderFrameMetadataObserverImpl(
@@ -63,18 +60,6 @@ void RenderFrameMetadataObserverImpl::OnRenderFrameSubmission(
     send_metadata |= force_send;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  bool is_frequency_all_updates =
-      root_scroll_offset_update_frequency_.value_or(
-          cc::mojom::blink::RootScrollOffsetUpdateFrequency::kNone) ==
-      cc::mojom::blink::RootScrollOffsetUpdateFrequency::kAllUpdates;
-  const bool send_root_scroll_offset_changed =
-      is_frequency_all_updates && !send_metadata &&
-      render_frame_metadata_observer_client_ && last_render_frame_metadata_ &&
-      last_render_frame_metadata_->root_scroll_offset !=
-          render_frame_metadata.root_scroll_offset &&
-      render_frame_metadata.root_scroll_offset.has_value();
-#endif
 
   // Always cache the full metadata, so that it can correctly be sent upon
   // ReportAllFrameSubmissionsForTesting or on android, which notifies on any
@@ -87,22 +72,17 @@ void RenderFrameMetadataObserverImpl::OnRenderFrameSubmission(
   // value to all the observers.
   if (send_metadata && render_frame_metadata_observer_client_) {
     auto metadata_copy = render_frame_metadata;
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
     // On non-Android, sending |root_scroll_offset| outside of tests would
     // leave the browser process with out of date information. It is an
     // optional parameter which we clear here.
     if (!report_all_frame_submissions_for_testing_enabled_)
       metadata_copy.root_scroll_offset = std::nullopt;
-#endif
 
     last_frame_token_ = compositor_frame_metadata->frame_token;
     compositor_frame_metadata->send_frame_token_to_embedder =
         needs_activation_notification;
     render_frame_metadata_observer_client_->OnRenderFrameMetadataChanged(
         needs_activation_notification ? last_frame_token_ : 0u, metadata_copy);
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    last_root_scroll_offset_ = metadata_copy.root_scroll_offset;
-#endif
     TRACE_EVENT(
         TRACE_DISABLED_BY_DEFAULT("viz.surface_id_flow"),
         "RenderFrameMetadataObserverImpl::OnRenderFrameSubmission",
@@ -118,14 +98,6 @@ void RenderFrameMetadataObserverImpl::OnRenderFrameSubmission(
             : "null");
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  if (send_root_scroll_offset_changed) {
-    DCHECK(!send_metadata);
-    render_frame_metadata_observer_client_->OnRootScrollOffsetChanged(
-        *render_frame_metadata.root_scroll_offset);
-    last_root_scroll_offset_ = *render_frame_metadata.root_scroll_offset;
-  }
-#endif
 
   // Always cache the initial frame token, so that if a test connects later on
   // it can be notified of the initial state.
@@ -136,26 +108,6 @@ void RenderFrameMetadataObserverImpl::OnRenderFrameSubmission(
   }
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-void RenderFrameMetadataObserverImpl::UpdateRootScrollOffsetUpdateFrequency(
-    cc::mojom::blink::RootScrollOffsetUpdateFrequency frequency) {
-  if (!RuntimeEnabledFeatures::CCTNewRFMPushBehaviorEnabled()) {
-    root_scroll_offset_update_frequency_ = frequency;
-    if (frequency ==
-        cc::mojom::blink::RootScrollOffsetUpdateFrequency::kAllUpdates) {
-      SendLastRenderFrameMetadata();
-    }
-    return;
-  }
-
-  if ((!root_scroll_offset_update_frequency_.has_value() ||
-       frequency > root_scroll_offset_update_frequency_) &&
-      last_render_frame_metadata_.has_value()) {
-    SendLastRenderFrameMetadata();
-  }
-  root_scroll_offset_update_frequency_ = frequency;
-}
-#endif
 
 void RenderFrameMetadataObserverImpl::ReportAllFrameSubmissionsForTesting(
     bool enabled) {
@@ -202,84 +154,11 @@ bool RenderFrameMetadataObserverImpl::ShouldSendRenderFrameMetadata(
     return true;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  if (rfm1.min_page_scale_factor != rfm2.min_page_scale_factor ||
-      rfm1.max_page_scale_factor != rfm2.max_page_scale_factor ||
-      rfm1.root_overflow_y_hidden != rfm2.root_overflow_y_hidden ||
-      rfm1.scrollable_viewport_size != rfm2.scrollable_viewport_size ||
-      rfm1.root_layer_size != rfm2.root_layer_size ||
-      rfm1.has_transparent_background != rfm2.has_transparent_background) {
-    *needs_activation_notification = true;
-    return true;
-  }
-
-  gfx::PointF old_root_scroll_offset =
-      rfm1.root_scroll_offset.value_or(gfx::PointF());
-  gfx::PointF new_root_scroll_offset =
-      rfm2.root_scroll_offset.value_or(gfx::PointF());
-  gfx::RectF old_viewport_rect(
-      gfx::PointF(old_root_scroll_offset.x(), old_root_scroll_offset.y()),
-      rfm1.scrollable_viewport_size);
-  gfx::RectF new_viewport_rect(
-      gfx::PointF(new_root_scroll_offset.x(), new_root_scroll_offset.y()),
-      rfm2.scrollable_viewport_size);
-  gfx::RectF new_root_layer_rect(rfm2.root_layer_size);
-  bool at_left_or_right_edge =
-      rfm2.root_layer_size.width() > rfm2.scrollable_viewport_size.width() &&
-      (std::abs(new_viewport_rect.right() - new_root_layer_rect.right()) <
-           kEdgeThreshold ||
-       std::abs(new_viewport_rect.x() - new_root_layer_rect.x()) <
-           kEdgeThreshold);
-
-  bool at_top_or_bottom_edge =
-      rfm2.root_layer_size.height() > rfm2.scrollable_viewport_size.height() &&
-      (std::abs(new_viewport_rect.y() - new_root_layer_rect.y()) <
-           kEdgeThreshold ||
-       std::abs(new_viewport_rect.bottom() - new_root_layer_rect.bottom()) <
-           kEdgeThreshold);
-
-  if (old_viewport_rect != new_viewport_rect &&
-      (at_left_or_right_edge || at_top_or_bottom_edge)) {
-    *needs_activation_notification = false;
-    return true;
-  }
-#endif
 
   *needs_activation_notification = false;
   return false;
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-void RenderFrameMetadataObserverImpl::DidEndScroll() {
-  if (!last_render_frame_metadata_.has_value()) {
-    return;
-  }
 
-  auto root_scroll_offset = last_render_frame_metadata_->root_scroll_offset;
-  if (!root_scroll_offset.has_value() ||
-      root_scroll_offset == last_root_scroll_offset_) {
-    return;
-  }
-
-  if (root_scroll_offset_update_frequency_.value_or(
-          cc::mojom::blink::RootScrollOffsetUpdateFrequency::kNone) !=
-      cc::mojom::blink::RootScrollOffsetUpdateFrequency::kOnScrollEnd) {
-    return;
-  }
-
-  render_frame_metadata_observer_client_->OnRootScrollOffsetChanged(
-      root_scroll_offset.value());
-  last_root_scroll_offset_ = root_scroll_offset;
-}
-#endif
-
-#if BUILDFLAG(IS_ANDROID)
-void RenderFrameMetadataObserverImpl::ReportScrollJankStats(
-    uint32_t total_frames,
-    uint32_t janky_frames) {
-  render_frame_metadata_observer_client_->ReportScrollJankStats(total_frames,
-                                                                janky_frames);
-}
-#endif
 
 }  // namespace blink

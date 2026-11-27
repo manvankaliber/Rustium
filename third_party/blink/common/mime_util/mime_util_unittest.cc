@@ -121,13 +121,6 @@ TEST(MimeUtilTest, LookupTypes) {
   EXPECT_TRUE(IsSupportedNonImageMimeType("application/+json"));
   EXPECT_TRUE(IsSupportedNonImageMimeType("application/x-suggestions+json"));
   EXPECT_TRUE(IsSupportedNonImageMimeType("application/x-s+json;x=2"));
-#if BUILDFLAG(IS_ANDROID)
-#if 0  // Disabled until http://crbug.com/318217 is resolved.
-  EXPECT_TRUE(IsSupportedMediaMimeType("application/vnd.apple.mpegurl"));
-  EXPECT_TRUE(IsSupportedMediaMimeType("application/x-mpegurl"));
-  EXPECT_TRUE(IsSupportedMediaMimeType("Application/X-MPEGURL"));
-#endif
-#endif
 
   EXPECT_TRUE(IsSupportedMimeType("image/jpeg"));
   EXPECT_FALSE(IsSupportedMimeType("image/lolcat"));

@@ -50,7 +50,7 @@ ContentTestSuite::ContentTestSuite(int argc, char** argv)
   // Note that this could be moved to `content::UnitTestTestSuite` or
   // `base::TestSuite` at some point to target all of the unittests, instead of
   // just the `content_unittests`.
-#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(USING_SANITIZER)
+#if !BUILDFLAG(IS_WIN) && !BUILDFLAG(USING_SANITIZER)
   SetupFieldTrials();
 
   // Some field trial features are failing tests, so they are disabled here.

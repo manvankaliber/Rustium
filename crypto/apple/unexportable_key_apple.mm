@@ -72,7 +72,6 @@ constexpr char kAttrLabel[] = "Chromium unexportable key";
 // key backed by Secure Enclave.
 void LogKeychainOperationError(TPMOperation operation, OSStatus status) {
 // Will be removed upon expiration
-#if BUILDFLAG(IS_MAC)
   static constexpr char kKeyErrorStatusHistogramFormatMacPrefix[] =
       "Crypto.SecureEnclaveOperation.Mac.";
   static constexpr char kKeyErrorStatusHistogramFormatMacSuffix[] = ".Error";
@@ -81,7 +80,6 @@ void LogKeychainOperationError(TPMOperation operation, OSStatus status) {
                     OperationToString(operation),
                     kKeyErrorStatusHistogramFormatMacSuffix}),
       status);
-#endif  // BUILDFLAG(IS_MAC)
   static constexpr char kKeyErrorStatusHistogramFormatPrefix[] =
       "Crypto.SecureEnclaveOperation.Apple.";
   static constexpr char kKeyErrorStatusHistogramFormatSuffix[] = ".Error";
@@ -766,7 +764,6 @@ std::unique_ptr<UnexportableKeyProviderApple> GetUnexportableKeyProviderApple(
   CHECK(!config.keychain_access_group.empty())
       << "A keychain access group must be set when using unexportable keys on "
          "Apple platforms";
-#if !BUILDFLAG(IS_IOS)
   // Secure Enclave on iOS is available since the iPhone 5s (A7 chip). This
   // redundant check causes crashes because of the synchronous initialization of
   // `TKTokenWatcher` on every call. Inspecting the binary for the entitlement
@@ -775,11 +772,9 @@ std::unique_ptr<UnexportableKeyProviderApple> GetUnexportableKeyProviderApple(
       internal::MacKeyHardwareSupport::kSecureEnclave) {
     return nullptr;
   }
-#endif  // !BUILDFLAG(IS_IOS)
   return std::make_unique<UnexportableKeyProviderApple>(std::move(config));
 }
 
-#if BUILDFLAG(IS_MAC)
 internal::MacKeyHardwareSupport GetKeyHardwareSupportMac(
     const std::string& keychain_access_group) {
   if (![KeychainV2::GetInstance().GetTokenIDs()
@@ -791,6 +786,5 @@ internal::MacKeyHardwareSupport GetKeyHardwareSupportMac(
   }
   return internal::MacKeyHardwareSupport::kSecureEnclave;
 }
-#endif  // BUILDFLAG(IS_MAC)
 
 }  // namespace crypto::apple

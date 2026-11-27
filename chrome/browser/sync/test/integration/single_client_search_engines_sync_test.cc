@@ -27,9 +27,6 @@
 #include "components/sync/service/sync_service_impl.h"
 #include "content/public/test/browser_test.h"
 #include "testing/gmock/include/gmock/gmock.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "ui/base/device_form_factor.h"
-#endif
 
 using search_engines_helper::HasSearchEngine;
 using testing::IsNull;
@@ -59,14 +56,6 @@ class SingleClientSearchEnginesSyncTestBase : public SyncTest {
 
   void SetUpOnMainThread() override {
     SyncTest::SetUpOnMainThread();
-#if BUILDFLAG(IS_ANDROID)
-    const ui::DeviceFormFactor form_factor = ui::GetDeviceFormFactor();
-    if (form_factor != ui::DEVICE_FORM_FACTOR_TABLET &&
-        form_factor != ui::DEVICE_FORM_FACTOR_DESKTOP) {
-      GTEST_SKIP() << "Search engines sync is only supported on Large Form "
-                      "Factor (LFF) Android devices.";
-    }
-#endif
   }
 
   bool SetupClients() override {
@@ -89,9 +78,6 @@ class SingleClientSearchEnginesSyncTest
   SingleClientSearchEnginesSyncTest()
       : SingleClientSearchEnginesSyncTestBase(SINGLE_CLIENT) {
     std::vector<base::test::FeatureRef> enabled_features;
-#if BUILDFLAG(IS_ANDROID)
-    enabled_features.push_back(syncer::kSyncSearchEnginesAndroidLFF);
-#endif
     if (GetSetupSyncMode() == SyncTest::SetupSyncMode::kSyncTransportOnly) {
       enabled_features.push_back(switches::kEnablePreferencesAccountStorage);
     }
@@ -547,7 +533,6 @@ IN_PROC_BROWSER_TEST_P(SingleClientSearchEnginesSyncTest,
       "key1", GetFakeServer()));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(
     SingleClientSearchEnginesSyncTest,
     PRE_ShouldClearAccountDataOnStartupIfSignInAllowedBitChanged) {
@@ -590,7 +575,6 @@ IN_PROC_BROWSER_TEST_P(
               testing::Pointee(
                   testing::Property(&TemplateURL::keyword, u"localkeyword")));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_P(
     SingleClientSearchEnginesSyncTest,
@@ -606,11 +590,7 @@ IN_PROC_BROWSER_TEST_P(
       CreateTestTemplateURL(u"accountkeyword", "http://account.com", "guid",
                             base::Time::FromTimeT(100))));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ASSERT_TRUE(SetupSync());
-#else
   ASSERT_TRUE(SignIn());
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Account value is effective.
   ASSERT_THAT(service->GetTemplateURLForGUID("guid"),
@@ -619,14 +599,8 @@ IN_PROC_BROWSER_TEST_P(
 
   // Simulate a data type error to prevent clearing of account data.
   GetSyncService(0)->ReportDataTypeErrorForTest(syncer::SEARCH_ENGINES);
-#if BUILDFLAG(IS_CHROMEOS)
-  // Disable sync.
-  ASSERT_TRUE(GetClient(0)->DisableSelectableType(
-      syncer::UserSelectableType::kPreferences));
-#else
   // Sign out.
   GetClient(0)->SignOutPrimaryAccount();
-#endif  // BUILDFLAG(IS_CHROMEOS)
   ASSERT_TRUE(HasSearchEngine(/*profile_index=*/0, "accountkeyword"));
 
   ExcludeDataTypesFromCheckForDataTypeFailures({syncer::SEARCH_ENGINES});

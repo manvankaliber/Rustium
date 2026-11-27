@@ -43,9 +43,6 @@ namespace blink {
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID)
-float g_device_scale_factor_for_testing = 0.0;
-#endif
 
 //-----------------------------------------------------------------------------
 
@@ -615,28 +612,6 @@ ExplodedFrameState ReadLegacyFrameState(
   if (obj->version < 14)
     ReadU16StringView(obj);  // Skip unused referrer string.
 
-#if BUILDFLAG(IS_ANDROID)
-  if (obj->version == 11) {
-    // Now-unused values that shipped in this version of Chrome for Android when
-    // it was on a private branch.
-    ReadReal(obj);
-    ReadBoolean(obj);
-
-    // In this version, page_scale_factor included device_scale_factor and
-    // scroll offsets were premultiplied by pageScaleFactor.
-    if (state.page_scale_factor) {
-      float device_scale_factor = g_device_scale_factor_for_testing;
-      if (!device_scale_factor) {
-        device_scale_factor =
-            display::Screen::Get()->GetPrimaryDisplay().device_scale_factor();
-      }
-      state.scroll_offset =
-          gfx::Point(state.scroll_offset.x() / state.page_scale_factor,
-                     state.scroll_offset.y() / state.page_scale_factor);
-      state.page_scale_factor /= device_scale_factor;
-    }
-  }
-#endif
 
   // Subitems
   size_t num_children =
@@ -1103,42 +1078,5 @@ bool VerifyReferencedFilesInPageState(const ExplodedPageState& exploded) {
   return true;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-bool DecodePageStateWithDeviceScaleFactorForTesting(
-    const std::string& encoded,
-    float device_scale_factor,
-    ExplodedPageState* exploded) {
-  g_device_scale_factor_for_testing = device_scale_factor;
-  bool rv = DecodePageState(encoded, exploded);
-  g_device_scale_factor_for_testing = 0.0;
-  return rv;
-}
-
-scoped_refptr<network::ResourceRequestBody> DecodeResourceRequestBody(
-    base::span<const uint8_t> data) {
-  DeserializeObject obj(data);
-  scoped_refptr<network::ResourceRequestBody> result =
-      ReadResourceRequestBody(&obj);
-  // Please see the EncodeResourceRequestBody() function below for information
-  // about why the contains_sensitive_info() field is being explicitly
-  // deserialized.
-  result->set_contains_sensitive_info(ReadBoolean(&obj));
-  return obj.parse_error ? nullptr : result;
-}
-
-std::string EncodeResourceRequestBody(
-    const network::ResourceRequestBody& resource_request_body) {
-  SerializeObject obj;
-  obj.version = 25;
-  WriteResourceRequestBody(resource_request_body, &obj);
-  // EncodeResourceRequestBody() is different from WriteResourceRequestBody()
-  // because it covers additional data (e.g.|contains_sensitive_info|) which
-  // is marshaled between native code and java. WriteResourceRequestBody()
-  // serializes data which needs to be saved out to disk.
-  WriteBoolean(resource_request_body.contains_sensitive_info(), &obj);
-  return obj.GetAsString();
-}
-
-#endif
 
 }  // namespace blink

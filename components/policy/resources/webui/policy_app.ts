@@ -4,15 +4,10 @@
 
 import '/strings.m.js';
 import 'chrome://resources/js/action_link.js';
-// <if expr="is_ios">
-import 'chrome://resources/js/ios/web_ui.js';
-// </if>
 
 import './status_box.js';
 import './policy_table.js';
-// <if expr="not is_ios and not is_android">
 import './promotion_banner_section_container.js';
-// </if>
 import 'chrome://resources/cr_elements/cr_button/cr_button.js';
 import 'chrome://resources/cr_elements/cr_checkbox/cr_checkbox.js';
 import 'chrome://resources/cr_elements/cr_toolbar/cr_toolbar.js';
@@ -52,21 +47,15 @@ export class PolicyAppElement extends CrLitElement {
       showUnset_: {type: Boolean},
       status_: {type: Object},
       policyGroups_: {type: Array},
-      // <if expr="not is_ios and not is_android">
       shouldShowPromo_: {type: Boolean},
-      // </if>
-      // <if expr="not is_ios and not is_android and not is_chromeos">
       shouldShowCommandLineArgumentsWarning_: {type: Boolean},
       commandLineArguments_: {type: String},
-      // </if>
       toastText_: {type: String},
       reloadButtonDisabled_: {type: Boolean},
       hideExportButton_: {type: Boolean},
-      // <if expr="not is_chromeos">
       uploadReportButtonDisabled_: {type: Boolean},
       enableReportButton_: {type: Boolean},
       hideUploadReportButton_: {type: Boolean},
-      // </if>
     };
   }
 
@@ -74,21 +63,15 @@ export class PolicyAppElement extends CrLitElement {
   protected accessor showUnset_: boolean = false;
   protected accessor status_: Record<string, Status> = {};
   protected accessor policyGroups_: PolicyTableModel[] = [];
-  // <if expr="not is_ios and not is_android">
   protected accessor shouldShowPromo_: boolean = false;
-  // </if>
-  // <if expr="not is_ios and not is_android and not is_chromeos">
   protected accessor shouldShowCommandLineArgumentsWarning_: boolean = false;
   protected accessor commandLineArguments_: string = '';
-  // </if>
   protected accessor toastText_: string = '';
   protected accessor reloadButtonDisabled_: boolean = false;
   protected accessor hideExportButton_: boolean = false;
-  // <if expr="not is_chromeos">
   protected accessor uploadReportButtonDisabled_: boolean = false;
   protected accessor enableReportButton_: boolean = false;
   protected accessor hideUploadReportButton_: boolean = false;
-  // </if>
 
 
   private toastTimeoutId_: number|null = null;
@@ -120,31 +103,24 @@ export class PolicyAppElement extends CrLitElement {
 
     FocusOutlineManager.forDocument(document);
 
-    // <if expr="not is_ios and not is_android">
     this.shouldShowPromo_ = await BrowserProxy.checkPromotionEligibility();
-    // </if>
 
-    // <if expr="not is_ios and not is_android and not is_chromeos">
     this.shouldShowCommandLineArgumentsWarning_ =
         loadTimeData.getBoolean('hasCustomCommandLineArguments');
     this.commandLineArguments_ =
         loadTimeData.getString('customCommandLineArguments');
-    // </if>
 
     this.hideExportButton_ = loadTimeData.valueExists('hideExportButton') &&
         loadTimeData.getBoolean('hideExportButton');
-    // <if expr="not is_chromeos">
     this.hideUploadReportButton_ =
         loadTimeData.valueExists('hideUploadReportButton') &&
         loadTimeData.getBoolean('hideUploadReportButton');
-    // </if>
 
     if (!this.policyPageMojoMigrationEnabled_) {
       sendWithPromise<void>('listenPoliciesUpdates');
     }
   }
 
-  // <if expr="not is_ios and not is_android">
   protected onPromoDismiss_() {
     BrowserProxy.setBannerDismissed();
     this.shouldShowPromo_ = false;
@@ -158,7 +134,6 @@ export class PolicyAppElement extends CrLitElement {
         '_blank',
     );
   }
-  // </if>
 
   private onPoliciesReceived_(
       policyNames: Record<string, PolicyGroupNames>,
@@ -205,7 +180,6 @@ export class PolicyAppElement extends CrLitElement {
       };
     });
 
-    // <if expr="not is_chromeos">
     const isNonEmpty = (value: unknown) =>
         Array.isArray(value) ? value.length > 0 : !!value;
     this.enableReportButton_ = [
@@ -215,7 +189,6 @@ export class PolicyAppElement extends CrLitElement {
       'SaasUsageReportingDomainUrlsForBrowsers',
       'SaasUsageReportingDomainUrlsForProfiles',
     ].some(p => isNonEmpty(policyGroups['chrome']?.policies[p]?.value));
-    // </if>
     this.reloadPoliciesDone_();
   }
 
@@ -249,7 +222,6 @@ export class PolicyAppElement extends CrLitElement {
     this.showToast_(loadTimeData.getString('copyPoliciesDone'));
   }
 
-  // <if expr="not is_chromeos">
   protected onUploadReportClick_() {
     this.closeActionMenu_();
     this.uploadReportButtonDisabled_ = true;
@@ -259,7 +231,6 @@ export class PolicyAppElement extends CrLitElement {
       this.showToast_(loadTimeData.getString('reportUploaded'));
     });
   }
-  // </if>
 
   protected onViewLogsClick_() {
     this.closeActionMenu_();

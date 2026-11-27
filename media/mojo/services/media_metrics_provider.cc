@@ -21,15 +21,8 @@
 #include "services/metrics/public/cpp/ukm_builders.h"
 #include "services/metrics/public/cpp/ukm_recorder.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "media/filters/decrypting_video_decoder.h"
-#endif
 
-#if BUILDFLAG(ENABLE_CAST_RECEIVER) && \
-    (BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_ANDROID))
-#include "base/time/time.h"
-#include "media/mojo/services/playback_events_recorder.h"
-#endif
 
 namespace media {
 
@@ -60,7 +53,6 @@ MediaPlayerUkmId GetNextMediaPlayerUkmId() {
 
 constexpr char kInvalidInitialize[] = "Initialize() was not called correctly.";
 
-
 MediaMetricsProvider::PipelineInfo::PipelineInfo(bool is_incognito)
     : is_incognito(is_incognito) {}
 
@@ -82,19 +74,22 @@ MediaMetricsProvider::MediaMetricsProvider(
       uma_info_(is_incognito == BrowsingMode::kIncognito) {}
 
 MediaMetricsProvider::~MediaMetricsProvider() {
-  if (!IsInitialized())
+  if (!IsInitialized()) {
     return;
+  }
 
   // UKM may be unavailable in content_shell or other non-chrome/ builds; it
   // may also be unavailable if browser shutdown has started; so this may be a
   // nullptr. If it's unavailable, UKM reporting will be skipped.
   ukm::UkmRecorder* ukm_recorder = ukm::UkmRecorder::Get();
-  if (!ukm_recorder)
+  if (!ukm_recorder) {
     return;
+  }
 
   // These UKM and UMA metrics do not apply to MediaStreams.
-  if (media_info_->media_stream_type != mojom::MediaStreamType::kNone)
+  if (media_info_->media_stream_type != mojom::MediaStreamType::kNone) {
     return;
+  }
 
   ukm::builders::Media_WebMediaPlayerState builder(source_id_);
   builder.SetPlayerID(player_id_.value());
@@ -113,16 +108,20 @@ MediaMetricsProvider::~MediaMetricsProvider() {
   builder.SetFinalPipelineStatus(uma_info_.last_pipeline_status);
   if (!media_info_->is_mse) {
     builder.SetURLScheme(static_cast<int64_t>(media_info_->url_scheme));
-    if (container_name_)
+    if (container_name_) {
       builder.SetContainerName(std::to_underlying(*container_name_));
+    }
   }
 
-  if (time_to_metadata_ != kNoTimestamp)
+  if (time_to_metadata_ != kNoTimestamp) {
     builder.SetTimeToMetadata(time_to_metadata_.InMilliseconds());
-  if (time_to_first_frame_ != kNoTimestamp)
+  }
+  if (time_to_first_frame_ != kNoTimestamp) {
     builder.SetTimeToFirstFrame(time_to_first_frame_.InMilliseconds());
-  if (time_to_play_ready_ != kNoTimestamp)
+  }
+  if (time_to_play_ready_ != kNoTimestamp) {
     builder.SetTimeToPlayReady(time_to_play_ready_.InMilliseconds());
+  }
 
   if (visibility_ratio_at_playback_start_.has_value()) {
     builder.SetVisibilityRatioAtPlaybackStart(
@@ -147,23 +146,16 @@ std::string MediaMetricsProvider::GetUMANameForAVStream(
   }
 
   // Using default RendererImpl. Put more detailed info into the UMA name.
-#if BUILDFLAG(IS_ANDROID)
-  if (player_info.is_eme && player_info.video_pipeline_info.decoder_type ==
-                                VideoDecoderType::kMediaCodec) {
-    return uma_name + "MediaDrm." +
-           (is_hardware_secure_ ? "HardwareSecure" : "SoftwareSecure");
-  }
-#else
   if (player_info.video_pipeline_info.decoder_type ==
       VideoDecoderType::kDecrypting) {
     return uma_name + "DVD";
   } else if (player_info.is_eme) {
     uma_name += (is_hardware_secure_ ? "HardwareSecure." : "SoftwareSecure.");
   }
-#endif
 
-  if (player_info.video_pipeline_info.has_decrypting_demuxer_stream)
+  if (player_info.video_pipeline_info.has_decrypting_demuxer_stream) {
     uma_name += "DDS.";
+  }
 
   // Note that HW essentially means 'platform' anyway. MediaCodec has been
   // reported as HW forever, regardless of the underlying platform
@@ -276,8 +268,9 @@ void MediaMetricsProvider::SetHaveEnough() {
 void MediaMetricsProvider::SetVideoPipelineInfo(const VideoPipelineInfo& info) {
   auto old_decoder = uma_info_.video_pipeline_info.decoder_type;
   if (old_decoder != VideoDecoderType::kUnknown &&
-      old_decoder != info.decoder_type)
+      old_decoder != info.decoder_type) {
     uma_info_.video_decoder_changed = true;
+  }
   uma_info_.video_pipeline_info = info;
 }
 
@@ -429,10 +422,6 @@ void MediaMetricsProvider::AcquireVideoDecodeStatsRecorder(
 
 void MediaMetricsProvider::AcquirePlaybackEventsRecorder(
     mojo::PendingReceiver<mojom::PlaybackEventsRecorder> receiver) {
-#if BUILDFLAG(ENABLE_CAST_RECEIVER) && \
-    (BUILDFLAG(IS_FUCHSIA) || BUILDFLAG(IS_ANDROID))
-  PlaybackEventsRecorder::Create(std::move(receiver));
-#endif
 }
 
 bool MediaMetricsProvider::IsInitialized() const {

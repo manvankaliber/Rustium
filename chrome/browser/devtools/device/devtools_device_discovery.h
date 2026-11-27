@@ -14,7 +14,7 @@
 #include "base/memory/ref_counted.h"
 #include "base/memory/weak_ptr.h"
 #include "base/values.h"
-#include "chrome/browser/devtools/device/android_device_manager.h"
+#include "chrome/browser/devtools/device/remote_device_manager.h"
 #include "content/public/browser/devtools_agent_host.h"
 
 class DevToolsDeviceDiscovery {
@@ -24,7 +24,7 @@ class DevToolsDeviceDiscovery {
     RemotePage(const RemotePage&) = delete;
     RemotePage& operator=(const RemotePage&) = delete;
 
-    scoped_refptr<AndroidDeviceManager::Device> device() { return device_; }
+    scoped_refptr<RemoteDeviceManager::Device> device() { return device_; }
     const std::string& socket() { return browser_id_; }
     const std::string& frontend_url() { return frontend_url_; }
     scoped_refptr<content::DevToolsAgentHost> CreateTarget();
@@ -33,14 +33,14 @@ class DevToolsDeviceDiscovery {
     friend class base::RefCountedThreadSafe<RemotePage>;
     friend class DevToolsDeviceDiscovery;
 
-    RemotePage(scoped_refptr<AndroidDeviceManager::Device> device,
+    RemotePage(scoped_refptr<RemoteDeviceManager::Device> device,
                const std::string& browser_id,
                const std::string& browser_version,
                base::DictValue dict);
 
     virtual ~RemotePage();
 
-    scoped_refptr<AndroidDeviceManager::Device> device_;
+    scoped_refptr<RemoteDeviceManager::Device> device_;
     std::string browser_id_;
     std::string browser_version_;
     std::string frontend_url_;
@@ -74,7 +74,7 @@ class DevToolsDeviceDiscovery {
     friend class DevToolsDeviceDiscovery;
 
     RemoteBrowser(const std::string& serial,
-                  const AndroidDeviceManager::BrowserInfo& browser_info);
+                  const RemoteDeviceManager::BrowserInfo& browser_info);
 
     virtual ~RemoteBrowser();
 
@@ -82,7 +82,7 @@ class DevToolsDeviceDiscovery {
     std::string browser_id_;
     std::string display_name_;
     std::string user_;
-    AndroidDeviceManager::BrowserInfo::Type type_;
+    RemoteDeviceManager::BrowserInfo::Type type_;
     std::string version_;
     std::string browser_target_id_;
     RemotePages pages_;
@@ -108,7 +108,7 @@ class DevToolsDeviceDiscovery {
     friend class DevToolsDeviceDiscovery;
 
     RemoteDevice(const std::string& serial,
-                 const AndroidDeviceManager::DeviceInfo& device_info);
+                 const RemoteDeviceManager::DeviceInfo& device_info);
 
     virtual ~RemoteDevice();
 
@@ -124,13 +124,13 @@ class DevToolsDeviceDiscovery {
   using RemoteDevices = std::vector<scoped_refptr<RemoteDevice>>;
 
   using CompleteDevice =
-      std::pair<scoped_refptr<AndroidDeviceManager::Device>,
+      std::pair<scoped_refptr<RemoteDeviceManager::Device>,
                 scoped_refptr<RemoteDevice>>;
   using CompleteDevices = std::vector<CompleteDevice>;
   using DeviceListCallback =
       base::RepeatingCallback<void(const CompleteDevices&)>;
 
-  DevToolsDeviceDiscovery(AndroidDeviceManager* device_manager,
+  DevToolsDeviceDiscovery(RemoteDeviceManager* device_manager,
                           DeviceListCallback callback);
 
   DevToolsDeviceDiscovery(const DevToolsDeviceDiscovery&) = delete;
@@ -141,7 +141,7 @@ class DevToolsDeviceDiscovery {
   void SetScheduler(base::RepeatingCallback<void(base::OnceClosure)> scheduler);
 
   static scoped_refptr<content::DevToolsAgentHost> CreateBrowserAgentHost(
-      scoped_refptr<AndroidDeviceManager::Device> device,
+      scoped_refptr<RemoteDeviceManager::Device> device,
       scoped_refptr<RemoteBrowser> browser);
 
   static std::string GetFrontendURLFromValue(
@@ -154,7 +154,7 @@ class DevToolsDeviceDiscovery {
   void RequestDeviceList();
   void ReceivedDeviceList(const CompleteDevices& complete_devices);
 
-  raw_ptr<AndroidDeviceManager, DanglingUntriaged> device_manager_;
+  raw_ptr<RemoteDeviceManager, DanglingUntriaged> device_manager_;
   const DeviceListCallback callback_;
   base::RepeatingCallback<void(base::OnceClosure)> task_scheduler_;
   base::WeakPtrFactory<DevToolsDeviceDiscovery> weak_factory_{this};

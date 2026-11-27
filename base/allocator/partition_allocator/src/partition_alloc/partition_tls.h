@@ -20,7 +20,7 @@
 #include "partition_alloc/partition_lock.h"
 #include "partition_alloc/partition_stats.h"
 
-#if PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#if PA_BUILDFLAG(IS_POSIX)
 #include <pthread.h>
 #endif
 
@@ -158,7 +158,7 @@ struct PartitionTls {
   }
 };
 
-#if PA_BUILDFLAG(IS_POSIX) || PA_BUILDFLAG(IS_FUCHSIA)
+#if PA_BUILDFLAG(IS_POSIX)
 using PartitionTlsKey = pthread_key_t;
 
 PA_ALWAYS_INLINE bool PartitionTlsCreate(PartitionTlsKey* key,

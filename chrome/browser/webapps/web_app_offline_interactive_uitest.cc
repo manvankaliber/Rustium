@@ -50,9 +50,6 @@
 #include "base/win/windows_version.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/public/cpp/style/dark_light_mode_controller.h"
-#endif
 
 using ::testing::ElementsAre;
 
@@ -493,12 +490,6 @@ class WebAppOfflineDarkModeTest
 
   void SetUpOnMainThread() override {
     WebAppOfflineTestBase::SetUpOnMainThread();
-#if BUILDFLAG(IS_CHROMEOS)
-    // Explicitly set dark mode in ChromeOS or we can't get light mode after
-    // sunset (due to dark mode auto-scheduling).
-    ash::DarkLightModeController::Get()->SetDarkModeEnabledForTest(
-        GetColorScheme() == blink::mojom::PreferredColorScheme::kDark);
-#endif
   }
 
  protected:

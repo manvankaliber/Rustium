@@ -1,24 +1,27 @@
 //! An interface for controlling asynchronous communication ports
 //!
-//! This interface provides a safe wrapper around the termios subsystem defined by POSIX. The
-//! underlying types are all implemented in libc for most platforms and either wrapped in safer
-//! types here or exported directly.
+//! This interface provides a safe wrapper around the termios subsystem defined
+//! by POSIX. The underlying types are all implemented in libc for most
+//! platforms and either wrapped in safer types here or exported directly.
 //!
 //! If you are unfamiliar with the `termios` API, you should first read the
 //! [API documentation](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/termios.h.html) and
 //! then come back to understand how `nix` safely wraps it.
 //!
-//! It should be noted that this API incurs some runtime overhead above the base `libc` definitions.
-//! As this interface is not used with high-bandwidth information, this should be fine in most
-//! cases. The primary cost when using this API is that the `Termios` datatype here duplicates the
-//! standard fields of the underlying `termios` struct and uses safe type wrappers for those fields.
-//! This means that when crossing the FFI interface to the underlying C library, data is first
-//! copied into the underlying `termios` struct, then the operation is done, and the data is copied
-//! back (with additional sanity checking) into the safe wrapper types. The `termios` struct is
-//! relatively small across all platforms (on the order of 32-64 bytes).
+//! It should be noted that this API incurs some runtime overhead above the base
+//! `libc` definitions. As this interface is not used with high-bandwidth
+//! information, this should be fine in most cases. The primary cost when using
+//! this API is that the `Termios` datatype here duplicates the standard fields
+//! of the underlying `termios` struct and uses safe type wrappers for those
+//! fields. This means that when crossing the FFI interface to the underlying C
+//! library, data is first copied into the underlying `termios` struct, then the
+//! operation is done, and the data is copied back (with additional sanity
+//! checking) into the safe wrapper types. The `termios` struct is relatively
+//! small across all platforms (on the order of 32-64 bytes).
 //!
-//! The following examples highlight some of the API use cases such that users coming from using C
-//! or reading the standard documentation will understand how to use the safe API exposed here.
+//! The following examples highlight some of the API use cases such that users
+//! coming from using C or reading the standard documentation will understand
+//! how to use the safe API exposed here.
 //!
 //! Example disabling processing of the end-of-file control character:
 //!
@@ -29,12 +32,14 @@
 //! termios.control_chars[VEOF as usize] = _POSIX_VDISABLE;
 //! ```
 //!
-//! The flags within `Termios` are defined as bitfields using the `bitflags` crate. This provides
-//! an interface for working with bitfields that is similar to working with the raw unsigned
-//! integer types but offers type safety because of the internal checking that values will always
-//! be a valid combination of the defined flags.
+//! The flags within `Termios` are defined as bitfields using the `bitflags`
+//! crate. This provides an interface for working with bitfields that is similar
+//! to working with the raw unsigned integer types but offers type safety
+//! because of the internal checking that values will always be a valid
+//! combination of the defined flags.
 //!
-//! An example showing some of the basic operations for interacting with the control flags:
+//! An example showing some of the basic operations for interacting with the
+//! control flags:
 //!
 //! ```
 //! # use self::nix::sys::termios::{ControlFlags, Termios};
@@ -45,20 +50,24 @@
 //!
 //! # Baud rates
 //!
-//! This API is not consistent across platforms when it comes to `BaudRate`: Android and Linux both
-//! only support the rates specified by the `BaudRate` enum through their termios API while the BSDs
-//! support arbitrary baud rates as the values of the `BaudRate` enum constants are the same integer
-//! value of the constant (`B9600` == `9600`). Therefore the `nix::termios` API uses the following
-//! conventions:
+//! This API is not consistent across platforms when it comes to `BaudRate`:
+//! Android and Linux both only support the rates specified by the `BaudRate`
+//! enum through their termios API while the BSDs support arbitrary baud rates
+//! as the values of the `BaudRate` enum constants are the same integer value of
+//! the constant (`B9600` == `9600`). Therefore the `nix::termios` API uses the
+//! following conventions:
 //!
-//! * `cfgetispeed()` - Returns `u32` on BSDs, `BaudRate` on Android/Linux
-//! * `cfgetospeed()` - Returns `u32` on BSDs, `BaudRate` on Android/Linux
-//! * `cfsetispeed()` - Takes `u32` or `BaudRate` on BSDs, `BaudRate` on Android/Linux
-//! * `cfsetospeed()` - Takes `u32` or `BaudRate` on BSDs, `BaudRate` on Android/Linux
-//! * `cfsetspeed()` - Takes `u32` or `BaudRate` on BSDs, `BaudRate` on Android/Linux
+//! * `cfgetispeed()` - Returns `u32` on BSDs, `BaudRate` on Linux
+//! * `cfgetospeed()` - Returns `u32` on BSDs, `BaudRate` on Linux
+//! * `cfsetispeed()` - Takes `u32` or `BaudRate` on BSDs, `BaudRate` on
+//!   Linux
+//! * `cfsetospeed()` - Takes `u32` or `BaudRate` on BSDs, `BaudRate` on
+//!   Linux
+//! * `cfsetspeed()` - Takes `u32` or `BaudRate` on BSDs, `BaudRate` on
+//!   Linux
 //!
-//! The most common use case of specifying a baud rate using the enum will work the same across
-//! platforms:
+//! The most common use case of specifying a baud rate using the enum will work
+//! the same across platforms:
 //!
 //! ```rust
 //! # use nix::sys::termios::{BaudRate, cfsetispeed, cfsetospeed, cfsetspeed, Termios};
@@ -84,7 +93,6 @@
 //! ```
 //!
 //! On non-BSDs, `cfgetispeed()` and `cfgetospeed()` both return a `BaudRate`:
-//!
 #![cfg_attr(bsd, doc = " ```rust,ignore")]
 #![cfg_attr(not(bsd), doc = " ```rust")]
 //! # use nix::sys::termios::{BaudRate, cfgetispeed, cfgetospeed, cfsetspeed, Termios};
@@ -97,7 +105,6 @@
 //! ```
 //!
 //! But on the BSDs, `cfgetispeed()` and `cfgetospeed()` both return `u32`s:
-//!
 #![cfg_attr(bsd, doc = " ```rust")]
 #![cfg_attr(not(bsd), doc = " ```rust,ignore")]
 //! # use nix::sys::termios::{BaudRate, cfgetispeed, cfgetospeed, cfsetspeed, Termios};
@@ -110,7 +117,6 @@
 //! ```
 //!
 //! It's trivial to convert from a `BaudRate` to a `u32` on BSDs:
-//!
 #![cfg_attr(bsd, doc = " ```rust")]
 #![cfg_attr(not(bsd), doc = " ```rust,ignore")]
 //! # use nix::sys::termios::{BaudRate, cfgetispeed, cfsetspeed, Termios};
@@ -124,7 +130,6 @@
 //!
 //! And on BSDs you can specify arbitrary baud rates (**note** this depends on hardware support)
 //! by specifying baud rates directly using `u32`s:
-//!
 #![cfg_attr(bsd, doc = " ```rust")]
 #![cfg_attr(not(bsd), doc = " ```rust,ignore")]
 //! # use nix::sys::termios::{cfsetispeed, cfsetospeed, cfsetspeed, Termios};
@@ -149,9 +154,9 @@ use crate::unistd::Pid;
 
 /// Stores settings for the termios API
 ///
-/// This is a wrapper around the `libc::termios` struct that provides a safe interface for the
-/// standard fields. The only safe way to obtain an instance of this struct is to extract it from
-/// an open port using `tcgetattr()`.
+/// This is a wrapper around the `libc::termios` struct that provides a safe
+/// interface for the standard fields. The only safe way to obtain an instance
+/// of this struct is to extract it from an open port using `tcgetattr()`.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Termios {
     inner: RefCell<libc::termios>,
@@ -166,7 +171,7 @@ pub struct Termios {
     /// Control characters (see `termios.c_cc` documentation)
     pub control_chars: [libc::cc_t; NCCS],
     /// Line discipline (see `termios.c_line` documentation)
-    #[cfg(linux_android)]
+    #[cfg(linux)]
     pub line_discipline: libc::cc_t,
     /// Line discipline (see `termios.c_line` documentation)
     #[cfg(target_os = "haiku")]
@@ -174,10 +179,11 @@ pub struct Termios {
 }
 
 impl Termios {
-    /// Exposes an immutable reference to the underlying `libc::termios` data structure.
+    /// Exposes an immutable reference to the underlying `libc::termios` data
+    /// structure.
     ///
-    /// This is not part of `nix`'s public API because it requires additional work to maintain type
-    /// safety.
+    /// This is not part of `nix`'s public API because it requires additional
+    /// work to maintain type safety.
     pub(crate) fn get_libc_termios(&self) -> Ref<'_, libc::termios> {
         {
             let mut termios = self.inner.borrow_mut();
@@ -186,7 +192,7 @@ impl Termios {
             termios.c_cflag = self.control_flags.bits();
             termios.c_lflag = self.local_flags.bits();
             termios.c_cc = self.control_chars;
-            #[cfg(any(linux_android, target_os = "haiku"))]
+            #[cfg(any(linux, target_os = "haiku"))]
             {
                 termios.c_line = self.line_discipline;
             }
@@ -196,9 +202,10 @@ impl Termios {
 
     /// Exposes the inner `libc::termios` datastore within `Termios`.
     ///
-    /// This is unsafe because if this is used to modify the inner `libc::termios` struct, it will
-    /// not automatically update the safe wrapper type around it. In this case it should also be
-    /// paired with a call to `update_wrapper()` so that the wrapper-type and internal
+    /// This is unsafe because if this is used to modify the inner
+    /// `libc::termios` struct, it will not automatically update the safe
+    /// wrapper type around it. In this case it should also be paired with a
+    /// call to `update_wrapper()` so that the wrapper-type and internal
     /// representation stay consistent.
     pub(crate) unsafe fn get_libc_termios_mut(&mut self) -> *mut libc::termios {
         {
@@ -208,7 +215,7 @@ impl Termios {
             termios.c_cflag = self.control_flags.bits();
             termios.c_lflag = self.local_flags.bits();
             termios.c_cc = self.control_chars;
-            #[cfg(any(linux_android, target_os = "haiku"))]
+            #[cfg(any(linux, target_os = "haiku"))]
             {
                 termios.c_line = self.line_discipline;
             }
@@ -216,7 +223,8 @@ impl Termios {
         self.inner.as_ptr()
     }
 
-    /// Updates the wrapper values from the internal `libc::termios` data structure.
+    /// Updates the wrapper values from the internal `libc::termios` data
+    /// structure.
     pub(crate) fn update_wrapper(&mut self) {
         let termios = *self.inner.borrow_mut();
         self.input_flags = InputFlags::from_bits_truncate(termios.c_iflag);
@@ -224,7 +232,7 @@ impl Termios {
         self.control_flags = ControlFlags::from_bits_retain(termios.c_cflag);
         self.local_flags = LocalFlags::from_bits_truncate(termios.c_lflag);
         self.control_chars = termios.c_cc;
-        #[cfg(any(linux_android, target_os = "haiku"))]
+        #[cfg(any(linux, target_os = "haiku"))]
         {
             self.line_discipline = termios.c_line;
         }
@@ -240,7 +248,7 @@ impl From<libc::termios> for Termios {
             control_flags: ControlFlags::from_bits_truncate(termios.c_cflag),
             local_flags: LocalFlags::from_bits_truncate(termios.c_lflag),
             control_chars: termios.c_cc,
-            #[cfg(any(linux_android, target_os = "haiku"))]
+            #[cfg(any(linux, target_os = "haiku"))]
             line_discipline: termios.c_line,
         }
     }
@@ -303,35 +311,35 @@ libc_enum! {
         B230400,
         #[cfg(solarish)]
         B307200,
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   solarish,
                   target_os = "freebsd",
                   target_os = "netbsd"))]
         B460800,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B500000,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B576000,
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   solarish,
                   target_os = "freebsd",
                   target_os = "netbsd"))]
         B921600,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B1000000,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B1152000,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B1500000,
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         B2000000,
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "sparc64"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "sparc64")))]
         B2500000,
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "sparc64"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "sparc64")))]
         B3000000,
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "sparc64"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "sparc64")))]
         B3500000,
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "sparc64"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "sparc64")))]
         B4000000,
     }
     impl TryFrom<libc::speed_t>
@@ -460,9 +468,9 @@ impl SpecialCharacterIndices {
     pub const VTIME: SpecialCharacterIndices = SpecialCharacterIndices::VEOL;
 }
 
-pub use libc::NCCS;
-#[cfg(any(bsd, linux_android, target_os = "aix", target_os = "solaris"))]
+#[cfg(any(bsd, linux, target_os = "aix", target_os = "solaris"))]
 pub use libc::_POSIX_VDISABLE;
+pub use libc::NCCS;
 
 libc_bitflags! {
     /// Flags for configuring the input mode of a terminal
@@ -478,7 +486,7 @@ libc_bitflags! {
         ICRNL;
         IXON;
         IXOFF;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "aix",
                   target_os = "cygwin",
                   target_os = "haiku",
@@ -490,7 +498,7 @@ libc_bitflags! {
         IXANY;
         #[cfg(not(any(target_os = "redox", target_os = "haiku")))]
         IMAXBEL;
-        #[cfg(any(linux_android, apple_targets))]
+        #[cfg(any(linux, apple_targets))]
         IUTF8;
     }
 }
@@ -499,7 +507,7 @@ libc_bitflags! {
     /// Flags for configuring the output mode of a terminal
     pub struct OutputFlags: tcflag_t {
         OPOST;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   target_os = "openbsd"))]
         OLCUC;
@@ -507,86 +515,77 @@ libc_bitflags! {
         OCRNL as tcflag_t;
         ONOCR as tcflag_t;
         ONLRET as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         OFDEL as tcflag_t;
-        #[cfg(any(linux_android,
-                  target_os = "aix",
-                  target_os = "cygwin",
-                  target_os = "fuchsia",
-                  target_os = "haiku",
-                  target_os = "hurd",
-                  target_os = "nto",
-                  target_os = "redox",
-                  solarish,
-                  apple_targets))]
+        #[cfg(any(linux, target_os = "aix", target_os = "cygwin", target_os = "haiku", target_os = "hurd", target_os = "nto", target_os = "redox", solarish, apple_targets))]
         OFILL as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         NL0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         NL1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CR0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CR1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CR2 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CR3 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "freebsd",
                   target_os = "haiku",
                   apple_targets))]
         TAB0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         TAB1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         TAB2 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "freebsd",
                   target_os = "haiku",
                   apple_targets))]
         TAB3 as tcflag_t;
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         XTABS;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         BS0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         BS1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         VT0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         VT1 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         FF0 as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         FF1 as tcflag_t;
@@ -599,28 +598,28 @@ libc_bitflags! {
         // These should be moved to be a mask once https://github.com/rust-lang-nursery/bitflags/issues/110
         // is resolved.
 
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         NLDLY as tcflag_t; // FIXME: Datatype needs to be corrected in libc for mac
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         CRDLY as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "freebsd",
                   target_os = "haiku",
                   apple_targets))]
         TABDLY as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         BSDLY as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         VTDLY as tcflag_t;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "haiku",
                   apple_targets))]
         FFDLY as tcflag_t;
@@ -644,15 +643,13 @@ libc_bitflags! {
         CLOCAL;
         #[cfg(not(any(target_os = "redox", target_os = "aix")))]
         CRTSCTS;
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         CBAUD;
-        #[cfg(any(target_os = "android", all(target_os = "linux", not(target_arch = "mips"))))]
+        #[cfg(all(target_os = "linux", not(target_arch = "mips")))]
         CMSPAR;
-        #[cfg(any(target_os = "android",
-                  all(target_os = "linux",
-                      not(any(target_arch = "powerpc", target_arch = "powerpc64")))))]
+        #[cfg(all(target_os = "linux", not(any(target_arch = "powerpc", target_arch = "powerpc64"))))]
         CIBAUD;
-        #[cfg(linux_android)]
+        #[cfg(linux)]
         CBAUDEX;
         #[cfg(bsd)]
         MDMBUF;
@@ -705,7 +702,7 @@ libc_bitflags! {
         #[cfg(not(any(target_os = "redox", target_os = "cygwin")))]
         PENDIN;
         NOFLSH;
-        #[cfg(any(linux_android,
+        #[cfg(any(linux,
                   target_os = "aix",
                   target_os = "haiku",
                   target_os = "nto"))]
@@ -828,12 +825,13 @@ cfg_if! {
     }
 }
 
-/// Configures the port to something like the "raw" mode of the old Version 7 terminal driver (see
-/// [termios(3)](https://man7.org/linux/man-pages/man3/termios.3.html)).
+/// Configures the port to something like the "raw" mode of the old Version 7
+/// terminal driver (see [termios(3)](https://man7.org/linux/man-pages/man3/termios.3.html)).
 ///
-/// `cfmakeraw()` configures the termios structure such that input is available character-by-
-/// character, echoing is disabled, and all special input and output processing is disabled. Note
-/// that this is a non-standard function, but is available on Linux and BSDs.
+/// `cfmakeraw()` configures the termios structure such that input is available
+/// character-by- character, echoing is disabled, and all special input and
+/// output processing is disabled. Note that this is a non-standard function,
+/// but is available on Linux and BSDs.
 pub fn cfmakeraw(termios: &mut Termios) {
     let inner_termios = unsafe { termios.get_libc_termios_mut() };
     unsafe {
@@ -842,8 +840,8 @@ pub fn cfmakeraw(termios: &mut Termios) {
     termios.update_wrapper();
 }
 
-/// Configures the port to "sane" mode (like the configuration of a newly created terminal) (see
-/// [tcsetattr(3)](https://www.freebsd.org/cgi/man.cgi?query=tcsetattr)).
+/// Configures the port to "sane" mode (like the configuration of a newly
+/// created terminal) (see [tcsetattr(3)](https://www.freebsd.org/cgi/man.cgi?query=tcsetattr)).
 ///
 /// Note that this is a non-standard function, available on FreeBSD.
 #[cfg(target_os = "freebsd")]
@@ -858,15 +856,14 @@ pub fn cfmakesane(termios: &mut Termios) {
 /// Return the configuration of a port
 /// [tcgetattr(3p)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/tcgetattr.html)).
 ///
-/// `tcgetattr()` returns a `Termios` structure with the current configuration for a port. Modifying
-/// this structure *will not* reconfigure the port, instead the modifications should be done to
-/// the `Termios` structure and then the port should be reconfigured using `tcsetattr()`.
+/// `tcgetattr()` returns a `Termios` structure with the current configuration
+/// for a port. Modifying this structure *will not* reconfigure the port,
+/// instead the modifications should be done to the `Termios` structure and then
+/// the port should be reconfigured using `tcsetattr()`.
 pub fn tcgetattr<Fd: AsFd>(fd: Fd) -> Result<Termios> {
     let mut termios = mem::MaybeUninit::uninit();
 
-    let res = unsafe {
-        libc::tcgetattr(fd.as_fd().as_raw_fd(), termios.as_mut_ptr())
-    };
+    let res = unsafe { libc::tcgetattr(fd.as_fd().as_raw_fd(), termios.as_mut_ptr()) };
 
     Errno::result(res)?;
 
@@ -876,21 +873,14 @@ pub fn tcgetattr<Fd: AsFd>(fd: Fd) -> Result<Termios> {
 /// Set the configuration for a terminal (see
 /// [tcsetattr(3p)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/tcsetattr.html)).
 ///
-/// `tcsetattr()` reconfigures the given port based on a given `Termios` structure. This change
-/// takes affect at a time specified by `actions`. Note that this function may return success if
-/// *any* of the parameters were successfully set, not only if all were set successfully.
-pub fn tcsetattr<Fd: AsFd>(
-    fd: Fd,
-    actions: SetArg,
-    termios: &Termios,
-) -> Result<()> {
+/// `tcsetattr()` reconfigures the given port based on a given `Termios`
+/// structure. This change takes affect at a time specified by `actions`. Note
+/// that this function may return success if *any* of the parameters were
+/// successfully set, not only if all were set successfully.
+pub fn tcsetattr<Fd: AsFd>(fd: Fd, actions: SetArg, termios: &Termios) -> Result<()> {
     let inner_termios = termios.get_libc_termios();
     Errno::result(unsafe {
-        libc::tcsetattr(
-            fd.as_fd().as_raw_fd(),
-            actions as c_int,
-            &*inner_termios,
-        )
+        libc::tcsetattr(fd.as_fd().as_raw_fd(), actions as c_int, &*inner_termios)
     })
     .map(drop)
 }
@@ -904,37 +894,29 @@ pub fn tcdrain<Fd: AsFd>(fd: Fd) -> Result<()> {
 /// Suspend or resume the transmission or reception of data (see
 /// [tcflow(3p)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/tcflow.html)).
 ///
-/// `tcflow()` suspends of resumes the transmission or reception of data for the given port
-/// depending on the value of `action`.
+/// `tcflow()` suspends of resumes the transmission or reception of data for the
+/// given port depending on the value of `action`.
 pub fn tcflow<Fd: AsFd>(fd: Fd, action: FlowArg) -> Result<()> {
-    Errno::result(unsafe {
-        libc::tcflow(fd.as_fd().as_raw_fd(), action as c_int)
-    })
-    .map(drop)
+    Errno::result(unsafe { libc::tcflow(fd.as_fd().as_raw_fd(), action as c_int) }).map(drop)
 }
 
 /// Discard data in the output or input queue (see
 /// [tcflush(3p)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/tcflush.html)).
 ///
-/// `tcflush()` will discard data for a terminal port in the input queue, output queue, or both
-/// depending on the value of `action`.
+/// `tcflush()` will discard data for a terminal port in the input queue, output
+/// queue, or both depending on the value of `action`.
 pub fn tcflush<Fd: AsFd>(fd: Fd, action: FlushArg) -> Result<()> {
-    Errno::result(unsafe {
-        libc::tcflush(fd.as_fd().as_raw_fd(), action as c_int)
-    })
-    .map(drop)
+    Errno::result(unsafe { libc::tcflush(fd.as_fd().as_raw_fd(), action as c_int) }).map(drop)
 }
 
 /// Send a break for a specific duration (see
 /// [tcsendbreak(3p)](https://pubs.opengroup.org/onlinepubs/9699919799/functions/tcsendbreak.html)).
 ///
-/// When using asynchronous data transmission `tcsendbreak()` will transmit a continuous stream
-/// of zero-valued bits for an implementation-defined duration.
+/// When using asynchronous data transmission `tcsendbreak()` will transmit a
+/// continuous stream of zero-valued bits for an implementation-defined
+/// duration.
 pub fn tcsendbreak<Fd: AsFd>(fd: Fd, duration: c_int) -> Result<()> {
-    Errno::result(unsafe {
-        libc::tcsendbreak(fd.as_fd().as_raw_fd(), duration)
-    })
-    .map(drop)
+    Errno::result(unsafe { libc::tcsendbreak(fd.as_fd().as_raw_fd(), duration) }).map(drop)
 }
 
 feature! {

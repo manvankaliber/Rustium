@@ -52,19 +52,12 @@
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/feature_engagement/public/feature_constants.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
 class ExtensionApiTabTest : public extensions::ExtensionApiTest {
  public:
   ExtensionApiTabTest() {
-#if BUILDFLAG(IS_ANDROID)
-    feature_list_.InitAndDisableFeature(
-        feature_engagement::kIPHAndroidVerticalTabsPromoFeature);
-#endif
   }
   ~ExtensionApiTabTest() override = default;
   ExtensionApiTabTest(const ExtensionApiTabTest&) = delete;
@@ -77,9 +70,6 @@ class ExtensionApiTabTest : public extensions::ExtensionApiTest {
   }
 
  private:
-#if BUILDFLAG(IS_ANDROID)
-  base::test::ScopedFeatureList feature_list_;
-#endif
 };
 
 class ExtensionApiTabBackForwardCacheTest : public ExtensionApiTabTest {
@@ -153,11 +143,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTabTest, MAYBE_Muted) {
 }
 
 // TODO(crbug.com/471405507): Disabled on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_Tabs2 DISABLED_Tabs2
-#else
 #define MAYBE_Tabs2 Tabs2
-#endif
 IN_PROC_BROWSER_TEST_F(ExtensionApiTabTest, MAYBE_Tabs2) {
   ASSERT_TRUE(RunExtensionTest("tabs/basics", {.extension_url = "crud2.html"}))
       << message_;
@@ -168,11 +154,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTabTest, Duplicate) {
 }
 
 // TODO(crbug.com/565586485): Disabled on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_Size DISABLED_Size
-#else
 #define MAYBE_Size Size
-#endif
 IN_PROC_BROWSER_TEST_F(ExtensionApiTabTest, MAYBE_Size) {
   ASSERT_TRUE(RunExtensionTest("tabs/basics/tab_size")) << message_;
 }
@@ -345,8 +327,7 @@ class ExtensionApiCaptureTest : public ExtensionApiTabTest {
 // https://crbug.com/40915448 Flaky on Mac.
 // TODO(crbug.com/540627656): Disabled on Linux dbg due to timeout.
 // TODO(crbug.com/488154807): Flaky on desktop Android.
-#if BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_LINUX) && !defined(NDEBUG)) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) && !defined(NDEBUG)
 #define MAYBE_CaptureVisibleTabJpeg DISABLED_CaptureVisibleTabJpeg
 #else
 #define MAYBE_CaptureVisibleTabJpeg CaptureVisibleTabJpeg
@@ -373,8 +354,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiCaptureTest, MAYBE_CaptureVisibleTabJpeg) {
 // https://crbug.com/40915548 Flaky on Mac.
 // TODO(crbug.com/451698327): Disabled on Linux dbg due to flakiness.
 // TODO(crbug.com/488154807): Flaky on desktop Android.
-#if BUILDFLAG(IS_MAC) || (BUILDFLAG(IS_LINUX) && !defined(NDEBUG)) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) && !defined(NDEBUG)
 #define MAYBE_CaptureVisibleTabPng DISABLED_CaptureVisibleTabPng
 #else
 #define MAYBE_CaptureVisibleTabPng CaptureVisibleTabPng
@@ -407,8 +387,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiCaptureTest,
 
 // https://crbug.com/40707203 Flaky on Windows, Linux, ChromeOS.
 // TODO(crbug.com/488154807): Flaky on desktop Android.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN)
 #define MAYBE_CaptureVisibleFile DISABLED_CaptureVisibleFile
 #else
 #define MAYBE_CaptureVisibleFile CaptureVisibleFile
@@ -474,11 +453,7 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTabTest, IncognitoDisabledByPref) {
 
 // TODO(crbug.com/500790726): Flaky on desktop Android. Crashes during test
 // shutdown with a Java exception in ChromeAndroidTaskTrackerImpl.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_GetViewsOfCreatedPopup DISABLED_GetViewsOfCreatedPopup
-#else
 #define MAYBE_GetViewsOfCreatedPopup GetViewsOfCreatedPopup
-#endif
 IN_PROC_BROWSER_TEST_F(ExtensionApiTabTest, MAYBE_GetViewsOfCreatedPopup) {
   ASSERT_TRUE(RunExtensionTest("tabs/basics",
                                {.extension_url = "get_views_popup.html"}))
@@ -593,11 +568,7 @@ class IncognitoExtensionApiTabTest : public ExtensionApiTabTest,
 
 // TODO(crbug.com/500790726): Flaky on desktop Android. Crashes during test
 // shutdown with a Java exception in ChromeAndroidTaskTrackerImpl.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_IncognitoTabs DISABLED_IncognitoTabs
-#else
 #define MAYBE_IncognitoTabs IncognitoTabs
-#endif
 IN_PROC_BROWSER_TEST_P(IncognitoExtensionApiTabTest, MAYBE_IncognitoTabs) {
   bool is_incognito_enabled = GetParam();
   BrowserWindowInterface* incognito_browser = CreateIncognitoBrowserWindow();
@@ -800,7 +771,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTabTest, CannotNavigateToFeedback) {
   EXPECT_TRUE(catcher.GetNextResult()) << catcher.message();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // Helper observer to suppress unhandled WebUI messages in chrome://feedback.
 // FeedbackUI is designed to be hosted in a FeedbackDialog (a
 // ui::WebDialogDelegate), which attaches message handlers for "showDialog".
@@ -894,7 +864,6 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTabTest, CannotCaptureFeedback) {
   listener.Reply("");
   EXPECT_TRUE(catcher.GetNextResult()) << catcher.message();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class ExtensionApiTabDSERedirectTest : public ExtensionApiTabTest {
  public:
@@ -1286,7 +1255,6 @@ class ExtensionApiTabSplitViewTest : public ExtensionApiTabTest {
 
 // TODO(https://crbug.com/480192698): Remove this restriction once split tabs
 // are supported on Desktop Android.
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(ExtensionApiTabSplitViewTest, CreateSplitWithTabId) {
   ASSERT_TRUE(RunExtensionTest("tabs/split_view_create_split_with_id"))
       << message_;
@@ -1299,4 +1267,3 @@ IN_PROC_BROWSER_TEST_F(ExtensionApiTabSplitViewTest, CreateSplit) {
 IN_PROC_BROWSER_TEST_F(ExtensionApiTabSplitViewTest, Unsplit) {
   ASSERT_TRUE(RunExtensionTest("tabs/split_view_unsplit")) << message_;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)

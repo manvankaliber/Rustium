@@ -45,7 +45,6 @@ TEST(BrowsingDataLifetimePolicyHandler, SyncDisabledTrue) {
 
 // When browser sign in is disabled by policy, the data deletion policy should
 // be applied and the error map and messages should be empty
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST(BrowsingDataLifetimePolicyHandler, BrowserSigninDisabled) {
   policy::PolicyMap policy_map;
   policy::PolicyErrorMap errors;
@@ -69,7 +68,6 @@ TEST(BrowsingDataLifetimePolicyHandler, BrowserSigninDisabled) {
   EXPECT_FALSE(policy_map.Get(policy::key::kBrowsingDataLifetime)
                    ->HasMessage(policy::PolicyMap::MessageType::kInfo));
 }
-#endif
 
 // Check that the policies work correctly when set together with sync.
 TEST(BrowsingDataLifetimePolicyHandler,
@@ -219,15 +217,7 @@ TEST(BrowsingDataLifetimePolicyHandler,
       policy::Schema::Wrap(policy::GetChromeSchemaData()));
 
   browsing_data_lifetime_handler.CheckPolicySettings(policy_map, &errors);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(
-      errors.GetErrorMessages(policy::key::kBrowsingDataLifetime,
-                              policy::PolicyMap::MessageType::kWarning),
-      l10n_util::GetStringFUTF16(IDS_POLICY_BROWSING_DATA_PLATFORM_UNSUPPORTED,
-                                 u"download_history, hosted_app_data"));
-#else
   EXPECT_TRUE(errors.empty());
-#endif  // BUILDFLAG(IS_ANDROID)
 
   PrefValueMap prefs;
   browsing_data_lifetime_handler.ApplyPolicySettings(policy_map, &prefs);
@@ -236,10 +226,8 @@ TEST(BrowsingDataLifetimePolicyHandler,
   expected_value.GetList().Append(
       base::DictValue()
           .Set("data_types", base::ListValue()
-#if !BUILDFLAG(IS_ANDROID)
                                  .Append("hosted_app_data")
                                  .Append("download_history")
-#endif  // !BUILDFLAG(IS_ANDROID)
                                  .Append("cached_images_and_files"))
           .Set("time_to_live_in_hours", 1));
 
@@ -295,15 +283,7 @@ TEST(BrowsingDataLifetimePolicyHandler,
 
   EXPECT_TRUE(
       browsing_data_lifetime_handler.CheckPolicySettings(policy_map, &errors));
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(
-      errors.GetErrorMessages(policy::key::kBrowsingDataLifetime,
-                              policy::PolicyMap::MessageType::kWarning),
-      l10n_util::GetStringFUTF16(IDS_POLICY_BROWSING_DATA_PLATFORM_UNSUPPORTED,
-                                 u"download_history, hosted_app_data"));
-#else
   EXPECT_TRUE(errors.empty());
-#endif  // BUILDFLAG(IS_ANDROID)
 
   PrefValueMap prefs;
   browsing_data_lifetime_handler.ApplyPolicySettings(policy_map, &prefs);
@@ -312,10 +292,8 @@ TEST(BrowsingDataLifetimePolicyHandler,
   expected_value.GetList().Append(
       base::DictValue()
           .Set("data_types", base::ListValue()
-#if !BUILDFLAG(IS_ANDROID)
                                  .Append("hosted_app_data")
                                  .Append("download_history")
-#endif  // !BUILDFLAG(IS_ANDROID)
                                  .Append("cached_images_and_files"))
           .Set("time_to_live_in_hours", 1));
 

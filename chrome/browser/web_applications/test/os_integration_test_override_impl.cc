@@ -123,7 +123,7 @@ std::vector<std::wstring> GetFileExtensionsForProgId(
 }
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // Performs a blocking read of app icons from the disk.
 std::optional<SkBitmap> IconManagerReadIconForSize(
     WebAppIconManager& icon_manager,
@@ -475,7 +475,7 @@ std::optional<SkBitmap> OsIntegrationTestOverrideImpl::GetShortcutIcon(
     return std::nullopt;
   }
   return GetIconFromShortcutFile(shortcut_path);
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   WebAppProvider* provider = WebAppProvider::GetForLocalAppsUnchecked(profile);
   if (!provider) {
     return std::nullopt;

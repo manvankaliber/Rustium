@@ -184,11 +184,9 @@ TEST_F(AutocompleteSuggestionGeneratorTest,
 TEST_F(AutocompleteSuggestionGeneratorTest,
        EmptyResultWithAtMemoryButtonEnabled_NoSuggestions) {
   base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/
-      {features::kShowAutocompleteAtMemoryButton, features::kAutofillAtMemory,
-       features::debug::kAtMemorySkipEnablementChecks},
-      /*disabled_features=*/{});
+  scoped_feature_list.InitFromCommandLine(
+      "ShowAutocompleteAtMemoryButton,AutofillAtMemory,"
+      "AtMemorySkipEnablementChecks", "");
   RecreateGenerator();
 
   FormFieldData field_data =
@@ -455,16 +453,13 @@ TEST_P(AutocompleteSuggestionGeneratorLabelSensitiveTest, NullResult) {
       }));
 }
 
-// Tests that AtMemory button and separator are properly appended when
-// suggestions are returned (in both legacy and label-sensitive modes).
+// Legacy AtMemory flags must not add a button to autocomplete results.
 TEST_P(AutocompleteSuggestionGeneratorLabelSensitiveTest,
-       AtMemoryButton_AppendedWithSuggestions) {
+       AtMemoryButton_NotAppendedWithSuggestions) {
   base::test::ScopedFeatureList scoped_feature_list;
-  scoped_feature_list.InitWithFeatures(
-      /*enabled_features=*/
-      {features::kShowAutocompleteAtMemoryButton, features::kAutofillAtMemory,
-       features::debug::kAtMemorySkipEnablementChecks},
-      /*disabled_features=*/{});
+  scoped_feature_list.InitFromCommandLine(
+      "ShowAutocompleteAtMemoryButton,AutofillAtMemory,"
+      "AtMemorySkipEnablementChecks", "");
   RecreateGenerator();
 
   const std::u16string kLabel = u"Label";
@@ -523,20 +518,11 @@ TEST_P(AutocompleteSuggestionGeneratorLabelSensitiveTest,
         });
   }
 
-  auto IsSeparator = []() {
-    return Field(&Suggestion::type, SuggestionType::kSeparator);
-  };
-  auto IsAtMemoryButton = []() {
-    return Field(&Suggestion::type,
-                 SuggestionType::kAutocompleteAtMemoryButton);
-  };
-
   EXPECT_CALL(suggestions_generated_callback,
               Run(Pair(SuggestionGenerator::SuggestionDataSource::kAutocomplete,
                        UnorderedElementsAre(
                            HasSingleSuggestionWithMainText(u"SomePrefixOne"),
-                           HasSingleSuggestionWithMainText(u"SomePrefixTwo"),
-                           IsSeparator(), IsAtMemoryButton()))))
+                           HasSingleSuggestionWithMainText(u"SomePrefixTwo")))))
       .WillOnce(SaveArg<0>(&saved_on_suggestions_generated_argument));
 
   generator().GenerateSuggestions(form_data, field_data,
@@ -545,7 +531,7 @@ TEST_P(AutocompleteSuggestionGeneratorLabelSensitiveTest,
                                   suggestions_generated_callback.Get());
   EXPECT_TRUE(
       base::test::RunUntil([&saved_on_suggestions_generated_argument]() {
-        return saved_on_suggestions_generated_argument.second.size() == 4;
+        return saved_on_suggestions_generated_argument.second.size() == 2;
       }));
 }
 

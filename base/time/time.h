@@ -78,10 +78,6 @@
 #include "base/numerics/clamped_math.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_FUCHSIA)
-#include <zircon/types.h>
-#endif
-
 #if BUILDFLAG(IS_APPLE)
 #include <CoreFoundation/CoreFoundation.h>
 #include <mach/mach_time.h>
@@ -89,11 +85,8 @@
 #undef TYPE_BOOL
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include <jni.h>
-#endif
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include <sys/time.h>
 #include <unistd.h>
 #endif
@@ -147,11 +140,8 @@ class BASE_EXPORT TimeDelta {
   static TimeDelta FromFileTime(FILETIME ft);
   static TimeDelta FromWinrtDateTime(ABI::Windows::Foundation::DateTime dt);
   static TimeDelta FromWinrtTimeSpan(ABI::Windows::Foundation::TimeSpan ts);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
   static TimeDelta FromTimeSpec(const timespec& ts);
-#endif
-#if BUILDFLAG(IS_FUCHSIA)
-  static TimeDelta FromZxDuration(zx_duration_t nanos);
 #endif
 #if BUILDFLAG(IS_APPLE)
   static TimeDelta FromMachTime(uint64_t mach_time);
@@ -210,15 +200,12 @@ class BASE_EXPORT TimeDelta {
   constexpr bool is_min() const { return *this == Min(); }
   constexpr bool is_inf() const { return is_min() || is_max(); }
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   // According to https://en.cppreference.com/w/c/chrono/timespec, negative
   // timespecs are invalid, so this function clamps negative TimeDeltas to 0.
   // In addition, this function clamps the upper bound of TimeDelta values to
   // what a `time_t` can hold.
   struct timespec ToTimeSpec() const;
-#endif
-#if BUILDFLAG(IS_FUCHSIA)
-  zx_duration_t ToZxDuration() const;
 #endif
 #if BUILDFLAG(IS_WIN)
   ABI::Windows::Foundation::DateTime ToWinrtDateTime() const;
@@ -479,9 +466,6 @@ class TimeBase {
   }
 
   // Compute the difference between two times.
-#if !defined(__aarch64__) && BUILDFLAG(IS_ANDROID)
-  NOINLINE  // https://crbug.com/1369775
-#endif
       constexpr TimeDelta operator-(const TimeBase<TimeClass>& other) const;
 
   // Return a new time modified by some delta.
@@ -563,16 +547,7 @@ class BASE_EXPORT Time : public time_internal::TimeBase<Time> {
 #if BUILDFLAG(IS_WIN)
   static constexpr int kExplodedMinYear = 1601;
   static constexpr int kExplodedMaxYear = 30827;
-#elif BUILDFLAG(IS_IOS) && !__LP64__
-  static constexpr int kExplodedMinYear = std::numeric_limits<int>::min();
-  static constexpr int kExplodedMaxYear = std::numeric_limits<int>::max();
 #elif BUILDFLAG(IS_APPLE)
-  static constexpr int kExplodedMinYear = 1902;
-  static constexpr int kExplodedMaxYear = std::numeric_limits<int>::max();
-#elif BUILDFLAG(IS_ANDROID)
-  // Though we use 64-bit time APIs on both 32 and 64 bit Android, some OS
-  // versions like KitKat (ARM but not x86 emulator) can't handle some early
-  // dates (e.g. before 1170). So we set min conservatively here.
   static constexpr int kExplodedMinYear = 1902;
   static constexpr int kExplodedMaxYear = std::numeric_limits<int>::max();
 #else
@@ -675,7 +650,7 @@ class BASE_EXPORT Time : public time_internal::TimeBase<Time> {
   static constexpr Time FromSecondsSinceUnixEpoch(double dt);
   constexpr double InSecondsFSinceUnixEpoch() const;
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   // Converts the timespec structure to time. MacOS X 10.8.3 (and tentatively,
   // earlier versions) will have the |ts|'s tv_nsec component zeroed out,
   // having a 1 second resolution, which agrees with
@@ -712,14 +687,9 @@ class BASE_EXPORT Time : public time_internal::TimeBase<Time> {
   constexpr double InMillisecondsFSinceUnixEpoch() const;
   constexpr double InMillisecondsFSinceUnixEpochIgnoringNull() const;
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
   static Time FromTimeVal(struct timeval t);
   struct timeval ToTimeVal() const;
-#endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-  static Time FromZxTime(zx_time_t time);
-  zx_time_t ToZxTime() const;
 #endif
 
 #if BUILDFLAG(IS_APPLE)
@@ -1134,7 +1104,7 @@ constexpr double Time::InSecondsFSinceUnixEpoch() const {
                    : std::numeric_limits<double>::infinity();
 }
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 // static
 constexpr Time Time::FromTimeSpec(const timespec& ts) {
   return FromSecondsSinceUnixEpoch(ts.tv_sec + static_cast<double>(ts.tv_nsec) /
@@ -1194,7 +1164,7 @@ class BASE_EXPORT TimeTicks : public time_internal::TimeBase<TimeTicks> {
  public:
   // The underlying clock used to generate new TimeTicks.
   enum class Clock {
-    FUCHSIA_ZX_CLOCK_MONOTONIC,
+    OBSOLETE_PLATFORM_CLOCK,
     LINUX_CLOCK_MONOTONIC,
     IOS_CF_ABSOLUTE_TIME_MINUS_KERN_BOOTTIME,
     MAC_MACH_ABSOLUTE_TIME,
@@ -1236,12 +1206,6 @@ class BASE_EXPORT TimeTicks : public time_internal::TimeBase<TimeTicks> {
   // considered to have an ambiguous ordering.)
   [[nodiscard]] static bool IsConsistentAcrossProcesses();
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // Converts between TimeTicks and an ZX_CLOCK_MONOTONIC zx_time_t value.
-  static TimeTicks FromZxTime(zx_time_t nanos_since_boot);
-  zx_time_t ToZxTime() const;
-#endif
-
 #if BUILDFLAG(IS_WIN)
   // Translates an absolute QPC timestamp into a TimeTicks value. The returned
   // value has the same origin as Now(). Do NOT attempt to use this if
@@ -1270,36 +1234,7 @@ class BASE_EXPORT TimeTicks : public time_internal::TimeBase<TimeTicks> {
 
 #endif  // BUILDFLAG(IS_APPLE)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-  // Converts to TimeTicks the value obtained from SystemClock.uptimeMillis().
-  // Note: this conversion may be non-monotonic in relation to previously
-  // obtained TimeTicks::Now() values because of the truncation (to
-  // milliseconds) performed by uptimeMillis().
-  static TimeTicks FromUptimeMillis(int64_t uptime_millis_value);
 
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_ANDROID)
-  // Converts to TimeTicks the value obtained from System.nanoTime(). This
-  // conversion will be monotonic in relation to previously obtained
-  // TimeTicks::Now() values as the clocks are based on the same posix monotonic
-  // clock, with nanoTime() potentially providing higher resolution.
-  static TimeTicks FromJavaNanoTime(int64_t nano_time_value);
-
-  // Truncates the TimeTicks value to the precision of SystemClock#uptimeMillis.
-  // Note that the clocks already share the same monotonic clock source.
-  int64_t ToUptimeMillis() const;
-
-  // Returns the TimeTicks value as microseconds in the timebase of
-  // SystemClock#uptimeMillis.
-  // Note that the clocks already share the same monotonic clock source.
-  //
-  // System.nanoTime() may be used to get sub-millisecond precision in Java code
-  // and may be compared against this value as the two share the same clock
-  // source (though be sure to convert nanos to micros).
-  int64_t ToUptimeMicros() const;
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Returns an enum indicating the underlying clock being used to generate
   // TimeTicks timestamps. This function should only be used for debugging and
@@ -1429,8 +1364,7 @@ class BASE_EXPORT ThreadTicks : public time_internal::TimeBase<ThreadTicks> {
 
   // Returns true if ThreadTicks::Now() is supported on this system.
   [[nodiscard]] static bool IsSupported() {
-#if (defined(_POSIX_THREAD_CPUTIME) && (_POSIX_THREAD_CPUTIME >= 0)) || \
-    BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_FUCHSIA)
+#if defined(_POSIX_THREAD_CPUTIME) && _POSIX_THREAD_CPUTIME >= 0 || BUILDFLAG(IS_APPLE)
     return true;
 #elif BUILDFLAG(IS_WIN)
     return IsSupportedWin();

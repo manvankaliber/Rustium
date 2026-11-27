@@ -15,10 +15,6 @@
 #include "base/threading/scoped_blocking_call.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/content_uri_utils.h"
-#include "base/files/file_util.h"
-#endif
 
 namespace base {
 namespace {
@@ -39,19 +35,11 @@ bool GetStat(const FilePath& path, bool show_links, stat_wrapper_t* st) {
 }
 
 bool ShouldShowSymLinks(int file_type) {
-#if BUILDFLAG(IS_FUCHSIA)
-  return false;
-#else
   return file_type & FileEnumerator::SHOW_SYM_LINKS;
-#endif  // BUILDFLAG(IS_FUCHSIA)
 }
 
 bool ShouldTrackVisitedDirectories(int file_type) {
-#if BUILDFLAG(IS_FUCHSIA)
-  return false;
-#else
   return !(file_type & FileEnumerator::SHOW_SYM_LINKS);
-#endif  // BUILDFLAG(IS_FUCHSIA)
 }
 
 }  // namespace
@@ -62,19 +50,6 @@ FileEnumerator::FileInfo::FileInfo() {
   UNSAFE_TODO(memset(&stat_, 0, sizeof(stat_)));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-FileEnumerator::FileInfo::FileInfo(FilePath content_uri,
-                                   FilePath filename,
-                                   bool is_directory,
-                                   off_t size,
-                                   Time time)
-    : content_uri_(std::move(content_uri)), filename_(std::move(filename)) {
-  UNSAFE_TODO(memset(&stat_, 0, sizeof(stat_)));
-  stat_.st_mode = is_directory ? S_IFDIR : S_IFREG;
-  stat_.st_size = size;
-  stat_.st_mtime = time.ToTimeT();
-}
-#endif
 
 bool FileEnumerator::FileInfo::IsDirectory() const {
   return S_ISDIR(stat_.st_mode);
@@ -141,15 +116,6 @@ FileEnumerator::FileEnumerator(const FilePath& root_path,
   // INCLUDE_DOT_DOT must not be specified if recursive.
   DCHECK(!(recursive && (INCLUDE_DOT_DOT & file_type_)));
 
-#if BUILDFLAG(IS_ANDROID)
-  if (auto content_uri = base::ResolveToContentUri(root_path); content_uri) {
-    // Get display-name of root path.
-    FileInfo root_info;
-    internal::ContentUriGetFileInfo(*content_uri, &root_info);
-    pending_subdirs_.push(
-        std::vector<std::string>({root_info.GetName().value()}));
-  }
-#endif
 
   if (file_type_ & FileType::NAMES_ONLY) {
     DCHECK(!recursive_);
@@ -184,33 +150,6 @@ FilePath FileEnumerator::Next() {
     root_path_ = root_path_.StripTrailingSeparators();
     pending_paths_.pop();
 
-#if BUILDFLAG(IS_ANDROID)
-    if (auto content_uri = base::ResolveToContentUri(root_path_); content_uri) {
-      subdirs_ = pending_subdirs_.top();
-      pending_subdirs_.pop();
-      directory_entries_ =
-          internal::ListContentUriDirectory(*content_uri, file_type_);
-      current_directory_entry_ = 0;
-      if (directory_entries_.empty()) {
-        continue;
-      }
-      if (recursive_) {
-        for (auto& info : directory_entries_) {
-          info.subdirs_ = subdirs_;
-          if (info.IsDirectory()) {
-            if (root_path_.IsVirtualDocumentPath()) {
-              pending_paths_.push(root_path_.Append(info.GetName()));
-            } else {
-              pending_paths_.push(info.content_uri_);
-            }
-            pending_subdirs_.push(subdirs_);
-            pending_subdirs_.top().push_back(info.GetName().value());
-          }
-        }
-      }
-      break;
-    }
-#endif
 
     DIR* dir = opendir(root_path_.value().c_str());
     if (!dir) {
@@ -222,21 +161,6 @@ FilePath FileEnumerator::Next() {
     }
 
     directory_entries_.clear();
-
-#if BUILDFLAG(IS_FUCHSIA)
-    // Fuchsia does not support .. on the file system server side, see
-    // https://fuchsia.googlesource.com/docs/+/master/dotdot.md and
-    // https://crbug.com/735540. However, for UI purposes, having the parent
-    // directory show up in directory listings makes sense, so we add it here to
-    // match the expectation on other operating systems. In cases where this
-    // is useful it should be resolvable locally.
-    FileInfo dotdot;
-    dotdot.stat_.st_mode = S_IFDIR;
-    dotdot.filename_ = FilePath("..");
-    if (!ShouldSkip(dotdot.filename_)) {
-      directory_entries_.push_back(std::move(dotdot));
-    }
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
     current_directory_entry_ = 0;
     struct dirent* dent;
@@ -309,11 +233,6 @@ FilePath FileEnumerator::Next() {
     }
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  if (root_path_.IsContentUri()) {
-    return directory_entries_[current_directory_entry_].content_uri_;
-  }
-#endif
 
   return root_path_.Append(
       directory_entries_[current_directory_entry_].filename_);

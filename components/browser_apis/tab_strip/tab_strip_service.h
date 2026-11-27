@@ -8,9 +8,7 @@
 #include "build/build_config.h"
 #include "components/browser_apis/tab_strip/tab_strip_api.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/browser_apis/tab_strip/tab_strip_experiment_api.mojom.h"
-#endif
 
 namespace tabs_api {
 
@@ -21,10 +19,8 @@ class TabStripApiBatchedObserver;
 }  // namespace observation
 
 class TabStripService : public mojom::TabStripServiceDirectReturnStub
-#if !BUILDFLAG(IS_ANDROID)
     ,
                         public mojom::TabStripExperimentServiceDirectReturnStub
-#endif
 {
  public:
   ~TabStripService() override = default;
@@ -49,11 +45,9 @@ class TabStripService : public mojom::TabStripServiceDirectReturnStub
   // Mojo handling:
   virtual void Accept(
       mojo::PendingReceiver<tabs_api::mojom::TabStripService> client) = 0;
-#if !BUILDFLAG(IS_ANDROID)
   virtual void AcceptExperimental(
       mojo::PendingReceiver<tabs_api::mojom::TabStripExperimentService>
           client) = 0;
-#endif
 };
 
 }  // namespace tabs_api

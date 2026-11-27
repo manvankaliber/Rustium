@@ -20,14 +20,6 @@
 #include "third_party/re2/src/re2/re2.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/containers/to_vector.h"
-#include "url/android/gurl_android.h"
-
-// Must come after headers that provide symbols used by @JniType.
-#include "components/autofill/android/payments_jni_headers/Ewallet_jni.h"
-#include "components/autofill/android/payments_jni_headers/PaymentInstrument_jni.h"
-#endif
 
 namespace autofill {
 
@@ -65,44 +57,5 @@ bool Ewallet::SupportsPaymentLink(std::string_view payment_link) const {
       });
 }
 
-#if BUILDFLAG(IS_ANDROID)
-base::android::ScopedJavaLocalRef<jobject> CreateJavaEwalletFromNative(
-    JNIEnv* env,
-    const Ewallet& ewallet) {
-  const DenseSet<PaymentInstrument::PaymentRail>&
-      payment_instrument_supported_rails =
-          ewallet.payment_instrument().supported_rails();
-  std::vector<int32_t> supported_payment_rails_array =
-      base::ToVector(payment_instrument_supported_rails,
-                     [](PaymentInstrument::PaymentRail rail) {
-                       return std::to_underlying(rail);
-                     });
-
-  return Java_Ewallet_create(env, ewallet.payment_instrument().instrument_id(),
-                             ewallet.payment_instrument().nickname(),
-                             ewallet.payment_instrument().display_icon_url(),
-                             supported_payment_rails_array,
-                             ewallet.payment_instrument().is_fido_enrolled(),
-                             ewallet.ewallet_name(),
-                             ewallet.account_display_name());
-}
-
-Ewallet CreateNativeEwalletFromJava(
-    JNIEnv* env,
-    const base::android::JavaRef<jobject>& jewallet) {
-  int64_t instrument_id = Java_PaymentInstrument_getInstrumentId(env, jewallet);
-  std::u16string nickname = Java_PaymentInstrument_getNickname(env, jewallet);
-  GURL display_icon_url =
-      Java_PaymentInstrument_getDisplayIconUrl(env, jewallet);
-  bool is_fido_enrolled =
-      Java_PaymentInstrument_getIsFidoEnrolled(env, jewallet);
-  std::u16string ewallet_name = Java_Ewallet_getEwalletName(env, jewallet);
-  std::u16string account_display_name =
-      Java_Ewallet_getAccountDisplayName(env, jewallet);
-  return Ewallet(instrument_id, nickname, display_icon_url, ewallet_name,
-                 account_display_name, /*supported_payment_link_uris=*/{},
-                 is_fido_enrolled);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 }  // namespace autofill

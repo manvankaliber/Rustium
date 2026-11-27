@@ -46,12 +46,6 @@ void BookmarkProvider::Start(const AutocompleteInput& input,
   TRACE_EVENT0("omnibox", "BookmarkProvider::Start");
   matches_.clear();
 
-  // Tab search does not support bookmark suggestions.
-  if (input.current_page_classification() ==
-      metrics::OmniboxEventProto::ANDROID_TAB_SEARCH_OVERLAY) {
-    return;
-  }
-
   if (input.IsZeroSuggest() || input.text().empty()) {
     return;
   }
@@ -122,11 +116,6 @@ void BookmarkProvider::DoAutocomplete(const AutocompleteInput& input) {
         match.fill_into_edit.insert(0, match.keyword + u" ");
       }
 
-      if (omnibox::IsAndroidHubOrTabSearch(
-              input.current_page_classification())) {
-        match.suggestion_group_id = omnibox::GROUP_MOBILE_BOOKMARKS;
-      }
-
       matches_.push_back(match);
     }
   }
@@ -142,7 +131,7 @@ void BookmarkProvider::DoAutocomplete(const AutocompleteInput& input) {
   size_t num_matches = std::min(matches_.size(), max_matches);
   std::partial_sort(matches_.begin(), matches_.begin() + num_matches,
                     matches_.end(), AutocompleteMatch::MoreRelevant);
-  if (!omnibox::IsAndroidHubOrTabSearch(input.current_page_classification())) {
+  {
     ResizeMatches(
         num_matches,
         OmniboxFieldTrial::IsMlUrlScoringUnlimitedNumCandidatesEnabled());
@@ -151,9 +140,6 @@ void BookmarkProvider::DoAutocomplete(const AutocompleteInput& input) {
 
 query_parser::MatchingAlgorithm BookmarkProvider::GetMatchingAlgorithm(
     AutocompleteInput input) {
-  if (omnibox::IsAndroidHubOrTabSearch(input.current_page_classification())) {
-    return query_parser::MatchingAlgorithm::ALWAYS_PREFIX_SEARCH;
-  }
 
   // TODO(yoangela): This might have to check whether we're in @bookmarks mode
   //  specifically, since we might still get bookmarks suggestions in

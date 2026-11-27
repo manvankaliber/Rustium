@@ -64,9 +64,6 @@
 #include <windows.h>
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "pdf/flatten_pdf_result.h"
-#endif
 
 #if BUILDFLAG(ENABLE_PDF_INK2)
 #include "pdf/pdf_ink_ids.h"

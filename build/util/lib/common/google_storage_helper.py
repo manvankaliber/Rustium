@@ -11,6 +11,7 @@ to Google Storage directly using this module.
 import logging
 import os
 import platform
+import subprocess
 import sys
 import time
 
@@ -31,20 +32,13 @@ DIR_SOURCE_ROOT = os.environ.get(
             os.pardir,
             os.pardir,
             os.pardir,
-        )
-    ),
+        )),
 )
-DEVIL_PATH = os.path.join(DIR_SOURCE_ROOT, 'third_party', 'catapult', 'devil')
-
-if DEVIL_PATH not in sys.path:
-    sys.path.append(DEVIL_PATH)
-from devil.utils import cmd_helper  # noqa: E402
 
 _PUBLIC_URL = 'https://storage.googleapis.com/%s/'
 _AUTHENTICATED_URL = 'https://storage.cloud.google.com/%s/'
-_GSUTIL_PATH = os.path.join(
-    DIR_SOURCE_ROOT, 'third_party', 'catapult', 'third_party', 'gsutil'
-)
+_GSUTIL_PATH = os.path.join(DIR_SOURCE_ROOT, 'third_party', 'catapult',
+                            'third_party', 'gsutil')
 
 
 def get_gsutil_script_path() -> str:
@@ -90,7 +84,7 @@ def upload(
         cmd.extend(['-h', 'Content-Type:%s' % content_type])
     cmd.extend(['cp'] + (command_args or []) + [filepath, gs_path])
 
-    cmd_helper.RunCmd(cmd)
+    subprocess.call(cmd)
 
     return get_url_link(name, bucket, authenticated_link)
 
@@ -102,18 +96,26 @@ def read_from_link(link):
     parsed_path = urlparse(link).path
     gs_path = 'gs://%s' % parsed_path.removeprefix('/')
     cmd = [get_gsutil_script_path(), '-q', 'cat', gs_path]
-    return cmd_helper.GetCmdOutput(cmd)
+    result = subprocess.run(cmd,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            text=True,
+                            encoding='utf-8',
+                            errors='ignore',
+                            check=False)
+    if result.stderr:
+        logging.critical('STDERR: %s', result.stderr)
+    return result.stdout
 
 
-@decorators.NoRaiseException(
-    default_return_value=False, exception_type=ValueError
-)
+@decorators.NoRaiseException(default_return_value=False,
+                             exception_type=ValueError)
 def exists(name, bucket):
     bucket = _format_bucket_name(bucket)
     gs_path = 'gs://%s/%s' % (bucket, name)
 
     cmd = [get_gsutil_script_path(), '-q', 'stat', gs_path]
-    return_code = cmd_helper.RunCmd(cmd)
+    return_code = subprocess.call(cmd)
     return return_code == 0
 
 
@@ -130,8 +132,7 @@ def unique_name(basename, suffix='', timestamp=True, device=None):
     return '%s%s%s%s' % (
         basename,
         '_%s' % time.strftime('%Y_%m_%d_T%H_%M_%S-UTC', time.gmtime())
-        if timestamp
-        else '',
+        if timestamp else '',
         '_%s' % device.serial if device else '',
         suffix,
     )
@@ -157,7 +158,7 @@ def get_url_link(name, bucket, authenticated_link=True):
 
 def _format_bucket_name(bucket):
     if bucket.startswith('gs://'):
-        bucket = bucket[len('gs://') :]
+        bucket = bucket[len('gs://'):]
     if bucket.endswith('/'):
         bucket = bucket[:-1]
     return bucket

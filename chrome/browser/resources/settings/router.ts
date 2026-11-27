@@ -19,7 +19,6 @@ export interface SettingsRoutes {
   ADDRESSES: Route;
   ADVANCED: Route;
   AI: Route;
-  AI_MODE_SEARCH: Route;
   AI_SUGGESTIONS: Route;
   APPEARANCE: Route;
   AUTOFILL: Route;
@@ -34,11 +33,11 @@ export interface SettingsRoutes {
   DOWNLOADS: Route;
   EDIT_DICTIONARY: Route;
   FONTS: Route;
-  GEMINI: Route;
-  GEMINI_LOGIN: Route;
-  GEMINI_ENTERPRISE: Route;
+
+
+
   GENERAL: Route;
-  GLIC_SECTION: Route;
+
   IDENTITY_DOCS: Route;
   INLINE_CUE_MENU: Route;
   LANGUAGES: Route;
@@ -62,7 +61,7 @@ export interface SettingsRoutes {
   SEARCH_ENGINES: Route;
   SECURITY: Route;
   SECURITY_KEYS: Route;
-  SHOPPING: Route;
+
   SITE_SETTINGS: Route;
   SITE_SETTINGS_ADS: Route;
   SITE_SETTINGS_ALL: Route;
@@ -117,7 +116,7 @@ export interface SettingsRoutes {
   SITE_SETTINGS_ZOOM_LEVELS: Route;
   SITE_SETTINGS_WEB_PRINTING: Route;
   SKILLS: Route;
-  SUGGESTIONS_FROM_GEMINI: Route;
+
   SYNC: Route;
   SYNC_ADVANCED: Route;
   SYSTEM: Route;
@@ -126,10 +125,8 @@ export interface SettingsRoutes {
   ACCOUNT: Route;
   GOOGLE_SERVICES: Route;
 
-  // <if expr="not is_chromeos">
   IMPORT_DATA: Route;
   SIGN_OUT: Route;
-  // </if>
 }
 
 /** Class for navigable routes. */

@@ -199,7 +199,6 @@ bool VideoToolboxDecompressionSessionManager::CreateSession(
 
   // Build video decoder specification.
   NSDictionary* decoder_config = nil;
-#if BUILDFLAG(IS_MAC)
   decoder_config = @{
     CFToNSPtrCast(
         kVTVideoDecoderSpecification_EnableHardwareAcceleratedVideoDecoder) :
@@ -210,9 +209,6 @@ bool VideoToolboxDecompressionSessionManager::CreateSession(
         ? @YES
         : @NO
   };
-#else
-  decoder_config = @{};
-#endif
 
   // Build destination image buffer attributes.
   // TODO(crbug.com/40227557): Also set size using the visible rect.

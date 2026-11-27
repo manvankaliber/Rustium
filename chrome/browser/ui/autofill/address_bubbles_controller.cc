@@ -29,7 +29,6 @@
 #include "chrome/browser/ui/autofill/update_address_bubble_controller.h"
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/desktop_to_mobile_promos/ios_promos_utils.h"
 #include "chrome/browser/ui/views/frame/browser_view.h"
 #include "chrome/grit/theme_resources.h"
 #include "components/application_locale_storage/application_locale_storage.h"
@@ -173,10 +172,7 @@ void AddressBubblesController::OnUserDecision(
     MaybeShowSignInPromo(profile);
   }
 
-  if (decision == AutofillClient::AddressPromptUserDecision::kAccepted ||
-      decision == AutofillClient::AddressPromptUserDecision::kEditAccepted) {
-    MaybeShowIOSDektopAddressPromo();
-  } else if (decision == AutofillClient::AddressPromptUserDecision::kDeclined &&
+  if (decision == AutofillClient::AddressPromptUserDecision::kDeclined &&
              !user_has_any_profile_saved_ &&
              base::FeatureList::IsEnabled(
                  features::kAutofillAddressUserDeclinedSaveSurvey)) {
@@ -227,7 +223,6 @@ void AddressBubblesController::WebContentsDestroyed() {
                  std::nullopt);
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::optional<actions::ActionId>
 AddressBubblesController::GetActionIdForPageAction() {
   return kActionShowAddressesBubbleOrPage;
@@ -237,7 +232,6 @@ std::optional<std::u16string>
 AddressBubblesController::GetPageActionTooltipText() {
   return GetPageActionIconTooltip();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void AddressBubblesController::DoShowBubble() {
   CHECK(!bubble_view());
@@ -312,16 +306,7 @@ void AddressBubblesController::SetUpBubble(
   user_has_any_profile_saved_ = user_has_any_profile_saved;
 }
 
-void AddressBubblesController::MaybeShowIOSDektopAddressPromo() {
-  BrowserWindowInterface* browser =
-      BrowserWindow::FindBrowserWindowWithWebContents(web_contents())
-          ->AsBrowserView()
-          ->browser();
 
-  // Verify if user is eligible for iOS promo, and attempt showing if they are.
-  ios_promos_utils::VerifyIOSPromoEligibility(
-      desktop_to_mobile_promos::PromoType::kAddress, browser);
-}
 
 void AddressBubblesController::MaybeShowSignInPromo(
     base::optional_ref<const AutofillProfile> autofill_profile) {

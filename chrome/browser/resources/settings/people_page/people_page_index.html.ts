@@ -23,12 +23,10 @@ export function getHtml(this: SettingsPeoplePageIndexElement) {
       route-path="${this.routes_.SYNC_ADVANCED.path}">
   </settings-sync-controls-page>
 
-<if expr="not is_chromeos">
   <settings-manage-profile slot="view" id="manageProfile"
       data-parent-view-id="parent"
       route-path="${this.routes_.MANAGE_PROFILE.path}">
   </settings-manage-profile>
-</if>
 
   ${this.replaceSyncPromosWithSignInPromos_ ? html`
     <settings-account-page slot="view" id="account" data-parent-view-id="parent"

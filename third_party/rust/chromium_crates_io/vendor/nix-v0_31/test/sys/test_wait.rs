@@ -27,12 +27,7 @@ fn test_wait_signal() {
 }
 
 #[test]
-#[cfg(any(
-    target_os = "android",
-    target_os = "freebsd",
-    //target_os = "haiku",
-    all(target_os = "linux", not(target_env = "uclibc")),
-))]
+#[cfg(any(target_os = "freebsd", all(target_os = "linux", not(target_env = "uclibc"))))]
 #[cfg(not(any(
     target_arch = "mips",
     target_arch = "mips32r6",
@@ -75,12 +70,7 @@ fn test_wait_exit() {
 
 #[cfg(not(target_os = "haiku"))]
 #[test]
-#[cfg(any(
-    target_os = "android",
-    target_os = "freebsd",
-    target_os = "haiku",
-    all(target_os = "linux", not(target_env = "uclibc")),
-))]
+#[cfg(any(target_os = "freebsd", target_os = "haiku", all(target_os = "linux", not(target_env = "uclibc"))))]
 #[cfg(not(any(
     target_arch = "mips",
     target_arch = "mips32r6",
@@ -132,12 +122,7 @@ fn test_waitstatus_pid() {
 }
 
 #[test]
-#[cfg(any(
-    target_os = "android",
-    target_os = "freebsd",
-    target_os = "haiku",
-    all(target_os = "linux", not(target_env = "uclibc")),
-))]
+#[cfg(any(target_os = "freebsd", target_os = "haiku", all(target_os = "linux", not(target_env = "uclibc"))))]
 fn test_waitid_pid() {
     let _m = crate::FORK_MTX.lock();
 
@@ -150,7 +135,7 @@ fn test_waitid_pid() {
     }
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 // FIXME: qemu-user doesn't implement ptrace on most arches
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 mod ptrace {

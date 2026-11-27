@@ -37,11 +37,6 @@ class PdfAnnotationAgentTest : public ::testing::Test {
     mojo::PendingReceiver<blink::mojom::AnnotationAgentHost>
         annotation_agent_host_receiver;
     mojo::PendingRemote<blink::mojom::AnnotationAgent> annotation_agent_remote;
-    pdf_annotation_agent_ = std::make_unique<PdfAnnotationAgent>(
-        &mock_container_, blink::mojom::AnnotationType::kGlic,
-        std::move(selector),
-        annotation_agent_host_receiver.InitWithNewPipeAndPassRemote(),
-        annotation_agent_remote.InitWithNewPipeAndPassReceiver());
     fake_annotation_agent_host_ = std::make_unique<FakeAnnotationAgentHost>(
         std::move(annotation_agent_host_receiver),
         std::move(annotation_agent_remote));

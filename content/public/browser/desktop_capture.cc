@@ -18,13 +18,7 @@
 #include "content/public/common/content_features.h"
 #include "third_party/skia/include/core/SkBitmap.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "content/browser/media/capture/desktop_capturer_ash.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/media/capture/desktop_capturer_android.h"
-#endif
 
 #if defined(WEBRTC_USE_PIPEWIRE)
 #include "base/environment.h"
@@ -83,17 +77,8 @@ webrtc::DesktopCaptureOptions CreateDesktopCaptureOptions() {
 std::unique_ptr<webrtc::DesktopCapturer> CreateScreenCapturer(
     webrtc::DesktopCaptureOptions options,
     bool for_snapshot) {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (for_snapshot) {
-    return std::make_unique<DesktopCapturerAsh>();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
-#if BUILDFLAG(IS_ANDROID)
-  return std::make_unique<DesktopCapturerAndroid>(options);
-#else
   return webrtc::DesktopCapturer::CreateScreenCapturer(options);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 std::unique_ptr<webrtc::DesktopCapturer> CreateWindowCapturer(
@@ -102,11 +87,7 @@ std::unique_ptr<webrtc::DesktopCapturer> CreateWindowCapturer(
   options.set_allow_wgc_capturer_fallback(true);
 #endif  // defined(RTC_ENABLE_WIN_WGC)
 
-#if BUILDFLAG(IS_ANDROID)
-  return std::make_unique<DesktopCapturerAndroid>(options);
-#else
   return webrtc::DesktopCapturer::CreateWindowCapturer(options);
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 bool CanUsePipeWire() {

@@ -43,9 +43,6 @@ class ThreadWrapper;
 
 namespace base {
 
-namespace android {
-class PreFreezeBackgroundMemoryTrimmer;
-}
 namespace internal {
 class DelayTimerBase;
 class DelayedTaskManager;
@@ -82,9 +79,6 @@ class PostDelayedTaskPassKey {
   friend class media::AlsaPcmOutputStream;
   friend class media::AlsaPcmInputStream;
   friend class media::FakeAudioWorker;
-#if BUILDFLAG(IS_ANDROID)
-  friend class base::android::PreFreezeBackgroundMemoryTrimmer;
-#endif
 };
 
 // Restricts access to RunOrPostTask() to authorized callers.

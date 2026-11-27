@@ -990,7 +990,11 @@ ActionsFromCurrentData CreateActionsFromCurrentStarterPackData(
   // user-edited can be removed from the data store.
   for (auto& i : id_to_turl) {
     TemplateURL* template_url = i.second;
-    if (template_url->safe_for_autoreplace()) {
+    if (template_url->safe_for_autoreplace() ||
+        template_url->starter_pack_id() ==
+            template_url_starter_pack_data::StarterPackId::kAiMode ||
+        template_url->starter_pack_id() ==
+            template_url_starter_pack_data::StarterPackId::kGemini) {
       actions.removed_engines.push_back(template_url);
     }
   }

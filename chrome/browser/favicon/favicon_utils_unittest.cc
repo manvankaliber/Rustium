@@ -18,13 +18,11 @@
 #include "ui/gfx/image/image_skia.h"
 #include "ui/resources/grit/ui_resources.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/webui/top_chrome/top_chrome_webui_profile.h"  // nogncheck
 #include "components/favicon/content/content_favicon_driver.h"
 #include "content/public/test/browser_task_environment.h"
 #include "content/public/test/test_web_contents_factory.h"
-#endif
 
 namespace favicon {
 
@@ -202,7 +200,6 @@ TEST_F(DefaultFaviconModelTest, ResolvesColorIdAtRasterization) {
                   .BackedBySameObjectAs(model.Rasterize(color_provider)));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // TopChromeWebUIProfile has no favicon service, so creating a favicon driver
 // for its WebContents creates one with a null service instead of crashing.
 TEST(FaviconUtilsTest, CreateContentFaviconDriverInTopChromeWebUIProfile) {
@@ -215,6 +212,5 @@ TEST(FaviconUtilsTest, CreateContentFaviconDriverInTopChromeWebUIProfile) {
   CreateContentFaviconDriverForWebContents(web_contents);
   EXPECT_TRUE(ContentFaviconDriver::FromWebContents(web_contents));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace favicon

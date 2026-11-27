@@ -144,10 +144,6 @@ class SearchEnginesHandler : public SettingsPageUIHandler,
   //   [2]: string: The search query URL.
   void HandleSearchEngineEditCompleted(const base::ListValue& args);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Request the browser to open its search settings.
-  void HandleOpenBrowserSearchSettings(const base::ListValue& args);
-#endif
 
   // Returns a dictionary to pass to WebUI representing the given search engine.
   // The engine is identified by an opaque string ID (e.g. "db:42") that the

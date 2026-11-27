@@ -413,87 +413,6 @@ enum class PromoAction : int {
   kMaxValue = PROMO_ACTION_NEW_ACCOUNT_EXISTING_ACCOUNT,
 };
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// This class is used to record user action that was taken after
-// receiving the header from Gaia in the web sign-in flow.
-// GENERATED_JAVA_ENUM_PACKAGE: org.chromium.components.signin.metrics
-// GENERATED_JAVA_CLASS_NAME_OVERRIDE: AccountConsistencyPromoAction
-enum class AccountConsistencyPromoAction : int {
-  // Promo is not shown as there are no accounts on device.
-  SUPPRESSED_NO_ACCOUNTS = 0,
-  // User has dismissed the promo by tapping back button.
-  DISMISSED_BACK = 1,
-  // User has tapped |Add account to device| from expanded account list.
-  ADD_ACCOUNT_STARTED = 2,
-
-  // Deprecated 05/2021, since the Incognito option has been removed from
-  // account picker bottomsheet.
-  // STARTED_INCOGNITO_SESSION = 3,
-
-  // User has selected the default account and signed in with it
-  SIGNED_IN_WITH_DEFAULT_ACCOUNT = 4,
-  // User has selected one of the non default accounts and signed in with it.
-  SIGNED_IN_WITH_NON_DEFAULT_ACCOUNT = 5,
-  // The promo was shown to user.
-  SHOWN = 6,
-  // Promo is not shown due to sign-in being disallowed either by an enterprise
-  // policy
-  // or by |Allow Chrome sign-in| toggle.
-  SUPPRESSED_SIGNIN_NOT_ALLOWED = 7,
-  // User has added an account and signed in with this account.
-  // When this metric is recorded, we won't record
-  // SIGNED_IN_WITH_DEFAULT_ACCOUNT or
-  // SIGNED_IN_WITH_NON_DEFAULT_ACCOUNT.
-  SIGNED_IN_WITH_ADDED_ACCOUNT = 8,
-  // User has dismissed the promo by tapping on the scrim above the bottom
-  // sheet.
-  DISMISSED_SCRIM = 9,
-  // User has dismissed the promo by swiping down the bottom sheet.
-  DISMISSED_SWIPE_DOWN = 10,
-  // User has dismissed the promo by other means.
-  DISMISSED_OTHER = 11,
-  // The auth error screen was shown to the user.
-  AUTH_ERROR_SHOWN = 12,
-  // The generic error screen was shown to the user.
-  GENERIC_ERROR_SHOWN = 13,
-  // User has dismissed the promo by tapping on the dismissal button in the
-  // bottom sheet.
-  DISMISSED_BUTTON = 14,
-  // User has completed the account addition flow triggered from the bottom
-  // sheet.
-  ADD_ACCOUNT_COMPLETED = 15,
-  // The bottom sheet was suppressed as the user hit consecutive active
-  // dismissal limit.
-  SUPPRESSED_CONSECUTIVE_DISMISSALS = 16,
-  // The timeout erreur was shown to the user.
-  TIMEOUT_ERROR_SHOWN = 17,
-  // The web sign-in is not shown because the user is already signed in.
-  SUPPRESSED_ALREADY_SIGNED_IN = 18,
-  // AuthenticationFlow on iOS is cancelled or failed to sign-in.
-  IOS_AUTH_FLOW_CANCELLED_OR_FAILED = 19,
-  // The promo was shown to the user, with no existing on-device account. (i.e.
-  // the no-account menu was shown)
-  SHOWN_WITH_NO_DEVICE_ACCOUNT = 20,
-  // User tapped on "Sign In…" in the no-account menu of the bottom sheet,
-  // starting an add-account flow.
-  ADD_ACCOUNT_STARTED_WITH_NO_DEVICE_ACCOUNT = 21,
-  // User successfully added an account after tapping "Sign In…" from the
-  // no-account menu.
-  ADD_ACCOUNT_COMPLETED_WITH_NO_DEVICE_ACCOUNT = 22,
-  // User started with the bottom sheet without a device-account, and signed in
-  // to chrome by finishing the add-account and sign-in flows.
-  SIGNED_IN_WITH_NO_DEVICE_ACCOUNT = 23,
-  // User was shown the confirm management screen on signin.
-  CONFIRM_MANAGEMENT_SHOWN = 24,
-  // User accepted management on signin.
-  CONFIRM_MANAGEMENT_ACCEPTED = 25,
-  // User started sign-in with a managed account in the consistency promo.
-  SIGNIN_STARTED_WITH_MANAGED_ACCOUNT = 26,
-  // User started sign-in with a non-managed account in the consistency promo.
-  SIGNIN_STARTED_WITH_NON_MANAGED_ACCOUNT = 27,
-  kMaxValue = SIGNIN_STARTED_WITH_NON_MANAGED_ACCOUNT,
-};
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 // Enum values which enumerates all reasons to start sign in process.
 enum class Reason : int {
@@ -693,64 +612,6 @@ enum class SigninFunnelEvent {
 };
 // LINT.ThenChange(//tools/metrics/histograms/metadata/signin/enums.xml:SigninFunnelEvent)
 
-#if BUILDFLAG(IS_IOS)
-// The reason an alert dialog is shown when the user is about to sign out.
-enum class SignoutDataLossAlertReason : int {
-  // The user has unsynced data that will be lost on signout.
-  kSignoutWithUnsyncedData = 0,
-  // A managed user is signing out and the data will be cleared from the device.
-  kSignoutWithClearDataForManagedUser = 1,
-};
-
-// Values of Signin.AccountType histogram. This histogram records if the user
-// uses a gmail account or a managed account when signing in.
-// These values are persisted to logs. Entries should not be renumbered and
-// numeric values should never be reused. Keep in sync with SigninAccountType in
-// tools/metrics/histograms/metadata/signin/enums.xml.
-enum class SigninAccountType {
-  // Gmail account.
-  kRegular = 0,
-  // Managed account.
-  kManaged = 1,
-  // Always the last enumerated type.
-  kMaxValue = kManaged,
-};
-
-// Event within the reauth flow.
-//
-// LINT.IfChange(ReauthFlowEvent)
-enum class ReauthFlowEvent : int {
-  // The reauth flow has started.
-  kStarted = 0,
-  // The reauth flow has completed successfully.
-  kCompleted = 1,
-  // There was an error during the reauth flow.
-  kError = 2,
-  // The reauth flow was cancelled by the user.
-  kCancelled = 3,
-  // The reauth flow was cancelled because the coordinator was stopped.
-  kInterrupted = 4,
-  kMaxValue = kInterrupted
-};
-// LINT.ThenChange(//tools/metrics/histograms/metadata/signin/histograms.xml:ReauthFlowEvent)
-
-// Identifies explicit reauthentication UI entry points.
-//
-// These values are persisted to logs. Entries should not be renumbered and
-// numeric values should never be reused.
-// LINT.IfChange(ReauthAccessPoint)
-enum class ReauthAccessPoint : int {
-  // Error card in the account menu.
-  kAccountMenu = 0,
-  kAccountSettings = 1,
-  kRecentTabs = 2,
-  kReauthInfoBar = 3,
-  // Reauth triggered by an enterprise proxy challenge.
-  kEnterpriseProxy = 4,
-  kMaxValue = kEnterpriseProxy,
-};
-// LINT.ThenChange(//tools/metrics/histograms/metadata/signin/enums.xml:ReauthAccessPoint)
-#endif  // BUILDFLAG(IS_IOS)
 
 std::optional<AccessPoint> AccessPointFromInt(int access_point);
 
@@ -785,10 +646,6 @@ void LogSigninPendingOffered(AccessPoint access_point);
 // ones that can show the fullscreen sign-in), otherwise this CHECKs.
 void LogSigninFunnelEvent(AccessPoint access_point, SigninFunnelEvent event);
 
-#if BUILDFLAG(IS_IOS)
-// Records the account type when the user signs in.
-void LogSigninWithAccountType(SigninAccountType account_type);
-#endif  // BUILDFLAG(IS_IOS)
 
 // Logs sync opt-in start events and their associated access points. The
 // completion events are automatically logged when the primary account state
@@ -861,25 +718,6 @@ void RecordRefreshTokenUpdatedFromSource(bool refresh_token_is_valid,
 // Records the source that revoked a refresh token.
 void RecordRefreshTokenRevokedFromSource(SourceForRefreshTokenOperation source);
 
-#if BUILDFLAG(IS_IOS)
-// Records whether the user choose to "Sign Out" or "Cancel" when an alert for
-// data loss is displayed.
-void RecordSignoutConfirmationFromDataLossAlert(
-    SignoutDataLossAlertReason reason,
-    bool signout_confirmed);
-
-// Records the progression of the reauthentication flow that was started within
-// the sign-in flow designated by `access_point`. `event` is converted into a
-// suffix for `Signin.Reauth.InSigninFlow` histogram family.
-void RecordReauthFlowEventInSigninFlow(signin_metrics::AccessPoint access_point,
-                                       ReauthFlowEvent event);
-
-// Records the progression of the reauthentication flow that was started via an
-// explicit reauthentication UI. `event` is converted into a suffix for
-// `Signin.Reauth.InSigninFlow` histogram family.
-void RecordReauthFlowEventInExplicitFlow(ReauthAccessPoint access_point,
-                                         ReauthFlowEvent event);
-#endif  // BUILDFLAG(IS_IOS)
 
 // Records the total number of open tabs at the moment of signin or enabling
 // sync.
@@ -906,11 +744,6 @@ void RecordSigninUserActionForAccessPoint(AccessPoint access_point);
 // Records |Signin_Impression_From*| user action.
 void RecordSigninImpressionUserActionForAccessPoint(AccessPoint access_point);
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// Records |Signin.AccountConsistencyPromoAction.{PromoEvent}| histogram.
-void RecordConsistencyPromoUserAction(AccountConsistencyPromoAction action,
-                                      AccessPoint access_point);
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 }  // namespace signin_metrics
 

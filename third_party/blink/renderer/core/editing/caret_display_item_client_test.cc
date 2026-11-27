@@ -507,7 +507,7 @@ TEST_P(CaretDisplayItemClientTest, PlainTextRTLCaretPosition) {
   EXPECT_EQ(regular_caret_rect, plaintext_caret_rect);
 }
 
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_MAC)
 // TODO(crbug.com/1457081): Previously, this test passed on the Mac bots even
 // though `LoadNoto()` always failed. Now that `LoadNoto()` actually succeeds,
 // this test fails on Mac and iOS though...

@@ -49,10 +49,8 @@
 #include "components/prefs/pref_service.h"
 #endif
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/blocked_content/popunder_preventer.h"
 #include "chrome/browser/ui/browser_command_controller.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #include "chrome/browser/safe_browsing/safe_browsing_service.h"  // nogncheck
@@ -219,13 +217,11 @@ void FullscreenController::EnterFullscreenModeForTab(
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID)
   if (!popunder_preventer_) {
     popunder_preventer_ = std::make_unique<PopunderPreventer>(web_contents);
   } else {
     popunder_preventer_->WillActivateWebContents(web_contents);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Keep the current state. |SetTabWithExclusiveAccess| may change the return
   // value of |IsWindowFullscreenForTabOrPending|.
@@ -252,16 +248,6 @@ void FullscreenController::EnterFullscreenModeForTab(
     // renderer doesn't know if an element in other renderer process is in
     // fullscreen.
     CHECK(tab_fullscreen_, base::NotFatalUntil::M162);
-#if BUILDFLAG(IS_ANDROID)
-    // On Android it is allowed to change the fullscreen parameters options when
-    // in fullscreen.
-    CHECK(fullscreen_parameters_.has_value(), base::NotFatalUntil::M162);
-    if (fullscreen_parameters_.has_value() &&
-        fullscreen_tab_params != fullscreen_parameters_) {
-      EnterFullscreenModeInternal(FullscreenInternalOption::kTab,
-                                  requesting_frame, fullscreen_tab_params);
-    }
-#endif
     exclusive_access_manager()->UpdateBubble(base::NullCallback());
   } else {
     ExclusiveAccessContext* exclusive_access_context =
@@ -355,7 +341,6 @@ void FullscreenController::ExitFullscreenModeForTab(WebContents* web_contents) {
   PostFullscreenChangeNotification();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void FullscreenController::FullscreenTabOpeningPopup(
     content::WebContents* opener,
     content::WebContents* popup) {
@@ -366,7 +351,6 @@ void FullscreenController::FullscreenTabOpeningPopup(
   CHECK_EQ(exclusive_access_tab(), opener, base::NotFatalUntil::M162);
   popunder_preventer_->AddPotentialPopunder(popup);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void FullscreenController::OnTabDetachedFromView(WebContents* old_contents) {
   if (!IsFullscreenWithinTab(old_contents)) {
@@ -440,18 +424,14 @@ void FullscreenController::WindowFullscreenStateChanged() {
   tab_fullscreen_target_display_id_ = display::kInvalidDisplayId;
   started_fullscreen_transition_ = false;
 
-#if !BUILDFLAG(IS_ANDROID)
   if (!IsTabFullscreen()) {
     // Activate any popup windows created while content fullscreen, after exit.
     popunder_preventer_.reset();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_ANDROID)
   if (browser_command_controller_) {
     browser_command_controller_->FullscreenStateChanged();
   }
-#endif
   if (bookmark_bar_controller_) {
     bookmark_bar_controller_->UpdateBookmarkBarState(
         BookmarkBarController::StateChangeReason::kToggleFullscreen);
@@ -459,11 +439,9 @@ void FullscreenController::WindowFullscreenStateChanged() {
 }
 
 void FullscreenController::FullscreenTopUIStateChanged() {
-#if !BUILDFLAG(IS_ANDROID)
   if (browser_command_controller_) {
     browser_command_controller_->FullscreenStateChanged();
   }
-#endif
   if (bookmark_bar_controller_) {
     bookmark_bar_controller_->UpdateBookmarkBarState(
         BookmarkBarController::StateChangeReason::kToolbarOptionChange);
@@ -685,7 +663,7 @@ void FullscreenController::ExitFullscreenModeInternal() {
   toggled_into_fullscreen_ = false;
   started_fullscreen_transition_ = true;
   auto weak_ptr = weak_ptr_factory_.GetWeakPtr();
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_MAC)
   // Mac windows report a state change instantly, and so we must also clear
   // state_prior_to_tab_fullscreen_ to match them else other logic using
   // state_prior_to_tab_fullscreen_ will be incorrect.

@@ -2,8 +2,6 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-import("//build/config/android/rules.gni")
-
 group("robolectric_runtime_jars") {
   testonly = true
   data = [
@@ -24,10 +22,4 @@ group("robolectric_runtime_jars") {
     "cipd/lib/android-all-instrumented-17-robolectric-15733970-i7.jar",
     "cipd/lib/nativeruntime-dist-compat-1.0.19.jar",
   ]
-}
-
-# Robolectric tests compile against the robolectric sdk. This should be kept in
-# sync with the latest version in //third_party/android_sdk.
-android_system_java_prebuilt("robolectric_test_sdk_java") {
-  jar_path = "cipd/lib/android-all-17-robolectric-15733970.jar"
 }

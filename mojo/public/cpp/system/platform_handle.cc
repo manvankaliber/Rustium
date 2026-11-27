@@ -46,14 +46,8 @@ ScopedSharedBufferHandle WrapPlatformSharedMemoryRegion(
 #if BUILDFLAG(IS_WIN)
   platform_handles[0].type = MOJO_PLATFORM_HANDLE_TYPE_WINDOWS_HANDLE;
   platform_handles[0].value = reinterpret_cast<uint64_t>(handle.Take());
-#elif BUILDFLAG(IS_FUCHSIA)
-  platform_handles[0].type = MOJO_PLATFORM_HANDLE_TYPE_FUCHSIA_HANDLE;
-  platform_handles[0].value = static_cast<uint64_t>(handle.release());
 #elif BUILDFLAG(IS_APPLE)
   platform_handles[0].type = MOJO_PLATFORM_HANDLE_TYPE_MACH_PORT;
-  platform_handles[0].value = static_cast<uint64_t>(handle.release());
-#elif BUILDFLAG(IS_ANDROID)
-  platform_handles[0].type = MOJO_PLATFORM_HANDLE_TYPE_FILE_DESCRIPTOR;
   platform_handles[0].value = static_cast<uint64_t>(handle.release());
 #else
   platform_handles[0].type = MOJO_PLATFORM_HANDLE_TYPE_FILE_DESCRIPTOR;
@@ -110,14 +104,6 @@ base::subtle::PlatformSharedMemoryRegion UnwrapPlatformSharedMemoryRegion(
     return base::subtle::PlatformSharedMemoryRegion();
   }
   region_handle.Set(reinterpret_cast<HANDLE>(platform_handles[0].value));
-#elif BUILDFLAG(IS_FUCHSIA)
-  if (num_platform_handles != 1) {
-    return base::subtle::PlatformSharedMemoryRegion();
-  }
-  if (platform_handles[0].type != MOJO_PLATFORM_HANDLE_TYPE_FUCHSIA_HANDLE) {
-    return base::subtle::PlatformSharedMemoryRegion();
-  }
-  region_handle.reset(static_cast<zx_handle_t>(platform_handles[0].value));
 #elif BUILDFLAG(IS_APPLE)
   if (num_platform_handles != 1) {
     return base::subtle::PlatformSharedMemoryRegion();
@@ -126,14 +112,6 @@ base::subtle::PlatformSharedMemoryRegion UnwrapPlatformSharedMemoryRegion(
     return base::subtle::PlatformSharedMemoryRegion();
   }
   region_handle.reset(static_cast<mach_port_t>(platform_handles[0].value));
-#elif BUILDFLAG(IS_ANDROID)
-  if (num_platform_handles != 1) {
-    return base::subtle::PlatformSharedMemoryRegion();
-  }
-  if (platform_handles[0].type != MOJO_PLATFORM_HANDLE_TYPE_FILE_DESCRIPTOR) {
-    return base::subtle::PlatformSharedMemoryRegion();
-  }
-  region_handle.reset(static_cast<int>(platform_handles[0].value));
 #else
   if (access_mode == MOJO_PLATFORM_SHARED_MEMORY_REGION_ACCESS_MODE_WRITABLE) {
     if (num_platform_handles != 2) {

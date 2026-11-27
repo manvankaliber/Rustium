@@ -18,7 +18,6 @@ extern const char kAnotherUiShowing[];
 
 // App store billing methods (e.g., https://play.google.com/billing) is
 // only supported in Trusted Web Activity.
-extern const char kAppStoreMethodOnlySupportedInTwa[];
 
 // Mojo call PaymentRequest::Init() must precede PaymentRequest::Show().
 extern const char kAttemptedInitializationTwice[];

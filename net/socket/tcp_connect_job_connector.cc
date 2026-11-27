@@ -2,7 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include "base/memory/raw_ptr.h"
 #include "net/socket/tcp_connect_job_connector.h"
+#include "net/socket/tcp_connect_job_connector_rust_ffi.h"
+#include "net/socket/connection_jobs_upper_rust_ffi.h"
 
 #include <memory>
 #include <optional>
@@ -28,45 +31,134 @@
 
 namespace net {
 
+
+// Invocation-local observer. Invalidated at the most-derived destructor entry.
+// No typed native pointer crosses the Rust ABI or survives a service call.
+struct tcp_connect_job_connectorRustBridge : connection_jobs_upper_rust::Invocation {
+
+  static_assert(static_cast<int>(TcpConnectJob::Connector::State::kNone)==0);
+  static_assert(static_cast<int>(TcpConnectJob::Connector::State::kWaitForIPEndPoint)==1);
+  static_assert(static_cast<int>(TcpConnectJob::Connector::State::kObtainIPEndPoint)==2);
+  static_assert(static_cast<int>(TcpConnectJob::Connector::State::kTcpConnect)==3);
+  static_assert(static_cast<int>(TcpConnectJob::Connector::State::kTcpConnectComplete)==4);
+  static_assert(static_cast<int>(TcpConnectJob::Connector::State::kWaitForCryptoReady)==5);
+  static_assert(static_cast<int>(TcpConnectJob::Connector::State::kVerifyIPEndPointUsable)==6);
+  static_assert(static_cast<int>(TcpConnectJob::Connector::State::kDone)==7);
+
+  using Op = tcp_connect_job_connector_rust::Operation;
+  using Action = tcp_connect_job_connector_rust::Action;
+  raw_ptr<const TcpConnectJob::Connector> owner;
+  raw_ptr<TcpConnectJob::Connector> mutable_owner = nullptr;
+
+  TcpConnectJob::IPEndPointInfo ip_result=base::unexpected(ERR_IO_PENDING);
+  raw_ptr<const ServiceEndpoint> endpoint=nullptr;
+  std::unique_ptr<SocketPerformanceWatcher> watcher;
+
+  explicit tcp_connect_job_connectorRustBridge(TcpConnectJob::Connector* value) : Invocation(value), owner(value), mutable_owner(value) {
+    Register(&Clear);
+  }
+  explicit tcp_connect_job_connectorRustBridge(const TcpConnectJob::Connector* value) : Invocation(value), owner(value) {
+    Register(&Clear);
+  }
+  ~tcp_connect_job_connectorRustBridge() { Unregister(); }
+  static void Clear(Invocation* value) {
+    auto& c = *static_cast<tcp_connect_job_connectorRustBridge*>(value);
+    c.owner = nullptr; c.mutable_owner = nullptr;
+    c.endpoint=nullptr;
+  }
+  int64_t Run(Op operation, int64_t argument = 0) {
+    return connection_jobs_rust_run(10, static_cast<uint32_t>(operation),
+                                    argument, this, &Service);
+  }
+  static bool Service(void* context, uint32_t module, uint32_t action,
+                      int64_t argument, int64_t* output) {
+    auto& c = *static_cast<tcp_connect_job_connectorRustBridge*>(context);
+    *output = 0;
+    if (!c.owner) return false;
+    if (action == UINT32_MAX) return true;
+    CHECK_EQ(module, 10u);
+    const auto& j = *c.owner;
+    // Mutable access is requested only in action arms that require it. Const
+    // wrappers never obtain a mutable receiver and never commit a snapshot.
+    auto Mutable = [&]() -> TcpConnectJob::Connector& { CHECK(c.mutable_owner); return *c.mutable_owner; };
+    switch (static_cast<Action>(action)) {
+      case Action::State: { *output=static_cast<int>(j.next_state_); break; }
+      case Action::SetState: { Mutable().next_state_=static_cast<TcpConnectJob::Connector::State>(argument); break; }
+      case Action::CheckNotDone: { DCHECK_NE(j.next_state_, TcpConnectJob::Connector::State::kDone); break; }
+      case Action::CheckLoop: { DCHECK_NE(j.next_state_, TcpConnectJob::Connector::State::kNone); break; }
+      case Action::CheckResult: { DCHECK_NE(argument,ERR_IO_PENDING); break; }
+      case Action::CheckOk: { DCHECK_EQ(argument,OK); break; }
+      case Action::CheckNoAddress: { DCHECK(!j.current_address_); break; }
+      case Action::CheckAddress: { DCHECK(j.current_address_); break; }
+      case Action::CheckNoMore: { CHECK_EQ(argument,ERR_NAME_NOT_RESOLVED); break; }
+      case Action::NotReached: { NOTREACHED(); }
+      case Action::GetIp: { c.ip_result=j.parent_->GetNextIPEndPoint(j); *output=c.ip_result.has_value(); break; }
+      case Action::IpError: { *output=c.ip_result.error(); break; }
+      case Action::TakeIp: { Mutable().current_address_=std::move(c.ip_result).value(); break; }
+      case Action::FindEndpoint: { c.endpoint=j.parent_->FindServiceEndpoint(*j.current_address_); break; }
+      case Action::HasEndpoint: { *output=c.endpoint!=nullptr; break; }
+      case Action::IsStale: { *output=j.parent_->IsStaleConnector(j); break; }
+      case Action::SaveMetadata: { Mutable().current_service_endpoint_=*c.endpoint; break; }
+      case Action::ClearMetadata: { Mutable().current_service_endpoint_=std::nullopt; break; }
+      case Action::HasMetadata: { *output=j.current_service_endpoint_.has_value(); break; }
+      case Action::UseMetadata: { c.endpoint=&j.current_service_endpoint_.value(); break; }
+      case Action::StartNull: { *output=j.start_time_.is_null(); break; }
+      case Action::StampStart: { const auto now=base::TimeTicks::Now();if(c.owner) Mutable().start_time_=now; break; }
+      case Action::HasWatcher: { *output=j.parent_->socket_performance_watcher_factory()!=nullptr; break; }
+      case Action::MakeWatcher: { c.watcher=j.parent_->socket_performance_watcher_factory()->CreateSocketPerformanceWatcher(
+ SocketPerformanceWatcherFactory::PROTOCOL_TCP,j.current_address_->address()); break; }
+      case Action::MakeSocket: { const auto& log=j.parent_->net_log();
+ auto socket=j.parent_->client_socket_factory()->CreateTransportClientSocket(
+ AddressList(*j.current_address_),j.parent_->params_->target_network(),std::move(c.watcher),
+ j.parent_->network_quality_estimator(),log.net_log(),log.source());
+ if(c.owner) Mutable().transport_socket_=std::move(socket); break; }
+      case Action::ApplyTag: { Mutable().transport_socket_->ApplySocketTag(j.parent_->socket_tag()); break; }
+      case Action::HasWebsocket: { *output=j.parent_->websocket_endpoint_lock_manager()!=nullptr; break; }
+      case Action::WrapWebsocket: { Mutable().transport_socket_=std::make_unique<WebSocketStreamSocket>(
+ *j.parent_->websocket_endpoint_lock_manager(),*j.current_address_,std::move(Mutable().transport_socket_),
+ j.parent_->params_->network_anonymization_key()); break; }
+      case Action::StartEvent: { j.parent_->net_log().AddEvent(NetLogEventType::TCP_CONNECT_JOB_CONNECTOR_CONNECT_START,[&] {
+ base::DictValue d;d.Set("address",j.current_address_->ToString());d.Set("connector",j.name_);
+ j.transport_socket_->NetLog().source().AddToEventParameters(d);return d;}); break; }
+      case Action::Connect: { *output=Mutable().transport_socket_->Connect(base::BindOnce(
+ &TcpConnectJob::Connector::OnIOComplete,base::Unretained(c.mutable_owner.get()))); break; }
+      case Action::CompleteEvent: { j.parent_->net_log().AddEvent(NetLogEventType::TCP_CONNECT_JOB_CONNECTOR_CONNECT_COMPLETE,[&] {
+ return j.NetLogDict();}); break; }
+      case Action::CompleteErrorEvent: { j.parent_->net_log().AddEvent(NetLogEventType::TCP_CONNECT_JOB_CONNECTOR_CONNECT_COMPLETE,[&] {
+ return j.NetLogDict().Set("net_error",static_cast<int>(argument));}); break; }
+      case Action::Established: { j.parent_->has_established_connection_=true; break; }
+      case Action::Crypto: { *output=j.parent_->EndpointsCryptoReady(); break; }
+      case Action::UsableEvent: { j.parent_->net_log().AddEvent(NetLogEventType::TCP_CONNECT_JOB_VERIFY_IP_ENDPOINT_USABLE,[&] {
+ return j.NetLogDict().Set("is_usable",argument!=0);}); break; }
+      case Action::FinalMetadata: { Mutable().final_service_endpoint_=*c.endpoint; break; }
+      case Action::AddressV6: { *output=j.current_address_->GetFamily()==ADDRESS_FAMILY_IPV6; break; }
+      case Action::FreshPrefer: { j.parent_->fresh_state_.prefer_ipv6=argument!=0; break; }
+      case Action::StalePrefer: { j.parent_->stale_state_.prefer_ipv6=argument!=0; break; }
+      case Action::RecordAttempt: { j.parent_->connection_attempts_.emplace_back(*j.current_address_,static_cast<int>(argument)); break; }
+      case Action::ResetSocket: { Mutable().transport_socket_.reset(); break; }
+      case Action::ResetAddress: { Mutable().current_address_.reset(); break; }
+      case Action::DoneEvent: { j.parent_->net_log().AddEvent(NetLogEventType::TCP_CONNECT_JOB_CONNECTOR_DONE,[&]{return j.NetLogDict();}); break; }
+      case Action::DoneErrorEvent: { j.parent_->net_log().AddEvent(NetLogEventType::TCP_CONNECT_JOB_CONNECTOR_DONE,[&]{
+ return j.NetLogDict().Set("net_error",static_cast<int>(argument));}); break; }
+      case Action::ParentComplete: { j.parent_->OnConnectorComplete(static_cast<int>(argument),Mutable()); break; }
+
+      default: NOTREACHED();
+    }
+    return c.owner != nullptr;
+  }
+};
 TcpConnectJob::Connector::Connector(TcpConnectJob* parent,
                                     std::string_view name)
     : parent_(*parent), name_(name) {}
 
-TcpConnectJob::Connector::~Connector() = default;
+TcpConnectJob::Connector::~Connector() { tcp_connect_job_connectorRustBridge::Invalidate(this); }
 
 int TcpConnectJob::Connector::TryAdvanceState() {
-  DCHECK(!is_done());
-
-  if (next_state_ == State::kWaitForIPEndPoint) {
-    next_state_ = State::kObtainIPEndPoint;
-  } else if (next_state_ == State::kWaitForCryptoReady) {
-    next_state_ = State::kVerifyIPEndPointUsable;
-  } else {
-    // Not waiting on DNS request, but busy, so return ERR_IO_PENDING;
-    return ERR_IO_PENDING;
-  }
-
-  return DoLoop(OK);
+tcp_connect_job_connectorRustBridge c(this); return c.Run(tcp_connect_job_connectorRustBridge::Op::Advance);
 }
 
 LoadState TcpConnectJob::Connector::GetLoadState() const {
-  switch (next_state_) {
-    case State::kWaitForIPEndPoint:
-    case State::kObtainIPEndPoint:
-      // The next two states come after after some connection states, but does
-      // technically mean we're back to waiting on DNS again.
-    case State::kWaitForCryptoReady:
-    case State::kVerifyIPEndPointUsable:
-      return LOAD_STATE_RESOLVING_HOST;
-    case State::kTcpConnect:
-    case State::kTcpConnectComplete:
-    case State::kDone:
-      return LOAD_STATE_CONNECTING;
-    case State::kNone:
-      // This shouldn't happen.
-      NOTREACHED();
-  }
-  NOTREACHED();
+tcp_connect_job_connectorRustBridge c(this); return static_cast<LoadState>(c.Run(tcp_connect_job_connectorRustBridge::Op::Load));
 }
 
 std::unique_ptr<StreamSocket> TcpConnectJob::Connector::PassSocket() {
@@ -82,261 +174,35 @@ ServiceEndpoint TcpConnectJob::Connector::PassFinalServiceEndpoint() {
 }
 
 void TcpConnectJob::Connector::OnIOComplete(int result) {
-  int rv = DoLoop(result);
-  if (rv != ERR_IO_PENDING) {
-    parent_->OnConnectorComplete(rv, *this);
-    // `this` may be deleted here.
-  }
+tcp_connect_job_connectorRustBridge c(this); c.Run(tcp_connect_job_connectorRustBridge::Op::Io, result);
 }
 
 int TcpConnectJob::Connector::DoLoop(int result) {
-  int rv = result;
-  do {
-    DCHECK_NE(rv, ERR_IO_PENDING);
-    DCHECK_NE(next_state_, State::kNone);
-    DCHECK_NE(next_state_, State::kDone);
-
-    State state = next_state_;
-    next_state_ = State::kNone;
-    switch (state) {
-      case State::kObtainIPEndPoint:
-        DCHECK_EQ(rv, OK);
-        rv = DoObtainIPEndPoint();
-        break;
-      case State::kTcpConnect:
-        DCHECK_EQ(rv, OK);
-        rv = DoTcpConnect();
-        break;
-      case State::kTcpConnectComplete:
-        rv = DoTcpConnectComplete(rv);
-        break;
-      case State::kVerifyIPEndPointUsable:
-        DCHECK_EQ(rv, OK);
-        rv = DoVerifyIPEndPointUsable();
-        break;
-      default:
-        NOTREACHED();
-    }
-  } while (rv != ERR_IO_PENDING && next_state_ != State::kDone);
-
-  DCHECK_NE(next_state_, State::kNone);
-  return rv;
+tcp_connect_job_connectorRustBridge c(this); return c.Run(tcp_connect_job_connectorRustBridge::Op::Loop, result);
 }
 
 int TcpConnectJob::Connector::DoObtainIPEndPoint() {
-  DCHECK(!current_address_);
-
-  TcpConnectJob::IPEndPointInfo endpoint_info =
-      parent_->GetNextIPEndPoint(*this);
-
-  if (!endpoint_info.has_value()) {
-    if (endpoint_info.error() == ERR_IO_PENDING) {
-      // No IPEndPoints available, but the DNS request is not done yet. Need to
-      // wait for more data.
-      next_state_ = State::kWaitForIPEndPoint;
-      return ERR_IO_PENDING;
-    }
-
-    // The parent class handles DNS errors itself, so this currently can only be
-    // ERR_IO_PENDING or ERR_NAME_NOT_RESOLVED. ERR_NAME_NOT_RESOLVED means no
-    // more IPs are incoming.
-    CHECK_EQ(endpoint_info.error(), ERR_NAME_NOT_RESOLVED);
-
-    // We failed to connect to any IP, and no more are coming.
-    OnDone(endpoint_info.error());
-
-    return endpoint_info.error();
-  }
-
-  current_address_ = std::move(endpoint_info).value();
-  const ServiceEndpoint* service_endpoint =
-      parent_->FindServiceEndpoint(*current_address_);
-
-  // If this is a stale connector, we must save its ServiceEndpoint metadata
-  // now. If fresh DNS results arrive while this connector is in-flight, the
-  // HostResolver will wipe the stale DNS results from memory. Saving it here
-  // ensures we have the necessary ALPN/ECH metadata to verify the socket
-  // if the connection succeeds but the IP is missing from the fresh results.
-  bool is_stale = parent_->IsStaleConnector(*this);
-
-  if (is_stale && service_endpoint) {
-    current_service_endpoint_ = *service_endpoint;
-  } else {
-    current_service_endpoint_ = std::nullopt;
-  }
-
-  // Get lock if needed.
-  next_state_ = State::kTcpConnect;
-  return OK;
+tcp_connect_job_connectorRustBridge c(this); return c.Run(tcp_connect_job_connectorRustBridge::Op::Obtain);
 }
 
 int TcpConnectJob::Connector::DoTcpConnect() {
-  DCHECK(current_address_);
-
-  if (start_time_.is_null()) {
-    start_time_ = base::TimeTicks::Now();
-  }
-
-  next_state_ = State::kTcpConnectComplete;
-
-  // Create a `SocketPerformanceWatcher`, and pass the ownership.
-  std::unique_ptr<SocketPerformanceWatcher> socket_performance_watcher;
-  if (auto* factory = parent_->socket_performance_watcher_factory();
-      factory != nullptr) {
-    socket_performance_watcher = factory->CreateSocketPerformanceWatcher(
-        SocketPerformanceWatcherFactory::PROTOCOL_TCP,
-        current_address_->address());
-  }
-
-  const NetLogWithSource& net_log = parent_->net_log();
-  transport_socket_ =
-      parent_->client_socket_factory()->CreateTransportClientSocket(
-          AddressList(*current_address_), parent_->params_->target_network(),
-          std::move(socket_performance_watcher),
-          parent_->network_quality_estimator(), net_log.net_log(),
-          net_log.source());
-
-  transport_socket_->ApplySocketTag(parent_->socket_tag());
-
-  // If there's a `websocket_endpoint_lock_manager`, then this is a WebSocket
-  // connection attempt, and a lock must be obtained on the destination endpoint
-  // before connecting. Wrap `socket` in a `WebSocketStreamSocket`, which will
-  // wait for the lock before connecting, and then release it on destruction.
-  if (parent_->websocket_endpoint_lock_manager()) {
-    transport_socket_ = std::make_unique<WebSocketStreamSocket>(
-        *parent_->websocket_endpoint_lock_manager(), *current_address_,
-        std::move(transport_socket_),
-        parent_->params_->network_anonymization_key());
-  }
-
-  parent_->net_log().AddEvent(
-      NetLogEventType::TCP_CONNECT_JOB_CONNECTOR_CONNECT_START, [&] {
-        base::DictValue dict;
-        dict.Set("address", current_address_->ToString());
-        dict.Set("connector", name_);
-        transport_socket_->NetLog().source().AddToEventParameters(dict);
-        return dict;
-      });
-
-  return transport_socket_->Connect(base::BindOnce(
-      &TcpConnectJob::Connector::OnIOComplete, base::Unretained(this)));
+tcp_connect_job_connectorRustBridge c(this); return c.Run(tcp_connect_job_connectorRustBridge::Op::Connect);
 }
 
 int TcpConnectJob::Connector::DoTcpConnectComplete(int result) {
-  parent_->net_log().AddEvent(
-      NetLogEventType::TCP_CONNECT_JOB_CONNECTOR_CONNECT_COMPLETE, [&] {
-        base::DictValue dict = NetLogDict();
-        if (result) {
-          dict.Set("net_error", result);
-        }
-        return dict;
-      });
-
-  // The connection attempt failed, no need to wait for crypto ready before
-  // trying the next IP, if appropriate.
-  if (result != OK) {
-    return OnEndpointFailed(result);
-  }
-
-  // The connection attempt succeeded, so can set this to true. This will
-  // prevent any new backup ConnectJobs from being made.
-  parent_->has_established_connection_ = true;
-
-  next_state_ = State::kVerifyIPEndPointUsable;
-  return OK;
+tcp_connect_job_connectorRustBridge c(this); return c.Run(tcp_connect_job_connectorRustBridge::Op::Complete, result);
 }
 
 int TcpConnectJob::Connector::DoVerifyIPEndPointUsable() {
-  // If still not crypto ready, need to wait before can do final verification of
-  // the destination address we're connected to.
-  if (!parent_->EndpointsCryptoReady()) {
-    next_state_ = State::kWaitForCryptoReady;
-    return ERR_IO_PENDING;
-  }
-
-  // Search for the corresponding ServiceEndpoint in the current DNS results.
-  const ServiceEndpoint* service_endpoint =
-      parent_->FindServiceEndpoint(*current_address_);
-
-  if (!service_endpoint) {
-    // If the IP is not found, it may be because this is a stale connection
-    // attempt and the fresh DNS results have arrived and overwritten the stale
-    // results. If the stale IP successfully connected, we still want to use it
-    // instead of failing. We retrieve the ServiceEndpoint metadata that we
-    // saved when the connection attempt began.
-    bool is_stale = parent_->IsStaleConnector(*this);
-    if (is_stale && current_service_endpoint_) {
-      service_endpoint = &current_service_endpoint_.value();
-    }
-  }
-
-  parent_->net_log().AddEvent(
-      NetLogEventType::TCP_CONNECT_JOB_VERIFY_IP_ENDPOINT_USABLE, [&] {
-        return NetLogDict().Set("is_usable", service_endpoint != nullptr);
-      });
-
-  if (!service_endpoint) {
-    // If the address is not usable, treat it as a failure of the current IP.
-    //
-    // We could more proactively probe for this situation when we receive DNS
-    // results and notice they're now cypto ready, to avoid waiting for connect
-    // complete before checking again, and weren't before. Unclear if this case
-    // is common enough to be worth the more complicated state transitions.
-    return OnEndpointFailed(ERR_NAME_NOT_RESOLVED);
-  }
-
-  final_service_endpoint_ = *service_endpoint;
-  OnDone(OK);
-  return OK;
+tcp_connect_job_connectorRustBridge c(this); return c.Run(tcp_connect_job_connectorRustBridge::Op::Verify);
 }
 
 int TcpConnectJob::Connector::OnEndpointFailed(int error) {
-  DCHECK_NE(error, OK);
-  DCHECK_NE(error, ERR_IO_PENDING);
-  DCHECK(current_address_);
-
-  // If there's only one connector, this makes the next attempt prefer the
-  // address family other than that of the request that just failed.
-  bool is_stale = parent_->IsStaleConnector(*this);
-  ConnectionState& state =
-      is_stale ? parent_->stale_state_ : parent_->fresh_state_;
-  state.prefer_ipv6 = (current_address_->GetFamily() != ADDRESS_FAMILY_IPV6);
-
-  // If this isn't an IsIPEndPointUsable() error, record the failed connection
-  // attempt. IsIPEndPointUsable() aren't connection errors, and are potentially
-  // less interesting than connection errors, though we don't actually know if
-  // the older error is from a usable endpoint or not.
-  if (error != ERR_NAME_NOT_RESOLVED) {
-    parent_->connection_attempts_.emplace_back(*current_address_, error);
-  }
-
-  // Drop the socket to release the endpoint lock, if there is one.
-  transport_socket_.reset();
-  current_address_.reset();
-
-  // Don't try the next address if entering suspend mode.
-  if (error == ERR_NETWORK_IO_SUSPENDED) {
-    OnDone(error);
-    return error;
-  }
-
-  // Try falling back to the next address in the list.
-  next_state_ = State::kObtainIPEndPoint;
-  return OK;
+tcp_connect_job_connectorRustBridge c(this); return c.Run(tcp_connect_job_connectorRustBridge::Op::Failed, error);
 }
 
 void TcpConnectJob::Connector::OnDone(int result) {
-  DCHECK_NE(next_state_, State::kDone);
-  next_state_ = State::kDone;
-
-  parent_->net_log().AddEvent(NetLogEventType::TCP_CONNECT_JOB_CONNECTOR_DONE,
-                              [&] {
-                                base::DictValue dict = NetLogDict();
-                                if (result) {
-                                  dict.Set("net_error", result);
-                                }
-                                return dict;
-                              });
+tcp_connect_job_connectorRustBridge c(this); c.Run(tcp_connect_job_connectorRustBridge::Op::Done, result);
 }
 
 base::DictValue TcpConnectJob::Connector::NetLogDict() const {

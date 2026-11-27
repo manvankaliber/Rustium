@@ -31,7 +31,10 @@
 #include "chrome/browser/contextual_tasks/contextual_tasks_web_contents_user_data.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/tab_list/tab_list_interface.h"
+#include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
+#include "chrome/browser/ui/interaction/browser_elements.h"
+#include "chrome/browser/ui/webui/cr_components/searchbox/contextual_searchbox_handler.h"
 #include "components/contextual_search/contextual_search_session_handle.h"
 #include "components/contextual_search/contextual_search_types.h"
 #include "components/contextual_search/input_state_model.h"
@@ -48,19 +51,10 @@
 #include "mojo/public/cpp/base/proto_wrapper.h"
 #include "third_party/lens_server_proto/aim_communication.pb.h"
 #include "ui/base/mojom/window_open_disposition.mojom.h"
-
-#if !BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/browser_element_identifiers.h"
-#include "chrome/browser/ui/interaction/browser_elements.h"
-#include "chrome/browser/ui/lens/lens_overlay_controller.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
-#include "chrome/browser/ui/webui/cr_components/searchbox/contextual_searchbox_handler.h"
 #include "ui/webui/tracked_element/tracked_element_handler.h"
-#endif
 
 namespace {
 
-#if !BUILDFLAG(IS_ANDROID)
 void DeleteTabToken(
     contextual_search::ContextualSearchSessionHandle* session_handle,
     const base::UnguessableToken& token) {
@@ -86,7 +80,6 @@ bool IsTabSharable(content::RenderFrameHost& rfh,
   return (allow_empty_url && url.is_empty()) ||
          contextual_tasks::IsUrlValidForContextSharing(url);
 }
-#endif
 
 searchbox::mojom::TabInfoPtr CreateMojomTab(
     const contextual_search::TabInfo& tab,
@@ -140,12 +133,6 @@ ContextualTasksExtensionHandler::GetOrCreateWebContentsUserData() const {
       GetOrCreateForWebContents(web_contents);
 }
 
-void ContextualTasksExtensionHandler::OnLensOverlayStateChanged(
-    bool is_showing) {
-  if (contextual_tasks_page_) {
-    contextual_tasks_page_->OnLensOverlayStateChanged(is_showing);
-  }
-}
 
 void ContextualTasksExtensionHandler::OnPermissionPromptChanged(
     bool is_showing,
@@ -198,7 +185,6 @@ void ContextualTasksExtensionHandler::BindContextualTasksFactory(
 void ContextualTasksExtensionHandler::BindTrackedElementHandler(
     mojo::PendingReceiver<tracked_element::mojom::TrackedElementHandler>
         receiver) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!IsEmbeddedInSidePanel()) {
     return;
   }
@@ -219,7 +205,6 @@ void ContextualTasksExtensionHandler::BindTrackedElementHandler(
       web_contents, std::move(receiver), context,
       std::vector<ui::ElementIdentifier>{kContextualTasksFaviconsElementId},
       &render_frame_host());
-#endif
 }
 
 // contextual_tasks::mojom::ExtensionPageHandlerFactory:
@@ -325,7 +310,6 @@ void ContextualTasksExtensionHandler::OnLensThumbnailCreated(
 
 // composebox::mojom::PageHandler:
 void ContextualTasksExtensionHandler::HandleLensButtonClick() {
-#if !BUILDFLAG(IS_ANDROID)
   if (!IsEmbeddedInSidePanel()) {
     return;
   }
@@ -342,39 +326,6 @@ void ContextualTasksExtensionHandler::HandleLensButtonClick() {
         user_data->GetPageState());
   }
 
-  if (auto* controller = GetLensSearchController()) {
-    if (user_data) {
-      controller->SetThumbnailCreatedCallback(base::BindRepeating(
-          &contextual_tasks::ContextualTasksWebContentsUserData::
-              OnLensThumbnailCreated,
-          user_data->AsWeakPtr()));
-    }
-    if (controller->IsShowingUI()) {
-      if (controller->invocation_source() ==
-          lens::LensOverlayInvocationSource::kContextualTasksComposebox) {
-        controller->CloseLensAsync(
-            lens::LensOverlayDismissalSource::
-                kContextualTasksComposeboxLensButtonClick);
-        return;
-      } else {
-        // If the overlay is showing from a different invocation source, clear
-        // the selection and start fresh for a follow-up.
-        if (controller->lens_overlay_controller()) {
-          controller->lens_overlay_controller()->ClearAllSelections();
-        }
-        // Set the invocation source to contextual tasks so that any follow-up
-        // queries are associated with the contextual tasks session via the
-        // query flow router and thumbnails are added appropriately to the
-        // composebox. This will work as if the overlay was opened from the
-        // contextual tasks composebox in the first place.
-        controller->SetInvocationSource(
-            lens::LensOverlayInvocationSource::kContextualTasksComposebox);
-      }
-    }
-    controller->OpenLensOverlay(
-        lens::LensOverlayInvocationSource::kContextualTasksComposebox);
-  }
-#endif
 }
 
 void ContextualTasksExtensionHandler::SetSmartTabSharingActive(bool active) {
@@ -394,11 +345,9 @@ void ContextualTasksExtensionHandler::GetSmartTabSharingActive(
 
 // composebox::mojom::PageHandler stubs:
 void ContextualTasksExtensionHandler::FocusChanged(bool focused) {}
-void ContextualTasksExtensionHandler::StartPlatformVoiceRecognition() {}
+
 void ContextualTasksExtensionHandler::HandleFileUpload(bool is_image) {}
 void ContextualTasksExtensionHandler::NavigateUrl(const GURL& url) {}
-void ContextualTasksExtensionHandler::CloseLensOverlayFromWebUI(
-    composebox::mojom::LensOverlayDismissalSource dismissal_source) {}
 void ContextualTasksExtensionHandler::
     NotifyComposeboxQuerySubmittedWithContext() {}
 void ContextualTasksExtensionHandler::CanShowNextboxAnimation(
@@ -492,7 +441,6 @@ void ContextualTasksExtensionHandler::GetTabPreview(
 void ContextualTasksExtensionHandler::WaitForTabFaviconLoad(
     int32_t tab_id,
     WaitForTabFaviconLoadCallback callback) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!IsTabSharable(render_frame_host(), tab_id, /*allow_empty_url=*/true)) {
     std::move(callback).Run(std::nullopt);
     return;
@@ -510,9 +458,6 @@ void ContextualTasksExtensionHandler::WaitForTabFaviconLoad(
                             : std::nullopt);
                   },
                   weak_ptr_factory_.GetWeakPtr(), tab_id, std::move(callback)));
-#else
-  std::move(callback).Run(std::nullopt);
-#endif
 }
 void ContextualTasksExtensionHandler::GetInputState(
     GetInputStateCallback callback) {
@@ -548,7 +493,6 @@ void ContextualTasksExtensionHandler::AddTabContext(
     bool delay_upload,
     searchbox::mojom::TabAttachmentSource source,
     AddTabContextCallback callback) {
-#if !BUILDFLAG(IS_ANDROID)
   Profile* profile =
       Profile::FromBrowserContext(render_frame_host().GetBrowserContext());
   if (!contextual_tasks::CanShareTabContext(profile)) {
@@ -641,10 +585,6 @@ void ContextualTasksExtensionHandler::AddTabContext(
   }
 
   std::move(callback).Run(result);
-#else
-  std::move(callback).Run(base::unexpected(
-      contextual_search::ContextUploadErrorType::kBrowserProcessingError));
-#endif
 }
 
 void ContextualTasksExtensionHandler::DeleteContext(
@@ -678,7 +618,6 @@ void ContextualTasksExtensionHandler::SubmitQuery(const std::string& query_text,
   DVLOG(1)
       << "ContextualTasksExtensionHandler::SubmitQuery called unexpectedly";
 }
-void ContextualTasksExtensionHandler::OpenLensSearch() {}
 void ContextualTasksExtensionHandler::SetActiveToolMode(omnibox::ToolMode tool,
                                                         bool is_set_by_aim) {
   active_tool_ = tool;
@@ -742,23 +681,7 @@ ContextualTasksExtensionHandler::GetOrCreateContextualSessionHandle() {
   return nullptr;
 }
 
-std::optional<base::UnguessableToken>
-ContextualTasksExtensionHandler::GetLensOverlayToken() {
-  if (auto* user_data = GetOrCreateWebContentsUserData()) {
-    return user_data->GetLensOverlayToken();
-  }
-  return std::nullopt;
-}
 
-#if !BUILDFLAG(IS_ANDROID)
-LensSearchController* ContextualTasksExtensionHandler::GetLensSearchController()
-    const {
-  if (auto* user_data = GetOrCreateWebContentsUserData()) {
-    return user_data->GetLensSearchController();
-  }
-  return nullptr;
-}
-#endif
 
 void ContextualTasksExtensionHandler::InitializeInputStateModel() {
   input_state_model_ = nullptr;

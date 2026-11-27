@@ -6278,7 +6278,7 @@ socket_t create_socket(const std::string &host, const std::string &ip, int port,
 
   if (getaddrinfo_with_timeout(node, service.c_str(), &hints, &result,
                                timeout_sec)) {
-#if defined __linux__ && !defined __ANDROID__
+#if defined __linux__
     res_init();
 #endif
     return INVALID_SOCKET;
@@ -6393,7 +6393,7 @@ inline bool bind_ip_address(socket_t sock, const std::string &host) {
   return ret;
 }
 
-#if !defined _WIN32 && !defined ANDROID && !defined _AIX && !defined __MVS__
+#if !defined _WIN32 && !defined _AIX && !defined __MVS__
 #define USE_IF2IP
 #endif
 
@@ -9741,7 +9741,7 @@ inline void hosted_at(const std::string &hostname,
 
   if (detail::getaddrinfo_with_timeout(hostname.c_str(), nullptr, &hints,
                                        &result, 0)) {
-#if defined __linux__ && !defined __ANDROID__
+#if defined __linux__
     res_init();
 #endif
     return;

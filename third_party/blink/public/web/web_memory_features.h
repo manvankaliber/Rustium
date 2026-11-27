@@ -14,11 +14,6 @@ class BLINK_EXPORT WebMemoryFeatures {
  public:
   WebMemoryFeatures() = delete;
 
-#if BUILDFLAG(IS_ANDROID)
-  // Notifies memory-related features whether the renderer process has any
-  // visible clients.
-  static void SetRendererVisible(bool visible);
-#endif
 };
 
 }  // namespace blink

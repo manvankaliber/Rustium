@@ -110,8 +110,7 @@ class DownloadPrefs {
   // Disables auto-open based on file extension.
   void DisableAutoOpenByUserBasedOnExtension(const base::FilePath& file_name);
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   // Store the user preference to disk. If |should_open| is true, also disable
   // the built-in PDF plugin. If |should_open| is false, enable the PDF plugin.
   void SetShouldOpenPdfInSystemReader(bool should_open);
@@ -127,10 +126,6 @@ class DownloadPrefs {
   // forward - whatever has been passed to SetDownloadPath will be used.
   void SkipSanitizeDownloadTargetPathForTesting();
 
-#if BUILDFLAG(IS_ANDROID)
-  // Returns whether downloaded pdf from external apps should be auto-opened.
-  bool IsAutoOpenPdfEnabled();
-#endif
  private:
   void SaveAutoOpenState();
   bool CanPlatformEnableAutoOpenForPdf() const;
@@ -146,10 +141,6 @@ class DownloadPrefs {
   raw_ptr<Profile> profile_;
 
   BooleanPrefMember prompt_for_download_;
-#if BUILDFLAG(IS_ANDROID)
-  IntegerPrefMember prompt_for_download_android_;
-  BooleanPrefMember auto_open_pdf_enabled_;
-#endif
 
   FilePathPrefMember download_path_;
   FilePathPrefMember save_file_path_;
@@ -174,15 +165,10 @@ class DownloadPrefs {
 
   std::unique_ptr<policy::URLBlocklist> auto_open_allowed_by_urls_;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
   bool should_open_pdf_in_system_reader_;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  class DriveHandler;
-  std::unique_ptr<DriveHandler> drive_handler_;
-#endif
 
   // If this is true, SanitizeDownloadTargetPath will always return the passed
   // path verbatim.

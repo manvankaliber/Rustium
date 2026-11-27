@@ -7,12 +7,8 @@
 #include "base/feature_list.h"
 #include "build/build_config.h"
 #include "chrome/browser/browser_actuator/transport/transport_service_factory.h"
-#include "chrome/browser/glic/public/glic_feature.h"
-#include "chrome/browser/glic/public/glic_keyed_service_factory.h"
-#include "chrome/browser/glic/public/glic_provider_spec.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/sharing/browser_actuator/browser_actuator_message_handler.h"
-#include "chrome/browser/sharing/glic_experimental_triggering/glic_experimental_triggering_message_handler.h"
 #include "chrome/browser/sharing/one_time_tokens/one_time_token_sharing_handler.h"
 #include "chrome/browser/sharing/optimization_guide/optimization_guide_message_handler.h"
 #include "components/browser_actuator/public/features.h"
@@ -24,12 +20,8 @@
 #include "components/sharing_message/sharing_message_handler.h"
 #include "components/sharing_message/sharing_message_sender.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/sharing/sms/sms_fetch_request_handler.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 #include "chrome/browser/sharing/shared_clipboard/remote_copy_message_handler.h"
 #endif
 
@@ -64,14 +56,6 @@ SharingHandlerRegistryImpl::SharingHandlerRegistryImpl(
   AddSharingHandler(std::make_unique<AckMessageHandler>(message_sender),
                     {components_sharing_message::SharingMessage::kAckMessage});
 
-#if BUILDFLAG(IS_ANDROID)
-  if (sharing_device_registration->IsSmsFetcherSupported()) {
-    AddSharingHandler(
-        std::make_unique<SmsFetchRequestHandler>(device_source, sms_fetcher),
-        {components_sharing_message::SharingMessage::kSmsFetchRequest});
-  }
-
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Profile can be null in tests.
   if (optimization_guide::features::IsPushNotificationsEnabled() &&
@@ -81,8 +65,7 @@ SharingHandlerRegistryImpl::SharingHandlerRegistryImpl(
                            kOptimizationGuidePushNotification});
   }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
   if (sharing_device_registration->IsRemoteCopySupported()) {
     AddSharingHandler(
         std::make_unique<RemoteCopyMessageHandler>(profile),
@@ -90,7 +73,6 @@ SharingHandlerRegistryImpl::SharingHandlerRegistryImpl(
   }
 #endif  // BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) ||
         // BUILDFLAG(IS_CHROMEOS)
-#if !BUILDFLAG(IS_ANDROID)
   if (sharing_device_registration
           ->IsOneTimeTokenBackendNotificationSupported()) {
     AddSharingHandler(
@@ -98,19 +80,8 @@ SharingHandlerRegistryImpl::SharingHandlerRegistryImpl(
         {components_sharing_message::SharingMessage::
              kOneTimeTokenBackendNotification});
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // GetGlicProviderSpec() returns the consumer spec for a null `profile`.
-  if (glic::GetGlicProviderSpec(profile).SupportsFeature(
-          glic::GlicFeature::kExperimentalTriggering) &&
-      glic::GlicKeyedServiceFactory::GetGlicKeyedService(profile,
-                                                         /*create=*/true)) {
-    AddSharingHandler(
-        std::make_unique<GlicExperimentalTriggeringMessageHandler>(
-            profile, message_sender),
-        {components_sharing_message::SharingMessage::
-             kGlicExperimentalTriggering});
-  }
 
   std::set<components_sharing_message::SharingMessage::PayloadCase>
       browser_actuator_payloads = GetBrowserActuatorPayloads();

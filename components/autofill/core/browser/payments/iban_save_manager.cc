@@ -135,7 +135,6 @@ bool IbanSaveManager::IsIbanUploadEnabled(
 }
 
 bool IbanSaveManager::AttemptToOfferSave(Iban& import_candidate) {
-#if !BUILDFLAG(IS_IOS)
   UpdateRecordType(import_candidate);
   switch (DetermineHowToSaveIban(import_candidate)) {
     case TypeOfOfferToSave::kDoNotOfferToSave:
@@ -145,10 +144,6 @@ bool IbanSaveManager::AttemptToOfferSave(Iban& import_candidate) {
     case TypeOfOfferToSave::kOfferLocalSave:
       return AttemptToOfferLocalSave(import_candidate);
   }
-#else
-  // IBAN save prompts do not currently exist on iOS.
-  return false;
-#endif
 }
 
 void IbanSaveManager::UpdateRecordType(Iban& import_candidate) {
@@ -235,15 +230,10 @@ bool IbanSaveManager::AttemptToOfferUploadSave(const Iban& import_candidate) {
   bool show_save_prompt = !GetIbanSaveStrikeDatabase()->ShouldBlockFeature(
       GetPartialIbanHashString(base::UTF16ToUTF8(import_candidate.value())));
   std::vector<ClientBehaviorConstants> client_behavior_signals;
-#if BUILDFLAG(IS_ANDROID)
-  client_behavior_signals.push_back(
-      ClientBehaviorConstants::kShowAccountEmailInLegalMessage);
-#else
   if (base::FeatureList::IsEnabled(features::kAutofillEnableWalletBrandingV2)) {
     client_behavior_signals.push_back(
         ClientBehaviorConstants::kShowAccountEmailInLegalMessage);
   }
-#endif
   client_->GetPaymentsAutofillClient()
       ->GetPaymentsNetworkInterface()
       ->GetIbanUploadDetails(

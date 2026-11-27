@@ -20,15 +20,16 @@
 
 #include "base/containers/span.h"
 #include "net/base/net_export.h"
+#include "net/filter/gzip_header_state.h"
 
 namespace net {
 
 class NET_EXPORT GZipHeader {
  public:
   enum Status {
-    INCOMPLETE_HEADER,    // don't have all the bits yet...
-    COMPLETE_HEADER,      // complete, valid header
-    INVALID_HEADER,       // found something invalid in the header
+    INCOMPLETE_HEADER,  // don't have all the bits yet...
+    COMPLETE_HEADER,    // complete, valid header
+    INVALID_HEADER,     // found something invalid in the header
   };
 
   GZipHeader();
@@ -56,45 +57,9 @@ class NET_EXPORT GZipHeader {
   static bool HasGZipHeader(base::span<const uint8_t> inbuf);
 
  private:
-  enum {                       // flags (see RFC)
-    FLAG_FTEXT        = 0x01,  // bit 0 set: file probably ascii text
-    FLAG_FHCRC        = 0x02,  // bit 1 set: header CRC present
-    FLAG_FEXTRA       = 0x04,  // bit 2 set: extra field present
-    FLAG_FNAME        = 0x08,  // bit 3 set: original file name present
-    FLAG_FCOMMENT     = 0x10,  // bit 4 set: file comment present
-    FLAG_RESERVED     = 0xE0,  // bits 5..7: reserved
-  };
-
-  enum State {
-    // The first 10 bytes are the fixed-size header:
-    IN_HEADER_ID1,
-    IN_HEADER_ID2,
-    IN_HEADER_CM,
-    IN_HEADER_FLG,
-    IN_HEADER_MTIME_BYTE_0,
-    IN_HEADER_MTIME_BYTE_1,
-    IN_HEADER_MTIME_BYTE_2,
-    IN_HEADER_MTIME_BYTE_3,
-    IN_HEADER_XFL,
-    IN_HEADER_OS,
-
-    IN_XLEN_BYTE_0,
-    IN_XLEN_BYTE_1,
-    IN_FEXTRA,
-
-    IN_FNAME,
-
-    IN_FCOMMENT,
-
-    IN_FHCRC_BYTE_0,
-    IN_FHCRC_BYTE_1,
-
-    IN_DONE,
-  };
-
-  int    state_;  // our current State in the parsing FSM: an int so we can ++
-  uint8_t flags_;  // the flags byte of the header ("FLG" in the RFC)
-  uint16_t extra_length_;  // how much of the "extra field" we have yet to read
+  // Inline state for the Rust parser. Phase zero is the initial state.
+  // Preserve the existing object size/alignment; no Rust heap handle is needed.
+  gzip_header_internal::State state_;
 };
 
 }  // namespace net

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/profile_browser_collection.h"
@@ -20,15 +20,6 @@
 #include "content/public/test/browser_test.h"
 #include "third_party/abseil-cpp/absl/cleanup/cleanup.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/app/chrome_command_ids.h"
-#include "chrome/browser/renderer_context_menu/render_view_context_menu_test_util.h"
-#include "chrome/browser/ui/tabs/tab_strip_model.h"
-#include "content/public/browser/context_menu_params.h"
-#include "content/public/browser/web_contents.h"
-#include "ui/base/mojom/window_open_disposition.mojom-shared.h"
-#include "url/origin.h"
-#endif
 
 namespace web_app {
 
@@ -93,10 +84,10 @@ IN_PROC_BROWSER_TEST_F(PreventCloseControllerBrowserTest,
       ProfileBrowserCollection::GetForProfile(profile())->GetSize();
 
   const GURL url(kCalculatorAppUrl);
-  ForceInstallWebApp(ash::kCalculatorAppId, url);
+  ForceInstallWebApp(webapps::kCalculatorAppId, url);
 
   BrowserWindowInterface* browser =
-      LaunchWebAppBrowserAndWait(ash::kCalculatorAppId);
+      LaunchWebAppBrowserAndWait(webapps::kCalculatorAppId);
   ++expected_browser_count;
 
   ASSERT_TRUE(browser);
@@ -107,25 +98,15 @@ IN_PROC_BROWSER_TEST_F(PreventCloseControllerBrowserTest,
 
   // Act by launching PWA a second time
   BrowserWindowInterface* second_browser =
-      LaunchWebAppBrowser(ash::kCalculatorAppId);
+      LaunchWebAppBrowser(webapps::kCalculatorAppId);
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Assert that the PWA only has one existing window
-  EXPECT_TRUE(WebAppProvider::GetForTest(profile())
-                  ->registrar_unsafe()
-                  .IsPreventCloseEnabled(ash::kCalculatorAppId));
-  EXPECT_EQ(browser, second_browser);
-  EXPECT_EQ(expected_browser_count,
-            ProfileBrowserCollection::GetForProfile(profile())->GetSize());
-#else
   // On other platforms, the prevent close should not be enabled.
   EXPECT_FALSE(WebAppProvider::GetForTest(profile())
                    ->registrar_unsafe()
-                   .IsPreventCloseEnabled(ash::kCalculatorAppId));
+                   .IsPreventCloseEnabled(webapps::kCalculatorAppId));
   EXPECT_NE(browser, second_browser);
   EXPECT_EQ(expected_browser_count + 1,
             ProfileBrowserCollection::GetForProfile(profile())->GetSize());
-#endif
 }
 
 IN_PROC_BROWSER_TEST_F(PreventCloseControllerBrowserTest,
@@ -136,10 +117,10 @@ IN_PROC_BROWSER_TEST_F(PreventCloseControllerBrowserTest,
       ProfileBrowserCollection::GetForProfile(profile())->GetSize();
 
   const GURL url(kCalculatorAppUrl);
-  ForceInstallWebApp(ash::kCalculatorAppId, url);
+  ForceInstallWebApp(webapps::kCalculatorAppId, url);
 
   BrowserWindowInterface* browser =
-      LaunchWebAppBrowserAndWait(ash::kCalculatorAppId);
+      LaunchWebAppBrowserAndWait(webapps::kCalculatorAppId);
   ++expected_browser_count;
 
   ASSERT_TRUE(browser);
@@ -150,7 +131,7 @@ IN_PROC_BROWSER_TEST_F(PreventCloseControllerBrowserTest,
 
   // Act by launching PWA a second time
   BrowserWindowInterface* second_browser =
-      LaunchWebAppBrowserAndWait(ash::kCalculatorAppId);
+      LaunchWebAppBrowserAndWait(webapps::kCalculatorAppId);
   expected_browser_count++;
 
   // Assert that the PWA only has one existing window
@@ -159,57 +140,5 @@ IN_PROC_BROWSER_TEST_F(PreventCloseControllerBrowserTest,
             ProfileBrowserCollection::GetForProfile(profile())->GetSize());
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-IN_PROC_BROWSER_TEST_F(PreventCloseControllerBrowserTest,
-                       NonClosablePWAHidesSameAppContextMenuItem) {
-  absl::Cleanup policy_cleanup = [this] { ClearPolicySettings(); };
-  const GURL url(kCalculatorAppUrl);
-  ForceInstallWebApp(ash::kCalculatorAppId, url);
-  BrowserWindowInterface* app_browser =
-      LaunchWebAppBrowserAndWait(ash::kCalculatorAppId);
-  content::WebContents* contents =
-      app_browser->GetTabStripModel()->GetActiveWebContents();
-
-  content::ContextMenuParams params;
-  params.page_url = contents->GetLastCommittedURL();
-  params.frame_url = params.page_url;
-  params.frame_origin = url::Origin::Create(params.page_url);
-  params.link_url = url;
-  params.unfiltered_link_url = url;
-  {
-    TestRenderViewContextMenu menu(*contents->GetPrimaryMainFrame(), params);
-    menu.Init();
-    ASSERT_TRUE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_OPENLINKBOOKMARKAPP));
-  }
-
-  ConfigurePreventClose(url, /*prevent_close=*/true);
-  ASSERT_TRUE(provider().registrar_unsafe().IsPreventCloseEnabled(
-      ash::kCalculatorAppId));
-  TestRenderViewContextMenu menu(*contents->GetPrimaryMainFrame(), params);
-  menu.Init();
-  EXPECT_FALSE(menu.IsItemPresent(IDC_CONTENT_CONTEXT_OPENLINKBOOKMARKAPP));
-}
-
-IN_PROC_BROWSER_TEST_F(PreventCloseControllerBrowserTest,
-                       NonClosablePWAReusesWindowForNewWindowDisposition) {
-  absl::Cleanup policy_cleanup = [this] { ClearPolicySettings(); };
-  const GURL url(kCalculatorAppUrl);
-  ForceInstallWebApp(ash::kCalculatorAppId, url);
-  BrowserWindowInterface* app_browser =
-      LaunchWebAppBrowserAndWait(ash::kCalculatorAppId);
-  const size_t browser_count =
-      ProfileBrowserCollection::GetForProfile(profile())->GetSize();
-  ConfigurePreventClose(url, /*prevent_close=*/true);
-  ASSERT_TRUE(provider().registrar_unsafe().IsPreventCloseEnabled(
-      ash::kCalculatorAppId));
-
-  BrowserWindowInterface* second_browser = web_app::LaunchWebAppBrowser(
-      profile(), ash::kCalculatorAppId,
-      ui::mojom::WindowOpenDisposition::kNewWindow);
-  EXPECT_EQ(app_browser, second_browser);
-  EXPECT_EQ(browser_count,
-            ProfileBrowserCollection::GetForProfile(profile())->GetSize());
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace web_app

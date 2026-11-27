@@ -16,9 +16,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/ui_base_switches.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#endif
 
 #if BUILDFLAG(IS_WIN)
 #include "base/test/scoped_os_info_override_win.h"
@@ -79,13 +76,7 @@ TEST_F(CaptionUtilTest, IsHeadlessCaptionFeatureSupportedReturnsFalse) {
   EXPECT_FALSE(IsHeadlessCaptionFeatureSupported());
 }
 
-#if BUILDFLAG(IS_FUCHSIA)
-TEST_F(CaptionUtilTest,
-       IsHeadlessCaptionFeatureSupportedReturnsFalseOnFuchsia) {
-  scoped_feature_list_.InitAndEnableFeature(media::kHeadlessLiveCaption);
-  EXPECT_FALSE(IsHeadlessCaptionFeatureSupported());
-}
-#elif BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
+#if BUILDFLAG(IS_LINUX) && !defined(ARCH_CPU_X86_FAMILY)
 TEST_F(CaptionUtilTest,
        IsHeadlessCaptionFeatureSupportedReturnsFalseOnLinuxArm) {
   scoped_feature_list_.InitAndEnableFeature(media::kHeadlessLiveCaption);
@@ -93,14 +84,7 @@ TEST_F(CaptionUtilTest,
 }
 #else
 TEST_F(CaptionUtilTest, IsHeadlessCaptionFeatureSupportedReturnsTrue) {
-#if BUILDFLAG(IS_CHROMEOS)
-  scoped_feature_list_.InitWithFeatures(
-      /*enabled_features=*/{media::kHeadlessLiveCaption,
-                            ash::features::kOnDeviceSpeechRecognition},
-      /*disabled_features=*/{});
-#else
   scoped_feature_list_.InitAndEnableFeature(media::kHeadlessLiveCaption);
-#endif
   EXPECT_TRUE(IsHeadlessCaptionFeatureSupported());
 }
 #endif
@@ -116,9 +100,7 @@ TEST_F(CaptionUtilTest,
 }
 
 TEST_F(CaptionUtilTest, ReturnsCorrectCaptionSettingsUrl) {
-#if BUILDFLAG(IS_CHROMEOS)
-  EXPECT_EQ(GetCaptionSettingsUrl(), "chrome://os-settings/audioAndCaptions");
-#elif BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   EXPECT_EQ(GetCaptionSettingsUrl(), "chrome://settings/captions");
 #elif BUILDFLAG(IS_WIN)
   {

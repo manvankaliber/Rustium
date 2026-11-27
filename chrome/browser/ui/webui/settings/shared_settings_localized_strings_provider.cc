@@ -24,7 +24,6 @@
 #include "components/soda/constants.h"
 #include "components/strings/grit/components_strings.h"
 #include "components/sync/base/features.h"
-#include "components/user_manager/user_manager.h"
 #include "content/public/browser/web_ui_data_source.h"
 #include "content/public/common/content_features.h"
 #include "media/base/media_switches.h"
@@ -35,18 +34,6 @@
 
 namespace settings {
 
-#if BUILDFLAG(IS_CHROMEOS)
-namespace {
-// Generates a Google Help URL which includes a "board type" parameter. Some
-// help pages need to be adjusted depending on the type of CrOS device that is
-// accessing the page.
-std::u16string GetHelpUrlWithBoard(const std::u16string& original_url) {
-  return base::StrCat(
-      {original_url, u"&b=",
-       base::ASCIIToUTF16(base::SysInfo::GetLsbReleaseBoard())});
-}
-}  // namespace
-#endif
 
 void AddAxAnnotationsSectionStrings(content::WebUIDataSource* html_source) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
@@ -64,12 +51,6 @@ void AddAxAnnotationsSectionStrings(content::WebUIDataSource* html_source) {
   html_source->AddBoolean(
       "mainNodeAnnotationsEnabled",
       base::FeatureList::IsEnabled(features::kMainNodeAnnotations));
-#if BUILDFLAG(IS_CHROMEOS)
-  html_source->AddBoolean(
-      "japaneseBrailleEnabled",
-      base::FeatureList::IsEnabled(
-          features::kAccessibilityChromeVoxJapaneseBraille));
-#endif
 }
 
 void AddCaptionSubpageStrings(content::WebUIDataSource* html_source) {
@@ -117,21 +98,12 @@ void AddCaptionSubpageStrings(content::WebUIDataSource* html_source) {
        IDS_SETTINGS_CAPTIONS_MAKE_DEFAULT_LANGUAGE_LABEL},
       {"moreActionsFor", IDS_SETTINGS_MORE_ACTIONS_BUTTON_ARIA_LABEL},
       {"defaultLanguageLabel", IDS_SETTINGS_CAPTIONS_DEFAULT_LANGUAGE_LABEL},
-#if !BUILDFLAG(IS_CHROMEOS)
       {"captionsManageLanguagesSubtitle",
        IDS_SETTINGS_CAPTIONS_MANAGE_LANGUAGES_SUBTITLE},
-#endif
   };
   html_source->AddLocalizedStrings(kLocalizedStrings);
   // Add the caption subtitle string conditionally so that non-cbx chromebooks
   // do not show live translate information.
-#if BUILDFLAG(IS_CHROMEOS)
-  html_source->AddLocalizedString(
-      "captionsManageLanguagesSubtitle",
-      base::FeatureList::IsEnabled(media::kFeatureManagementLiveTranslateCrOS)
-          ? IDS_SETTINGS_CAPTIONS_MANAGE_LANGUAGES_SUBTITLE
-          : IDS_SETTINGS_CAPTIONS_MANAGE_LANGUAGES_SUBTITLE_LIVE_CAPTION_ONLY);
-#endif
 
   AddLiveCaptionSectionStrings(html_source);
 }
@@ -177,18 +149,6 @@ void AddLiveCaptionSectionStrings(content::WebUIDataSource* html_source) {
   html_source->AddBoolean("enableLiveTranslate", liveTranslateEnabled);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void AddPasswordPromptDialogStrings(content::WebUIDataSource* html_source) {
-  static constexpr webui::LocalizedString kLocalizedStrings[] = {
-      {"passwordPromptTitle", IDS_SETTINGS_PEOPLE_PASSWORD_PROMPT_TITLE},
-      {"passwordPromptInvalidPassword",
-       IDS_SETTINGS_PEOPLE_PASSWORD_PROMPT_INVALID_PASSWORD},
-      {"passwordPromptPasswordLabel",
-       IDS_SETTINGS_PEOPLE_PASSWORD_PROMPT_PASSWORD_LABEL},
-  };
-  html_source->AddLocalizedStrings(kLocalizedStrings);
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void AddSharedSyncPageStrings(content::WebUIDataSource* html_source) {
   static constexpr webui::LocalizedString kLocalizedStrings[] = {
@@ -272,11 +232,7 @@ void AddSharedSyncPageStrings(content::WebUIDataSource* html_source) {
           updateAccountSettingsStrings
               ? IDS_SETTINGS_ENCRYPT_ACCOUNT_DATA_WITH_PASSPHRASE_LABEL
               : IDS_SETTINGS_ENCRYPT_WITH_SYNC_PASSPHRASE_LABEL,
-#if BUILDFLAG(IS_CHROMEOS)
-          GetHelpUrlWithBoard(chrome::kSyncEncryptionHelpURL)));
-#else
           chrome::kSyncEncryptionHelpURL));
-#endif
 }
 
 void AddSecureDnsStrings(content::WebUIDataSource* html_source) {

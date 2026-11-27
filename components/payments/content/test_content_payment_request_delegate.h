@@ -55,7 +55,7 @@ class TestContentPaymentRequestDelegate : public ContentPaymentRequestDelegate {
   void ShowProcessingSpinner() override;
   void ShowLoadingView() override;
   bool IsBrowserWindowActive() const override;
-  void GetTwaPackageName(GetTwaPackageNameCallback callback) const override;
+
   PaymentRequestDialog* GetDialogForTesting() override;
 
   autofill::PersonalDataManager* GetPersonalDataManager() override;

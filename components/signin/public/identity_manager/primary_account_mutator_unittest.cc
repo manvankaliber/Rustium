@@ -31,10 +31,8 @@ namespace {
 
 // Constants used by the different tests.
 constexpr char kPrimaryAccountEmail[] = "primary.account@example.com";
-#if !BUILDFLAG(IS_CHROMEOS)
 constexpr char kAnotherAccountEmail[] = "another.account@example.com";
 constexpr GaiaId::Literal kUnknownAccountId("{unknown account id}");
-#endif
 
 // See RunRevokeConsentTest().
 enum class RevokeConsentAction {
@@ -125,7 +123,6 @@ class MockIdentityManagerObserver : public signin::IdentityManager::Observer {
       observation{this};
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Helper for testing of RevokeSyncConsent/ClearPrimaryAccount(). This function
 // requires lots of tests due to having different behaviors based on its
 // arguments. But the setup and execution of these test is all the boiler plate
@@ -318,7 +315,6 @@ void RunClearPrimaryAccountTestForSigninOnly() {
       secondary_account_info.GetAccountId()));
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace
 
@@ -432,7 +428,6 @@ TEST_F(PrimaryAccountMutatorTest,
 // ChromeOS, where those preconditions do not exist.
 // TODO(crbug.com/41470280): Run these tests on ChromeOS if/once we
 // enable those preconditions on that platform
-#if !BUILDFLAG(IS_CHROMEOS)
 // Checks that setting the primary account fails if the account is not known by
 // the identity system.
 TEST_F(PrimaryAccountMutatorTest, SetPrimaryAccount_NoAccount) {
@@ -771,4 +766,3 @@ TEST_F(PrimaryAccountMutatorTest,
   EXPECT_TRUE(identity_manager->HasAccountWithRefreshToken(
       secondary_account_info.GetAccountId()));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)

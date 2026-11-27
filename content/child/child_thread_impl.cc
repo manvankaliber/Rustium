@@ -83,10 +83,8 @@
 #if BUILDFLAG(IS_POSIX)
 #include "base/posix/global_descriptors.h"
 #include "content/public/common/content_descriptors.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "services/tracing/public/cpp/system_tracing_service.h"
 #include "services/tracing/public/cpp/traced_process.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 #endif  // BUILDFLAG(IS_POSIX)
 
 #if BUILDFLAG(IS_APPLE)
@@ -95,6 +93,7 @@
 
 #if BUILDFLAG(CLANG_PROFILING_INSIDE_SANDBOX)
 #include <stdio.h>
+
 #include "base/test/clang_profiling.h"
 #include "build/config/compiler/compiler_buildflags.h"
 #if BUILDFLAG(IS_POSIX)
@@ -151,8 +150,9 @@ bool CreateWaitAndExitThread(base::TimeDelta duration) {
 
   const bool thread_created =
       base::PlatformThread::CreateNonJoinable(0, delegate.get());
-  if (!thread_created)
+  if (!thread_created) {
     return false;
+  }
 
   // A non joinable thread has been created. The thread will either terminate
   // the process or will be terminated by the process. Therefore, keep the
@@ -196,15 +196,6 @@ void TerminateSelfOnDisconnect(
 #endif
 #else
 
-#if BUILDFLAG(IS_ANDROID) && BUILDFLAG(CLANG_PROFILING)
-  // TerminateSelfOnDisconnect() is called upon an IPC `OnChannelError`. Then,
-  // clang will dump the profile to a file in
-  // TerminateCurrentProcessImmediately. However, if the Android ActivityManager
-  // detects the render thread as an 'isolated not needed' process, it sends
-  // SIGKILL to this process, which corrupts the PGO profile. Here we call
-  // `_exit()` without dumping the `clang` profile.
-  _exit(0);
-#else
   if (base::FeatureList::IsEnabled(features::kKeepChildProcessAfterIPCReset)) {
     // On Android, the browser process unbinds all service bindings to the child
     // process to terminate the child process and AMS (ActivityManagerService)
@@ -227,7 +218,6 @@ void TerminateSelfOnDisconnect(
   }
 
   base::Process::TerminateCurrentProcessImmediately(0);
-#endif  // IS_ANDROID && CLANG_PROFILING
 #endif
 }
 
@@ -250,14 +240,7 @@ mojo::IncomingInvitation InitializeMojoIPCChannel() {
         *base::CommandLine::ForCurrentProcess());
     flags |= MOJO_ACCEPT_INVITATION_FLAG_ELEVATED;
   }
-#elif BUILDFLAG(IS_FUCHSIA)
-  endpoint = mojo::PlatformChannel::RecoverPassedEndpointFromCommandLine(
-      *base::CommandLine::ForCurrentProcess());
 #elif BUILDFLAG(IS_APPLE)
-#if BUILDFLAG(IS_IOS_TVOS)
-  endpoint = mojo::PlatformChannel::RecoverPassedEndpointFromCommandLine(
-      *base::CommandLine::ForCurrentProcess());
-#else
   auto* client = base::MachPortRendezvousClient::GetInstance();
   if (!client) {
     LOG(ERROR) << "Mach rendezvous failed, terminating process (parent died?)";
@@ -270,14 +253,7 @@ mojo::IncomingInvitation InitializeMojoIPCChannel() {
   }
   endpoint =
       mojo::PlatformChannelEndpoint(mojo::PlatformHandle(std::move(receive)));
-#endif
 #elif BUILDFLAG(IS_POSIX)
-#if BUILDFLAG(IS_ANDROID)
-  // If the endpoint is backed by a BinderRef it will be recovered here.
-  // Otherwise we'll assume a socket FD below.
-  endpoint = mojo::PlatformChannel::RecoverPassedEndpointFromCommandLine(
-      *base::CommandLine::ForCurrentProcess());
-#endif
   if (!endpoint.is_valid()) {
     endpoint =
         mojo::PlatformChannelEndpoint(mojo::PlatformHandle(base::ScopedFD(
@@ -332,8 +308,9 @@ class ChildThreadImpl::IOThreadState
     interface_binders_ = std::move(binders);
     std::vector<mojo::GenericPendingReceiver> pending_requests;
     std::swap(pending_requests, pending_binding_requests_);
-    for (auto& receiver : pending_requests)
+    for (auto& receiver : pending_requests) {
       BindReceiver(std::move(receiver));
+    }
   }
 
  private:
@@ -364,7 +341,7 @@ class ChildThreadImpl::IOThreadState
                        weak_main_thread_, std::move(receiver)));
   }
 
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX)
   void EnableSystemTracingService(
       mojo::PendingRemote<tracing::mojom::SystemTracingService> remote)
       override {
@@ -380,8 +357,9 @@ class ChildThreadImpl::IOThreadState
   }
 
   void BindServiceInterface(mojo::GenericPendingReceiver receiver) override {
-    if (service_binder_)
+    if (service_binder_) {
       service_binder_.Run(&receiver);
+    }
 
     if (receiver) {
       main_thread_task_runner_->PostTask(
@@ -396,8 +374,9 @@ class ChildThreadImpl::IOThreadState
       return;
     }
 
-    if (interface_binders_.TryBind(&receiver))
+    if (interface_binders_.TryBind(&receiver)) {
       return;
+    }
 
     main_thread_task_runner_->PostTask(
         FROM_HERE, base::BindOnce(&ChildThreadImpl::OnBindReceiver,
@@ -441,20 +420,6 @@ class ChildThreadImpl::IOThreadState
   }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void ReinitializeLogging(mojom::LoggingSettingsPtr settings) override {
-    logging::LoggingSettings logging_settings;
-    logging_settings.logging_dest = settings->logging_dest;
-    base::ScopedFD log_file_descriptor = settings->log_file_descriptor.TakeFD();
-    logging_settings.log_file = fdopen(log_file_descriptor.release(), "a");
-    if (!logging_settings.log_file) {
-      LOG(ERROR) << "Failed to open new log file handle";
-      return;
-    }
-    if (!logging::InitLogging(logging_settings))
-      LOG(ERROR) << "Unable to reinitialize logging";
-  }
-#endif
 
   void OnMemoryPressure(base::MemoryPressureLevel level) override {
     main_thread_task_runner_->PostTask(
@@ -579,22 +544,25 @@ ChildThreadImpl::ChildThreadImpl(base::RepeatingClosure quit_closure,
   //
   // For other process types, we call it to expose only the basic set of
   // interfaces common to all child process types.
-  if (!options.exposes_interfaces_to_browser)
+  if (!options.exposes_interfaces_to_browser) {
     ExposeInterfacesToBrowser(mojo::BinderMap());
+  }
 
   Init(options);
 }
 
 scoped_refptr<base::SingleThreadTaskRunner> ChildThreadImpl::GetIOTaskRunner() {
-  if (IsInBrowserProcess())
+  if (IsInBrowserProcess()) {
     return browser_process_io_runner_;
+  }
   return ChildProcess::current()->io_task_runner();
 }
 
 void ChildThreadImpl::SetFieldTrialGroup(const std::string& trial_name,
                                          const std::string& group_name) {
-  if (!field_trial_syncer_)
+  if (!field_trial_syncer_) {
     return;
+  }
 
   field_trial_syncer_->SetFieldTrialGroupFromBrowser(trial_name, group_name);
 }
@@ -754,8 +722,9 @@ void ChildThreadImpl::Init(const Options& options) {
           switches::kIPCConnectionTimeout);
   if (!connection_override.empty()) {
     int temp;
-    if (base::StringToInt(connection_override, &temp))
+    if (base::StringToInt(connection_override, &temp)) {
       connection_timeout = temp;
+    }
   }
 
   if (!options.with_legacy_ipc_channel) {
@@ -816,8 +785,9 @@ void ChildThreadImpl::OnChannelError() {
   on_channel_error_called_ = true;
   // If this thread runs in the browser process, only Thread::Stop should
   // stop its message loop. Otherwise, QuitWhenIdle could race Thread::Stop.
-  if (!IsInBrowserProcess())
+  if (!IsInBrowserProcess()) {
     quit_closure_.Run();
+  }
 }
 
 #if BUILDFLAG(IS_WIN)
@@ -830,8 +800,9 @@ void ChildThreadImpl::ReleaseCachedFonts() {
 }
 
 const mojo::Remote<mojom::FontCacheWin>& ChildThreadImpl::GetFontCacheWin() {
-  if (!font_cache_win_)
+  if (!font_cache_win_) {
     BindHostReceiver(font_cache_win_.BindNewPipeAndPassReceiver());
+  }
   return font_cache_win_;
 }
 #endif
@@ -845,8 +816,9 @@ void ChildThreadImpl::RecordComputedAction(const std::string& action) {
 }
 
 void ChildThreadImpl::BindHostReceiver(mojo::GenericPendingReceiver receiver) {
-  if (child_process_host_)
+  if (child_process_host_) {
     child_process_host_->BindHostReceiver(std::move(receiver));
+  }
 }
 
 void ChildThreadImpl::BindHostReceiverBatched(
@@ -919,8 +891,9 @@ ChildThreadImpl* ChildThreadImpl::current() {
 }
 
 void ChildThreadImpl::OnProcessFinalRelease() {
-  if (on_channel_error_called_)
+  if (on_channel_error_called_) {
     return;
+  }
 
   quit_closure_.Run();
 }

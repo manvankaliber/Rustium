@@ -116,7 +116,7 @@ NOOPT void MakeSomeErrors(char* ptr, size_t size) {
 // We had problems with __asan_default_options not being used, so this test
 // verifies that _sanitizer_options_link_helper actually makes it into our
 // binaries.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
 // TODO(crbug.com/40224191): Sanitizer options are currently broken
 // on Android.
 // TODO(crbug.com/40223949): __asan_default_options should be used
@@ -178,8 +178,7 @@ TEST(ToolsSanityTest, AccessesToStack) {
 // alloc_dealloc_mismatch defaults to
 // !SANITIZER_MAC && !SANITIZER_WINDOWS && !SANITIZER_ANDROID,
 // in the sanitizer runtime upstream.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #define MAYBE_SingleElementDeletedWithBraces \
   DISABLED_SingleElementDeletedWithBraces
 #define MAYBE_ArrayDeletedWithoutBraces DISABLED_ArrayDeletedWithoutBraces
@@ -304,7 +303,7 @@ class TOOLS_SANITY_TEST_CONCURRENT_THREAD : public PlatformThread::Delegate {
 
 class ReleaseStoreThread : public PlatformThread::Delegate {
  public:
-  explicit ReleaseStoreThread(std::atomic<uint32_t> *value) : value_(value) {}
+  explicit ReleaseStoreThread(std::atomic<uint32_t>* value) : value_(value) {}
   ~ReleaseStoreThread() override = default;
   void ThreadMain() override {
     value_->store(kMagicValue, std::memory_order_release);
@@ -321,7 +320,7 @@ class ReleaseStoreThread : public PlatformThread::Delegate {
 
 class AcquireLoadThread : public PlatformThread::Delegate {
  public:
-  explicit AcquireLoadThread(std::atomic<uint32_t> *value) : value_(value) {}
+  explicit AcquireLoadThread(std::atomic<uint32_t>* value) : value_(value) {}
   ~AcquireLoadThread() override = default;
   void ThreadMain() override {
     // Wait for the other thread to make Release_Store
@@ -384,10 +383,6 @@ TEST(ToolsSanityTest, AtomicsAreIgnored) {
 #if BUILDFLAG(CFI_ENFORCEMENT_TRAP)
 #if BUILDFLAG(IS_WIN)
 #define CFI_ERROR_MSG "EXCEPTION_ILLEGAL_INSTRUCTION"
-#elif BUILDFLAG(IS_ANDROID)
-// TODO(pcc): Produce proper stack dumps on Android and test for the correct
-// si_code here.
-#define CFI_ERROR_MSG "^$"
 #else
 #define CFI_ERROR_MSG "ILL_ILLOPN"
 #endif

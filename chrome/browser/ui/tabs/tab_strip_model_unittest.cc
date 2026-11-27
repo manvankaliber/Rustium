@@ -50,7 +50,6 @@
 #include "chrome/browser/ui/ui_features.h"
 #include "chrome/common/chrome_features.h"
 #include "chrome/test/base/testing_profile.h"
-#include "components/commerce/core/commerce_utils.h"
 #include "components/content_settings/core/browser/host_content_settings_map.h"
 #include "components/split_tabs/split_tab_id.h"
 #include "components/split_tabs/split_tab_visual_data.h"
@@ -75,10 +74,6 @@
 #include "ui/base/page_transition_types.h"
 #include "ui/base/test/mock_base_window.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/auto_reset.h"
-#include "chrome/browser/lifetime/browser_shutdown.h"  // nogncheck
-#endif                                                 // BUILDFLAG(IS_CHROMEOS)
 
 using content::WebContents;
 
@@ -5576,33 +5571,6 @@ TEST_F(TabStripModelTest, FastShutdown) {
   }
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST_F(TabStripModelTest, FastShutdownOnSessionEnd) {
-  for (browser_shutdown::ShutdownType type :
-       {browser_shutdown::ShutdownType::kEndSession,
-        browser_shutdown::ShutdownType::kBrowserExit}) {
-    UnloadListenerTabStripModelDelegate delegate;
-    TabStripModel tabstrip(&delegate, profile());
-
-    std::unique_ptr<WebContents> contents1 = CreateWebContents();
-    content::RenderProcessHost* rph =
-        contents1->GetPrimaryMainFrame()->GetProcess();
-    std::unique_ptr<WebContents> contents2 =
-        CreateWebContentsWithSharedRPH(contents1.get());
-
-    tabstrip.AppendWebContents(std::move(contents1), true);
-    tabstrip.AppendWebContents(std::move(contents2), true);
-    delegate.set_should_run_unload_listener(true);
-
-    base::AutoReset<browser_shutdown::ShutdownType> shutdown_type =
-        browser_shutdown::SetShutdownTypeForTesting(type);
-
-    tabstrip.CloseAllTabs();
-    EXPECT_TRUE(rph->FastShutdownStarted());
-    EXPECT_TRUE(tabstrip.empty());
-  }
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Tests that close_types are preserved when unload listeners are triggered.
 TEST_F(TabStripModelTest, CloseTypesPreservedAfterUnload) {
@@ -9204,14 +9172,6 @@ TEST_F(TabStripModelTest,
   model.CloseAllTabs();
 }
 
-TEST_F(TabStripModelTest, CommandGlicUnshare) {
-  tabstrip()->AppendWebContents(CreateWebContentsWithID(1), true);
-  EXPECT_TRUE(tabstrip()->IsContextMenuCommandEnabled(
-      0, TabStripModel::CommandGlicUnshare));
-
-  // This should not crash (it CHECKs the delegate returns true).
-  tabstrip()->ExecuteContextMenuCommand(0, TabStripModel::CommandGlicUnshare);
-}
 
 TEST_F(TabStripModelTest, TabStripUIWasSetResetOnObserverRemoval) {
   MockTabStripModelObserver observer;

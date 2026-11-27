@@ -23,7 +23,7 @@
 #include "testing/platform_test.h"
 #include "third_party/perfetto/include/perfetto/test/traced_value_test_support.h"
 
-#if BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#if BUILDFLAG(IS_POSIX)
 #include "base/test/scoped_locale.h"
 #endif
 
@@ -340,7 +340,7 @@ TEST_F(FilePathTest, Append) {
     // handle the case when AppendASCII is passed UTF8
 #if BUILDFLAG(IS_WIN)
     std::string ascii = WideToUTF8(leaf);
-#elif BUILDFLAG(IS_POSIX) || BUILDFLAG(IS_FUCHSIA)
+#elif BUILDFLAG(IS_POSIX)
     std::string ascii = leaf;
 #endif
     observed_str = root.AppendASCII(ascii);
@@ -549,7 +549,7 @@ TEST_F(FilePathTest, IsAbsoluteOrNetwork) {
       {FPL("c:/"), true, false},     {FPL("c:/a"), true, false},
       {FPL("c:/."), true, false},    {FPL("c:/.."), true, false},
       {FPL("C:/a"), true, false},    {FPL("d:/a"), true, false},
-#else  // FILE_PATH_USES_DRIVE_LETTERS
+#else   // FILE_PATH_USES_DRIVE_LETTERS
       {FPL("/"), true, false},
       {FPL("/a"), true, false},
       {FPL("/."), true, false},
@@ -568,7 +568,7 @@ TEST_F(FilePathTest, IsAbsoluteOrNetwork) {
       {FPL("c:\\a"), true, false},   {FPL("c:\\."), true, false},
       {FPL("c:\\.."), true, false},  {FPL("C:\\a"), true, false},
       {FPL("d:\\a"), true, false},
-#else  // FILE_PATH_USES_DRIVE_LETTERS
+#else   // FILE_PATH_USES_DRIVE_LETTERS
       {FPL("\\"), true, false},      {FPL("\\a"), true, false},
       {FPL("\\."), true, false},     {FPL("\\.."), true, false},
       {FPL("c:\\"), false, false},
@@ -1542,8 +1542,7 @@ TEST_F(FilePathTest, FromUTF8Unsafe_And_AsUTF8Unsafe) {
        "\xEF\xBC\xA1\xEF\xBC\xA2\xEF\xBC\xA3.txt"},
   });
 
-#if !defined(SYSTEM_NATIVE_UTF8) && \
-    (BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS))
+#if !defined(SYSTEM_NATIVE_UTF8) && BUILDFLAG(IS_LINUX)
   ScopedLocale locale("en_US.UTF-8");
 #endif
 
@@ -1674,33 +1673,6 @@ TEST_F(FilePathTest, AsEndingWithSeparator) {
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(FilePathTest, ContentUriTest) {
-  const auto cases = std::to_array<UnaryBooleanTestData>({
-      {FPL("content://foo.bar"), true},
-      {FPL("content://foo.bar/"), true},
-      {FPL("content://foo/bar"), true},
-      {FPL("CoNTenT://foo.bar"), true},
-      {FPL("content://"), true},
-      {FPL("content:///foo.bar"), true},
-      {FPL("content://3foo/bar"), true},
-      {FPL("content://_foo/bar"), true},
-      {FPL(".. "), false},
-      {FPL("foo.bar"), false},
-      {FPL("content:foo.bar"), false},
-      {FPL("content:/foo.ba"), false},
-      {FPL("content:/dir/foo.bar"), false},
-      {FPL("content: //foo.bar"), false},
-      {FPL("content%2a%2f%2f"), false},
-  });
-
-  for (const auto& test_case : cases) {
-    FilePath input(test_case.input);
-    bool observed = input.IsContentUri();
-    EXPECT_EQ(test_case.expected, observed) << "input: " << input.value();
-  }
-}
-#endif
 
 // Test the operator<<(ostream, FilePath).
 TEST_F(FilePathTest, PrintToOstream) {

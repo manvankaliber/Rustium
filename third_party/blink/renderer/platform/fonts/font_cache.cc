@@ -83,11 +83,8 @@ namespace blink {
 const char kColorEmojiLocale[] = "und-Zsye";
 const char kMonoEmojiLocale[] = "und-Zsym";
 
-#if BUILDFLAG(IS_ANDROID)
-extern const char kNotoColorEmojiCompat[] = "Noto Color Emoji Compat";
-#endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 float FontCache::device_scale_factor_ = 1.0;
 #endif
 
@@ -96,7 +93,7 @@ bool FontCache::antialiased_text_enabled_ = false;
 bool FontCache::lcd_text_enabled_ = false;
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 WebFontPrewarmer* FontCache::prewarmer_ = nullptr;
 
 // static
@@ -141,10 +138,10 @@ void FontCache::Trace(Visitor* visitor) const {
 const FontPlatformData* FontCache::SystemFontPlatformData(
     const FontDescription& font_description) {
   const AtomicString& family = FontCache::SystemFontFamily();
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_FUCHSIA) || \
-    BUILDFLAG(IS_IOS)
-  if (family.empty() || family == font_family_names::kSystemUi)
+#if BUILDFLAG(IS_LINUX)
+  if (family.empty() || family == font_family_names::kSystemUi) {
     return nullptr;
+  }
 #else
   DCHECK(!family.empty() && family != font_family_names::kSystemUi);
 #endif
@@ -377,10 +374,6 @@ FontCache::Bcp47Vector FontCache::GetBcp47LocaleForRequest(
 // initialize SkFontMgr beforehand. But `FontCache::MaybePreloadSystemFonts()`
 // breaks this expectation. So we don't provide
 // `FontCache::MaybePreloadSystemFonts()` feature for Fuchsia for now.
-#if BUILDFLAG(IS_FUCHSIA)
-// static
-void FontCache::MaybePreloadSystemFonts() {}
-#else
 // static
 void FontCache::MaybePreloadSystemFonts() {
   static bool initialized = false;
@@ -452,7 +445,6 @@ void FontCache::MaybePreloadSystemFonts() {
     }
   }
 }
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 FontFallbackMap& FontCache::GetFontFallbackMap() {
   if (!font_fallback_map_) {

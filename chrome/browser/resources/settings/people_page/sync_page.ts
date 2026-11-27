@@ -12,17 +12,13 @@ import '//resources/cr_elements/cr_link_row/cr_link_row.js';
 import '//resources/cr_elements/icons.html.js';
 import '//resources/cr_elements/cr_expand_button/cr_expand_button.js';
 import '//resources/cr_elements/cr_icon/cr_icon.js';
-// <if expr="not is_chromeos">
 import '//resources/cr_elements/cr_toast/cr_toast.js';
-// </if>
 
 import './sync_encryption_options.js';
 import '../privacy_page/personalization_options.js';
 import '../settings_page/settings_subpage.js';
-// <if expr="not is_chromeos">
 import './sync_account_control.js';
 
-// </if>
 
 import type {CrDialogElement} from '//resources/cr_elements/cr_dialog/cr_dialog.js';
 import type {CrInputElement} from '//resources/cr_elements/cr_input/cr_input.js';
@@ -40,18 +36,12 @@ import type {FocusConfig} from '../focus_config.js';
 import {loadTimeData} from '../i18n_setup.js';
 import type {MetricsBrowserProxy} from '../metrics_browser_proxy.js';
 import {MetricsBrowserProxyImpl} from '../metrics_browser_proxy.js';
-// <if expr="is_chromeos">
-import type {SettingsPersonalizationOptionsElement} from '../privacy_page/personalization_options.js';
-// </if>
 
 import type {Route} from '../router.js';
 import {routes} from '../route.js';
 import {Router} from '../router.js';
 import {SettingsViewMixinLit} from '../settings_page/settings_view_mixin_lit.js';
 
-// <if expr="is_chromeos">
-import type {SettingsSyncEncryptionOptionsElement} from './sync_encryption_options.js';
-// </if>
 // clang-format on
 
 import {getCss} from './sync_page.css.js';
@@ -119,9 +109,7 @@ export class SettingsSyncPageElement extends SettingsSyncPageElementBase {
 
       syncSectionDisabled_: {type: Boolean},
 
-      // <if expr="not is_chromeos">
       showSetupCancelDialog_: {type: Boolean},
-      // </if>
 
       enterPassphraseLabel_: {type: String},
 
@@ -150,9 +138,7 @@ export class SettingsSyncPageElement extends SettingsSyncPageElementBase {
       loadTimeData.getBoolean('mayShowLinkedGoogleServicesSetting');
   protected accessor personalizationCollapseExpanded_: boolean = false;
 
-  // <if expr="not is_chromeos">
   protected accessor showSetupCancelDialog_: boolean = false;
-  // </if>
 
   protected accessor enterPassphraseLabel_: TrustedHTML =
       window.trustedTypes!.emptyHTML;
@@ -293,15 +279,6 @@ export class SettingsSyncPageElement extends SettingsSyncPageElementBase {
     }
   }
 
-  // <if expr="is_chromeos">
-  getEncryptionOptions(): SettingsSyncEncryptionOptionsElement|null {
-    return this.shadowRoot.querySelector('settings-sync-encryption-options');
-  }
-
-  getPersonalizationOptions(): SettingsPersonalizationOptionsElement|null {
-    return this.shadowRoot.querySelector('settings-personalization-options');
-  }
-  // </if>
 
   private computeSignedIn_(): boolean {
     return this.syncStatus_.signedInState === SignedInState.SYNCING;
@@ -328,7 +305,6 @@ export class SettingsSyncPageElement extends SettingsSyncPageElementBase {
         });
   }
 
-  // <if expr="not is_chromeos">
   protected onSetupCancelDialogBackClick_() {
     this.shadowRoot.querySelector<CrDialogElement>(
                        '#setupCancelDialog')!.cancel();
@@ -349,7 +325,6 @@ export class SettingsSyncPageElement extends SettingsSyncPageElementBase {
   protected onSetupCancelDialogClose_() {
     this.showSetupCancelDialog_ = false;
   }
-  // </if>
 
   private shouldShowSyncPage_(): boolean {
     return !loadTimeData.getBoolean('replaceSyncPromosWithSignInPromos') ||
@@ -383,7 +358,6 @@ export class SettingsSyncPageElement extends SettingsSyncPageElementBase {
       return;
     }
 
-    // <if expr="not is_chromeos">
     const userActionCancelsSetup = this.syncStatus_ &&
         this.syncStatus_.firstSetupInProgress && this.didAbort_;
     if (userActionCancelsSetup && !this.setupCancelConfirmed_) {
@@ -404,7 +378,6 @@ export class SettingsSyncPageElement extends SettingsSyncPageElementBase {
     // Reset variable.
     this.setupCancelConfirmed_ = false;
 
-    // </if>
 
     this.onNavigateAwayFromPage_();
   }
@@ -637,12 +610,10 @@ export class SettingsSyncPageElement extends SettingsSyncPageElementBase {
     }
   }
 
-  // <if expr="not is_chromeos">
   protected shouldShowSyncAccountControl_(): boolean {
     return !!this.syncStatus_.syncSystemEnabled &&
         loadTimeData.getBoolean('signinAllowed');
   }
-  // </if>
 
   private computeShowExistingPassphraseBelowAccount_(): boolean {
     return this.syncStatus_.signedInState === SignedInState.SYNCING &&

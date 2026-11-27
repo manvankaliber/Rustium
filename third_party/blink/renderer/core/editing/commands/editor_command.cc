@@ -574,9 +574,6 @@ static bool ExecuteDeleteToBeginningOfLine(LocalFrame& frame,
                                            Event*,
                                            EditorCommandSource,
                                            const String&) {
-#if BUILDFLAG(IS_ANDROID)
-  RecordKeyboardShortcutForAndroid(KeyboardShortcut::kDeleteLine);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   DeleteWithDirection(frame, DeleteDirection::kBackward,
                       TextGranularity::kLineBoundary, true, false);

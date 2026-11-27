@@ -51,11 +51,7 @@ bool GetSkipCaptureStartedNotification(
 
 bool GetAllowSetShape(
     const IwaSpecialAppPermissions::SpecialAppPermissions& special_permission) {
-#if BUILDFLAG(IS_CHROMEOS)
-  return special_permission.chrome_os_permissions().allow_set_shape();
-#else
   return false;
-#endif
 }
 
 base::expected<IwaKeyDistribution, IwaComponentUpdateError>
@@ -145,11 +141,6 @@ bool IwaKeyDistributionInfoProvider::IsBundleBlocklisted(
 
 bool IwaKeyDistributionInfoProvider::IsManagedInstallPermitted(
     std::string_view web_bundle_id) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (base::FeatureList::IsEnabled(kIsolatedWebAppBypassManagedAllowlist)) {
-    return true;
-  }
-#endif
   if (skip_managed_checks_for_testing_) {
     CHECK_IS_TEST();
     return true;
@@ -169,11 +160,6 @@ bool IwaKeyDistributionInfoProvider::IsManagedInstallPermitted(
 
 bool IwaKeyDistributionInfoProvider::IsManagedUpdatePermitted(
     std::string_view web_bundle_id) const {
-#if BUILDFLAG(IS_CHROMEOS)
-  if (base::FeatureList::IsEnabled(kIsolatedWebAppBypassManagedAllowlist)) {
-    return true;
-  }
-#endif
   if (skip_managed_checks_for_testing_) {
     CHECK_IS_TEST();
     return true;
@@ -605,9 +591,5 @@ IwaKeyDistributionInfoProvider::Component::~Component() = default;
 IwaKeyDistributionInfoProvider::Component::Component(const Component&) =
     default;
 
-#if BUILDFLAG(IS_CHROMEOS)
-BASE_FEATURE(kIsolatedWebAppBypassManagedAllowlist,
-             base::FEATURE_DISABLED_BY_DEFAULT);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace web_app

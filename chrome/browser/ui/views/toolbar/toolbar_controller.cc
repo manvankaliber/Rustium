@@ -204,11 +204,6 @@ ToolbarController::GetDefaultOverflowOrder() {
       kWebUIToolbarElementIdentifier, kToolbarForwardButtonElementId,
       kToolbarAvatarButtonElementId, kToolbarSplitTabsToolbarButtonElementId,
       kPinnedToolbarActionShowSidePanelContextualTasksElementId};
-  if (base::FeatureList::IsEnabled(features::kToolbarGlicButtonResizing)) {
-    const auto it =
-        std::find(order.begin(), order.end(), kToolbarAvatarButtonElementId);
-    order.insert(it, kGlicButtonElementId);
-  }
   return order;
 }
 
@@ -228,7 +223,7 @@ std::string ToolbarController::GetActionNameFromElementIdentifier(
           {kToolbarSplitTabsToolbarButtonElementId, "SplitTabs"},
           {kPinnedToolbarActionShowSidePanelContextualTasksElementId,
            "PinnedContextualTasksSidePanelButton"},
-          {kGlicButtonElementId, "GlicButtonElementId"},
+
       });
 
   static constexpr auto kActionIdToActionNameMap =
@@ -268,11 +263,10 @@ std::string ToolbarController::GetActionNameFromElementIdentifier(
            "PinnedShowSearchCompanionSidePanelButton"},
           {kActionTaskManager, "PinnedTaskManagerButton"},
           {kActionTtcToolbar, "PinnedTtcButton"},
-          {kActionSidePanelShowLensOverlayResults,
-           "PinnedShowLensOverlayResultsSidePanelButton"},
+
           {kActionSendSharedTabGroupFeedback, "SharedTabGroupFeedbackButton"},
           {kActionTabSearch, "PinnedTabSearchButton"},
-          {kActionSidePanelShowGlic, "PinnedGlicButton"},
+
           {kActionSidePanelShowTabsFromOtherDevices,
            "PinnedTabsFromOtherDevicesButton"},
       });

@@ -17,52 +17,18 @@ import {simulateSyncStatus} from './sync_test_util.js';
 import {TestProfileInfoBrowserProxy} from './test_profile_info_browser_proxy.js';
 import {TestSyncBrowserProxy} from './test_sync_browser_proxy.js';
 
-// <if expr="is_chromeos">
-import {TestBrowserProxy} from 'chrome://webui-test/test_browser_proxy.js';
-import type {Account, AccountManagerBrowserProxy} from 'chrome://settings/settings.js';
-import {AccountManagerBrowserProxyImpl} from 'chrome://settings/settings.js';
-// </if>
 
-// <if expr="not is_chromeos">
 import {listenOnce} from 'chrome://resources/js/util.js';
 import type {CrCheckboxElement} from 'chrome://settings/lazy_load.js';
 import {assertLT} from 'chrome://webui-test/chai_assert.js';
 import type {StoredAccount} from 'chrome://settings/settings.js';
 
 import {simulateStoredAccounts} from './sync_test_util.js';
-// </if>
 
 // clang-format on
 
-// <if expr="is_chromeos">
-type TestAccount = Partial<Account>;
-// </if>
-// <if expr="not is_chromeos">
 type TestAccount = StoredAccount;
-// </if>
 
-// <if expr="is_chromeos">
-class TestAccountManagerBrowserProxy extends TestBrowserProxy implements
-    AccountManagerBrowserProxy {
-  private accounts_: Account[] = [];
-
-  constructor() {
-    super([
-      'getAccounts',
-    ]);
-  }
-
-  setAccounts(accounts: Account[]) {
-    this.accounts_ = accounts;
-  }
-
-  getAccounts() {
-    this.methodCalled('getAccounts');
-    return Promise.resolve(this.accounts_);
-  }
-}
-let accountManagerBrowserProxy: TestAccountManagerBrowserProxy;
-// </if>
 
 let peoplePage: SettingsPeoplePageElement;
 let profileInfoBrowserProxy: TestProfileInfoBrowserProxy;
@@ -79,12 +45,6 @@ function reset() {
 
 suite('ProfileInfoTests', function() {
   suiteSetup(function() {
-    // <if expr="is_chromeos">
-    loadTimeData.overrideValues({
-      // Account Manager is tested in people_page_test_cros.js
-      isAccountManagerEnabled: false,
-    });
-    // </if>
   });
 
   function getInitialPrefs(): chrome.settingsPrivate.PrefObject[] {
@@ -195,7 +155,6 @@ suite('ProfileInfoTests', function() {
   });
 });
 
-// <if expr="not is_chromeos">
 suite('SigninDisallowedTests', function() {
   setup(function() {
     loadTimeData.overrideValues({signinAllowed: false});
@@ -407,7 +366,6 @@ suite('SignoutDialogTests', function() {
     await whenPopstate;
   });
 });
-// </if>
 
 // TODO(crbug.com/40066949): Remove once kSync becomes unreachable or is
 // deleted from the codebase. See ConsentLevel::kSync documentation for
@@ -440,14 +398,12 @@ suite('SyncSettings', function() {
     reset();
   });
 
-  // <if expr="not is_chromeos">
   test('Toast', async function() {
     assertFalse(peoplePage.$.toast.open);
     webUIListenerCallback('sync-settings-saved');
     await microtasksFinished();
     assertTrue(peoplePage.$.toast.open);
   });
-  // </if>
 
   test('ShowCorrectSyncRow', async function() {
     assertTrue(isChildVisible(peoplePage, '#sync-setup'));
@@ -469,12 +425,6 @@ suite('SyncSettings', function() {
 
 suite('PeoplePageAccountSettings', function() {
   setup(async function() {
-    // <if expr="is_chromeos">
-    loadTimeData.overrideValues({
-      replaceSyncPromosWithSignInPromos: true,
-      isAccountManagerEnabled: true,
-    });
-    // </if>
     resetRouterForTesting();
     Router.getInstance().navigateTo(routes.PEOPLE);
 
@@ -484,10 +434,6 @@ suite('PeoplePageAccountSettings', function() {
     profileInfoBrowserProxy = new TestProfileInfoBrowserProxy();
     ProfileInfoBrowserProxyImpl.setInstance(profileInfoBrowserProxy);
 
-    // <if expr="is_chromeos">
-    accountManagerBrowserProxy = new TestAccountManagerBrowserProxy();
-    AccountManagerBrowserProxyImpl.setInstance(accountManagerBrowserProxy);
-    // </if>
 
     document.body.innerHTML = window.trustedTypes!.emptyHTML;
     peoplePage = document.createElement('settings-people-page');
@@ -509,16 +455,9 @@ suite('PeoplePageAccountSettings', function() {
       statusAction: StatusAction.NO_ACTION,
     });
 
-    // <if expr="not is_chromeos">
     await syncBrowserProxy.whenCalled('getStoredAccounts');
     simulateStoredAccounts(accounts);
-    // </if>
 
-    // <if expr="is_chromeos">
-    await accountManagerBrowserProxy.whenCalled('getAccounts');
-    accountManagerBrowserProxy.setAccounts(accounts as Account[]);
-    webUIListenerCallback('accounts-changed');
-    // </if>
 
     await microtasksFinished();
   }
@@ -527,11 +466,9 @@ suite('PeoplePageAccountSettings', function() {
     await simulateSignedInState(
         SignedInState.SIGNED_IN, [{email: 'foo@foo.com'}]);
 
-    // <if expr="not is_chromeos">
     // The account card and the profile should not exist. Instead, there is a
     // link row which leads to the account settings page.
     assertFalse(isChildVisible(peoplePage, 'settings-sync-account-control'));
-    // </if>
     assertFalse(isChildVisible(peoplePage, '#profile-row'));
     assertTrue(isChildVisible(peoplePage, '#account-subpage-row'));
 
@@ -539,39 +476,30 @@ suite('PeoplePageAccountSettings', function() {
     assertTrue(isChildVisible(peoplePage, '#google-services'));
     assertFalse(isChildVisible(peoplePage, '#sync-setup'));
 
-    // <if expr="not is_chromeos">
     // The other rows are shown/hidden correctly.
     assertTrue(isChildVisible(peoplePage, '#edit-profile'));
     assertFalse(isChildVisible(peoplePage, '#manage-google-account'));
     assertTrue(isChildVisible(peoplePage, '#importDataDialogTrigger'));
-    // </if>
   });
 
   test('ShowCorrectRowsSyncing', async function() {
     await simulateSignedInState(
         SignedInState.SYNCING, [{email: 'foo@foo.com'}]);
 
-    // <if expr="not is_chromeos">
     // The first item should be an account card.
     assertTrue(isChildVisible(peoplePage, 'settings-sync-account-control'));
     assertFalse(isChildVisible(peoplePage, '#profile-row'));
-    // </if>
 
-    // <if expr="is_chromeos">
-    assertTrue(isChildVisible(peoplePage, '#profile-row'));
-    // </if>
 
     assertFalse(isChildVisible(peoplePage, '#account-subpage-row'));
     // There is a link to the sync settings, not to the Google services.
     assertFalse(isChildVisible(peoplePage, '#google-services'));
     assertTrue(isChildVisible(peoplePage, '#sync-setup'));
 
-    // <if expr="not is_chromeos">
     // The other rows are shown correctly.
     assertTrue(isChildVisible(peoplePage, '#edit-profile'));
     assertTrue(isChildVisible(peoplePage, '#manage-google-account'));
     assertTrue(isChildVisible(peoplePage, '#importDataDialogTrigger'));
-    // </if>
   });
 
   test('ClickingAccountLinkRowLeadsToAccountSettings', async function() {
@@ -598,12 +526,7 @@ suite('PeoplePageAccountSettings', function() {
     const expectedAccount = {
       fullName: 'Test Name',
       email: 'test@email.com',
-      // <if expr="not is_chromeos">
       avatarImage: image,
-      // </if>
-      // <if expr="is_chromeos">
-      pic: image,
-      // </if>
     };
     await simulateSignedInState(SignedInState.SIGNED_IN, [expectedAccount]);
 
@@ -661,7 +584,6 @@ suite('PeoplePageAccountSettings', function() {
          assertEquals(bookmarksLimitError, accountRow.subLabel);
   });
 
-  // <if expr="not is_chromeos">
   test('ShowCorrectRowsSignedOut', async function() {
     await simulateSignedInState(SignedInState.SIGNED_OUT, []);
 
@@ -742,5 +664,4 @@ suite('PeoplePageAccountSettings', function() {
     assertEquals(
         2, syncBrowserProxy.getCallCount('recordSigninPendingOffered'));
   });
-  // </if>
 });

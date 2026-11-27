@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "ash/constants/web_app_id_constants.h"
+#include "components/webapps/common/preinstalled_app_ids.h"
 #include "base/functional/bind.h"
 #include "base/strings/utf_string_conversions.h"
 #include "chrome/browser/web_applications/mojom/user_display_mode.mojom-shared.h"
@@ -139,7 +139,7 @@ ExternalInstallOptions GetConfigForGoogleDrive(bool is_standalone) {
         LoadBundledIcons({IDR_PREINSTALLED_WEB_APPS_GOOGLE_DRIVE_ICON_192_PNG});
     return info;
   });
-  options.expected_app_id = ash::kGoogleDriveAppId;
+  options.expected_app_id = webapps::kGoogleDriveAppId;
 
   return options;
 }

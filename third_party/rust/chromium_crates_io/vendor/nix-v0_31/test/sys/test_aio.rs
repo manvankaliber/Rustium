@@ -68,7 +68,7 @@ mod aio_fsync {
     // Skip on Linux, because Linux's AIO implementation can't detect errors
     // synchronously
     #[test]
-    #[cfg_attr(any(target_os = "android", target_os = "linux"), ignore)]
+    #[cfg_attr(target_os = "linux", ignore)]
     fn error() {
         let mode = AioFsyncMode::O_SYNC;
         // Operate on an invalid file descriptor.  Should get EBADF
@@ -410,7 +410,7 @@ mod aio_write {
     // Skip on Linux, because Linux's AIO implementation can't detect errors
     // synchronously
     #[test]
-    #[cfg_attr(any(target_os = "android", target_os = "linux"), ignore)]
+    #[cfg_attr(target_os = "linux", ignore)]
     fn error() {
         // Not I/O safe!  Deliberately create an invalid fd.
         let fd = unsafe { BorrowedFd::borrow_raw(666) };

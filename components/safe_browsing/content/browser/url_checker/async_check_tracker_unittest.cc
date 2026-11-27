@@ -301,22 +301,6 @@ TEST_F(AsyncCheckTrackerTest, IsMainPageLoadPending_NoNavigationId) {
       safe_browsing::ThreatSource::UNKNOWN));
 }
 
-TEST_F(AsyncCheckTrackerTest, IsMainPageLoadPending_GlicThreatSource) {
-  content::MockNavigationHandle handle(web_contents());
-  auto rfh_locator = UnsafeResourceLocator::CreateForFrameTreeNodeId(
-      main_rfh()->GetFrameTreeNodeId().value());
-  EXPECT_TRUE(AsyncCheckTracker::IsMainPageLoadPending(
-      rfh_locator, /*navigation_id=*/std::nullopt,
-      SBThreatType::SB_THREAT_TYPE_URL_PHISHING,
-      safe_browsing::ThreatSource::UNKNOWN));
-
-  // If the threat source is Glic, then the page has already loaded because
-  // this API is only triggered after main frame navigation is committed.
-  EXPECT_FALSE(AsyncCheckTracker::IsMainPageLoadPending(
-      rfh_locator,
-      /*navigation_id=*/std::nullopt, SBThreatType::SB_THREAT_TYPE_URL_PHISHING,
-      safe_browsing::ThreatSource::GLIC_COUNTER_ABUSE));
-}
 
 TEST_F(AsyncCheckTrackerTest, IsMainPageLoadPending_BillingThreatType) {
   auto rfh_locator = UnsafeResourceLocator::CreateForFrameTreeNodeId(

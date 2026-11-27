@@ -130,7 +130,7 @@ base::MappedReadOnlyRegion CreateReadOnlySharedMemoryRegion(
 }
 
 base::UnsafeSharedMemoryRegion CreateUnsafeSharedMemoryRegion(size_t size) {
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // An unsafe region never needs a read-only descriptor, and a memfd-backed
   // one needs no filesystem access to create, so allocate it in-process when
   // the embedder says this process's sandbox allows it (and the kernel
@@ -146,7 +146,7 @@ base::UnsafeSharedMemoryRegion CreateUnsafeSharedMemoryRegion(size_t size) {
     // In-process creation failed (no memfd support in the kernel, or out of
     // descriptors or memory); fall back to asking the broker.
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   auto writable_region = CreateWritableSharedMemoryRegion(size);
   if (!writable_region.IsValid()) {

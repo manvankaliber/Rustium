@@ -77,29 +77,6 @@ source_set("user_installability_checker") {
   deps = [ "//chrome/browser/profiles:profile" ]
 }
 
-if (is_chromeos) {
-  source_set("multi_capture_notification_details_view") {
-    visibility = [
-      "//chrome/browser/*",
-      "//chrome/browser/media/webrtc/*",
-    ]
-    public = [ "multi_capture_notification_details_view.h" ]
-    sources = [ "multi_capture_notification_details_view.cc" ]
-    public_deps = [
-      "//base",
-      "//ui/gfx",
-      "//ui/views",
-    ]
-    deps = [
-      "//chrome/app:generated_resources",
-      "//chrome/app/vector_icons",
-      "//components/vector_icons",
-      "//ui/base",
-      "//ui/color",
-    ]
-  }
-}
-
 source_set("isolated_web_app_installer_view_impl") {
   visibility = [
     "//chrome/browser/*",
@@ -165,17 +142,6 @@ source_set("isolated_web_app_installer_view_controller") {
     "//ui/strings:ui_strings",
     "//ui/views",
   ]
-  if (is_chromeos) {
-    deps += [
-      "//ash/constants",
-      "//ash/public/cpp",
-      "//ash/webui/settings/public/constants:mojom",
-      "//chrome/browser/ui:settings_window_manager_chromeos",
-      "//chrome/browser/ui/ash/shelf",
-      "//components/services/app_service",
-      "//ui/events",
-    ]
-  }
 }
 
 source_set("isolated_web_app_installer_coordinator") {
@@ -253,8 +219,4 @@ source_set("unit_tests") {
     "//ui/views",
     "//ui/views:test_support",
   ]
-
-  if (is_chromeos) {
-    deps += [ "//chrome/browser/ash/app_restore" ]
-  }
 }

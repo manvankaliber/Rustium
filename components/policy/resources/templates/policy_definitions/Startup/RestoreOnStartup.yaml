@@ -13,8 +13,7 @@ features:
   can_be_recommended: true
   dynamic_refresh: true
   per_profile: true
-future_on:
-- fuchsia
+future_on: []
 items:
 - caption: Open New Tab Page
   name: RestoreOnStartupIsNewTabPage
@@ -26,8 +25,7 @@ items:
   name: RestoreOnStartupIsURLs
   value: 4
 - caption: Open a list of URLs and restore the last session
-  future_on:
-  - fuchsia
+  future_on: []
   name: RestoreOnStartupIsLastSessionAndURLs
   supported_on:
   - chrome.*:98-

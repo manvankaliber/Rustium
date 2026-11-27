@@ -84,33 +84,6 @@ TEST(MimeUtilTest, ExtensionTest) {
       {FILE_PATH_LITERAL("webm"), {"video/webm"}},
       {FILE_PATH_LITERAL("weba"), {"audio/webm"}},
       {FILE_PATH_LITERAL("avif"), {"image/avif"}},
-#if BUILDFLAG(IS_CHROMEOS)
-      // These are test cases for testing platform mime types on ChromeOS.
-      {FILE_PATH_LITERAL("epub"), {"application/epub+zip"}},
-      {FILE_PATH_LITERAL("apk"), {"application/vnd.android.package-archive"}},
-      {FILE_PATH_LITERAL("cer"),
-       {
-           "application/x-x509-ca-cert",
-           "application/pkix-cert",  // System override for ChromeOS.
-       }},
-      {FILE_PATH_LITERAL("crt"),
-       {
-           "application/x-x509-ca-cert",
-           "application/pkix-cert",  // System override for ChromeOS.
-       }},
-      {FILE_PATH_LITERAL("p12"),
-       {
-           "application/x-pkcs12",
-           "application/pkcs12",  // System override for ChromeOS.
-       }},
-      {FILE_PATH_LITERAL("pfx"),
-       {
-           "application/x-pkcs12",
-           "application/pkcs12",  // System override for ChromeOS.
-       }},
-      {FILE_PATH_LITERAL("zip"), {"application/zip"}},
-      {FILE_PATH_LITERAL("ics"), {"text/calendar"}},
-#endif
       {FILE_PATH_LITERAL("m3u8"),
        {
            "application/x-mpegurl",  // Chrome's secondary mapping.
@@ -124,9 +97,6 @@ TEST(MimeUtilTest, ExtensionTest) {
       {FILE_PATH_LITERAL("md"),
        {
            "text/markdown",
-#if BUILDFLAG(IS_IOS)
-           "text/x-markdown",  // System override for iOS.
-#endif
        }},
       {FILE_PATH_LITERAL("not an extension / for sure"), {}},
       {containsNullByte, {}}};

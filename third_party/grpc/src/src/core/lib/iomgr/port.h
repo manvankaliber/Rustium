@@ -35,20 +35,6 @@
 #endif  // __MINGW32__
 #define GRPC_WINDOWS_SOCKETUTILS 1
 #define GRPC_WINDOWS_SOCKET_ARES_EV_DRIVER 1
-#elif defined(GPR_ANDROID)
-#define GRPC_HAVE_IPV6_RECVPKTINFO 1
-#define GRPC_HAVE_IP_PKTINFO 1
-#define GRPC_HAVE_MSG_NOSIGNAL 1
-#define GRPC_HAVE_UNIX_SOCKET 1
-#if defined(LINUX_VERSION_CODE) && defined(__NDK_MAJOR__)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 9, 0) && __NDK_MAJOR__ >= 14
-#define GRPC_HAVE_VSOCK 1
-#endif
-#endif
-#define GRPC_LINUX_EVENTFD 1
-#define GRPC_POSIX_SOCKET 1
-#define GRPC_POSIX_SOCKETUTILS 1
-#define GRPC_POSIX_WAKEUP_FD 1
 #elif defined(GPR_LINUX)
 #define GRPC_HAVE_ARPA_NAMESER 1
 #define GRPC_HAVE_IFADDRS 1
@@ -186,22 +172,6 @@
 #define GRPC_POSIX_SOCKET 1
 #define GRPC_POSIX_SOCKETUTILS 1
 #define GRPC_POSIX_WAKEUP_FD 1
-#elif defined(GPR_FUCHSIA)
-#define GRPC_HAVE_IFADDRS 1
-#define GRPC_HAVE_IPV6_RECVPKTINFO 1
-#define GRPC_HAVE_IP_PKTINFO 1
-// Zircon does not support the MSG_NOSIGNAL flag since it doesn't support
-// signals.
-#undef GRPC_HAVE_MSG_NOSIGNAL
-#define GRPC_HAVE_UNIX_SOCKET 1
-#define GRPC_POSIX_WAKEUP_FD 1
-// TODO(rudominer) Check that this does something we want.
-#define GRPC_POSIX_NO_SPECIAL_WAKEUP_FD 1
-#define GRPC_POSIX_SOCKET 1
-#define GRPC_POSIX_SOCKETADDR 1
-// TODO(rudominer) Check this does something we want.
-#define GRPC_POSIX_SOCKETUTILS 1
-#define GRPC_TIMER_USE_GENERIC 1
 #elif defined(GPR_HAIKU)
 #define GRPC_HAVE_ARPA_NAMESER 1
 #define GRPC_HAVE_IFADDRS 1
@@ -212,7 +182,7 @@
 #define GRPC_POSIX_SOCKET 1
 #define GRPC_POSIX_SOCKETUTILS 1
 #define GRPC_POSIX_WAKEUP_FD 1
-#elif defined(__QNX__) || defined(__QNXNTO__)
+#elif (defined(__QNX__)) || (defined(__QNXNTO__))
 #define GRPC_HAVE_ARPA_NAMESER 1
 #define GRPC_HAVE_IFADDRS 1
 #define GRPC_HAVE_IPV6_RECVPKTINFO 1
@@ -226,7 +196,7 @@
 #define GRPC_POSIX_NO_SPECIAL_WAKEUP_FD 1
 #define GRPC_POSIX_SOCKETUTILS 1
 #define GRPC_POSIX_SYSCONF 1
-#elif !defined(GPR_NO_AUTODETECT_PLATFORM)
+#elif !(defined(GPR_NO_AUTODETECT_PLATFORM))
 #error "Platform not recognized"
 #endif
 

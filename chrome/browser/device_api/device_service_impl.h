@@ -22,9 +22,6 @@
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "third_party/blink/public/mojom/device/device.mojom.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "components/content_settings/core/browser/host_content_settings_map.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace content {
 class RenderFrameHost;
@@ -35,10 +32,6 @@ class RenderFrameHost;
 class DeviceServiceImpl final
     : public content::DocumentService<blink::mojom::DeviceAPIService>,
       public web_app::WebAppInstallManagerObserver
-#if BUILDFLAG(IS_CHROMEOS)
-    ,
-      public content_settings::Observer
-#endif  // BUILDFLAG(IS_CHROMEOS)
 {
  public:
   using DeviceAttributeCallback = base::OnceCallback<void(
@@ -90,13 +83,6 @@ class DeviceServiceImpl final
       webapps::WebappUninstallSource uninstall_source) override;
   void OnWebAppInstallManagerDestroyed() override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // content_settings::Observer:
-  void OnContentSettingChanged(
-      const ContentSettingsPattern& primary_pattern,
-      const ContentSettingsPattern& secondary_pattern,
-      ContentSettingsTypeSet content_type_set) override;
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   void OnDisposingIfNeeded();
 
@@ -104,10 +90,6 @@ class DeviceServiceImpl final
   base::ScopedObservation<web_app::WebAppInstallManager,
                           web_app::WebAppInstallManagerObserver>
       install_manager_observation_{this};
-#if BUILDFLAG(IS_CHROMEOS)
-  base::ScopedObservation<HostContentSettingsMap, content_settings::Observer>
-      content_settings_observation_{this};
-#endif  // BUILDFLAG(IS_CHROMEOS)
   std::unique_ptr<DeviceAttributeApi> device_attribute_api_;
 };
 

@@ -1,22 +1,25 @@
-//! This module contains the future directory structure. If possible, new definitions should
-//! get added here.
+//! This module contains the future directory structure. If possible, new
+//! definitions should get added here.
 //!
-//! Eventually everything should be moved over, and we will move this directory to the top
-//! level in `src`.
+//! Eventually everything should be moved over, and we will move this directory
+//! to the top level in `src`.
 //!
 //! # Basic structure
 //!
-//! Each child module here represents a library or group of libraries that we are binding. Each of
-//! these has several submodules, representing either a directory or a header file in that library.
+//! Each child module here represents a library or group of libraries that we
+//! are binding. Each of these has several submodules, representing either a
+//! directory or a header file in that library.
 //!
-//! `#include`s turn into `pub use ...*;` statements. Then at the root level (here), we choose
-//! which top-level headers we want to reexport the definitions for.
+//! `#include`s turn into `pub use ...*;` statements. Then at the root level
+//! (here), we choose which top-level headers we want to reexport the
+//! definitions for.
 //!
 //! All modules are only crate-public since we don't reexport this structure.
 
 mod common;
 
-/* The `pub(crate) use ...` statements are commented while the modules are empty */
+/* The `pub(crate) use ...` statements are commented while the modules are
+ * empty */
 
 // Platform libraries and combined platform+libc
 //
@@ -44,10 +47,7 @@ cfg_if! {
     if #[cfg(target_os = "aix")] {
         mod aix;
         pub(crate) use aix::*;
-    } else if #[cfg(target_os = "android")] {
-        mod bionic_libc;
-        pub(crate) use bionic_libc::*;
-    } else if #[cfg(target_vendor = "apple")] {
+    }  else if #[cfg(target_vendor = "apple")] {
         mod apple;
         pub(crate) use apple::*;
     } else if #[cfg(target_os = "cygwin")] {
@@ -66,10 +66,7 @@ cfg_if! {
     } else if #[cfg(target_os = "freebsd")] {
         mod freebsd;
         pub(crate) use freebsd::*;
-    } else if #[cfg(target_os = "fuchsia")] {
-        mod fuchsia;
-        pub(crate) use fuchsia::*;
-    } else if #[cfg(target_os = "haiku")] {
+    }  else if #[cfg(target_os = "haiku")] {
         mod haiku;
         pub(crate) use haiku::*;
     } else if #[cfg(target_os = "helenos")] {
@@ -175,11 +172,7 @@ cfg_if! {
 
 // Per-OS headers we export
 cfg_if! {
-    if #[cfg(target_os = "android")] {
-        use bionic_libc::kernel_uapi::linux;
-        pub use linux::types::*;
-        pub use sys::socket::*;
-    } else if #[cfg(target_os = "linux")] {
+    if #[cfg(any())] {} else if #[cfg(target_os = "linux")] {
         pub use asm::socket::*;
         pub use linux::can::bcm::*;
         pub use linux::can::error::*;
@@ -279,12 +272,7 @@ cfg_if! {
 cfg_if! {
     if #[cfg(all(target_family = "unix", not(target_os = "qurt")))] {
         // FIXME(pthread): eventually all platforms should use this module
-        #[cfg(any(
-            target_os = "android",
-            target_os = "emscripten",
-            target_os = "l4re",
-            target_os = "linux"
-        ))]
+        #[cfg(any(target_os = "emscripten", target_os = "l4re", target_os = "linux"))]
         pub use pthread::*;
         pub use unistd::*;
     }

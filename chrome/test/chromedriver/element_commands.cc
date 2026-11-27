@@ -178,7 +178,6 @@ Status FocusToElement(
   if (!is_focused) {
     base::ListValue args;
     args.Append(CreateElement(element_id, session->w3c_compliant));
-    args.Append(session->chrome->GetBrowserInfo()->is_android);
     std::unique_ptr<base::Value> unused;
     status = web_view->CallFunction(session->GetCurrentFrameId(), kFocusScript,
                                     args, &unused);

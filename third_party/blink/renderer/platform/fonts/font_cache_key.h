@@ -97,9 +97,6 @@ struct FontCacheKey {
         options_,
         device_scale_factor_hash,
         size_adjust_ ? size_adjust_.GetHash() : 0,
-#if BUILDFLAG(IS_ANDROID)
-        (locale_.empty() ? 0 : blink::GetHash(locale_)) ^
-#endif  // BUILDFLAG(IS_ANDROID)
             (variation_settings_ ? variation_settings_->GetHash() : 0),
         palette_ ? palette_->GetHash() : 0,
         font_variant_alternates_ ? font_variant_alternates_->GetHash() : 0,
@@ -119,9 +116,6 @@ struct FontCacheKey {
            font_size_ == other.font_size_ && options_ == other.options_ &&
            device_scale_factor_ == other.device_scale_factor_ &&
            size_adjust_ == other.size_adjust_ &&
-#if BUILDFLAG(IS_ANDROID)
-           locale_ == other.locale_ &&
-#endif  // BUILDFLAG(IS_ANDROID)
            variation_settings_equal && palette_equal &&
            base::ValuesEquivalent(font_variant_alternates_,
                                   other.font_variant_alternates_) &&
@@ -132,13 +126,6 @@ struct FontCacheKey {
     return kFontSizePrecisionMultiplier;
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // Set the locale if the font is locale-specific. This allows different
-  // |FontPlatformData| instances for each locale.
-  void SetLocale(const AtomicString& locale) {
-    locale_ = locale.ToAsciiLower();
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   FontFaceCreationParams creation_params_;
@@ -149,9 +136,6 @@ struct FontCacheKey {
   // is dependent on the device scale factor. That's why we need
   // device_scale_factor_ to be a part of computing the cache key.
   float device_scale_factor_ = 0;
-#if BUILDFLAG(IS_ANDROID)
-  AtomicString locale_;
-#endif  // BUILDFLAG(IS_ANDROID)
   FontSizeAdjust size_adjust_;
   scoped_refptr<const FontVariationSettings> variation_settings_;
   scoped_refptr<const FontPalette> palette_;

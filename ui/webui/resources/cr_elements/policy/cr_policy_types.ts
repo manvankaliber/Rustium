@@ -15,11 +15,6 @@ export interface CrPolicyStringsType {
   controlledSettingParent: string;
   controlledSettingChildRestriction: string;
 
-  // <if expr="is_chromeos">
-  controlledSettingShared: string;
-  controlledSettingWithOwner: string;
-  controlledSettingNoOwner: string;
-  // </if>
 }
 
 declare global {

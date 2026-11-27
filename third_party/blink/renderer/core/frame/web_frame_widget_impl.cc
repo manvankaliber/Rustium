@@ -284,9 +284,7 @@ class CompositionInputEventListener final : public NativeEventListener {
 
 using ::ui::mojom::blink::DragOperation;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 constexpr base::TimeDelta kWindowingControlsChangeTimeout = base::Seconds(5);
-#endif
 
 void ForEachLocalFrameControlledByWidget(
     LocalFrame* frame,
@@ -580,12 +578,6 @@ void WebFrameWidgetImpl::Close(DetachReason detach_reason) {
   // prevent delaying the navigation commit, as releasing the LayerTreeView
   // resources blocks on the compositor thread.
   bool delay_release =
-#if BUILDFLAG(IS_ANDROID)
-      // Don't delay if synchronous compositing is enabled, since it doesn't
-      // expect async deletion.
-      !Platform::Current()
-           ->IsSynchronousCompositingEnabledForAndroidWebView() &&
-#endif
       (base::FeatureList::IsEnabled(
            blink::features::kDelayLayerTreeViewDeletionOnLocalSwap) &&
        detach_reason == DetachReason::kNavigation);
@@ -884,16 +876,6 @@ void WebFrameWidgetImpl::OnStartStylusWriting(
   std::move(callback).Run(std::move(focus_result));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void WebFrameWidgetImpl::PassImeRenderWidgetHost(
-    mojo::PendingRemote<mojom::blink::ImeRenderWidgetHost> pending_remote) {
-  ime_render_widget_host_ =
-      HeapMojoRemote<mojom::blink::ImeRenderWidgetHost>(nullptr);
-  ime_render_widget_host_.Bind(
-      std::move(pending_remote),
-      local_root_->GetTaskRunner(TaskType::kInternalDefault));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void WebFrameWidgetImpl::NotifyClearedDisplayedGraphics() {
   if (!LocalRootImpl() || !LocalRootImpl()->GetFrame() ||
@@ -1143,12 +1125,6 @@ WebInputEventResult WebFrameWidgetImpl::HandleKeyEvent(
   }
 
   bool is_key_down = event.GetType() == WebInputEvent::Type::kRawKeyDown;
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(features::kAndroidKeyboardContextMenu)) {
-    is_key_down =
-        is_key_down || event.GetType() == WebInputEvent::Type::kKeyDown;
-  }
-#endif
 #if BUILDFLAG(IS_WIN)
   bool is_context_menu_key_triggering_event =
       event.GetType() == WebInputEvent::Type::kKeyUp;
@@ -2639,15 +2615,6 @@ void WebFrameWidgetImpl::SetZoomInternal(double zoom_level,
         // Set the layout shift exclusion window for the zoom level change.
         if (LocalFrameView* view = document->View()) {
           view->GetLayoutShiftTracker().NotifyZoomLevelChanged();
-#if BUILDFLAG(IS_ANDROID)
-          if (ForTopMostMainFrame()) {
-            // Zoom levels are the exponent in the calculation of zoom. The zoom
-            // factor is the value shown to the user (e.g. 50% to 300%).
-            UMA_HISTOGRAM_CUSTOM_EXACT_LINEAR(
-                "Accessibility.Android.PageZoom.MainFrameZoomFactor",
-                layout_zoom_factor * 100, 50, 300, 52);
-          }
-#endif
         }
       }
 
@@ -3534,16 +3501,12 @@ void WebFrameWidgetImpl::SetWindowShowState(
     return;
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   ui::mojom::blink::WindowShowState old_state = window_show_state_;
-#endif
   window_show_state_ = state;
   LocalFrame* frame = LocalRootImpl()->GetFrame();
   frame->MediaQueryAffectingValueChangedForLocalSubtree(
       MediaValueChange::kOther);
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   OnWindowShowStateChanged(old_state, window_show_state_);
-#endif
 }
 
 void WebFrameWidgetImpl::SetResizable(bool resizable) {
@@ -3555,9 +3518,7 @@ void WebFrameWidgetImpl::SetResizable(bool resizable) {
   LocalFrame* frame = LocalRootImpl()->GetFrame();
   frame->MediaQueryAffectingValueChangedForLocalSubtree(
       MediaValueChange::kOther);
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   OnResizableChanged(resizable_);
-#endif
 }
 
 void WebFrameWidgetImpl::SetViewportSegments(
@@ -4779,7 +4740,7 @@ void WebFrameWidgetImpl::SetPanAction(mojom::blink::PanAction pan_action) {
 }
 
 void WebFrameWidgetImpl::DidHandleGestureEvent(const WebGestureEvent& event) {
-#if BUILDFLAG(IS_ANDROID) || defined(USE_AURA) || BUILDFLAG(IS_IOS)
+#if defined(USE_AURA)
   if (event.GetType() == WebInputEvent::Type::kGestureTap) {
     widget_base_->ShowVirtualKeyboard();
   } else if (event.GetType() == WebInputEvent::Type::kGestureLongPress) {
@@ -4895,62 +4856,6 @@ void WebFrameWidgetImpl::GetCompositionCharacterBoundsInWindow(
   }
 }
 
-#if BUILDFLAG(IS_ANDROID)
-namespace {
-
-void GetLineBounds(Vector<gfx::QuadF>& line_quads, Node* editor_node) {
-  for (const Node& node : NodeTraversal::DescendantsOf(*editor_node)) {
-    if (!node.GetLayoutObject() || !node.GetLayoutObject()->IsText()) {
-      continue;
-    }
-    node.GetLayoutObject()->AbsoluteQuads(
-        line_quads, {MapCoordinatesMode::kApplyRemoteMainFrameTransform});
-  }
-}
-
-}  // namespace
-
-Vector<gfx::Rect> WebFrameWidgetImpl::CalculateVisibleLineBoundsOnScreen() {
-  Vector<gfx::Rect> bounds_in_dips;
-  Element* focused_element = FocusedElement();
-  if (!focused_element) {
-    return bounds_in_dips;
-  }
-
-  Node* editor_node;
-  if (TextControlElement* text_control = ToTextControlOrNull(focused_element);
-      text_control && !text_control->IsDisabledOrReadOnly() &&
-      !text_control->Value().empty()) {
-    editor_node = text_control->InnerEditorElement();
-  } else if (IsEditable(*focused_element) &&
-             !focused_element->textContent().empty()) {
-    editor_node = focused_element;
-  } else {
-    return bounds_in_dips;
-  }
-
-  LayoutObject* layout_object = focused_element->GetLayoutObject();
-  if (!layout_object) {
-    return bounds_in_dips;
-  }
-
-  Vector<gfx::QuadF> bounds_from_blink;
-  GetLineBounds(bounds_from_blink, editor_node);
-
-  gfx::Rect screen = LocalRootImpl()->GetFrameView()->FrameToScreen(
-      GetPage()->GetVisualViewport().VisibleContentRect(kExcludeScrollbars));
-  for (auto& quad : bounds_from_blink) {
-    gfx::Rect bounding_box = layout_object->GetFrameView()->FrameToScreen(
-        gfx::ToRoundedRect(quad.BoundingBox()));
-    bounding_box.Intersect(screen);
-    if (bounding_box.IsEmpty()) {
-      continue;
-    }
-    bounds_in_dips.push_back(bounding_box);
-  }
-  return bounds_in_dips;
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 mojom::blink::InputCursorAnchorInfoPtr&
 WebFrameWidgetImpl::GetLastCursorAnchorInfoForTesting() {
@@ -4959,104 +4864,10 @@ WebFrameWidgetImpl::GetLastCursorAnchorInfoForTesting() {
 
 mojom::blink::InputCursorAnchorInfoPtr
 WebFrameWidgetImpl::CalculateCursorAnchorInfo(bool update_requested) {
-#if BUILDFLAG(IS_ANDROID)
-  Element* focused_element = FocusedElement();
-  if (!focused_element) {
-    return nullptr;
-  }
-
-  // Only update cursor for active text controls or contenteditable elements.
-  if (TextControlElement* text_control = ToTextControlOrNull(focused_element);
-      (!text_control || text_control->IsDisabledOrReadOnly()) &&
-      !IsEditable(*focused_element)) {
-    return nullptr;
-  }
-  LayoutObject* layout_object = focused_element->GetLayoutObject();
-  if (!layout_object) {
-    return nullptr;
-  }
-
-  WebInputMethodController* controller = GetActiveWebInputMethodController();
-  gfx::RectF editor_bounds;
-  std::optional<gfx::Rect> insertion_marker_info = std::nullopt;
-
-  if (focused_element->GetDocument()
-          .GetFrame()
-          ->GetInputMethodController()
-          .GetActiveEditContext() &&
-      controller) {
-    gfx::Rect edit_context_control_bounds;
-    gfx::Rect edit_context_selection_bounds;
-
-    controller->GetLayoutBounds(&edit_context_control_bounds,
-                                &edit_context_selection_bounds);
-
-    editor_bounds = gfx::RectF(LocalRootImpl()->GetFrameView()->FrameToScreen(
-        edit_context_control_bounds));
-    insertion_marker_info =
-        widget_base_->BlinkSpaceToEnclosedDIPs(edit_context_selection_bounds);
-  } else {
-    gfx::Rect focus_caret;
-    gfx::Rect anchor_caret;
-
-    editor_bounds = gfx::RectF(LocalRootImpl()->GetFrameView()->FrameToScreen(
-        focused_element->VisibleBoundsInLocalRoot()));
-    CalculateSelectionBounds(anchor_caret, focus_caret);
-
-    if (focus_caret != gfx::Rect{}) {
-      insertion_marker_info =
-          widget_base_->BlinkSpaceToEnclosedDIPs(focus_caret);
-    }
-  }
-
-  Vector<gfx::Rect> character_bounds;
-  GetCompositionCharacterBoundsInWindow(&character_bounds);
-  Vector<gfx::Rect> line_bounds = CalculateVisibleLineBoundsOnScreen();
-
-  float device_scale_factor = widget_base_->GetScreenInfo().device_scale_factor;
-  gfx::RectF handwriting_bounds(editor_bounds);
-  // See kStylusWritableAdjustmentSizeDip in
-  // third_party/blink/renderer/core/input/pointer_event_manager.cc
-  handwriting_bounds.Outset(30 / device_scale_factor);
-  mojom::blink::EditorBoundsInfoPtr editor_bounds_info =
-      mojom::blink::EditorBoundsInfo::New(editor_bounds, handwriting_bounds);
-
-  mojom::blink::TextAppearanceInfoPtr text_appearance_info =
-      mojom::blink::TextAppearanceInfo::New(
-          layout_object->Style()
-              .VisitedDependentColor(GetCSSPropertyColor())
-              .Rgb());
-
-  return mojom::blink::InputCursorAnchorInfo::New(
-      character_bounds, std::move(editor_bounds_info),
-      std::move(text_appearance_info), line_bounds,
-      std::move(insertion_marker_info), update_requested);
-#else
   return nullptr;
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void WebFrameWidgetImpl::UpdateCursorAnchorInfo(bool update_requested) {
-#if BUILDFLAG(IS_ANDROID)
-  mojom::blink::InputCursorAnchorInfoPtr cursor_anchor_info =
-      CalculateCursorAnchorInfo(update_requested);
-  if (!cursor_anchor_info) {
-    return;
-  }
-
-  if (!update_requested && last_cursor_anchor_info_ == cursor_anchor_info) {
-    return;
-  }
-
-  last_cursor_anchor_info_ = cursor_anchor_info.Clone();
-
-  // Since the IME pushes this endpoint to the renderer, it may not be bound
-  // yet.
-  if (ime_render_widget_host_) {
-    ime_render_widget_host_->UpdateCursorAnchorInfo(
-        std::move(cursor_anchor_info));
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void WebFrameWidgetImpl::AddImeTextSpansToExistingText(
@@ -5444,40 +5255,6 @@ void WebFrameWidgetImpl::MoveCaret(const gfx::Point& point_in_dips) {
       widget_base_->DIPsToRoundedBlinkSpace(point_in_dips));
 }
 
-#if BUILDFLAG(IS_IOS)
-void WebFrameWidgetImpl::StartAutoscrollForSelectionToPoint(
-    const gfx::PointF& point_in_dips) {
-  WebLocalFrameImpl* focused_frame = FocusedWebLocalFrameInWidget();
-  if (!focused_frame) {
-    return;
-  }
-  focused_frame->StartAutoscrollForSelectionToPoint(
-      widget_base_->DIPsToBlinkSpace(point_in_dips));
-}
-
-void WebFrameWidgetImpl::StopAutoscroll() {
-  WebLocalFrameImpl* focused_frame = FocusedWebLocalFrameInWidget();
-  if (!focused_frame) {
-    return;
-  }
-  focused_frame->StopAutoscroll();
-}
-
-void WebFrameWidgetImpl::RectForEditFieldChars(
-    const gfx::Range& range,
-    RectForEditFieldCharsCallback callback) {
-  WebLocalFrameImpl* focused_frame = FocusedWebLocalFrameInWidget();
-  if (!focused_frame) {
-    std::move(callback).Run(gfx::Rect());
-    return;
-  }
-  gfx::Rect rect;
-  focused_frame->FirstRectForCharacterRange(
-      base::checked_cast<wtf_size_t>(range.start()),
-      base::checked_cast<wtf_size_t>(range.length()), rect);
-  std::move(callback).Run(widget_base_->BlinkSpaceToEnclosedDIPs(rect));
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 void WebFrameWidgetImpl::SelectAroundCaret(
     mojom::blink::SelectionGranularity granularity,
@@ -6376,7 +6153,6 @@ void WebFrameWidgetImpl::OnFirstContentfulPaint() {
   widget_base_->OnFirstContentfulPaint();
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 bool WebFrameWidgetImpl::MaximizeRequested(
     WindowingControlsChangeCallback callback) {
   return HandleWindowShowStateChangeRequest(
@@ -6546,6 +6322,5 @@ void WebFrameWidgetImpl::RejectAWCPromise(uint64_t id) {
   }
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 }  // namespace blink

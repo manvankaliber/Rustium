@@ -22,6 +22,11 @@ class DeviceInfoSyncClientImpl : public syncer::DeviceInfoSyncClient {
   ~DeviceInfoSyncClientImpl() override;
 
   // syncer::DeviceInfoSyncClient:
+  syncer::DeviceInfo::GlicExperimentalTriggeringState
+  GetGlicExperimentalTriggeringState() const override;
+  std::optional<int> GetGlicExperimentalTriggeringVersion() const override;
+  base::flat_set<std::string> GetGlicExperimentalTriggeringCapabilities()
+      const override;
   std::string GetSigninScopedDeviceId() const override;
 
   // syncer::DeviceInfoSyncClient:
@@ -51,11 +56,6 @@ class DeviceInfoSyncClientImpl : public syncer::DeviceInfoSyncClient {
       const override;
 
   // syncer::DeviceInfoSyncClient:
-  syncer::DeviceInfo::GlicExperimentalTriggeringState
-  GetGlicExperimentalTriggeringState() const override;
-  std::optional<int> GetGlicExperimentalTriggeringVersion() const override;
-  base::flat_set<std::string> GetGlicExperimentalTriggeringCapabilities()
-      const override;
   syncer::DeviceInfo::PersonalContextInfo::StatusOrInfo
   GetLocalPersonalContextInfo() const override;
 

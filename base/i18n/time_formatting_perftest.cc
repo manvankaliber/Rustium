@@ -15,9 +15,6 @@
 #include "testing/perf/perf_result_reporter.h"
 #include "third_party/google_benchmark/src/include/benchmark/benchmark.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "third_party/icu/source/i18n/unicode/timezone.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace base {
 namespace {
@@ -68,14 +65,6 @@ TEST(TimeFormattingPerfTest, TimeFormatTimeOfDayWithHourClockType) {
   });
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-TEST(TimeFormattingPerfTest, TimeFormatMonthAndYearForTimeZone) {
-  const icu::TimeZone* tz = icu::TimeZone::getGMT();
-  RunAndRecord("TimeFormatMonthAndYearForTimeZone", [&] {
-    return TimeFormatMonthAndYearForTimeZone(kBenchmarkTime, tz);
-  });
-}
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 TEST(TimeFormattingPerfTest, TimeFormatAsIso8601WithTimeZone) {
   const i18n::TimeZone tz = i18n::TimeZone::FromString("America/Los_Angeles");

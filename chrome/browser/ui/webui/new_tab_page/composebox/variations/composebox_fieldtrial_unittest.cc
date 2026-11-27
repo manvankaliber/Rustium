@@ -82,9 +82,11 @@ TEST_F(IsNtpComposeboxEnabledTest, ReturnsFalseWhenNotEligible) {
   EXPECT_FALSE(ntp_composebox::IsNtpComposeboxEnabled(profile_.get()));
 }
 
-TEST_F(IsNtpComposeboxEnabledTest, ReturnsTrueWhenEligible) {
+TEST_F(IsNtpComposeboxEnabledTest, RemovedEvenWhenEligible) {
+  base::test::ScopedFeatureList features;
+  features.InitAndEnableFeature(ntp_composebox::kNtpComposebox);
   SetAllEligible(true);
-  EXPECT_TRUE(ntp_composebox::IsNtpComposeboxEnabled(profile_.get()));
+  EXPECT_FALSE(ntp_composebox::IsNtpComposeboxEnabled(profile_.get()));
 }
 
 TEST_F(IsNtpComposeboxEnabledTest,
@@ -125,9 +127,12 @@ TEST_F(IsNtpRealboxNextEnabledTest, ReturnsFalseWhenNotEligible) {
   EXPECT_FALSE(ntp_realbox::IsNtpRealboxNextEnabled(profile_.get()));
 }
 
-TEST_F(IsNtpRealboxNextEnabledTest, ReturnsTrueWhenEligible) {
+TEST_F(IsNtpRealboxNextEnabledTest, RemovedEvenWhenEligible) {
+  base::test::ScopedFeatureList features;
+  features.InitWithFeatures(
+      {ntp_composebox::kNtpComposebox, ntp_realbox::kNtpRealboxNext}, {});
   SetAllEligible(true);
-  EXPECT_TRUE(ntp_realbox::IsNtpRealboxNextEnabled(profile_.get()));
+  EXPECT_FALSE(ntp_realbox::IsNtpRealboxNextEnabled(profile_.get()));
 }
 
 TEST_F(IsNtpRealboxNextEnabledTest,

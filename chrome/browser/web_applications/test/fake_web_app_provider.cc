@@ -47,9 +47,6 @@
 #include "components/sync/test/mock_data_type_local_change_processor.h"
 #include "testing/gmock/include/gmock/gmock.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/web_applications/web_app_run_on_os_login_manager.h"
-#endif
 
 namespace web_app {
 
@@ -182,14 +179,6 @@ void FakeWebAppProvider::SetWebAppPolicyManager(
   web_app_policy_manager_ = std::move(web_app_policy_manager);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void FakeWebAppProvider::SetWebAppRunOnOsLoginManager(
-    std::unique_ptr<WebAppRunOnOsLoginManager>
-        web_app_run_on_os_login_manager) {
-  CheckNotStartedAndDisconnect();
-  web_app_run_on_os_login_manager_ = std::move(web_app_run_on_os_login_manager);
-}
-#endif
 
 void FakeWebAppProvider::SetCommandManager(
     std::unique_ptr<WebAppCommandManager> command_manager) {

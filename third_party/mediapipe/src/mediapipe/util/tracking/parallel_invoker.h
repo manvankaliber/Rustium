@@ -227,24 +227,6 @@ void SerialFor(size_t start, size_t end, size_t grain_size,
 
 inline void CheckAndSetInvokerOptions() {
 #if defined(PARALLEL_INVOKER_ACTIVE)
-#if defined(__ANDROID__)
-  // If unsupported option is selected, force usage of OpenMP if detected, and
-  // ThreadPool otherwise.
-  if (flags_parallel_invoker_mode != PARALLEL_INVOKER_NONE &&
-      flags_parallel_invoker_mode != PARALLEL_INVOKER_THREAD_POOL &&
-      flags_parallel_invoker_mode != PARALLEL_INVOKER_OPENMP) {
-#if defined(_OPENMP)
-    ABSL_LOG(WARNING) << "Unsupported invoker mode selected on Android. "
-                      << "OpenMP linkage detected, so falling back to OpenMP";
-    flags_parallel_invoker_mode = PARALLEL_INVOKER_OPENMP;
-#else   // _OPENMP
-    // Fallback mode for active parallel invoker without OpenMP is ThreadPool.
-    ABSL_LOG(WARNING) << "Unsupported invoker mode selected on Android. "
-                      << "Falling back to ThreadPool";
-    flags_parallel_invoker_mode = PARALLEL_INVOKER_THREAD_POOL;
-#endif  // _OPENMP
-  }
-#endif  // __ANDROID__
 
 #if defined(__APPLE__) || defined(__EMSCRIPTEN__)
   // Force usage of ThreadPool if unsupported option is selected.
@@ -260,9 +242,9 @@ inline void CheckAndSetInvokerOptions() {
   }
 #endif  // __APPLE__ || __EMSCRIPTEN__
 
-#if !defined(__APPLE__) && !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+#if !defined(__APPLE__) && !defined(__EMSCRIPTEN__)
   flags_parallel_invoker_mode = PARALLEL_INVOKER_THREAD_POOL;
-#endif  // !__APPLE__ && !__EMSCRIPTEN__ && !__ANDROID__
+#endif
 
   // If OpenMP is requested, make sure we can actually use it, and fall back
   // to ThreadPool if not.

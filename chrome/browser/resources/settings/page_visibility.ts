@@ -49,7 +49,6 @@ function createPageVisibility(): PageVisibility|undefined {
     return undefined;
   }
 
-  // <if expr="not is_chromeos">
   const pageVisibility: PageVisibility = {
     a11y: false,
     ai: false,
@@ -68,35 +67,6 @@ function createPageVisibility(): PageVisibility|undefined {
     system: false,
     yourSavedInfo: false,
   };
-  // </if>
-  // <if expr="is_chromeos">
-  const pageVisibility: PageVisibility = {
-    ai: false,
-    autofill: false,
-    people: false,
-    onStartup: false,
-    reset: false,
-    safetyHub: false,
-    appearance: {
-      setTheme: false,
-      homeButton: false,
-      hoverCard: false,
-      bookmarksBar: false,
-      pageZoom: false,
-      sidePanel: false,
-    },
-    privacy: {
-      searchPrediction: false,
-      networkPrediction: false,
-    },
-    downloads: true,
-    a11y: true,
-    extensions: false,
-    languages: true,
-    performance: false,
-    yourSavedInfo: false,
-  };
-  // </if>
 
   if (loadTimeData.getString('settingsRefresh2026') !== '') {
     pageVisibility.general = false;

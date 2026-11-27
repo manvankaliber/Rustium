@@ -11,19 +11,11 @@
 namespace enterprise_net {
 
 BASE_FEATURE(kEnableDynamicRouteFetching,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 BASE_FEATURE(kEnterpriseProxyErrorHandling,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 // Enabled by default on Android and iOS, where user-scoped enterprise proxy
@@ -31,11 +23,7 @@ BASE_FEATURE(kEnterpriseProxyErrorHandling,
 // enabling it stops applying user-scoped and extension-set proxy override rules
 // on existing AD- or MDM-managed devices that are not enrolled in CBCM.
 BASE_FEATURE(kEnforceProxyAffiliationOnPlatformManagedDevices,
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 constexpr size_t kDefaultPvdConfigMaxSizeBytes = 3 * 1024 * 1024;

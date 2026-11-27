@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 # Note: Don't use html_to_js() in new code. Instead see html_to_wrapper()
-assert(is_chromeos)
+assert(false)
 
 template("html_to_js") {
   action(target_name) {

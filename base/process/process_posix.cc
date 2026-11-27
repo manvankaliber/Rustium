@@ -29,7 +29,7 @@
 #include <sys/event.h>
 #endif
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 #include <poll.h>
 #include <sys/syscall.h>
 #include <unistd.h>
@@ -39,13 +39,10 @@
 #include "base/test/clang_profiling.h"
 #endif
 
-#if BUILDFLAG(IS_IOS)
-#include "TargetConditionals.h"
-#endif
 
 namespace {
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 // Blocks until `handle` exits or `wakeup_time` is reached using `pidfd_open(2)`
 // and `ppoll(2)` so the caller wakes immediately upon child exit rather than
 // sleeping in a polling loop. Returns false if `pidfd_open` is unavailable.
@@ -70,7 +67,6 @@ bool WaitWithPidfd(base::ProcessHandle handle, base::TimeTicks wakeup_time) {
 }
 #endif
 
-#if !BUILDFLAG(IS_IOS) || (BUILDFLAG(IS_IOS) && TARGET_OS_SIMULATOR)
 bool WaitpidWithTimeout(base::ProcessHandle handle,
                         int* status,
                         base::TimeDelta wait) {
@@ -112,7 +108,7 @@ bool WaitpidWithTimeout(base::ProcessHandle handle,
 
   // If the process hasn't exited yet, then sleep and try again.
   base::TimeTicks wakeup_time = base::TimeTicks::Now() + wait;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
   if (WaitWithPidfd(handle, wakeup_time)) {
     ret_pid = HANDLE_EINTR(waitpid(handle, status, WNOHANG));
   }
@@ -143,7 +139,6 @@ bool WaitpidWithTimeout(base::ProcessHandle handle,
 
   return ret_pid > 0;
 }
-#endif
 
 #if BUILDFLAG(IS_MAC)
 // Using kqueue on Mac so that we can wait on non-child processes.
@@ -241,18 +236,12 @@ namespace base {
 Process::Process(ProcessHandle handle) : process_(handle) {}
 
 Process::Process(Process&& other) : process_(other.process_) {
-#if BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK) && TARGET_OS_SIMULATOR
-  content_process_ = other.content_process_;
-#endif
 
   other.Close();
 }
 
 Process& Process::operator=(Process&& other) {
   process_ = other.process_;
-#if BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK) && TARGET_OS_SIMULATOR
-  content_process_ = other.content_process_;
-#endif
   other.Close();
   return *this;
 }
@@ -302,9 +291,6 @@ Process Process::Duplicate() const {
   }
 
   Process duplicate = Process(process_);
-#if BUILDFLAG(IS_IOS) && BUILDFLAG(USE_BLINK) && TARGET_OS_SIMULATOR
-  duplicate.content_process_ = content_process_;
-#endif
   return duplicate;
 }
 
@@ -328,16 +314,13 @@ void Process::Close() {
   // end up w/ a zombie when it does finally exit.
 }
 
-#if !BUILDFLAG(IS_IOS)
 bool Process::Terminate(int exit_code, bool wait) const {
   // exit_code isn't supportable.
   DCHECK(IsValid());
   CHECK_GT(process_, 0);
   return TerminateInternal(exit_code, wait);
 }
-#endif
 
-#if !BUILDFLAG(IS_IOS) || (BUILDFLAG(USE_BLINK) && TARGET_OS_SIMULATOR)
 bool Process::TerminateInternal(int exit_code, bool wait) const {
   // |wait| is always false when terminating badly-behaved processes.
   const bool maybe_compromised =
@@ -364,13 +347,11 @@ bool Process::TerminateInternal(int exit_code, bool wait) const {
   }
   return WaitForExit(nullptr);
 }
-#endif
 
 bool Process::WaitForExit(int* exit_code) const {
   return WaitForExitWithTimeout(TimeDelta::Max(), exit_code);
 }
 
-#if !BUILDFLAG(IS_IOS)
 bool Process::WaitForExitWithTimeout(TimeDelta timeout, int* exit_code) const {
   timeout = std::max(timeout, TimeDelta());
   if (!timeout.is_zero()) {
@@ -390,9 +371,7 @@ bool Process::WaitForExitWithTimeout(TimeDelta timeout, int* exit_code) const {
   }
   return exited;
 }
-#endif
 
-#if !BUILDFLAG(IS_IOS) || (BUILDFLAG(USE_BLINK) && TARGET_OS_SIMULATOR)
 bool Process::WaitForExitWithTimeoutImpl(base::ProcessHandle handle,
                                          int* exit_code,
                                          base::TimeDelta timeout) const {
@@ -437,7 +416,6 @@ bool Process::WaitForExitWithTimeoutImpl(base::ProcessHandle handle,
   }
   return exited;
 }
-#endif
 
 int Process::GetOSPriority() const {
   DCHECK(IsValid());

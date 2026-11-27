@@ -1160,7 +1160,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
       SQLitePersistentSharedDictionaryStore::Error::kInvalidSql);
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // MakeFileUnwritable() doesn't cause the failure on Fuchsia. So disabling the
 // test on Fuchsia.
 TEST_F(SQLitePersistentSharedDictionaryStoreTest,
@@ -1172,7 +1171,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
   RunRegisterDictionaryFailureTest(SQLitePersistentSharedDictionaryStore::
                                        Error::kFailedToInitializeDatabase);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(SQLitePersistentSharedDictionaryStoreTest,
        RegisterDictionaryErrorFailedToGetTotalDictSize) {
@@ -1797,7 +1795,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
   CheckStoreRecovered();
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // MakeFileUnwritable() doesn't cause the failure on Fuchsia. So disabling the
 // test on Fuchsia.
 TEST_F(SQLitePersistentSharedDictionaryStoreTest,
@@ -1809,7 +1806,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
   RunClearAllDictionariesFailureTest(SQLitePersistentSharedDictionaryStore::
                                          Error::kFailedToInitializeDatabase);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 void SQLitePersistentSharedDictionaryStoreTest::RunClearDictionariesFailureTest(
     base::RepeatingCallback<bool(const GURL&)> url_matcher,
@@ -1855,7 +1851,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
       SQLitePersistentSharedDictionaryStore::Error::kInvalidSql);
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // MakeFileUnwritable() doesn't cause the failure on Fuchsia. So disabling the
 // test on Fuchsia.
 TEST_F(SQLitePersistentSharedDictionaryStoreTest,
@@ -1880,7 +1875,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
       SQLitePersistentSharedDictionaryStore::Error::
           kFailedToInitializeDatabase);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(SQLitePersistentSharedDictionaryStoreTest,
        ClearDictionariesErrorFailedToGetTotalDictSize) {
@@ -2054,7 +2048,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
       SQLitePersistentSharedDictionaryStore::Error::kInvalidSql);
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // MakeFileUnwritable() doesn't cause the failure on Fuchsia. So disabling the
 // test on Fuchsia.
 TEST_F(SQLitePersistentSharedDictionaryStoreTest,
@@ -2067,7 +2060,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
   RunProcessEvictionFailureTest(SQLitePersistentSharedDictionaryStore::Error::
                                     kFailedToInitializeDatabase);
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(SQLitePersistentSharedDictionaryStoreTest,
        ProcessEvictionErrorFailedToGetTotalDictSize) {
@@ -2190,7 +2182,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
                                     /*last_fetch_time=*/base::Time::Now()));
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // MakeFileUnwritable() doesn't cause the failure on Fuchsia. So disabling the
 // test on Fuchsia.
 TEST_F(SQLitePersistentSharedDictionaryStoreTest,
@@ -2207,7 +2198,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
           register_dictionary_result.primary_key_in_database(),
           /*last_fetch_time=*/base::Time::Now()));
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(
     SQLitePersistentSharedDictionaryStoreTest,
@@ -2233,7 +2223,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
                 /*last_fetch_time=*/base::Time::Now()));
 }
 
-#if !BUILDFLAG(IS_FUCHSIA)
 // MakeFileUnwritable() doesn't cause the failure on Fuchsia. So disabling the
 // test on Fuchsia.
 TEST_F(SQLitePersistentSharedDictionaryStoreTest,
@@ -2250,7 +2239,6 @@ TEST_F(SQLitePersistentSharedDictionaryStoreTest,
           register_dictionary_result.primary_key_in_database(),
           /*last_fetch_time=*/base::Time::Now()));
 }
-#endif  // !BUILDFLAG(IS_FUCHSIA)
 
 TEST_F(SQLitePersistentSharedDictionaryStoreTest, InvalidHash) {
   CreateStore();

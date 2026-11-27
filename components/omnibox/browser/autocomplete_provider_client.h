@@ -263,7 +263,6 @@ class AutocompleteProviderClient : public OmniboxAction::Client {
 
   virtual void set_in_background_state(bool in_background_state) {}
 
-
   // Whether the Ask G search chip is enabled.
   virtual bool IsAskGShowChipEnabled() const;
 
@@ -276,10 +275,6 @@ class AutocompleteProviderClient : public OmniboxAction::Client {
   // Gets a weak pointer to the client. Used when providers need to use the
   // client when the client may no longer be around.
   virtual base::WeakPtr<AutocompleteProviderClient> GetWeakPtr();
-
-  // Returns whether the Web UI NTP is enabled for Desktop Android. In all other
-  // cases and platforms, it returns false.
-  virtual bool IsWebUiNtpEnabledForDesktopAndroid() const;
 
   // OmniboxAction::Client overrides:
   bool ShouldOpenCoBrowsePanel() const override;

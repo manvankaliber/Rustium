@@ -1,0 +1,5 @@
+third_party/devtools-frontend/src	d9ef7e11de350c7f469ea7074fc15dbc6359288f	third_party-devtools-frontend-src-d9ef7e11de35.patch
+third_party/nasm	525a09a813be0f75b646ee93fc2a31c27b87d722	third_party-nasm-525a09a813be.patch
+third_party/openscreen/src	308a18e24e717ce27231c0aaa713364a41416e54	third_party-openscreen-src-308a18e24e71.patch
+third_party/perfetto	904c607d152006168988b680f5ec6b45fe6a0f3e	third_party-perfetto-904c607d1520.patch
+v8	a1175dcfe49146bd7165715a9919eb4e94be0e77	v8-a1175dcfe491.patch

@@ -43,9 +43,6 @@
 #include "base/timer/timer.h"
 #include "base/types/optional_ref.h"
 #include "build/build_config.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 #include "components/autofill/content/renderer/a11y_util.h"
 #include "components/autofill/content/renderer/custom_form_control_script_executor.h"
 #include "components/autofill/content/renderer/form_autofill_issues.h"
@@ -370,20 +367,14 @@ AutofillAgent::Config CreateConfig(bool uses_platform_autofill) {
     };
   }
   const bool keyboard_accessory_uses_dynamic_positioning =
-#if BUILDFLAG(IS_ANDROID)
-      base::android::device_info::is_desktop() &&
-      base::FeatureList::IsEnabled(
-          features::kAutofillAndroidKeyboardAccessoryDynamicPositioning);
-#else
       false;
-#endif
   return {
       AutofillAgent::ExtractAllDatalists(false),
       AutofillAgent::FocusRequiresScroll(true),
       AutofillAgent::QueryPasswordSuggestions(false),
       AutofillAgent::SecureContextRequired(false),
       AutofillAgent::UserGestureRequired(true),
-      AutofillAgent::UsesKeyboardAccessoryForSuggestions(BUILDFLAG(IS_ANDROID)),
+      AutofillAgent::UsesKeyboardAccessoryForSuggestions(false),
       AutofillAgent::KeyboardAccessoryUsesDynamicPositioning(
           keyboard_accessory_uses_dynamic_positioning),
   };
@@ -716,8 +707,6 @@ CallTimerState AutofillAgent::GetCallTimerState(
 
 void AutofillAgent::FocusedElementChanged(
     const WebElement& new_focused_element) {
-  at_memory_handler_.FocusedElementChanged(new_focused_element);
-  inactivity_timer_.Stop();
   ObserveCaret(new_focused_element);
 
   HidePopup();
@@ -803,15 +792,7 @@ void AutofillAgent::FocusedElementChanged(
     handle_focus_change();
   }
 
-  // TODO(crbug.com/370301890): Notify PasswordAutofillAgent about
-  // focus-on-non-form-field elements. This is a temporary hack and must be
-  // moved to PasswordAutofillAgent::FocusedElementChanged().
-  if (base::FeatureList::IsEnabled(
-          features::kAutofillAtMemorySupportContenteditableOnAndroid) &&
-      password_autofill_agent_) {
-    password_autofill_agent_->FocusedElementChangedWithCustomSemantics(
-        new_focused_element, /*pass_key=*/{});
-  }
+
 }
 
 void AutofillAgent::ObserveCaret(WebElement element) {
@@ -831,7 +812,6 @@ void AutofillAgent::ObserveCaret(WebElement element) {
 
 void AutofillAgent::HandleCaretMovedInFormField(WebElement element,
                                                 WebDOMEvent) {
-  inactivity_timer_.Stop();
   auto handle_throttled_caret_change = [](AutofillAgent& self,
                                           WebElement element) {
     if (!self.unsafe_render_frame() || !element.Focused() ||
@@ -1016,14 +996,6 @@ void AutofillAgent::OnTextFieldValueChanged(
                     form_cache, password_request);
   }
 
-  // TODO(crbug.com/507716605): Consider if this should be started on typing or
-  // on focus.
-  inactivity_timer_.Start(
-      FROM_HERE, base::Seconds(5),
-      base::BindOnce(&AutofillAgent::OnInactivityTimerFired,
-                     weak_ptr_factory_.GetWeakPtr(),
-                     form_util::GetFieldRendererId(element)));
-
   if (std::optional<form_util::FormAndField> form_and_field =
           form_util::FindFormAndFieldForFormControlElement(
               element, field_data_manager(),
@@ -1034,21 +1006,6 @@ void AutofillAgent::OnTextFieldValueChanged(
       autofill_driver->TextFieldValueChanged(form, field.renderer_id(),
                                              base::TimeTicks::Now());
     }
-  }
-}
-
-void AutofillAgent::OnInactivityTimerFired(FieldRendererId field_id) {
-  WebFormControlElement element =
-      form_util::GetFormControlByRendererId(field_id);
-  if (!element || !element.Focused()) {
-    return;
-  }
-  if (base::FeatureList::IsEnabled(
-          features::kAutofillAtMemoryInactivityNudge) &&
-      base::FeatureList::IsEnabled(features::kAutofillAtMemory)) {
-    ShowSuggestions(element,
-                    AutofillSuggestionTriggerSource::kAtMemoryInactivityNudge,
-                    /*form_cache=*/{}, /*password_request=*/std::nullopt);
   }
 }
 
@@ -1091,7 +1048,7 @@ bool AutofillAgent::DidReceiveKeyDown(const WebElement& element,
     return false;  // Do not prevent default.
   }
 
-  return at_memory_handler_.DidReceiveKeyDown(element, event);
+  return false;
 }
 
 void AutofillAgent::OpenTextDataListChooser(const WebInputElement& element) {
@@ -1179,7 +1136,6 @@ void AutofillAgent::ApplyFieldsAction(
     const std::vector<FormFieldData::FillData>& fields,
     const FillId& fill_id,
     bool supports_refill) {
-  inactivity_timer_.Stop();
   CHECK(!fields.empty());
   WebDocument document = GetDocument();
   if (!document) {
@@ -1347,6 +1303,11 @@ void AutofillAgent::ClearPreviewedForm() {
 void AutofillAgent::TriggerSuggestions(
     FieldRendererId field_id,
     AutofillSuggestionTriggerSource trigger_source) {
+  if (IsAtMemoryTriggerSource(trigger_source) ||
+      trigger_source ==
+          AutofillSuggestionTriggerSource::kAtMemoryInactivityNudge) {
+    return;
+  }
   if (WebFormControlElement control_element =
           form_util::GetFormControlByRendererId(field_id)) {
     last_queried_element_id_ = form_util::GetFieldRendererId(control_element);
@@ -1371,9 +1332,6 @@ void AutofillAgent::TriggerSuggestions(
     switch (trigger_source) {
       case kComposeDialogLostFocus:
       case kComposeDelayedProactiveNudge:
-      case kAtMemoryContextMenu:
-      case kAtMemoryDoubleCtrl:
-      case kAtMemoryKeyboardShortcut:
         return true;
       case kUnspecified:
       case kFormControlElementClicked:
@@ -1389,6 +1347,9 @@ void AutofillAgent::TriggerSuggestions(
       case kProactivePasswordRecovery:
       case kGmailOneTimePasswordAvailable:
       case kGlic:
+      case kAtMemoryContextMenu:
+      case kAtMemoryDoubleCtrl:
+      case kAtMemoryKeyboardShortcut:
       case kAtMemoryInactivityNudge:
         return false;
     }
@@ -1407,7 +1368,9 @@ void AutofillAgent::ApplyFieldAction(
     mojom::ActionPersistence action_persistence,
     FieldRendererId field_id,
     const std::u16string& value) {
-  inactivity_timer_.Stop();
+  if (action_type == mojom::FieldActionType::kReplaceSelectionForAtMemory) {
+    return;
+  }
   if (!unsafe_render_frame()) {
     return;
   }
@@ -1444,8 +1407,6 @@ void AutofillAgent::ApplyFieldAction(
                 << "Previewing replacement of selection is not implemented";
             break;
           case mojom::FieldActionType::kReplaceSelectionForAtMemory:
-            NOTIMPLEMENTED()
-                << "Previewing for AtMemory is not implemented: b/540805115";
             break;
           case mojom::FieldActionType::kSelectAll:
             NOTIMPLEMENTED() << "Previewing select all is not implemented";
@@ -1465,10 +1426,8 @@ void AutofillAgent::ApplyFieldAction(
                                    /*smart_replace=*/true);
             break;
           }
-          case mojom::FieldActionType::kReplaceSelectionForAtMemory: {
-            at_memory_handler_.ReplaceSelectionForAtMemory(field_id, value);
+          case mojom::FieldActionType::kReplaceSelectionForAtMemory:
             break;
-          }
           case mojom::FieldActionType::kSelectAll:
             DCHECK(value.empty());
             form_control.SelectText(/*select_all=*/true);
@@ -1521,7 +1480,6 @@ void AutofillAgent::ApplyFieldAction(
           }
           break;
         case mojom::FieldActionType::kReplaceSelectionForAtMemory:
-          at_memory_handler_.ReplaceSelectionForAtMemory(field_id, value);
           break;
         case mojom::FieldActionType::kSelectAll:
           DCHECK(value.empty());
@@ -1803,7 +1761,6 @@ void AutofillAgent::ShowSuggestions(
     autofill_driver->AskForValuesToFill(form, field.renderer_id(),
                                         GetCaretBounds(), trigger_source,
                                         password_request);
-    at_memory_handler_.MaybeUpdateAskForValuesToFill(element, trigger_source);
   }
 }
 
@@ -1827,7 +1784,6 @@ void AutofillAgent::ShowSuggestionsForContentEditable(
     autofill_driver->AskForValuesToFill(*form, field.renderer_id(),
                                         GetCaretBounds(), trigger_source,
                                         std::nullopt);
-    at_memory_handler_.MaybeUpdateAskForValuesToFill(element, trigger_source);
   }
 }
 
@@ -2208,21 +2164,11 @@ void AutofillAgent::DidCompleteFocusChangeInFrame() {
 void AutofillAgent::DidReceiveLeftMouseDownOrGestureTapInNode(
     const WebNode& node) {
   DCHECK(node);
-  at_memory_handler_.DidReceiveLeftMouseDownOrGestureTapInNode(node);
   WebElement contenteditable;
   const bool is_focused =
       node.Focused() || ((contenteditable = node.RootEditableElement()) &&
                          contenteditable.Focused());
-#if BUILDFLAG(IS_ANDROID)
-  if (config_.keyboard_accessory_uses_dynamic_positioning) {
-    last_left_mouse_down_or_gesture_tap_in_node_caused_focus_ = is_focused;
-  } else {
-    HandleFocusChangeComplete(/*focused_node_was_last_clicked=*/is_focused,
-                              /*form_cache=*/{});
-  }
-#else
   last_left_mouse_down_or_gesture_tap_in_node_caused_focus_ = is_focused;
-#endif
 }
 
 void AutofillAgent::DidReceiveLeftPointerDownBeforeDispatch(
@@ -2361,14 +2307,12 @@ void AutofillAgent::HandleFocusChangeComplete(
           AutofillSuggestionTriggerSource::kFormControlElementClicked,
           form_cache, password_request);
     } else if (form_util::IsTextAreaElement(focused_control)) {
-#if !BUILDFLAG(IS_ANDROID)
       // Compose reacts to tab area focus even when not triggered by a click -
       // therefore call `ShowSuggestions` with a separate trigger source.
       ShowSuggestions(
           focused_control,
           AutofillSuggestionTriggerSource::kTextareaFocusedWithoutClick,
           form_cache, password_request);
-#endif
     }
   }
 

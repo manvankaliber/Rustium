@@ -25,9 +25,7 @@
 #include "mojo/public/cpp/bindings/remote.h"
 #include "url/gurl.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/tabs/tab_strip_model_observer.h"
-#endif
 
 namespace base {
 class TimeTicks;
@@ -40,10 +38,8 @@ class ContextualSearchSessionHandle;
 class Profile;
 
 class ActionChipsHandler : public action_chips::mojom::ActionChipsHandler
-#if !BUILDFLAG(IS_ANDROID)
     ,
                            public TabStripModelObserver
-#endif
 {
  public:
   using GetSessionHandleCallback = base::RepeatingCallback<
@@ -68,12 +64,10 @@ class ActionChipsHandler : public action_chips::mojom::ActionChipsHandler
                      uint8_t mouse_button,
                      searchbox::mojom::ActionModifiersPtr modifiers) override;
 
-#if !BUILDFLAG(IS_ANDROID)
   void OnTabStripModelChanged(
       TabStripModel* tab_strip_model,
       const TabStripModelChange& change,
       const TabStripSelectionChange& selection) override;
-#endif
 
  private:
   void SendActionChipsToUi(
@@ -87,10 +81,8 @@ class ActionChipsHandler : public action_chips::mojom::ActionChipsHandler
   bool ShouldThrottleRetrieval(const GURL& current_url);
   void OnVisibilityChanged();
 
-#if !BUILDFLAG(IS_ANDROID)
   bool UpdateTabStripModelObservation();
   void OnBrowserWindowInterfaceChanged();
-#endif
 
   mojo::Receiver<action_chips::mojom::ActionChipsHandler> receiver_;
   mojo::Remote<action_chips::mojom::Page> page_;
@@ -100,9 +92,7 @@ class ActionChipsHandler : public action_chips::mojom::ActionChipsHandler
   GetSessionHandleCallback get_session_handle_callback_;
   PrefChangeRegistrar pref_change_registrar_;
 
-#if !BUILDFLAG(IS_ANDROID)
   base::CallbackListSubscription browser_window_interface_subscription_;
-#endif
 
   std::optional<GURL> last_processed_url_;
   bool has_recorded_any_shown_ = false;

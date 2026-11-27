@@ -164,17 +164,6 @@ class SupervisedUserLogRecordTest : public ::testing::Test {
     return CreateSupervisedUserLogRecord();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  void EnableSearchContentFilters() {
-    supervised_user_test_environment_.device_parental_controls()
-        .SetSearchContentFiltersEnabledForTesting(true);
-  }
-
-  void EnableBrowserContentFilters() {
-    supervised_user_test_environment_.device_parental_controls()
-        .SetBrowserContentFiltersEnabledForTesting(true);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   base::test::TaskEnvironment task_environment_;
@@ -211,7 +200,6 @@ TEST_F(SupervisedUserLogRecordTest, SupervisionEnabledByUser) {
                            kSupervisionEnabledByFamilyLinkUser));
 }
 
-#if !BUILDFLAG(IS_IOS)
 class SupervisedUserLogRecordWithApproximateGeolocationTest
     : public base::test::WithFeatureOverride,
       public SupervisedUserLogRecordTest {
@@ -239,7 +227,6 @@ TEST_P(SupervisedUserLogRecordWithApproximateGeolocationTest,
   EXPECT_THAT(record->GetPermissionsToggleStateForPrimaryAccount(),
               Optional(ToggleState::kEnabled));
 }
-#endif  // BUILDFLAG(IS_IOS)
 
 TEST_F(SupervisedUserLogRecordTest, SupervisionEnabledByPolicy) {
   CreateSupervisedUser(/*is_subject_to_parental_controls=*/true,
@@ -405,37 +392,5 @@ TEST_F(SupervisedUserLogRecordTest, RegularUserWithDisabledSupervision) {
               Optional(SupervisedUserLogRecord::Segment::kUnsupervised));
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(SupervisedUserLogRecordTest, RegularUserWithSearchFilterEnabled) {
-  CreateRegularUser();
-  EnableSearchContentFilters();
-
-  std::optional<SupervisedUserLogRecord::Segment> supervision_status =
-      CreateSupervisedUserLogRecord()->GetSupervisionStatusForPrimaryAccount();
-  EXPECT_THAT(supervision_status,
-              Optional(SupervisedUserLogRecord::Segment::kUnsupervised));
-}
-
-TEST_F(SupervisedUserLogRecordTest, RegularUserWithContentFiltersEnabled) {
-  CreateRegularUser();
-  EnableBrowserContentFilters();
-
-  std::optional<SupervisedUserLogRecord::Segment> supervision_status =
-      CreateSupervisedUserLogRecord()->GetSupervisionStatusForPrimaryAccount();
-  EXPECT_THAT(supervision_status,
-              Optional(SupervisedUserLogRecord::Segment::kUnsupervised));
-}
-
-TEST_F(SupervisedUserLogRecordTest, RegularUserWithAllLocalFiltersEnabled) {
-  CreateRegularUser();
-  EnableSearchContentFilters();
-  EnableBrowserContentFilters();
-
-  std::optional<SupervisedUserLogRecord::Segment> supervision_status =
-      CreateSupervisedUserLogRecord()->GetSupervisionStatusForPrimaryAccount();
-  EXPECT_THAT(supervision_status,
-              Optional(SupervisedUserLogRecord::Segment::kUnsupervised));
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 }  // namespace
 }  // namespace supervised_user

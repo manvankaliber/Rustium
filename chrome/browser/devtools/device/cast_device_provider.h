@@ -11,15 +11,15 @@
 
 #include "base/memory/scoped_refptr.h"
 #include "base/memory/weak_ptr.h"
-#include "chrome/browser/devtools/device/android_device_manager.h"
+#include "chrome/browser/devtools/device/remote_device_manager.h"
 #include "chrome/browser/devtools/device/tcp_device_provider.h"
 #include "chrome/browser/local_discovery/service_discovery_device_lister.h"
 #include "content/public/browser/browser_thread.h"
 
 // Supplies Cast device information for the purposes of remote debugging Cast
-// applications over ADB.
+// applications over the local network.
 class CastDeviceProvider
-    : public AndroidDeviceManager::DeviceProvider,
+    : public RemoteDeviceManager::DeviceProvider,
       public local_discovery::ServiceDiscoveryDeviceLister::Delegate {
  public:
   CastDeviceProvider();
@@ -63,7 +63,7 @@ class CastDeviceProvider
       lister_delegate_;
 
   // Keyed on the hostname (IP address).
-  std::map<std::string, AndroidDeviceManager::DeviceInfo> device_info_map_;
+  std::map<std::string, RemoteDeviceManager::DeviceInfo> device_info_map_;
   // Maps a service name to the hostname (IP address).
   std::map<std::string, std::string> service_hostname_map_;
 

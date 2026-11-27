@@ -225,11 +225,7 @@ source_set("unit_tests") {
     "//url",
   ]
 
-  # password_manager_ui_handler_unittest historically ran on desktop excluding
-  # ChromeOS (is_linux || is_mac || is_win).
-  if (!is_chromeos) {
-    sources += [ "password_manager_ui_handler_unittest.cc" ]
-  }
+  sources += [ "password_manager_ui_handler_unittest.cc" ]
 
   if (is_chrome_branded) {
     sources += [ "notification_card_unittest.cc" ]

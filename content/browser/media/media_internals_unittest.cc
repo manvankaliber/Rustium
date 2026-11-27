@@ -172,11 +172,9 @@ TEST_F(MediaInternalsVideoCaptureDeviceTest,
   descriptor.capture_api = media::VideoCaptureApi::MACOSX_AVFOUNDATION;
 #elif BUILDFLAG(IS_WIN)
   descriptor.capture_api = media::VideoCaptureApi::WIN_DIRECT_SHOW;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#elif BUILDFLAG(IS_LINUX)
   descriptor.device_id = "/dev/dummy";
   descriptor.capture_api = media::VideoCaptureApi::LINUX_V4L2_SINGLE_PLANE;
-#elif BUILDFLAG(IS_ANDROID)
-  descriptor.capture_api = media::VideoCaptureApi::ANDROID_API2_LEGACY;
 #endif
   std::vector<std::tuple<media::VideoCaptureDeviceDescriptor,
                          media::VideoCaptureFormats>>
@@ -190,7 +188,7 @@ TEST_F(MediaInternalsVideoCaptureDeviceTest,
   media_internals()->UpdateVideoCaptureDeviceCapabilities(
       descriptors_and_formats);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   ExpectString("id", "/dev/dummy");
 #else
   ExpectString("id", "dummy");
@@ -199,14 +197,12 @@ TEST_F(MediaInternalsVideoCaptureDeviceTest,
   base::ListValue expected_list;
   expected_list.Append(media::VideoCaptureFormat::ToString(format_hd));
   ExpectListOfStrings("formats", expected_list);
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   ExpectString("captureApi", "V4L2 SPLANE");
 #elif BUILDFLAG(IS_WIN)
   ExpectString("captureApi", "Direct Show");
 #elif BUILDFLAG(IS_MAC)
   ExpectString("captureApi", "AV Foundation");
-#elif BUILDFLAG(IS_ANDROID)
-  ExpectString("captureApi", "Camera API2 Legacy");
 #endif
 }
 
@@ -305,7 +301,6 @@ INSTANTIATE_TEST_SUITE_P(
 
 // TODO(crbug.com/40589017): AudioFocusManager is not available on
 // Android.
-#if !BUILDFLAG(IS_ANDROID)
 
 namespace {
 
@@ -498,6 +493,5 @@ TEST_F(MediaInternalsAudioFocusTest, AudioFocusStateIsUpdated) {
   }
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace content

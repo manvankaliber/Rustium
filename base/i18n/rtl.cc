@@ -33,9 +33,6 @@
 #include "third_party/icu/source/common/unicode/uscript.h"
 #include "third_party/icu/source/i18n/unicode/coll.h"
 
-#if BUILDFLAG(IS_IOS)
-#include "base/ios/ios_util.h"
-#endif
 
 namespace base::i18n {
 namespace {
@@ -184,11 +181,6 @@ bool IsRTL() {
 
 TextDirection GetForcedTextDirection() {
 // On iOS, check for RTL forcing.
-#if BUILDFLAG(IS_IOS)
-  if (base::ios::IsInForcedRTL()) {
-    return base::i18n::RIGHT_TO_LEFT;
-  }
-#endif
 
   base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->HasSwitch(switches::kForceUIDirection)) {

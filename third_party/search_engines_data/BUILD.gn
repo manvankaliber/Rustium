@@ -41,9 +41,7 @@ if (enable_builtin_search_provider_assets) {
   group("resources") {
     public_deps = [ ":search_engines_scaled_resources" ]
 
-    if (!is_android) {
-      public_deps += [ ":search_engine_descriptions_strings" ]
-    }
+    public_deps += [ ":search_engine_descriptions_strings" ]
   }
 
   grit("search_engines_scaled_resources") {
@@ -63,17 +61,15 @@ if (enable_builtin_search_provider_assets) {
     output_dir = target_gen_dir
   }
 
-  if (!is_android) {
-    grit_strings("search_engine_descriptions_strings") {
-      source = "resources_internal/search_engine_descriptions_strings.grd"
-      inputs = rebase_path(search_engine_description_xtb_files,
-                           ".",
-                           "resources_internal")
-      outputs = [
-        "search_engine_descriptions_strings.h",
-        "search_engine_descriptions_strings_map.cc",
-        "search_engine_descriptions_strings_map.h",
-      ]
-    }
+  grit_strings("search_engine_descriptions_strings") {
+    source = "resources_internal/search_engine_descriptions_strings.grd"
+    inputs = rebase_path(search_engine_description_xtb_files,
+                         ".",
+                         "resources_internal")
+    outputs = [
+      "search_engine_descriptions_strings.h",
+      "search_engine_descriptions_strings_map.cc",
+      "search_engine_descriptions_strings_map.h",
+    ]
   }
 }

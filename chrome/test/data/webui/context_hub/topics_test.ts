@@ -1312,22 +1312,11 @@ suite('TopicDetails', () => {
     assertFalse(!!query('#notFound'));
   });
 
-  test('opens the Glic panel with suggestions only when asked', async () => {
-    await createDetails('?id=topic-1');
-    assertEquals(0, handler.getCallCount('openGlicPanel'));
-
-    document.body.innerHTML = window.trustedTypes!.emptyHTML;
-    await createDetails('?id=topic-1&open_glic=1');
-    assertDeepEquals(
-        ['Query title'], await handler.whenCalled('openGlicPanel'));
-  });
-
   test('shows not found when the topic does not exist', async () => {
     handler.setResultFor('getTopic', Promise.resolve({topic: null}));
-    await createDetails('?id=missing&open_glic=1');
+    await createDetails('?id=missing');
     assertTrue(!!query('#notFound'));
     assertFalse(!!query('#header'));
-    assertEquals(0, handler.getCallCount('openGlicPanel'));
   });
 
   test('shows not found when the URL has no id', async () => {
@@ -1681,7 +1670,6 @@ suite('TopicDetailsFeedback', () => {
     await createDetails();
     const panel = query('topic-summary-panel')!;
     await click(queryIn(panel, '.query-text')[0]!);
-    assertEquals(0, handler.getCallCount('openGlicPanel'));
     assertEquals(0, handler.getCallCount('setTopicFeedback'));
   });
 

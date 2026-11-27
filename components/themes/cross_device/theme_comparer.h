@@ -5,7 +5,7 @@
 #ifndef COMPONENTS_THEMES_CROSS_DEVICE_THEME_COMPARER_H_
 #define COMPONENTS_THEMES_CROSS_DEVICE_THEME_COMPARER_H_
 
-#include "components/sync/protocol/theme_android_specifics.pb.h"
+#include "components/sync/protocol/theme_mobile_specifics.pb.h"
 #include "components/sync/protocol/theme_specifics.pb.h"
 
 namespace themes {

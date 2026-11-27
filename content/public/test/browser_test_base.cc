@@ -102,28 +102,11 @@
 #include "ui/gl/gl_implementation.h"
 #include "ui/gl/gl_switches.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "ui/platform_window/common/platform_window_defaults.h"  // nogncheck
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_CHROMEOS_DEVICE)
-#include "ui/events/ozone/events_ozone.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/task_scheduler/post_task_android.h"
-#include "base/memory_coordinator/memory_consumer_registry.h"
-#include "base/memory_coordinator/memory_pressure_source.h"
-#include "components/discardable_memory/service/discardable_shared_memory_manager.h"  // nogncheck
-#include "content/app/content_main_runner_impl.h"
-#include "content/app/mojo/mojo_init.h"
-#include "content/app/mojo_ipc_support.h"
-#include "content/browser/memory_coordinator/browser_memory_coordinator_impl.h"
-#include "content/public/app/content_main_delegate.h"
-#include "content/public/common/content_paths.h"
-#include "testing/android/native_test/native_browser_test_support.h"
-#include "ui/base/ui_base_paths.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "content/browser/sandbox_parameters_mac.h"
@@ -141,11 +124,6 @@
 #include "content/browser/compositor/image_transport_factory.h"
 #include "ui/aura/test/event_generator_delegate_aura.h"  // nogncheck
 #endif
-
-#if BUILDFLAG(IS_FUCHSIA)
-#include "base/fuchsia/system_info.h"
-#include "ui/platform_window/fuchsia/initialize_presenter_api_view.h"
-#endif  // BUILDFLAG(IS_FUCHSIA)
 
 #if BUILDFLAG(IS_WIN)
 #include <shlobj.h>
@@ -188,10 +166,6 @@ void SignalHandler(int signal) {
     logging::RawLog(logging::LOGGING_ERROR, message.c_str());
     auto stack_trace = base::debug::StackTrace();
     stack_trace.OutputToStream(&std::cerr);
-#if BUILDFLAG(IS_ANDROID)
-    // Also output the trace to logcat on Android.
-    stack_trace.Print();
-#endif
   }
   _exit(128 + signal);
 }
@@ -263,8 +237,9 @@ class InitialNavigationObserver : public WebContentsObserver {
 
   // WebContentsObserver implementation:
   void DidStartNavigation(NavigationHandle* navigation_handle) override {
-    if (callback_)
+    if (callback_) {
       std::move(callback_).Run();
+    }
   }
 
  private:
@@ -279,16 +254,10 @@ BrowserTestBase::BrowserTestBase() {
          "a new browser test suite that runs on Android, please add it to "
          "//build/android/pylib/gtest/gtest_test_instance.py.";
   g_instance_already_created = true;
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   ui::test::EnableTestConfigForPlatformWindows();
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_CHROMEOS_DEVICE)
-  // Events used in tests on CrOS are generated either at aura level, or ozone
-  // level, except for Crosier tests that run on a device.  Disable native
-  // events handling as they can cause unexpected behavior.
-  ui::DisableNativeUiEventDispatchForTest();
-#endif
 
 #if BUILDFLAG(IS_POSIX)
   handle_sigterm_ = true;
@@ -420,8 +389,9 @@ void BrowserTestBase::SetUp() {
 #if defined(USE_AURA)
   // Most tests do not need pixel output, so we don't produce any. The command
   // line can override this behaviour to allow for visual debugging.
-  if (command_line->HasSwitch(switches::kEnablePixelOutputInTests))
+  if (command_line->HasSwitch(switches::kEnablePixelOutputInTests)) {
     enable_pixel_output_ = true;
+  }
 
   if (command_line->HasSwitch(switches::kDisableGLDrawingForTests)) {
     NOTREACHED() << "kDisableGLDrawingForTests should not be used as it "
@@ -431,8 +401,9 @@ void BrowserTestBase::SetUp() {
 
   // Don't enable pixel output for browser tests unless they override and force
   // us to, or it's requested on the command line.
-  if (!enable_pixel_output_ && !use_software_compositing_)
+  if (!enable_pixel_output_ && !use_software_compositing_) {
     command_line->AppendSwitch(switches::kDisableGLDrawingForTests);
+  }
 #endif
 
   // Disable animations when verifying pixel output, as they make tests flaky.
@@ -449,12 +420,14 @@ void BrowserTestBase::SetUp() {
 
   // We usually use software GL as this works on all bots. The command
   // line can override this behaviour to use hardware GL.
-  if (command_line->HasSwitch(switches::kUseGpuInTests))
+  if (command_line->HasSwitch(switches::kUseGpuInTests)) {
     use_software_gl = false;
+  }
 
   // Some bots pass this flag when they want to use hardware GL.
-  if (command_line->HasSwitch("enable-gpu"))
+  if (command_line->HasSwitch("enable-gpu")) {
     use_software_gl = false;
+  }
 
 #if BUILDFLAG(IS_APPLE)
   // On Apple we always use hardware GL.
@@ -467,35 +440,18 @@ void BrowserTestBase::SetUp() {
   SetNetworkTestCertsDirectoryForTesting(net::GetTestCertsDirectory());
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android we always use hardware GL.
-  use_software_gl = false;
-#endif
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // GPU support is not available to tests.
-  // TODO(crbug.com/40797662): Enable GPU support.
-  command_line->AppendSwitch(switches::kDisableGpu);
-
-  ui::fuchsia::IgnorePresentCallsForTest();
-
-  // Clear the per-process cached system info, which was initialized by
-  // TestSuite::Initialize(), to prevent a DCHECK for multiple calls during
-  // in-process browser tests. There is not a single TestSuite for all browser
-  // tests and some use the cached values, so skipping the earlier
-  // initialization is not an option.
-  base::ClearCachedSystemInfoForTesting();
-#endif
-
-  if (use_software_gl && !use_software_compositing_)
+  if (use_software_gl && !use_software_compositing_) {
     command_line->AppendSwitch(switches::kOverrideUseSoftwareGLForTests);
+  }
 
   // Use an sRGB color profile to ensure that the machine's color profile does
   // not affect the results.
   command_line->AppendSwitchASCII(switches::kForceDisplayColorProfile, "srgb");
 
-  if (!allow_network_access_to_host_resolutions_)
+  if (!allow_network_access_to_host_resolutions_) {
     test_host_resolver_ = std::make_unique<TestHostResolver>();
+  }
 
   ContentBrowserConsistencyChecker scoped_enable_consistency_checks;
 
@@ -599,8 +555,9 @@ void BrowserTestBase::SetUp() {
       // TODO(crbug.com/40161080): Print the message to the console before
       // calling this to ensure that the message is still printed if something
       // goes wrong.
-      if (severity == logging::LOGGING_FATAL)
+      if (severity == logging::LOGGING_FATAL) {
         tracing::StartupTracingController::EmergencyStop();
+      }
       return false;
     });
   }
@@ -621,199 +578,13 @@ void BrowserTestBase::SetUp() {
 
   ContentMainDelegate* overridden_delegate =
       GetOptionalContentMainDelegateOverride();
-  if (overridden_delegate)
+  if (overridden_delegate) {
     content_main_params.delegate = overridden_delegate;
+  }
 
-#if !BUILDFLAG(IS_ANDROID)
   // ContentMain which goes through the normal browser initialization paths
   // and will invoke `content_main_params.ui_task`, which runs the test.
   EXPECT_EQ(expected_exit_code_, ContentMain(std::move(content_main_params)));
-#else
-  // Android's equivalent of ContentMain is in Java so browser tests must set
-  // things up manually. A meager re-implementation of ContentMainRunnerImpl
-  // follows.
-
-  base::MemoryPressureSource memory_pressure_source;
-  base::MemoryPressureListenerRegistry memory_pressure_listener_registry;
-  BrowserMemoryCoordinatorImpl memory_coordinator;
-
-  // Unlike other platforms, android_browsertests can reuse the same process for
-  // multiple tests. Need to reset startup metrics to allow recording them
-  // again.
-  startup_metric_utils::GetBrowser().ResetSessionForTesting();
-
-  // The ContentMainDelegate and ContentClient should have been set by
-  // JNI_OnLoad for the test target.
-  ContentMainDelegate* delegate = content_main_params.delegate;
-  ASSERT_TRUE(delegate);
-  ASSERT_TRUE(GetContentClientForTesting());
-
-  delegate->CreateThreadPool("Browser");
-
-  std::optional<int> startup_error = delegate->BasicStartupComplete();
-  ASSERT_FALSE(startup_error.has_value());
-
-  // Disables BEST_EFFORT tasks until shutdown if the command-line includes
-  // --disable-best-effort-tasks.
-  std::optional<base::ScopedBestEffortExecutionFence> best_effort_fence;
-
-  {
-    ContentClient::SetBrowserClientAlwaysAllowForTesting(
-        delegate->CreateContentBrowserClient());
-    if (command_line->HasSwitch(switches::kSingleProcess))
-      SetRendererClientForTesting(delegate->CreateContentRendererClient());
-
-    content::RegisterPathProvider();
-    ui::RegisterPathProvider();
-
-    delegate->PreSandboxStartup();
-    delegate->SandboxInitialized("");
-
-    const ContentMainDelegate::InvokedInBrowserProcess invoked_in_browser{
-        .is_running_test = true};
-    DCHECK(!field_trial_list_);
-    if (delegate->ShouldCreateFeatureList(invoked_in_browser))
-      field_trial_list_ = SetUpFieldTrialsAndFeatureList();
-    if (delegate->ShouldInitializeMojo(invoked_in_browser))
-      InitializeMojoCore();
-
-    std::optional<int> pre_browser_main_exit_code = delegate->PreBrowserMain();
-    ASSERT_FALSE(pre_browser_main_exit_code.has_value());
-
-    BrowserTaskExecutor::Create();
-
-    auto* provider = delegate->CreateVariationsIdsProvider();
-    if (!provider) {
-      variations::VariationsIdsProvider::CreateInstance(
-          variations::VariationsIdsProvider::Mode::kUseSignedInState,
-          std::make_unique<base::DefaultClock>());
-    }
-
-    std::optional<int> post_early_initialization_exit_code =
-        delegate->PostEarlyInitialization(invoked_in_browser);
-    ASSERT_FALSE(post_early_initialization_exit_code.has_value());
-
-    // The memory coordinator policies are feature-gated, so they must be
-    // initialized after the FeatureList.
-    memory_coordinator.InitializePolicies();
-
-    // Must be called after PostEarlyInitialization because
-    // ScopedBestEffortExecutionFence requires the FeatureList.
-    if (command_line->HasSwitch(switches::kDisableBestEffortTasks)) {
-      best_effort_fence.emplace();
-    }
-
-    // We can only setup startup tracing after feature list is initialized
-    // above.
-    tracing::InitTracingPostFeatureList(/*enable_consumer=*/true,
-                                        /*will_trace_thread_restart=*/false);
-
-    StartBrowserThreadPool();
-
-    InitializeBrowserMemoryInstrumentationClient();
-  }
-
-  blink::TrialTokenValidator::SetOriginTrialPolicyGetter(
-      base::BindRepeating([]() -> blink::OriginTrialPolicy* {
-        ContentClient* client = GetContentClientForTesting();
-        return client ? client->GetOriginTrialPolicy() : nullptr;
-      }));
-
-  // All FeatureList overrides should have been registered prior to browser test
-  // SetUp().
-  base::FeatureList::ScopedDisallowOverrides disallow_feature_overrides(
-      "FeatureList overrides must happen in the test constructor, before "
-      "BrowserTestBase::SetUp() has run.");
-
-  discardable_shared_memory_manager_ =
-      std::make_unique<discardable_memory::DiscardableSharedMemoryManager>();
-  auto ipc_support =
-      std::make_unique<MojoIpcSupport>(BrowserTaskExecutor::CreateIOThread());
-  std::unique_ptr<StartupDataImpl> startup_data =
-      ipc_support->CreateBrowserStartupData();
-  startup_data->background_tracing_manager =
-      CreateBackgroundTracingManagerAndInitializeScenarios();
-
-  // ContentMain would normally call RunProcess() on the delegate and fallback
-  // to BrowserMain() if it did not run it (or equivalent) itself. On Android,
-  // RunProcess() will return 0 so we don't have to fallback to BrowserMain().
-  {
-    // This loop will wait until Java completes async initialization and the
-    // test is ready to run. We must allow nestable tasks so that tasks posted
-    // to the UI thread run as well. The loop is created before RunProcess() so
-    // that the StartupTaskRunner tasks will be nested inside this loop and able
-    // to run.
-    base::RunLoop loop{base::RunLoop::Type::kNestableTasksAllowed};
-
-    // The MainFunctionParams must out-live all the startup tasks running.
-    MainFunctionParams params(command_line);
-    params.created_main_parts_closure =
-        std::move(content_main_params.created_main_parts_closure);
-    params.startup_data = std::move(startup_data);
-    params.ui_task = base::BindOnce(
-        &testing::android::SetJavaStartupTasksCompleteCallbackForBrowserTests,
-        loop.QuitClosure());
-    // Passing "" as the process type to indicate the browser process.
-    auto exit_code = delegate->RunProcess("", std::move(params));
-    DCHECK(std::holds_alternative<int>(exit_code));
-    DCHECK_EQ(std::get<int>(exit_code), 0);
-
-    // Waits for Java to finish initialization, then we can run the test.
-    base::OneShotTimer timeout_timer;
-    timeout_timer.Start(FROM_HERE, TestTimeouts::action_max_timeout(),
-                        base::BindOnce([]() {
-                          LOG(FATAL) << "WaitUntilJavaIsReady() timed out.";
-                        }));
-    loop.Run();
-  }
-
-  {
-    // The BrowserMainLoop startup tasks will call DisallowUnresponsiveTasks().
-    // So when we run the ProxyRunTestOnMainThreadLoop() we no longer can block,
-    // but tests should be allowed to. So we undo that blocking inside here.
-    base::ScopedAllowUnresponsiveTasksForTesting allow_unresponsive;
-    // Runs the test now that the Java setup is complete. The closure must be
-    // invoked directly from the same call stack as RUN_ALL_TESTS(), it may not
-    // be inside a posted task, or it would prevent NonNestable tasks from
-    // running inside tests.
-    std::move(content_main_params.ui_task).Run();
-  }
-
-  best_effort_fence.reset();
-
-  {
-    // We need to finish the Activity before this function returns because
-    // otherwise we will crash when finishing the Activity as too much
-    // infrastructure has been torn down.
-    base::RunLoop loop{base::RunLoop::Type::kNestableTasksAllowed};
-    testing::android::SetActivityTeardownCompleteCallbackForBrowserTests(
-        loop.QuitClosure());
-    testing::android::RunActivityTeardownCallback();
-    base::OneShotTimer timeout_timer;
-    timeout_timer.Start(
-        FROM_HERE, TestTimeouts::action_max_timeout(), base::BindOnce([]() {
-          LOG(FATAL) << "WaitUntilActivityTeardownIsFinished() timed out.";
-        }));
-    loop.Run();
-  }
-
-  {
-    base::ScopedAllowBaseSyncPrimitivesForTesting allow_wait;
-    // Shutting these down will block the thread.
-    ShutDownNetworkService();
-    ipc_support.reset();
-  }
-
-  // Can hang if run after BrowserTaskExecutor is shut down.
-  base::ScopedAllowBaseSyncPrimitivesForTesting allow_wait;
-  discardable_shared_memory_manager_.reset();
-
-  // Like in BrowserMainLoop::ShutdownThreadsAndCleanUp(), allow IO during main
-  // thread tear down.
-  base::PermanentThreadAllowance::AllowBlocking();
-
-  BrowserTaskExecutor::Shutdown();
-#endif  // BUILDFLAG(IS_ANDROID)
 
   TearDownInProcessBrowserTestFixture();
 }
@@ -884,13 +655,11 @@ void BrowserTestBase::ProxyRunTestOnMainThreadLoop() {
   // allowances for init/teardown phases.
   base::ScopedAllowUnresponsiveTasksForTesting allow_for_init;
 
-#if !BUILDFLAG(IS_ANDROID)
   // All FeatureList overrides should have been registered prior to browser test
   // SetUp(). Note that on Android, this scoper lives in SetUp() above.
   base::FeatureList::ScopedDisallowOverrides disallow_feature_overrides(
       "FeatureList overrides must happen in the test constructor, before "
       "BrowserTestBase::SetUp() has run.");
-#endif
 
   // Install a RunLoop timeout if none is present but do not override tests that
   // set a ScopedRunLoopTimeout from their fixture's constructor (which
@@ -940,14 +709,12 @@ void BrowserTestBase::ProxyRunTestOnMainThreadLoop() {
     // This shouldn't be invoked from a posted task.
     DCHECK(!base::RunLoop::IsRunningOnCurrentThread());
 
-#if !BUILDFLAG(IS_ANDROID)
     // Fail the test if a renderer crashes while the test is running.
     //
     // This cannot be enabled on Android, because of renderer kills triggered
     // aggressively by the OS itself.
     no_renderer_crashes_assertion_ =
         std::make_unique<NoRendererCrashesAssertion>();
-#endif
 
     PreRunTestOnMainThread();
 
@@ -1046,15 +813,6 @@ void BrowserTestBase::ProxyRunTestOnMainThreadLoop() {
       GetDefaultTraceBasename(TraceBasenameType::kWithTestStatus),
       tracing::StartupTracingController::ExtensionType::kAppendAppropriate);
 
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, browser main runner is not shut down, so stop trace recording
-  // here.
-  CHECK(BrowserMainLoop::GetInstance());
-  CHECK(BrowserMainLoop::GetInstance()->startup_tracing_controller());
-  BrowserMainLoop::GetInstance()
-      ->startup_tracing_controller()
-      ->ShutdownAndWaitForStopIfNeeded();
-#endif
 }
 
 void BrowserTestBase::SetAllowNetworkAccessToHostResolutions() {
@@ -1063,18 +821,10 @@ void BrowserTestBase::SetAllowNetworkAccessToHostResolutions() {
   // dependency on network access.
   CHECK(!set_up_called_);
 
-#if BUILDFLAG(IS_CHROMEOS_DEVICE)
-  // External network access is only allowed for ChromeOS integration tests
-  // running on real devices or VMs.
-  CHECK(base::SysInfo::IsRunningOnChromeOS())
-      << "External network access is only allowed for on device ChromeOS "
-         "integration tests";
-#else
   const char kManualTestPrefix[] = "MANUAL_";
   CHECK(base::StartsWith(
       testing::UnitTest::GetInstance()->current_test_info()->name(),
       kManualTestPrefix, base::CompareCase::SENSITIVE));
-#endif  // BUILDFLAG(IS_CHROMEOS_DEVICE)
 
   LOG(WARNING) << "External network access is allowed. "
                << "This could lead to DoS on web sites and is normally only "
@@ -1098,13 +848,13 @@ void BrowserTestBase::InitializeHTTPSTestServer() {
       << "HTTPS test server already initialized";
 
   embedded_https_test_server_ = std::make_unique<net::EmbeddedTestServer>(
-    net::EmbeddedTestServer::TYPE_HTTPS);
+      net::EmbeddedTestServer::TYPE_HTTPS);
   // Default hostnames for the HTTPS test server. Test fixtures can call this
   // with different hostnames (before starting the server) to override.
   embedded_https_test_server_->SetCertHostnames(
       {"example.com", "*.example.com", "foo.com", "*.foo.com", "bar.com",
-      "*.bar.com", "a.com", "*.a.com", "b.com", "*.b.com", "c.com",
-      "*.c.com"});
+       "*.bar.com", "a.com", "*.a.com", "b.com", "*.b.com", "c.com",
+       "*.c.com"});
 }
 
 void BrowserTestBase::CreateTestServer(const base::FilePath& test_server_base) {
@@ -1158,7 +908,6 @@ void BrowserTestBase::AssertThatNetworkServiceDidNotCrash() {
 
   // TODO(https://crbug.com/1169431#c2): Enable NetworkService crash detection
   // on Fuchsia.
-#if !BUILDFLAG(IS_FUCHSIA)
   if (initialized_network_process_ && network_service_test_.is_bound()) {
     // If there was a crash, then |network_service_test_| will receive an error
     // notification, but it's not guaranteed to have arrived at this point.
@@ -1168,7 +917,6 @@ void BrowserTestBase::AssertThatNetworkServiceDidNotCrash() {
     EXPECT_TRUE(network_service_test_.is_connected())
         << "Expecting no NetworkService crashes";
   }
-#endif
 }
 
 void BrowserTestBase::ForceInitializeNetworkProcess() {
@@ -1177,8 +925,9 @@ void BrowserTestBase::ForceInitializeNetworkProcess() {
 }
 
 void BrowserTestBase::InitializeNetworkProcess() {
-  if (initialized_network_process_)
+  if (initialized_network_process_) {
     return;
+  }
 
   initialized_network_process_ = true;
 

@@ -167,7 +167,6 @@ TEST_F(RulesRegistryServiceTest, WebViewRulesRegistryIDsUniqueAcrossEmbedders) {
 }
 #endif  // BUILDFLAG(ENABLE_GUEST_VIEW)
 
-#if !BUILDFLAG(IS_ANDROID)
 // This test relies on declarativeWebRequest, which is deprecated and will not
 // be supported on desktop Android. We can't just replace it with
 // declarativeNetRequest because the test relies on the API being unavailable
@@ -280,6 +279,5 @@ TEST_F(RulesRegistryServiceTest, RemoveRulesRegistriesByID) {
       event_router->data_[WebRequestEventRouter::GetBrowserContextID(&profile)]
           .rules_registries.contains(ready_registry_id));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace extensions

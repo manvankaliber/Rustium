@@ -192,11 +192,7 @@ bool IsPreloadScanningEnabled(Document* document) {
 // Experiments were run on both Android and desktop to determine the values
 // that gave the best aggregate CWV pass rate.
 constexpr int kNumYieldsWithDefaultBudgetDefaultValue =
-#if BUILDFLAG(IS_ANDROID)
-    2
-#else
     6
-#endif
     ;
 
 // These constants were chosen using experiment data from the field to
@@ -204,11 +200,7 @@ constexpr int kNumYieldsWithDefaultBudgetDefaultValue =
 // Experiments were run on both Android and desktop to determine the values
 // that gave the best aggregate CWV pass rate.
 constexpr base::TimeDelta kLongParserBudgetDefaultValue =
-#if BUILDFLAG(IS_ANDROID)
-    base::Milliseconds(50)
-#else
     base::Milliseconds(500)
-#endif
     ;
 
 base::TimeDelta GetDefaultTimedBudget() {

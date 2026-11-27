@@ -56,10 +56,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/gcm_driver/instance_id/instance_id_android.h"
-#include "components/gcm_driver/instance_id/scoped_use_fake_instance_id_android.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace offline_pages {
 
@@ -387,13 +383,6 @@ class OfflinePageRequestHandlerTest : public testing::Test {
   OfflinePageItem page_;
   OfflinePageHeader offline_page_header_;
 
-#if BUILDFLAG(IS_ANDROID)
-  // OfflinePageTabHelper instantiates PrefetchService which in turn requests a
-  // fresh GCM token automatically. This causes the request to be done
-  // synchronously instead of with a posted task.
-  instance_id::InstanceIDAndroid::ScopedBlockOnAsyncTasksForTesting
-      block_async_;
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // These are not thread-safe. But they can be used in the pattern that
   // setting the state is done first from one thread and reading this state

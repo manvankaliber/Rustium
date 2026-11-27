@@ -47,9 +47,6 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/gfx/image/image_unittest_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/android/omnibox/autocomplete_controller_android.h"
-#else
 #include "chrome/browser/ui/browser_commands.h"
 #include "chrome/browser/ui/browser_window.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
@@ -57,7 +54,6 @@
 #include "chrome/browser/ui/view_ids.h"
 #include "chrome/test/base/interactive_test_utils.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 namespace extensions {
 
@@ -66,7 +62,6 @@ namespace {
 using base::ASCIIToUTF16;
 using metrics::OmniboxEventProto;
 
-#if !BUILDFLAG(IS_ANDROID)
 void InputKeys(BrowserWindowInterface* browser,
                const std::vector<ui::KeyboardCode>& keys) {
   for (auto key : keys) {
@@ -79,7 +74,6 @@ void InputKeys(BrowserWindowInterface* browser,
 LocationBar* GetLocationBar(BrowserWindowInterface* browser) {
   return BrowserWindow::FromBrowser(browser)->GetLocationBar();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 std::u16string AutocompleteResultAsString(const AutocompleteResult& result) {
   std::string output(base::StringPrintf("{%" PRIuS "} ", result.size()));
@@ -147,27 +141,9 @@ class OmniboxApiTest : public ExtensionApiTest {
   }
 
   void TearDownOnMainThread() override {
-#if BUILDFLAG(IS_ANDROID)
-    // On Android, AutocompleteController is a KeyedService and persists across
-    // tests. Stop it to prevent polluted state in subsequent tests.
-    GetAutocompleteController()->Stop(AutocompleteStopReason::kClobbered);
-#endif
     ExtensionApiTest::TearDownOnMainThread();
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  AutocompleteController* GetAutocompleteController() {
-    return AutocompleteControllerAndroid::Factory::GetForProfile(profile())
-        ->autocomplete_controller_for_test();
-  }
-
-  void WaitForAutocompleteDone() {
-    AutocompleteController* controller = GetAutocompleteController();
-    while (!controller->done()) {
-      AutocompleteChangeObserver(profile()).Wait();
-    }
-  }
-#else
   // Helper functions to retrieve the AutocompleteController for the Browser
   // created with the test (`browser()`) or a specific supplied `browser`.
   AutocompleteController* GetAutocompleteController() {
@@ -184,7 +160,6 @@ class OmniboxApiTest : public ExtensionApiTest {
   void WaitForAutocompleteDone() {
     ui_test_utils::WaitForAutocompleteDone(browser());
   }
-#endif  // BUILDFLAG(IS_ANDROID)
 
  private:
   base::test::ScopedFeatureList feature_list_;
@@ -361,21 +336,10 @@ IN_PROC_BROWSER_TEST_F(OmniboxApiTest, OnInputEntered) {
     WaitForAutocompleteDone();
     ASSERT_TRUE(autocomplete_controller->done());
 
-#if BUILDFLAG(IS_ANDROID)
-    std::u16string remaining_input = input_string;
-    constexpr std::u16string_view kPrefix = u"alpha ";
-    if (base::StartsWith(input_string, kPrefix, base::CompareCase::SENSITIVE)) {
-      remaining_input = input_string.substr(kPrefix.length());
-    }
-    ExtensionOmniboxEventRouter::OnInputEntered(
-        GetActiveWebContents(), extension->id(),
-        base::UTF16ToUTF8(remaining_input), disposition);
-#else   // BUILDFLAG(IS_ANDROID)
     GetLocationBar(browser())
         ->GetOmniboxController()
         ->edit_model()
         ->OpenCurrentSelection(base::TimeTicks(), disposition);
-#endif  // BUILDFLAG(IS_ANDROID)
   };
 
   send_input(u"alpha current tab",
@@ -1284,11 +1248,6 @@ IN_PROC_BROWSER_TEST_F(UnscopedOmniboxApiTest, OnInputEntered) {
   WaitForAutocompleteDone();
   ASSERT_TRUE(autocomplete_controller->done());
 
-#if BUILDFLAG(IS_ANDROID)
-  ExtensionOmniboxEventRouter::OnInputEntered(
-      GetActiveWebContents(), extension->id(), "sending input",
-      ui::mojom::WindowOpenDisposition::kCurrentTab);
-#else   // BUILDFLAG(IS_ANDROID)
   chrome::FocusLocationBar(browser());
 
   LocationBar* location_bar = GetLocationBar(browser());
@@ -1303,7 +1262,6 @@ IN_PROC_BROWSER_TEST_F(UnscopedOmniboxApiTest, OnInputEntered) {
   // `onInputEntered` event.
   location_bar->GetOmniboxController()->edit_model()->OpenCurrentSelection(
       base::TimeTicks(), ui::mojom::WindowOpenDisposition::kCurrentTab);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   ASSERT_TRUE(listener.WaitUntilSatisfied());
   EXPECT_EQ("sending input", listener.message());

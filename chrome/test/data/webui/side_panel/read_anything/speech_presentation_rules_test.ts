@@ -27,7 +27,6 @@ suite('SpeechPresentationRules', () => {
     assertEquals(1.2, getCurrentSpeechRate());
   });
 
-  // <if expr="not is_chromeos">
   test('getCurrentSpeechRate caps at value to 2.0 on Desktop', () => {
     audioProxy.speechRate = 4.0;
     assertEquals(2.0, getCurrentSpeechRate());
@@ -48,23 +47,7 @@ suite('SpeechPresentationRules', () => {
     audioProxy.speechRate = .53333;
     assertEquals(.5, getCurrentSpeechRate());
   });
-  // </if>
 
-  // <if expr="is_chromeos">
-  test('getCurrentSpeechRate does not cap value on ChromeOS', () => {
-    audioProxy.speechRate = 4.0;
-    assertEquals(4.0, getCurrentSpeechRate());
-
-    audioProxy.speechRate = 3.0;
-    assertEquals(3.0, getCurrentSpeechRate());
-
-    audioProxy.speechRate = 2.1;
-    assertEquals(2.1, getCurrentSpeechRate());
-
-    audioProxy.speechRate = 2.0;
-    assertEquals(2.0, getCurrentSpeechRate());
-  });
-  // </if>
 
 
   test('isInvalidHighlightForWordHighlighting', () => {

@@ -561,9 +561,6 @@ IN_PROC_BROWSER_TEST_P(WebAppInstallDialogClosedTest,
       views::Widget::InitParams::CLIENT_OWNS_WIDGET,
       views::Widget::InitParams::TYPE_WINDOW);
   params.bounds = gfx::Rect(0, 0, 200, 200);
-#if BUILDFLAG(IS_CHROMEOS)
-  params.context = top_level_widget->GetNativeWindow();
-#endif
   other_widget.Init(std::move(params));
   other_widget.Show();
   ASSERT_FALSE(top_level_widget->IsActive());

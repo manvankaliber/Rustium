@@ -87,9 +87,6 @@ TEST_F(FileSystemChooserTest, EmptyAccepts) {
   EXPECT_EQ(0u,
             dialog_params_.file_types->extension_description_overrides.size());
   EXPECT_EQ(0, dialog_params_.file_type_index);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(0u, dialog_params_.accept_types.size());
-#endif
 }
 
 TEST_F(FileSystemChooserTest, EmptyAcceptsIgnoresIncludeAcceptsAll) {
@@ -104,9 +101,6 @@ TEST_F(FileSystemChooserTest, EmptyAcceptsIgnoresIncludeAcceptsAll) {
   EXPECT_EQ(0u,
             dialog_params_.file_types->extension_description_overrides.size());
   EXPECT_EQ(0, dialog_params_.file_type_index);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_EQ(0u, dialog_params_.accept_types.size());
-#endif
 }
 
 TEST_F(FileSystemChooserTest, AcceptsMimeTypes) {
@@ -148,10 +142,6 @@ TEST_F(FileSystemChooserTest, AcceptsMimeTypes) {
   EXPECT_EQ(u"", dialog_params_.file_types->extension_description_overrides[0]);
   EXPECT_EQ(u"Images",
             dialog_params_.file_types->extension_description_overrides[1]);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_THAT(dialog_params_.accept_types,
-              testing::UnorderedElementsAre(u"image/*", u"tExt/Plain"));
-#endif
 }
 
 TEST_F(FileSystemChooserTest, AcceptsExtensions) {
@@ -178,10 +168,6 @@ TEST_F(FileSystemChooserTest, AcceptsExtensions) {
   ASSERT_EQ(1u,
             dialog_params_.file_types->extension_description_overrides.size());
   EXPECT_EQ(u"", dialog_params_.file_types->extension_description_overrides[0]);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_THAT(dialog_params_.accept_types,
-              testing::UnorderedElementsAre(u"text/plain", u"text/javascript"));
-#endif
 }
 
 TEST_F(FileSystemChooserTest, AcceptsExtensionsAndMimeTypes) {
@@ -214,11 +200,6 @@ TEST_F(FileSystemChooserTest, AcceptsExtensionsAndMimeTypes) {
   ASSERT_EQ(1u,
             dialog_params_.file_types->extension_description_overrides.size());
   EXPECT_EQ(u"", dialog_params_.file_types->extension_description_overrides[0]);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_THAT(
-      dialog_params_.accept_types,
-      testing::UnorderedElementsAre(u"image/*", u"text/plain", u"image/jpeg"));
-#endif
 }
 
 TEST_F(FileSystemChooserTest, IgnoreShellIntegratedExtensions) {
@@ -244,10 +225,6 @@ TEST_F(FileSystemChooserTest, IgnoreShellIntegratedExtensions) {
   ASSERT_EQ(1u,
             dialog_params_.file_types->extension_description_overrides.size());
   EXPECT_EQ(u"", dialog_params_.file_types->extension_description_overrides[0]);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_THAT(dialog_params_.accept_types,
-              testing::UnorderedElementsAre(u"text/plain"));
-#endif
 }
 
 TEST_F(FileSystemChooserTest, LocalPath) {
@@ -316,10 +293,6 @@ TEST_F(FileSystemChooserTest, DescriptionSanitization) {
       u"Unbalanced RTL \u202e section in a "
       u"otherwise very long description t…\u202c",
       dialog_params_.file_types->extension_description_overrides[3]);
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_THAT(dialog_params_.accept_types,
-              testing::UnorderedElementsAre(u"text/plain", u"text/javascript"));
-#endif
 }
 
 TEST_F(FileSystemChooserTest, DialogCaller) {

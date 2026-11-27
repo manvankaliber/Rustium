@@ -35,12 +35,7 @@ int NumberOfFiles(const base::FilePath& path) {
 
 namespace disk_cache {
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Flaky on ChromeOS: https://crbug.com/1156795
-#define MAYBE_BlockFiles_Grow DISABLED_BlockFiles_Grow
-#else
 #define MAYBE_BlockFiles_Grow BlockFiles_Grow
-#endif
 TEST_F(DiskCacheTest, MAYBE_BlockFiles_Grow) {
   ASSERT_TRUE(CleanupCacheDir());
   ASSERT_TRUE(base::CreateDirectory(cache_path_));
@@ -48,14 +43,8 @@ TEST_F(DiskCacheTest, MAYBE_BlockFiles_Grow) {
   BlockFiles files(cache_path_);
   ASSERT_TRUE(files.Init(true));
 
-#if BUILDFLAG(IS_FUCHSIA)
-  // Too slow on Fuchsia: https://crbug.com/1354793
-  const int kMaxSize = 3500;
-  const int kNumberOfFiles = 4;
-#else
   const int kMaxSize = 35000;
   const int kNumberOfFiles = 6;
-#endif
   std::array<Addr, kMaxSize> address;
 
   // Fill up the 32-byte block file (use three files).
@@ -136,8 +125,7 @@ TEST_F(DiskCacheTest, BlockFiles_Recover) {
   MappedFile* file = files.GetFile(address);
   ASSERT_TRUE(nullptr != file);
 
-  BlockFileHeader* header =
-      reinterpret_cast<BlockFileHeader*>(file->buffer());
+  BlockFileHeader* header = reinterpret_cast<BlockFileHeader*>(file->buffer());
   ASSERT_TRUE(nullptr != header);
 
   ASSERT_EQ(0, header->updating);

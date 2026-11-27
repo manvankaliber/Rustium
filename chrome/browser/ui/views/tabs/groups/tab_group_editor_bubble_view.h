@@ -22,9 +22,6 @@
 #include "ui/views/controls/textfield/textfield.h"
 #include "ui/views/controls/textfield/textfield_controller.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "base/memory/raw_ref.h"
-#endif
 
 class BrowserWindowInterface;
 
@@ -137,7 +134,6 @@ class TabGroupEditorBubbleView : public views::BubbleDialogDelegateView,
   std::unique_ptr<views::View> BuildEphemeralGroupButtons();
   std::unique_ptr<views::LabelButton> BuildNewTabInGroupButton();
   std::unique_ptr<views::LabelButton> BuildHomeButton();
-  std::unique_ptr<views::LabelButton> BuildAskGeminiButton();
   std::unique_ptr<views::LabelButton> BuildUngroupButton();
   std::unique_ptr<views::LabelButton> BuildCloseGroupButton();
   std::unique_ptr<views::LabelButton> BuildDeleteGroupButton();
@@ -151,7 +147,6 @@ class TabGroupEditorBubbleView : public views::BubbleDialogDelegateView,
 
   void NewTabInGroupPressed();
   void HomePressed();
-  void AskGeminiPressed();
   void UngroupPressed();
   void ShareOrManagePressed();
   void CloseGroupPressed();
@@ -168,11 +163,6 @@ class TabGroupEditorBubbleView : public views::BubbleDialogDelegateView,
 
   void OnBubbleClose();
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void PreventCloseOnDeactivateForEmoji();
-  void ClearCloseOnDeactivatePin();
-  void OnEmojiPickerClosed(ui::TrackedElement* element);
-#endif
 
   // Creates the set of tab group colors to display and returns the color that
   // is initially selected.
@@ -213,9 +203,6 @@ class TabGroupEditorBubbleView : public views::BubbleDialogDelegateView,
     void ShowContextMenu(const gfx::Point& p,
                          ui::mojom::MenuSourceType source_type) override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-    void ExecuteCommand(int command_id, int event_flags) override;
-#endif
 
    private:
     const raw_ref<TabGroupEditorBubbleView> parent_;
@@ -276,15 +263,6 @@ class TabGroupEditorBubbleView : public views::BubbleDialogDelegateView,
   // to the bubble registers exactly one observer and only while one is open.
   display::ScopedDisplayObserver display_observer_{this};
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Ensures the bubble dialog remains open when the emoji picker menu steals
-  // focus (crbug.com/485778122). Needed as both are browser-managed UIs in
-  // ChromeOS.
-  std::unique_ptr<views::BubbleDialogDelegate::CloseOnDeactivatePin>
-      close_on_deactivate_pin_;
-
-  base::CallbackListSubscription emoji_picker_hidden_subscription_;
-#endif
 };
 
 #endif  // CHROME_BROWSER_UI_VIEWS_TABS_GROUPS_TAB_GROUP_EDITOR_BUBBLE_VIEW_H_

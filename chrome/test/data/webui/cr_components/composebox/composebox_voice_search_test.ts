@@ -77,10 +77,8 @@ suite('ComposeboxVoiceSearch', () => {
     searchboxHandler = installMock(
         SearchboxPageHandlerRemote,
         mock => ComposeboxProxyImpl.getInstance().searchboxHandler = mock);
-    // <if expr="not is_android">
     searchboxHandler.setResultMapperFor(
         'getSmartTabSharingActive', () => Promise.resolve({active: false}));
-    // </if>
     searchboxHandler.setResultFor(
         'getPageClassification',
         Promise.resolve({metricSource: 'NTP_REALBOX'}));
@@ -108,8 +106,7 @@ suite('ComposeboxVoiceSearch', () => {
       voiceSearchCoherenceComposeboxesEnabled: false,
       voiceSearchCoherenceAnySearchboxExperimentEnabled: false,
       voiceSearchCoherenceCobrowsingComposeboxEnabled: false,
-      isSystemVoiceSearchEnabled: false,
-      androidSpeechRecognition: false,
+
       composeboxSource: 'NTP_REALBOX',
     });
 
@@ -691,8 +688,10 @@ suite('ComposeboxVoiceSearch', () => {
         voiceSearchElement.hasErrorTimer = true;
 
         // Verify initially both links are not visible.
-        assertFalse(isVisible(voiceSearchElement.shadowRoot.querySelector('#tryAgainLink')));
-        assertFalse(isVisible(voiceSearchElement.shadowRoot.querySelector('#details')));
+        assertFalse(isVisible(
+            voiceSearchElement.shadowRoot.querySelector('#tryAgainLink')));
+        assertFalse(
+            isVisible(voiceSearchElement.shadowRoot.querySelector('#details')));
 
         // Trigger NO_MATCH error.
         mockSpeechRecognition.onnomatch!(new Event('nomatch'));
@@ -722,8 +721,7 @@ suite('ComposeboxVoiceSearch', () => {
                         .classList.contains('has-error'));
 
         // Trigger other error (like `audio-capture`).
-        mockSpeechRecognition.onerror!
-            ({error: 'audio-capture'} as any);
+        mockSpeechRecognition.onerror!({error: 'audio-capture'} as any);
         await microtasksFinished();
 
         // Verify `tryAgainLink` is hidden and `details` link is visible.
@@ -1035,42 +1033,46 @@ suite('ComposeboxVoiceSearch', () => {
         escapeEvent.defaultPrevented, 'Escape event should be prevented');
   });
 
-  test('Does not stop voice search on pointerdown inside composebox', async () => {
-    loadTimeData.overrideValues({
-      voiceSearchCoherenceComposeboxesEnabled: true,
-    });
-    await createComposeboxElement();
+  test(
+      'Does not stop voice search on pointerdown inside composebox',
+      async () => {
+        loadTimeData.overrideValues({
+          voiceSearchCoherenceComposeboxesEnabled: true,
+        });
+        await createComposeboxElement();
 
-    const voiceSearchElement = await openVoiceSearchUI();
-    assertTrue(mockSpeechRecognition.voiceSearchInProgress);
+        const voiceSearchElement = await openVoiceSearchUI();
+        assertTrue(mockSpeechRecognition.voiceSearchInProgress);
 
-    await windowProxy.whenCalled('setTimeout');
+        await windowProxy.whenCalled('setTimeout');
 
-    const setTimeoutCalls = windowProxy.getArgs('setTimeout');
-    assertTrue(
-        setTimeoutCalls.length >= 2,
-        'setTimeout should be called at least twice');
-    const listenersCallback = setTimeoutCalls[1][0];
-    listenersCallback();  // Attach the pointerdown and blur listeners
-    await microtasksFinished();
+        const setTimeoutCalls = windowProxy.getArgs('setTimeout');
+        assertTrue(
+            setTimeoutCalls.length >= 2,
+            'setTimeout should be called at least twice');
+        const listenersCallback = setTimeoutCalls[1][0];
+        listenersCallback();  // Attach the pointerdown and blur listeners
+        await microtasksFinished();
 
-    let stoppedEventFired = false;
-    voiceSearchElement.addEventListener('recording-stopped', () => {
-      stoppedEventFired = true;
-    });
+        let stoppedEventFired = false;
+        voiceSearchElement.addEventListener('recording-stopped', () => {
+          stoppedEventFired = true;
+        });
 
-    // Simulate clicking INSIDE the composebox (on the composebox element).
-    composeboxElement.dispatchEvent(new PointerEvent('pointerdown', {
-      bubbles: true,
-      composed: true,
-    }));
-    await microtasksFinished();
+        // Simulate clicking INSIDE the composebox (on the composebox element).
+        composeboxElement.dispatchEvent(new PointerEvent('pointerdown', {
+          bubbles: true,
+          composed: true,
+        }));
+        await microtasksFinished();
 
-    // Verify the recording did NOT stop.
-    assertFalse(stoppedEventFired, 'Event should not fire on inside pointerdown');
-    assertTrue(
-        mockSpeechRecognition.voiceSearchInProgress, 'Engine should not stop');
-  });
+        // Verify the recording did NOT stop.
+        assertFalse(
+            stoppedEventFired, 'Event should not fire on inside pointerdown');
+        assertTrue(
+            mockSpeechRecognition.voiceSearchInProgress,
+            'Engine should not stop');
+      });
 
   test('Stops voice search on window blur event', async () => {
     loadTimeData.overrideValues({
@@ -1279,8 +1281,7 @@ suite('ComposeboxVoiceSearch', () => {
 
     // Click stop button.
     const stopButton =
-        voiceSearchElement.shadowRoot.querySelector<HTMLElement>(
-            '#stopButton');
+        voiceSearchElement.shadowRoot.querySelector<HTMLElement>('#stopButton');
     assertTrue(isVisible(stopButton), 'Stop button should be visible');
     stopButton!.click();
     await microtasksFinished();

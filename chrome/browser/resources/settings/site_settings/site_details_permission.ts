@@ -411,9 +411,6 @@ export class SiteDetailsPermissionElement extends
         category === ContentSettingsTypes.FILE_SYSTEM_WRITE ||
         category === ContentSettingsTypes.HID_DEVICES ||
         category === ContentSettingsTypes.BLUETOOTH_DEVICES
-        // <if expr="enable_smart_card">
-        || category === ContentSettingsTypes.SMART_CARD_READERS
-        // </if>
     );
   }
 
@@ -439,9 +436,6 @@ export class SiteDetailsPermissionElement extends
     if (
         category === ContentSettingsTypes.BLUETOOTH_SCANNING ||
         category === ContentSettingsTypes.FILE_SYSTEM_WRITE
-        // <if expr="enable_smart_card">
-        || category === ContentSettingsTypes.SMART_CARD_READERS
-        // </if>
     ) {
       return true;
     }

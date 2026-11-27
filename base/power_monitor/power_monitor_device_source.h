@@ -30,9 +30,6 @@
 #include "base/power_monitor/thermal_state_observer_mac.h"
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_IOS)
-#include <objc/runtime.h>
-#endif  // BUILDFLAG(IS_IOS)
 
 namespace base {
 
@@ -47,25 +44,6 @@ class BASE_EXPORT PowerMonitorDeviceSource : public PowerMonitorSource {
 
   ~PowerMonitorDeviceSource() override;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On Chrome OS, Chrome receives power-related events from powerd, the system
-  // power daemon, via D-Bus signals received on the UI thread. base can't
-  // directly depend on that code, so this class instead exposes static methods
-  // so that events can be passed in.
-  static void SetPowerSource(
-      PowerStateObserver::BatteryPowerStatus battery_power_status);
-  static void HandleSystemSuspending();
-  static void HandleSystemResumed();
-  static void ThermalEventReceived(
-      PowerThermalObserver::DeviceThermalState state);
-
-  // These two methods is used for handling thermal state update requests, such
-  // as asking for initial state when starting lisitening to thermal change.
-  PowerThermalObserver::DeviceThermalState GetCurrentThermalState()
-      const override;
-  void SetCurrentThermalState(
-      PowerThermalObserver::DeviceThermalState state) override;
-#endif
 
  private:
   friend class PowerMonitorDeviceSourceTest;
@@ -93,7 +71,7 @@ class BASE_EXPORT PowerMonitorDeviceSource : public PowerMonitorSource {
   };
 #endif  // BUILDFLAG(IS_WIN)
 
-#if (BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_IOS_TVOS)) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN)
   void PlatformInit();
   void PlatformDestroy();
 #endif  // BUILDFLAG(IS_APPLE) || BUILDFLAG(IS_WIN)
@@ -113,10 +91,6 @@ class BASE_EXPORT PowerMonitorDeviceSource : public PowerMonitorSource {
   // state hasn't been obtained yet).
   PowerStateObserver::BatteryPowerStatus GetBatteryPowerStatus() const override;
 
-#if BUILDFLAG(IS_ANDROID)
-  PowerThermalObserver::DeviceThermalState GetCurrentThermalState()
-      const override;
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(IS_WIN)
   // PowerMonitorSource:
@@ -154,10 +128,6 @@ class BASE_EXPORT PowerMonitorDeviceSource : public PowerMonitorSource {
       PowerStateObserver::BatteryPowerStatus::kUnknown;
 #endif
 
-#if BUILDFLAG(IS_IOS)
-  // Holds pointers to system event notification observers.
-  std::vector<id> notification_observers_;
-#endif
 
 #if BUILDFLAG(IS_WIN)
   PowerMessageWindow power_message_window_;
@@ -166,10 +136,6 @@ class BASE_EXPORT PowerMonitorDeviceSource : public PowerMonitorSource {
   base::SequenceBound<SpeedLimitObserverWin> speed_limit_observer_;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  PowerThermalObserver::DeviceThermalState current_thermal_state_ =
-      PowerThermalObserver::DeviceThermalState::kUnknown;
-#endif
 };
 
 }  // namespace base

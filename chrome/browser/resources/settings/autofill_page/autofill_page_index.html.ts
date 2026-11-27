@@ -42,18 +42,9 @@ export function getHtml(this: SettingsAutofillPageIndexElement) {
       route-path="${this.routes_.TRAVEL.path}">
   </settings-travel-page>
 
-  ${this.isShoppingEnabled_ ? html`
-    <settings-shopping-page slot="view" id="shopping"
-        data-parent-view-id="parent" route-path="${this.routes_.SHOPPING.path}">
-    </settings-shopping-page>
-  ` : ''}
+  ${''}
 
-  ${this.showSuggestionsFromGeminiSettings_ ? html`
-    <settings-suggestions-from-gemini-page slot="view"
-        id="suggestionsFromGemini" data-parent-view-id="parent"
-        route-path="${this.routes_.SUGGESTIONS_FROM_GEMINI.path}">
-    </settings-suggestions-from-gemini-page>
-  ` : ''}
+  ${''}
 
 </cr-view-manager>
 <!--_html_template_end_-->`;

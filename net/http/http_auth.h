@@ -125,7 +125,7 @@ class NET_EXPORT_PRIVATE HttpAuth {
   // Helper structure used by HttpNetworkTransaction to track
   // the current identity being used for authorization.
   struct Identity {
-    Identity();
+    NET_EXPORT_PRIVATE Identity();
 
     IdentitySource source = IDENT_SRC_NONE;
     bool invalid = true;

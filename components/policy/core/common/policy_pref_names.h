@@ -57,13 +57,9 @@ inline constexpr char kEnterpriseMDMManagementWindows[] =
 // Integer pref that stores the Mac enterprise MDM management authority.
 inline constexpr char kEnterpriseMDMManagementMac[] =
     "management.platform.enterprise_mdm_mac";
-#elif BUILDFLAG(IS_ANDROID)
-// Integer pref that stores the Android enterprise MDM/ownership management authority.
-inline constexpr char kEnterpriseMDMManagementAndroid[] =
-    "management.platform.enterprise_mdm_android";
 #endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN)
 // Boolean pref indicating whether protected content identifiers are allowed.
 inline constexpr char kProtectedContentIdentifiersAllowed[] =
     "policy.protected_content_identifiers.allowed";
@@ -125,31 +121,8 @@ inline constexpr char kNativeWindowOcclusionEnabled[] =
 inline constexpr char kIntensiveWakeUpThrottlingEnabled[] =
     "policy.intensive_wake_up_throttling_enabled";
 
-#if BUILDFLAG(IS_ANDROID)
-// Boolean policy preference to disable the BackForwardCache feature.
-inline constexpr char kBackForwardCacheEnabled[] =
-    "policy.back_forward_cache_enabled";
 
-// Boolean policy preference to disable the Read Aloud feature.
-inline constexpr char kReadAloudEnabled[] = "policy.read_aloud_enabled";
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-// Last time that a check for cloud policy management was done. This time is
-// recorded on Android and iOS so that retries aren't attempted on every
-// startup. Instead the cloud policy registration is retried at least 1 or 3
-// days later.
-inline constexpr char kLastPolicyCheckTime[] = "policy.last_policy_check_time";
-#endif
-
-#if BUILDFLAG(IS_IOS)
-inline constexpr char kUserPolicyNotificationWasShown[] =
-    "policy.user_policy_notification_was_shown";
-
-// A bool for storing whether the user has seen the sync disabled alert since
-// sync was disabled.
-inline constexpr char kSyncDisabledAlertShown[] = "sync.disabled_alert_shown";
-#endif
 
 // Boolean controlling whether SafeSearch is mandatory for Google Web Searches.
 inline constexpr char kForceGoogleSafeSearch[] =
@@ -238,23 +211,7 @@ inline constexpr char kForcePermissionPolicyUnloadDefaultEnabled[] =
 // 4 - Block malicious downloads
 inline constexpr char kDownloadRestrictions[] = "download_restrictions";
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Allows user browser navigation access to the listed host patterns. Only
-// applied when a AlwaysOn VPN is active but not connected.
-inline constexpr char kAlwaysOnVpnPreConnectUrlAllowlist[] =
-    "policy.alwayson_vpn_pre_connect_url_allowlist";
 
-// Boolean value for the FloatingWorkspaceEnabled policy
-inline constexpr char kFloatingWorkspaceEnabled[] =
-    "ash.floating_workspace_enabled";
-#endif
-
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-// Boolean controlling whether users can add secondary Google accounts. Set via
-// the SecondaryGoogleAccountSigninAllowed policy; defaults to true.
-inline constexpr char kSecondaryGoogleAccountSigninAllowed[] =
-    "account_manager.secondary_google_account_signin_allowed";
-#endif  // BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
 
 // A boolean value indicating whether the built-in AI APIs are enabled.
 inline constexpr char kBuiltInAIAPIsEnabled[] =

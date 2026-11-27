@@ -415,7 +415,6 @@ IN_PROC_BROWSER_TEST_F(HistoryApiTest, Incognito) {
                                "countItemsInHistory()"));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_F(HistoryApiTest, AddUrl_IsolatedAppRejected) {
   static constexpr char kManifest[] =
       R"({
@@ -452,6 +451,5 @@ IN_PROC_BROWSER_TEST_F(HistoryApiTest, AddUrl_IsolatedAppRejected) {
 
   ASSERT_TRUE(RunExtensionTest(test_dir.UnpackedPath(), {}, {})) << message_;
 }
-#endif
 
 }  // namespace extensions

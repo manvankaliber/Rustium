@@ -53,7 +53,7 @@
 #include "ui/views/view_observer.h"
 #include "ui/views/word_lookup_client.h"
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
 #include <vector>
 #endif
 
@@ -510,19 +510,12 @@ class VIEWS_EXPORT Textfield : public View,
   // Set whether the text should be used to improve typing suggestions.
   void SetShouldDoLearning(bool value) { should_do_learning_ = value; }
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   bool SetCompositionFromExistingText(
       const gfx::Range& range,
       const std::vector<ui::ImeTextSpan>& ui_ime_text_spans) override;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  gfx::Range GetAutocorrectRange() const override;
-  gfx::Rect GetAutocorrectCharacterBounds() const override;
-  bool SetAutocorrectRange(const gfx::Range& range) override;
-  bool AddGrammarFragments(
-      const std::vector<ui::GrammarFragment>& fragments) override;
-#endif
 
   void GetActiveTextInputControlLayoutBounds(
       std::optional<gfx::Rect>* control_bounds,

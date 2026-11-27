@@ -68,25 +68,23 @@ build_webui("build") {
     "web_view_type.ts",
     "window_manager.ts",
   ]
-  if (!is_android) {
-    ts_files += [
-      "banner_promo.html.ts",
-      "banner_promo.ts",
-    ]
-  }
-  if (!is_android || enable_webui_contextual_tasks_composebox) {
-    ts_files += [
-      "composebox.html.ts",
-      "composebox.ts",
-      "contextual_tasks_inner_composebox.html.ts",
-      "contextual_tasks_inner_composebox.ts",
-      "contextual_tasks_inner_composebox_context_menu.html.ts",
-      "info_tooltip.html.ts",
-      "info_tooltip.ts",
-      "onboarding_tooltip.html.ts",
-      "onboarding_tooltip.ts",
-    ]
-  }
+
+  ts_files += [
+    "banner_promo.html.ts",
+    "banner_promo.ts",
+  ]
+
+  ts_files += [
+    "composebox.html.ts",
+    "composebox.ts",
+    "contextual_tasks_inner_composebox.html.ts",
+    "contextual_tasks_inner_composebox.ts",
+    "contextual_tasks_inner_composebox_context_menu.html.ts",
+    "info_tooltip.html.ts",
+    "info_tooltip.ts",
+    "onboarding_tooltip.html.ts",
+    "onboarding_tooltip.ts",
+  ]
 
   css_files = [
     "account_menu.css",
@@ -103,17 +101,15 @@ build_webui("build") {
     "top_toolbar.css",
     "toolbar_app.css",
   ]
-  if (!is_android) {
-    css_files += [ "banner_promo.css" ]
-  }
-  if (!is_android || enable_webui_contextual_tasks_composebox) {
-    css_files += [
-      "composebox.css",
-      "contextual_tasks_inner_composebox.css",
-      "info_tooltip.css",
-      "onboarding_tooltip.css",
-    ]
-  }
+
+  css_files += [ "banner_promo.css" ]
+
+  css_files += [
+    "composebox.css",
+    "contextual_tasks_inner_composebox.css",
+    "info_tooltip.css",
+    "onboarding_tooltip.css",
+  ]
 
   mojo_files_deps = [
     "//chrome/browser/contextual_tasks:mojo_bindings_ts__generator",
@@ -132,10 +128,11 @@ build_webui("build") {
     "$root_gen_dir/components/browser_apis/ui_controllers/toolbar/icon_handle.mojom-webui.ts",
     "$root_gen_dir/components/browser_apis/ui_controllers/toolbar/toolbar_ui_api_data_model.mojom-webui.ts",
   ]
-  if (!is_android || enable_webui_contextual_tasks_composebox) {
-    mojo_files += [ "$root_gen_dir/ui/webui/resources/cr_components/composebox/composebox.mojom-webui.ts" ]
-    mojo_files_deps += [ "//ui/webui/resources/cr_components/composebox:mojo_bindings_ts__generator" ]
-  }
+
+  mojo_files += [ "$root_gen_dir/ui/webui/resources/cr_components/composebox/composebox.mojom-webui.ts" ]
+  mojo_files_deps += [
+    "//ui/webui/resources/cr_components/composebox:mojo_bindings_ts__generator",
+  ]
 
   # Needed for browser_tests
   ts_composite = true
@@ -155,30 +152,28 @@ build_webui("build") {
     "//ui/webui/resources/js:build_ts",
     "//ui/webui/resources/mojo:build_ts",
   ]
-  if (!is_android) {
-    ts_deps += [
-      "//chrome/browser/resources/webui_toolbar_shared:build_ts",
-      "//ui/webui/resources/cr_components/color_change_listener:build_ts",
-    ]
-  }
-  if (!is_android || enable_webui_contextual_tasks_composebox) {
-    ts_deps += [
-      "//ui/webui/resources/cr_components/composebox:build_ts",
-      "//ui/webui/resources/cr_components/help_bubble:build_ts",
-      "//ui/webui/resources/cr_components/localized_link:build_ts",
-      "//ui/webui/resources/cr_components/search:build_ts",
-    ]
-  }
+
+  ts_deps += [
+    "//chrome/browser/resources/webui_toolbar_shared:build_ts",
+    "//ui/webui/resources/cr_components/color_change_listener:build_ts",
+  ]
+
+  ts_deps += [
+    "//ui/webui/resources/cr_components/composebox:build_ts",
+    "//ui/webui/resources/cr_components/help_bubble:build_ts",
+    "//ui/webui/resources/cr_components/localized_link:build_ts",
+    "//ui/webui/resources/cr_components/search:build_ts",
+  ]
 
   ts_path_mappings =
       [ "/shared/guest_view/*|" + rebase_path(
             "$root_gen_dir/chrome/browser/resources/guest_view_shared/tsc/*",
             target_gen_dir) ]
-  if (!is_android) {
-    ts_path_mappings += [ "/shared/*|" + rebase_path(
-                              "$root_gen_dir/chrome/browser/resources/webui_toolbar_shared/tsc/*",
-                              target_gen_dir) ]
-  }
+
+  ts_path_mappings +=
+      [ "/shared/*|" + rebase_path(
+            "$root_gen_dir/chrome/browser/resources/webui_toolbar_shared/tsc/*",
+            target_gen_dir) ]
 
   webui_context_type = "trusted"
 }

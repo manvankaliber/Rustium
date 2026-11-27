@@ -236,9 +236,7 @@ if (toolkit_views) {
       "//ui/gfx",
       "//ui/views",
     ]
-    if (is_chromeos) {
-      deps += [ "//chromeos/ash/experiences/system_web_apps/types" ]
-    }
+
     if (is_mac) {
       deps += [ "//chrome/browser/web_applications" ]
     }
@@ -368,17 +366,11 @@ if (toolkit_views) {
       "//ui/views:test_support",
     ]
 
-    if (is_chromeos) {
-      deps += [
-        "//chrome/browser/ui/views/frame:browser_frame_view_chromeos",
-        "//chromeos/ui/frame",
-      ]
-    } else {
-      deps += [
-        "//chrome/browser/download/bubble",
-        "//chrome/browser/ui/download:download_display",
-      ]
-    }
+    deps += [
+      "//chrome/browser/download/bubble",
+      "//chrome/browser/ui/download:download_display",
+    ]
+
     if (use_ozone) {
       deps += [ "//ui/ozone" ]
     }
@@ -387,26 +379,23 @@ if (toolkit_views) {
     }
   }
 
-  # interactive_ui_tests doesn't build on ChromeOS devices.
-  if (!is_chromeos_device) {
-    source_set("interactive_ui_tests") {
-      testonly = true
-      defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
-      sources = [ "web_app_frame_toolbar_interactive_uitest.cc" ]
-      deps = [
-        ":test_support",
-        ":web_app_frame_toolbar_view",
-        ":web_app_menu_button",
-        ":web_app_toolbar_button_container",
-        "//base",
-        "//base/test:test_support",
-        "//chrome/browser/ui/views/extensions:extensions_toolbar_desktop",
-        "//chrome/browser/ui/views/frame:browser_view_header",
-        "//chrome/test:test_support",
-        "//content/test:test_support",
-        "//testing/gtest",
-        "//ui/views",
-      ]
-    }
+  source_set("interactive_ui_tests") {
+    testonly = true
+    defines = [ "HAS_OUT_OF_PROC_TEST_RUNNER" ]
+    sources = [ "web_app_frame_toolbar_interactive_uitest.cc" ]
+    deps = [
+      ":test_support",
+      ":web_app_frame_toolbar_view",
+      ":web_app_menu_button",
+      ":web_app_toolbar_button_container",
+      "//base",
+      "//base/test:test_support",
+      "//chrome/browser/ui/views/extensions:extensions_toolbar_desktop",
+      "//chrome/browser/ui/views/frame:browser_view_header",
+      "//chrome/test:test_support",
+      "//content/test:test_support",
+      "//testing/gtest",
+      "//ui/views",
+    ]
   }
 }

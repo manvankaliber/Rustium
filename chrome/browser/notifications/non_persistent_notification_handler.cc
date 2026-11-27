@@ -24,13 +24,11 @@
 #include "ui/base/mojom/window_open_disposition.mojom.h"
 #include "ui/message_center/message_center_stats_collector.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/notifications/platform_notification_service_factory.h"
 #include "chrome/browser/notifications/platform_notification_service_impl.h"
 #include "chrome/browser/ui/navigator/browser_navigator.h"
 #include "chrome/browser/ui/navigator/browser_navigator_params.h"
 #include "ui/base/page_transition_types.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 NonPersistentNotificationHandler::NonPersistentNotificationHandler() = default;
 NonPersistentNotificationHandler::~NonPersistentNotificationHandler() = default;
@@ -108,7 +106,6 @@ void NonPersistentNotificationHandler::DidDispatchClickEvent(
     const std::string& notification_id,
     base::OnceClosure completed_closure,
     bool success) {
-#if !BUILDFLAG(IS_ANDROID)
   // Non-persistent notifications are able to outlive the document that created
   // them. In such cases the JavaScript event handler might not be available
   // when the notification is interacted with. Launch a new tab for the
@@ -137,7 +134,6 @@ void NonPersistentNotificationHandler::DidDispatchClickEvent(
   } else {
     std::move(completed_closure).Run();
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void NonPersistentNotificationHandler::DisableNotifications(

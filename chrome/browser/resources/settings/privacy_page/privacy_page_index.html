@@ -453,31 +453,7 @@
     </settings-serial-ports-page>
   </template>
 
-<if expr="enable_smart_card">
-  <template is="dom-if" if="[[enableSmartCardReadersContentSetting_]]">
-    <template is="dom-if" if="[[renderView_(
-        routes_.SITE_SETTINGS_SMART_CARD_READERS, currentRoute, inSearchMode)]]"
-        update-when-false>
-      <settings-smart-card-readers-page slot="view"
-          id="siteSettingsSmartCardReaders" data-parent-view-id="privacy"
-          route-path$="[[routes_.SITE_SETTINGS_SMART_CARD_READERS.path]]">
-      </settings-smart-card-readers-page>
-    </template>
-  </template>
-</if>
 
-<if expr="is_chromeos">
-  <template is="dom-if" if="[[enableWebPrintingContentSetting_]]">
-    <template is="dom-if" if="[[renderView_(
-        routes_.SITE_SETTINGS_WEB_PRINTING, currentRoute, inSearchMode)]]"
-        update-when-false>
-      <settings-web-printing-page slot="view"
-          id="siteSettingsWebPrinting" data-parent-view-id="privacy"
-          route-path$="[[routes_.SITE_SETTINGS_WEB_PRINTING.path]]">
-      </settings-web-printing-page>
-    </template>
-  </template>
-</if>
 
   <template is="dom-if" if="[[renderView_(
       routes_.SITE_SETTINGS_SOUND, currentRoute, inSearchMode)]]"

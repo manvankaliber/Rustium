@@ -22,7 +22,6 @@
 #include "device/vr/openxr/openxr_unbounded_space_provider.h"
 #include "device/vr/public/mojom/xr_session.mojom-forward.h"
 #include "device/vr/vr_export.h"
-#include "third_party/openxr/dev/xr_android.h"
 #include "third_party/openxr/src/include/openxr/openxr.h"
 
 namespace device {
@@ -76,10 +75,6 @@ struct OpenXrExtensionMethods {
 
   // Spatial Anchors
   OPENXR_DECLARE_FN(xrCreateSpatialAnchorEXT);
-  OPENXR_DECLARE_FN(xrEnumerateSpatialAnchorAttachableComponentsANDROID);
-
-  // Spatial HitTest
-  OPENXR_DECLARE_FN(xrCreateSpatialRaycastSnapshotANDROID);
 
   // Visibility Mask
   OPENXR_DECLARE_FN(xrGetVisibilityMaskKHR);
@@ -92,33 +87,6 @@ struct OpenXrExtensionMethods {
   // While these extensions don't need to be gated to a particular platform,
   // since the API is still under development we'll try to limit the scope for
   // the time being.
-#if BUILDFLAG(IS_ANDROID)
-  // Trackables and Raycasting.
-  OPENXR_DECLARE_FN(xrCreateTrackableTrackerANDROID);
-  OPENXR_DECLARE_FN(xrDestroyTrackableTrackerANDROID);
-  OPENXR_DECLARE_FN(xrRaycastANDROID);
-
-  OPENXR_DECLARE_FN(xrCreateAnchorSpaceANDROID);
-
-  OPENXR_DECLARE_FN(xrCreateLightEstimatorANDROID);
-  OPENXR_DECLARE_FN(xrDestroyLightEstimatorANDROID);
-  OPENXR_DECLARE_FN(xrGetLightEstimateANDROID);
-
-  OPENXR_DECLARE_FN(xrCreateDepthSwapchainANDROID);
-  OPENXR_DECLARE_FN(xrDestroyDepthSwapchainANDROID);
-  OPENXR_DECLARE_FN(xrEnumerateDepthSwapchainImagesANDROID);
-  OPENXR_DECLARE_FN(xrEnumerateDepthResolutionsANDROID);
-  OPENXR_DECLARE_FN(xrAcquireDepthSwapchainImagesANDROID);
-
-  // Meshing
-  OPENXR_DECLARE_FN(xrEnumerateSupportedSemanticLabelSetsANDROID);
-  OPENXR_DECLARE_FN(xrCreateSceneMeshingTrackerANDROID);
-  OPENXR_DECLARE_FN(xrDestroySceneMeshingTrackerANDROID);
-  OPENXR_DECLARE_FN(xrCreateSceneMeshSnapshotANDROID);
-  OPENXR_DECLARE_FN(xrDestroySceneMeshSnapshotANDROID);
-  OPENXR_DECLARE_FN(xrGetAllSubmeshStatesANDROID);
-  OPENXR_DECLARE_FN(xrGetSubmeshDataANDROID);
-#endif
 };
 // Ensure that we don't export our helper macro.
 #undef OPENXR_DECLARE_FN

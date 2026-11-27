@@ -1,4 +1,4 @@
-#[cfg(linux_android)]
+#[cfg(linux)]
 use crate::*;
 use nix::sys::socket::{
     getsockopt, setsockopt, socket, sockopt, AddressFamily, SockFlag,
@@ -187,7 +187,7 @@ fn test_so_tcp_maxseg() {
     let segsize: u32 = 873;
     assert!(initial < segsize);
     cfg_if! {
-        if #[cfg(linux_android)] {
+        if #[cfg(linux)] {
             setsockopt(&rsock, sockopt::TcpMaxSeg, &segsize).unwrap();
         }
     }
@@ -225,7 +225,7 @@ fn test_so_tcp_maxseg() {
             let actual = getsockopt(&ssock, sockopt::TcpMaxSeg).unwrap();
             // Actual max segment size takes header lengths into account, max IPv4 options (60 bytes) + max
             // TCP options (40 bytes) are subtracted from the requested maximum as a lower boundary.
-            if cfg!(linux_android) {
+            if cfg!(linux) {
                 assert!((segsize - 100) <= actual);
                 assert!(actual <= segsize);
             } else {
@@ -251,7 +251,7 @@ fn test_so_type() {
 
 /// getsockopt(_, sockopt::SockType) should gracefully handle unknown socket
 /// types.  Regression test for https://github.com/nix-rust/nix/issues/1819
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 fn test_so_type_unknown() {
     use nix::errno::Errno;
@@ -333,7 +333,7 @@ fn test_tcp_function_blk_alias() {
 }
 
 #[test]
-#[cfg(linux_android)]
+#[cfg(linux)]
 fn test_bindtodevice() {
     skip_if_not_root!("test_bindtodevice");
 
@@ -363,7 +363,7 @@ fn test_so_tcp_keepalive() {
     setsockopt(&fd, sockopt::KeepAlive, &true).unwrap();
     assert!(getsockopt(&fd, sockopt::KeepAlive).unwrap());
 
-    #[cfg(any(linux_android, freebsdlike))]
+    #[cfg(any(linux, freebsdlike))]
     {
         let x = getsockopt(&fd, sockopt::TcpKeepIdle).unwrap();
         setsockopt(&fd, sockopt::TcpKeepIdle, &(x + 1)).unwrap();
@@ -380,7 +380,7 @@ fn test_so_tcp_keepalive() {
 }
 
 #[test]
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg_attr(qemu, ignore)]
 fn test_get_mtu() {
     use nix::sys::socket::{bind, connect, SockaddrIn};
@@ -407,7 +407,7 @@ fn test_get_mtu() {
 }
 
 #[test]
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 fn test_ttl_opts() {
     let fd4 = socket(
         AddressFamily::Inet,
@@ -430,7 +430,7 @@ fn test_ttl_opts() {
 }
 
 #[test]
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 fn test_multicast_ttl_opts_ipv4() {
     let fd4 = socket(
         AddressFamily::Inet,
@@ -444,7 +444,7 @@ fn test_multicast_ttl_opts_ipv4() {
 }
 
 #[test]
-#[cfg(linux_android)]
+#[cfg(linux)]
 fn test_multicast_ttl_opts_ipv6() {
     let fd6 = socket(
         AddressFamily::Inet6,
@@ -501,7 +501,7 @@ fn test_dontfrag_opts() {
 }
 
 #[test]
-#[cfg(any(all(linux_android, not(target_env = "uclibc")), apple_targets))]
+#[cfg(any(all(linux, not(target_env = "uclibc")), apple_targets))]
 // Disable the test under emulation because it fails in Cirrus-CI.  Lack
 // of QEMU support is suspected.
 #[cfg_attr(qemu, ignore)]
@@ -550,7 +550,7 @@ fn test_so_priority() {
 }
 
 #[test]
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 fn test_ip_tos() {
     let fd = socket(
         AddressFamily::Inet,
@@ -565,7 +565,7 @@ fn test_ip_tos() {
 }
 
 #[test]
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 // Disable the test under emulation because it fails in Cirrus-CI.  Lack
 // of QEMU support is suspected.
 #[cfg_attr(qemu, ignore)]
@@ -696,7 +696,7 @@ fn test_ts_clock_monotonic() {
 }
 
 #[test]
-#[cfg(all(linux_android, not(target_env = "uclibc")))]
+#[cfg(all(linux, not(target_env = "uclibc")))]
 // Disable the test under emulation because it fails with ENOPROTOOPT in CI
 // on cross target. Lack of QEMU support is suspected.
 #[cfg_attr(qemu, ignore)]
@@ -723,7 +723,7 @@ fn test_ip_bind_address_no_port() {
 }
 
 #[test]
-#[cfg(linux_android)]
+#[cfg(linux)]
 fn test_tcp_fast_open_connect() {
     let fd = socket(
         AddressFamily::Inet,
@@ -746,7 +746,7 @@ fn test_tcp_fast_open_connect() {
     ));
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[test]
 fn can_get_peercred_on_unix_socket() {
     use nix::sys::socket::{socketpair, sockopt, SockFlag, SockType};
@@ -1000,7 +1000,7 @@ fn test_reuseport_lb() {
 }
 
 #[test]
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 fn test_ipv4_recv_ttl_opts() {
     let fd = socket(
         AddressFamily::Inet,
@@ -1028,7 +1028,7 @@ fn test_ipv4_recv_ttl_opts() {
 }
 
 #[test]
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 fn test_ipv6_recv_hop_limit_opts() {
     let fd = socket(
         AddressFamily::Inet6,
@@ -1059,7 +1059,7 @@ fn test_ipv6_recv_hop_limit_opts() {
 }
 
 #[test]
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 fn test_ipv4_recv_tos_opts() {
     let fd = socket(
         AddressFamily::Inet,
@@ -1087,7 +1087,7 @@ fn test_ipv4_recv_tos_opts() {
 }
 
 #[test]
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 fn test_ipv6_recv_traffic_class_opts() {
     let fd = socket(
         AddressFamily::Inet6,

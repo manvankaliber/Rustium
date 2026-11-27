@@ -1,8 +1,8 @@
 //! Socket options as used by `setsockopt` and `getsockopt`.
-#[cfg(any(linux_android, target_os = "illumos"))]
+#[cfg(any(linux, target_os = "illumos"))]
 use super::SetSockOpt;
 use crate::sys::time::TimeVal;
-#[cfg(any(linux_android, target_os = "illumos"))]
+#[cfg(any(linux, target_os = "illumos"))]
 use crate::{errno::Errno, Result};
 use cfg_if::cfg_if;
 use libc::{self, c_int, c_void, socklen_t};
@@ -12,7 +12,7 @@ use std::ffi::{CStr, OsStr, OsString};
 use std::mem::{self, MaybeUninit};
 use std::os::fd::OwnedFd;
 use std::os::unix::ffi::OsStrExt;
-#[cfg(any(linux_android, target_os = "illumos"))]
+#[cfg(any(linux, target_os = "illumos"))]
 use std::os::unix::io::{AsFd, AsRawFd};
 
 // Constants
@@ -24,24 +24,26 @@ const TCP_CA_NAME_MAX: usize = 16;
 /// Helper for implementing `SetSockOpt` for a given socket option. See
 /// [`::sys::socket::SetSockOpt`](sys/socket/trait.SetSockOpt.html).
 ///
-/// This macro aims to help implementing `SetSockOpt` for different socket options that accept
-/// different kinds of data to be used with `setsockopt`.
+/// This macro aims to help implementing `SetSockOpt` for different socket
+/// options that accept different kinds of data to be used with `setsockopt`.
 ///
-/// Instead of using this macro directly consider using [`sockopt_impl!`](crate::sockopt_impl),
-/// especially if the option you are implementing represents a simple type.
+/// Instead of using this macro directly consider using
+/// [`sockopt_impl!`](crate::sockopt_impl), especially if the option you are
+/// implementing represents a simple type.
 ///
 /// # Arguments
 ///
 /// * `$name:ident`: name of the type you want to implement `SetSockOpt` for.
-/// * `$level:expr` : socket layer, or a `protocol level`: could be *raw sockets*
-///   (`libc::SOL_SOCKET`), *ip protocol* (libc::IPPROTO_IP), *tcp protocol* (`libc::IPPROTO_TCP`),
-///   and more. Please refer to your system manual for more options. Will be passed as the second
-///   argument (`level`) to the `setsockopt` call.
-/// * `$flag:path`: a flag name to set. Some examples: `libc::SO_REUSEADDR`, `libc::TCP_NODELAY`,
-///   `libc::IP_ADD_MEMBERSHIP` and others. Will be passed as the third argument (`option_name`)
+/// * `$level:expr` : socket layer, or a `protocol level`: could be *raw
+///   sockets* (`libc::SOL_SOCKET`), *ip protocol* (libc::IPPROTO_IP), *tcp
+///   protocol* (`libc::IPPROTO_TCP`), and more. Please refer to your system
+///   manual for more options. Will be passed as the second argument (`level`)
 ///   to the `setsockopt` call.
+/// * `$flag:path`: a flag name to set. Some examples: `libc::SO_REUSEADDR`,
+///   `libc::TCP_NODELAY`, `libc::IP_ADD_MEMBERSHIP` and others. Will be passed
+///   as the third argument (`option_name`) to the `setsockopt` call.
 /// * Type of the value that you are going to set.
-/// * Type that implements the `Set` trait for the type from the previous item 
+/// * Type that implements the `Set` trait for the type from the previous item
 ///   (like `SetBool` for `bool`, `SetUsize` for `usize`, etc.).
 #[macro_export]
 macro_rules! setsockopt_impl {
@@ -50,11 +52,7 @@ macro_rules! setsockopt_impl {
         impl $crate::sys::socket::SetSockOpt for $name {
             type Val = $ty;
 
-            fn set<F: std::os::unix::io::AsFd>(
-                &self,
-                fd: &F,
-                val: &$ty,
-            ) -> $crate::Result<()> {
+            fn set<F: std::os::unix::io::AsFd>(&self, fd: &F, val: &$ty) -> $crate::Result<()> {
                 use std::os::fd::AsRawFd;
                 use $crate::sys::socket::sockopt::Set;
                 let setter: $setter = Set::new(val);
@@ -78,25 +76,27 @@ macro_rules! setsockopt_impl {
 /// Helper for implementing `GetSockOpt` for a given socket option. See
 /// [`::sys::socket::GetSockOpt`](sys/socket/trait.GetSockOpt.html).
 ///
-/// This macro aims to help implementing `GetSockOpt` for different socket options that accept
-/// different kinds of data to be use with `getsockopt`.
+/// This macro aims to help implementing `GetSockOpt` for different socket
+/// options that accept different kinds of data to be use with `getsockopt`.
 ///
-/// Instead of using this macro directly consider using [`sockopt_impl!`](crate::sockopt_impl),
-/// especially if the option you are implementing represents a simple type.
+/// Instead of using this macro directly consider using
+/// [`sockopt_impl!`](crate::sockopt_impl), especially if the option you are
+/// implementing represents a simple type.
 ///
 /// # Arguments
 ///
 /// * Name of the type you want to implement `GetSockOpt` for.
-/// * Socket layer, or a `protocol level`: could be *raw sockets* (`lic::SOL_SOCKET`),  *ip
-///   protocol* (libc::IPPROTO_IP), *tcp protocol* (`libc::IPPROTO_TCP`),  and more. Please refer
-///   to your system manual for more options. Will be passed as the second argument (`level`) to
-///   the `getsockopt` call.
+/// * Socket layer, or a `protocol level`: could be *raw sockets*
+///   (`lic::SOL_SOCKET`),  *ip protocol* (libc::IPPROTO_IP), *tcp protocol*
+///   (`libc::IPPROTO_TCP`),  and more. Please refer to your system manual for
+///   more options. Will be passed as the second argument (`level`) to the
+///   `getsockopt` call.
 /// * A flag to set. Some examples: `libc::SO_REUSEADDR`, `libc::TCP_NODELAY`,
-///   `libc::SO_ORIGINAL_DST` and others. Will be passed as the third argument (`option_name`) to
-///   the `getsockopt` call.
+///   `libc::SO_ORIGINAL_DST` and others. Will be passed as the third argument
+///   (`option_name`) to the `getsockopt` call.
 /// * Type of the value that you are going to get.
-/// * Type that implements the `Get` trait for the type from the previous item (`GetBool` for
-///   `bool`, `GetUsize` for `usize`, etc.).
+/// * Type that implements the `Get` trait for the type from the previous item
+///   (`GetBool` for `bool`, `GetUsize` for `usize`, etc.).
 #[macro_export]
 macro_rules! getsockopt_impl {
     ($name:ident, $level:expr, $flag:path, $ty:ty, $getter:ty) => {
@@ -104,10 +104,7 @@ macro_rules! getsockopt_impl {
         impl $crate::sys::socket::GetSockOpt for $name {
             type Val = $ty;
 
-            fn get<F: std::os::unix::io::AsFd>(
-                &self,
-                fd: &F,
-            ) -> $crate::Result<$ty> {
+            fn get<F: std::os::unix::io::AsFd>(&self, fd: &F) -> $crate::Result<$ty> {
                 use std::os::fd::AsRawFd;
                 use $crate::sys::socket::sockopt::Get;
                 let mut getter: $getter = Get::uninit();
@@ -153,27 +150,34 @@ macro_rules! getsockopt_impl {
 /// [`::sys::socket::GetSockOpt`](sys/socket/trait.GetSockOpt.html) and
 /// [`::sys::socket::SetSockOpt`](sys/socket/trait.SetSockOpt.html).
 ///
-/// This macro aims to help implementing `GetSockOpt` and `SetSockOpt` for different socket options
-/// that accept different kinds of data to be use with `getsockopt` and `setsockopt` respectively.
+/// This macro aims to help implementing `GetSockOpt` and `SetSockOpt` for
+/// different socket options that accept different kinds of data to be use with
+/// `getsockopt` and `setsockopt` respectively.
 ///
-/// Basically this macro wraps up the [`getsockopt_impl!`](macro.getsockopt_impl.html) and
-/// [`setsockopt_impl!`](macro.setsockopt_impl.html) macros.
+/// Basically this macro wraps up the
+/// [`getsockopt_impl!`](macro.getsockopt_impl.html) and [`setsockopt_impl!
+/// `](macro.setsockopt_impl.html) macros.
 ///
 /// # Arguments
 ///
-/// * `GetOnly`, `SetOnly` or `Both`: whether you want to implement only getter, only setter or
-///   both of them.
-/// * `$name:ident`: name of type `GetSockOpt`/`SetSockOpt` will be implemented for.
-/// * `$level:expr` : socket layer, or a `protocol level`: could be *raw sockets*
-///   (`libc::SOL_SOCKET`), *ip protocol* (libc::IPPROTO_IP), *tcp protocol* (`libc::IPPROTO_TCP`),
-///   and more. Please refer to your system manual for more options. Will be passed as the second
-///   argument (`level`) to the `getsockopt`/`setsockopt` call.
-/// * `$flag:path`: a flag name to set. Some examples: `libc::SO_REUSEADDR`, `libc::TCP_NODELAY`,
-///   `libc::IP_ADD_MEMBERSHIP` and others. Will be passed as the third argument (`option_name`)
-///   to the `setsockopt`/`getsockopt` call.
+/// * `GetOnly`, `SetOnly` or `Both`: whether you want to implement only getter,
+///   only setter or both of them.
+/// * `$name:ident`: name of type `GetSockOpt`/`SetSockOpt` will be implemented
+///   for.
+/// * `$level:expr` : socket layer, or a `protocol level`: could be *raw
+///   sockets* (`libc::SOL_SOCKET`), *ip protocol* (libc::IPPROTO_IP), *tcp
+///   protocol* (`libc::IPPROTO_TCP`), and more. Please refer to your system
+///   manual for more options. Will be passed as the second argument (`level`)
+///   to the `getsockopt`/`setsockopt` call.
+/// * `$flag:path`: a flag name to set. Some examples: `libc::SO_REUSEADDR`,
+///   `libc::TCP_NODELAY`, `libc::IP_ADD_MEMBERSHIP` and others. Will be passed
+///   as the third argument (`option_name`) to the `setsockopt`/`getsockopt`
+///   call.
 /// * `$ty:ty`: type of the value that will be get/set.
-/// * `$getter:ty`: `Get` implementation; optional; only for `GetOnly` and `Both`.
-/// * `$setter:ty`: `Set` implementation; optional; only for `SetOnly` and `Both`.
+/// * `$getter:ty`: `Get` implementation; optional; only for `GetOnly` and
+///   `Both`.
+/// * `$setter:ty`: `Set` implementation; optional; only for `SetOnly` and
+///   `Both`.
 // Some targets don't use all rules.
 #[allow(unused_macro_rules)]
 #[macro_export]
@@ -328,8 +332,8 @@ sockopt_impl!(
 );
 #[cfg(target_os = "freebsd")]
 sockopt_impl!(
-    /// Enables incoming connections to be distributed among N sockets (up to 256)
-    /// via a Load-Balancing hash based algorithm.
+    /// Enables incoming connections to be distributed among N sockets (up to
+    /// 256) via a Load-Balancing hash based algorithm.
     ReusePortLb,
     Both,
     libc::SOL_SOCKET,
@@ -340,8 +344,8 @@ sockopt_impl!(
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
-    /// Select or query the set of functions that TCP will use for this connection.  This allows a
-    /// user to select an alternate TCP stack.
+    /// Select or query the set of functions that TCP will use for this
+    /// connection.  This allows a user to select an alternate TCP stack.
     TcpFunctionBlk,
     Both,
     libc::IPPROTO_TCP,
@@ -353,8 +357,8 @@ sockopt_impl!(
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
     /// Query the alias name of the set of function of the socket's TCP stack.
-    /// Uses the same field for the main name when getting from TCP_FUNCTION_BLK.
-    /// Empty if no alias.
+    /// Uses the same field for the main name when getting from
+    /// TCP_FUNCTION_BLK. Empty if no alias.
     TcpFunctionAlias,
     GetOnly,
     libc::IPPROTO_TCP,
@@ -364,9 +368,9 @@ sockopt_impl!(
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
     /// Used to disable Nagle's algorithm.
-    /// 
+    ///
     /// Nagle's algorithm:
-    /// 
+    ///
     /// Under most circumstances, TCP sends data when it is presented; when
     /// outstanding data has not yet been acknowledged, it gathers small amounts
     /// of output to be sent in a single packet once an acknowledgement is
@@ -392,7 +396,8 @@ sockopt_impl!(
 );
 #[cfg(apple_targets)]
 sockopt_impl!(
-    /// Same as `SO_LINGER`, but the duration is in seconds rather than kernel ticks.
+    /// Same as `SO_LINGER`, but the duration is in seconds rather than kernel
+    /// ticks.
     LingerSec,
     Both,
     libc::SOL_SOCKET,
@@ -420,7 +425,7 @@ sockopt_impl!(
     super::IpMembershipRequest
 );
 cfg_if! {
-    if #[cfg(linux_android)] {
+    if #[cfg(linux)] {
         #[cfg(feature = "net")]
         sockopt_impl!(
             #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -491,7 +496,7 @@ sockopt_impl!(
     libc::SO_PRIORITY,
     libc::c_int
 );
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[deprecated(since = "0.30.0", note = "Use Ipv4Tos instead")]
@@ -504,7 +509,7 @@ sockopt_impl!(
     libc::IP_TOS,
     libc::c_int
 );
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -516,18 +521,19 @@ sockopt_impl!(
     libc::IP_TOS,
     libc::c_int
 );
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
-    /// If enabled, the IP_TOS ancillary message is passed with incoming packets.
+    /// If enabled, the IP_TOS ancillary message is passed with incoming
+    /// packets.
     IpRecvTos,
     Both,
     libc::IPPROTO_IP,
     libc::IP_RECVTOS,
     bool
 );
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -538,18 +544,19 @@ sockopt_impl!(
     libc::IPV6_TCLASS,
     libc::c_int
 );
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
-    /// If enabled, the IPV6_TCLASS ancillary message is passed with incoming packets.
+    /// If enabled, the IPV6_TCLASS ancillary message is passed with incoming
+    /// packets.
     Ipv6RecvTClass,
     Both,
     libc::IPPROTO_IPV6,
     libc::IPV6_RECVTCLASS,
     bool
 );
-#[cfg(any(linux_android, target_os = "fuchsia"))]
+#[cfg(linux)]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -561,7 +568,7 @@ sockopt_impl!(
     libc::IP_FREEBIND,
     bool
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg(feature = "net")]
 #[cfg(not(target_env = "uclibc"))]
 sockopt_impl!(
@@ -672,7 +679,7 @@ sockopt_impl!(
     libc::LOCAL_PEERTOKEN,
     super::audit_token_t
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Return the credentials of the foreign process connected to this socket.
     PeerCredentials,
@@ -713,7 +720,7 @@ sockopt_impl!(
     libc::TCP_KEEPALIVE,
     u32
 );
-#[cfg(any(freebsdlike, linux_android))]
+#[cfg(any(freebsdlike, linux))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -726,7 +733,7 @@ sockopt_impl!(
     u32
 );
 cfg_if! {
-    if #[cfg(any(linux_android, apple_targets))] {
+    if #[cfg(any(linux, apple_targets))] {
         sockopt_impl!(
             /// The maximum segment size for outgoing TCP packets.
             TcpMaxSeg, Both, libc::IPPROTO_TCP, libc::TCP_MAXSEG, u32);
@@ -736,11 +743,7 @@ cfg_if! {
             TcpMaxSeg, GetOnly, libc::IPPROTO_TCP, libc::TCP_MAXSEG, u32);
     }
 }
-#[cfg(not(any(
-    target_os = "openbsd",
-    target_os = "haiku",
-    target_os = "redox"
-)))]
+#[cfg(not(any(target_os = "openbsd", target_os = "haiku", target_os = "redox")))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -752,7 +755,7 @@ sockopt_impl!(
     libc::TCP_KEEPCNT,
     u32
 );
-#[cfg(any(linux_android, target_os = "fuchsia"))]
+#[cfg(linux)]
 sockopt_impl!(
     #[allow(missing_docs)]
     // Not documented by Linux!
@@ -762,11 +765,7 @@ sockopt_impl!(
     libc::TCP_REPAIR,
     u32
 );
-#[cfg(not(any(
-    target_os = "openbsd",
-    target_os = "haiku",
-    target_os = "redox"
-)))]
+#[cfg(not(any(target_os = "openbsd", target_os = "haiku", target_os = "redox")))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -777,7 +776,7 @@ sockopt_impl!(
     libc::TCP_KEEPINTVL,
     u32
 );
-#[cfg(any(target_os = "fuchsia", target_os = "linux"))]
+#[cfg(target_os = "linux")]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -790,7 +789,7 @@ sockopt_impl!(
     libc::TCP_USER_TIMEOUT,
     u32
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -826,7 +825,7 @@ sockopt_impl!(
     libc::SO_SNDBUF,
     usize
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Using this socket option, a privileged (`CAP_NET_ADMIN`) process can
     /// perform the same task as `SO_RCVBUF`, but the `rmem_max limit` can be
@@ -837,7 +836,7 @@ sockopt_impl!(
     libc::SO_RCVBUFFORCE,
     usize
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Using this socket option, a privileged (`CAP_NET_ADMIN`)  process can
     /// perform the same task as `SO_SNDBUF`, but the `wmem_max` limit can be
@@ -866,7 +865,7 @@ sockopt_impl!(
     libc::SO_ACCEPTCONN,
     bool
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Bind this socket to a particular device like “eth0”.
     BindToDevice,
@@ -875,7 +874,7 @@ sockopt_impl!(
     libc::SO_BINDTODEVICE,
     OsString<[u8; libc::IFNAMSIZ]>
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -887,7 +886,7 @@ sockopt_impl!(
     libc::SO_ORIGINAL_DST,
     libc::sockaddr_in
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     #[allow(missing_docs)]
     // Not documented by Linux!
@@ -897,7 +896,7 @@ sockopt_impl!(
     libc::IP6T_SO_ORIGINAL_DST,
     libc::sockaddr_in6
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Specifies exact type of timestamping information collected by the kernel
     /// [Further reading](https://www.kernel.org/doc/html/latest/networking/timestamping.html)
@@ -922,7 +921,7 @@ sockopt_impl!(
     libc::SO_TIMESTAMP,
     bool
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Enable or disable the receiving of the `SO_TIMESTAMPNS` control message.
     ReceiveTimestampns,
@@ -941,7 +940,7 @@ sockopt_impl!(
     libc::SO_TS_CLOCK,
     super::SocketTimestamp
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -979,7 +978,8 @@ sockopt_impl!(
 #[cfg(target_os = "freebsd")]
 sockopt_impl!(
     /// Set the route table (FIB) for this socket up to the `net.fibs` OID limit
-    /// (more specific than the setfib command line/call which are process based).
+    /// (more specific than the setfib command line/call which are process
+    /// based).
     Fib,
     SetOnly,
     libc::SOL_SOCKET,
@@ -1026,7 +1026,7 @@ sockopt_impl!(
     libc::SO_MARK,
     u32
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Enable or disable the receiving of the `SCM_CREDENTIALS` control
     /// message.
@@ -1048,7 +1048,7 @@ sockopt_impl!(
     libc::TCP_CONGESTION,
     OsString<[u8; TCP_CA_NAME_MAX]>
 );
-#[cfg(any(linux_android, apple_targets, target_os = "netbsd"))]
+#[cfg(any(linux, apple_targets, target_os = "netbsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -1060,7 +1060,7 @@ sockopt_impl!(
     libc::IP_PKTINFO,
     bool
 );
-#[cfg(any(linux_android, bsd))]
+#[cfg(any(linux, bsd))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -1073,7 +1073,7 @@ sockopt_impl!(
     bool
 );
 
-#[cfg(any(linux_android, bsd))]
+#[cfg(any(linux, bsd))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -1109,7 +1109,7 @@ sockopt_impl!(
     libc::IP_RECVDSTADDR,
     bool
 );
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -1121,7 +1121,7 @@ sockopt_impl!(
     libc::IP_ORIGDSTADDR,
     bool
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -1133,7 +1133,7 @@ sockopt_impl!(
     libc::UDP_SEGMENT,
     libc::c_int
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -1155,7 +1155,7 @@ sockopt_impl!(
     libc::SO_TXTIME,
     libc::sock_txtime
 );
-#[cfg(any(linux_android, target_os = "fuchsia"))]
+#[cfg(linux)]
 sockopt_impl!(
     /// Indicates that an unsigned 32-bit value ancillary message (cmsg) should
     /// be attached to received skbs indicating the number of packets dropped by
@@ -1176,7 +1176,7 @@ sockopt_impl!(
     libc::IPV6_V6ONLY,
     bool
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Enable extended reliable error message passing.
     Ipv4RecvErr,
@@ -1185,7 +1185,7 @@ sockopt_impl!(
     libc::IP_RECVERR,
     bool
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Control receiving of asynchronous error options.
     Ipv6RecvErr,
@@ -1194,7 +1194,7 @@ sockopt_impl!(
     libc::IPV6_RECVERR,
     bool
 );
-#[cfg(linux_android)]
+#[cfg(linux)]
 sockopt_impl!(
     /// Fetch the current system-estimated Path MTU.
     IpMtu,
@@ -1203,7 +1203,7 @@ sockopt_impl!(
     libc::IP_MTU,
     libc::c_int
 );
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 sockopt_impl!(
     /// Set or retrieve the current time-to-live field that is used in every
     /// packet sent from this socket.
@@ -1213,10 +1213,10 @@ sockopt_impl!(
     libc::IP_TTL,
     libc::c_int
 );
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
-    /// Enables a receiving socket to retrieve the Time-to-Live (TTL) field 
+    /// Enables a receiving socket to retrieve the Time-to-Live (TTL) field
     /// from incoming IPv4 packets.
     Ipv4RecvTtl,
     Both,
@@ -1224,7 +1224,7 @@ sockopt_impl!(
     libc::IP_RECVTTL,
     bool
 );
-#[cfg(any(apple_targets, linux_android, target_os = "freebsd"))]
+#[cfg(any(apple_targets, linux, target_os = "freebsd"))]
 sockopt_impl!(
     /// Set the unicast hop limit for the socket.
     Ipv6Ttl,
@@ -1233,10 +1233,10 @@ sockopt_impl!(
     libc::IPV6_UNICAST_HOPS,
     libc::c_int
 );
-#[cfg(any(linux_android, target_os = "freebsd"))]
+#[cfg(any(linux, target_os = "freebsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
-    /// Enables a receiving socket to retrieve the Hop Limit field 
+    /// Enables a receiving socket to retrieve the Hop Limit field
     /// (similar to TTL in IPv4) from incoming IPv6 packets.
     Ipv6RecvHopLimit,
     Both,
@@ -1244,10 +1244,7 @@ sockopt_impl!(
     libc::IPV6_RECVHOPLIMIT,
     bool
 );
-#[cfg(any(
-    all(linux_android, not(target_env = "uclibc")),
-    target_os = "freebsd"
-))]
+#[cfg(any(all(linux, not(target_env = "uclibc")), target_os = "freebsd"))]
 #[cfg(feature = "net")]
 sockopt_impl!(
     #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
@@ -1268,10 +1265,7 @@ sockopt_impl!(
     libc::IP_DONTFRAG,
     bool
 );
-#[cfg(any(
-    all(linux_android, not(target_env = "uclibc")),
-    apple_targets
-))]
+#[cfg(any(all(linux, not(target_env = "uclibc")), apple_targets))]
 sockopt_impl!(
     /// Set "don't fragment packet" flag on the IPv6 packet.
     Ipv6DontFrag,
@@ -1318,13 +1312,13 @@ sockopt_impl!(
 
 #[allow(missing_docs)]
 // Not documented by Linux!
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[derive(Copy, Clone, Debug)]
 pub struct AlgSetAeadAuthSize;
 
 // ALG_SET_AEAD_AUTH_SIZE read the length from passed `option_len`
 // See https://elixir.bootlin.com/linux/v4.4/source/crypto/af_alg.c#L222
-#[cfg(linux_android)]
+#[cfg(linux)]
 impl SetSockOpt for AlgSetAeadAuthSize {
     type Val = usize;
 
@@ -1344,18 +1338,18 @@ impl SetSockOpt for AlgSetAeadAuthSize {
 
 #[allow(missing_docs)]
 // Not documented by Linux!
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[derive(Clone, Debug)]
 pub struct AlgSetKey<T>(::std::marker::PhantomData<T>);
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 impl<T> Default for AlgSetKey<T> {
     fn default() -> Self {
         AlgSetKey(Default::default())
     }
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 impl<T> SetSockOpt for AlgSetKey<T>
 where
     T: AsRef<[u8]> + Clone,
@@ -1378,7 +1372,8 @@ where
 
 /// Set the Upper Layer Protocol (ULP) on the TCP socket.
 ///
-/// For example, to enable the TLS ULP on a socket, the C function call would be:
+/// For example, to enable the TLS ULP on a socket, the C function call would
+/// be:
 ///
 /// ```c
 /// setsockopt(sock, SOL_TCP, TCP_ULP, "tls", sizeof("tls"));
@@ -1391,18 +1386,18 @@ where
 /// ```
 ///
 /// Note that the ULP name does not need a trailing NUL terminator (`\0`).
-#[cfg(linux_android)]
+#[cfg(linux)]
 #[derive(Clone, Debug)]
 pub struct TcpUlp<T>(::std::marker::PhantomData<T>);
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 impl<T> Default for TcpUlp<T> {
     fn default() -> Self {
         TcpUlp(Default::default())
     }
 }
 
-#[cfg(linux_android)]
+#[cfg(linux)]
 impl<T> SetSockOpt for TcpUlp<T>
 where
     T: AsRef<[u8]> + Clone,
@@ -1593,11 +1588,12 @@ impl SetSockOpt for FilterDetach {
 pub trait Get<T> {
     /// Returns an uninitialized value.
     fn uninit() -> Self;
-    /// Returns a pointer to the stored value. This pointer will be passed to the system's
-    /// `getsockopt` call (`man 3p getsockopt`, argument `option_value`).
+    /// Returns a pointer to the stored value. This pointer will be passed to
+    /// the system's `getsockopt` call (`man 3p getsockopt`, argument
+    /// `option_value`).
     fn ffi_ptr(&mut self) -> *mut c_void;
-    /// Returns length of the stored value. This pointer will be passed to the system's
-    /// `getsockopt` call (`man 3p getsockopt`, argument `option_len`).
+    /// Returns length of the stored value. This pointer will be passed to the
+    /// system's `getsockopt` call (`man 3p getsockopt`, argument `option_len`).
     fn ffi_len(&mut self) -> *mut socklen_t;
     /// Returns the hopefully initialized inner value.
     unsafe fn assume_init(self) -> T;
@@ -1609,11 +1605,12 @@ pub trait Get<T> {
 pub trait Set<'a, T> {
     /// Initialize the setter with a given value.
     fn new(val: &'a T) -> Self;
-    /// Returns a pointer to the stored value. This pointer will be passed to the system's
-    /// `setsockopt` call (`man 3p setsockopt`, argument `option_value`).
+    /// Returns a pointer to the stored value. This pointer will be passed to
+    /// the system's `setsockopt` call (`man 3p setsockopt`, argument
+    /// `option_value`).
     fn ffi_ptr(&self) -> *const c_void;
-    /// Returns length of the stored value. This pointer will be passed to the system's
-    /// `setsockopt` call (`man 3p setsockopt`, argument `option_len`).
+    /// Returns length of the stored value. This pointer will be passed to the
+    /// system's `setsockopt` call (`man 3p setsockopt`, argument `option_len`).
     fn ffi_len(&self) -> socklen_t;
 }
 
@@ -1628,10 +1625,7 @@ pub struct GetStruct<T> {
 
 impl<T> Get<T> for GetStruct<T> {
     fn uninit() -> Self {
-        GetStruct {
-            len: mem::size_of::<T>() as socklen_t,
-            val: MaybeUninit::uninit(),
-        }
+        GetStruct { len: mem::size_of::<T>() as socklen_t, val: MaybeUninit::uninit() }
     }
 
     fn ffi_ptr(&mut self) -> *mut c_void {
@@ -1643,11 +1637,7 @@ impl<T> Get<T> for GetStruct<T> {
     }
 
     unsafe fn assume_init(self) -> T {
-        assert_eq!(
-            self.len as usize,
-            mem::size_of::<T>(),
-            "invalid getsockopt implementation"
-        );
+        assert_eq!(self.len as usize, mem::size_of::<T>(), "invalid getsockopt implementation");
         unsafe { self.val.assume_init() }
     }
 }
@@ -1685,10 +1675,7 @@ pub struct GetBool {
 
 impl Get<bool> for GetBool {
     fn uninit() -> Self {
-        GetBool {
-            len: mem::size_of::<c_int>() as socklen_t,
-            val: MaybeUninit::uninit(),
-        }
+        GetBool { len: mem::size_of::<c_int>() as socklen_t, val: MaybeUninit::uninit() }
     }
 
     fn ffi_ptr(&mut self) -> *mut c_void {
@@ -1700,11 +1687,7 @@ impl Get<bool> for GetBool {
     }
 
     unsafe fn assume_init(self) -> bool {
-        assert_eq!(
-            self.len as usize,
-            mem::size_of::<c_int>(),
-            "invalid getsockopt implementation"
-        );
+        assert_eq!(self.len as usize, mem::size_of::<c_int>(), "invalid getsockopt implementation");
         unsafe { self.val.assume_init() != 0 }
     }
 }
@@ -1719,9 +1702,7 @@ pub struct SetBool {
 
 impl<'a> Set<'a, bool> for SetBool {
     fn new(val: &'a bool) -> SetBool {
-        SetBool {
-            val: i32::from(*val),
-        }
+        SetBool { val: i32::from(*val) }
     }
 
     fn ffi_ptr(&self) -> *const c_void {
@@ -1746,10 +1727,7 @@ pub struct GetU8 {
 #[cfg(feature = "net")]
 impl Get<u8> for GetU8 {
     fn uninit() -> Self {
-        GetU8 {
-            len: mem::size_of::<u8>() as socklen_t,
-            val: MaybeUninit::uninit(),
-        }
+        GetU8 { len: mem::size_of::<u8>() as socklen_t, val: MaybeUninit::uninit() }
     }
 
     fn ffi_ptr(&mut self) -> *mut c_void {
@@ -1761,11 +1739,7 @@ impl Get<u8> for GetU8 {
     }
 
     unsafe fn assume_init(self) -> u8 {
-        assert_eq!(
-            self.len as usize,
-            mem::size_of::<u8>(),
-            "invalid getsockopt implementation"
-        );
+        assert_eq!(self.len as usize, mem::size_of::<u8>(), "invalid getsockopt implementation");
         unsafe { self.val.assume_init() }
     }
 }
@@ -1804,10 +1778,7 @@ pub struct GetUsize {
 
 impl Get<usize> for GetUsize {
     fn uninit() -> Self {
-        GetUsize {
-            len: mem::size_of::<c_int>() as socklen_t,
-            val: MaybeUninit::uninit(),
-        }
+        GetUsize { len: mem::size_of::<c_int>() as socklen_t, val: MaybeUninit::uninit() }
     }
 
     fn ffi_ptr(&mut self) -> *mut c_void {
@@ -1819,11 +1790,7 @@ impl Get<usize> for GetUsize {
     }
 
     unsafe fn assume_init(self) -> usize {
-        assert_eq!(
-            self.len as usize,
-            mem::size_of::<c_int>(),
-            "invalid getsockopt implementation"
-        );
+        assert_eq!(self.len as usize, mem::size_of::<c_int>(), "invalid getsockopt implementation");
         unsafe { self.val.assume_init() as usize }
     }
 }
@@ -1850,7 +1817,6 @@ impl<'a> Set<'a, usize> for SetUsize {
     }
 }
 
-
 /// Getter for a `OwnedFd` value.
 // Hide the docs, because it's an implementation detail of `sockopt_impl!`
 #[doc(hidden)]
@@ -1862,10 +1828,7 @@ pub struct GetOwnedFd {
 
 impl Get<OwnedFd> for GetOwnedFd {
     fn uninit() -> Self {
-        GetOwnedFd {
-            len: mem::size_of::<c_int>() as socklen_t,
-            val: MaybeUninit::uninit(),
-        }
+        GetOwnedFd { len: mem::size_of::<c_int>() as socklen_t, val: MaybeUninit::uninit() }
     }
 
     fn ffi_ptr(&mut self) -> *mut c_void {
@@ -1879,11 +1842,7 @@ impl Get<OwnedFd> for GetOwnedFd {
     unsafe fn assume_init(self) -> OwnedFd {
         use std::os::fd::{FromRawFd, RawFd};
 
-        assert_eq!(
-            self.len as usize,
-            mem::size_of::<c_int>(),
-            "invalid getsockopt implementation"
-        );
+        assert_eq!(self.len as usize, mem::size_of::<c_int>(), "invalid getsockopt implementation");
         unsafe { OwnedFd::from_raw_fd(self.val.assume_init() as RawFd) }
     }
 }
@@ -1923,10 +1882,7 @@ pub struct GetOsString<T: AsMut<[u8]>> {
 
 impl<T: AsMut<[u8]>> Get<OsString> for GetOsString<T> {
     fn uninit() -> Self {
-        GetOsString {
-            len: mem::size_of::<T>() as socklen_t,
-            val: MaybeUninit::uninit(),
-        }
+        GetOsString { len: mem::size_of::<T>() as socklen_t, val: MaybeUninit::uninit() }
     }
 
     fn ffi_ptr(&mut self) -> *mut c_void {
@@ -1960,12 +1916,10 @@ pub struct SetOsString<'a> {
     val: &'a OsStr,
 }
 
-#[cfg(any(target_os = "freebsd", linux_android, target_os = "illumos"))]
+#[cfg(any(target_os = "freebsd", linux, target_os = "illumos"))]
 impl<'a> Set<'a, OsString> for SetOsString<'a> {
     fn new(val: &OsString) -> SetOsString<'_> {
-        SetOsString {
-            val: val.as_os_str(),
-        }
+        SetOsString { val: val.as_os_str() }
     }
 
     fn ffi_ptr(&self) -> *const c_void {
@@ -1989,10 +1943,7 @@ struct GetCString<T: AsMut<[u8]>> {
 #[cfg(feature = "net")]
 impl<T: AsMut<[u8]>> Get<CString> for GetCString<T> {
     fn uninit() -> Self {
-        GetCString {
-            len: mem::size_of::<T>() as socklen_t,
-            val: MaybeUninit::uninit(),
-        }
+        GetCString { len: mem::size_of::<T>() as socklen_t, val: MaybeUninit::uninit() }
     }
 
     fn ffi_ptr(&mut self) -> *mut c_void {
@@ -2005,8 +1956,6 @@ impl<T: AsMut<[u8]>> Get<CString> for GetCString<T> {
 
     unsafe fn assume_init(self) -> CString {
         let mut v = unsafe { self.val.assume_init() };
-        CStr::from_bytes_until_nul(v.as_mut())
-            .expect("string should be null-terminated")
-            .to_owned()
+        CStr::from_bytes_until_nul(v.as_mut()).expect("string should be null-terminated").to_owned()
     }
 }

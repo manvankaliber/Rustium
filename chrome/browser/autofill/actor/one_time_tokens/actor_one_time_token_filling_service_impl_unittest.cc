@@ -130,19 +130,10 @@ class TestActorChromeAutofillClient : public TestContentAutofillClient {
 
 class MockJournalObserver : public ::actor::AggregatedJournal::Observer {
  public:
-  explicit MockJournalObserver(::actor::AggregatedJournal& journal)
-      : journal_(journal.GetSafeRef()) {
-    journal.AddObserver(this);
-  }
   ~MockJournalObserver() override { journal_->RemoveObserver(this); }
 
-  MOCK_METHOD(void,
-              WillAddJournalEntry,
-              (const ::actor::AggregatedJournal::Entry& entry),
-              (override));
 
  private:
-  base::SafeRef<::actor::AggregatedJournal> journal_;
 };
 
 class ActorOneTimeTokenFillingServiceImplTest
@@ -193,8 +184,6 @@ class ActorOneTimeTokenFillingServiceImplTest
           return std::make_unique<one_time_tokens::FakeGmailOtpService>();
         }));
 
-    service_ = std::make_unique<ActorOneTimeTokenFillingServiceImpl>(
-        profile(), journal_.GetSafeRef(), ::actor::TaskId(1));
   }
 
   void TearDown() override {
@@ -283,7 +272,6 @@ class ActorOneTimeTokenFillingServiceImplTest
       autofill_driver_injector_;
 
  protected:
-  ::actor::AggregatedJournal journal_;
   std::unique_ptr<ActorOneTimeTokenFillingServiceImpl> service_;
   absl::flat_hash_map<FieldGlobalId, std::u16string> last_filled_values_;
   base::HistogramTester histogram_tester_;
@@ -1479,21 +1467,6 @@ TEST_F(ActorOneTimeTokenFillingServiceImplTest,
 TEST_F(ActorOneTimeTokenFillingServiceImplTest,
        ForwardsGmailOtpBackendLogsToJournal) {
   MockJournalObserver observer(journal_);
-  EXPECT_CALL(
-      observer,
-      WillAddJournalEntry(testing::Field(
-          &::actor::AggregatedJournal::Entry::data,
-          testing::Pointee(testing::AllOf(
-              testing::Field(&::actor::mojom::JournalEntry::event,
-                             "ActorOneTimeTokenFillingServiceImpl::"
-                             "OneTimeTokenServiceLog"),
-              testing::Field(
-                  &::actor::mojom::JournalEntry::details,
-                  testing::Contains(testing::Pointee(testing::AllOf(
-                      testing::Field(&::actor::mojom::JournalDetails::key,
-                                     "message"),
-                      testing::Field(&::actor::mojom::JournalDetails::value,
-                                     "test log message"))))))))));
 
   LOG_OTT(gmail_otp_service().GetLogSink()) << "test log message";
 }

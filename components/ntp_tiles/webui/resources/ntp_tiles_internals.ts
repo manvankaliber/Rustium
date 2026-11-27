@@ -2,10 +2,6 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// <if expr="is_ios">
-import 'chrome://resources/js/ios/web_ui.js';
-
-// </if>
 
 import {addWebUiListener} from 'chrome://resources/js/cr.js';
 import {getRequiredElement} from 'chrome://resources/js/util.js';

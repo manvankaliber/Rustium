@@ -15,7 +15,7 @@ with path_util.SysPath(path_util.GetTelemetryDir()):
 with path_util.SysPath(path_util.GetVariationsDir()):
   import fieldtrial_util
 
-with path_util.SysPath(path_util.GetAndroidPylibDir()):
+with path_util.SysPath(os.path.join(path_util.GetChromiumSrcDir(), 'build')):
   import java_home
 
 
@@ -32,8 +32,7 @@ class ChromiumConfig(project_config.ProjectConfig):
       client_configs = [CLIENT_CONFIG_PATH]
     if default_chrome_root is None:
       default_chrome_root = path_util.GetChromiumSrcDir()
-    # Some android utilities in Catapult expect a java binary available on PATH,
-    # so place chromium's heremetic JDK on PATH if we have it checked out.
+    # Use Chromium's hermetic Java tools when the JDK is checked out.
     java_path = os.path.join(java_home.JAVA_HOME, 'bin')
     if os.path.exists(java_path):
       os.environ['PATH'] = java_path + os.pathsep + os.environ['PATH']

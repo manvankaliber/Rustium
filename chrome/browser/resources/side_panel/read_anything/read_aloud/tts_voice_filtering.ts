@@ -4,12 +4,7 @@
 
 import {convertLangOrLocaleToExactVoicePackLocale} from './voice_language_conversions.js';
 // clang-format off
-// <if expr="is_chromeos">
-import {hasEspeakIdentifier} from './voice_language_conversions.js';
-// </if>
-// <if expr="not is_chromeos">
 import {AVAILABLE_GOOGLE_TTS_LOCALES, defaultIsGoogle} from './voice_language_conversions.js';
-// </if>
 // clang-format on
 
 // Helper for filtering the voice list.
@@ -25,16 +20,6 @@ export function getFilteredVoiceList(possibleVoices: SpeechSynthesisVoice[]):
   // doesn't filter them out. Since they can cause unexpected behavior
   // in Read Aloud, go ahead and filter them out. To avoid causing any
   // unexpected behavior outside of ChromeOS, just filter them on ChromeOS.
-  // <if expr="is_chromeos">
-  availableVoices = availableVoices.filter(
-      ({name}) => !name.toLowerCase().includes('android'));
-  // Filter out espeak voices if there exists a Google voice in the same
-  // locale.
-  availableVoices = availableVoices.filter(
-      voice => !hasEspeakIdentifier(voice) ||
-          convertLangOrLocaleToExactVoicePackLocale(voice.lang) === undefined);
-  // </if>
-  // <if expr="not is_chromeos">
   // Group non-Google voices by language and select a default voice for each
   // language. This represents the system voice for each language.
   const languageToNonGoogleVoices =
@@ -61,7 +46,6 @@ export function getFilteredVoiceList(possibleVoices: SpeechSynthesisVoice[]):
   // Keep all Google voices and one system voice per language.
   availableVoices = availableVoices.filter(
       voice => defaultIsGoogle(voice) || systemVoices.includes(voice));
-  // </if>
 
   return availableVoices;
 }

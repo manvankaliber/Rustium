@@ -47,9 +47,6 @@
 #include "ui/views/view_class_properties.h"
 #include "ui/views/view_decoration.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/constants/chromeos_features.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace views {
 
@@ -59,11 +56,7 @@ static constexpr float kBackgroundBlurSigma = 30.f;
 static constexpr float kBackgroundBlurQuality = 0.33f;
 
 bool ShouldApplyBackgroundBlur() {
-#if BUILDFLAG(IS_CHROMEOS)
-  return chromeos::features::IsSystemBlurEnabled();
-#else
   return true;
-#endif
 }
 
 // Creates an empty vertical container for pinned menu items.
@@ -399,9 +392,6 @@ MenuScrollViewContainer::MenuScrollViewContainer(SubmenuView* content_view)
       background_layer->SetBackgroundBlur(kBackgroundBlurSigma);
       background_layer->SetBackdropFilterQuality(kBackgroundBlurQuality);
     }
-#if BUILDFLAG(IS_CHROMEOS)
-    background_decoration_ = std::make_unique<ViewDecoration>(background_view_);
-#endif
   }
 
   auto* layout =
@@ -780,15 +770,6 @@ void MenuScrollViewContainer::CreateDefaultBorder() {
 void MenuScrollViewContainer::CreateBubbleBorder() {
   BubbleBorder::Shadow shadow_type = BubbleBorder::STANDARD_SHADOW;
   ui::ColorId id = ui::kColorMenuBackground;
-#if BUILDFLAG(IS_CHROMEOS)
-  if (use_ash_system_ui_layout_) {
-    shadow_type = BubbleBorder::CHROMEOS_SYSTEM_UI_SHADOW;
-  }
-  id = ui::kColorAshSystemUIMenuBackground;
-  if (use_ash_system_ui_layout_) {
-    shadow_type = BubbleBorder::CHROMEOS_SYSTEM_UI_SHADOW;
-  }
-#endif
   id = border_color_id_.value_or(id);
 
   auto bubble_border = std::make_unique<BubbleBorder>(arrow_, shadow_type);
@@ -850,13 +831,6 @@ void MenuScrollViewContainer::CreateBubbleBorder() {
 
     if (background_decoration_) {
       background_decoration_->SetRoundedCorners(GetRoundedCorners());
-#if BUILDFLAG(IS_CHROMEOS)
-      if (const auto* color_provider = GetColorProvider()) {
-        background_decoration_->SetHighlightBorder(
-            color_provider->GetColor(ui::kColorCrosSystemHighlight),
-            color_provider->GetColor(ui::kColorCrosSystemHighlightBorder1));
-      }
-#endif
     }
   } else {
     SetBackground(std::make_unique<BubbleBackground>(bubble_border.get()));

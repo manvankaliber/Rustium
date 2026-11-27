@@ -52,13 +52,9 @@ TEST_F(ContentSettingsRegistryTest, GetPlatformDependent) {
   EXPECT_FALSE(registry()->Get(ContentSettingsType::JAVASCRIPT));
 #endif
 
-#if (BUILDFLAG(IS_IOS) && !BUILDFLAG(USE_BLINK))
-  // Images shouldn't be registered on iOS.
-  EXPECT_FALSE(registry()->Get(ContentSettingsType::IMAGES));
-#endif
 
 // Protected media identifier only registered on Android, Chrome OS and Windows.
-#if defined(ANDROID) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_WIN)
   EXPECT_TRUE(registry()->Get(ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER));
 #else
   EXPECT_FALSE(
@@ -97,13 +93,8 @@ TEST_F(ContentSettingsRegistryTest, Properties) {
   ASSERT_TRUE(website_settings_info->initial_default_value().is_int());
   EXPECT_EQ(CONTENT_SETTING_ALLOW,
             website_settings_info->initial_default_value().GetInt());
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  EXPECT_EQ(PrefRegistry::NO_REGISTRATION_FLAGS,
-            website_settings_info->GetPrefRegistrationFlags());
-#else
   EXPECT_EQ(user_prefs::PrefRegistrySyncable::SYNCABLE_PREF,
             website_settings_info->GetPrefRegistrationFlags());
-#endif
 
   // Check the WebsiteSettingsInfo is registered correctly.
   EXPECT_EQ(website_settings_registry()->Get(ContentSettingsType::COOKIES),
@@ -176,15 +167,9 @@ TEST_F(ContentSettingsRegistryTest, IsDefaultSettingValid) {
   info = registry()->Get(ContentSettingsType::MEDIASTREAM_CAMERA);
   EXPECT_FALSE(info->IsDefaultSettingValid(CONTENT_SETTING_ALLOW));
 
-#if BUILDFLAG(IS_CHROMEOS)
-  info = registry()->Get(ContentSettingsType::PROTECTED_MEDIA_IDENTIFIER);
-  EXPECT_TRUE(info->IsDefaultSettingValid(CONTENT_SETTING_ALLOW));
-#endif
 
-#if !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
   info = registry()->Get(ContentSettingsType::FILE_SYSTEM_WRITE_GUARD);
   EXPECT_FALSE(info->IsDefaultSettingValid(CONTENT_SETTING_ALLOW));
-#endif
 }
 
 // Check the correct factory default setting is retrieved. Note the factory
@@ -192,11 +177,9 @@ TEST_F(ContentSettingsRegistryTest, IsDefaultSettingValid) {
 // would require this test to be updated.
 TEST_F(ContentSettingsRegistryTest, GetInitialDefaultSetting) {
 // There is no default-ask content setting on iOS, so skip testing it there.
-#if !BUILDFLAG(IS_IOS)
   const ContentSettingsInfo* notifications =
       registry()->Get(ContentSettingsType::NOTIFICATIONS);
   EXPECT_EQ(CONTENT_SETTING_ASK, notifications->GetInitialDefaultSetting());
-#endif
 
   const ContentSettingsInfo* cookies =
       registry()->Get(ContentSettingsType::COOKIES);

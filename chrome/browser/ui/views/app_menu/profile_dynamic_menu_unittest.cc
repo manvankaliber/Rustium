@@ -79,7 +79,6 @@ TEST_F(ProfileDynamicMenuTest, BuildSyncSection_IncognitoProfile) {
   EXPECT_TRUE(parent_item->GetChildren().children().empty());
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(ProfileDynamicMenuTest, BuildSyncSection_StandardProfile) {
   ProfileDynamicMenu menu(&mock_window_interface_);
   auto parent_item = actions::ActionItem::Builder().Build();
@@ -138,7 +137,6 @@ TEST_F(ProfileDynamicMenuTest, BuildSyncSection_SyncError) {
   EXPECT_NE(FindBaseAction(parent_item.get(), kActionShowSyncPassphraseDialog),
             nullptr);
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(ProfileDynamicMenuTest, BuildOtherProfiles_MultipleProfiles) {
   TestingProfileManager profile_manager(TestingBrowserProcess::GetGlobal());

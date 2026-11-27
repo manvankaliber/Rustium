@@ -345,24 +345,6 @@ def extract_filter_list(filter_list):
   return filter_list.split('::')
 
 
-def add_emulator_args(parser):
-  parser.add_argument(
-    '--avd-config',
-    type=os.path.realpath,
-    help=(
-      'Path to the avd config. Required for Android products. '
-      '(See //tools/android/avd/proto for message definition '
-      'and existing *.textpb files.)'
-    ),
-  )
-  parser.add_argument(
-    '--emulator-window',
-    action='store_true',
-    default=False,
-    help='Enable graphical window display on the emulator.',
-  )
-
-
 class BaseIsolatedScriptArgsAdapter:
   """The base class for all script adapters that need to translate flags
   set by isolated script test contract into the specific test script's flags.

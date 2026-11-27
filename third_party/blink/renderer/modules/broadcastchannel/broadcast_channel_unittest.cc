@@ -234,13 +234,8 @@ TEST(BroadcastChannelTest, OutgoingMessagesMarkedWithAgentClusterId) {
 }
 
 // TODO(crbug.com/1413818): iOS doesn't support WebAssembly yet.
-#if BUILDFLAG(IS_IOS)
-#define MAYBE_OutgoingAgentClusterLockedMessage \
-  DISABLED_OutgoingAgentClusterLockedMessage
-#else
 #define MAYBE_OutgoingAgentClusterLockedMessage \
   OutgoingAgentClusterLockedMessage
-#endif
 
 TEST(BroadcastChannelTest, MAYBE_OutgoingAgentClusterLockedMessage) {
   test::TaskEnvironment task_environment;

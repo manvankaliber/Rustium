@@ -27,9 +27,6 @@
 #include "components/vector_icons/vector_icons.h"
 #include "ui/base/ui_base_features.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
 #include "chrome/app/vector_icons/vector_icons.h"
@@ -211,13 +208,6 @@ class OmniboxPedalLaunchIncognito : public OmniboxPedal {
       OmniboxPedalOtrType otr_type = OmniboxPedalOtrType::kIncognito)
       : OmniboxPedal(
             OmniboxPedalId::LAUNCH_INCOGNITO,
-#if BUILDFLAG(IS_ANDROID)
-            LabelStrings(
-                IDS_ANDROID_OMNIBOX_PEDAL_LAUNCH_INCOGNITO_HINT,
-                IDS_ANDROID_OMNIBOX_PEDAL_LAUNCH_INCOGNITO_SUGGESTION_CONTENTS,
-                IDS_ANDROID_ACC_OMNIBOX_PEDAL_LAUNCH_INCOGNITO_SUFFIX,
-                IDS_ANDROID_ACC_OMNIBOX_PEDAL_LAUNCH_INCOGNITO),
-#else
             otr_type == OmniboxPedalOtrType::kIsolated
                 ? LabelStrings(
                       IDS_OMNIBOX_PEDAL_LAUNCH_ISOLATED_HINT,
@@ -229,7 +219,6 @@ class OmniboxPedalLaunchIncognito : public OmniboxPedal {
                       IDS_OMNIBOX_PEDAL_LAUNCH_INCOGNITO_SUGGESTION_CONTENTS,
                       IDS_ACC_OMNIBOX_PEDAL_LAUNCH_INCOGNITO_SUFFIX,
                       IDS_ACC_OMNIBOX_PEDAL_LAUNCH_INCOGNITO),
-#endif  // BUILDFLAG(IS_ANDROID)
         // Fake URL to distinguish matches.
             GURL("chrome://newtab?incognito=true")) {
   }
@@ -280,7 +269,6 @@ class OmniboxPedalLaunchIncognito : public OmniboxPedal {
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalTranslate : public OmniboxPedal {
  public:
   OmniboxPedalTranslate()
@@ -343,11 +331,9 @@ class OmniboxPedalTranslate : public OmniboxPedal {
  protected:
   ~OmniboxPedalTranslate() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalUpdateChrome : public OmniboxPedal {
  public:
   OmniboxPedalUpdateChrome()
@@ -389,7 +375,6 @@ class OmniboxPedalUpdateChrome : public OmniboxPedal {
  protected:
   ~OmniboxPedalUpdateChrome() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
@@ -454,7 +439,6 @@ class OmniboxPedalRunChromeSafetyCheck : public OmniboxPedal {
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalManageSecuritySettings : public OmniboxPedal {
  public:
   OmniboxPedalManageSecuritySettings()
@@ -501,11 +485,9 @@ class OmniboxPedalManageSecuritySettings : public OmniboxPedal {
  protected:
   ~OmniboxPedalManageSecuritySettings() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalManageCookies : public OmniboxPedal {
  public:
   OmniboxPedalManageCookies()
@@ -551,11 +533,9 @@ class OmniboxPedalManageCookies : public OmniboxPedal {
  protected:
   ~OmniboxPedalManageCookies() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalManageAddresses : public OmniboxPedal {
  public:
   OmniboxPedalManageAddresses()
@@ -601,11 +581,9 @@ class OmniboxPedalManageAddresses : public OmniboxPedal {
  protected:
   ~OmniboxPedalManageAddresses() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalManageSync : public OmniboxPedal {
  public:
   OmniboxPedalManageSync()
@@ -614,7 +592,6 @@ class OmniboxPedalManageSync : public OmniboxPedal {
                      GURL("chrome://settings/syncSetup/advanced")) {}
 
   static LabelStrings GetLabelStrings() {
-#if !BUILDFLAG(IS_CHROMEOS)
     if (base::FeatureList::IsEnabled(syncer::kUnoPhase2FollowUp)) {
       return LabelStrings(
           IDS_OMNIBOX_PEDAL_MANAGE_SYNC_HINT_UPDATED,
@@ -622,7 +599,6 @@ class OmniboxPedalManageSync : public OmniboxPedal {
           IDS_ACC_OMNIBOX_PEDAL_MANAGE_SYNC_SUFFIX_UPDATED,
           IDS_ACC_OMNIBOX_PEDAL_MANAGE_SYNC_UPDATED);
     }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
     return LabelStrings(IDS_OMNIBOX_PEDAL_MANAGE_SYNC_HINT,
                         IDS_OMNIBOX_PEDAL_MANAGE_SYNC_SUGGESTION_CONTENTS,
                         IDS_ACC_OMNIBOX_PEDAL_MANAGE_SYNC_SUFFIX,
@@ -631,7 +607,6 @@ class OmniboxPedalManageSync : public OmniboxPedal {
 
   std::vector<SynonymGroupSpec> SpecifySynonymGroups(
       bool locale_is_english) const override {
-#if !BUILDFLAG(IS_CHROMEOS)
     if (base::FeatureList::IsEnabled(syncer::kUnoPhase2FollowUp)) {
       if (locale_is_english) {
         return {
@@ -656,7 +631,6 @@ class OmniboxPedalManageSync : public OmniboxPedal {
         };
       }
     }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
     if (locale_is_english) {
       return {
           {
@@ -684,7 +658,6 @@ class OmniboxPedalManageSync : public OmniboxPedal {
  protected:
   ~OmniboxPedalManageSync() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
@@ -732,7 +705,6 @@ class OmniboxPedalManageSiteSettings : public OmniboxPedal {
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalAuthRequired : public OmniboxPedal {
  public:
   explicit OmniboxPedalAuthRequired(OmniboxPedalId id,
@@ -748,11 +720,9 @@ class OmniboxPedalAuthRequired : public OmniboxPedal {
  protected:
   ~OmniboxPedalAuthRequired() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCreateGoogleDoc : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalCreateGoogleDoc()
@@ -804,11 +774,9 @@ class OmniboxPedalCreateGoogleDoc : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalCreateGoogleDoc() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCreateGoogleSheet : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalCreateGoogleSheet()
@@ -860,11 +828,9 @@ class OmniboxPedalCreateGoogleSheet : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalCreateGoogleSheet() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCreateGoogleSlide : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalCreateGoogleSlide()
@@ -916,11 +882,9 @@ class OmniboxPedalCreateGoogleSlide : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalCreateGoogleSlide() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCreateGoogleCalendarEvent : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalCreateGoogleCalendarEvent()
@@ -974,11 +938,9 @@ class OmniboxPedalCreateGoogleCalendarEvent : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalCreateGoogleCalendarEvent() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCreateGoogleSite : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalCreateGoogleSite()
@@ -1030,11 +992,9 @@ class OmniboxPedalCreateGoogleSite : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalCreateGoogleSite() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCreateGoogleKeepNote : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalCreateGoogleKeepNote()
@@ -1087,11 +1047,9 @@ class OmniboxPedalCreateGoogleKeepNote : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalCreateGoogleKeepNote() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCreateGoogleForm : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalCreateGoogleForm()
@@ -1143,11 +1101,9 @@ class OmniboxPedalCreateGoogleForm : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalCreateGoogleForm() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalSeeChromeTips : public OmniboxPedal {
  public:
   OmniboxPedalSeeChromeTips()
@@ -1193,11 +1149,9 @@ class OmniboxPedalSeeChromeTips : public OmniboxPedal {
  protected:
   ~OmniboxPedalSeeChromeTips() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalManageGoogleAccount : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalManageGoogleAccount()
@@ -1251,11 +1205,9 @@ class OmniboxPedalManageGoogleAccount : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalManageGoogleAccount() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalChangeGooglePassword : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalChangeGooglePassword()
@@ -1310,11 +1262,9 @@ class OmniboxPedalChangeGooglePassword : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalChangeGooglePassword() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCloseIncognitoWindows : public OmniboxPedal {
  public:
   explicit OmniboxPedalCloseIncognitoWindows(
@@ -1372,7 +1322,6 @@ class OmniboxPedalCloseIncognitoWindows : public OmniboxPedal {
  protected:
   ~OmniboxPedalCloseIncognitoWindows() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
@@ -1428,7 +1377,6 @@ class OmniboxPedalPlayChromeDinoGame : public OmniboxPedal {
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalFindMyPhone : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalFindMyPhone()
@@ -1477,11 +1425,9 @@ class OmniboxPedalFindMyPhone : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalFindMyPhone() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalManageGooglePrivacy : public OmniboxPedalAuthRequired {
  public:
   OmniboxPedalManageGooglePrivacy()
@@ -1526,7 +1472,6 @@ class OmniboxPedalManageGooglePrivacy : public OmniboxPedalAuthRequired {
  protected:
   ~OmniboxPedalManageGooglePrivacy() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
@@ -1571,7 +1516,6 @@ class OmniboxPedalManageChromeSettings : public OmniboxPedal {
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalManageChromeDownloads : public OmniboxPedal {
  public:
   OmniboxPedalManageChromeDownloads()
@@ -1613,7 +1557,6 @@ class OmniboxPedalManageChromeDownloads : public OmniboxPedal {
  protected:
   ~OmniboxPedalManageChromeDownloads() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
@@ -1661,7 +1604,6 @@ class OmniboxPedalViewChromeHistory : public OmniboxPedal {
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalShareThisPage : public OmniboxPedal {
  public:
   OmniboxPedalShareThisPage()
@@ -1711,7 +1653,6 @@ class OmniboxPedalShareThisPage : public OmniboxPedal {
  protected:
   ~OmniboxPedalShareThisPage() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
@@ -1760,7 +1701,6 @@ class OmniboxPedalManageChromeAccessibility : public OmniboxPedal {
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalManageChromeOSAccessibility : public OmniboxPedal {
  public:
   OmniboxPedalManageChromeOSAccessibility()
@@ -1806,11 +1746,9 @@ class OmniboxPedalManageChromeOSAccessibility : public OmniboxPedal {
  protected:
   ~OmniboxPedalManageChromeOSAccessibility() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCustomizeChromeFonts : public OmniboxPedal {
  public:
   OmniboxPedalCustomizeChromeFonts()
@@ -1858,11 +1796,9 @@ class OmniboxPedalCustomizeChromeFonts : public OmniboxPedal {
  protected:
   ~OmniboxPedalCustomizeChromeFonts() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalManageChromeThemes : public OmniboxPedal {
  public:
   OmniboxPedalManageChromeThemes()
@@ -1913,11 +1849,9 @@ class OmniboxPedalManageChromeThemes : public OmniboxPedal {
  protected:
   ~OmniboxPedalManageChromeThemes() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalCustomizeSearchEngines : public OmniboxPedal {
  public:
   OmniboxPedalCustomizeSearchEngines()
@@ -1964,11 +1898,9 @@ class OmniboxPedalCustomizeSearchEngines : public OmniboxPedal {
  protected:
   ~OmniboxPedalCustomizeSearchEngines() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
-#if !BUILDFLAG(IS_ANDROID)
 class OmniboxPedalSetChromeAsDefaultBrowser : public OmniboxPedal {
  public:
   OmniboxPedalSetChromeAsDefaultBrowser()
@@ -2015,7 +1947,6 @@ class OmniboxPedalSetChromeAsDefaultBrowser : public OmniboxPedal {
  protected:
   ~OmniboxPedalSetChromeAsDefaultBrowser() override = default;
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 // =============================================================================
 
@@ -2060,22 +1991,6 @@ GetPedalImplementations(OmniboxPedalProfileType profile_type,
       profile_type == OmniboxPedalProfileType::kOtrWithRegularParent;
   const bool guest = profile_type == OmniboxPedalProfileType::kGuest;
 
-#if BUILDFLAG(IS_ANDROID)
-  if (!otr && !guest) {
-    add(new OmniboxPedalClearBrowsingData(/*incognito=*/false));
-  }
-  add(new OmniboxPedalManagePasswords());
-  add(new OmniboxPedalUpdateCreditCard());
-  add(new OmniboxPedalLaunchIncognito(otr_type));
-  if (!base::android::device_info::is_automotive()) {
-    add(new OmniboxPedalRunChromeSafetyCheck());
-  }
-  add(new OmniboxPedalPlayChromeDinoGame());
-  add(new OmniboxPedalManageSiteSettings());
-  add(new OmniboxPedalManageChromeSettings());
-  add(new OmniboxPedalViewChromeHistory());
-  add(new OmniboxPedalManageChromeAccessibility());
-#else  // BUILDFLAG(IS_ANDROID)
   // Clear Browsing Data functionality is disabled in guest mode, so
   // the pedal for accessing it should not be included.
   if (!guest) {
@@ -2115,20 +2030,15 @@ GetPedalImplementations(OmniboxPedalProfileType profile_type,
   add(new OmniboxPedalManageChromeSettings());
   add(new OmniboxPedalManageChromeDownloads());
   add(new OmniboxPedalViewChromeHistory());
-#if !BUILDFLAG(IS_CHROMEOS)
   // The sharing hub pedal is intentionally excluded
   // on ChromeOS because the sharing hub experience on that
   // platform is different from other desktop platforms.
   add(new OmniboxPedalShareThisPage());
   add(new OmniboxPedalManageChromeAccessibility());
   add(new OmniboxPedalSetChromeAsDefaultBrowser());
-#else   // !BUILDFLAG(IS_CHROMEOS)
-  add(new OmniboxPedalManageChromeOSAccessibility());
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   add(new OmniboxPedalCustomizeChromeFonts());
   add(new OmniboxPedalManageChromeThemes());
   add(new OmniboxPedalCustomizeSearchEngines());
-#endif  // BUILDFLAG(IS_ANDROID)
 
   return pedals;
 }

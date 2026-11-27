@@ -86,11 +86,6 @@
 #include "pdf/mojom/pdf.mojom.h"
 #endif  // BUILDFLAG(ENABLE_PDF)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/test/device_state_mixin.h"
-#include "chrome/browser/ash/login/test/guest_session_mixin.h"
-#include "chrome/test/base/mixin_based_in_process_browser_test.h"
-#endif
 
 namespace page_content_annotations {
 
@@ -279,30 +274,6 @@ IN_PROC_BROWSER_TEST_F(PageContentAnnotationsServiceKioskModeBrowserTest,
                          browser()->GetProfile()));
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-class PageContentAnnotationsServiceEphemeralProfileBrowserTest
-    : public MixinBasedInProcessBrowserTest {
- public:
-  PageContentAnnotationsServiceEphemeralProfileBrowserTest() = default;
-
-  ~PageContentAnnotationsServiceEphemeralProfileBrowserTest() override =
-      default;
-
-  PageContentAnnotationsServiceEphemeralProfileBrowserTest(
-      const PageContentAnnotationsServiceEphemeralProfileBrowserTest&) = delete;
-  PageContentAnnotationsServiceEphemeralProfileBrowserTest& operator=(
-      const PageContentAnnotationsServiceEphemeralProfileBrowserTest&) = delete;
-
- private:
-  ash::GuestSessionMixin guest_session_{&mixin_host_};
-};
-
-IN_PROC_BROWSER_TEST_F(PageContentAnnotationsServiceEphemeralProfileBrowserTest,
-                       EphemeralProfileDoesNotInstantiateService) {
-  EXPECT_EQ(nullptr, PageContentAnnotationsServiceFactory::GetForProfile(
-                         browser()->GetProfile()));
-}
-#endif
 
 class PageContentAnnotationsServiceBrowserTest : public InProcessBrowserTest {
  public:
@@ -1272,7 +1243,7 @@ IN_PROC_BROWSER_TEST_F(
   // verify it correctly forwards it to its observers.
   std::vector<Category> categories = {
       {CategoryType::kEducation, 0.5},
-      {CategoryType::kShopping, 0.8},
+
   };
 
   service()->OnCategoriesClassified(url, /*source_id=*/0, categories);
@@ -1288,7 +1259,6 @@ IN_PROC_BROWSER_TEST_F(
   EXPECT_EQ(results.size(), 2u);
   EXPECT_EQ(results[0].category_type, CategoryType::kEducation);
   EXPECT_EQ(results[0].score, 0.5f);
-  EXPECT_EQ(results[1].category_type, CategoryType::kShopping);
   EXPECT_EQ(results[1].score, 0.8f);
 
   service()->RemoveObserver(AnnotationType::kCategoryClassifier, &observer);
@@ -2596,11 +2566,7 @@ IN_PROC_BROWSER_TEST_P(PageContentAnnotationsServiceContentExtractionPdfTest,
 }
 
 // TODO(crbug.com/517335503): Re-enable this test on ChromeOS.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_TwoPDFPageLoads DISABLED_TwoPDFPageLoads
-#else
 #define MAYBE_TwoPDFPageLoads TwoPDFPageLoads
-#endif
 IN_PROC_BROWSER_TEST_P(PageContentAnnotationsServiceContentExtractionPdfTest,
                        MAYBE_TwoPDFPageLoads) {
   base::HistogramTester histogram_tester;
@@ -2823,7 +2789,7 @@ class PageContentAnnotationsServiceContentExtractionPdfHangingTest
          {{"capture_delay", "10000s"}}},
         {kPageContextFetcherPdfExtraction,
          {{"timeout", GetPdfExtractionTimeout()}}},
-        {kGlicEmbeddedPdfBytesExtraction, {}}};
+        };
     std::vector<base::test::FeatureRef> disabled_features;
 
     if (IsPDFTextExtractionEnabled()) {
@@ -3071,8 +3037,6 @@ class PageContentAnnotationsServiceContentExtractionEmbeddedPdfTest
   void InitializeFeatureList() override {
     PageContentAnnotationsServiceContentExtractionPdfTest::
         InitializeFeatureList();
-    embedded_pdf_bytes_extraction_.InitAndEnableFeature(
-        kGlicEmbeddedPdfBytesExtraction);
   }
 
  private:

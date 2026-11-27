@@ -7,7 +7,7 @@
 
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include "sandbox/policy/linux/sandbox_linux.h"
 #endif
 
@@ -35,7 +35,7 @@ bool WasPreSandboxInitCalled();
 // Must be called in the service's process after the run loop finished.
 [[nodiscard]] bool Shutdown();
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 void AddSandboxLinuxOptions(sandbox::policy::SandboxLinux::Options& options);
 
 [[nodiscard]] bool PreSandboxHook(

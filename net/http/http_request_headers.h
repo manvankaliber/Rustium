@@ -213,6 +213,7 @@ class NET_EXPORT HttpRequestHeaders {
       bool enable_zstd);
 
  private:
+  friend class ConnectionHeaderOriginalPolicy;
   HeaderVector::iterator FindHeader(std::string_view key);
   HeaderVector::const_iterator FindHeader(std::string_view key) const;
 

@@ -165,14 +165,6 @@ void OmniboxComposeboxHandler::AttachToOmniboxController(
 
 void OmniboxComposeboxHandler::HandleFileUpload(bool is_image) {}
 
-void OmniboxComposeboxHandler::OpenLensSearch() {
-  auto* main_omnibox_controller =
-      OmniboxPopupWebContentsHelper::GetOrCreateForWebContents(web_contents_)
-          ->get_omnibox_controller();
-  if (main_omnibox_controller) {
-    main_omnibox_controller->edit_model()->OpenLensSearch();
-  }
-}
 
 void OmniboxComposeboxHandler::OnContentSharingPolicyChanged() {
   page()->UpdateContentSharingPolicy(
@@ -223,17 +215,6 @@ void OmniboxComposeboxHandler::OnPopupStateChanged(
       // controller's AutocompleteProviderClient because it is bound to the
       // active tab's WebContents (where the user is browsing), whereas the
       // composebox's own client is bound to the WebUI popup's WebContents.
-      UpdateLensSearchEligibility(
-          input, main_omnibox_controller->autocomplete_controller()
-                     ->autocomplete_provider_client());
     }
   }
-}
-
-void OmniboxComposeboxHandler::UpdateLensSearchEligibility(
-    const AutocompleteInput& input,
-    AutocompleteProviderClient* client) {
-  bool eligible =
-      ContextualSearchProvider::LensEntrypointEligible(input, client);
-  page()->UpdateLensSearchEligibility(eligible);
 }

@@ -22,9 +22,6 @@ export function getHtml(this: ZeroStatePromoAppElement) {
 ${this.showPlainLinksUi_ ? html`
   <div id="anchorContainer">
     $i18nRaw{extensionsZeroStatePlainLinkIphDesc}
-    <a id="couponsLink" @click="${this.onCouponsButtonClick_}" is="action-link">
-      $i18n{extensionsZeroStateIphShoppingCategoryLink},
-    </a>
     <a id="writingLink" @click="${this.onWritingButtonClick_}" is="action-link">
       $i18n{extensionsZeroStateIphWritingHelpCollectionLink},
     </a>
@@ -51,17 +48,6 @@ ${this.showPlainLinksUi_ ? html`
       $i18nRaw{extensionsZeroStateChipsIphDesc}
     </div>
     <div id="labelContainer">
-      <div class="v1Chip">
-        <cr-chip id="couponsButton" chip-role="link"
-            @click="${this.onCouponsButtonClick_}">
-          <cr-icon
-              icon="${this.webuiRoundedIconsEnabled_ ?
-                  'zero-state-promo:shopping-bag' :
-                  'zero-state-promo:coupons-old'}">
-          </cr-icon>
-          $i18n{extensionsZeroStateIphShoppingCategoryLabel}
-        </cr-chip>
-      </div>
       <div class="v1Chip">
         <cr-chip id="writingButton" chip-role="link"
             @click="${this.onWritingButtonClick_}">
@@ -112,17 +98,6 @@ ${this.showPlainLinksUi_ ? html`
           </cr-chip>
         </div>
         <div class="v2Chip">
-          <cr-chip id="couponsButton" chip-role="link"
-              @click="${this.onCouponsButtonClick_}">
-            <cr-icon
-                icon="${this.webuiRoundedIconsEnabled_ ?
-                    'zero-state-promo:shopping-bag' :
-                    'zero-state-promo:coupons-old'}">
-            </cr-icon>
-            $i18n{extensionsZeroStateIphShoppingCategoryLabel}
-          </cr-chip>
-        </div>
-        <div class="v2Chip">
           <cr-chip id="productivityButton"
               @click="${this.onProductivityButtonClick_}">
             <cr-icon
@@ -161,17 +136,6 @@ ${this.showPlainLinksUi_ ? html`
                     'zero-state-promo:ai-old'}">
             </cr-icon>
             $i18n{extensionsZeroStateIphAiProductivityCollectionLabel}
-          </cr-chip>
-        </div>
-        <div class="v3Chip">
-          <cr-chip id="couponsButton" chip-role="link"
-              @click="${this.onCouponsButtonClick_}">
-            <cr-icon
-                icon="${this.webuiRoundedIconsEnabled_ ?
-                    'zero-state-promo:shopping-bag' :
-                    'zero-state-promo:coupons-old'}">
-            </cr-icon>
-            $i18n{extensionsZeroStateIphShoppingCategoryLabel}
           </cr-chip>
         </div>
         <div class="v3Chip">

@@ -8,7 +8,7 @@ export function getHtml(this: DummyTestElement) {
   return html`<!--_html_template_start_-->
 <div class="wrapper">
   <div class="inner">
-<if expr="is_chromeos">
+<if expr="is_win">
     <div class="cros">
       Hello From ChromeOS Build!!!!!
     </div>

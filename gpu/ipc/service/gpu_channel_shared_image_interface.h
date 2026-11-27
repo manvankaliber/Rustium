@@ -29,10 +29,6 @@
 
 namespace gpu {
 class Scheduler;
-#if BUILDFLAG(IS_ANDROID)
-class StreamTextureSharedImageInterface;
-class RefCountedLock;
-#endif
 
 class GPU_IPC_SERVICE_EXPORT GpuChannelSharedImageInterface
     : public SharedImageInterfaceInProcessBase {
@@ -46,14 +42,6 @@ class GPU_IPC_SERVICE_EXPORT GpuChannelSharedImageInterface
       const GpuChannelSharedImageInterface&) = delete;
 
   // Public functions specific to GpuChannelSharedImageInterface:
-#if BUILDFLAG(IS_ANDROID)
-  scoped_refptr<ClientSharedImage> CreateSharedImageForAndroidVideo(
-      const gfx::Size& size,
-      const gfx::ColorSpace& color_space,
-      SharedImageUsageSet usage,
-      scoped_refptr<StreamTextureSharedImageInterface> image,
-      scoped_refptr<RefCountedLock> drdc_lock);
-#endif
 
 #if BUILDFLAG(IS_WIN)
   scoped_refptr<ClientSharedImage> CreateSharedImageForD3D11Video(

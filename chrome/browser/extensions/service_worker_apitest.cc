@@ -581,13 +581,6 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerBasedBackgroundTest, WindowsBasic) {
   // dip->px conversion. The extension creates the window itself, so query the
   // existing normal window as a proxy for the new one.
   const char* bounds_check_mode = nullptr;
-#if BUILDFLAG(IS_ANDROID)
-  ui::WindowResizePrecheckResult resize_precheck_result;
-  bounds_check_mode =
-      browser_window_interface()->GetWindow()->CanResize(resize_precheck_result)
-          ? "allowBoundsTolerance"
-          : "skipBoundsChecks";
-#endif
   ASSERT_TRUE(
       RunExtensionTest("service_worker/worker_based_background/windows_basic",
                        {.custom_arg = bounds_check_mode}))
@@ -1365,13 +1358,8 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerTest,
 }
 
 // Flaky crashes during test setup. http://crbug.com/534230908
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ServiceWorkerSuspensionOnExtensionUnload \
-  DISABLED_ServiceWorkerSuspensionOnExtensionUnload
-#else
 #define MAYBE_ServiceWorkerSuspensionOnExtensionUnload \
   ServiceWorkerSuspensionOnExtensionUnload
-#endif
 IN_PROC_BROWSER_TEST_F(ServiceWorkerTest,
                        MAYBE_ServiceWorkerSuspensionOnExtensionUnload) {
   // For this test, only hold onto the extension's ID and URL + a function to
@@ -1853,7 +1841,6 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerPushMessagingTest,
 }
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
-#if !BUILDFLAG(IS_ANDROID)
 // This test requires chrome.mimeHandlerPrivate, which is not supported on
 // Android.
 IN_PROC_BROWSER_TEST_F(ServiceWorkerTest, MimeHandlerView) {
@@ -1980,7 +1967,6 @@ IN_PROC_BROWSER_TEST_F(
       {embedder.spec(), "?inner=",
        base::EscapeQueryParamValue(inner.spec(), /*use_plus=*/false)})));
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_F(ServiceWorkerBasedBackgroundTest,
                        EventsToStoppedWorker) {
@@ -3756,14 +3742,7 @@ IN_PROC_BROWSER_TEST_F(ServiceWorkerTest, MojoJsBindingsInServiceWorker) {
     return listener.message();
   };
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, all component extensions are auto-granted `mojoPrivate`,
-  // which unconditionally enables Mojo JS bindings in
-  // `ContextNeedsMojoBindings`.
-  constexpr char kExpectedDefaultComponentMojo[] = "HAS_MOJO";
-#else
   constexpr char kExpectedDefaultComponentMojo[] = "NO_MOJO";
-#endif
 
   // Standard extension.
   EXPECT_EQ("NO_MOJO", run_sw_and_get_message(

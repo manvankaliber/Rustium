@@ -182,19 +182,6 @@ bool Editor::HandleTextEvent(TextEvent* event) {
 
   EditCommand::PasswordEchoBehavior password_echo_behavior =
       EditCommand::PasswordEchoBehavior::kEchoIfPasswordEchoPhysicalEnabled;
-#if BUILDFLAG(IS_ANDROID)
-  auto* underlying_event = event ? event->UnderlyingEvent() : nullptr;
-  const KeyboardEvent* keyboard_event =
-      underlying_event ? DynamicTo<KeyboardEvent>(underlying_event) : nullptr;
-  bool is_confirmed_physical_keyboard_input =
-      keyboard_event && keyboard_event->KeyEvent() &&
-      keyboard_event->KeyEvent()->is_confirmed_physical_keyboard_input;
-  password_echo_behavior =
-      is_confirmed_physical_keyboard_input
-          ? EditCommand::PasswordEchoBehavior::
-                kEchoIfPasswordEchoPhysicalEnabled
-          : EditCommand::PasswordEchoBehavior::kEchoIfPasswordEchoTouchEnabled;
-#endif
   return InsertTextWithoutSendingTextEvent(data, false, event,
                                            InputEvent::InputType::kInsertText,
                                            password_echo_behavior);

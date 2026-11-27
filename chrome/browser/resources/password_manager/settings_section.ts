@@ -110,7 +110,7 @@ export class SettingsSectionElement extends SettingsSectionElementBase {
             'isFedCmEmbedderInitiatedLoginEnabled_)',
       },
 
-      // <if expr="is_win or is_macosx or is_chromeos">
+      // <if expr="is_win or is_macosx">
       isBiometricAuthenticationForFillingToggleVisible_: {
         type: Boolean,
         value() {
@@ -214,7 +214,7 @@ export class SettingsSectionElement extends SettingsSectionElementBase {
   declare private isActorLoginPermissionsEnabled_: boolean;
   declare private isFedCmEmbedderInitiatedLoginEnabled_: boolean;
   declare private shouldShowActorLoginPermissions_: boolean;
-  // <if expr="is_win or is_macosx or is_chromeos">
+  // <if expr="is_win or is_macosx">
   declare private isBiometricAuthenticationForFillingToggleVisible_: boolean;
   // </if>
   declare private hasPasskeys_: boolean;
@@ -406,7 +406,7 @@ export class SettingsSectionElement extends SettingsSectionElementBase {
     this.removeActorLoginPermissionSite_ = undefined;
   }
 
-  // <if expr="is_win or is_macosx or is_chromeos">
+  // <if expr="is_win or is_macosx">
   private switchBiometricAuthBeforeFillingState_(e: Event) {
     const biometricAuthenticationForFillingToggle =
         e.target as PrefToggleButtonElement;

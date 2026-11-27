@@ -74,10 +74,6 @@ using ::testing::SaveArgByMove;
 
 namespace {
 
-#if BUILDFLAG(ENABLE_MIRROR)
-// This should match the variable in the .cc file.
-constexpr int kForcedReconciliationWaitTimeInSeconds = 15;
-#endif  // BUILDFLAG(ENABLE_MIRROR)
 
 constexpr char kFakeEmail[] = "user@gmail.com";
 constexpr char kFakeEmail2[] = "other@gmail.com";
@@ -798,7 +794,6 @@ class AccountReconcilorTestTable
   }
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(AccountReconcilorMirrorTest, IdentityManagerRegistration) {
   AccountReconcilor* reconcilor = GetMockReconcilor();
   ASSERT_TRUE(reconcilor);
@@ -832,7 +827,6 @@ TEST_F(AccountReconcilorMirrorTest, Reauth) {
   ASSERT_TRUE(reconcilor->IsRegisteredWithIdentityManager());
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(AccountReconcilorMirrorTest, ProfileAlreadyConnected) {
   ConnectProfileToAccount(kFakeEmail);
@@ -2079,29 +2073,6 @@ TEST_F(AccountReconcilorMirrorTest,
   ASSERT_TRUE(reconcilor->is_reconcile_started_);
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// This test is needed until chrome changes to use gaia obfuscated id.
-// The primary account manager and token service use the gaia "email" property,
-// which preserves dots in usernames and preserves case.
-// gaia::ParseBinaryListAccountsData() however uses gaia "displayEmail" which
-// does not preserve case, and then passes the string through
-// gaia::CanonicalizeEmail() which removes dots.  This tests makes sure that an
-// email like "Dot.S@hmail.com", as seen by the token service, will be
-// considered the same as "dots@gmail.com" as returned by
-// gaia::ParseBinaryListAccountsData().
-TEST_F(AccountReconcilorMirrorTest, StartReconcileNoopWithDots) {
-  AccountInfo account_info = ConnectProfileToAccount("Dot.S@gmail.com");
-  signin::SetListAccountsResponseOneAccount(account_info.GetEmail(),
-                                            account_info.GetGaiaId(),
-                                            &test_url_loader_factory_);
-  AccountReconcilor* reconcilor = GetMockReconcilor();
-  ASSERT_TRUE(reconcilor);
-
-  reconcilor->StartReconcile(AccountReconcilor::Trigger::kCookieChange);
-  base::RunLoop().RunUntilIdle();
-  ASSERT_FALSE(reconcilor->is_reconcile_started_);
-}
-#endif
 
 TEST_F(AccountReconcilorMirrorTest, StartReconcileNoopMultiple) {
   AccountInfo account_info = ConnectProfileToAccount(kFakeEmail);
@@ -2234,7 +2205,6 @@ TEST_F(AccountReconcilorTest, AuthErrorTriggersListAccount) {
   identity_test_env()->identity_manager()->RemoveObserver(&observer);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // This test does not run on ChromeOS because it clears the primary account,
 // which is not a flow that exists on ChromeOS.
 
@@ -2275,7 +2245,6 @@ TEST_F(AccountReconcilorMirrorTest, SignoutAfterErrorDoesNotRecordUma) {
   expected_counts["Signin.Reconciler.Duration.UpTo3mins.Failure"] = 1;
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 TEST_F(AccountReconcilorMirrorTest, StartReconcileRemoveFromCookie) {
   AccountInfo account_info = ConnectProfileToAccount(kFakeEmail);
@@ -2493,155 +2462,6 @@ TEST_F(AccountReconcilorMirrorTest, Lock) {
   EXPECT_FALSE(reconcilor->is_reconcile_started_);
 }
 
-#if BUILDFLAG(ENABLE_MIRROR)
-TEST_F(AccountReconcilorTest, ForceReconcileEarlyExitsForInactiveReconcilor) {
-  AccountReconcilor* reconcilor = GetMockReconcilor();
-  ASSERT_TRUE(reconcilor);
-  ASSERT_EQ(AccountReconcilorState::kInactive, reconcilor->GetState());
-
-  reconcilor->ForceReconcile();
-  EXPECT_EQ(AccountReconcilorState::kInactive, reconcilor->GetState());
-  EXPECT_FALSE(reconcilor->is_reconcile_started_);
-}
-
-TEST_F(AccountReconcilorMirrorTest,
-       ForceReconcileImmediatelyStartsForIdleReconcilor) {
-  // Get the reconcilor to an OK (AccountReconcilorState::kOk) state.
-  AccountInfo account_info = ConnectProfileToAccount(kFakeEmail);
-  AccountReconcilor* reconcilor = GetMockReconcilor();
-  ASSERT_TRUE(reconcilor);
-  signin::SetListAccountsResponseOneAccount(account_info.GetEmail(),
-                                            account_info.GetGaiaId(),
-                                            &test_url_loader_factory_);
-  std::vector<CoreAccountId> accounts_to_send = {account_info.GetAccountId()};
-  const signin::MultiloginParameters params(
-      gaia::MultiloginMode::MULTILOGIN_UPDATE_COOKIE_ACCOUNTS_ORDER,
-      accounts_to_send);
-  EXPECT_CALL(*GetMockReconcilor(),
-              PerformSetCookiesAction(params, /*is_cookie_upgrade=*/false));
-  reconcilor->SetState(AccountReconcilorState::kOk);
-  ASSERT_FALSE(reconcilor->is_reconcile_started_);
-
-  // Now try to force a reconcile.
-  reconcilor->ForceReconcile();
-  base::RunLoop().RunUntilIdle();
-  EXPECT_EQ(AccountReconcilorState::kRunning, reconcilor->GetState());
-  EXPECT_TRUE(reconcilor->is_reconcile_started_);
-}
-
-TEST_F(AccountReconcilorMirrorTest,
-       ForceReconcileImmediatelyStartsForErroredOutReconcilor) {
-  // Get the reconcilor to an error state.
-  AccountInfo account_info = ConnectProfileToAccount(kFakeEmail);
-  AccountReconcilor* reconcilor = GetMockReconcilor();
-  ASSERT_TRUE(reconcilor);
-  signin::SetListAccountsResponseOneAccount(account_info.GetEmail(),
-                                            account_info.GetGaiaId(),
-                                            &test_url_loader_factory_);
-  std::vector<CoreAccountId> accounts_to_send = {account_info.GetAccountId()};
-  const signin::MultiloginParameters params(
-      gaia::MultiloginMode::MULTILOGIN_UPDATE_COOKIE_ACCOUNTS_ORDER,
-      accounts_to_send);
-  EXPECT_CALL(*GetMockReconcilor(),
-              PerformSetCookiesAction(params, /*is_cookie_upgrade=*/false));
-  reconcilor->SetState(AccountReconcilorState::kError);
-  ASSERT_FALSE(reconcilor->is_reconcile_started_);
-
-  // Now try to force a reconcile.
-  reconcilor->ForceReconcile();
-  base::RunLoop().RunUntilIdle();
-  EXPECT_EQ(AccountReconcilorState::kRunning, reconcilor->GetState());
-  EXPECT_TRUE(reconcilor->is_reconcile_started_);
-}
-
-TEST_F(AccountReconcilorMirrorTest,
-       CreateForceReconcileCallbackTriggersForcedReconciliation) {
-  // Get the reconcilor to an OK (AccountReconcilorState::kOk) state.
-  AccountInfo account_info = ConnectProfileToAccount(kFakeEmail);
-  AccountReconcilor* reconcilor = GetMockReconcilor();
-  ASSERT_TRUE(reconcilor);
-  signin::SetListAccountsResponseOneAccount(account_info.GetEmail(),
-                                            account_info.GetGaiaId(),
-                                            &test_url_loader_factory_);
-  std::vector<CoreAccountId> accounts_to_send = {account_info.GetAccountId()};
-  const signin::MultiloginParameters params(
-      gaia::MultiloginMode::MULTILOGIN_UPDATE_COOKIE_ACCOUNTS_ORDER,
-      accounts_to_send);
-  EXPECT_CALL(*GetMockReconcilor(),
-              PerformSetCookiesAction(params, /*is_cookie_upgrade=*/false));
-  reconcilor->SetState(AccountReconcilorState::kOk);
-  ASSERT_FALSE(reconcilor->is_reconcile_started_);
-
-  TestAccountReconcilorObserver observer(
-      reconcilor, /*wait_state=*/AccountReconcilorState::kRunning);
-  reconcilor->CreateForceReconcileCallback().Run();
-  observer.WaitForStateChange();
-
-  EXPECT_EQ(AccountReconcilorState::kRunning, reconcilor->GetState());
-  EXPECT_TRUE(reconcilor->is_reconcile_started_);
-}
-
-TEST_F(AccountReconcilorMirrorTest,
-       ForceReconcileSchedulesReconciliationIfReconcilorIsAlreadyRunning) {
-  AccountInfo account_info = ConnectProfileToAccount(kFakeEmail);
-  identity_test_env()->WaitForRefreshTokensLoaded();
-  const CoreAccountId account_id = account_info.GetAccountId();
-
-  // Do NOT set a ListAccounts response. We do not want reconciliation to finish
-  // immediately.
-  std::vector<CoreAccountId> accounts_to_send = {account_id};
-  const signin::MultiloginParameters params(
-      gaia::MultiloginMode::MULTILOGIN_UPDATE_COOKIE_ACCOUNTS_ORDER,
-      accounts_to_send);
-  EXPECT_CALL(*GetMockReconcilor(),
-              PerformSetCookiesAction(params, /*is_cookie_upgrade=*/false));
-
-  AccountReconcilor* reconcilor = GetMockReconcilor();
-  ASSERT_TRUE(reconcilor);
-
-  // Schedule a regular reconciliation cycle. This will eventually end up in a
-  // noop because the accounts in cookie match the Primary Account in Chrome.
-  reconcilor->StartReconcile(AccountReconcilor::Trigger::kInitialized);
-  ASSERT_EQ(AccountReconcilorState::kRunning, reconcilor->GetState());
-  ASSERT_TRUE(reconcilor->is_reconcile_started_);
-
-  // Immediately force a reconciliation. This should cause a forced
-  // reconciliation to be tried later in
-  // `kForcedReconciliationWaitTimeInSeconds` seconds.
-  reconcilor->ForceReconcile();
-
-  // Now set the account in cookie as the Primary Account in Chrome. This will
-  // unblock the regular (`AccountReconcilor::Trigger::kInitialized`)
-  // reconciliation cycle.
-  signin::SetListAccountsResponseOneAccount(
-      /*email=*/account_info.GetEmail(),
-      /*gaia_id=*/account_info.GetGaiaId(),
-      /*test_url_loader_factory=*/&test_url_loader_factory_);
-  // This forced reconciliation attempt should also be blocked since
-  // test_url_loader_factory_ will itself post a task to wake up pending
-  // requests.
-  task_environment()->FastForwardBy(
-      base::Seconds(kForcedReconciliationWaitTimeInSeconds));
-  base::RunLoop().RunUntilIdle();
-
-  // Give the queued forced reconciliation cycle a chance to actually run.
-  task_environment()->FastForwardBy(
-      base::Seconds(kForcedReconciliationWaitTimeInSeconds));
-  base::RunLoop().RunUntilIdle();
-
-  // Indirectly test through histograms that the forced reconciliation cycle was
-  // actually run.
-  histogram_tester()->ExpectBucketCount(
-      AccountReconcilor::kOperationHistogramName,
-      AccountReconcilor::Operation::kMultilogin, 1);
-  histogram_tester()->ExpectUniqueSample(
-      AccountReconcilor::kTriggerMultiloginHistogramName,
-      AccountReconcilor::Trigger::kForcedReconcile, 1);
-  histogram_tester()->ExpectTotalCount(
-      AccountReconcilor::kTriggerMultiloginHistogramName, 1);
-}
-
-#endif  // BUILDFLAG(ENABLE_MIRROR)
 
 // Checks that an "invalid" Gaia account can be refreshed in place, without
 // performing a full logout.

@@ -16,8 +16,6 @@
 #include "base/strings/strcat.h"
 #include "base/values.h"
 #include "chrome/browser/contextual_search/contextual_search_service_factory.h"
-#include "chrome/browser/glic/public/glic_enabling.h"
-#include "chrome/browser/glic/resources/grit/glic_browser_resources.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
@@ -104,7 +102,6 @@ constexpr char kTouchUi[] = "touchUi";
 constexpr char kInitialWebUISurfaceSyncEnabled[] =
     "initialWebUISurfaceSyncEnabled";
 constexpr char kIsFallbackPrewarming[] = "isFallbackPrewarming";
-constexpr char kIsProfileEligibleForGlic[] = "isProfileEligibleForGlic";
 constexpr char kCanShowAvatarForProfile[] = "canShowAvatarForProfile";
 
 // Retrieves the current toolbar state from the provider's fetcher
@@ -230,10 +227,6 @@ WebUIToolbarUI::WebUIToolbarUI(content::WebUI* web_ui)
       {"clearButtonTooltip", IDS_OMNIBOX_CLEAR_ALL},
       {"forwardButtonAccName", IDS_ACCNAME_FORWARD},
       {"forwardButtonTooltip", IDS_TOOLTIP_FORWARD},
-      {"glicButtonAccName", IDS_GLIC_BUTTON_ENTRYPOINT_LABEL},
-      {"glicButtonLabel", IDS_GLIC_BUTTON_ENTRYPOINT_ASK_GEMINI_LABEL},
-      {"glicButtonTooltip", IDS_GLIC_TAB_STRIP_BUTTON_TOOLTIP},
-      {"glicButtonTooltipClose", IDS_GLIC_TAB_STRIP_BUTTON_TOOLTIP_CLOSE},
       {"homeButtonAccName", IDS_ACCNAME_HOME},
       {"homeButtonTooltip", IDS_TOOLTIP_HOME},
       {"locationAccName", IDS_ACCNAME_LOCATION},
@@ -281,7 +274,6 @@ WebUIToolbarUI::WebUIToolbarUI(content::WebUI* web_ui)
   // Whether the Glic and avatar buttons are shown also depends on the profile
   // of the window, which is set in the initial state of each frame in
   // WebUIRenderFrameCreated().
-  source->AddBoolean("enableGlicButton", features::IsWebUIGlicButtonEnabled());
   source->AddBoolean("enableAvatarButton",
                      features::IsWebUIAvatarButtonEnabled());
   source->AddBoolean("enableMediaButton",
@@ -318,18 +310,12 @@ WebUIToolbarUI::WebUIToolbarUI(content::WebUI* web_ui)
   source->AddBoolean(
       "toolbarAppMenuLabelResizingEnabled",
       base::FeatureList::IsEnabled(features::kToolbarAppMenuLabelResizing));
-  source->AddBoolean(
-      "toolbarGlicButtonResizingEnabled",
-      base::FeatureList::IsEnabled(features::kToolbarGlicButtonResizing));
   source->AddBoolean("webUIToolbarFullyEnabled",
                      features::IsWebUIToolbarFullyEnabled());
 
   webui_toolbar::PopulateSplitTabsDataSource(source);
 
   source->AddResourcePaths(kWebuiToolbarSharedResources);
-  // Referenced by `chrome/browser/resources/webui_toolbar/glic_button.html.ts`.
-  source->AddResourcePath("images/glic_button_alt_icon.png",
-                          IDR_GLIC_BUTTON_ALT_ICON);
 }
 
 WEB_UI_CONTROLLER_TYPE_IMPL(WebUIToolbarUI)
@@ -341,8 +327,6 @@ WebUIToolbarUI::ProfileButtonEligibility
 WebUIToolbarUI::GetProfileButtonEligibility(Profile* profile) {
   CHECK(profile);
   return {
-      .is_profile_eligible_for_glic =
-          glic::GlicEnabling::IsProfileEligible(profile),
       .can_show_avatar_for_profile =
           AvatarToolbarButtonInterface::CanShowForProfile(profile),
   };
@@ -540,8 +524,6 @@ void WebUIToolbarUI::WebUIRenderFrameCreated(content::RenderFrameHost* rfh) {
   // toolbars can be for windows of different profiles.
   const ProfileButtonEligibility eligibility =
       GetProfileButtonEligibility(user_profile);
-  values.Set(kIsProfileEligibleForGlic,
-             eligibility.is_profile_eligible_for_glic);
   values.Set(kCanShowAvatarForProfile, eligibility.can_show_avatar_for_profile);
 
   std::string json_string;
@@ -634,10 +616,6 @@ WebUIToolbarUI::GetOrCreateContextualSessionHandle() {
     if (service) {
       // TODO(http://crbug.com/529689765): This is based on what webui_browser
       // does, and that in turn has a bunch of TODOs on its own.
-      session_handle_ = service->CreateSession(
-          omnibox::CreateQueryControllerConfigParams(),
-          contextual_search::ContextualSearchSource::kOmnibox,
-          lens::LensOverlayInvocationSource::kOmniboxContextualQuery);
       session_handle_->CheckSearchContentSharingSettings(profile->GetPrefs());
     }
   }
@@ -662,14 +640,11 @@ WebUIToolbarUI::GetKnownElementIdentifiers() {
             kSharedTabGroupFeedbackElementId,
             kToolbarAppMenuButtonElementId,
             kSharedTabGroupCommentsActionElementId,
-            kPinnedToolbarActionShowSidePanelLensOverlayResultsElementId,
             kPinnedToolbarActionShowSidePanelBookmarksElementId,
             kPinnedToolbarActionShowSidePanelContextualTasksElementId,
             kPinnedToolbarActionSendTabToSelfElementId,
             kPinnedToolbarActionTtcElementId,
             kToolbarAvatarButtonElementId,
-            kGlicButtonElementId,
-            kGlicActorTaskIconElementId,
             kToolbarPerformanceInterventionButtonElementId,
             PermissionChipView::kPermissionRequestChipElementId,
             PermissionChipView::kIndicatorChipElementId,

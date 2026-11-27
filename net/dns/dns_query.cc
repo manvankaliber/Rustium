@@ -4,198 +4,94 @@
 
 #include "net/dns/dns_query.h"
 
-#include <stddef.h>
-#include <stdint.h>
-
-#include <optional>
-#include <string_view>
+#include <limits>
 #include <utility>
 
-#include "base/containers/span.h"
-#include "base/containers/span_reader.h"
-#include "base/containers/span_writer.h"
 #include "base/feature_list.h"
 #include "base/logging.h"
 #include "base/memory/ptr_util.h"
-#include "base/numerics/byte_conversions.h"
-#include "base/numerics/safe_conversions.h"
+#include "base/memory/raw_ptr.h"
 #include "base/strings/string_view_util.h"
-#include "base/sys_byteorder.h"
 #include "net/base/features.h"
-#include "net/base/io_buffer.h"
-#include "net/dns/dns_names_util.h"
+#include "net/dns/dns_query_rust_ffi.h"
+#include "net/dns/dns_query_rust_ffi.rs.h"
 #include "net/dns/opt_record_rdata.h"
-#include "net/dns/public/dns_protocol.h"
-#include "net/dns/record_rdata.h"
 
 namespace net {
-
 namespace {
+// DNS's public layout is fixed; there is no typed Header object in IOBuffer.
+constexpr size_t kHeaderSize = 12;
 
-const size_t kHeaderSize = sizeof(dns_protocol::Header);
-
-// Size of the fixed part of an OPT RR:
-// https://tools.ietf.org/html/rfc6891#section-6.1.2
-static const size_t kOptRRFixedSize = 11;
-
-// https://tools.ietf.org/html/rfc6891#section-6.2.5
-// TODO(robpercival): Determine a good value for this programmatically.
-const uint16_t kMaxUdpPayloadSize = 4096;
-
-size_t QuestionSize(size_t qname_size) {
-  // QNAME + QTYPE + QCLASS
-  return qname_size + sizeof(uint16_t) + sizeof(uint16_t);
+rust::Slice<const uint8_t> Bytes(base::span<const uint8_t> bytes) {
+  // CXX accepts null/empty spans without making a Rust reference to null.
+  return {bytes.data(), bytes.size()};
 }
-
-// Buffer size of Opt record for `rdata` (does not include Opt record or RData
-// added for padding).
-size_t OptRecordSize(const OptRecordRdata* rdata) {
-  return rdata == nullptr ? 0 : kOptRRFixedSize + rdata->buf().size();
-}
-
-// Padding size includes Opt header for the padding.  Does not include OptRecord
-// header (kOptRRFixedSize) even when added just for padding.
-size_t DeterminePaddingSize(size_t unpadded_size,
-                            DnsQuery::PaddingStrategy padding_strategy) {
-  switch (padding_strategy) {
-    case DnsQuery::PaddingStrategy::NONE:
-      return 0;
-    case DnsQuery::PaddingStrategy::BLOCK_LENGTH_128:
-      size_t padding_size = OptRecordRdata::Opt::kHeaderSize;
-      size_t remainder = (padding_size + unpadded_size) % 128;
-      padding_size += (128 - remainder) % 128;
-      DCHECK_EQ((unpadded_size + padding_size) % 128, 0u);
-      return padding_size;
-  }
-}
-
-// Builds OPT record rdata for the query by cloning `opt_rdata` (if any),
-// adding feature-driven EDNS options, and adding padding if requested.
-// Returns nullptr if no OPT record is needed.
-std::unique_ptr<OptRecordRdata> MergeOptRecordRdataAndAddPadding(
-    const OptRecordRdata* opt_rdata,
-    DnsQuery::PaddingStrategy padding_strategy,
-    size_t no_opt_buffer_size) {
-  const bool structured_errors_enabled =
-      base::FeatureList::IsEnabled(features::kUseStructuredDnsErrors);
-
-  // If no input OPT record rdata, no padding, and structured errors are
-  // disabled, no OPT record rdata needed.
-  if (!opt_rdata && padding_strategy == DnsQuery::PaddingStrategy::NONE &&
-      !structured_errors_enabled) {
-    return nullptr;
-  }
-
-  std::unique_ptr<OptRecordRdata> merged_opt_rdata;
-  if (opt_rdata) {
-    merged_opt_rdata =
-        OptRecordRdata::Create(base::as_byte_span(opt_rdata->buf()));
-  } else {
-    merged_opt_rdata = std::make_unique<OptRecordRdata>();
-  }
-  DCHECK(merged_opt_rdata);
-
-  // If kUseStructuredDnsErrors is enabled, ensure EDE option exists.
-  if (structured_errors_enabled &&
-      !merged_opt_rdata->ContainsOptCode(dns_protocol::kEdnsExtendedDnsError)) {
-    merged_opt_rdata->AddOpt(
-        OptRecordRdata::EdeOpt::CreateStructuredErrorsRequest());
-  }
-
-  size_t unpadded_size =
-      no_opt_buffer_size + OptRecordSize(merged_opt_rdata.get());
-  size_t padding_size = DeterminePaddingSize(unpadded_size, padding_strategy);
-
-  if (padding_size > 0) {
-    // `merged_opt_rdata` must not already contain padding if DnsQuery is to add
-    // padding.
-    DCHECK(!merged_opt_rdata->ContainsOptCode(dns_protocol::kEdnsPadding));
-    // OPT header is the minimum amount of padding.
-    DCHECK(padding_size >= OptRecordRdata::Opt::kHeaderSize);
-
-    merged_opt_rdata->AddOpt(std::make_unique<OptRecordRdata::PaddingOpt>(
-        padding_size - OptRecordRdata::Opt::kHeaderSize));
-  }
-
-  return merged_opt_rdata;
-}
-
 }  // namespace
 
-// DNS query consists of a 12-byte header followed by a question section.
-// For details, see RFC 1035 section 4.1.1.  This header template sets RD
-// bit, which directs the name server to pursue query recursively, and sets
-// the QDCOUNT to 1, meaning the question section has a single entry.
+namespace dns_query_rust {
+struct OptContext {
+  raw_ptr<const OptRecordRdata> input;
+  std::unique_ptr<OptRecordRdata> merged;
+};
+bool opt_clone_or_create(OptContext& context, bool clone_input) {
+  context.merged =
+      clone_input
+          ? OptRecordRdata::Create(base::as_byte_span(context.input->buf()))
+          : std::make_unique<OptRecordRdata>();
+  return context.merged != nullptr;
+}
+bool opt_contains(const OptContext& context, uint16_t code) {
+  return context.merged->ContainsOptCode(code);
+}
+void opt_add_ede(OptContext& context) {
+  context.merged->AddOpt(
+      OptRecordRdata::EdeOpt::CreateStructuredErrorsRequest());
+}
+void opt_add_padding(OptContext& context, uint16_t len) {
+  context.merged->AddOpt(std::make_unique<OptRecordRdata::PaddingOpt>(len));
+}
+size_t opt_len(const OptContext& context) {
+  return context.merged->buf().size();
+}
+size_t opt_count(const OptContext& context) {
+  return context.merged->OptCount();
+}
+}  // namespace dns_query_rust
+
 DnsQuery::DnsQuery(uint16_t id,
                    base::span<const uint8_t> qname,
                    uint16_t qtype,
                    const OptRecordRdata* opt_rdata,
                    PaddingStrategy padding_strategy)
     : qname_size_(qname.size()) {
-#if DCHECK_IS_ON()
-  std::optional<std::string> dotted_name =
-      dns_names_util::NetworkToDottedName(qname);
-  DCHECK(dotted_name && !dotted_name.value().empty());
-#endif  // DCHECK_IS_ON()
-
-  size_t buffer_size = kHeaderSize + QuestionSize(qname_size_);
-  std::unique_ptr<OptRecordRdata> merged_opt_rdata =
-      MergeOptRecordRdataAndAddPadding(opt_rdata, padding_strategy,
-                                       buffer_size);
-  if (merged_opt_rdata)
-    buffer_size += OptRecordSize(merged_opt_rdata.get());
-
-  io_buffer_ = base::MakeRefCounted<IOBufferWithSize>(buffer_size);
-
-  dns_protocol::Header* header = header_in_io_buffer();
-  *header = {};
-  header->id = base::HostToNet16(id);
-  header->flags = base::HostToNet16(dns_protocol::kFlagRD);
-  header->qdcount = base::HostToNet16(1);
-
-  // Write question section after the header.
-  auto writer = base::SpanWriter(io_buffer_->span().subspan(kHeaderSize));
-  writer.Write(qname);
-  writer.WriteU16BigEndian(qtype);
-  writer.WriteU16BigEndian(dns_protocol::kClassIN);
-
-  if (merged_opt_rdata) {
-    DCHECK_NE(merged_opt_rdata->OptCount(), 0u);
-
-    header->arcount = base::HostToNet16(1);
-    // Write OPT pseudo-resource record.
-    writer.WriteU8BigEndian(0);  // empty domain name (root domain)
-    writer.WriteU16BigEndian(OptRecordRdata::kType);  // type
-    writer.WriteU16BigEndian(kMaxUdpPayloadSize);     // class
-    // ttl (next 3 fields)
-    writer.WriteU8BigEndian(0);  // rcode does not apply to requests
-    writer.WriteU8BigEndian(0);  // version
-    // TODO(robpercival): Set "DNSSEC OK" flag if/when DNSSEC is supported:
-    // https://tools.ietf.org/html/rfc3225#section-3
-    writer.WriteU16BigEndian(0);  // flags
-
-    // rdata
-    writer.WriteU16BigEndian(merged_opt_rdata->buf().size());  // rdata length
-    writer.Write(base::as_byte_span(merged_opt_rdata->buf()));
+  dns_query_rust::OptContext context{opt_rdata, nullptr};
+  const auto construction = dns_query_rust::prepare_query(
+      Bytes(qname), opt_rdata != nullptr,
+      padding_strategy == PaddingStrategy::BLOCK_LENGTH_128,
+      base::FeatureList::IsEnabled(features::kUseStructuredDnsErrors), context);
+  io_buffer_ = base::MakeRefCounted<IOBufferWithSize>(construction.size);
+  base::span<const uint8_t> opt_bytes;
+  if (context.merged) {
+    opt_bytes = base::as_byte_span(context.merged->buf());
   }
+  // Exclusive fresh storage, disjoint from the borrowed qname and OPT bytes.
+  // Rust initializes every byte without reading the uninitialized allocation.
+  dns_query_rust::write_query(io_buffer_->span().data(), construction.size, id,
+                              Bytes(qname), qtype, construction.has_opt,
+                              Bytes(opt_bytes));
 }
 
 DnsQuery::DnsQuery(scoped_refptr<IOBufferWithSize> buffer)
     : io_buffer_(std::move(buffer)) {}
-
 DnsQuery::DnsQuery(const DnsQuery& query) {
   CopyFrom(query);
 }
-
 DnsQuery& DnsQuery::operator=(const DnsQuery& query) {
   CopyFrom(query);
   return *this;
 }
-
 DnsQuery::DnsQuery(DnsQuery&& query) = default;
-
 DnsQuery& DnsQuery::operator=(DnsQuery&& query) = default;
-
 DnsQuery::~DnsQuery() = default;
 
 std::unique_ptr<DnsQuery> DnsQuery::CloneWithNewId(uint16_t id) const {
@@ -203,115 +99,61 @@ std::unique_ptr<DnsQuery> DnsQuery::CloneWithNewId(uint16_t id) const {
 }
 
 bool DnsQuery::Parse(size_t valid_bytes) {
-  if (io_buffer_ == nullptr || io_buffer_->span().empty()) {
+  if (!io_buffer_ || io_buffer_->span().empty()) {
     return false;
   }
-  auto reader = base::SpanReader<const uint8_t>(io_buffer_->first(valid_bytes));
-  dns_protocol::Header header;
-  if (!ReadHeader(&reader, &header)) {
-    return false;
-  }
-  if (header.flags & dns_protocol::kFlagResponse) {
-    return false;
-  }
-  if (header.qdcount != 1) {
+  // Only this initialized prefix crosses into Rust. first() retains the
+  // original bounds check if valid_bytes exceeds the allocation.
+  const size_t name_size =
+      dns_query_rust::parse_query(Bytes(io_buffer_->first(valid_bytes)));
+  if (name_size == std::numeric_limits<size_t>::max()) {
     VLOG(1) << "Not supporting parsing a DNS query with multiple (or zero) "
                "questions.";
     return false;
   }
-  std::string qname;
-  if (!ReadName(&reader, &qname)) {
+  if (name_size == 0) {
     return false;
   }
-  uint16_t qtype;
-  uint16_t qclass;
-  if (!reader.ReadU16BigEndian(qtype) || !reader.ReadU16BigEndian(qclass) ||
-      qclass != dns_protocol::kClassIN) {
-    return false;
-  }
-  // `io_buffer_` now contains the raw packet of a valid DNS query, we just
-  // need to properly initialize `qname_size_`.
-  qname_size_ = qname.size();
+  qname_size_ = name_size;
   return true;
 }
 
 uint16_t DnsQuery::id() const {
-  return base::NetToHost16(header_in_io_buffer()->id);
+  CHECK(io_buffer_ && !io_buffer_->span().empty());
+  return dns_query_rust::read_u16(Bytes(io_buffer_->first(2u)));
 }
-
 base::span<const uint8_t> DnsQuery::qname() const {
   return io_buffer_->span().subspan(kHeaderSize, qname_size_);
 }
-
 uint16_t DnsQuery::qtype() const {
-  return base::U16FromBigEndian(
-      io_buffer_->span().subspan(kHeaderSize + qname_size_).first<2u>());
+  return dns_query_rust::read_u16(
+      Bytes(io_buffer_->span().subspan(kHeaderSize + qname_size_).first<2u>()));
 }
-
 std::string_view DnsQuery::question() const {
-  auto s = base::as_chars(io_buffer_->span());
-  s = s.subspan(kHeaderSize, QuestionSize(qname_size_));
-  return base::as_string_view(s);
+  return base::as_string_view(
+      io_buffer_->span().subspan(kHeaderSize, question_size()));
 }
-
 size_t DnsQuery::question_size() const {
-  return QuestionSize(qname_size_);
+  return dns_query_rust::question_size(qname_size_);
 }
-
 void DnsQuery::set_flags(uint16_t flags) {
-  header_in_io_buffer()->flags = flags;
+  CHECK(io_buffer_ && !io_buffer_->span().empty());
+  // Bounds are checked in C++, but no reference to potentially uninitialized
+  // bytes is manufactured by the Rust adapter.
+  dns_query_rust::set_flags(io_buffer_->span().subspan(2u, 2u).data(), flags);
 }
-
 DnsQuery::DnsQuery(const DnsQuery& orig, uint16_t id) {
-  CopyFrom(orig);
-  header_in_io_buffer()->id = base::HostToNet16(id);
+  CopyFrom(orig, true, id);
 }
-
-void DnsQuery::CopyFrom(const DnsQuery& orig) {
+void DnsQuery::CopyFrom(const DnsQuery& orig, bool replace_id, uint16_t id) {
   qname_size_ = orig.qname_size_;
-  io_buffer_ = base::MakeRefCounted<IOBufferWithSize>(orig.io_buffer()->size());
-  io_buffer_->span().copy_from(orig.io_buffer()->span());
+  // Keep orig alive until the byte copy is complete, including self-assignment.
+  // The old self-assignment read its freshly allocated uninitialized buffer.
+  auto buffer =
+      base::MakeRefCounted<IOBufferWithSize>(orig.io_buffer()->size());
+  dns_query_rust::copy_query(orig.io_buffer()->span().data(),
+                             buffer->span().data(), buffer->size(), replace_id,
+                             id);
+  io_buffer_ = std::move(buffer);
 }
-
-bool DnsQuery::ReadHeader(base::SpanReader<const uint8_t>* reader,
-                          dns_protocol::Header* header) {
-  return (reader->ReadU16BigEndian(header->id) &&
-          reader->ReadU16BigEndian(header->flags) &&
-          reader->ReadU16BigEndian(header->qdcount) &&
-          reader->ReadU16BigEndian(header->ancount) &&
-          reader->ReadU16BigEndian(header->nscount) &&
-          reader->ReadU16BigEndian(header->arcount));
-}
-
-bool DnsQuery::ReadName(base::SpanReader<const uint8_t>* reader,
-                        std::string* out) {
-  DCHECK(out != nullptr);
-  out->clear();
-  out->reserve(dns_protocol::kMaxNameLength + 1);
-  uint8_t label_length;
-  if (!reader->ReadU8BigEndian(label_length)) {
-    return false;
-  }
-  while (label_length) {
-    if (out->size() + 1 + label_length > dns_protocol::kMaxNameLength) {
-      return false;
-    }
-
-    out->push_back(static_cast<char>(label_length));
-
-    std::optional<base::span<const uint8_t>> label = reader->Read(label_length);
-    if (!label) {
-      return false;
-    }
-    out->append(base::as_string_view(*label));
-
-    if (!reader->ReadU8BigEndian(label_length)) {
-      return false;
-    }
-  }
-  DCHECK_LE(out->size(), static_cast<size_t>(dns_protocol::kMaxNameLength));
-  out->append(1, '\0');
-  return true;
-}
-
 }  // namespace net

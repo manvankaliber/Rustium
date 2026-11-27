@@ -6,9 +6,6 @@ import type {CrInfiniteListElement} from '//resources/cr_elements/cr_infinite_li
 import {html} from '//resources/lit/v3_0/lit.rollup.js';
 import type {HistoryEntry} from 'chrome://resources/cr_components/history/history.mojom-webui.js';
 
-// <if expr="is_android">
-import {getHtml as getIllustrationHtml} from './empty_state_illustration.html.js';
-// </if>
 import type {HistoryListElement} from './history_list.js';
 
 export interface TemplatizedDomNodes {
@@ -19,9 +16,6 @@ export function getHtml(this: HistoryListElement) {
   // clang-format off
   return html`<!--_html_template_start_-->
 <div id="noResults" class="centered-message" ?hidden="${this.hasResults_()}">
-<if expr="is_android">
-  ${getIllustrationHtml()}
-</if>
   ${this.noResultsMessage_()}
 </div>
 
@@ -88,20 +82,6 @@ export function getHtml(this: HistoryListElement) {
             @click="${this.onMoreFromSiteClick_}">
           $i18n{moreFromSite}
         </button>
-        <button id="menuGoToGeminiChatButton" class="dropdown-item"
-            ?hidden="${!this.canShowGoToGeminiChat_()}"
-            @click="${this.onGoToGeminiChatClick_}">
-          $i18n{goToGeminiChat}
-        </button>
-        <button id="menuReviewGeminiActivityButton" class="dropdown-item"
-            ?hidden="${!this.canShowReviewGeminiActivity_()}"
-            @click="${this.onReviewGeminiActivityClick_}">
-          $i18n{reviewGeminiActivity}
-        </button>
-        <div class="hr"
-            ?hidden="${!this.canShowReviewGeminiActivity_() &&
-                !this.canShowGoToGeminiChat_()}">
-        </div>
         <button id="menuRemoveButton" class="dropdown-item"
             ?hidden="${!this.canDeleteHistory_}"
             ?disabled="${this.pendingDelete}"
@@ -117,9 +97,6 @@ export function getHtml(this: HistoryListElement) {
     `}">
 </cr-lazy-render-lit>
 
-<cr-toast id="errorToast" duration="5000">
-  <span>$i18n{goToGeminiChatError}</span>
-</cr-toast>
 <!--_html_template_end_-->`;
   // clang-format on
 }

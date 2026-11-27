@@ -28,12 +28,10 @@ namespace {
 
 constexpr size_t kArbitrarySize = 64 << 10;
 
-#if !BUILDFLAG(IS_IOS)
 constexpr shared_memory::SharedMemorySwitch::RendezvousKey
     kArbitraryRendezvousKey = 'smsh';
 constexpr shared_memory::SharedMemorySwitch::DescriptorKey
     kArbitraryDescriptorKey = 42;
-#endif
 
 }  // namespace
 
@@ -84,13 +82,8 @@ TEST(HistogramSharedMemoryTest, PassOnCommandLineIsEnabled) {
   EXPECT_TRUE(
       HistogramSharedMemory::PassOnCommandLineIsEnabled(PROCESS_TYPE_GPU));
 
-#if BUILDFLAG(IS_ANDROID)
-  EXPECT_FALSE(
-      HistogramSharedMemory::PassOnCommandLineIsEnabled(PROCESS_TYPE_UTILITY));
-#else   // !BUILDFLAG(IS_ANDROID)
   EXPECT_TRUE(
       HistogramSharedMemory::PassOnCommandLineIsEnabled(PROCESS_TYPE_UTILITY));
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 MULTIPROCESS_TEST_MAIN(InitFromLaunchParameters) {
@@ -102,7 +95,7 @@ MULTIPROCESS_TEST_MAIN(InitFromLaunchParameters) {
 //  - This doesn't apply on Apple platforms (which use Rendezvous Keys)
 //  - On Android the global descriptor table is managed by the launcher
 //    service, so we don't have to manually update the mapping here.
-#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
   GlobalDescriptors::GetInstance()->Set(
       kArbitraryDescriptorKey,
       kArbitraryDescriptorKey + GlobalDescriptors::kBaseDescriptor);
@@ -117,7 +110,6 @@ MULTIPROCESS_TEST_MAIN(InitFromLaunchParameters) {
   return 0;
 }
 
-#if !BUILDFLAG(IS_IOS)
 using HistogramSharedMemoryTest = ::testing::TestWithParam<bool>;
 
 INSTANTIATE_TEST_SUITE_P(All,
@@ -176,11 +168,9 @@ TEST_P(HistogramSharedMemoryTest, PassSharedMemoryRegion_Enabled) {
       kArbitraryDescriptorKey);
   //  GlobalDescriptors::GetInstance()->Set(kArbitraryDescriptorKey,
   //  descriptor_to_share);
-#if !BUILDFLAG(IS_ANDROID)
   for (auto& pair : launch_options.fds_to_remap) {
     pair.second += base::GlobalDescriptors::kBaseDescriptor;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 #endif  // BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE)
 
   // Launch the child process.
@@ -194,6 +184,5 @@ TEST_P(HistogramSharedMemoryTest, PassSharedMemoryRegion_Enabled) {
       process, TestTimeouts::action_timeout(), &exit_code));
   EXPECT_EQ(0, exit_code);
 }
-#endif
 
 }  // namespace base

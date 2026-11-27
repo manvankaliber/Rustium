@@ -17,8 +17,6 @@
 
 #if BUILDFLAG(IS_WIN)
 #include <windows.h>
-#elif BUILDFLAG(IS_IOS)
-#include <CoreGraphics/CoreGraphics.h>
 #elif BUILDFLAG(IS_MAC)
 #include <ApplicationServices/ApplicationServices.h>
 #endif

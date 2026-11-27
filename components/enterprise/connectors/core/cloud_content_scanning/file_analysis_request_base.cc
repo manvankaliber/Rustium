@@ -34,9 +34,6 @@
 #include "net/base/mime_sniffer.h"
 #include "net/base/mime_util.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/content_uri_utils.h"
-#endif
 
 namespace enterprise_connectors {
 
@@ -46,7 +43,6 @@ constexpr size_t kReadFileChunkSize = 1024 * 1024;
 constexpr size_t kMaxUploadSizeMetricsKB = 500 * 1024;
 constexpr uint64_t kMaxHashComputeSizeBytes = 25ull * 1024 * 1024 * 1024;
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 bool IsZipFile(const base::FilePath::StringType& extension,
                const std::string& mime_type) {
   return extension == FILE_PATH_LITERAL(".zip") ||
@@ -60,19 +56,10 @@ bool IsRarFile(const base::FilePath::StringType& extension,
          mime_type == "application/vnd.rar" ||
          mime_type == "application/x-rar-compressed";
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Returns the file name to send in the scanning request.
 std::string GetRequestFilename(const base::FilePath& path,
                                const base::FilePath& file_name) {
-#if BUILDFLAG(IS_ANDROID)
-  // A content URI (e.g. "content://authority/document/123") isn't
-  // meaningful as a file name, so use the display name provided by the
-  // caller instead.
-  if (path.IsContentUri() && !file_name.empty()) {
-    return file_name.AsUTF8Unsafe();
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
   return path.AsUTF8Unsafe();
 }
 
@@ -188,14 +175,6 @@ bool ShouldCheckVirtualFile(const base::FilePath& path) {
 
 std::optional<std::string> DetectFileMimeType(const base::FilePath& path,
                                               base::File& file) {
-#if BUILDFLAG(IS_ANDROID)
-  if (path.IsContentUri()) {
-    std::string content_mime_type = base::GetContentUriMimeType(path);
-    if (!content_mime_type.empty()) {
-      return content_mime_type;
-    }
-  }
-#endif
 
   if (ShouldCheckVirtualFile(path)) {
     base::FilePath::StringType ext = path.FinalExtension();
@@ -245,14 +224,6 @@ GetFileDataBlocking(
     return std::make_pair(ScanRequestUploadResult::kUnknown, file_data);
   }
 
-#if BUILDFLAG(IS_ANDROID)
-  // TODO(crbug.com/428696170): Scan pipe-backed files instead of failing them
-  // by copying the stream into a temporary file (capped at the max upload
-  // size) and scanning that copy.
-  if (path.IsContentUri() && file.Seek(base::File::FROM_CURRENT, 0) < 0) {
-    return std::make_pair(ScanRequestUploadResult::kUnknown, file_data);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   file_data.size = file.GetLength();
   if (file_data.size == 0) {
@@ -499,11 +470,6 @@ void FileAnalysisRequestBase::OnGotFileData(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  CacheResultAndData(enterprise_connectors::ScanRequestUploadResult::kSuccess,
-                     std::move(result_and_data.second));
-  RunCallback();
-#else
   const std::string& mime_type = cached_data_.mime_type.empty()
                                      ? result_and_data.second.mime_type
                                      : cached_data_.mime_type;
@@ -519,7 +485,6 @@ void FileAnalysisRequestBase::OnGotFileData(
                        std::move(result_and_data.second));
     RunCallback();
   }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 }
 
 void FileAnalysisRequestBase::CacheResultAndData(ScanRequestUploadResult result,
@@ -576,11 +541,7 @@ bool FileAnalysisRequestBase::IsVirtualFile(const base::FilePath& path) {
   if (g_is_virtual_file_for_testing) {
     return true;
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  return base::FilePath("/media/fuse").IsParent(path);
-#else
   return false;
-#endif
 }
 
 }  // namespace enterprise_connectors

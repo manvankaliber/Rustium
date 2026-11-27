@@ -70,9 +70,6 @@ namespace {
 
 void RecordSharedWorkerUsage(LocalDOMWindow* window) {
   UseCounter::Count(window, WebFeature::kSharedWorkerStart);
-#if BUILDFLAG(IS_ANDROID)
-  UseCounter::Count(window, WebFeature::kSharedWorkerStartOnAndroid);
-#endif
 
   if (window->IsCrossSiteSubframe())
     UseCounter::Count(window, WebFeature::kThirdPartySharedWorker);

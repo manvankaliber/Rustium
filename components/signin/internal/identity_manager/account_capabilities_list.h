@@ -27,40 +27,20 @@
 // clang-format off
 // keep-sorted start newline_separated=yes sticky_prefixes=#if,BUILDFLAG group_prefixes=#endif
 // clang-format on
-#if BUILDFLAG(IS_IOS)
-ACCOUNT_CAPABILITY(
-    kCanContextuallyShowHistorySyncOptInsWithoutMinorModeRestrictionsCapabilityName,
-    CAN_CONTEXTUALLY_SHOW_HISTORY_SYNC_OPT_INS_WITHOUT_MINOR_MODE_RESTRICTIONS_CAPABILITY_NAME,
-    "accountcapabilities/giztknjnmnqxa")
-#endif
 
-#if BUILDFLAG(IS_IOS)
-ACCOUNT_CAPABILITY(kCanContextuallyUseGeminiInChromeCapabilityName,
-                   CAN_CONTEXTUALLY_USE_GEMINI_IN_CHROME_NAME,
-                   "accountcapabilities/giztmobnmnqxa")
-#endif
 
-#if BUILDFLAG(IS_IOS)
-ACCOUNT_CAPABILITY(kCanContextuallyUseModelExecutionFeaturesName,
-                   CAN_CONTEXTUALLY_USE_MODEL_EXECUTION_FEATURES_NAME,
-                   "accountcapabilities/giztinznmnqxa")
-#endif
 
 ACCOUNT_CAPABILITY(kCanFetchFamilyMemberInfoCapabilityName,
                    CAN_FETCH_FAMILY_MEMBER_INFO_CAPABILITY_NAME,
                    "accountcapabilities/ge2dinbnmnqxa")
 
-#if !BUILDFLAG(IS_IOS)
 ACCOUNT_CAPABILITY(kCanHaveEmailAddressDisplayedCapabilityName,
                    CAN_HAVE_EMAIL_ADDRESS_DISPLAYED_CAPABILITY_NAME,
                    "accountcapabilities/haytqlldmfya")
-#endif
 
-#if !BUILDFLAG(IS_ANDROID)
 ACCOUNT_CAPABILITY(kCanMakeChromeSearchEngineChoiceScreenChoice,
                    CAN_MAKE_CHROME_SEARCH_ENGINE_CHOICE_SCREEN_CHOICE,
                    "accountcapabilities/ge4tenznmnqxa")
-#endif
 
 ACCOUNT_CAPABILITY(kCanOverrideAccountInfoCapabilityName,
                    CAN_OVERRIDE_ACCOUNT_INFO_CAPABILITY_NAME,
@@ -71,58 +51,28 @@ ACCOUNT_CAPABILITY(
     CAN_SHOW_HISTORY_SYNC_OPT_INS_WITHOUT_MINOR_MODE_RESTRICTIONS_CAPABILITY_NAME,
     "accountcapabilities/gi2tklldmfya")
 
-#if BUILDFLAG(IS_IOS)
-ACCOUNT_CAPABILITY(kCanSignInToChromeCapabilityName,
-                   CAN_SIGN_IN_TO_CHROME_CAPABILITY_NAME,
-                   "accountcapabilities/giztambnmnqxa")
-#endif
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_IOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
 ACCOUNT_CAPABILITY(kCanSubmitFeedbackInChromeCapabilityName,
                    CAN_SUBMIT_FEEDBACK_IN_CHROME_CAPABILITY_NAME,
                    "accountcapabilities/gizdqmrnmnqxa")
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-ACCOUNT_CAPABILITY(kCanToggleAutoUpdatesName,
-                   CAN_TOGGLE_AUTO_UPDATES_NAME,
-                   "accountcapabilities/gu4dmlldmfya")
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-ACCOUNT_CAPABILITY(kCanUseChromeOSGenerativeAi,
-                   CAN_USE_CHROMEOS_GENERATIVE_AI,
-                   "accountcapabilities/ge3dgmjnmnqxa")
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 ACCOUNT_CAPABILITY(kCanUseDevToolsGenerativeAiFeaturesCapabilityName,
                    CAN_USE_DEVTOOLS_GENERATIVE_AI_FEATURES_CAPABILITY_NAME,
                    "accountcapabilities/geztenjnmnqxa")
-#endif
 
-#if !BUILDFLAG(IS_IOS)
 ACCOUNT_CAPABILITY(kCanUseEduFeaturesCapabilityName,
                    CAN_USE_EDU_FEATURES_CAPABILITY_NAME,
                    "accountcapabilities/gezdsmbnmnqxa")
-#endif
 
 ACCOUNT_CAPABILITY(kCanUseGeminiInChromeCapabilityName,
                    CAN_USE_GEMINI_IN_CHROME_CAPABILITY_NAME,
                    "accountcapabilities/giytmnrnmnqxa")
 
-#if BUILDFLAG(IS_CHROMEOS)
-ACCOUNT_CAPABILITY(kCanUseGenerativeAiInRecorderApp,
-                   CAN_USE_GENERATIVE_AI_IN_RECORDER_APP,
-                   "accountcapabilities/ge2tkobnmnqxa")
-#endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-ACCOUNT_CAPABILITY(kCanUseGenerativeAiPhotoEditing,
-                   CAN_USE_GENERATIVE_AI_PHOTO_EDITING,
-                   "accountcapabilities/ge3dgobnmnqxa")
-#endif
 
 ACCOUNT_CAPABILITY(kCanUseMantaServiceName,
                    CAN_USE_MANTA_SERVICE_NAME,
@@ -165,22 +115,12 @@ ACCOUNT_CAPABILITY(kIsSubjectToUniversalOptOutCapabilityName,
                    IS_SUBJECT_TO_UNIVERSAL_OPT_OUT_CAPABILITY_NAME,
                    "accountcapabilities/gmydemrnmnqxa")
 
-#if BUILDFLAG(IS_IOS)
-ACCOUNT_CAPABILITY(kMustFetchAppleAgeRangeInChromeCapabilityName,
-                   MUST_FETCH_APPLE_AGE_RANGE_IN_CHROME_CAPABILITY_NAME,
-                   "accountcapabilities/gi3dkmbnmnqxa")
-#endif
 
 ACCOUNT_CAPABILITY(
     kMustShowEquallyWeightedButtonsForPrivatePassesInChromeAutofillCapabilityName,
     MUST_SHOW_EQUALLY_WEIGHTED_BUTTONS_FOR_PRIVATE_PASSES_IN_CHROME_AUTOFILL_CAPABILITY_NAME,
     "accountcapabilities/gm3denjnmnqxa")
 
-#if BUILDFLAG(IS_IOS)
-ACCOUNT_CAPABILITY(kMustSkipAppleAgeRangeInChromeCapabilityName,
-                   MUST_SKIP_APPLE_AGE_RANGE_IN_CHROME_CAPABILITY_NAME,
-                   "accountcapabilities/gi2tqnbnmnqxa")
-#endif
 
 ACCOUNT_CAPABILITY(kShouldBeAddressedInFeminineGrammaticalGender,
                    SHOULD_BE_ADDRESSED_IN_FEMININE_GRAMMATICAL_GENDER,
@@ -197,11 +137,7 @@ ACCOUNT_CAPABILITY(kShouldBeAddressedInNeuterGrammaticalGender,
 ACCOUNT_CAPABILITY(
     kSupportsWalletPrivatePassesInAutofillCapabilityName,
     SUPPORTS_WALLET_PRIVATE_PASSES_IN_AUTOFILL_NAME,
-#if BUILDFLAG(IS_IOS)
-    "accountcapabilities/gmzdsnrnmnqxa"
-#else
     "accountcapabilities/gi3dknrnmnqxa"
-#endif
 )
 
 // keep-sorted end

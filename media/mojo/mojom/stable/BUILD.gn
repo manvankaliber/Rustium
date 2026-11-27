@@ -10,11 +10,9 @@ import("//mojo/public/tools/bindings/mojom.gni")
 # the native_pixmap_handle.mojom file and its traits closer to the code
 # that uses them.
 mojom("native_pixmap_handle") {
-  generate_java = true
-
   sources = [ "native_pixmap_handle.mojom" ]
 
-  if (is_linux || is_chromeos) {
+  if (is_linux) {
     cpp_typemaps = [
       {
         types = [
@@ -40,7 +38,7 @@ mojom("native_pixmap_handle") {
   }
 }
 
-if (is_linux || is_chromeos) {
+if (is_linux) {
   source_set("unit_tests") {
     testonly = true
     sources = [ "native_pixmap_handle_mojom_traits_unittest.cc" ]

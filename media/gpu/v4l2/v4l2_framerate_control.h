@@ -12,7 +12,7 @@
 #include "base/task/sequenced_task_runner.h"
 #include "base/time/time.h"
 #include "media/base/video_frame.h"
-#include "media/gpu/chromeos/frame_resource.h"
+#include "media/gpu/linux/frame_resource.h"
 
 namespace media {
 

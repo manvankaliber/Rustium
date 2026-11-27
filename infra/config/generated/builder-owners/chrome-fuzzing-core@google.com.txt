@@ -1,5 +1,4 @@
 ci/Centipede Upload Linux ASan
-ci/Libfuzzer Upload Chrome OS ASan
 ci/Libfuzzer Upload Linux ASan
 ci/Libfuzzer Upload Linux ASan Debug
 ci/Libfuzzer Upload Linux ASanBrpV2
@@ -10,11 +9,6 @@ ci/Libfuzzer Upload Mac ASan
 ci/Libfuzzer Upload Mac ASan Schema v1
 ci/Libfuzzer Upload Windows ASan
 ci/Libfuzzer Upload Windows ASan Schema v1
-ci/Libfuzzer Upload iOS Catalyst Debug
-ci/android-arm64-libfuzzer-hwasan
-ci/android-desktop-x64-asan-rel
-ci/android-desktop-x64-libfuzzer-asan
-ci/chromeos-x64-libfuzzer-asan-rel-tests
 ci/linux-centipede-fuzz-coverage
 ci/linux-fuzz-coverage
 ci/linux-x64-centipede-asan-rel-tests
@@ -30,11 +24,6 @@ ci/mac-arm64-libfuzzer-asan-rel-tests
 ci/mac-libfuzzer-coverage
 ci/win-libfuzzer-coverage
 ci/win-x64-libfuzzer-asan-rel-tests
-try/android-arm64-libfuzzer-hwasan
-try/android-desktop-x64-asan-rel
-try/android-desktop-x64-libfuzzer-asan
-try/chromeos-libfuzzer-asan-rel
-try/chromeos-x64-libfuzzer-asan-rel-tests
 try/linux-centipede-asan-rel
 try/linux-libfuzzer-asan-rel
 try/linux-x64-centipede-asan-rel-tests

@@ -208,9 +208,8 @@ function alreadyDisplayed(element, data) {
 }
 
 function updateBrowserVisibility(browserSection) {
-  const icon = browserSection.querySelector('.used-for-port-forwarding');
   browserSection.hidden = !browserSection.querySelector('.open') &&
-      !browserSection.querySelector('.row') && (!icon || icon.hidden);
+      !browserSection.querySelector('.row');
 }
 
 function updateUsernameVisibility(deviceSection) {
@@ -425,12 +424,6 @@ function populateRemoteTargets(devices) {
           browserHeader.appendChild(newPage);
         }
 
-        const portForwardingInfo = document.createElement('div');
-        portForwardingInfo.className = 'used-for-port-forwarding';
-        portForwardingInfo.hidden = true;
-        portForwardingInfo.title = 'This browser is used for port ' +
-            'forwarding. Closing it will drop current connections.';
-        browserHeader.appendChild(portForwardingInfo);
 
         const link = document.createElement('span');
         link.classList.add('action');
@@ -768,17 +761,12 @@ function initSettings() {
   checkboxSendsCommand(
       'remote-debugging-enabled', 'set-remote-debugging-enabled');
   checkboxSendsCommand(
-      'discover-usb-devices-enable', 'set-discover-usb-devices-enabled');
-  checkboxSendsCommand('port-forwarding-enable', 'set-port-forwarding-enabled');
-  checkboxSendsCommand(
       'discover-tcp-devices-enable', 'set-discover-tcp-targets-enabled');
 
   $('launch-ui-devtools')
       .addEventListener('click', sendCommand.bind(null, 'launch-ui-devtools'));
   checkboxSendsCommand('bubble-locking-checkbox', 'set-bubble-locking');
 
-  $('port-forwarding-config-open')
-      .addEventListener('click', openPortForwardingConfig);
   $('tcp-discovery-config-open').addEventListener('click', openTargetsConfig);
   $('config-dialog-close').addEventListener('click', function() {
     $('config-dialog').commit(true);
@@ -889,34 +877,7 @@ function openConfigDialog(dialogClass, commitHandler, lineFactory, data) {
   }
 }
 
-function openPortForwardingConfig() {
-  function createPortForwardingConfigLine(port, location) {
-    const line = document.createElement('div');
-    line.className = 'port-forwarding-pair config-list-row';
 
-    const portInput =
-        createConfigField(port, 'port preselected', 'Port', validatePort);
-    line.appendChild(portInput);
-
-    const locationInput = createConfigField(
-        location, 'location', 'IP address and port', validateLocation);
-    locationInput.classList.add('primary');
-    line.appendChild(locationInput);
-    return line;
-  }
-
-  function commitPortForwardingConfig() {
-    const config = {};
-    filterList(['.port', '.location'], function(port, location) {
-      config[port] = location;
-    });
-    sendCommand('set-port-forwarding-config', config);
-  }
-
-  openConfigDialog(
-      'port-forwarding', commitPortForwardingConfig,
-      createPortForwardingConfigLine, window.portForwardingConfig);
-}
 
 function openTargetsConfig() {
   function createTargetDiscoveryConfigLine(index, targetDiscovery) {
@@ -970,20 +931,11 @@ function updateCheckbox(id, enabled) {
   checkbox.disabled = false;
 }
 
-function updateDiscoverUsbDevicesEnabled(enabled) {
-  updateCheckbox('discover-usb-devices-enable', enabled);
-}
 
-function updatePortForwardingEnabled(enabled) {
-  updateCheckbox('port-forwarding-enable', enabled);
-  $('infobar').classList.toggle('show', enabled);
-  $('infobar').scrollIntoView();
-}
 
-function updatePortForwardingConfig(config) {
-  window.portForwardingConfig = config;
-  $('port-forwarding-config-open').disabled = !config;
-}
+
+
+
 
 function updateTCPDiscoveryEnabled(enabled) {
   updateCheckbox('discover-tcp-devices-enable', enabled);
@@ -1174,101 +1126,16 @@ function commitFreshLineIfValid(opt_selectNew) {
   return true;
 }
 
-function populatePortStatus(devicesStatusMap) {
-  for (const deviceId in devicesStatusMap) {
-    if (!devicesStatusMap.hasOwnProperty(deviceId)) {
-      continue;
-    }
-    const deviceStatus = devicesStatusMap[deviceId];
-    const deviceStatusMap = deviceStatus.ports;
 
-    const deviceSection = $(deviceId);
-    if (!deviceSection) {
-      continue;
-    }
-
-    const devicePorts = deviceSection.querySelector('.device-ports');
-    if (alreadyDisplayed(devicePorts, deviceStatus)) {
-      continue;
-    }
-
-    devicePorts.textContent = '';
-    for (const port in deviceStatusMap) {
-      if (!deviceStatusMap.hasOwnProperty(port)) {
-        continue;
-      }
-
-      const status = deviceStatusMap[port];
-      const portIcon = document.createElement('div');
-      portIcon.className = 'port-icon';
-      // status === 0 is the default (connected) state.
-      if (status === -1 || status === -2) {
-        portIcon.classList.add('transient');
-        portIcon.title = 'Attempting to forward port';
-      } else if (status < 0) {
-        portIcon.classList.add('error');
-        portIcon.title = 'Port forwarding failed';
-      } else {
-        portIcon.title = 'Successfully forwarded port';
-      }
-      devicePorts.appendChild(portIcon);
-
-      const portNumber = document.createElement('div');
-      portNumber.className = 'port-number';
-      portNumber.textContent = ':' + port;
-      devicePorts.appendChild(portNumber);
-    }
-
-    function updatePortForwardingInfo(browserSection) {
-      const icon = browserSection.querySelector('.used-for-port-forwarding');
-      if (icon) {
-        icon.hidden = (browserSection.id !== deviceStatus.browserId);
-      }
-      updateBrowserVisibility(browserSection);
-    }
-
-    Array.prototype.forEach.call(
-        deviceSection.querySelectorAll('.browser'), updatePortForwardingInfo);
-
-    updateUsernameVisibility(deviceSection);
-  }
-
-  function clearBrowserPorts(browserSection) {
-    const icon = browserSection.querySelector('.used-for-port-forwarding');
-    if (icon) {
-      icon.hidden = true;
-    }
-    updateBrowserVisibility(browserSection);
-  }
-
-  function clearPorts(deviceSection) {
-    if (deviceSection.id in devicesStatusMap) {
-      return;
-    }
-    const devicePorts = deviceSection.querySelector('.device-ports');
-    devicePorts.textContent = '';
-    delete devicePorts.cachedJSON;
-
-    Array.prototype.forEach.call(
-        deviceSection.querySelectorAll('.browser'), clearBrowserPorts);
-  }
-
-  Array.prototype.forEach.call(
-      document.querySelectorAll('.device'), clearPorts);
-}
 
 // Expose functions on |window| since they are called from C++ by name.
 Object.assign(window, {
-  updateDiscoverUsbDevicesEnabled,
-  updatePortForwardingEnabled,
-  updatePortForwardingConfig,
   updateTCPDiscoveryEnabled,
   updateTCPDiscoveryConfig,
   updateBubbleLockingCheckbox,
   updateRemoteDebuggingEnabled,
   populateNativeUITargets,
   populateTargets,
-  populatePortStatus,
   showIncognitoWarning,
   showNativeUILaunchButton,
   setHostVersion,

@@ -650,7 +650,7 @@ TEST_F(VotesUploaderTest, UploadSingleUsernameMultipleFieldsInUsernameForm) {
   votes_uploader.set_should_send_username_first_flow_votes(true);
 
   // Upload on the username form.
-  if constexpr (!BUILDFLAG(IS_ANDROID)) {
+  {
     auto upload_contents_matcher =
         IsPasswordUpload(FormSignatureIs(kSingleUsernameFormSignature),
                          FieldsContain(SingleUsernameUploadField(
@@ -658,9 +658,6 @@ TEST_F(VotesUploaderTest, UploadSingleUsernameMultipleFieldsInUsernameForm) {
     EXPECT_CALL(mock_autofill_crowdsourcing_manager_,
                 StartUploadRequest(upload_contents_matcher, _,
                                    /*is_password_manager_upload=*/true));
-  } else {
-    EXPECT_CALL(mock_autofill_crowdsourcing_manager_, StartUploadRequest)
-        .Times(0);
   }
 
   votes_uploader.MaybeSendSingleUsernameVotes();
@@ -679,7 +676,7 @@ TEST_F(VotesUploaderTest, UploadNotSingleUsernameForWhitespaces) {
       /*saved_username=*/u"saved_value", /*all_alternative_usernames=*/{});
   votes_uploader.set_should_send_username_first_flow_votes(true);
 
-  if constexpr (!BUILDFLAG(IS_ANDROID)) {
+  {
     // Upload on the username form.
     auto upload_contents_matcher =
         IsPasswordUpload(FormSignatureIs(kSingleUsernameFormSignature),
@@ -688,9 +685,6 @@ TEST_F(VotesUploaderTest, UploadNotSingleUsernameForWhitespaces) {
     EXPECT_CALL(mock_autofill_crowdsourcing_manager_,
                 StartUploadRequest(upload_contents_matcher, _,
                                    /*is_password_manager_upload=*/true));
-  } else {
-    EXPECT_CALL(mock_autofill_crowdsourcing_manager_, StartUploadRequest)
-        .Times(0);
   }
 
   votes_uploader.MaybeSendSingleUsernameVotes();
@@ -736,7 +730,7 @@ TEST_F(VotesUploaderTest, SingleUsernameValueSuggestedAndAccepted) {
       /*all_alternative_usernames=*/{});
   votes_uploader.set_should_send_username_first_flow_votes(true);
 
-  if constexpr (!BUILDFLAG(IS_ANDROID)) {
+  {
     // Upload on the username form.
     auto upload_contents_matcher =
         IsPasswordUpload(FormSignatureIs(kSingleUsernameFormSignature),
@@ -745,9 +739,6 @@ TEST_F(VotesUploaderTest, SingleUsernameValueSuggestedAndAccepted) {
     EXPECT_CALL(mock_autofill_crowdsourcing_manager_,
                 StartUploadRequest(upload_contents_matcher, _,
                                    /*is_password_manager_upload=*/true));
-  } else {
-    EXPECT_CALL(mock_autofill_crowdsourcing_manager_, StartUploadRequest)
-        .Times(0);
   }
 
   votes_uploader.MaybeSendSingleUsernameVotes();
@@ -769,7 +760,7 @@ TEST_F(VotesUploaderTest, SingleUsernameOtherValueSuggestedAndAccepted) {
       /*saved_username=*/suggested_value, /*all_alternative_usernames=*/{});
   votes_uploader.set_should_send_username_first_flow_votes(true);
 
-  if constexpr (!BUILDFLAG(IS_ANDROID)) {
+  {
     // Upload on the username form.
     auto upload_contents_matcher =
         IsPasswordUpload(FormSignatureIs(kSingleUsernameFormSignature),
@@ -778,9 +769,6 @@ TEST_F(VotesUploaderTest, SingleUsernameOtherValueSuggestedAndAccepted) {
     EXPECT_CALL(mock_autofill_crowdsourcing_manager_,
                 StartUploadRequest(upload_contents_matcher, _,
                                    /*is_password_manager_upload=*/true));
-  } else {
-    EXPECT_CALL(mock_autofill_crowdsourcing_manager_, StartUploadRequest)
-        .Times(0);
   }
   votes_uploader.MaybeSendSingleUsernameVotes();
 }
@@ -802,7 +790,7 @@ TEST_F(VotesUploaderTest, SingleUsernameValueSetInPrompt) {
       /*all_alternative_usernames=*/{});
   votes_uploader.set_should_send_username_first_flow_votes(true);
 
-  if constexpr (!BUILDFLAG(IS_ANDROID)) {
+  {
     // Upload on the username form.
     auto upload_contents_matcher =
         IsPasswordUpload(FormSignatureIs(kSingleUsernameFormSignature),
@@ -811,9 +799,6 @@ TEST_F(VotesUploaderTest, SingleUsernameValueSetInPrompt) {
     EXPECT_CALL(mock_autofill_crowdsourcing_manager_,
                 StartUploadRequest(upload_contents_matcher, _,
                                    /*is_password_manager_upload=*/true));
-  } else {
-    EXPECT_CALL(mock_autofill_crowdsourcing_manager_, StartUploadRequest)
-        .Times(0);
   }
   votes_uploader.MaybeSendSingleUsernameVotes();
 }
@@ -833,7 +818,7 @@ TEST_F(VotesUploaderTest, SingleUsernameValueDeletedInPrompt) {
       /*saved_username=*/u"", /*all_alternative_usernames=*/{});
   votes_uploader.set_should_send_username_first_flow_votes(true);
 
-  if constexpr (!BUILDFLAG(IS_ANDROID)) {
+  {
     // Upload on the username form.
     auto upload_contents_matcher =
         IsPasswordUpload(FormSignatureIs(kSingleUsernameFormSignature),
@@ -842,9 +827,6 @@ TEST_F(VotesUploaderTest, SingleUsernameValueDeletedInPrompt) {
     EXPECT_CALL(mock_autofill_crowdsourcing_manager_,
                 StartUploadRequest(upload_contents_matcher, _,
                                    /*is_password_manager_upload=*/true));
-  } else {
-    EXPECT_CALL(mock_autofill_crowdsourcing_manager_, StartUploadRequest)
-        .Times(0);
   }
   votes_uploader.MaybeSendSingleUsernameVotes();
 }

@@ -13,7 +13,6 @@
 
 #include "base/containers/span.h"
 #include "base/containers/span_reader.h"
-#include "base/strings/string_util.h"
 #include "net/base/net_export.h"
 
 // Various utilities for converting, validating, and comparing DNS names.
@@ -87,17 +86,18 @@ NET_EXPORT_PRIVATE bool ReadU16LengthPrefixed(
 // name could still be a valid DNS name.
 NET_EXPORT_PRIVATE std::string UrlCanonicalizeNameIfAble(std::string_view name);
 
+// Exported C++ entry point keeps inline comparator users independent of the
+// private Rust bridge symbols and generated headers.
+NET_EXPORT_PRIVATE bool DomainNameLess(std::string_view lhs,
+                                       std::string_view rhs);
+
 // std::map-compliant Compare for two domain names. Works for any valid
 // dotted-format or network-wire-format names. Returns true iff `lhs` is before
 // `rhs` in strict weak ordering.
 class NET_EXPORT_PRIVATE DomainNameComparator {
  public:
   bool operator()(std::string_view lhs, std::string_view rhs) const {
-    // This works for dotted format or network-wire format as long as the names
-    // are valid because valid network-wire names have labels of max 63 bytes
-    // and thus will never have label length prefixes high enough to be
-    // misinterpreted as capital letters ('A' is 65).
-    return base::CompareCaseInsensitiveASCII(lhs, rhs) < 0;
+    return DomainNameLess(lhs, rhs);
   }
 };
 

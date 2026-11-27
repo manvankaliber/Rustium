@@ -47,7 +47,6 @@
 #include "chrome/browser/ui/views/autofill/popup/popup_base_view.h"
 #include "chrome/browser/ui/views/autofill/popup/popup_bnpl_footnote_view.h"
 #include "chrome/browser/ui/views/autofill/popup/popup_centered_text_view.h"
-#include "chrome/browser/ui/views/autofill/popup/popup_footer_with_link_view.h"
 #include "chrome/browser/ui/views/autofill/popup/popup_interactive_row_view.h"
 #include "chrome/browser/ui/views/autofill/popup/popup_loading_view.h"
 #include "chrome/browser/ui/views/autofill/popup/popup_notice_view.h"
@@ -590,10 +589,6 @@ bool PopupViewViews::HandleKeyPressEvent(
     return HandleKeyPressEventForCompose(event);
   }
 
-  if (controller_->GetMainFillingProduct() == FillingProduct::kAtMemory) {
-    return HandleKeyPressEventForAtMemory(event);
-  }
-
   const bool kHasShiftModifier =
       (event.GetModifiers() & blink::WebInputEvent::kShiftKey);
   const bool kHasNonShiftModifier =
@@ -754,46 +749,6 @@ bool PopupViewViews::HandleKeyPressEventForCompose(
       }
       return false;
     }
-    default:
-      return false;
-  }
-}
-
-bool PopupViewViews::HandleKeyPressEventForAtMemory(
-    const input::NativeWebKeyboardEvent& event) {
-  CHECK_EQ(controller_->GetMainFillingProduct(), FillingProduct::kAtMemory);
-
-  switch (event.windows_key_code) {
-    case ui::VKEY_ESCAPE:
-      controller_->Hide(SuggestionHidingReason::kUserAborted);
-      return true;
-    case ui::VKEY_RETURN: {
-      if (GetSelectedCell()) {
-        return AcceptSelectedContentOrCreditCardCell(
-            AutofillMetrics::SuggestionAcceptedMethod::kKeyboard);
-      }
-      if (search_bar_) {
-        controller_->SetFilter(
-            AutofillPopupController::StringFilter(search_bar_->GetText()),
-            AutofillPopupController::FilterSource::kSearchSubmitted);
-        return true;
-      }
-      return false;
-    }
-    case ui::VKEY_UP:
-      if (GetSelectedCell()) {
-        SelectPreviousRow();
-        return true;
-      }
-      return false;
-    case ui::VKEY_DOWN:
-      if (!rows_.empty()) {
-        SelectNextRow(PopupCellSelectionSource::kKeyboard);
-      }
-      return GetSelectedCell().has_value();
-    case ui::VKEY_LEFT:
-    case ui::VKEY_RIGHT:
-      return HandlePopupHorizontalNavigation(event);
     default:
       return false;
   }
@@ -1313,9 +1268,6 @@ void PopupViewViews::InitViews() {
       views::BoxLayout::Orientation::kVertical));
 
   if (search_bar_config_) {
-    const bool is_at_memory =
-        controller_ &&
-        controller_->GetMainFillingProduct() == FillingProduct::kAtMemory;
     base::span<const std::u16string> placeholders =
         search_bar_config_->placeholders;
     CHECK(!placeholders.empty());
@@ -1323,10 +1275,8 @@ void PopupViewViews::InitViews() {
         placeholders.front(), search_bar_config_->initial_value,
         /*rotating_placeholders=*/base::ToVector(placeholders.subspan(1u)),
         *this,
-        /*show_search_icon_sparkle=*/is_at_memory,
-        /*debounce_delay=*/
-        is_at_memory ? base::TimeDelta()
-                     : PopupSearchBarView::kInputChangeCallbackDelay));
+        /*show_search_icon_sparkle=*/false,
+        /*debounce_delay=*/PopupSearchBarView::kInputChangeCallbackDelay));
     search_bar_->SetProperty(views::kMarginsKey,
                              gfx::Insets::VH(GetContentsVerticalPadding(), 0));
     search_bar_->SetLoading(controller_ && controller_->IsSearching());
@@ -1413,11 +1363,6 @@ void PopupViewViews::CreateSuggestionViews() {
           body_builder.AddRow(std::make_unique<PopupLoadingView>(
               suggestions[current_line_number]
                   .expected_number_of_suggestions.value_or(1)));
-          break;
-        }
-        case SuggestionType::kAtMemoryFetching: {
-          body_builder.AddRow(std::make_unique<PopupCenteredTextView>(
-              suggestions[current_line_number].main_text.value));
           break;
         }
         case SuggestionType::kAutofillAiPrivateInferenceNotice: {
@@ -1514,13 +1459,12 @@ void PopupViewViews::CreateSuggestionViews() {
           controller(), /*a11y_selection_delegate=*/*this,
           base::BindRepeating(&DefaultA11yAnnouncer)));
     } else if (suggestions[current_line_number].type ==
-               SuggestionType::kAtMemoryAiDisclosure) {
-      footer_builder.AddRow(CreateAtMemoryAiDisclosureView(
-          controller(), /*a11y_selection_delegate=*/*this));
-    } else if (suggestions[current_line_number].type ==
-               SuggestionType::kAtMemoryShortcutSettingsPromo) {
-      footer_builder.AddRow(CreateAtMemoryShortcutSettingsPromoView(
-          controller(), /*a11y_selection_delegate=*/*this));
+                   SuggestionType::kAtMemoryAiDisclosure ||
+               suggestions[current_line_number].type ==
+                   SuggestionType::kAtMemoryShortcutSettingsPromo) {
+      // Preserve row indices if an obsolete suggestion is received.
+      footer_builder.AddRow(
+          std::make_unique<PopupSeparatorView>(kInterItemsPadding));
     } else if (suggestions[current_line_number].type ==
                SuggestionType::kPersonalContextNotice) {
       footer_builder.AddRow(CreatePersonalContextNoticeView(
@@ -1834,19 +1778,12 @@ bool PopupViewViews::IsFooterScrollable() const {
 }
 
 int PopupViewViews::GetPopupMinWidth() const {
-  if (controller_ &&
-      controller_->GetMainFillingProduct() == FillingProduct::kAtMemory) {
-    return kAtMemoryPopupWidth;
-  }
   return kAutofillPopupMinWidth;
 }
 
 int PopupViewViews::GetPopupMaxWidth() const {
   if (!controller_) {
     return kAutofillPopupMaxWidth;
-  }
-  if (controller_->GetMainFillingProduct() == FillingProduct::kAtMemory) {
-    return kAtMemoryPopupWidth;
   }
   if (parent_ &&
       controller_->GetMainFillingProduct() == FillingProduct::kAutofillAi) {

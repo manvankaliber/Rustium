@@ -30,9 +30,6 @@
 #include "services/network/test/test_url_loader_factory.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/system/fake_statistics_provider.h"
-#endif
 
 using ::testing::_;
 using ::testing::ByRef;
@@ -173,9 +170,6 @@ class ResponseValueBuilder {
 class EncryptedReportingJobConfigurationTest : public testing::Test {
  public:
   EncryptedReportingJobConfigurationTest()
-#if BUILDFLAG(IS_CHROMEOS)
-      : fake_serial_number_(&fake_statistics_provider_)
-#endif
   {
   }
 
@@ -306,22 +300,6 @@ class EncryptedReportingJobConfigurationTest : public testing::Test {
 
   policy::MockCloudPolicyClient client_;
 
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::system::ScopedFakeStatisticsProvider fake_statistics_provider_;
-  class ScopedFakeSerialNumber {
-   public:
-    explicit ScopedFakeSerialNumber(
-        ash::system::ScopedFakeStatisticsProvider* fake_statistics_provider) {
-      // The fake serial number must be set before |configuration| is
-      // constructed below.
-      fake_statistics_provider->SetMachineStatistic(
-          ash::system::kSerialNumberKey, "fake_serial_number");
-      fake_statistics_provider->SetLoadingState(
-          ash::system::StatisticsProvider::LoadingState::kFinished);
-    }
-  };
-  ScopedFakeSerialNumber fake_serial_number_;
-#endif
 
   network::TestURLLoaderFactory url_loader_factory_;
   scoped_refptr<network::SharedURLLoaderFactory> shared_url_loader_factory_;

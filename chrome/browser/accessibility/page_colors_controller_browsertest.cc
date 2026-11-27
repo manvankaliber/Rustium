@@ -28,47 +28,12 @@
 #include "ui/native_theme/mock_os_settings_provider.h"
 #include "ui/native_theme/native_theme.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/test/regular_logged_in_browser_test_mixin.h"
-#include "chromeos/ash/components/browser_context_helper/annotated_account_id.h"
-#include "components/account_id/account_id.h"
-#include "components/account_id/account_id_literal.h"  // nogncheck
-#include "components/session_manager/core/session_manager.h"
-#include "components/user_manager/test_helper.h"
-#include "components/user_manager/user.h"
-#include "components/user_manager/user_manager.h"
-#include "google_apis/gaia/gaia_id.h"
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 namespace {
 
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr auto kPrimaryUserAccountId =
-    AccountId::Literal::FromUserEmailGaiaId("primary@example.com",
-                                            GaiaId::Literal("primary-gaia-id"));
-constexpr auto kSecondaryUserAccountId =
-    AccountId::Literal::FromUserEmailGaiaId(
-        "secondary@example.com",
-        GaiaId::Literal("secondary-gaia-id"));
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 void WaitForMediaQuery(content::WebContents* web_contents,
                        const std::string& query) {
-#if BUILDFLAG(IS_CHROMEOS)
-  // Renderer script does not run for WebContents on an inactive user desktop.
-  Profile* profile =
-      Profile::FromBrowserContext(web_contents->GetBrowserContext());
-  const AccountId* account_id =
-      ash::AnnotatedAccountId::Get(profile->GetOriginalProfile());
-  ASSERT_TRUE(account_id);
-  user_manager::UserManager* user_manager_instance =
-      user_manager::UserManager::Get();
-  if (user_manager_instance->GetActiveUser()->GetAccountId() != *account_id) {
-    user_manager_instance->SwitchActiveUser(*account_id);
-    ASSERT_EQ(user_manager_instance->GetActiveUser()->GetAccountId(),
-              *account_id);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   ASSERT_EQ(true, content::EvalJs(web_contents, content::JsReplace(R"(
     new Promise(resolve => {
@@ -88,13 +53,6 @@ void WaitForMediaQuery(content::WebContents* web_contents,
 
 class PageColorsControllerBrowserTest : public MixinBasedInProcessBrowserTest {
  public:
-#if BUILDFLAG(IS_CHROMEOS)
-  void SetUpLocalStatePrefService(PrefService* local_state) override {
-    MixinBasedInProcessBrowserTest::SetUpLocalStatePrefService(local_state);
-    user_manager::TestHelper::RegisterPersistedUser(*local_state,
-                                                    kSecondaryUserAccountId);
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   ui::MockOsSettingsProvider& os_settings_provider() {
     return os_settings_provider_;
@@ -152,28 +110,11 @@ class PageColorsControllerBrowserTest : public MixinBasedInProcessBrowserTest {
 
   Profile& CreateSecondProfile() {
     ProfileManager* profile_manager = g_browser_process->profile_manager();
-#if BUILDFLAG(IS_CHROMEOS)
-    const std::string secondary_user_hash =
-        user_manager::TestHelper::GetFakeUsernameHash(kSecondaryUserAccountId);
-    session_manager::SessionManager::Get()->CreateSession(
-        kSecondaryUserAccountId, secondary_user_hash,
-        /*new_user=*/false,
-        /*has_active_session=*/false);
-    return profiles::testing::CreateProfileSync(
-        profile_manager,
-        profile_manager->user_data_dir().AppendASCII(
-            user_manager::User::GetDirName(secondary_user_hash)));
-#else
     return profiles::testing::CreateProfileSync(
         profile_manager, profile_manager->GenerateNextProfileDirectoryPath());
-#endif
   }
 
  private:
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::RegularLoggedInBrowserTestMixin logged_in_mixin_{&mixin_host_,
-                                                        kPrimaryUserAccountId};
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   ui::MockOsSettingsProvider os_settings_provider_;
 };

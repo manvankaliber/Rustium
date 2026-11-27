@@ -41,17 +41,11 @@
 #include "testing/gmock/include/gmock/gmock.h"
 #include "testing/gtest/include/gtest/gtest.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/policy/core/browser_policy_connector_ash.h"
-#include "chrome/browser/ash/policy/core/user_cloud_policy_manager_ash.h"
-#include "chrome/browser/ash/profiles/profile_helper.h"
-#endif
 
 #include "chrome/browser/profiles/reporting_util.h"
 
 namespace enterprise_reporting {
 
-#if !BUILDFLAG(IS_CHROMEOS)
 class SaasUsageBrowserLevelTest : public policy::PolicyTest {
  public:
   SaasUsageBrowserLevelTest() {
@@ -162,7 +156,6 @@ IN_PROC_BROWSER_TEST_F(SaasUsageBrowserLevelTest, RecordsUsage) {
 
   run_loop.Run();
 }
-#endif
 
 class SaasUsageProfileLevelTest : public policy::PolicyTest {
  public:

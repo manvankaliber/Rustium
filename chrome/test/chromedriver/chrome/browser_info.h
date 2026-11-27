@@ -36,7 +36,6 @@ struct BrowserInfo {
   BrowserInfo& operator=(BrowserInfo&&);
   ~BrowserInfo();
 
-  std::string android_package;
   std::string browser_name;
   std::string browser_version;
   std::string user_agent;
@@ -46,7 +45,6 @@ struct BrowserInfo {
   int build_no = kToTBuildNo;
   int blink_revision = kToTBlinkRevision;
   int process_id = 0;
-  bool is_android = false;
   bool is_headless_shell = false;
   FilePathStyle file_path_style = FilePathStyle::kUnknown;
 
@@ -57,7 +55,7 @@ struct BrowserInfo {
   static Status ParseBrowserInfo(std::string_view data,
                                  BrowserInfo* browser_info);
 
-  static Status ParseBrowserString(bool has_android_package,
+  static Status ParseBrowserString(bool has_unsupported_mobile_package,
                                    std::string_view browser_string,
                                    BrowserInfo* browser_info);
 

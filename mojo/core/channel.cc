@@ -262,8 +262,7 @@ bool ShouldRecordSubsampledHistograms() {
 
 }  // namespace
 
-#if BUILDFLAG(IS_ANDROID) || \
-    (BUILDFLAG(IS_LINUX) && defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION))
+#if BUILDFLAG(IS_LINUX) && defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION)
 
 namespace {
 
@@ -331,9 +330,7 @@ void Channel::Message::SetType(IpczHeader& header, MessageType message_type) {
   header.experimental_v3.message_type = message_type;
 }
 
-#else   // BUILDFLAG(IS_ANDROID) || \
-        //    (BUILDFLAG(IS_LINUX) && \
-        //     defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION))
+#else
 
 // static
 bool Channel::SupportsMultipleNotifiers() {
@@ -367,9 +364,7 @@ Channel::Message::MessageType Channel::Message::ExtractType(
 void Channel::Message::SetType(IpczHeader& header, MessageType message_type) {
   // No-op.
 }
-#endif  // BUILDFLAG(IS_ANDROID) || \
-        //    (BUILDFLAG(IS_LINUX) && \
-        //     defined(FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION))
+#endif
 
 // static
 bool Channel::Message::IsExperimentalControlMessage(const IpczHeader& header) {
@@ -490,8 +485,6 @@ Channel::MessagePtr Channel::Message::Deserialize(
 
 #if BUILDFLAG(IS_WIN)
   uint32_t max_handles = extra_header_size / sizeof(HandleEntry);
-#elif BUILDFLAG(IS_FUCHSIA)
-  uint32_t max_handles = extra_header_size / sizeof(HandleInfoEntry);
 #elif BUILDFLAG(MOJO_USE_APPLE_CHANNEL)
   if (extra_header_size > 0 &&
       extra_header_size < sizeof(MachPortsExtraHeader)) {
@@ -682,9 +675,6 @@ ComplexMessage::ComplexMessage(size_t capacity,
 #if BUILDFLAG(IS_WIN)
   // On Windows we serialize HANDLEs into the extra header space.
   extra_header_size = max_handles_ * sizeof(HandleEntry);
-#elif BUILDFLAG(IS_FUCHSIA)
-  // On Fuchsia we serialize handle types into the extra header space.
-  extra_header_size = max_handles_ * sizeof(HandleInfoEntry);
 #elif BUILDFLAG(MOJO_USE_APPLE_CHANNEL)
   // On OSX, some of the platform handles may be mach ports, which are
   // serialised into the message buffer. Since there could be a mix of fds and
@@ -1305,7 +1295,7 @@ bool Channel::OnControlMessage(Message::MessageType message_type,
 }
 
 // Currently only CrOs, Linux, and Android support upgrades.
-#if !(BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_ANDROID))
+#if !BUILDFLAG(IS_LINUX)
 // static
 MOJO_SYSTEM_IMPL_EXPORT bool Channel::SupportsChannelUpgrade() {
   return false;
@@ -1373,7 +1363,6 @@ void Channel::DelayMessage(uint32_t channel_sequence_number,
   delayed_messages_.emplace(channel_sequence_number,
                             std::move(delayed_message));
 }
-
 
 // static
 void Channel::RecordSentMessageProcessType() {

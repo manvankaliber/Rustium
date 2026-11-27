@@ -35,10 +35,6 @@ import("//build/config/logging.gni")
 import("//build/config/sanitizers/alloc_token.gni")
 import("//build/config/sanitizers/sanitizers.gni")
 
-if (is_ios) {
-  import("//ios/features.gni")
-}
-
 partition_alloc_enable_arc_config = "//build/config/compiler:enable_arc"
 
 declare_args() {
@@ -83,23 +79,12 @@ if (is_asan || is_hwasan || is_lsan || is_tsan || is_msan) {
   use_allocator_shim_default = false
 }
 
-# Under Fuchsia, the allocator shim is only required for PA-E.
-if (is_fuchsia && _disable_partition_alloc_everywhere) {
-  use_allocator_shim_default = false
-}
-
 # Under Windows debug build, the allocator shim is not compatible with CRT.
 if (is_win && is_debug) {
   use_allocator_shim_default = false
 }
 
 if (is_win && is_component_build && (!use_custom_libcxx || libcxx_is_shared)) {
-  use_allocator_shim_default = false
-}
-
-# When Cronet builds within Android this is not supported. See
-# https://crrev.com/c/6179216.
-if (is_cronet_for_aosp_build) {
   use_allocator_shim_default = false
 }
 
@@ -115,7 +100,6 @@ enable_backup_ref_ptr_support_default = use_partition_alloc_as_malloc_default
 enable_backup_ref_ptr_slow_checks_default = false
 
 enable_dangling_raw_ptr_checks_default =
-    # The DanglingPointerDetector relies on BackupRefPtr:
     enable_backup_ref_ptr_support_default &&
     # DanglingPointerDetector is not yet enabled for official builds.
     # Enabling it would require:
@@ -130,15 +114,7 @@ enable_dangling_raw_ptr_checks_default =
     # In unofficial builds, enable only for developers interested in
     # DCHECKd/Debug builds. In the future, given its neutral performance impact,
     # we could consider removing this restriction.
-    (is_debug || dcheck_always_on) &&
-    # iOS is rolling out DanglingPointerDetection bot-by-bot.
-    (!is_ios || ios_enable_dangling_raw_ptr_checks) &&
-    # Fuchsia has never been tested against DanglingPointerDetector at the
-    #moment.
-    !is_fuchsia &&
-    # Only the `android-rel` CQ bot has enforced DanglingPointerDetector checks
-    # at the moment. The other Android bots are not ready for it yet.
-    !is_android
+    (is_debug || dcheck_always_on)
 
 raw_ptr_zero_on_construct_default = true
 raw_ptr_zero_on_move_default = true
@@ -155,4 +131,4 @@ use_partition_alloc_default = !is_cronet_build
 # On Chromecast devices, some system libraries bypass the allocator shim and
 # call free() directly on memory not managed by PartitionAlloc. This flag
 # enables a fallback to the system __real_free() to prevent crashes.
-partition_alloc_enable_system_free_fallback_default = is_cast_android
+partition_alloc_enable_system_free_fallback_default = false

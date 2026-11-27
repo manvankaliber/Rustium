@@ -934,12 +934,11 @@ IN_PROC_BROWSER_TEST_P(PDFPluginDisabledTest, DirectNavigationToPDF) {
 
 // TODO(crbug.com/40762344): fix flakiness and reenable. Also, that test
 // became flaky on Windows, see crbug.com/40838806.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
 #define MAYBE_EmbedPdfPlaceholderWithCSP DISABLED_EmbedPdfPlaceholderWithCSP
 #else
 #define MAYBE_EmbedPdfPlaceholderWithCSP EmbedPdfPlaceholderWithCSP
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC) ||
+#endif
         // BUILDFLAG(IS_WIN)
 IN_PROC_BROWSER_TEST_P(PDFPluginDisabledTest,
                        MAYBE_EmbedPdfPlaceholderWithCSP) {
@@ -960,12 +959,7 @@ IN_PROC_BROWSER_TEST_P(PDFPluginDisabledTest,
   ValidateSingleSuccessfulDownloadAndNoPDFPluginLaunch();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/40923384): Deflake and reenable the test.
-#define MAYBE_IframePdfPlaceholderWithCSP DISABLED_IframePdfPlaceholderWithCSP
-#else
 #define MAYBE_IframePdfPlaceholderWithCSP IframePdfPlaceholderWithCSP
-#endif
 IN_PROC_BROWSER_TEST_P(PDFPluginDisabledTest,
                        MAYBE_IframePdfPlaceholderWithCSP) {
   // Navigate to a page that uses <iframe> to embed a PDF as a plugin.
@@ -2887,13 +2881,8 @@ IN_PROC_BROWSER_TEST_P(PDFExtensionTest, CtrlWheelInvokesCustomZoom) {
 }
 
 // Flaky on ChromeOS (https://crbug.com/41436172)
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_TouchscreenPinchInvokesCustomZoom \
-  DISABLED_TouchscreenPinchInvokesCustomZoom
-#else
 #define MAYBE_TouchscreenPinchInvokesCustomZoom \
   TouchscreenPinchInvokesCustomZoom
-#endif
 IN_PROC_BROWSER_TEST_P(PDFExtensionTest,
                        MAYBE_TouchscreenPinchInvokesCustomZoom) {
   content::RenderFrameHost* extension_host =

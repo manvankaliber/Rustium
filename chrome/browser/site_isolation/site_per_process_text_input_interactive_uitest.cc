@@ -848,7 +848,6 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessTextInputManagerTest,
 // TODO(ekaramad): Some of the following tests should be active on Android as
 // well. Enable them when the corresponding feature is implemented for Android
 // (https://crbug.com/40464731).
-#if !BUILDFLAG(IS_ANDROID)
 // This test creates a page with multiple child frames and adds an <input> to
 // each frame. Then, sequentially, each <input> is focused by sending a tab key.
 // Then, after |TextInputState.type| for a view is changed to text, another key
@@ -889,13 +888,8 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessTextInputManagerTest,
 // This test makes sure browser correctly tracks focused editable element inside
 // each RenderFrameHost.
 // Test is flaky on chromeOS; https://crbug.com/41309421.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_TrackingFocusedElementForAllFrames \
-  DISABLED_TrackingFocusedElementForAllFrames
-#else
 #define MAYBE_TrackingFocusedElementForAllFrames \
   TrackingFocusedElementForAllFrames
-#endif
 IN_PROC_BROWSER_TEST_F(SitePerProcessTextInputManagerTest,
                        MAYBE_TrackingFocusedElementForAllFrames) {
   CreateIframePage("a(a, b(a))");
@@ -937,12 +931,7 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessTextInputManagerTest,
 // in both cases the test verifies that WebContents is aware whether or not a
 // focused editable element exists on the page.
 // Test is flaky on ChromeOS. crbug.com/41309482
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_TrackPageFocusEditableElement \
-  DISABLED_TrackPageFocusEditableElement
-#else
 #define MAYBE_TrackPageFocusEditableElement TrackPageFocusEditableElement
-#endif
 IN_PROC_BROWSER_TEST_F(SitePerProcessTextInputManagerTest,
                        MAYBE_TrackPageFocusEditableElement) {
   CreateIframePage("a(a, b(a))");
@@ -980,11 +969,7 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessTextInputManagerTest,
 // WebContents to clear focused element and verifies that there is no longer
 // a focused editable element on the page.
 // Test is flaky on ChromeOS; https://crbug.com/41309421.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ClearFocusedElementOnPage DISABLED_ClearFocusedElementOnPage
-#else
 #define MAYBE_ClearFocusedElementOnPage ClearFocusedElementOnPage
-#endif
 IN_PROC_BROWSER_TEST_F(SitePerProcessTextInputManagerTest,
                        MAYBE_ClearFocusedElementOnPage) {
   CreateIframePage("a(a, b(a))");
@@ -1461,5 +1446,3 @@ IN_PROC_BROWSER_TEST_F(SitePerProcessTextInputManagerTest,
   EXPECT_EQ(ui::TEXT_INPUT_TYPE_PASSWORD,
             content::GetTextInputTypeFromWebContents(active_contents()));
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID)

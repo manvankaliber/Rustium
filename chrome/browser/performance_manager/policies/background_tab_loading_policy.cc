@@ -52,15 +52,8 @@ constexpr base::MemoryConsumerTraits kBackgroundTabLoadingPolicyTraits(
     // Prevents allocations in renderer processes (out-of-process).
     base::MemoryConsumerTraits::InProcess::kNo);
 
-#if BUILDFLAG(IS_ANDROID)
-// On Android, BrowserMemoryCoordinator may be destroyed during test or process
-// teardown before the PerformanceManager graph is destroyed.
-constexpr auto kBackgroundTabLoadingPolicyCheckUnregister =
-    base::MemoryConsumerRegistration::CheckUnregister::kDisabled;
-#else
 constexpr auto kBackgroundTabLoadingPolicyCheckUnregister =
     base::MemoryConsumerRegistration::CheckUnregister::kEnabled;
-#endif
 
 }  // namespace
 

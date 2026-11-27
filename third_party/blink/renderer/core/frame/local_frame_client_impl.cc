@@ -471,15 +471,6 @@ void LocalFrameClientImpl::DidFinishSameDocumentNavigation(
       if (!should_skip_screenshot && commit_type != kWebHistoryInertCommit &&
           !web_frame_->GetFrame()->GetSettings()->GetPrefersReducedMotion()) {
         navigation_with_screenshot = true;
-#if BUILDFLAG(IS_ANDROID)
-        if (web_frame_->View()
-                ->GetWebPreferences()
-                .should_screenshot_on_mainframe_same_doc_navigation) {
-          frame_widget->RequestNewLocalSurfaceId();
-          screenshot_destination = base::UnguessableToken::Create();
-          frame_widget->RequestViewportScreenshot(screenshot_destination);
-        }
-#endif  // BUILDFLAG(IS_ANDROID)
 
         if (LocalFrame* frame = web_frame_->GetFrame();
             frame && frame->View()) {

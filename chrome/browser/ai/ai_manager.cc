@@ -82,10 +82,8 @@
 #include "third_party/blink/public/mojom/ai/model_streaming_responder.mojom.h"
 #include "third_party/blink/public/mojom/devtools/console_message.mojom-shared.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ai/ai_embedding_gemma_v1_decision_model.h"
 #include "chrome/browser/ai/ai_language_model_decision_model.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using blink::mojom::AILanguageCodePtr;
 
@@ -506,7 +504,6 @@ bool AreLanguagesEnabled(
   });
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 template <>
 LanguageSet GetLanguages(
     const blink::mojom::AIDecisionModelCreateOptionsPtr& options) {
@@ -516,7 +513,6 @@ LanguageSet GetLanguages(
   }
   return languages;
 }
-#endif
 
 // Returns whether an output language was specified or initialized here using an
 // inferred language, i.e. when all input languages use the same base language.
@@ -563,7 +559,6 @@ bool CheckAndFixOutputLanguage(
   return false;
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 // The Decisions API has no output language.
 template <>
 bool CheckAndFixOutputLanguage(
@@ -571,7 +566,6 @@ bool CheckAndFixOutputLanguage(
     const LanguageSet& languages) {
   return true;
 }
-#endif
 
 bool IsLanguageInSet(const blink::mojom::AILanguageCodePtr& language,
                      const base::flat_set<std::string>& set) {
@@ -736,7 +730,6 @@ std::string_view AILanguageModelSamplingModeToString(
   NOTREACHED();
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 std::string GetLayaUseCase(AIManager::DecisionModelBackend backend) {
   using Backend = AIManager::DecisionModelBackend;
   switch (backend) {
@@ -794,7 +787,6 @@ std::vector<AIManager::DecisionModelBackend> GetEnabledDecisionModelBackends() {
   }
   return enabled;
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 }  // namespace
 
@@ -2072,7 +2064,6 @@ void AIManager::GetSupportedEmbeddingSpaces(
   std::move(callback).Run(std::move(supported_spaces));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 base::expected<DecisionModelSchemaCompiler::CompiledSchema,
                blink::mojom::ModelAvailabilityCheckResult>
 AIManager::CheckDecisionModelOptions(
@@ -2118,12 +2109,10 @@ AIManager::CheckDecisionModelOptions(
   }
   return std::move(schema).value();
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void AIManager::CanCreateDecisionModel(
     blink::mojom::AIDecisionModelCreateOptionsPtr options,
     CanCreateDecisionModelCallback callback) {
-#if !BUILDFLAG(IS_ANDROID)
   if (!base::FeatureList::IsEnabled(blink::features::kAIDecisionModelAPI)) {
     std::move(callback).Run(blink::mojom::ModelAvailabilityCheckResult::
                                 kUnavailableFeatureNotEnabled);
@@ -2177,10 +2166,6 @@ void AIManager::CanCreateDecisionModel(
                        on_device_model::Capabilities(), std::move(callback));
       return;
   }
-#else
-  std::move(callback).Run(blink::mojom::ModelAvailabilityCheckResult::
-                              kUnavailableFeatureNotEnabled);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void AIManager::CreateDecisionModel(
@@ -2188,7 +2173,6 @@ void AIManager::CreateDecisionModel(
         client,
     blink::mojom::AIDecisionModelCreateOptionsPtr options,
     mojo::PendingRemote<on_device_model::mojom::DownloadObserver> monitor) {
-#if !BUILDFLAG(IS_ANDROID)
   CHECK(options);
   if (!base::FeatureList::IsEnabled(blink::features::kAIDecisionModelAPI)) {
     receivers_.ReportBadMessage("Feature not enabled");
@@ -2219,15 +2203,8 @@ void AIManager::CreateDecisionModel(
                               std::move(monitor));
       return;
   }
-#else
-  on_device_ai::SendClientRemoteError(
-      mojo::Remote<blink::mojom::AIManagerCreateDecisionModelClient>(
-          std::move(client)),
-      blink::mojom::AIManagerCreateClientError::kUnableToCreateSession);
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 void AIManager::CreateLanguageModelDecisionModel(
     mojo::PendingRemote<blink::mojom::AIManagerCreateDecisionModelClient>
         client,
@@ -2377,7 +2354,6 @@ void AIManager::OnDecisionModelLayaReady(
       client_remote,
       blink::mojom::AIManagerCreateClientError::kUnableToCreateSession);
 }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 void AIManager::RenderWidgetHostVisibilityChanged(
     content::RenderWidgetHost* widget_host,

@@ -96,9 +96,6 @@ class MockPasswordManagerClient : public StubPasswordManagerClient {
               (),
               (const, override));
   MOCK_METHOD(bool, IsPasswordChangeOngoing, (), (override));
-#if !BUILDFLAG(IS_ANDROID)
-  MOCK_METHOD(bool, IsActorTaskActive, (), (override));
-#endif
 };
 
 class MockPasswordChangeService : public PasswordChangeServiceInterface {
@@ -239,7 +236,7 @@ TEST_F(PasswordFormFillingTest, Autofill) {
   EXPECT_CALL(driver_, PropagateFillDataOnParsingCompletion)
       .WillOnce(SaveArg<0>(&fill_data));
   EXPECT_CALL(client_, PasswordWasAutofilled);
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   EXPECT_CALL(feature_manager_, IsBiometricAuthenticationBeforeFillingEnabled)
       .WillOnce(Return(true));
 #endif
@@ -252,8 +249,7 @@ TEST_F(PasswordFormFillingTest, Autofill) {
 
   // On Android, Mac and Win authentication will prevent autofilling credentials
   // on page load. On iOS Reauth is always required.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
   EXPECT_EQ(LikelyFormFilling::kFillOnAccountSelect, likely_form_filling);
   EXPECT_TRUE(fill_data.wait_for_username);
 #else
@@ -325,7 +321,7 @@ TEST_F(PasswordFormFillingTest, TestFillOnLoadSuggestion) {
     EXPECT_CALL(driver_, PropagateFillDataOnParsingCompletion)
         .WillOnce(SaveArg<0>(&fill_data));
     EXPECT_CALL(client_, PasswordWasAutofilled);
-#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
     EXPECT_CALL(feature_manager_, IsBiometricAuthenticationBeforeFillingEnabled)
         .WillOnce(Return(true));
 #endif
@@ -342,8 +338,7 @@ TEST_F(PasswordFormFillingTest, TestFillOnLoadSuggestion) {
     if (test_case.current_password_present) {
       // On Android, Mac and Win authentication will prevent autofilling
       // credentials on page load. On iOS Reauth is always required.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS) || BUILDFLAG(IS_MAC) || \
-    BUILDFLAG(IS_WIN) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_WIN)
       EXPECT_EQ(LikelyFormFilling::kFillOnAccountSelect, likely_form_filling);
 #else
       EXPECT_EQ(LikelyFormFilling::kFillOnPageLoad, likely_form_filling);
@@ -354,7 +349,6 @@ TEST_F(PasswordFormFillingTest, TestFillOnLoadSuggestion) {
   }
 }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(PasswordFormFillingTest, FillWithOnlyWebAuthnCredentials) {
   observed_form_.accepts_webauthn_credentials = true;
   std::vector<PasswordForm> best_matches = {saved_match_};
@@ -367,13 +361,11 @@ TEST_F(PasswordFormFillingTest, FillWithOnlyWebAuthnCredentials) {
       /*suggestion_banned_fields=*/{});
   EXPECT_EQ(LikelyFormFilling::kFillOnAccountSelect, likely_form_filling);
 }
-#endif
 
 // Test autofill when username and password are prefilled. Check that we not
 // overwrite values in the form if username doesn't look like a placeholder.
 // Skip for Android and iOS since it uses touch to fill, meaning placeholders
 // will never be overwritten.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 TEST_F(PasswordFormFillingTest, TestFillOnLoadSuggestionWithPrefill) {
   PasswordForm preferred_match = saved_match_;
   std::vector<PasswordForm> best_matches = {preferred_match};
@@ -395,7 +387,6 @@ TEST_F(PasswordFormFillingTest, TestFillOnLoadSuggestionWithPrefill) {
 
   EXPECT_EQ(LikelyFormFilling::kFillOnAccountSelect, likely_form_filling);
 }
-#endif
 
 TEST_F(PasswordFormFillingTest, AutofillPSLMatch) {
   std::vector<PasswordForm> best_matches = {psl_saved_match_};
@@ -447,9 +438,7 @@ TEST_F(PasswordFormFillingTest, NoAutofillOnHttp) {
   ASSERT_FALSE(GURL(saved_http_match.signon_realm).SchemeIsCryptographic());
   std::vector<PasswordForm> best_matches = {saved_http_match};
 
-#if !BUILDFLAG(IS_IOS) && !defined(ANDROID)
   EXPECT_CALL(client_, IsCommittedMainFrameSecure).WillOnce(Return(false));
-#endif
   LikelyFormFilling likely_form_filling = SendFillInformationToRenderer(
       &client_, &driver_, observed_http_form, best_matches, federated_matches_,
       &saved_http_match, metrics_recorder_.get(),
@@ -458,18 +447,6 @@ TEST_F(PasswordFormFillingTest, NoAutofillOnHttp) {
   EXPECT_EQ(LikelyFormFilling::kFillOnAccountSelect, likely_form_filling);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TEST_F(PasswordFormFillingTest, TouchToFill) {
-  std::vector<PasswordForm> best_matches = {saved_match_};
-
-  LikelyFormFilling likely_form_filling = SendFillInformationToRenderer(
-      &client_, &driver_, observed_form_, best_matches, federated_matches_,
-      &saved_match_, metrics_recorder_.get(),
-      /*webauthn_suggestions_available=*/false,
-      /*suggestion_banned_fields=*/{});
-  EXPECT_EQ(LikelyFormFilling::kFillOnAccountSelect, likely_form_filling);
-}
-#endif
 
 TEST_F(PasswordFormFillingTest, AutofillAffiliatedWebMatch) {
   base::HistogramTester histogram_tester;
@@ -513,7 +490,6 @@ TEST_F(PasswordFormFillingTest, AutofillAffiliatedWebMatch) {
 
 // Exclude Android and iOS, because there credentials are not filled on
 // the page load in any case.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 TEST_F(PasswordFormFillingTest, NoFillOnPageloadWithCrossOriginAncestor) {
   base::HistogramTester histogram_tester;
@@ -553,21 +529,6 @@ TEST_F(PasswordFormFillingTest, NoFillOnPageloadForSingleUsernameForm) {
       1);
 }
 
-TEST_F(PasswordFormFillingTest, NoFillOnPageLoadWhileActorTaskIsActive) {
-  base::HistogramTester histogram_tester;
-  std::vector<PasswordForm> best_matches = {saved_match_};
-  const std::vector<PasswordForm> federated_matches = {};
-  EXPECT_CALL(client_, IsActorTaskActive).WillOnce(Return(true));
-  LikelyFormFilling likely_form_filling = SendFillInformationToRenderer(
-      &client_, &driver_, observed_form_, best_matches, federated_matches,
-      &saved_match_, metrics_recorder_.get(),
-      /*webauthn_suggestions_available=*/false,
-      /*suggestion_banned_fields=*/{});
-  EXPECT_EQ(LikelyFormFilling::kFillOnAccountSelect, likely_form_filling);
-  histogram_tester.ExpectUniqueSample(
-      "PasswordManager.FirstWaitForUsernameReason",
-      PasswordFormMetricsRecorder::WaitForUsernameReason::kActorTaskOngoing, 1);
-}
 
 TEST_F(PasswordFormFillingTest, NoFillOnPageLoadWhileChangingPassword) {
   base::HistogramTester histogram_tester;
@@ -640,7 +601,6 @@ TEST_F(PasswordFormFillingTest,
           kPasswordChangeOngoing,
       1);
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 // Tests that the when there is a single preferred match, and no extra
 // matches, the PasswordFormFillData is filled in correctly.

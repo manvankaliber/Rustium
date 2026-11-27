@@ -35,9 +35,6 @@
 #include "content/common/features.h"
 #include "content/public/browser/navigation_handle.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "content/browser/renderer_host/android_spare_renderer_navigation_throttle.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 #if BUILDFLAG(ENABLE_VRP_FLAGS)
 #include "components/vrp_flags/vrp_flags.h"                     // nogncheck
@@ -105,13 +102,6 @@ void NavigationThrottleRegistryImpl::RegisterNavigationThrottles() {
   // navigation altogether.
   BlockedSchemeNavigationThrottle::MaybeCreateAndAdd(*this);
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(
-          features::kAndroidWarmUpSpareRendererWithTimeout) &&
-      features::kAndroidSpareRendererAddNavigationThrottle.Get()) {
-    AndroidSpareRendererNavigationThrottle::CreateAndAdd(*this);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Prevent cross-document navigations from document picture-in-picture
   // windows.
@@ -222,11 +212,9 @@ void NavigationThrottleRegistryImpl::
 
   RendererCancellationThrottle::MaybeCreateAndAdd(*this);
 
-#if !BUILDFLAG(IS_ANDROID)
   // Prevent cross-document navigations from document picture-in-picture
   // windows.
   DocumentPictureInPictureNavigationThrottle::MaybeCreateAndAdd(*this);
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   // Prevent unexpected renderer-initiated navigations of chrome-untrusted://
   // documents that commit without a URL loader.

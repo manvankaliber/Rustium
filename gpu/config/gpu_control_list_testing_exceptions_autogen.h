@@ -67,7 +67,7 @@ static const std::array<GpuControlList::Conditions, 1> kExceptionsForEntry21 = {
 static const std::array<GpuControlList::Conditions, 1> kExceptionsForEntry27 = {
     {
         {
-            GpuControlList::kOsAndroid,  // os_type
+            GpuControlList::kOsAny,  // os_type
             {GpuControlList::kUnknown, GpuControlList::kVersionStyleNumerical,
              GpuControlList::kVersionSchemaCommon, nullptr,
              nullptr},                                   // os_version
@@ -265,7 +265,7 @@ static const std::array<GpuControlList::Conditions, 2> kExceptionsForEntry76 = {
 static const std::array<GpuControlList::Conditions, 1> kExceptionsForEntry82 = {
     {
         {
-            GpuControlList::kOsAndroid,  // os_type
+            GpuControlList::kOsAny,  // os_type
             {GpuControlList::kUnknown, GpuControlList::kVersionStyleNumerical,
              GpuControlList::kVersionSchemaCommon, nullptr,
              nullptr},                                   // os_version
@@ -284,7 +284,7 @@ static const std::array<GpuControlList::Conditions, 1> kExceptionsForEntry82 = {
 static const std::array<GpuControlList::Conditions, 1> kExceptionsForEntry83 = {
     {
         {
-            GpuControlList::kOsAndroid,  // os_type
+            GpuControlList::kOsAny,  // os_type
             {GpuControlList::kUnknown, GpuControlList::kVersionStyleNumerical,
              GpuControlList::kVersionSchemaCommon, nullptr,
              nullptr},                                   // os_version
@@ -303,7 +303,7 @@ static const std::array<GpuControlList::Conditions, 1> kExceptionsForEntry83 = {
 static const std::array<GpuControlList::Conditions, 2> kExceptionsForEntry84 = {
     {
         {
-            GpuControlList::kOsAndroid,  // os_type
+            GpuControlList::kOsLinux,  // os_type
             {GpuControlList::kUnknown, GpuControlList::kVersionStyleNumerical,
              GpuControlList::kVersionSchemaCommon, nullptr,
              nullptr},                                   // os_version
@@ -318,7 +318,7 @@ static const std::array<GpuControlList::Conditions, 2> kExceptionsForEntry84 = {
             &kMoreForEntry84_1440601243Exception0,       // more data
         },
         {
-            GpuControlList::kOsAndroid,  // os_type
+            GpuControlList::kOsLinux,  // os_type
             {GpuControlList::kUnknown, GpuControlList::kVersionStyleNumerical,
              GpuControlList::kVersionSchemaCommon, nullptr,
              nullptr},                                   // os_version

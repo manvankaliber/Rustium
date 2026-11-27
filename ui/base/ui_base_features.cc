@@ -11,17 +11,11 @@
 #include "base/metrics/field_trial_params.h"
 #include "build/build_config.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#endif
 
 #if BUILDFLAG(IS_MAC)
 #include "base/mac/mac_util.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ui/base/shortcut_mapping_pref_delegate.h"
-#endif
 
 namespace features {
 
@@ -111,27 +105,6 @@ BASE_FEATURE(kAlphaInsteadOfCATransaction, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kDetectSpaceChangeViaOcclusion, base::FEATURE_DISABLED_BY_DEFAULT);
 #endif  // BUILDFLAG(IS_MAC)
 
-#if BUILDFLAG(IS_CHROMEOS)
-// Integrate input method specific settings to Chrome OS settings page.
-// https://crbug.com/895886.
-BASE_FEATURE(kSettingsShowsPerKeyboardSettings,
-             "InputMethodIntegratedSettings",
-             base::FEATURE_DISABLED_BY_DEFAULT);
-
-BASE_FEATURE(kDeprecateAltClick, base::FEATURE_DISABLED_BY_DEFAULT);
-
-bool IsDeprecateAltClickEnabled() {
-  return base::FeatureList::IsEnabled(kDeprecateAltClick);
-}
-
-BASE_FEATURE(kNotificationsIgnoreRequireInteraction,
-             base::FEATURE_ENABLED_BY_DEFAULT);
-
-bool IsNotificationsIgnoreRequireInteractionEnabled() {
-  return base::FeatureList::IsEnabled(kNotificationsIgnoreRequireInteraction);
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(IS_OZONE)
 BASE_FEATURE(kOzoneBubblesUsePlatformWidgets, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -210,25 +183,11 @@ BASE_FEATURE(kExperimentalFlingAnimation,
 #endif
 );
 
-#if BUILDFLAG(IS_ANDROID)
-// Whether to use the desktop scrolling behavior on Android. This is intended
-// for desktop Android, though it's available everywhere.
-BASE_FEATURE(kDesktopFlingCurveOnAndroid, base::FEATURE_DISABLED_BY_DEFAULT);
-
-// Whether to suppress legacy overscroll edge glow (OverscrollGlow) on Android.
-// This is intended for desktop Android, where neither elastic stretch nor
-// legacy shade should be shown.
-BASE_FEATURE(kSuppressOverscrollGlow, base::FEATURE_DISABLED_BY_DEFAULT);
-#endif
 
 #if !BUILDFLAG(IS_APPLE)
 // Cached in Java as well, make sure defaults are updated together.
 BASE_FEATURE(kElasticOverscroll,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else  // BUILDFLAG(IS_ANDROID)
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 #endif
 
@@ -245,32 +204,13 @@ BASE_FEATURE(kDragDropOnlySynthesizeHttpOrHttpsUrlsFromText,
 // Enables applying scroll railing in the renderer.
 BASE_FEATURE(kApplyScrollRailingInRenderer, base::FEATURE_ENABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool IsImprovedKeyboardShortcutsEnabled() {
-  // TODO(crbug.com/40203434): Remove this once kDeviceI18nShortcutsEnabled
-  // policy is deprecated.
-  if (::ui::ShortcutMappingPrefDelegate::IsInitialized()) {
-    ::ui::ShortcutMappingPrefDelegate* instance =
-        ::ui::ShortcutMappingPrefDelegate::GetInstance();
-    if (instance && instance->IsDeviceEnterpriseManaged()) {
-      return instance->IsI18nShortcutPrefEnabled();
-    }
-  }
-  return true;
-}
-
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 // Whether to enable new touch text editing features such as extra touch
 // selection gestures and quick menu options. Planning to release for ChromeOS
 // first, then possibly also enable some parts for other platforms later.
 // TODO(b/262297017): Clean up after touch text editing redesign ships.
 BASE_FEATURE(kTouchTextEditingRedesign,
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 bool IsTouchTextEditingRedesignEnabled() {
@@ -279,8 +219,7 @@ bool IsTouchTextEditingRedesignEnabled() {
 
 // This feature enables drag and drop using touch input devices.
 BASE_FEATURE(kTouchDragAndDrop,
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT
@@ -306,8 +245,7 @@ bool IsForcedColorsEnabled() {
 // and Linux. This feature will be released for other platforms in later
 // milestones.
 BASE_FEATURE(kEyeDropper,
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX)
              base::FEATURE_ENABLED_BY_DEFAULT
 #else
              base::FEATURE_DISABLED_BY_DEFAULT
@@ -315,18 +253,6 @@ BASE_FEATURE(kEyeDropper,
 );
 
 bool IsEyeDropperEnabled() {
-#if BUILDFLAG(IS_ANDROID)
-  // On Android, the system EyeDropper API (Intent.ACTION_OPEN_EYE_DROPPER) is
-  // only available starting in Android CinnamonBun (API level 37). Return
-  // false on older Android versions to match
-  // SetCustomizedRuntimeFeaturesFromCombinedArgs in runtime_features.cc, which
-  // disables the blink runtime feature in order to prevent the IDL from being
-  // registered.
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_CINNAMON_BUN) {
-    return false;
-  }
-#endif
   return base::FeatureList::IsEnabled(features::kEyeDropper);
 }
 
@@ -387,13 +313,8 @@ BASE_FEATURE(kUIDebugTools,
 
 bool IsSwipeToMoveCursorEnabled() {
   static const bool enabled =
-#if BUILDFLAG(IS_ANDROID)
-      base::android::android_info::sdk_int() >=
-      base::android::android_info::SDK_VERSION_R;
-#else
       base::FeatureList::IsEnabled(kSwipeToMoveCursor) ||
       IsTouchTextEditingRedesignEnabled();
-#endif
   return enabled;
 }
 
@@ -432,11 +353,7 @@ BASE_FEATURE(kUseGammaContrastRegistrySettings,
 BASE_FEATURE(kBubbleFrameViewTitleIsHeading, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kEnableGestureBeginEndTypes,
-#if !BUILDFLAG(IS_CHROMEOS)
              base::FEATURE_ENABLED_BY_DEFAULT
-#else
-             base::FEATURE_DISABLED_BY_DEFAULT
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 );
 
 BASE_FEATURE(kUseUtf8EncodingForSvgImage, base::FEATURE_ENABLED_BY_DEFAULT);
@@ -455,11 +372,7 @@ BASE_FEATURE(kNonBlockingOsClipboardReads, base::FEATURE_ENABLED_BY_DEFAULT);
 // to be done via corner points. See https://crbug.com/720596 for details.
 BASE_FEATURE(kEnablePixelCanvasRecording,
              "enable-pixel-canvas-recording",
-#if BUILDFLAG(IS_CHROMEOS)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif
 );
 
 bool IsPixelCanvasRecordingEnabled() {
@@ -490,11 +403,7 @@ BASE_FEATURE(kAsyncVirtualFileExtraction, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kVirtualFileChunkedRead, base::FEATURE_ENABLED_BY_DEFAULT);
 
 BASE_FEATURE(kCompensateGestureScrollUpdateLatency,
-#if BUILDFLAG(IS_ANDROID)
-             base::FEATURE_ENABLED_BY_DEFAULT
-#else
              base::FEATURE_DISABLED_BY_DEFAULT
-#endif  // BUILDFLAG(IS_ANDROID)
 );
 BASE_FEATURE_PARAM(int,
                    kCompensationExpectedLatencyMs,
@@ -521,7 +430,7 @@ BASE_FEATURE(kChromeDarkNeutrals26, base::FEATURE_DISABLED_BY_DEFAULT);
 
 BASE_FEATURE(kDarkModeSurfaceTokens, base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 BASE_FEATURE(kUsePortalAccentColor, base::FEATURE_ENABLED_BY_DEFAULT);
 #endif
 

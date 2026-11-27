@@ -12,7 +12,7 @@
 #include "base/functional/callback.h"
 #include "base/memory/raw_ptr.h"
 #include "base/values.h"
-#include "chrome/browser/devtools/device/devtools_android_bridge.h"
+#include "chrome/browser/devtools/device/devtools_remote_bridge.h"
 
 class Profile;
 
@@ -34,7 +34,7 @@ class DevToolsTargetsUIHandler {
       Callback callback,
       Profile* profile);
 
-  static std::unique_ptr<DevToolsTargetsUIHandler> CreateForAdb(
+  static std::unique_ptr<DevToolsTargetsUIHandler> CreateForRemote(
       Callback callback,
       Profile* profile);
 
@@ -59,21 +59,6 @@ class DevToolsTargetsUIHandler {
  private:
   const std::string source_id_;
   Callback callback_;
-};
-
-class PortForwardingStatusSerializer
-    : private DevToolsAndroidBridge::PortForwardingListener {
- public:
-  using Callback = base::RepeatingCallback<void(base::Value)>;
-
-  PortForwardingStatusSerializer(const Callback& callback, Profile* profile);
-  ~PortForwardingStatusSerializer() override;
-
-  void PortStatusChanged(const ForwardingStatus& status) override;
-
- private:
-  Callback callback_;
-  raw_ptr<Profile> profile_;
 };
 
 #endif  // CHROME_BROWSER_DEVTOOLS_DEVTOOLS_TARGETS_UI_H_

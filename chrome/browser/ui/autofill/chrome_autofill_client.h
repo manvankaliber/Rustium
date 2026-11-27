@@ -19,7 +19,6 @@
 #include "base/memory/weak_ptr.h"
 #include "base/scoped_observation.h"
 #include "build/build_config.h"
-#include "chrome/browser/actor/actor_task.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/autofill/autofill_suggestion_controller.h"
 #include "chrome/browser/ui/autofill/payments/chrome_payments_autofill_client.h"
@@ -50,11 +49,7 @@
 #include "content/public/browser/web_contents_observer.h"
 #include "url/origin.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/autofill/core/browser/ui/autofill_tapjacking_protector.h"
-#else  // BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/autofill/autofill_field_promo_controller.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 class ToastController;
 
@@ -76,16 +71,6 @@ class TabInterface;
 
 namespace autofill {
 
-#if BUILDFLAG(IS_ANDROID)
-// TODO(crbug.com/364089352): When //c/b/ui/android/autofill gets modularized,
-// //c/b/ui/autofill/ can depend directly on it.
-class AutofillAiSaveUpdateEntityFlowManager;
-class AutofillSnackbarControllerImpl;
-class SaveUpdateAddressProfileFlowManager;
-class AutofillMessageController;
-class AutofillDialogController;
-class TouchToFillAutofillController;
-#endif
 
 class ActorAutofillManager;
 class AutofillAiPersonalContextAccessManager;
@@ -139,12 +124,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   ChromeAutofillClient& operator=(const ChromeAutofillClient&) = delete;
   ~ChromeAutofillClient() override;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC) || BUILDFLAG(IS_LINUX) || \
-    BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
-  // Triggers the AtMemory promo bubble.
-  void ShowAutofillAtMemoryPromo();
-#endif
-
   // AutofillClient:
   base::WeakPtr<AutofillClient> GetWeakPtr() final;
   const std::string& GetAppLocale() const final;
@@ -171,8 +150,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   GetPersonalContextFirstRunService() override;
   AutocompleteHistoryManager* GetAutocompleteHistoryManager() final;
   AutofillComposeDelegate* GetComposeDelegate() final;
-  AtMemoryQueryService* GetAtMemoryQueryService() override;
-  AtMemoryManager* GetAtMemoryManager() override;
   personal_context::PersonalContextEligibilityState
   GetPersonalContextEligibilityState() const override;
   personal_context::PersonalContextEligibilityService*
@@ -233,16 +210,10 @@ class ChromeAutofillClient : public ContentAutofillClient {
   void HideSuggestions(SuggestionHidingReason reason,
                        std::optional<FillingProduct> product) final;
   void OpenGmailForOtps() final;
-  void OpenGeminiInSidebar(const std::u16string& prompt) final;
-  bool IsGlicEnabled() const final;
-  bool IsGlicConsented() const final;
   void TriggerDeclinedSaveAddressReasonSurvey() final;
   void TriggerPersonalizationAndTrustSurveys(
       FillingProduct filling_product,
       const HatsSurveyStringData& field_filling_stats_data) final;
-  void TriggerAtMemoryPersonalizationAndTrustSurvey(
-      bool is_dismissed,
-      const HatsSurveyStringData& product_specific_data) final;
   void TriggerOneTimePasswordDismissalPersonalizationAndTrustSurvey(
       const HatsSurveyStringData& product_specific_data) final;
   bool IsTabInActorMode() const final;
@@ -264,40 +235,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
 
   const AutofillAblationStudy& GetAblationStudy() const final;
 
-#if BUILDFLAG(IS_ANDROID)
-  // The AutofillSnackbarController is used to show a snackbar notification
-  // on Android.
-  AutofillSnackbarControllerImpl* GetAutofillSnackbarController() final;
-
-  // Notifies the user that their data is being fetched from the server to fill
-  // the form.
-  void ShowAutofillAiLoadingDialog() final;
-
-  // Closes the dialog that informs the user that their data is being fetched
-  // from the server to fill the form.
-  void DismissAutofillAiLoadingDialog() final;
-
-  void ShowTapjackingProtector(
-      AutofillTapjackingProtector::AuthorizationType authorization_type,
-      AutofillTapjackingProtector::AuthorizationCallback callback) final;
-
-  bool ShowAmbientAutofillNotice(
-      base::WeakPtr<TouchToFillAutofillDelegate> delegate) override;
-  bool ShowPrivateInferenceNoticeBottomSheet(
-      base::WeakPtr<TouchToFillAutofillDelegate> delegate) override;
-  void HideTouchToFillAutofillNotice() override;
-
-  // The AutofillMessageController is used to show native Android messages via
-  // the messages API.
-  AutofillMessageController* GetAutofillMessageController();
-
-  // The AutofillDialogController is used to show Android modal dialogs.
-  AutofillDialogController* GetAutofillDialogController();
-
-  void SetTouchToFillAutofillControllerForTesting(
-      std::unique_ptr<TouchToFillAutofillController>
-          touch_to_fill_autofill_controller);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   std::unique_ptr<device_reauth::DeviceAuthenticator> GetDeviceAuthenticator(
       std::string histogram) const final;
@@ -325,15 +262,11 @@ class ChromeAutofillClient : public ContentAutofillClient {
   void ShowAutofillAiLocalSaveNotification() final;
   void ShowAutofillAiSaveToWalletFailureNotification() final;
   void ShowAutofillAiFetchEntityFailureNotification() final;
-  void ShowAtMemoryFetchFailureNotification(
-      std::optional<std::u16string> message_override) final;
   void ShowAutofillAiPreFetchFailureNotification() final;
   void ShowAutofillAiPrivateInferenceNotice() final;
-#if !BUILDFLAG(IS_ANDROID)
   void ShowAutofillAiSuppressionConfirmationDialog(
       const EntityInstance& entity,
       base::OnceCallback<void(bool)> callback) final;
-#endif  // !BUILDFLAG(IS_ANDROID)
   void ShowAutofillAiSuggestionRemovedNotification(
       const EntityInstance& entity,
       base::OnceClosure on_undo_clicked) final;
@@ -369,27 +302,12 @@ class ChromeAutofillClient : public ContentAutofillClient {
           keep_popup_open_for_testing);
     }
   }
-#if !BUILDFLAG(IS_ANDROID)
   void SetAutofillFieldPromoTesting(
       std::unique_ptr<AutofillFieldPromoController> test_controller) {
     autofill_field_promo_controller_ = std::move(test_controller);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
-#if BUILDFLAG(IS_ANDROID)
-  void SetAutofillTapjackingProtectorImplForTesting(
-      std::unique_ptr<AutofillTapjackingProtector>
-          autofill_tapjacking_protector_impl) {
-    autofill_tapjacking_protector_impl_ =
-        std::move(autofill_tapjacking_protector_impl);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 #endif  // defined(UNIT_TEST)
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetAutofillSnackbarControllerImplForTesting(
-      std::unique_ptr<AutofillSnackbarControllerImpl>
-          autofill_snackbar_controller_impl);
-#endif  // BUILDFLAG(IS_ANDROID)
 
   // Test override factory invoked on each `GetDeviceAuthAvailabilityChecker()`
   // call instead of querying the OS. Pass a non-null callback to
@@ -422,23 +340,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   one_time_tokens::GmailOtpBackend* GetGmailOtpBackend() const final;
 
  protected:
-  class AtMemoryCopyPasteObserver : public content::WebContentsObserver {
-   public:
-    explicit AtMemoryCopyPasteObserver(ChromeAutofillClient* client);
-    ~AtMemoryCopyPasteObserver() override = default;
-
-    // content::WebContentsObserver:
-    void OnTextCopiedToClipboard(content::RenderFrameHost* render_frame_host,
-                                 const std::u16string& copied_text) override;
-    void OnPaste() override;
-    void DidGetUserInteraction(const blink::WebInputEvent& event) override;
-
-   private:
-    const base::raw_ref<ChromeAutofillClient> client_;
-  };
-
-  AtMemoryCopyPasteObserver& at_memory_copy_paste_observer();
-
   // The EmailVerificationController coordinates Email Verification Protocol
   // (EVP) UI flows (first-run prompt, loading UI, and completion
   // notifications).
@@ -463,7 +364,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
   // Called when an actor task is created or an existing one changes state. It
   // may be called for actors unrelated to the current tab. If an update is
   // related to the current tab.
-  void OnActorTaskStateChange(actor::ActorTask& task);
 
   const raw_ptr<LogRouter> log_router_ =
       AutofillLogRouterFactory::GetForBrowserContext(
@@ -473,7 +373,6 @@ class ChromeAutofillClient : public ContentAutofillClient {
       this};
 
   std::unique_ptr<AutofillAiManager> autofill_ai_manager_;
-  std::unique_ptr<AtMemoryManager> at_memory_manager_;
 
   // These members are initialized lazily in their respective getters.
   // Therefore, do not access the members directly.
@@ -496,23 +395,8 @@ class ChromeAutofillClient : public ContentAutofillClient {
   // If set to true, the popup will stay open regardless of external changes on
   // the test machine, that may normally cause the popup to be hidden
   bool keep_popup_open_for_testing_ = false;
-#if BUILDFLAG(IS_ANDROID)
-  std::unique_ptr<AutofillMessageController> autofill_message_controller_;
-  std::unique_ptr<AutofillDialogController> autofill_dialog_controller_impl_;
-  std::unique_ptr<AutofillAiSaveUpdateEntityFlowManager>
-      autofill_ai_save_update_entity_flow_manager_;
-  std::unique_ptr<SaveUpdateAddressProfileFlowManager>
-      save_update_address_profile_flow_manager_;
-  std::unique_ptr<AutofillSnackbarControllerImpl>
-      autofill_snackbar_controller_impl_;
-  std::unique_ptr<TouchToFillAutofillController>
-      touch_to_fill_autofill_controller_;
-  std::unique_ptr<AutofillTapjackingProtector>
-      autofill_tapjacking_protector_impl_;
-#else   // BUILDFLAG(IS_ANDROID)
   std::unique_ptr<AutofillFieldPromoController>
       autofill_field_promo_controller_;
-#endif  // BUILDFLAG(IS_ANDROID)
   // Test addresses used to allow developers to test their forms.
   std::vector<AutofillProfile> test_addresses_;
   const AutofillAblationStudy ablation_study_;
@@ -530,12 +414,10 @@ class ChromeAutofillClient : public ContentAutofillClient {
       custom_form_control_script_runner_;
 
   // Removes the subscription when the `ChromeAutofillClient` is destroyed.
-  base::CallbackListSubscription actor_task_state_changed_subscription_;
 
   std::unique_ptr<FormPredictionsTracker> form_predictions_tracker_;
   std::unique_ptr<ActorAutofillManager> actor_autofill_manager_;
 
-  AtMemoryCopyPasteObserver at_memory_copy_paste_observer_{this};
 
   SEQUENCE_CHECKER(sequence_checker_);
 

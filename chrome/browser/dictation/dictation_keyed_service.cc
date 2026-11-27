@@ -21,7 +21,6 @@
 #include "chrome/browser/dictation/session_state.h"
 #include "chrome/browser/dictation/session_ui_impl.h"
 #include "chrome/browser/dictation/target.h"
-#include "chrome/browser/glic/host/guest_util.h"
 #include "chrome/browser/profiles/profile.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/browser/ui/browser_window/public/global_browser_collection.h"
@@ -58,10 +57,6 @@ content::WebContents* GetWebContentsForHotkey(
               focus_manager->GetFocusedView())) {
         if (content::WebContents* const web_contents =
                 web_view->web_contents()) {
-          if (content::WebContents* const guest_contents =
-                  glic::GetGlicGuestWebContents(web_contents)) {
-            return guest_contents;
-          }
           if (webui::GetTabInterface(web_contents) == active_tab) {
             return web_contents;
           }
@@ -106,20 +101,6 @@ std::optional<TargetDetails> GetFocusedEditableTarget(
       global_id, editable_level == content::EditableLevel::kRichlyEditable);
 }
 
-tabs::TabInterface* GetActiveTabFromGlic(content::WebContents* web_contents) {
-  if (!glic::IsGlicGuest(web_contents)) {
-    return nullptr;
-  }
-
-  content::WebContents* outermost_web_contents =
-      web_contents->GetOutermostWebContents();
-  gfx::NativeWindow native_window =
-      outermost_web_contents->GetTopLevelNativeWindow();
-  BrowserWindowInterface* browser =
-      GlobalBrowserCollection::GetInstance()->FindBrowserWithWindow(
-          native_window);
-  return browser ? browser->GetActiveTabInterface() : nullptr;
-}
 
 tabs::TabInterface* GetTabFromTargetId(
     const content::GlobalDOMNodeId& target_id) {
@@ -148,9 +129,6 @@ tabs::TabInterface* GetTabFromTargetId(
 
   // If the Glic side panel is being targeted, then associate the session with
   // the active tab of the window.
-  if (tabs::TabInterface* tab = GetActiveTabFromGlic(web_contents)) {
-    return tab;
-  }
 
   return nullptr;
 }
@@ -168,9 +146,6 @@ std::optional<DictationUrlCategory> GetUrlCategoryFromTargetId(
     return std::nullopt;
   }
 
-  if (glic::IsGlicGuest(web_contents) || glic::IsGlicWebUI(web_contents)) {
-    return DictationUrlCategory::kGlic;
-  }
 
   if (content::HasWebUIScheme(rfh->GetLastCommittedURL())) {
     return DictationUrlCategory::kWebUI;

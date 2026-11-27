@@ -38,7 +38,6 @@ export function getHtml(this: PolicyAppElement) {
               @click="${this.onCopyPoliciesClick_}">
             $i18n{copyPoliciesJSON}
           </button>
-<if expr="not is_chromeos">
           <button id="upload-report" class="dropdown-item"
               ?hidden="${!this.enableReportButton_ || this.hideUploadReportButton_}"
               ?disabled="${this.uploadReportButtonDisabled_}"
@@ -49,7 +48,7 @@ export function getHtml(this: PolicyAppElement) {
               @click="${this.onViewLogsClick_}">
             $i18n{viewLogs}
           </button>
-</if> <!-- not is_chromeos -->
+ <!-- not is_chromeos -->
         </cr-action-menu>
       </div>
     </div>
@@ -61,7 +60,6 @@ export function getHtml(this: PolicyAppElement) {
   </div>
   <main id="policy-ui-container">
     <div id="policy-ui">
-<if expr="not is_ios and not is_android and not is_chromeos">
       ${this.shouldShowCommandLineArgumentsWarning_ ? html`
         <div id="command-line-arguments-warning" class="warning-banner" role="alert">
           <cr-icon icon="cr:warning" class="warning-icon"></cr-icon>
@@ -73,15 +71,12 @@ export function getHtml(this: PolicyAppElement) {
           </div>
         </div>
       ` : ''}
-</if>
-<if expr="not is_ios and not is_android">
       ${this.shouldShowPromo_ ? html`
         <promotion-banner-section-container
             @dismiss="${this.onPromoDismiss_}"
             @redirect="${this.onPromoRedirect_}">
         </promotion-banner-section-container>
       ` : ''}
-</if>
       <section id="status-section" class="status-box-section"
           ?hidden="${!this.hasStatus_()}">
         <h2>$i18n{status}</h2>

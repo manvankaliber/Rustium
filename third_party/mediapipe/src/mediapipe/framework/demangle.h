@@ -18,9 +18,7 @@
 #ifndef MEDIAPIPE_HAS_CXA_DEMANGLE
 // We only support some compilers that support __cxa_demangle.
 // TODO: Checks if Android NDK has fixed this issue or not.
-#if defined(__ANDROID__) && (defined(__i386__) || defined(__x86_64__))
-#define MEDIAPIPE_HAS_CXA_DEMANGLE 0
-#elif (__GNUC__ >= 4 || (__GNUC__ >= 3 && __GNUC_MINOR__ >= 4)) && \
+#if (__GNUC__ >= 4 || (__GNUC__ >= 3 && __GNUC_MINOR__ >= 4)) && \
     !defined(__mips__)
 #define MEDIAPIPE_HAS_CXA_DEMANGLE 1
 #elif defined(__clang__) && !defined(_MSC_VER)

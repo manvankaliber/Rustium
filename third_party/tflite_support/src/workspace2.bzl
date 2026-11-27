@@ -20,10 +20,3 @@ def tflite_support_workspace2():
     bazel_version_repository(name = "bazel_version")
 
     python_configure(name = "local_config_python")
-
-    ATS_TAG = "androidx-test-1.3.0"
-    http_archive(
-        name = "android_test_support",
-        strip_prefix = "android-test-%s" % ATS_TAG,
-        urls = ["https://github.com/android/android-test/archive/%s.tar.gz" % ATS_TAG],
-    )

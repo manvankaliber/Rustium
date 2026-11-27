@@ -23,9 +23,7 @@
 #include "components/policy/core/common/schema_registry.h"
 #include "components/policy/resources/webui/mojom/policy.mojom.h"
 
-#if !BUILDFLAG(IS_CHROMEOS)
 #include "components/policy/policy_constants.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 ChromePoliciesValueProvider::ChromePoliciesValueProvider(Profile* profile)
     : profile_(profile) {
@@ -73,7 +71,6 @@ base::DictValue ChromePoliciesValueProvider::GetNames() {
   chrome_values.Set(policy::kPolicyNamesKey, std::move(chrome_policy_names));
   names.Set(policy::kChromePoliciesId, std::move(chrome_values));
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Add precedence policy names.
   base::ListValue precedence_policy_names;
   for (auto* policy : policy::metapolicy::kPrecedence) {
@@ -84,7 +81,6 @@ base::DictValue ChromePoliciesValueProvider::GetNames() {
   precedence_values.Set(policy::kPolicyNamesKey,
                         std::move(precedence_policy_names));
   names.Set(policy::kPrecedencePoliciesId, std::move(precedence_values));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   return names;
 }
 
@@ -116,7 +112,6 @@ policy::PolicyGroupNamesMojoMap ChromePoliciesValueProvider::GetNamesMojo()
                                                policy::kChromePoliciesName,
                                                std::move(chrome_policy_names)));
 
-#if !BUILDFLAG(IS_CHROMEOS)
   // Add precedence policy names.
   std::vector<std::string> precedence_policy_names(
       std::begin(policy::metapolicy::kPrecedence),
@@ -125,7 +120,6 @@ policy::PolicyGroupNamesMojoMap ChromePoliciesValueProvider::GetNamesMojo()
       policy::kPrecedencePoliciesId,
       policy::mojom::PolicyGroupNames::New(policy::kPrecedencePoliciesName,
                                            std::move(precedence_policy_names)));
-#endif  // !BUILDFLAG(IS_CHROMEOS)
   return names;
 }
 

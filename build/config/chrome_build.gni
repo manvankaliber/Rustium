@@ -5,6 +5,9 @@
 import("//build/config/gclient_args.gni")
 import("//build_overrides/build.gni")
 
+# Kept false for shared build manifests after platform retirement.
+is_desktop_android = false
+
 declare_args() {
   # Select the desired branding flavor. False means normal Chromium branding,
   # true means official Google Chrome branding (requires extra Google-internal
@@ -27,56 +30,17 @@ declare_args() {
   #
   # When true, use Google-internal icons, otherwise fall back to Chromium icons.
   is_chrome_for_testing_branded = false
-
-  # Set to true to enable settings for high end Android devices, typically
-  # enhancing speed at the expense of resources such as binary sizes and memory.
-  is_high_end_android = target_cpu == "arm64" || target_cpu == "x64"
-
-  # Set to true to set defaults that enable features on Android that are more
-  # typically available on desktop.
-  is_desktop_android = false
-
-  if (is_android) {
-    # By default, channels are compiled using separate package names. Set this
-    # to 'true' to compile channels using the Stable channel's package name.
-    # This currently only affects builds with `android_channel = "beta"`.
-    # TODO(crbug.com/576648377): Remove this in favor of use_stable_package_name
-    # below.
-    use_stable_package_name_for_trichrome = false
-
-    # Set to true to enable new logic for setting the package name and version
-    # code for standalone WebView targets.
-    enable_new_standalone_webview_settings = true
-  }
-}
-
-declare_args() {
-  if (is_android) {
-    # Allow migration from trichrome related config
-    use_stable_package_name = use_stable_package_name_for_trichrome
-  }
 }
 
 # Use this for is_chrome_branded things that live in src-internal.
 # See: b/452971335
 is_internal_chrome_branded = enable_src_internal && is_chrome_branded
 
-# Ensure !is_android implies !is_high_end_android.
-is_high_end_android = is_high_end_android && is_android
+# Kept false for shared build manifests after platform retirement.
+is_high_end_android = false
 
-if (is_desktop_android) {
-  assert(target_os == "android",
-         "Target must be Android to use is_desktop_android.")
-
-  # Disable for non-android secondary toolchains.
-  is_desktop_android = is_android
-}
-
-declare_args() {
-  # Whether to apply size->speed trade-offs to the secondary toolchain.
-  # Relevant only for 64-bit target_cpu.
-  is_high_end_android_secondary_toolchain = false
-}
+# Kept false for shared build manifests after platform retirement.
+is_high_end_android_secondary_toolchain = false
 
 assert(!is_chrome_for_testing || !is_chrome_branded,
        "`is_chrome_for_testing` is incompatible with `is_chrome_branded`")

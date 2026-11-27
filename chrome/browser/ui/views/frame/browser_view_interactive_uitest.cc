@@ -55,13 +55,6 @@
 #include "ui/base/test/scoped_fake_nswindow_fullscreen.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "ash/constants/ash_features.h"
-#include "ash/wm/window_pin_util.h"
-#include "chrome/browser/ash/boca/on_task/on_task_locked_controller.h"
-#include "chrome/browser/ui/chromeos/locked_state/locked_state_controller.h"
-#include "chrome/common/chrome_features.h"
-#endif
 
 using views::FocusManager;
 
@@ -122,7 +115,7 @@ IN_PROC_BROWSER_TEST_F(BrowserViewTest, FullscreenClearsFocus) {
 // Test that the view tree order is preserved after entering and exiting
 // immersive fullscreen. Immersive fullscreen is only supported on ChromeOS and
 // MacOS at this point in time.
-#if BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_F(BrowserViewTest, ImmersiveFullscreenViewTreeOrder) {
 #if BUILDFLAG(IS_MAC)
   ui::test::ScopedFakeNSWindowFullscreen fake_fullscreen;
@@ -428,13 +421,7 @@ IN_PROC_BROWSER_TEST_F(BrowserViewTest, FullscreenShowBookmarkBar) {
       .Wait();
   EXPECT_FALSE(browser_view->GetTabStripVisible());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Bookmark bar in immersive fullscreen mode on ChromeOS is accessible and
-  // should be considered visible.
-  EXPECT_TRUE(browser_view->IsBookmarkBarVisible());
-#else
   EXPECT_FALSE(browser_view->IsBookmarkBarVisible());
-#endif
 
 #if BUILDFLAG(IS_MAC)
   // Test toggling toolbar state in fullscreen mode would also affect bookmark
@@ -709,20 +696,12 @@ IN_PROC_BROWSER_TEST_F(BrowserViewDesktopWidgetEnabledTest,
 // When using desktop widgets, the dialog has its own window title. The
 // browser accessible window title should not be updated with the dialog
 // title.
-#if !BUILDFLAG(IS_CHROMEOS)
   auto* dialog = static_cast<TabModalConfirmDialogViews*>(
       TabModalConfirmDialog::Create(std::move(delegate), contents));
   EXPECT_TRUE(base::StartsWith(browser_view()->GetAccessibleWindowTitle(),
                                window_title, base::CompareCase::SENSITIVE));
   EXPECT_EQ(dialog->GetWidget()->widget_delegate()->GetAccessibleWindowTitle(),
             delegate_observer->GetTitle());
-#else
-  TabModalConfirmDialog::Create(std::move(delegate), contents);
-  // The desktop widget override is a no-op on ChromeOS. The browser
-  // accessibility title should be updated to the dialog title.
-  EXPECT_EQ(browser_view()->GetAccessibleWindowTitle(),
-            delegate_observer->GetTitle());
-#endif
 
   delegate_observer->Close();
 
@@ -730,102 +709,3 @@ IN_PROC_BROWSER_TEST_F(BrowserViewDesktopWidgetEnabledTest,
                                window_title, base::CompareCase::SENSITIVE));
 }
 #endif  // !BUILDFLAG(IS_MAC)
-
-#if BUILDFLAG(IS_CHROMEOS)
-// TODO(crbug.com/438540029): Rename this test suite to "TrustedPinned" to
-// disambiguate between LockedFullscreen (which is for extension API) and OnTask
-// locked (which is for class tools).
-class BrowserViewLockedFullscreenTestChromeOS
-    : public BrowserViewTest,
-      public testing::WithParamInterface<bool> {
- public:
-  BrowserViewLockedFullscreenTestChromeOS() {
-    scoped_feature_list_.InitWithFeatureState(
-        features::kUseUnifiedLockedStateController,
-        is_unified_locked_state_controller_enabled_);
-  }
-
- protected:
-  void PinWindow(bool trusted, bool locked_for_on_task = false) {
-    if (trusted && is_unified_locked_state_controller_enabled_) {
-      auto* controller = chromeos::LockedStateController::From(browser());
-      ASSERT_TRUE(controller);
-      if (locked_for_on_task) {
-        controller->Lock(chromeos::LockedState::kOnTaskLocked);
-      } else {
-        controller->Lock(chromeos::LockedState::kExtensionLocked);
-      }
-    } else {
-      if (!is_unified_locked_state_controller_enabled_) {
-        ash::boca::OnTaskLockedController::From(browser())
-            ->set_locked_for_on_task(locked_for_on_task);
-      }
-      ash::PinWindow(browser()->GetWindow()->GetNativeWindow(), trusted);
-    }
-  }
-
- private:
-  const bool is_unified_locked_state_controller_enabled_ = GetParam();
-  base::test::ScopedFeatureList scoped_feature_list_;
-};
-
-IN_PROC_BROWSER_TEST_P(BrowserViewLockedFullscreenTestChromeOS,
-                       ShowExclusiveAccessBubbleWhenNotLocked) {
-  PinWindow(/*trusted=*/false);
-  ExclusiveAccessManager::From(browser())
-      ->context()
-      ->UpdateExclusiveAccessBubble(
-          {
-              .origin = url::Origin::Create(
-                  GURL("http://www.example.com")),  // Should be non-empty to
-                                                    // show bubble
-              .type = ExclusiveAccessBubbleType::
-                  EXCLUSIVE_ACCESS_BUBBLE_TYPE_FULLSCREEN_EXIT_INSTRUCTION,
-              .force_update = true,
-          },
-          base::NullCallback());
-  EXPECT_TRUE(browser_view()
-                  ->GetExclusiveAccessContext()
-                  ->IsExclusiveAccessBubbleDisplayed());
-}
-
-IN_PROC_BROWSER_TEST_P(BrowserViewLockedFullscreenTestChromeOS,
-                       HideExclusiveAccessBubbleWhenLocked) {
-  PinWindow(/*trusted=*/true);
-  ExclusiveAccessManager::From(browser())
-      ->context()
-      ->UpdateExclusiveAccessBubble(
-          {.origin = url::Origin::Create(
-               GURL("http://www.example.com")),  // Should be non-empty to show
-                                                 // bubble
-           .type = ExclusiveAccessBubbleType::
-               EXCLUSIVE_ACCESS_BUBBLE_TYPE_FULLSCREEN_EXIT_INSTRUCTION,
-           .force_update = true},
-          base::NullCallback());
-  EXPECT_FALSE(browser_view()
-                   ->GetExclusiveAccessContext()
-                   ->IsExclusiveAccessBubbleDisplayed());
-}
-
-IN_PROC_BROWSER_TEST_P(BrowserViewLockedFullscreenTestChromeOS,
-                       EnableImmersiveModeWhenNotTrustedPinned) {
-  PinWindow(/*trusted=*/false);
-  EXPECT_TRUE(ImmersiveModeController::From(browser())->IsEnabled());
-}
-
-IN_PROC_BROWSER_TEST_P(BrowserViewLockedFullscreenTestChromeOS,
-                       DisableImmersiveModeWhenNotLockedForOnTask) {
-  PinWindow(/*trusted=*/true, /*locked_for_on_task=*/false);
-  EXPECT_FALSE(ImmersiveModeController::From(browser())->IsEnabled());
-}
-
-IN_PROC_BROWSER_TEST_P(BrowserViewLockedFullscreenTestChromeOS,
-                       EnableImmersiveModeWhenLockedForOnTask) {
-  PinWindow(/*trusted=*/true, /*locked_for_on_task=*/true);
-  EXPECT_TRUE(ImmersiveModeController::From(browser())->IsEnabled());
-}
-
-INSTANTIATE_TEST_SUITE_P(All,
-                         BrowserViewLockedFullscreenTestChromeOS,
-                         testing::Bool());
-#endif  // BUILDFLAG(IS_CHROMEOS)

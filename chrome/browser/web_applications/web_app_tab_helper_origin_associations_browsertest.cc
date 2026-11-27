@@ -60,9 +60,6 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/blink/public/common/features.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/apps/app_service/app_registry_cache_waiter.h"
-#endif
 
 namespace web_app {
 namespace {
@@ -424,9 +421,6 @@ IN_PROC_BROWSER_TEST_F(WebAppOriginAssociationLifecycleTest,
 IN_PROC_BROWSER_TEST_F(WebAppOriginAssociationLifecycleTest,
                        CapturedLinkRevealsRevokedOrigin) {
   const auto app_id = InstallApp();
-#if BUILDFLAG(IS_CHROMEOS)
-  apps::AppReadinessWaiter(profile(), app_id).Await();
-#endif
   ASSERT_OK(apps::test::EnableLinkCapturingByUser(profile(), app_id));
   ASSERT_EQ(app_id, NavigationCapturingSettings::Create(*profile())
                         ->GetCapturingWebAppForUrl(ExtendedUrl()));

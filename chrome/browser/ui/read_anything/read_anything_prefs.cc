@@ -10,7 +10,6 @@
 #include "components/pref_registry/pref_registry_syncable.h"
 #include "ui/accessibility/accessibility_features.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 
 void RegisterReadAnythingProfilePrefs(
     user_prefs::PrefRegistrySyncable* registry) {
@@ -77,5 +76,3 @@ void RegisterReadAnythingProfilePrefs(
       static_cast<int>(read_anything::mojom::LineFocus::kDefaultValue),
       user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID)

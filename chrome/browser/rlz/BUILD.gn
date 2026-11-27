@@ -41,9 +41,6 @@ source_set("rlz") {
     "//content/public/common",
     "//services/network/public/cpp",
   ]
-  if (is_chromeos) {
-    deps += [ "//ash/constants" ]
-  }
 }
 
 source_set("unit_tests") {

@@ -45,9 +45,6 @@
 #define ABSL_RANDOM_USE_BCRYPT 1
 #pragma comment(lib, "bcrypt.lib")
 
-#elif defined(__Fuchsia__)
-#include <zircon/syscalls.h>
-
 #endif
 
 #if defined(__GLIBC__) && \
@@ -100,15 +97,6 @@ bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
       0);                                                    // flags
   BCryptCloseAlgorithmProvider(hProvider, 0);
   return BCRYPT_SUCCESS(ret);
-}
-
-#elif defined(__Fuchsia__)
-
-bool ReadSeedMaterialFromOSEntropyImpl(absl::Span<uint32_t> values) {
-  auto buffer = reinterpret_cast<uint8_t*>(values.data());
-  size_t buffer_size = sizeof(uint32_t) * values.size();
-  zx_cprng_draw(buffer, buffer_size);
-  return true;
 }
 
 #else

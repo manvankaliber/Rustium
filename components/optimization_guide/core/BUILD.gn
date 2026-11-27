@@ -4,9 +4,6 @@
 
 import("//mojo/public/tools/bindings/mojom.gni")
 
-if (is_android) {
-  import("//build/config/android/rules.gni")
-}
 import("//components/optimization_guide/features.gni")
 
 # bloomfilter is isolated because of the allowlisted murmurhash3 dep.
@@ -89,9 +86,7 @@ component("features") {
     "//components/prefs",
     "//google_apis",
   ]
-  if (is_android) {
-    deps += [ "//components/version_info/android:channel_getter" ]
-  }
+
   defines = [ "IS_OPTIMIZATION_GUIDE_FEATURES_IMPL" ]
 }
 
@@ -363,21 +358,6 @@ source_set("ondevice") {
     ]
     if (build_with_internal_optimization_guide) {
       deps += [ "//services/on_device_model/ml:ml_no_internal" ]
-    }
-    if (is_android) {
-      sources += [
-        "model_execution/android/android_manifest.cc",
-        "model_execution/android/android_manifest.h",
-        "model_execution/android/model_broker_android.cc",
-        "model_execution/android/model_broker_android.h",
-      ]
-      deps += [
-        "//build:branding_buildflags",
-        "//components/optimization_guide/core/model_execution/configs:summarize_config",
-        "//services/on_device_model:on_device_model_service",
-        "//services/on_device_model/android",
-        "//services/on_device_model/android:mojom",
-      ]
     }
   }
 }
@@ -675,18 +655,6 @@ if (build_with_model_execution) {
       "//testing/gtest",
       "//third_party/dawn/src/dawn:proc",
     ]
-    if (is_android) {
-      sources += [
-        "model_execution/test/fake_android_manifest_asset.cc",
-        "model_execution/test/fake_android_manifest_asset.h",
-        "model_execution/test/fake_model_broker_android.cc",
-        "model_execution/test/fake_model_broker_android.h",
-      ]
-      deps += [
-        "//services/on_device_model/android",
-        "//services/on_device_model/android:test_support",
-      ]
-    }
   }
 }
 
@@ -917,16 +885,6 @@ if (build_with_model_execution && !is_chrome_for_testing) {
       "//testing/gtest",
       "//third_party/tflite:buildflags",
     ]
-    if (is_android) {
-      sources += [
-        "model_execution/android/android_manifest_unittest.cc",
-        "model_execution/android/model_broker_android_unittest.cc",
-      ]
-      deps += [
-        "//services/on_device_model/android",
-        "//services/on_device_model/android:test_support",
-      ]
-    }
   }
 }
 
@@ -978,13 +936,6 @@ bundle_data("unit_tests_bundle_data") {
   ]
   outputs = [ "{{bundle_resources_dir}}/" +
               "{{source_root_relative_dir}}/{{source_file_part}}" ]
-}
-
-if (is_android) {
-  java_cpp_enum("optimization_guide_generated_enums") {
-    sources = [ "hints/optimization_guide_decision.h" ]
-    visibility = [ "//chrome/browser/optimization_guide/android:*" ]
-  }
 }
 
 if (is_mac && build_with_internal_optimization_guide) {

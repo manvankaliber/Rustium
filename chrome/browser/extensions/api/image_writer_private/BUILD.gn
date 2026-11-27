@@ -75,36 +75,12 @@ source_set("image_writer_private") {
     "//url",
   ]
 
-  if (is_android) {
-    sources += [
-      "operation_android.cc",
-      "removable_storage_provider_android.cc",
-      "removable_storage_provider_android.h",
-    ]
-    deps += [ "//services/device/public/mojom" ]
-  }
-
-  if (is_chromeos) {
-    sources += [
-      "operation_chromeos.cc",
-      "removable_storage_provider_chromeos.cc",
-    ]
-    deps += [
-      "//chrome/browser/ash/file_manager",
-      "//chromeos/ash/components/dbus/image_burner",
-      "//chromeos/ash/components/disks",
-      "//chromeos/ash/components/policy/external_storage",
-    ]
-  }
-
-  if (!is_chromeos && !is_android) {
-    sources += [
-      "image_writer_utility_client.cc",
-      "image_writer_utility_client.h",
-      "operation_nonchromeos.cc",
-    ]
-    deps += [ "//chrome/services/removable_storage_writer/public/mojom" ]
-  }
+  sources += [
+    "image_writer_utility_client.cc",
+    "image_writer_utility_client.h",
+    "operation_nonchromeos.cc",
+  ]
+  deps += [ "//chrome/services/removable_storage_writer/public/mojom" ]
 
   if (is_mac) {
     sources += [ "removable_storage_provider_mac.cc" ]
@@ -148,19 +124,7 @@ source_set("test_support") {
     "//testing/gtest",
   ]
 
-  if (is_chromeos) {
-    deps += [
-      "//chromeos/ash/components/dbus",
-      "//chromeos/ash/components/dbus/concierge",
-      "//chromeos/ash/components/dbus/image_burner",
-      "//chromeos/ash/components/disks",
-      "//chromeos/ash/components/disks:test_support",
-    ]
-  }
-
-  if (!is_chromeos && !is_android) {
-    deps += [ "//chrome/services/removable_storage_writer/public/mojom" ]
-  }
+  deps += [ "//chrome/services/removable_storage_writer/public/mojom" ]
 }
 
 source_set("unit_tests") {
@@ -206,29 +170,6 @@ source_set("unit_tests") {
     "//third_party/zlib/google:zip",
     "//url",
   ]
-
-  if (is_chromeos) {
-    sources += [
-      "image_writer_private_api_chromeos_unittest.cc",
-      "removable_storage_provider_chromeos_unittest.cc",
-    ]
-    deps += [
-      "//chrome/browser/extensions:test_support",
-      "//chromeos/ash/components/disks",
-      "//chromeos/ash/components/disks:test_support",
-      "//chromeos/ash/components/policy/external_storage",
-      "//chromeos/ash/components/policy/external_storage:test_support",
-      "//extensions/browser/api/file_handlers",
-    ]
-  }
-
-  if (is_android) {
-    sources += [
-      "operation_android_unittest.cc",
-      "removable_storage_provider_android_unittest.cc",
-    ]
-    deps += [ "//services/device/public/mojom" ]
-  }
 }
 
 source_set("browser_tests") {
@@ -261,10 +202,8 @@ source_set("browser_tests") {
     "//third_party/zlib/google:zip",
   ]
 
-  if (!is_android) {
-    sources += [ "extractor_browsertest.cc" ]
-    deps += [ "//extensions/browser/api/file_system" ]
-  }
+  sources += [ "extractor_browsertest.cc" ]
+  deps += [ "//extensions/browser/api/file_system" ]
 
   if (is_win || is_mac || is_linux) {
     sources += [ "image_writer_utility_client_browsertest.cc" ]

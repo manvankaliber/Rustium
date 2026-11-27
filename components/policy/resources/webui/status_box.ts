@@ -265,23 +265,13 @@ export class StatusBoxElement extends CrLitElement {
     return !!this.status?.flexOrgWarning;
   }
 
-// <if expr="not is_ios">
   protected getWarning(): TrustedHTML {
     const warning = this.status?.flexOrgWarning ?
         ` ${loadTimeData.getString('statusFlexOrgNoPolicy')}` :
         '';
     return sanitizeInnerHtml(warning);
   }
-// </if>
 
-// <if expr="is_ios">
-  protected getWarning(): string {
-    const warning = this.status?.flexOrgWarning ?
-        ` ${loadTimeData.getString('statusFlexOrgNoPolicy')}` :
-        '';
-    return sanitizeInnerHtml(warning);
-  }
-// </if>
 
   private getNotSpecified(): string {
     return loadTimeData.getString('notSpecified');

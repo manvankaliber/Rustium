@@ -67,18 +67,10 @@ bool MediaRouterDialogControllerViews::ShowMediaRouterDialogForPresentation(
   if (!weak_this || !blocker) {
     return false;
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS, presentation UI is delegated to Ash's shelf/system tray
-  // (which is outside the browser window and does not track widget lifetime
-  // here). Dropping fullscreen once is sufficient to prevent spoofing without
-  // permanently blocking fullscreen.
-  ShowGlobalMediaControlsDialog(std::move(context));
-#else
   // On desktop platforms, keep fullscreen blocked until the MediaDialogView
   // widget is destroyed.
   fullscreen_blocker_ = std::move(*blocker);
   ShowGlobalMediaControlsDialogAsync(std::move(context));
-#endif  // BUILDFLAG(IS_CHROMEOS)
   return true;
 }
 
@@ -251,15 +243,6 @@ void MediaRouterDialogControllerViews::DestroyMediaRouterUI() {
   ui_.reset();
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void MediaRouterDialogControllerViews::ShowGlobalMediaControlsDialog(
-    std::unique_ptr<StartPresentationContext> context) {
-  Profile* const profile =
-      Profile::FromBrowserContext(initiator()->GetBrowserContext());
-  MediaNotificationServiceFactory::GetForProfile(profile)->ShowDialogAsh(
-      std::move(context));
-}
-#else
 void MediaRouterDialogControllerViews::ShowGlobalMediaControlsDialogAsync(
     std::unique_ptr<StartPresentationContext> context) {
   // Show the WebContents requesting a dialog.
@@ -345,7 +328,6 @@ void MediaRouterDialogControllerViews::OnMediaButtonShown(
     ui::TrackedElement* element) {
   ShowGlobalMediaControlsDialog();
 }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 MediaToolbarButton* MediaRouterDialogControllerViews::GetMediaButton() {
   if (hide_media_button_for_testing_) {

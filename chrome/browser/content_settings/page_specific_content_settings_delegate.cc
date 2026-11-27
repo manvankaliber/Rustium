@@ -41,10 +41,8 @@
 #include "pdf/pdf_features.h"
 #endif  // BUILDFLAG(ENABLE_PDF)
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "components/permissions/permission_indicators_tab_data.h"
 #include "components/tabs/public/tab_interface.h"
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 using content_settings::PageSpecificContentSettings;
 
@@ -96,7 +94,6 @@ PageSpecificContentSettingsDelegate::FromWebContents(
 void IndicatorUsageHistogramHelper(content::WebContents* web_contents,
                                    permissions::RequestTypeForUma request_type,
                                    bool is_capturing) {
-#if !BUILDFLAG(IS_ANDROID)
   tabs::TabInterface* tab_model =
       tabs::TabInterface::MaybeGetFromContents(web_contents);
   if (!tab_model) {
@@ -108,7 +105,6 @@ void IndicatorUsageHistogramHelper(content::WebContents* web_contents,
     permission_indicators_tab_data->OnMediaCaptureChanged(request_type,
                                                           is_capturing);
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 }
 
 void PageSpecificContentSettingsDelegate::OnIsCapturingVideoChanged(

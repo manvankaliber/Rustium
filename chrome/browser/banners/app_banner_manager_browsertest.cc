@@ -30,9 +30,6 @@
 #include "build/build_config.h"
 #include "content/public/browser/navigation_controller.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/device_info.h"
-#endif
 
 #include "chrome/browser/banners/app_banner_manager_browsertest_base.h"
 #include "chrome/browser/profiles/profile.h"
@@ -63,14 +60,12 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "third_party/blink/public/common/features.h"
 #include "third_party/blink/public/common/manifest/manifest_util.h"
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/ui/tabs/tab_strip_model.h"
 #include "chrome/browser/web_applications/test/web_app_install_test_utils.h"
 #include "chrome/browser/web_applications/web_app_install_info.h"
 #include "extensions/browser/extension_registrar.h"
 #include "extensions/common/extension_builder.h"
 #include "extensions/common/mojom/manifest.mojom-shared.h"
-#endif
 
 namespace webapps {
 
@@ -168,11 +163,6 @@ class AppBannerManagerBrowserTest
       delete;
 
   void SetUp() override {
-#if BUILDFLAG(IS_ANDROID)
-    if (base::android::device_info::is_automotive()) {
-      GTEST_SKIP() << "Skipping test on Android Automotive";
-    }
-#endif
     AppBannerManagerBrowserTestBase::SetUp();
   }
 
@@ -282,11 +272,7 @@ class AppBannerManagerBrowserTest
 };
 
 // TODO(crbug.com/370270547): Many tests are failing.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_WebAppBannerNoTypeInManifest DISABLED_WebAppBannerNoTypeInManifest
-#else
 #define MAYBE_WebAppBannerNoTypeInManifest WebAppBannerNoTypeInManifest
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_WebAppBannerNoTypeInManifest) {
   auto observer = CreateAppBannerManagerObserver();
@@ -296,13 +282,8 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
 }
 
 // TODO(crbug.com/370270547): Many tests are failing.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_WebAppBannerNoTypeInManifestCapsExtension \
-  DISABLED_WebAppBannerNoTypeInManifestCapsExtension
-#else
 #define MAYBE_WebAppBannerNoTypeInManifestCapsExtension \
   WebAppBannerNoTypeInManifestCapsExtension
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_WebAppBannerNoTypeInManifestCapsExtension) {
   auto observer = CreateAppBannerManagerObserver();
@@ -312,11 +293,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
 }
 
 // TODO(crbug.com/370270547): Many tests are failing.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_WebAppBannerSvgIcon DISABLED_WebAppBannerSvgIcon
-#else
 #define MAYBE_WebAppBannerSvgIcon WebAppBannerSvgIcon
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, MAYBE_WebAppBannerSvgIcon) {
   auto observer = CreateAppBannerManagerObserver();
   RunBannerTest(web_contents(), observer.get(),
@@ -325,11 +302,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, MAYBE_WebAppBannerSvgIcon) {
 }
 
 // TODO(crbug.com/370270547): Many tests are failing.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_WebAppBannerWebPIcon DISABLED_WebAppBannerWebPIcon
-#else
 #define MAYBE_WebAppBannerWebPIcon WebAppBannerWebPIcon
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_WebAppBannerWebPIcon) {
   auto observer = CreateAppBannerManagerObserver();
@@ -340,12 +313,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
 
 // TODO(crbug.com/545268511): DelayedManifestTriggersPipeline is failing on
 // Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_DelayedManifestTriggersPipeline \
-  DISABLED_DelayedManifestTriggersPipeline
-#else
 #define MAYBE_DelayedManifestTriggersPipeline DelayedManifestTriggersPipeline
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_DelayedManifestTriggersPipeline) {
   auto observer = CreateAppBannerManagerObserver();
@@ -575,7 +543,6 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, WebAppBannerInIFrame) {
   EXPECT_TRUE(blink::IsDefaultManifest(banner->manifest(), url));
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, DoesNotShowInIncognito) {
   BrowserWindowInterface* incognito_browser =
       OpenURLOffTheRecord(browser()->GetProfile(), GURL("about:blank"));
@@ -584,7 +551,6 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, DoesNotShowInIncognito) {
   // AppBannerManager is not even set up for incognito WebContents.
   ASSERT_EQ(nullptr, AppBannerManager::FromWebContents(web_contents));
 }
-#endif
 
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, WebAppBannerNotCreated) {
   auto observer = CreateAppBannerManagerObserver();
@@ -630,12 +596,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, WebAppBannerCancelled) {
 }
 
 // TODO(crbug.com/370270547): Many tests are failing.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_WebAppBannerPromptWithGesture \
-  DISABLED_WebAppBannerPromptWithGesture
-#else
 #define MAYBE_WebAppBannerPromptWithGesture WebAppBannerPromptWithGesture
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_WebAppBannerPromptWithGesture) {
   auto observer = CreateAppBannerManagerObserver();
@@ -655,25 +616,15 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                                    true /* with_gesture */),
                     true /* expected_will_show */, State::COMPLETE);
 
-#if BUILDFLAG(IS_ANDROID)
-  histograms.ExpectUniqueSample(kInstallableStatusCodeHistogram,
-                                InstallableStatusCode::SHOWING_WEB_APP_BANNER,
-                                1);
-#else
   histograms.ExpectUniqueSample(
       kInstallableStatusCodeHistogram,
       InstallableStatusCode::SHOWING_APP_INSTALLATION_DIALOG, 1);
-#endif
 
   observer->app_banner_manager()->ResetCurrentPageDataForTesting();
 }
 
 // TODO(crbug.com/545268511): WebAppBannerReprompt is failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_WebAppBannerReprompt DISABLED_WebAppBannerReprompt
-#else
 #define MAYBE_WebAppBannerReprompt WebAppBannerReprompt
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_WebAppBannerReprompt) {
   auto observer = CreateAppBannerManagerObserver();
@@ -707,25 +658,15 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                                    true /* with_gesture */),
                     true /* expected_will_show */, State::COMPLETE);
 
-#if BUILDFLAG(IS_ANDROID)
-  histograms.ExpectUniqueSample(kInstallableStatusCodeHistogram,
-                                InstallableStatusCode::SHOWING_WEB_APP_BANNER,
-                                1);
-#else
   histograms.ExpectUniqueSample(
       kInstallableStatusCodeHistogram,
       InstallableStatusCode::SHOWING_APP_INSTALLATION_DIALOG, 1);
-#endif
 
   observer->app_banner_manager()->ResetCurrentPageDataForTesting();
 }
 
 // Flaky on Android. crbug.com/369804412
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PreferRelatedAppUnknown DISABLED_PreferRelatedAppUnknown
-#else
 #define MAYBE_PreferRelatedAppUnknown PreferRelatedAppUnknown
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_PreferRelatedAppUnknown) {
   auto observer = CreateAppBannerManagerObserver();
@@ -739,11 +680,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
 }
 
 // Flaky on Android. crbug.com/369804412
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PreferRelatedChromeApp DISABLED_PreferRelatedChromeApp
-#else
 #define MAYBE_PreferRelatedChromeApp PreferRelatedChromeApp
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_PreferRelatedChromeApp) {
   auto observer = CreateAppBannerManagerObserver();
@@ -761,12 +698,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
 }
 
 // TODO(crbug.com/370270547): Many related tests are failing.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ListedRelatedChromeAppInstalled \
-  DISABLED_ListedRelatedChromeAppInstalled
-#else
 #define MAYBE_ListedRelatedChromeAppInstalled ListedRelatedChromeAppInstalled
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_ListedRelatedChromeAppInstalled) {
   auto observer = CreateAppBannerManagerObserver();
@@ -776,7 +708,6 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
   // a different manifest, with a different related app. Perhaps there should
   // be separate OS-specific versions of this test for AppBannerManagerDesktop
   // and AppBannerManagerAndroid.
-#if !BUILDFLAG(IS_ANDROID)
   // Corresponds to the id listed in manifest_listing_related_chrome_app.json.
   const auto extension =
       extensions::ExtensionBuilder("installed related chrome app")
@@ -790,7 +721,6 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
   // (crbug.com/515192463).
   extensions::ExtensionRegistrar::Get(browser()->GetProfile())
       ->AddExtension(extension);
-#endif
 
   GURL test_url = embedded_test_server()->GetURL(
       "/banners/manifest_test_page.html?manifest="
@@ -804,11 +734,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
 }
 
 // TODO(crbug.com/545268511): WebAppBannerTerminated is failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_WebAppBannerTerminated DISABLED_WebAppBannerTerminated
-#else
 #define MAYBE_WebAppBannerTerminated WebAppBannerTerminated
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_WebAppBannerTerminated) {
   auto observer = CreateAppBannerManagerObserver();
@@ -994,12 +920,7 @@ class AppBannerManagerPrerenderBrowserTest
 };
 
 // TODO(crbug.com/455855627): Failing on Android tablets.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PrerenderingShouldNotUpdateState \
-  DISABLED_PrerenderingShouldNotUpdateState
-#else
 #define MAYBE_PrerenderingShouldNotUpdateState PrerenderingShouldNotUpdateState
-#endif
 IN_PROC_BROWSER_TEST_F(AppBannerManagerPrerenderBrowserTest,
                        MAYBE_PrerenderingShouldNotUpdateState) {
   auto initial_url = embedded_test_server()->GetURL("/empty.html");
@@ -1028,11 +949,7 @@ IN_PROC_BROWSER_TEST_F(AppBannerManagerPrerenderBrowserTest,
 }
 
 // TODO(crbug.com/370270547): Many tests are failing.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ShowBanner DISABLED_ShowBanner
-#else
 #define MAYBE_ShowBanner ShowBanner
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, MAYBE_ShowBanner) {
   auto observer = CreateAppBannerManagerObserver();
   RunBannerTest(
@@ -1060,11 +977,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, NoServiceWorker) {
 }
 
 // TODO(crbug.com/545268511): NoFetchHandler is failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_NoFetchHandler DISABLED_NoFetchHandler
-#else
 #define MAYBE_NoFetchHandler NoFetchHandler
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, MAYBE_NoFetchHandler) {
   auto observer = CreateAppBannerManagerObserver();
 
@@ -1081,11 +994,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, MAYBE_NoFetchHandler) {
 }
 
 // TODO(crbug.com/545268511): PendingServiceWorker is failing on Android.
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_PendingServiceWorker DISABLED_PendingServiceWorker
-#else
 #define MAYBE_PendingServiceWorker PendingServiceWorker
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_PendingServiceWorker) {
   auto observer = CreateAppBannerManagerObserver();
@@ -1109,11 +1018,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
 }
 
 // Flaky on Android. crbug.com/369804412
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ValidManifestShowBanner DISABLED_ValidManifestShowBanner
-#else
 #define MAYBE_ValidManifestShowBanner ValidManifestShowBanner
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
                        MAYBE_ValidManifestShowBanner) {
   auto observer = CreateAppBannerManagerObserver();
@@ -1128,11 +1033,7 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
 }
 
 // Flaky on Android. crbug.com/369804412
-#if BUILDFLAG(IS_ANDROID)
-#define MAYBE_ImplicitName DISABLED_ImplicitName
-#else
 #define MAYBE_ImplicitName ImplicitName
-#endif
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, MAYBE_ImplicitName) {
   auto observer = CreateAppBannerManagerObserver();
 
@@ -1187,7 +1088,6 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, ImplicitNameDocumentTitle) {
             u"Web app banner test page");
 }
 
-#if !BUILDFLAG(IS_ANDROID)
 
 IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest, Prompts) {
   const GURL kAppUrl =
@@ -1488,7 +1388,6 @@ IN_PROC_BROWSER_TEST_P(AppBannerManagerBrowserTest,
   EXPECT_TRUE(different_event->is_null());
 }
 
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 INSTANTIATE_TEST_SUITE_P(All,
                          AppBannerManagerBrowserTest,

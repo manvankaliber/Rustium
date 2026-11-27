@@ -100,13 +100,13 @@ void TestClipboard::GetAllAvailableFormats(
     formats.insert(ClipboardFormatType::BitmapType());
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
   // The linux clipboard treats the presence of text on the clipboard
   // as the url format being available.
   if (formats.contains(ClipboardFormatType::PlainTextType())) {
     formats.insert(ClipboardFormatType::UrlType());
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#endif
 
   std::move(callback).Run(std::move(formats));
 }

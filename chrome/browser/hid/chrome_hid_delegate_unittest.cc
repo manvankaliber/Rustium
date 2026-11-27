@@ -45,10 +45,8 @@
 #include "third_party/blink/public/common/features.h"
 #include "third_party/blink/public/mojom/hid/hid.mojom.h"
 
-#if !BUILDFLAG(IS_ANDROID)
 #include "chrome/browser/hid/hid_connection_tracker.h"
 #include "chrome/browser/hid/hid_connection_tracker_factory.h"
-#endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 #include "base/command_line.h"
@@ -60,18 +58,6 @@
 #include "extensions/common/extension_builder.h"
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/login/users/scoped_account_id_annotator.h"
-#include "chromeos/ash/components/browser_context_helper/annotated_account_id.h"
-#include "components/account_id/account_id.h"
-#include "components/account_id/account_id_literal.h"
-#include "components/prefs/testing_pref_service.h"
-#include "components/user_manager/fake_user_manager_delegate.h"
-#include "components/user_manager/scoped_user_manager.h"
-#include "components/user_manager/test_helper.h"
-#include "components/user_manager/user_manager.h"
-#include "components/user_manager/user_manager_impl.h"
-#endif
 
 namespace {
 
@@ -85,11 +71,6 @@ constexpr std::string_view kDefaultTestUrl{"https://www.google.com"};
 constexpr std::string_view kCrossOriginTestUrl{"https://www.chromium.org"};
 constexpr char kTestUserEmail[] = "user@example.com";
 
-#if BUILDFLAG(IS_CHROMEOS)
-constexpr GaiaId::Literal kTestUserGaiaId("1111111111");
-constexpr AccountId::Literal kTestAccountId =
-    AccountId::Literal::FromUserEmailGaiaId(kTestUserEmail, kTestUserGaiaId);
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 constexpr std::string_view kPrivilegedExtensionId{
@@ -179,7 +160,6 @@ class FakeHidConnectionClient : public device::mojom::HidConnectionClient {
   mojo::Receiver<device::mojom::HidConnectionClient> receiver_{this};
 };
 
-#if !BUILDFLAG(IS_ANDROID)
 class MockHidConnectionTracker : public HidConnectionTracker {
  public:
   explicit MockHidConnectionTracker(Profile* profile)
@@ -189,19 +169,11 @@ class MockHidConnectionTracker : public HidConnectionTracker {
   MOCK_METHOD(void, IncrementConnectionCount, (const url::Origin&), (override));
   MOCK_METHOD(void, DecrementConnectionCount, (const url::Origin&), (override));
 };
-#endif  // !BUILDFLAG(IS_ANDROID)
 
 class ChromeHidTestHelper {
  public:
   ChromeHidTestHelper() {
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-    feature_list_.InitWithFeatures(
-        {blink::features::kWebHID,
-         features::kWebHidOnDesktopAndroidServiceWorkers},
-        {});
-#else
     feature_list_.InitAndEnableFeature(blink::features::kWebHID);
-#endif  // BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
   }
 
   void SimulateDeviceServiceCrash() {
@@ -243,14 +215,6 @@ class ChromeHidTestHelper {
     EXPECT_TRUE(devices_future.Wait());
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  void LogIn(const AccountId& account_id) {
-    CHECK(user_manager::TestHelper(user_manager_.Get())
-              .AddRegularUser(account_id));
-    user_manager_->UserLoggedIn(
-        account_id, user_manager::TestHelper::GetFakeUsernameHash(account_id));
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   // Creates a fake extension with the specified `extension_id` so that it can
@@ -292,7 +256,6 @@ class ChromeHidTestHelper {
 
   virtual void SetUpOriginUrl() = 0;
 
-#if !BUILDFLAG(IS_ANDROID)
   BrowserContextKeyedServiceFactory::TestingFactory
   GetHidConnectionTrackerTestingFactory() {
     return base::BindRepeating([](content::BrowserContext* browser_context) {
@@ -313,7 +276,6 @@ class ChromeHidTestHelper {
   MockHidConnectionTracker& hid_connection_tracker() {
     return *hid_connection_tracker_;
   }
-#endif  // !BUILDFLAG(IS_ANDROID)
 
   MockHidManagerClient& hid_manager_client() { return hid_manager_client_; }
 
@@ -569,11 +531,9 @@ class ChromeHidTestHelper {
         hid_connection_client.InitWithNewPipeAndPassReceiver());
     TestFuture<mojo::PendingRemote<device::mojom::HidConnection>>
         pending_remote_future;
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       EXPECT_CALL(hid_connection_tracker(), IncrementConnectionCount(origin));
     }
-#endif
     hid_service->Connect(device->guid, std::move(hid_connection_client),
                          pending_remote_future.GetCallback());
     mojo::Remote<device::mojom::HidConnection> connection;
@@ -585,20 +545,16 @@ class ChromeHidTestHelper {
     connection.set_disconnect_handler(disconnect_loop.QuitClosure());
 
     base::RunLoop decrement_connection_count_loop;
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       EXPECT_CALL(hid_connection_tracker(), DecrementConnectionCount(origin))
           .WillOnce(RunClosure(decrement_connection_count_loop.QuitClosure()));
     }
-#endif
 
     GetChooserContext()->RevokeDevicePermission(origin, *device);
     disconnect_loop.Run();
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       decrement_connection_count_loop.Run();
     }
-#endif
   }
 
   void TestRevokeDevicePermissionEphemeral() {
@@ -632,11 +588,9 @@ class ChromeHidTestHelper {
         hid_connection_client.InitWithNewPipeAndPassReceiver());
     TestFuture<mojo::PendingRemote<device::mojom::HidConnection>>
         pending_remote_future;
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       EXPECT_CALL(hid_connection_tracker(), IncrementConnectionCount(origin));
     }
-#endif
     hid_service->Connect(device->guid, std::move(hid_connection_client),
                          pending_remote_future.GetCallback());
     mojo::Remote<device::mojom::HidConnection> connection;
@@ -648,20 +602,16 @@ class ChromeHidTestHelper {
     connection.set_disconnect_handler(disconnect_loop.QuitClosure());
 
     base::RunLoop decrement_connection_count_loop;
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       EXPECT_CALL(hid_connection_tracker(), DecrementConnectionCount(origin))
           .WillOnce(RunClosure(decrement_connection_count_loop.QuitClosure()));
     }
-#endif
 
     GetChooserContext()->RevokeDevicePermission(origin, *device);
     disconnect_loop.Run();
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       decrement_connection_count_loop.Run();
     }
-#endif
   }
 
   void TestConnectAndDisconnect(content::WebContents* web_contents) {
@@ -697,11 +647,9 @@ class ChromeHidTestHelper {
         hid_connection_client.InitWithNewPipeAndPassReceiver());
     TestFuture<mojo::PendingRemote<device::mojom::HidConnection>>
         pending_remote_future;
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       EXPECT_CALL(hid_connection_tracker(), IncrementConnectionCount(origin));
     }
-#endif
     hid_service->Connect(device->guid, std::move(hid_connection_client),
                          pending_remote_future.GetCallback());
     mojo::Remote<device::mojom::HidConnection> connection;
@@ -720,7 +668,6 @@ class ChromeHidTestHelper {
     // RunUntilIdle() by using HidConnectionTracker::DecrementConnectionCount()
     // as it will be called in the disconnect path.
     bool use_run_until_idle = true;
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       use_run_until_idle = false;
       base::RunLoop decrement_connection_count_loop;
@@ -729,7 +676,6 @@ class ChromeHidTestHelper {
       connection.reset();
       decrement_connection_count_loop.Run();
     }
-#endif
     if (use_run_until_idle) {
       connection.reset();
       base::RunLoop().RunUntilIdle();
@@ -776,11 +722,9 @@ class ChromeHidTestHelper {
         hid_connection_client.InitWithNewPipeAndPassReceiver());
     TestFuture<mojo::PendingRemote<device::mojom::HidConnection>>
         pending_remote_future;
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       EXPECT_CALL(hid_connection_tracker(), IncrementConnectionCount(origin));
     }
-#endif
     hid_service->Connect(device->guid, std::move(hid_connection_client),
                          pending_remote_future.GetCallback());
     mojo::Remote<device::mojom::HidConnection> connection;
@@ -799,7 +743,6 @@ class ChromeHidTestHelper {
     // RunUntilIdle() by using HidConnectionTracker::DecrementConnectionCount()
     // as it will be called in the remove device path.
     bool use_run_until_idle = true;
-#if !BUILDFLAG(IS_ANDROID)
     if (supports_hid_connection_tracker_) {
       use_run_until_idle = false;
       base::RunLoop decrement_connection_count_loop;
@@ -808,7 +751,6 @@ class ChromeHidTestHelper {
       RemoveDevice(device);
       decrement_connection_count_loop.Run();
     }
-#endif
     if (use_run_until_idle) {
       RemoveDevice(device);
       base::RunLoop().RunUntilIdle();
@@ -881,10 +823,8 @@ class ChromeHidTestHelper {
     hid_service->GetDevices(devices_future.GetCallback());
     EXPECT_THAT(devices_future.Take(), ElementsAre(HasGuid(device->guid)));
 
-#if !BUILDFLAG(IS_ANDROID)
     EXPECT_CALL(hid_connection_tracker(), IncrementConnectionCount(origin))
         .Times(0);
-#endif
     // Open a connection to `device`.
     FakeHidConnectionClient connection_client;
     mojo::PendingRemote<device::mojom::HidConnectionClient>
@@ -903,25 +843,14 @@ class ChromeHidTestHelper {
  protected:
   raw_ptr<TestingProfile> profile_ = nullptr;
   GURL origin_url_;
-#if !BUILDFLAG(IS_ANDROID)
   raw_ptr<MockHidConnectionTracker, DanglingUntriaged> hid_connection_tracker_ =
       nullptr;
-#endif
   // This flag is expected to be set to true only for the scenario of extension
   // origin and kEnableWebHidOnExtensionServiceWorker enabled.
   bool supports_hid_connection_tracker_ = false;
 
  private:
   std::unique_ptr<device::FakeHidManager> hid_manager_;
-#if BUILDFLAG(IS_CHROMEOS)
-  // On ChromeOS a user account is needed in order to check whether the user
-  // account is affiliated with the device owner for the purposes of applying
-  // enterprise policy.
-  user_manager::ScopedUserManager user_manager_{
-      std::make_unique<user_manager::UserManagerImpl>(
-          std::make_unique<user_manager::FakeUserManagerDelegate>(),
-          TestingBrowserProcess::GetGlobal()->GetTestingLocalState())};
-#endif
 #if BUILDFLAG(ENABLE_EXTENSIONS_CORE)
   scoped_refptr<const extensions::Extension> extension_;
 #endif
@@ -940,15 +869,11 @@ class ChromeHidDelegateRenderFrameTestBase
 
     ChromeRenderViewHostTestHarness::SetUp();
 
-#if !BUILDFLAG(IS_ANDROID)
     HidConnectionTrackerFactory::GetInstance()->SetTestingFactory(
         profile_, GetHidConnectionTrackerTestingFactory());
-#endif
 
     ASSERT_TRUE(profile_);
-#if !BUILDFLAG(IS_ANDROID)
     SetUpHidConnectionTracker();
-#endif
     // Create a new web contents for `profile_`.
     SetContents(
         content::WebContentsTester::CreateTestWebContents(profile_, nullptr));
@@ -960,29 +885,16 @@ class ChromeHidDelegateRenderFrameTestBase
   void TearDown() override {
     DeleteContents();
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // Notify User's profile is going to be destroyed soon.
-    user_manager::UserManager::Get()->OnUserProfileWillBeDestroyed(
-        kTestAccountId);
-#endif
     profile_ = nullptr;
     profile_manager_->DeleteAllTestingProfiles();
 
     ChromeRenderViewHostTestHarness::TearDown();
 
     profile_manager_.reset();
-#if !BUILDFLAG(IS_ANDROID)
     hid_connection_tracker_ = nullptr;
-#endif
   }
 
   std::unique_ptr<TestingProfile> CreateTestingProfile() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    // LogIn must happen before profile creation.
-    LogIn(kTestAccountId);
-    ash::ScopedAccountIdAnnotator annotator(profile_manager_->profile_manager(),
-                                            kTestAccountId);
-#endif
     // TODO(crbug.com/40249783): Pass testing factory when creating profile.
     // Ideally, we should be able to pass testing factory when calling profile
     // manager's CreateTestingProfile. However, due to the fact that:
@@ -997,12 +909,6 @@ class ChromeHidDelegateRenderFrameTestBase
     // MockHidConnectionTracker.
     profile_ = profile_manager_->CreateTestingProfile(kTestUserEmail);
 
-#if BUILDFLAG(IS_CHROMEOS)
-    // Notify ChromeOS User that its profile is created.
-    // TODO(crbug.com/40225390): Use ProfileUserManagerController.
-    user_manager::UserManager::Get()->OnUserProfileCreated(
-        kTestAccountId, profile_->GetPrefs());
-#endif
 
     // The ownership is still held by ProfileManager, so do not return the
     // instance.
@@ -1093,9 +999,7 @@ class ChromeHidDelegateServiceWorkerTestBase
  public:
   void SetUp() override {
     content::EmbeddedWorkerInstanceTestHarness::SetUp();
-#if !BUILDFLAG(IS_ANDROID)
     SetUpHidConnectionTracker();
-#endif
     BindHidManager();
     SetUpOriginUrl();
     StartWorker();
@@ -1126,18 +1030,10 @@ class ChromeHidDelegateServiceWorkerTestBase
 
   // content::EmbeddedWorkerInstanceTestHarness
   std::unique_ptr<content::BrowserContext> CreateBrowserContext() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    // In ChromeOS, User seession needs to be created for web browser profile.
-    LogIn(kTestAccountId);
-#endif
 
     auto builder = TestingProfile::Builder();
     auto testing_profile = builder.Build();
     profile_ = testing_profile.get();
-#if BUILDFLAG(IS_CHROMEOS)
-    // Tie the created Profile and the logged-in User for ChromeOS.
-    ash::AnnotatedAccountId::Set(profile_.get(), kTestAccountId);
-#endif
     // TODO(crbug.com/40249783): Pass testing factory when creating profile.
     // Ideally, we should use TestingProfile::Builder::AddTestingFactory to
     // inject MockHidConnectionTracker. However, due to the fact that:
@@ -1150,10 +1046,8 @@ class ChromeHidDelegateServiceWorkerTestBase
     // profile is not initialized properly before setting testing factory. As a
     // result, here create a profile then call SetTestingFactory to inject
     // MockHidConnectionTracker.
-#if !BUILDFLAG(IS_ANDROID)
     HidConnectionTrackerFactory::GetInstance()->SetTestingFactory(
         profile_, GetHidConnectionTrackerTestingFactory());
-#endif
     return testing_profile;
   }
 
@@ -1182,19 +1076,6 @@ class ChromeHidDelegateExtensionServiceWorkerTest
   void SetUpOriginUrl() override { SetUpExtensionOriginUrl(); }
 };
 
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-class ChromeHidDelegateExtensionServiceWorkerFeatureDisabledTest
-    : public ChromeHidDelegateExtensionServiceWorkerTest {
- public:
-  ChromeHidDelegateExtensionServiceWorkerFeatureDisabledTest() {
-    disabled_feature_list_.InitAndDisableFeature(
-        features::kWebHidOnDesktopAndroidServiceWorkers);
-  }
-
- private:
-  base::test::ScopedFeatureList disabled_feature_list_;
-};
-#endif  // BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
 
 class ChromeHidDelegateExtensionRenderFrameTest
     : public ChromeHidDelegateRenderFrameTestBase {
@@ -1315,15 +1196,6 @@ TEST_F(ChromeHidDelegateExtensionServiceWorkerTest, ConnectAndRemove) {
   TestConnectAndRemove(/*web_contents=*/nullptr);
 }
 
-#if BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
-TEST_F(ChromeHidDelegateExtensionServiceWorkerFeatureDisabledTest,
-       FeatureDisabledOnDesktopAndroid) {
-  ChromeHidDelegate chrome_hid_delegate;
-  EXPECT_FALSE(chrome_hid_delegate.IsServiceWorkerAllowedForOrigin(
-      url::Origin::Create(origin_url_)));
-  TestHidServiceNotConnected();
-}
-#endif  // BUILDFLAG(ENABLE_DESKTOP_ANDROID_EXTENSIONS)
 #endif  // BUILDFLAG(ENABLE_EXTENSIONS_CORE)
 
 TEST(ChromeHidDelegateBrowserContextTest, BrowserContextIsNull) {

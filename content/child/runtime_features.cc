@@ -50,10 +50,6 @@
 #include "ui/native_theme/features/native_theme_features.h"
 #include "ui/native_theme/native_theme.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/android/android_info.h"
-#include "base/android/device_info.h"
-#endif
 
 #if BUILDFLAG(ENABLE_VR)
 #include "device/vr/public/cpp/features.h"
@@ -171,18 +167,9 @@ void SetRuntimeFeaturesFromChromiumFeatures() {
           {wf::EnableFencedFrames, features::kPrivacySandboxAdsAPIsM1Override},
           {wf::EnableForcedColors, features::kForcedColors},
           {wf::EnableSensorExtraClasses, features::kGenericSensorExtraClasses},
-#if BUILDFLAG(IS_ANDROID)
-          {wf::EnableGetDisplayMedia, features::kUserMediaScreenCapturing},
-          {wf::EnableRegionCapture, features::kUserMediaScreenCapturing},
-          {wf::EnableElementCapture, features::kUserMediaScreenCapturing},
-
-#endif
           {wf::EnableInstalledApp, features::kInstalledApp},
           {wf::EnableIntegrityPolicyScript,
            network::features::kIntegrityPolicyScript},
-#if BUILDFLAG(IS_CHROMEOS)
-          {wf::EnableLockedMode, blink::features::kLockedMode},
-#endif
           {wf::EnableMediaEngagementBypassAutoplayPolicies,
            media::kMediaEngagementBypassAutoplayPolicies},
           {wf::EnablePaymentApp, features::kServiceWorkerPaymentApps},
@@ -194,9 +181,6 @@ void SetRuntimeFeaturesFromChromiumFeatures() {
           {wf::EnableSendBeaconThrowForBlobWithNonSimpleType,
            features::kSendBeaconThrowForBlobWithNonSimpleType},
           {wf::EnableSharedArrayBuffer, features::kSharedArrayBuffer},
-#if BUILDFLAG(IS_ANDROID)
-          {wf::EnableSmartZoom, features::kSmartZoom},
-#endif
           {wf::EnableTouchDragAndDrop, features::kTouchDragAndDrop},
           {wf::EnableTouchDragAndContextMenu,
            features::kTouchDragAndContextMenu},
@@ -259,9 +243,6 @@ void SetRuntimeFeaturesFromChromiumFeatures() {
            content_settings::features::kApproximateGeolocationPermission},
           {"AndroidDownloadableFontsMatching",
            features::kAndroidDownloadableFontsMatching},
-#if BUILDFLAG(IS_ANDROID)
-          {"CCTNewRFMPushBehavior", blink::features::kCCTNewRFMPushBehavior},
-#endif
           {"CompressionDictionaryTransport",
            network::features::kCompressionDictionaryTransport},
           {"CookieStoreAPIMaxAge", blink::features::kCookieStoreAPIMaxAge},
@@ -371,9 +352,6 @@ void SetRuntimeFeaturesFromCommandLine(const base::CommandLine& command_line) {
        true},
       {wrf::EnableWebAudioBypassOutputBufferingOptOut,
        blink::switches::kWebAudioBypassOutputBufferingOptOut, true},
-#if BUILDFLAG(IS_ANDROID)
-      {wrf::EnableMediaSession, switches::kDisableMediaSessionAPI, false},
-#endif
   };
 
   for (const auto& mapping : switch_to_feature_mapping) {
@@ -410,64 +388,12 @@ void SetCustomizedRuntimeFeaturesFromCombinedArgs(
   // CAUTION: Only add custom enabling logic here if it cannot
   // be covered by the other functions.
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_P) {
-    WebRuntimeFeatures::EnableDisplayCutoutAPI(false);
-  }
-  // Unbounded elements rely on
-  // AttachedSurfaceControl.buildReparentTransaction(), which requires Android U
-  // (API level 34) or higher. Disable the feature entirely below that instead
-  // of exposing an API that can only ever reject, so that
-  // 'showUnboundedElement' in HTMLElement.prototype remains a valid feature
-  // detect. This also drops the @supports blink-feature(UnboundedElement) block
-  // from the UA stylesheet, so a stray 'unbounded' attribute cannot hide
-  // content. See HTMLElement::showUnboundedElement().
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_U) {
-    // UnboundedElement is implied_by UnsafeUnboundedElementOnTheOpenWeb,
-    // which is implied_by UnsafeEscapingUnboundedElementOnTheOpenWeb, so they
-    // all have to be disabled for UnboundedElementEnabled() to return false.
-    WebRuntimeFeatures::EnableUnsafeEscapingUnboundedElementOnTheOpenWeb(false);
-    WebRuntimeFeatures::EnableUnsafeUnboundedElementOnTheOpenWeb(false);
-    WebRuntimeFeatures::EnableUnboundedElement(false);
-  }
-  // The EyeDropper API on Android relies on Intent.ACTION_OPEN_EYE_DROPPER,
-  // which was introduced in Android CinnamonBun (API level 37). Disable the
-  // feature on older Android versions so that the eyedropper IDL is not
-  // registered for feature detection without actually trying to open the
-  // eyedropper.
-  if (base::android::android_info::sdk_int() <
-      base::android::android_info::SDK_VERSION_CINNAMON_BUN) {
-    WebRuntimeFeatures::EnableEyeDropperAPI(false);
-  }
-#endif
 
   // These checks are custom wrappers around base::FeatureList::IsEnabled
   // They're moved here to distinguish them from actual base checks
   WebRuntimeFeatures::EnableOverlayScrollbars(
       ui::NativeTheme::GetInstanceForWeb()->use_overlay_scrollbar());
   WebRuntimeFeatures::EnableFluentScrollbars(ui::IsFluentScrollbarEnabled());
-#if BUILDFLAG(IS_ANDROID)
-  WebRuntimeFeatures::EnableAudioOutputDevices(
-      base::FeatureList::IsEnabled(features::kAAudioPerStreamDeviceSelection) &&
-      base::android::device_info::is_desktop());
-  WebRuntimeFeatures::EnableDesktopAndroidScrollbars(
-      command_line.HasSwitch(
-          blink::switches::kEnableDesktopAndroidScrollbars) &&
-      // This feature is not ready for non-desktop devices. See
-      // crbug.com/522529331.
-      base::android::device_info::is_desktop());
-  if (base::android::device_info::is_desktop() &&
-      !base::FeatureList::GetStateIfOverridden(
-           blink::features::kWebAudioBypassOutputBuffering)
-           .has_value()) {
-    // TODO(crbug.com/436988695): Remove when the long term solution is
-    // implemented.
-    WebRuntimeFeatures::EnableFeatureFromString("WebAudioBypassOutputBuffering",
-                                                true);
-  }
-#endif
 
   // TODO(rodneyding): This is a rare case for a stable feature
   // Need to investigate more to determine whether to refactor it.

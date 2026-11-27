@@ -381,7 +381,7 @@ TEST_F(RuntimeEnabledFeaturesTest, CustomEnableCheckDisallowed) {
       "TestFeatureCustomEnableCheck"));
 }
 
-#if defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#if defined(GTEST_HAS_DEATH_TEST)
 TEST(RuntimeEnabledFeaturesCustomEnableCheckDeathTest, SetButNotAllowed) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");
   ScopedTestFeatureCustomEnableCheckForTest enabled(true);
@@ -392,7 +392,7 @@ TEST(RuntimeEnabledFeaturesCustomEnableCheckDeathTest, SetButNotAllowed) {
   EXPECT_CHECK_DEATH(RuntimeEnabledFeatures::IsFeatureEnabledFromString(
       "TestFeatureCustomEnableCheck"));
 }
-#endif  // defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 // blink_platform_unittests enables test-only features, which grants all of the
 // MojoJS permissions, so both features should be enabled and readable here.
@@ -415,7 +415,7 @@ TEST_F(RuntimeEnabledFeaturesTest, MojoJSCanBeToggledWhenAllowed) {
   EXPECT_FALSE(RuntimeEnabledFeatures::MojoJSEnabled());
 }
 
-#if defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#if defined(GTEST_HAS_DEATH_TEST)
 TEST(RuntimeEnabledFeaturesMojoJSDeathTest, SetButNotAllowed) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");
 
@@ -427,6 +427,6 @@ TEST(RuntimeEnabledFeaturesMojoJSDeathTest, SetButNotAllowed) {
     (void)RuntimeEnabledFeatures::MojoJSEnabled();
   });
 }
-#endif  // defined(GTEST_HAS_DEATH_TEST) && !BUILDFLAG(IS_ANDROID)
+#endif
 
 }  // namespace blink

@@ -31,14 +31,11 @@
 #include "services/device/public/cpp/usb/usb_utils.h"
 #include "services/device/usb/usb_device_linux.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/dbus/permission_broker/permission_broker_client.h"
-#endif
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 #include "base/metrics/histogram_macros.h"
 #include "services/device/usb/usb_interface_detach_allowlist.h"
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
 
 namespace device {
 
@@ -51,7 +48,7 @@ using mojom::UsbTransferType;
 
 namespace {
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 // Outcome of detaching a kernel driver before ClaimInterface().
 // These values are persisted to logs. Entries should not be renumbered and
 // numeric values should never be reused.
@@ -77,7 +74,7 @@ enum class DetachKernelDriverOutcome {
   kMaxValue = kDetachedUsbStorage
 };
 // LINT.ThenChange(//tools/metrics/histograms/metadata/others/enums.xml:DetachKernelDriverOutcome)
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
 
 uint8_t ConvertEndpointDirection(UsbTransferDirection direction) {
   switch (direction) {
@@ -251,17 +248,6 @@ UsbDeviceHandleUsbfs::BlockingTaskRunnerHelper::~BlockingTaskRunnerHelper() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void UsbDeviceHandleUsbfs::BlockingTaskRunnerHelper::ReleaseFileDescriptor() {
-  // This method intentionally releases ownership of the file descriptor without
-  // closing it. It is used only on Android, where the underlying file
-  // descriptor is owned by the Java UsbDeviceConnection object and will be
-  // closed via JNI.
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  watch_controller_.reset();
-  std::ignore = fd_.release();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void UsbDeviceHandleUsbfs::BlockingTaskRunnerHelper::CloseFileDescriptor() {
   // Stops watching and closes the file descriptors. Used on Linux and ChromeOS,
@@ -320,7 +306,7 @@ bool UsbDeviceHandleUsbfs::BlockingTaskRunnerHelper::ReleaseInterface(
   return true;
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
 bool UsbDeviceHandleUsbfs::BlockingTaskRunnerHelper::DetachInterface(
     int interface_number,
     const CombinedInterfaceInfo& interface_info,
@@ -400,7 +386,7 @@ bool UsbDeviceHandleUsbfs::BlockingTaskRunnerHelper::ReattachInterface(
   }
   return true;
 }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
 
 bool UsbDeviceHandleUsbfs::BlockingTaskRunnerHelper::SetInterface(
     int interface_number,
@@ -436,7 +422,7 @@ bool UsbDeviceHandleUsbfs::BlockingTaskRunnerHelper::ResetDevice() {
     USB_PLOG(DEBUG) << "Failed to reset the device";
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   if (base::FeatureList::IsEnabled(
           features::kWebUsbResetInvalidatesConfiguration)) {
     // USBDEVFS_RESET causes the kernel to rebind drivers to all interfaces.
@@ -669,16 +655,7 @@ void UsbDeviceHandleUsbfs::ClaimInterface(int interface_number,
   // First detach the interface from a kernel driver that might be attached to
   // it, then claim the interface.
   // Note: |ClaimInterface| is invoked from |DetachInterfaceComplete|.
-#if BUILDFLAG(IS_CHROMEOS)
-  if (client_id_.has_value()) {
-    chromeos::PermissionBrokerClient::Get()->DetachInterface(
-        client_id_.value(), interface_number,
-        base::BindOnce(&UsbDeviceHandleUsbfs::DetachInterfaceComplete, this,
-                       interface_number, std::move(callback)));
-    return;
-  }
-#endif
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   if (base::FeatureList::IsEnabled(features::kAutomaticUsbDetach)) {
     const mojom::UsbConfigurationInfo* config =
         device_->GetActiveConfiguration();
@@ -699,7 +676,7 @@ void UsbDeviceHandleUsbfs::ClaimInterface(int interface_number,
                              this, interface_number, std::move(callback)));
     return;
   }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#endif
   DetachInterfaceComplete(interface_number, std::move(callback), true);
 }
 
@@ -943,20 +920,6 @@ UsbDeviceHandleUsbfs::~UsbDeviceHandleUsbfs() {
   DCHECK(!device_) << "Handle must be closed before it is destroyed.";
 }
 
-#if BUILDFLAG(IS_ANDROID)
-void UsbDeviceHandleUsbfs::ReleaseFileDescriptor(base::OnceClosure callback) {
-  CHECK(callback);
-  // Retain |this| until |helper_| stops watching and releases |fd_| on the
-  // blocking task runner and |callback| finishes closing the device, so
-  // in-flight |transfers_| stay valid until the kernel is done with them.
-  helper_.AsyncCall(&BlockingTaskRunnerHelper::ReleaseFileDescriptor)
-      .Then(std::move(callback).Then(
-          base::BindOnce(&UsbDeviceHandleUsbfs::FinishCloseComplete, this)));
-  // Schedules destruction of |helper_| on the blocking task runner immediately
-  // after ReleaseFileDescriptor() runs.
-  helper_.Reset();
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 void UsbDeviceHandleUsbfs::FinishClose() {
   // Retain |this| until |helper_| stops watching and closes |fd_| on the
@@ -1063,14 +1026,7 @@ void UsbDeviceHandleUsbfs::ReleaseInterfaceComplete(int interface_number,
     RefreshEndpointInfo();
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (client_id_.has_value()) {
-    chromeos::PermissionBrokerClient::Get()->ReattachInterface(
-        client_id_.value(), interface_number, std::move(callback));
-    return;
-  }
-#endif
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
+#if BUILDFLAG(IS_LINUX)
   if (base::FeatureList::IsEnabled(features::kAutomaticUsbDetach)) {
     helper_.AsyncCall(&BlockingTaskRunnerHelper::ReattachInterface)
         .WithArgs(interface_number)

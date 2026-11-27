@@ -82,23 +82,8 @@
 #include "ui/base/page_transition_types.h"
 #include "url/gurl.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "base/memory/raw_ptr.h"
-#include "base/test/test_future.h"
-#include "chrome/browser/android/tab_android.h"
-#include "chrome/browser/incognito/android/incognito_utils_android.h"
-#include "chrome/browser/tab_list/tab_list_interface.h"
-#include "chrome/browser/ui/android/tab_model/tab_model.h"
-#include "chrome/browser/ui/android/tab_model/tab_model_list.h"
-#include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/browser_window/public/create_browser_window.h"
-#include "chrome/test/base/android/android_ui_test_utils.h"
-#include "components/tabs/public/tab_interface.h"
-#include "ui/base/base_window.h"
-#else
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
 #include "chrome/test/base/ui_test_utils.h"
-#endif
 
 namespace variations {
 namespace {
@@ -193,45 +178,6 @@ VariationsSeed CreateTestSeedWithLimitedEntropyLayer(
   return seed;
 }
 
-#if BUILDFLAG(IS_ANDROID)
-TabModel* FindTabModelForProfile(content::BrowserContext* context) {
-  for (TabModel* model : TabModelList::models()) {
-    if (model->GetProfile() == context) {
-      return model;
-    }
-  }
-  return nullptr;
-}
-
-void OpenUrlInNewTab(content::BrowserContext* context,
-                     content::WebContents* parent,
-                     const GURL& url) {
-  CHECK(parent);
-  CHECK(context);
-  TabModel* tab_model = TabModelList::GetTabModelForWebContents(parent);
-
-  std::unique_ptr<content::WebContents> contents =
-      content::WebContents::Create(content::WebContents::CreateParams(context));
-  content::WebContents* raw_web_contents = contents.get();
-  auto* new_tab =
-      tab_model->CreateTab(TabAndroid::FromWebContents(parent),
-                           std::move(contents), TabModel::kInvalidIndex,
-                           TabModel::TabLaunchType::FROM_RECENT_TABS_FOREGROUND,
-                           /*should_pin=*/false);
-
-  content::NavigateToURLBlockUntilNavigationsComplete(
-      raw_web_contents, url, /*number_of_navigations=*/1,
-      /*ignore_uncommitted_navigations=*/false);
-
-  TabModel* new_tab_model = FindTabModelForProfile(context);
-  ASSERT_NE(new_tab_model, nullptr);
-  ASSERT_TRUE(new_tab_model->IsOffTheRecord());
-
-  tabs::TabHandle new_tab_handle = new_tab->GetHandle();
-  ASSERT_NE(new_tab_handle.raw_value(), 0);
-  new_tab_model->ActivateTab(new_tab_handle);
-}
-#endif  // BUILDFLAG(IS_ANDROID)
 
 GURL GetGoogleUrlWithPath(const std::string& path,
                           net::EmbeddedTestServer* server) {
@@ -371,10 +317,6 @@ class VariationsHttpHeadersBrowserTest : public PlatformBrowserTest {
  public:
   VariationsHttpHeadersBrowserTest()
       : https_server_(net::test_server::EmbeddedTestServer::TYPE_HTTPS) {
-#if BUILDFLAG(IS_ANDROID)
-    // SetUpOnMainThread() uses NetworkConnectionChangeSimulator.
-    set_use_test_network_connection_tracker(false);
-#endif
   }
 
   VariationsHttpHeadersBrowserTest(const VariationsHttpHeadersBrowserTest&) =
@@ -384,14 +326,6 @@ class VariationsHttpHeadersBrowserTest : public PlatformBrowserTest {
 
   ~VariationsHttpHeadersBrowserTest() override = default;
 
-#if BUILDFLAG(IS_ANDROID)
-  void SetUpDefaultCommandLine(base::CommandLine* command_line) override {
-    PlatformBrowserTest::SetUpDefaultCommandLine(command_line);
-    // Disable the first-run experience (FRE) so launching a separate Incognito
-    // ChromeTabbedActivity window does not redirect to FirstRunActivity.
-    command_line->AppendSwitch("disable-fre");
-  }
-#endif
 
   // TODO(crbug.com/452922329): Share the helpers around Android Incognito in
   // more general helper library if it actually doesn't flake for a while.
@@ -399,27 +333,10 @@ class VariationsHttpHeadersBrowserTest : public PlatformBrowserTest {
     CHECK(!GetTestProfile()->IsIncognitoProfile());
     const GURL url("about:blank");
 
-#if BUILDFLAG(IS_ANDROID)
-    Profile* otr_profile =
-        GetTestProfile()->GetPrimaryOTRProfile(/*create_if_needed=*/true);
-    if (chrome::android::ShouldOpenIncognitoAsWindow()) {
-      BrowserWindowCreateParams create_params(
-          BrowserWindowInterface::Type::TYPE_NORMAL, *otr_profile,
-          /*from_user_gesture=*/false);
-      base::test::TestFuture<BrowserWindowInterface*> future;
-      CreateBrowserWindow(std::move(create_params), future.GetCallback());
-      android_incognito_window_ = future.Get();
-      ASSERT_NE(android_incognito_window_, nullptr);
-      ASSERT_TRUE(NavigateToURL(url));
-    } else {
-      OpenUrlInNewTab(otr_profile, GetWebContents(), url);
-    }
-#else
     BrowserWindowInterface* incognito =
         CreateIncognitoBrowser(GetTestProfile());
     SetBrowser(incognito);
     NavigateToURL(url);
-#endif
     ASSERT_TRUE(GetTestProfile()->IsIncognitoProfile());
   }
 
@@ -478,11 +395,6 @@ class VariationsHttpHeadersBrowserTest : public PlatformBrowserTest {
   }
 
   void TearDownOnMainThread() override {
-#if BUILDFLAG(IS_ANDROID)
-    if (android_incognito_window_) {
-      android_incognito_window_.ExtractAsDangling()->GetWindow()->Close();
-    }
-#endif
     PlatformBrowserTest::TearDownOnMainThread();
   }
 
@@ -584,24 +496,10 @@ class VariationsHttpHeadersBrowserTest : public PlatformBrowserTest {
   }
 
   Profile* GetTestProfile() {
-#if BUILDFLAG(IS_ANDROID)
-    if (android_incognito_window_) {
-      return android_incognito_window_->GetProfile();
-    }
-#endif
     return chrome_test_utils::GetProfile(this);
   }
 
   content::WebContents* GetWebContents() {
-#if BUILDFLAG(IS_ANDROID)
-    if (android_incognito_window_) {
-      auto* tab_list = TabListInterface::From(android_incognito_window_);
-      CHECK(tab_list);
-      tabs::TabInterface* active_tab = tab_list->GetActiveTab();
-      CHECK(active_tab);
-      return active_tab->GetContents();
-    }
-#endif
     return chrome_test_utils::GetActiveWebContents(this);
   }
 
@@ -714,9 +612,6 @@ class VariationsHttpHeadersBrowserTest : public PlatformBrowserTest {
   // Holds the subscription to ensure the callback remains active during setup.
   base::CallbackListSubscription create_services_subscription_;
 
-#if BUILDFLAG(IS_ANDROID)
-  raw_ptr<BrowserWindowInterface> android_incognito_window_ = nullptr;
-#endif
 
   SEQUENCE_CHECKER(sequence_checker_);
 };

@@ -180,15 +180,6 @@ std::vector<std::string> DumpAccessibilityEventsTest::Dump() {
       if (go_pass_number == 1) {
         WaitForFinalTreeContents();
       }
-#if BUILDFLAG(IS_ANDROID)
-      // By default, Android does not load inline text boxes. We need to
-      // explicitly load them to ensure consistent Blink trees.
-      if (ui::BrowserAccessibilityManager* manager = GetManager()) {
-        manager->LoadInlineTextBoxes(*manager->GetBrowserAccessibilityRoot());
-        content::WaitForAccessibilityTreeToChange(GetWebContents(),
-                                                  base::Milliseconds(500));
-      }
-#endif
       std::string initial_tree_dump = DumpTreeAsString();
       result.emplace_back("=== Accessibility tree before go() pass " +
                           base::NumberToString(go_pass_number) + " ===");
@@ -219,11 +210,6 @@ std::vector<std::string> DumpAccessibilityEventsTest::Dump() {
 
     // 3. Optionally dump the after-run accessibility tree, noting any changes.
     if (ShouldDumpAccessibilityTreeAfterEachGoPass()) {
-#if BUILDFLAG(IS_ANDROID)
-      if (ui::BrowserAccessibilityManager* manager = GetManager()) {
-        manager->LoadInlineTextBoxes(*manager->GetBrowserAccessibilityRoot());
-      }
-#endif
       std::string final_tree_dump = DumpTreeAsString();
       result.emplace_back("=== Accessibility tree after go() pass " +
                           base::NumberToString(go_pass_number) + " ===");
@@ -323,7 +309,6 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::ValuesIn(DumpAccessibilityTestBase::EventTestPassesExceptUIA()),
     DumpAccessibilityEventsTestPassToString());
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 class DumpAccessibilityEventsWithMaterialDesignTest
     : public DumpAccessibilityEventsTest {
  public:
@@ -338,7 +323,6 @@ INSTANTIATE_TEST_SUITE_P(
     DumpAccessibilityEventsWithMaterialDesignTest,
     ::testing::ValuesIn(DumpAccessibilityTestBase::EventTestPassesWithBlink()),
     DumpAccessibilityEventsTestPassToString());
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
 
 class DumpAccessibilityEventsWithExperimentalWebFeaturesTest
     : public DumpAccessibilityEventsTest {
@@ -451,7 +435,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityEventsTest,
 
 // TODO(crbug.com/468203351): flakes due to COM interface leaks on Windows
 // platforms. Only run on Android, Linux, and Mac.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityEventsTest,
                        AccessibilityEventsAriaInvalidStatusChanged) {
   RunEventTest(FILE_PATH_LITERAL("aria-invalid-status-changed.html"));
@@ -480,7 +464,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityEventsTest,
 
 // TODO(crbug.com/468203351): flakes due to COM interface leaks on Windows
 // platforms. Only run on Android, Linux, and Mac.
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_MAC)
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityEventsTest,
                        AccessibilityEventsAriaMeterValueChange) {
   RunEventTest(FILE_PATH_LITERAL("aria-meter-value-change.html"));
@@ -1048,7 +1032,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityEventsTest,
 // fail due to the leak.
 // TODO(crbug.com/424781310): Re-enable these tests on Windows once the leak
 // issue is resolved.
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#if !BUILDFLAG(IS_WIN)
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityEventsWithMaterialDesignTest,
                        MaterialDesignButtonEvents) {
   RunEventTest(FILE_PATH_LITERAL("material-design-button.html"));
@@ -1123,7 +1107,7 @@ IN_PROC_BROWSER_TEST_P(DumpAccessibilityEventsWithMaterialDesignTest,
                        MaterialDesignChipsEvents) {
   RunEventTest(FILE_PATH_LITERAL("material-design-chips.html"));
 }
-#endif  // !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_WIN) && !BUILDFLAG(IS_IOS)
+#endif
 
 // TODO(crbug.com/40841326): disabled on UIA
 IN_PROC_BROWSER_TEST_P(DumpAccessibilityEventsTestExceptUIA,

@@ -33,7 +33,6 @@ import {getHtml} from './live_caption.html.js';
 
 // clang-format off
 
-// <if expr="not is_chromeos">
 import 'chrome://resources/cr_elements/cr_action_menu/cr_action_menu.js';
 import '//resources/cr_elements/cr_lazy_render/cr_lazy_render_lit.js';
 import '../languages_page/add_languages_dialog.js';
@@ -42,19 +41,16 @@ import './live_translate.js';
 import type {CrActionMenuElement} from '//resources/cr_elements/cr_action_menu/cr_action_menu.js';
 import type {CrLazyRenderLitElement} from '//resources/cr_elements/cr_lazy_render/cr_lazy_render_lit.js';
 import {assert} from 'chrome://resources/js/assert.js';
-// </if>
 // clang-format on
 
 const SettingsLiveCaptionElementBase = I18nMixinLit(
     WebUiListenerMixinLit(PrefServiceObserverMixinLit(CrLitElement)));
 
-// <if expr="not is_chromeos">
 export interface SettingsLiveCaptionElement {
   $: {
     menu: CrLazyRenderLitElement<CrActionMenuElement>,
   };
 }
-// </if>
 
 export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
   static get is() {
@@ -87,14 +83,12 @@ export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
       speechRecognitionSmallExpertModelEta_: {type: String},
       speechRecognitionSmallExpertModelSize_: {type: String},
 
-      // <if expr="not is_chromeos">
       liveCaptionLanguagePref_: {type: Object},
       enableLiveTranslate_: {type: Boolean},
       installedLanguagePacks_: {type: Array},
       availableLanguagePacks_: {type: Array},
       detailLanguage_: {type: Object},
       showAddLanguagesDialog_: {type: Boolean},
-      // </if>
     };
   }
 
@@ -115,7 +109,6 @@ export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
   private accessor speechRecognitionSmallExpertModelSpeed_: string = '';
   private accessor speechRecognitionSmallExpertModelEta_: string = '';
   private accessor speechRecognitionSmallExpertModelSize_: string = '';
-  // <if expr="not is_chromeos">
   private accessor liveCaptionLanguagePref_:
       chrome.settingsPrivate.PrefObject<string>|undefined;
   protected accessor enableLiveTranslate_: boolean =
@@ -124,7 +117,6 @@ export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
   private accessor availableLanguagePacks_: LiveCaptionLanguageList = [];
   private accessor detailLanguage_: LiveCaptionLanguage|undefined;
   protected accessor showAddLanguagesDialog_: boolean = false;
-  // </if>
 
   private browserProxy_: CaptionsBrowserProxy =
       CaptionsBrowserProxyImpl.getInstance();
@@ -136,7 +128,6 @@ export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
         'accessibility.captions.live_caption_enabled', pref => {
           this.isLiveCaptionEnabled_ = pref.value;
         });
-    // <if expr="not is_chromeos">
     this.mirrorPref(
         'accessibility.captions.live_caption_language',
         'liveCaptionLanguagePref_');
@@ -152,21 +143,12 @@ export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
             this.availableLanguagePacks_ = availableLanguagePacks;
           });
     }
-    // </if>
 
-    // <if expr="is_chromeos">
-    this.addWebUiListener(
-        'soda-download-progress-changed',
-        (sodaDownloadProgress: string) =>
-            this.onSodaDownloadProgressChanged_(sodaDownloadProgress));
-    // </if>
-    // <if expr="not is_chromeos">
     this.addWebUiListener(
         'soda-download-progress-changed',
         (sodaDownloadProgress: string, languageCode: string) =>
             this.onSodaDownloadProgressChangedForLanguage_(
                 sodaDownloadProgress, languageCode));
-    // </if>
 
     this.addWebUiListener(
         'speech-recognition-small-expert-model-state-changed',
@@ -261,12 +243,10 @@ export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
     chrome.metricsPrivate.recordBoolean(
         'Accessibility.LiveCaption.EnableFromSettings', liveCaptionEnabled);
 
-    // <if expr="not is_chromeos">
     if (!this.enableLiveCaptionSpeechRecognitionSmallExpertModel_ &&
         this.installedLanguagePacks_.length === 0) {
       this.installLanguagePacks_([this.liveCaptionLanguagePref_!.value]);
     }
-    // </if>
 
     if (this.enableLiveCaptionSpeechRecognitionSmallExpertModel_ &&
         liveCaptionEnabled) {
@@ -282,7 +262,6 @@ export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
         liveCaptionMaskOffensiveWords);
   }
 
-  // <if expr="not is_chromeos">
   protected onAddLanguagesClick_(e: Event) {
     e.preventDefault();
     this.showAddLanguagesDialog_ = true;
@@ -382,22 +361,8 @@ export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
           nativeDisplayName: languagePack.nativeDisplayName,
         }));
   }
-  // </if>
 
-  // <if expr="is_chromeos">
-  /**
-   * Displays SODA download progress in the UI.
-   * @param sodaDownloadProgress The message sent from the webui to be displayed
-   *     as download progress for Live Caption.
-   */
-  private onSodaDownloadProgressChanged_(sodaDownloadProgress: string) {
-    if (!this.enableLiveCaptionSpeechRecognitionSmallExpertModel_) {
-      this.enableLiveCaptionSubtitle_ = sodaDownloadProgress;
-    }
-  }
-  // </if>
 
-  // <if expr="not is_chromeos">
   /**
    * Displays SODA download progress in the UI. When the language UI is visible,
    * which occurs when the kLiveCaptionMultiLanguage feature is enabled and when
@@ -427,7 +392,6 @@ export class SettingsLiveCaptionElement extends SettingsLiveCaptionElementBase {
       }
     }
   }
-  // </if>
 }
 
 declare global {

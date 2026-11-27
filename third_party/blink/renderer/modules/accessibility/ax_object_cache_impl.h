@@ -1261,11 +1261,6 @@ class MODULES_EXPORT AXObjectCacheImpl : public AXObjectCacheBase {
   void IncrementGenerationalCacheId() { ++generational_cache_id_; }
 
   // These methods help compute paint orders for AXObjects
-#if BUILDFLAG(IS_ANDROID)
-  void ComputeXrHitTestOrder(
-      HashMap<DOMNodeId, int>& dom_node_hit_test_order_map) override;
-  void ApplyXrHitTestOrder(const HashMap<DOMNodeId, int>& order_map) override;
-#endif
 
   // Queued callbacks.
   TreeUpdateCallbackQueue tree_update_callback_queue_main_;

@@ -69,11 +69,6 @@
 #include "ui/gfx/geometry/rect.h"
 #include "ui/gfx/native_ui_types.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/chromeos/policy/dlp/dlp_content_manager.h"
-#include "chrome/browser/chromeos/policy/dlp/dlp_rules_manager.h"
-#include "chrome/browser/chromeos/policy/dlp/dlp_rules_manager_factory.h"
-#endif
 
 #if BUILDFLAG(ENTERPRISE_SCREENSHOT_PROTECTION)
 #include "chrome/browser/enterprise/data_protection/data_protection_features.h"
@@ -104,9 +99,6 @@ BASE_FEATURE(kTabSharingBarOmitHttpAndHttps, base::FEATURE_ENABLED_BY_DEFAULT);
 BASE_FEATURE(kTabSharingBarOmitCryptographic,
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-#if BUILDFLAG(IS_CHROMEOS)
-bool g_apply_dlp_for_all_users_for_testing_ = false;
-#endif
 
 url_formatter::SchemeDisplay GetSharedTabSchemeDisplay() {
   if (base::FeatureList::IsEnabled(kTabSharingBarOmitHttpAndHttps)) {
@@ -316,10 +308,6 @@ void TabSharingUIViews::StopSharing(std::string_view reason) {
     }
     std::move(stop_callback_).Run();
   }
-#if BUILDFLAG(IS_CHROMEOS)
-  policy::DlpContentManager::Get()->RemoveObserver(
-      this, policy::DlpContentRestriction::kScreenShare);
-#endif
 #if BUILDFLAG(ENTERPRISE_SCREENSHOT_PROTECTION)
   screenshot_allowed_subscriptions_.clear();
 #endif
@@ -433,26 +421,6 @@ void TabSharingUIViews::WebContentsDestroyed() {
   StopSharing("WebContentsDestroyed");
 }
 
-#if BUILDFLAG(IS_CHROMEOS)
-void TabSharingUIViews::OnConfidentialityChanged(
-    policy::DlpRulesManager::Level old_restriction_level,
-    policy::DlpRulesManager::Level new_restriction_level,
-    content::WebContents* web_contents) {
-  CHECK(old_restriction_level != new_restriction_level,
-        base::NotFatalUntil::M162);
-  if (old_restriction_level == policy::DlpRulesManager::Level::kBlock ||
-      new_restriction_level == policy::DlpRulesManager::Level::kBlock) {
-    // We only call this function if it was previously blocked or should be
-    // blocked now.
-    CreateInfobarForWebContents(web_contents);
-  }
-}
-
-// static
-void TabSharingUIViews::ApplyDlpForAllUsersForTesting() {
-  g_apply_dlp_for_all_users_for_testing_ = true;
-}
-#endif
 
 void TabSharingUIViews::CreateInfobarsForAllTabs() {
   CHECK_CURRENTLY_ON(content::BrowserThread::UI, base::NotFatalUntil::M162);
@@ -473,14 +441,6 @@ void TabSharingUIViews::CreateInfobarsForAllTabs() {
       BrowserCollection::Order::kCreation);
 
   browser_collection_observer_.Observe(GlobalBrowserCollection::GetInstance());
-#if BUILDFLAG(IS_CHROMEOS)
-  // Observe only for managed users.
-  if (g_apply_dlp_for_all_users_for_testing_ ||
-      policy::DlpRulesManagerFactory::GetForPrimaryProfile()) {
-    policy::DlpContentManager::Get()->AddObserver(
-        this, policy::DlpContentRestriction::kScreenShare);
-  }
-#endif
 }
 
 void TabSharingUIViews::CreateInfobarForWebContents(WebContents* contents) {
@@ -537,19 +497,6 @@ void TabSharingUIViews::CreateInfobarForWebContents(WebContents* contents) {
       capturer_origin_.IsSameOriginWith(
           contents->GetPrimaryMainFrame()->GetLastCommittedOrigin());
 
-#if BUILDFLAG(IS_CHROMEOS)
-  // Check if dlp policies allow sharing.
-  // This check is skipped if sharing is already forbidden.
-  if (is_sharing_allowed_by_policy) {
-    const bool dlp_enabled =
-        g_apply_dlp_for_all_users_for_testing_ ||
-        policy::DlpRulesManagerFactory::GetForPrimaryProfile();
-    if (dlp_enabled &&
-        policy::DlpContentManager::Get()->IsScreenShareBlocked(contents)) {
-      is_sharing_allowed_by_policy = false;
-    }
-  }
-#endif
 
 #if BUILDFLAG(ENTERPRISE_SCREENSHOT_PROTECTION)
   if (is_sharing_allowed_by_policy &&

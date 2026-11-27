@@ -138,8 +138,9 @@ class DevToolsBackgroundServicesContextTest
                     devtools::proto::BackgroundService service));
 
   void SimulateBrowserRestart() {
-    if (context_)
+    if (context_) {
       context_->RemoveObserver(this);
+    }
     // Create |context_|.
     context_ = std::make_unique<DevToolsBackgroundServicesContextImpl>(
         &browser_context_, embedded_worker_test_helper_.context_wrapper());
@@ -282,13 +283,8 @@ class DevToolsBackgroundServicesContextTest
 
 // Flaky on Fuchsia.
 // TODO(crbug.com/40936408): Reenable test on Fuchsia.
-#if BUILDFLAG(IS_FUCHSIA)
-#define MAYBE_NothingStoredWithRecordingModeOff \
-  DISABLED_NothingStoredWithRecordingModeOff
-#else
 #define MAYBE_NothingStoredWithRecordingModeOff \
   NothingStoredWithRecordingModeOff
-#endif
 TEST_F(DevToolsBackgroundServicesContextTest,
        MAYBE_NothingStoredWithRecordingModeOff) {
   // Initially there are no entries.

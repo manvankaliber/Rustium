@@ -1,23 +1,22 @@
 [
-  {
-    "os": [
-      "win",
-      "linux",
-      "mac",
-      "chromeos",
-      "fuchsia"
-    ],
-    "policy_pref_mapping_tests": [
-      {
-        "policies": {
-          "PrintingAllowedBackgroundGraphicsModes": "enabled"
-        },
-        "prefs": {
-          "printing.allowed_background_graphics_modes": {
-            "value": 1
-          }
-        }
-      }
-    ]
-  }
+    {
+        "os": [
+            "win",
+            "linux",
+            "mac",
+            "chromeos"
+        ],
+        "policy_pref_mapping_tests": [
+            {
+                "policies": {
+                    "PrintingAllowedBackgroundGraphicsModes": "enabled"
+                },
+                "prefs": {
+                    "printing.allowed_background_graphics_modes": {
+                        "value": 1
+                    }
+                }
+            }
+        ]
+    }
 ]

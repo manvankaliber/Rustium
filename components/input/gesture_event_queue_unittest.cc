@@ -114,11 +114,7 @@ class GestureEventQueueTest : public testing::Test,
       base::WeakPtr<FlingController> fling_controller) override {}
   bool ProgressFlingOnFlingStart() override { return true; }
   bool ShouldUseMobileFlingCurve() override {
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-    return true;
-#else
     return false;
-#endif
   }
   gfx::Vector2dF GetPixelsPerInch(
       const gfx::PointF& position_in_screen) override {

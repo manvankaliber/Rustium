@@ -15,7 +15,7 @@
 #include "ui/events/keycodes/dom/dom_code.h"
 #include "ui/events/keycodes/dom/dom_key.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 #include <linux/input.h>
 #endif
 
@@ -26,20 +26,11 @@ namespace {
 // Table of USB codes (equivalent to DomCode values), native scan codes,
 // and DOM Level 3 |code| strings.
 #if BUILDFLAG(IS_WIN)
-#define DOM_CODE(usb, evdev, xkb, win, mac, code, id) \
-  { usb, win, code }
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-#define DOM_CODE(usb, evdev, xkb, win, mac, code, id) \
-  { usb, xkb, code }
+#define DOM_CODE(usb, evdev, xkb, win, mac, code, id) {usb, win, code}
+#elif BUILDFLAG(IS_LINUX)
+#define DOM_CODE(usb, evdev, xkb, win, mac, code, id) {usb, xkb, code}
 #elif BUILDFLAG(IS_APPLE)
-#define DOM_CODE(usb, evdev, xkb, win, mac, code, id) \
-  { usb, mac, code }
-#elif BUILDFLAG(IS_ANDROID)
-#define DOM_CODE(usb, evdev, xkb, win, mac, code, id) \
-  { usb, evdev, code }
-#elif BUILDFLAG(IS_FUCHSIA)
-#define DOM_CODE(usb, evdev, xkb, win, mac, code, id) \
-  { usb, usb, code }
+#define DOM_CODE(usb, evdev, xkb, win, mac, code, id) {usb, mac, code}
 #else
 #error Unsupported platform
 #endif
@@ -67,7 +58,7 @@ struct DomKeyMapEntry {
 #undef DOM_KEY_UNI
 #undef DOM_KEY_MAP_DECLARATION_END
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 
 // The offset between XKB Keycode and evdev code.
 constexpr int kXkbKeycodeOffset = 8;
@@ -86,8 +77,9 @@ constexpr int kXkbKeycodeOffset = 8;
 int XkbKeycodeToEvdevCode(uint32_t xkb_keycode) {
   // There's no mapping from XKB keycode in range [0-7] (inclusive)
   // to evdev. Return KEY_RESERVED as an error.
-  if (xkb_keycode < kXkbKeycodeOffset)
+  if (xkb_keycode < kXkbKeycodeOffset) {
     return KEY_RESERVED;
+  }
   return static_cast<int>(xkb_keycode - kXkbKeycodeOffset);
 }
 
@@ -95,57 +87,20 @@ int XkbKeycodeToEvdevCode(uint32_t xkb_keycode) {
 // Returns KeycodeConverter::InvalidNativeKeycode() if the given code is in
 // the invalid range or KEY_RESERVED.
 uint32_t EvdevCodeToXkbKeycode(int evdev_code) {
-  if (evdev_code < 0 || evdev_code > KEY_MAX || evdev_code == KEY_RESERVED)
+  if (evdev_code < 0 || evdev_code > KEY_MAX || evdev_code == KEY_RESERVED) {
     return KeycodeConverter::InvalidNativeKeycode();
+  }
 
   // TODO(crbug.com/40151699): Move this to EvdevCodeToDomCode on
   // migration.
-  if (evdev_code == KEY_PLAYCD)
+  if (evdev_code == KEY_PLAYCD) {
     evdev_code = KEY_PLAY;
+  }
   return static_cast<uint32_t>(evdev_code + kXkbKeycodeOffset);
 }
 
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
-
-#if BUILDFLAG(IS_CHROMEOS)
-
-bool IsAlphaNumericKeyboardCode(KeyboardCode key_code) {
-  return (key_code >= VKEY_A && key_code <= VKEY_Z) ||
-         (key_code >= VKEY_0 && key_code <= VKEY_9);
-}
-
-bool ShouldPositionallyRemapKey(KeyboardCode key_code, DomCode code) {
-  switch (code) {
-    // Following set of keys should only be positionally remapped if the
-    // original key_code is not an alphanumeric key. This is because there are
-    // many layouts where the OEM keys in the US layout are instead
-    // alphabetic keys in the other layout. In this case, the shortcut using the
-    // key should be mapped to the semantic meaning (the letter/number) instead
-    // of the position.
-
-    // An example is the French layout where the semicolon key on the US layout
-    // is the "m" key on the French keyboard. This prevents us from remapping
-    // the "m" key on the French keyboard to "semicolon" for the purposes of
-    // shortcuts.
-    case DomCode::SEMICOLON:
-    case DomCode::QUOTE:
-    case DomCode::BACKSLASH:
-    case DomCode::BACKQUOTE:
-    case DomCode::INTL_BACKSLASH:
-      return !IsAlphaNumericKeyboardCode(key_code);
-    case DomCode::BRACKET_LEFT:
-    case DomCode::BRACKET_RIGHT:
-    case DomCode::MINUS:
-    case DomCode::EQUAL:
-    case DomCode::COMMA:
-    case DomCode::PERIOD:
-    case DomCode::SLASH:
-    default:
-      return true;
-  }
-}
-
 #endif
+
 
 }  // namespace
 
@@ -161,8 +116,9 @@ const KeycodeMapEntry* KeycodeConverter::GetKeycodeMapForTest() {
 
 // static
 const char* KeycodeConverter::DomKeyStringForTest(size_t index) {
-  if (index >= std::size(kDomKeyMappings))
+  if (index >= std::size(kDomKeyMappings)) {
     return nullptr;
+  }
   return kDomKeyMappings[index].string;
 }
 
@@ -177,8 +133,9 @@ int KeycodeConverter::InvalidNativeKeycode() {
 // static
 DomCode KeycodeConverter::NativeKeycodeToDomCode(int native_keycode) {
   for (auto& mapping : kDomCodeMappings) {
-    if (mapping.native_keycode == native_keycode)
+    if (mapping.native_keycode == native_keycode) {
       return static_cast<DomCode>(mapping.usb_keycode);
+    }
   }
   return DomCode::NONE;
 }
@@ -188,7 +145,7 @@ int KeycodeConverter::DomCodeToNativeKeycode(DomCode code) {
   return UsbKeycodeToNativeKeycode(static_cast<uint32_t>(code));
 }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
 // static
 DomCode KeycodeConverter::XkbKeycodeToDomCode(uint32_t xkb_keycode) {
   // Currently XKB keycode is the native keycode.
@@ -218,94 +175,12 @@ int KeycodeConverter::DomCodeToEvdevCode(DomCode code) {
 }
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-// static
-DomCode KeycodeConverter::MapUSPositionalShortcutKeyToDomCode(
-    KeyboardCode key_code,
-    DomCode original_dom_code) {
-  if (!ShouldPositionallyRemapKey(key_code, original_dom_code)) {
-    return DomCode::NONE;
-  }
-
-  // VKEY Mapping: http://kbdlayout.info/kbdus/overview+virtualkeys
-  // DomCode Mapping:
-  //     https://www.w3.org/TR/DOM-Level-3-Events-code/#writing-system-keys
-  switch (key_code) {
-    case VKEY_OEM_MINUS:
-      return DomCode::MINUS;
-    case VKEY_OEM_PLUS:
-      return DomCode::EQUAL;
-    case VKEY_OEM_2:
-      return DomCode::SLASH;
-    case VKEY_OEM_4:
-      return DomCode::BRACKET_LEFT;
-    case VKEY_OEM_6:
-      return DomCode::BRACKET_RIGHT;
-    case VKEY_OEM_COMMA:
-      return DomCode::COMMA;
-    case VKEY_OEM_PERIOD:
-      return DomCode::PERIOD;
-    case VKEY_OEM_1:
-      return DomCode::SEMICOLON;
-    case VKEY_OEM_7:
-      return DomCode::QUOTE;
-    case VKEY_OEM_3:
-      return DomCode::BACKQUOTE;
-    case VKEY_OEM_5:
-      return DomCode::BACKSLASH;
-    case VKEY_OEM_102:
-      return DomCode::INTL_BACKSLASH;
-    default:
-      return DomCode::NONE;
-  }
-}
-
-// static
-KeyboardCode KeycodeConverter::MapPositionalDomCodeToUSShortcutKey(
-    DomCode code,
-    KeyboardCode original_key_code) {
-  if (!ShouldPositionallyRemapKey(original_key_code, code)) {
-    return VKEY_UNKNOWN;
-  }
-
-  // VKEY Mapping: http://kbdlayout.info/kbdus/overview+virtualkeys
-  // DomCode Mapping:
-  //     https://www.w3.org/TR/DOM-Level-3-Events-code/#writing-system-keys
-  switch (code) {
-    case DomCode::MINUS:
-      return VKEY_OEM_MINUS;
-    case DomCode::EQUAL:
-      return VKEY_OEM_PLUS;
-    case DomCode::SLASH:
-      return VKEY_OEM_2;
-    case DomCode::BRACKET_LEFT:
-      return VKEY_OEM_4;
-    case DomCode::BRACKET_RIGHT:
-      return VKEY_OEM_6;
-    case DomCode::COMMA:
-      return VKEY_OEM_COMMA;
-    case DomCode::PERIOD:
-      return VKEY_OEM_PERIOD;
-    case DomCode::SEMICOLON:
-      return VKEY_OEM_1;
-    case DomCode::QUOTE:
-      return VKEY_OEM_7;
-    case DomCode::BACKQUOTE:
-      return VKEY_OEM_3;
-    case DomCode::BACKSLASH:
-      return VKEY_OEM_5;
-    case DomCode::INTL_BACKSLASH:
-      return VKEY_OEM_102;
-    default:
-      return VKEY_UNKNOWN;
-  }
-}
-#endif
 
 // static
 DomCode KeycodeConverter::CodeStringToDomCode(std::string_view code) {
-  if (code.empty())
+  if (code.empty()) {
     return DomCode::NONE;
+  }
   for (auto& mapping : kDomCodeMappings) {
     if (mapping.code && code == mapping.code) {
       return static_cast<DomCode>(mapping.usb_keycode);
@@ -339,8 +214,9 @@ std::string KeycodeConverter::DomCodeToCodeString(DomCode dom_code) {
 
   for (auto& mapping : kDomCodeMappings) {
     if (mapping.usb_keycode == usb_keycode) {
-      if (mapping.code)
+      if (mapping.code) {
         return mapping.code;
+      }
       break;
     }
   }
@@ -390,16 +266,18 @@ DomKeyLocation KeycodeConverter::DomCodeToLocation(DomCode dom_code) {
                     {DomCode::NUMPAD_CLEAR, DomKeyLocation::NUMPAD},
                     {DomCode::NUMPAD_CLEAR_ENTRY, DomKeyLocation::NUMPAD}};
   for (const auto& key : kLocations) {
-    if (key.code == dom_code)
+    if (key.code == dom_code) {
       return key.location;
+    }
   }
   return DomKeyLocation::STANDARD;
 }
 
 // static
 DomKey KeycodeConverter::KeyStringToDomKey(std::string_view key) {
-  if (key.empty())
+  if (key.empty()) {
     return DomKey::NONE;
+  }
   // Check for standard key names.
   for (auto& mapping : kDomKeyMappings) {
     if (mapping.string && key == mapping.string) {
@@ -434,8 +312,9 @@ std::string KeycodeConverter::DomKeyToKeyString(DomKey dom_key) {
   }
   for (auto& mapping : kDomKeyMappings) {
     if (mapping.dom_key == dom_key) {
-      if (mapping.string)
+      if (mapping.string) {
         return mapping.string;
+      }
       break;
     }
   }
@@ -497,16 +376,19 @@ uint32_t KeycodeConverter::InvalidUsbKeycode() {
 // static
 int KeycodeConverter::UsbKeycodeToNativeKeycode(uint32_t usb_keycode) {
   // Deal with some special-cases that don't fit the 1:1 mapping.
-  if (usb_keycode == 0x070032)  // non-US hash.
-    usb_keycode = 0x070031;     // US backslash.
+  if (usb_keycode == 0x070032) {  // non-US hash.
+    usb_keycode = 0x070031;       // US backslash.
+  }
 #if BUILDFLAG(IS_APPLE)
-  if (usb_keycode == 0x070046) // PrintScreen.
-    usb_keycode = 0x070068; // F13.
+  if (usb_keycode == 0x070046) {  // PrintScreen.
+    usb_keycode = 0x070068;       // F13.
+  }
 #endif
 
   for (auto& mapping : kDomCodeMappings) {
-    if (mapping.usb_keycode == usb_keycode)
+    if (mapping.usb_keycode == usb_keycode) {
       return mapping.native_keycode;
+    }
   }
   return InvalidNativeKeycode();
 }
@@ -514,8 +396,9 @@ int KeycodeConverter::UsbKeycodeToNativeKeycode(uint32_t usb_keycode) {
 // static
 uint32_t KeycodeConverter::NativeKeycodeToUsbKeycode(int native_keycode) {
   for (auto& mapping : kDomCodeMappings) {
-    if (mapping.native_keycode == native_keycode)
+    if (mapping.native_keycode == native_keycode) {
       return mapping.usb_keycode;
+    }
   }
   return InvalidUsbKeycode();
 }
@@ -523,8 +406,9 @@ uint32_t KeycodeConverter::NativeKeycodeToUsbKeycode(int native_keycode) {
 // static
 DomCode KeycodeConverter::UsbKeycodeToDomCode(uint32_t usb_keycode) {
   for (auto& mapping : kDomCodeMappings) {
-    if (mapping.usb_keycode == usb_keycode)
+    if (mapping.usb_keycode == usb_keycode) {
       return static_cast<DomCode>(usb_keycode);
+    }
   }
   return DomCode::NONE;
 }
@@ -532,8 +416,9 @@ DomCode KeycodeConverter::UsbKeycodeToDomCode(uint32_t usb_keycode) {
 // static
 uint32_t KeycodeConverter::DomCodeToUsbKeycode(DomCode dom_code) {
   for (auto& mapping : kDomCodeMappings) {
-    if (mapping.usb_keycode == static_cast<uint32_t>(dom_code))
+    if (mapping.usb_keycode == static_cast<uint32_t>(dom_code)) {
       return mapping.usb_keycode;
+    }
   }
   return InvalidUsbKeycode();
 }

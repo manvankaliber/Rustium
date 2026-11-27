@@ -22,15 +22,9 @@
 #include "extensions/common/manifest.h"
 #include "extensions/common/manifest_handlers/manifest_url_handlers.h"
 
-#if BUILDFLAG(ENABLE_EXTENSIONS)
 #include "chrome/browser/extensions/external_install_error_desktop.h"
 
 using ExternalInstallErrorType = extensions::ExternalInstallErrorDesktop;
-#else
-#include "chrome/browser/extensions/external_install_error_android.h"
-
-using ExternalInstallErrorType = extensions::ExternalInstallErrorAndroid;
-#endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -52,13 +46,7 @@ std::unique_ptr<ExternalInstallError> CreateExternalInstallError(
 const int kMaxExtensionAcknowledgePromptCount = 3;
 
 bool IsPromptingEnabled() {
-#if BUILDFLAG(ENABLE_EXTENSIONS)
   return util::IsPromptingEnabled();
-#else
-  // TODO(crbug.com/405391110): Enable prompting when ExternalInstallError
-  // is implemented on desktop android.
-  return false;
-#endif  // BUILDFLAG(ENABLE_EXTENSIONS)
 }
 
 }  // namespace

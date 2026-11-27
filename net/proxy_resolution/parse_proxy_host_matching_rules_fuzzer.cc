@@ -10,6 +10,7 @@
 #include "base/strings/string_view_util.h"
 #include "net/proxy_resolution/proxy_host_matching_rules.h"
 #include "testing/libfuzzer/libfuzzer_base_wrappers.h"
+#include "url/gurl.h"
 
 // Entry point for LibFuzzer.
 DEFINE_LLVM_FUZZER_TEST_ONE_INPUT_SPAN(base::span<const uint8_t> data) {
@@ -24,5 +25,20 @@ DEFINE_LLVM_FUZZER_TEST_ONE_INPUT_SPAN(base::span<const uint8_t> data) {
   net::ProxyHostMatchingRules rules;
   rules.ParseFromString(std::string(base::as_string_view(data)));
 
+  const GURL url(std::string(base::as_string_view(data)));
+  static_cast<void>(rules.Matches(url));
+  static_cast<void>(rules.Matches(url, true));
+  static_cast<void>(rules.MatchesImplicitRules(url));
+  net::ProxyHostMatchingRules copy(rules);
+  static_cast<void>(copy == rules);
+  rules.PrependRuleToBypassSimpleHostnames();
+  rules.AddRulesToSubtractImplicit();
+  static_cast<void>(rules.Matches(url));
+  static_cast<void>(rules.ToString());
+  if (!rules.rules().empty()) {
+    rules.ReplaceRule(
+        0, net::SchemeHostPortMatcherRule::FromUntrimmedRawString("*"));
+  }
+  rules.Clear();
   return 0;
 }

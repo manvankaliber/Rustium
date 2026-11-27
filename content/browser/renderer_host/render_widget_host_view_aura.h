@@ -299,33 +299,18 @@ class CONTENT_EXPORT RenderWidgetHostViewAura
   bool ChangeTextDirectionAndLayoutAlignment(
       base::i18n::TextDirection direction) override;
   void ExtendSelectionAndDelete(size_t before, size_t after) override;
-#if BUILDFLAG(IS_CHROMEOS)
-  void ExtendSelectionAndReplace(size_t before,
-                                 size_t after,
-                                 std::u16string_view replacement_text) override;
-#endif
   void EnsureCaretNotInRect(const gfx::Rect& rect) override;
   bool IsTextEditCommandEnabled(ui::TextEditCommand command) const override;
   void SetTextEditCommandForNextKeyEvent(ui::TextEditCommand command) override;
   ukm::SourceId GetClientSourceForMetrics() const override;
   bool ShouldDoLearning() override;
 
-#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_WIN) || BUILDFLAG(IS_LINUX)
   bool SetCompositionFromExistingText(
       const gfx::Range& range,
       const std::vector<ui::ImeTextSpan>& ui_ime_text_spans) override;
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-  gfx::Range GetAutocorrectRange() const override;
-  gfx::Rect GetAutocorrectCharacterBounds() const override;
-  bool SetAutocorrectRange(const gfx::Range& range) override;
-  std::optional<ui::GrammarFragment> GetGrammarFragmentAtCursor()
-      const override;
-  bool ClearGrammarFragments(const gfx::Range& range) override;
-  bool AddGrammarFragments(
-      const std::vector<ui::GrammarFragment>& fragments) override;
-#endif
 
   // Returns the control and selection bounds of the EditContext or control
   // bounds of the active editable element. This is used to report the layout

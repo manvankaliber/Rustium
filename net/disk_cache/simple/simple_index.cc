@@ -4,8 +4,8 @@
 
 #include "net/disk_cache/simple/simple_index.h"
 
-#include <algorithm>
 #include <limits>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -26,6 +26,7 @@
 #include "net/base/net_errors.h"
 #include "net/disk_cache/backend_cleanup_tracker.h"
 #include "net/disk_cache/memory_entry_data_hints.h"
+#include "net/disk_cache/simple/disk_simple_index_rust.h"
 #include "net/disk_cache/simple/simple_entry_format.h"
 #include "net/disk_cache/simple/simple_histogram_macros.h"
 #include "net/disk_cache/simple/simple_index_delegate.h"
@@ -37,60 +38,6 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 #endif
-
-namespace {
-
-// How many milliseconds we delay writing the index to disk since the last cache
-// operation has happened.
-constexpr int kWriteToDiskDelayMSecs = 20000;
-constexpr int kWriteToDiskOnBackgroundDelayMSecs = 100;
-
-// Divides the cache space into this amount of parts to evict when only one part
-// is left.
-constexpr uint32_t kEvictionMarginDivisor = 20;
-
-constexpr uint32_t kBytesInMiB = 1024 * 1024;
-
-// This is added to the size of each entry before using the size
-// to determine which entries to evict first. It's basically an
-// estimate of the filesystem overhead, but it also serves to flatten
-// the curve so that 1-byte entries and 2-byte entries are basically
-// treated the same.
-constexpr int kEstimatedEntryOverhead = 512;
-
-// On the disk, the entry info is filled in like following:
-// (upper bits)
-// 26 bits: empty
-// 30 bits: `entry_size_256b_chunks_`
-//  6 bits: empty
-//  2 bits: `in_memory_data_`
-// (lower bits)
-//
-// | 26 bits |         30 bits         | 6 bits  |     2 bits      |
-// | (empty) | entry_size_256b_chunks_ | (empty) | in_memory_data_ |
-uint64_t PackEntrySizeAndInMemoryData(uint32_t entry_size_256b_chunks,
-                                      uint8_t in_memory_data) {
-  return (static_cast<uint64_t>(entry_size_256b_chunks) << 8) |
-         static_cast<uint64_t>(in_memory_data);
-}
-
-struct EntryMetadataParams {
-  EntryMetadataParams(uint32_t entry_size_256b_chunks, uint8_t in_memory_data)
-      : entry_size_256b_chunks(entry_size_256b_chunks),
-        in_memory_data(in_memory_data) {}
-
-  uint32_t entry_size_256b_chunks;
-  uint8_t in_memory_data;
-};
-
-EntryMetadataParams UnpackEntrySizeAndInMemoryData(uint64_t tmp_entry_size) {
-  EntryMetadataParams params(static_cast<uint32_t>(tmp_entry_size >> 8),
-                             static_cast<uint8_t>(tmp_entry_size & 0x03));
-
-  return params;
-}
-
-}  // namespace
 
 namespace disk_cache {
 
@@ -125,25 +72,18 @@ EntryMetadata::EntryMetadata(uint32_t trailer_prefetch_size,
 
 base::Time EntryMetadata::GetLastUsedTime() const {
   // Preserve nullity.
-  if (last_used_time_seconds_since_epoch_ == 0)
+  if (last_used_time_seconds_since_epoch_ == 0) {
     return base::Time();
+  }
 
   return base::Time::UnixEpoch() +
          base::Seconds(last_used_time_seconds_since_epoch_);
 }
 
 void EntryMetadata::SetLastUsedTime(base::Time last_used_time) {
-  // Preserve nullity.
-  if (last_used_time.is_null()) {
-    last_used_time_seconds_since_epoch_ = 0;
-    return;
-  }
-
-  last_used_time_seconds_since_epoch_ = base::saturated_cast<uint32_t>(
-      (last_used_time - base::Time::UnixEpoch()).InSeconds());
-  // Avoid accidental nullity.
-  if (last_used_time_seconds_since_epoch_ == 0)
-    last_used_time_seconds_since_epoch_ = 1;
+  last_used_time_seconds_since_epoch_ = rustium_simple_index_metadata(
+      4, last_used_time.is_null(),
+      (last_used_time - base::Time::UnixEpoch()).InSeconds(), 0);
 }
 
 uint32_t EntryMetadata::GetTrailerPrefetchSize() const {
@@ -151,11 +91,8 @@ uint32_t EntryMetadata::GetTrailerPrefetchSize() const {
 }
 
 void EntryMetadata::SetTrailerPrefetchSize(uint32_t size) {
-  if (size == 0) {
-    return;
-  }
-
-  trailer_prefetch_size_ = size;
+  trailer_prefetch_size_ =
+      rustium_simple_index_metadata(5, trailer_prefetch_size_, size, 0);
 }
 
 uint64_t EntryMetadata::GetEntrySize() const {
@@ -163,15 +100,12 @@ uint64_t EntryMetadata::GetEntrySize() const {
 }
 
 bool EntryMetadata::SetEntrySize(base::StrictNumeric<uint64_t> entry_size) {
-  // This should not overflow since we limit entries to 1/8th of the cache.
-  uint64_t rounded_chunk = (static_cast<uint64_t>(entry_size) + 255) >> 8;
-
-  // `entry_size_256b_chunks_` is a 30 bits field. Cannot be over the max.
-  if (rounded_chunk >> 30) {
+  const uint64_t chunks =
+      rustium_simple_index_metadata(0, static_cast<uint64_t>(entry_size), 0, 0);
+  if (chunks == std::numeric_limits<uint64_t>::max()) {
     return false;
   }
-
-  entry_size_256b_chunks_ = rounded_chunk;
+  entry_size_256b_chunks_ = chunks;
   return true;
 }
 
@@ -186,58 +120,368 @@ void EntryMetadata::SetInMemoryData(uint8_t val) {
   in_memory_data_ = val;
 }
 
+// Pickle and base::Time primitives. Rust decides read ordering, validation,
+// APP_CACHE interpretation and mutation; failed reads never alter metadata.
+struct DiskSimpleIndexMetadataServices {
+  STACK_ALLOCATED();
+
+ public:
+  DiskSimpleIndexMetadataServices(EntryMetadata* entry,
+                                  net::CacheType cache_type)
+      : metadata(entry), type(cache_type) {}
+  raw_ptr<EntryMetadata> metadata;
+  net::CacheType type;
+  raw_ptr<base::Pickle> writer = nullptr;
+  raw_ptr<base::PickleIterator> reader = nullptr;
+  bool has_prefetch = false;
+  int64_t time = 0;
+  uint64_t packed = 0;
+  static uint64_t Dispatch(void* context, uint32_t op, uint64_t a, uint64_t b) {
+    using namespace index_rust;
+    auto& s = *static_cast<DiskSimpleIndexMetadataServices*>(context);
+    switch (op) {
+      case kMetaCacheType:
+        return s.type;
+      case kMetaHasPrefetch:
+        return s.has_prefetch;
+      case kMetaReadTime:
+        return s.reader->ReadInt64(&s.time);
+      case kMetaReadPacked:
+        return s.reader->ReadUInt64(&s.packed);
+      case kMetaTimeValue:
+        return s.time;
+      case kMetaPackedValue:
+        return s.packed;
+      case kMetaBits:
+        return uint64_t{s.metadata->last_used_time_seconds_since_epoch_} |
+               (uint64_t{s.metadata->entry_size_256b_chunks_} << 32) |
+               (uint64_t{s.metadata->in_memory_data_} << 62);
+      case kMetaSetBits:
+        s.metadata->last_used_time_seconds_since_epoch_ = a;
+        s.metadata->entry_size_256b_chunks_ = a >> 32;
+        s.metadata->in_memory_data_ = a >> 62;
+        return 0;
+      case kMetaStoredFromInternal: {
+        EntryMetadata m;
+        m.SetLastUsedTime(base::Time::FromInternalValue(a));
+        return m.RawTimeForSorting();
+      }
+      case kMetaInternalFromStored: {
+        EntryMetadata m;
+        m.last_used_time_seconds_since_epoch_ = a;
+        return m.GetLastUsedTime().ToInternalValue();
+      }
+      case kMetaWriteTime:
+        s.writer->WriteInt64(a);
+        return 0;
+      case kMetaWritePacked:
+        s.writer->WriteUInt64(a);
+        return 0;
+      default:
+        NOTREACHED();
+    }
+  }
+};
 void EntryMetadata::Serialize(net::CacheType cache_type,
                               base::Pickle* pickle) const {
   DCHECK(pickle);
-  // If you modify the size of the size of the pickle, be sure to update
-  // kOnDiskSizeBytes.
-
-  uint64_t packed_entry_info =
-      PackEntrySizeAndInMemoryData(entry_size_256b_chunks_, in_memory_data_);
-
-  if (cache_type == net::APP_CACHE) {
-    pickle->WriteInt64(trailer_prefetch_size_);
-  } else {
-    int64_t internal_last_used_time = GetLastUsedTime().ToInternalValue();
-    pickle->WriteInt64(internal_last_used_time);
-  }
-  pickle->WriteUInt64(packed_entry_info);
+  DiskSimpleIndexMetadataServices context{const_cast<EntryMetadata*>(this),
+                                          cache_type};
+  context.writer = pickle;
+  rustium_simple_index_run(&context, &DiskSimpleIndexMetadataServices::Dispatch,
+                           index_rust::kOpSerialize, 0, 0);
 }
-
 bool EntryMetadata::Deserialize(net::CacheType cache_type,
                                 base::PickleIterator* it,
                                 bool app_cache_has_trailer_prefetch_size) {
   DCHECK(it);
-  int64_t tmp_time_or_prefetch_size;
-  uint64_t tmp_entry_size;
-
-  // The entry size must fit within 38 bits.
-  if (!it->ReadInt64(&tmp_time_or_prefetch_size) ||
-      !it->ReadUInt64(&tmp_entry_size) || tmp_entry_size >> 38) {
-    return false;
-  }
-
-  if (cache_type == net::APP_CACHE) {
-    if (app_cache_has_trailer_prefetch_size) {
-      uint32_t trailer_prefetch_size = 0;
-      base::CheckedNumeric<uint32_t> numeric_size(tmp_time_or_prefetch_size);
-      if (numeric_size.AssignIfValid(&trailer_prefetch_size)) {
-        SetTrailerPrefetchSize(trailer_prefetch_size);
-      }
-    }
-  } else {
-    SetLastUsedTime(base::Time::FromInternalValue(tmp_time_or_prefetch_size));
-  }
-
-  // tmp_entry_size actually packs entry_size_256b_chunks_ and
-  // in_memory_data_.
-  auto params = UnpackEntrySizeAndInMemoryData(tmp_entry_size);
-  entry_size_256b_chunks_ = params.entry_size_256b_chunks;
-  SetInMemoryData(params.in_memory_data);
-
-  return true;
+  DiskSimpleIndexMetadataServices context{this, cache_type};
+  context.reader = it;
+  context.has_prefetch = app_cache_has_trailer_prefetch_size;
+  return rustium_simple_index_run(&context,
+                                  &DiskSimpleIndexMetadataServices::Dispatch,
+                                  index_rust::kOpDeserialize, 0, 0);
 }
 
+// Primitive services only. All decisions, iteration, ranking, merge and
+// callback draining live in Rust. The stack context survives owner deletion. It
+// never retains a map iterator across a service that can invoke user code.
+struct DiskSimpleIndexRustServices {
+  explicit DiskSimpleIndexRustServices(SimpleIndex* index)
+      : owner(index), weak(index->weak_ptr_factory_.GetWeakPtr()) {}
+  raw_ptr<SimpleIndex> owner;
+  base::WeakPtr<SimpleIndex> weak;
+  raw_ptr<SimpleIndexLoadResult> load = nullptr;
+  raw_ptr<SimpleIndex::HashList> output = nullptr;
+  net::CompletionOnceCallback ready;
+  std::optional<SimpleIndex::EntrySet::const_iterator> cursor;
+  std::optional<SimpleIndex::EntrySet::const_iterator> end;
+  std::optional<absl::flat_hash_set<uint64_t>::const_iterator> removed_cursor;
+  bool first = false;
+  bool removed_first = false;
+  std::vector<uint64_t> doomed;
+
+  static uint64_t Encode(const EntryMetadata& m) {
+    return uint64_t{m.last_used_time_seconds_since_epoch_} |
+           (uint64_t{m.entry_size_256b_chunks_} << 32) |
+           (uint64_t{m.in_memory_data_} << 62);
+  }
+  static EntryMetadata Decode(uint64_t bits) {
+    EntryMetadata m;
+    m.last_used_time_seconds_since_epoch_ = bits;
+    m.entry_size_256b_chunks_ = bits >> 32;
+    m.in_memory_data_ = bits >> 62;
+    return m;
+  }
+  static uint64_t Dispatch(void* opaque, uint32_t op, uint64_t a, uint64_t b) {
+    using namespace index_rust;
+    auto& s = *static_cast<DiskSimpleIndexRustServices*>(opaque);
+    if (op == kAlive) {
+      return !!s.weak;
+    }
+    if (!s.weak) {
+      return 0;
+    }
+    SimpleIndex* p = s.owner;
+    switch (op) {
+      case kCacheType:
+        return p->cache_type_;
+      case kInitialized:
+        return p->initialized_;
+      case kCacheSize:
+        return p->cache_size_;
+      case kMaxSize:
+        return p->max_size_;
+      case kHigh:
+        return p->high_watermark_;
+      case kLow:
+        return p->low_watermark_;
+      case kEvicting:
+        return p->eviction_in_progress_;
+      case kBackground:
+        return p->app_on_background_;
+      case kPrioritized:
+        return p->prioritized_caching_enabled_;
+      case kFactor:
+        return p->caching_prioritization_factor_;
+      case kPeriod:
+        return p->caching_prioritization_period_in_seconds_;
+      case kSetMax:
+        p->max_size_ = a;
+        break;
+      case kSetHigh:
+        p->high_watermark_ = a;
+        break;
+      case kSetLow:
+        p->low_watermark_ = a;
+        break;
+      case kSetCacheSize:
+        p->cache_size_ = a;
+        break;
+      case kSetInitialized:
+        p->initialized_ = a;
+        break;
+      case kSetInitMethod:
+        p->init_method_ = static_cast<SimpleIndex::IndexInitMethod>(a);
+        break;
+      case kContains:
+        return p->entries_set_.contains(a);
+      case kMeta: {
+        auto it = p->entries_set_.find(a);
+        return it == p->entries_set_.end() ? 0 : Encode(it->second);
+      }
+      case kSetMeta:
+        p->entries_set_.find(a)->second = Decode(b);
+        break;
+      case kInsert:
+        return p->entries_set_.emplace(a, Decode(b)).second;
+      case kErase:
+        p->entries_set_.erase(a);
+        break;
+      case kRemovedInsert:
+        p->removed_entries_.insert(a);
+        break;
+      case kRemovedErase:
+        p->removed_entries_.erase(a);
+        break;
+      case kRemovedBegin:
+        s.removed_cursor = p->removed_entries_.begin();
+        s.removed_first = true;
+        break;
+      case kRemovedNext:
+        if (!s.removed_first) {
+          ++*s.removed_cursor;
+        }
+        s.removed_first = false;
+        return *s.removed_cursor != p->removed_entries_.end();
+      case kRemovedKey:
+        return **s.removed_cursor;
+      case kRemovedClear:
+        s.removed_cursor.reset();
+        p->removed_entries_.clear();
+        break;
+      case kBegin:
+        s.cursor = p->entries_set_.begin();
+        s.end = p->entries_set_.end();
+        s.first = true;
+        break;
+      case kNext:
+      case kLoadedNext:
+        if (!s.first) {
+          ++*s.cursor;
+        }
+        s.first = false;
+        return *s.cursor != *s.end;
+      case kKey:
+        return (**s.cursor).first;
+      case kValue:
+      case kLoadedValue:
+        return Encode((**s.cursor).second);
+      case kAddress:
+        return reinterpret_cast<uintptr_t>(&**s.cursor);
+      case kLoadedErase:
+        s.load->entries.erase(a);
+        break;
+      case kLoadedPut:
+        s.load->entries.insert_or_assign(a, Decode(b));
+        break;
+      case kLoadedBegin:
+        s.cursor = s.load->entries.begin();
+        s.end = s.load->entries.end();
+        s.first = true;
+        break;
+      case kSwapLoaded:
+        s.cursor.reset();
+        s.end.reset();
+        p->entries_set_.swap(s.load->entries);
+        break;
+      case kLoadMethod:
+        return s.load->init_method;
+      case kLoadFlush:
+        return s.load->flush_required;
+      case kNowSeconds:
+        return static_cast<uint32_t>(
+            (base::Time::Now() - base::Time::UnixEpoch()).InSeconds());
+      case kNowStored: {
+        EntryMetadata m;
+        m.SetLastUsedTime(base::Time::Now());
+        return m.RawTimeForSorting();
+      }
+      case kTimeInternal: {
+        EntryMetadata m = Decode(a);
+        return m.GetLastUsedTime().ToInternalValue();
+      }
+      case kRangeLower: {
+        base::Time t = base::Time::FromInternalValue(a);
+        return (t.is_null() ? t : t - base::Seconds(1)).ToInternalValue();
+      }
+      case kRangeUpper: {
+        base::Time t = base::Time::FromInternalValue(a);
+        return (t.is_null() ? base::Time::Max() : t).ToInternalValue();
+      }
+      case kOutputPush:
+        s.output->push_back(a);
+        break;
+      case kTimerStart:
+        p->write_to_disk_timer_.Start(FROM_HERE, base::Milliseconds(a),
+                                      p->write_to_disk_cb_);
+        break;
+      case kTimerStop:
+        p->write_to_disk_timer_.Stop();
+        break;
+      case kTimerRunning:
+        return p->write_to_disk_timer_.IsRunning();
+      case kLoad: {
+        auto result = std::make_unique<SimpleIndexLoadResult>();
+        auto* result_ptr = result.get();
+        auto cb = base::BindOnce(&SimpleIndex::MergeInitializingSet, s.weak,
+                                 std::move(result));
+        p->index_file_->LoadIndexEntries(base::Time::FromInternalValue(a),
+                                         std::move(cb), result_ptr);
+        break;
+      }
+      case kWrite: {
+        base::OnceClosure after_write;
+        if (p->cleanup_tracker_) {
+          after_write = base::DoNothingWithBoundArgs(p->cleanup_tracker_);
+        }
+        p->index_file_->WriteToDisk(
+            p->cache_type_, static_cast<SimpleIndex::IndexWriteToDiskReason>(a),
+            p->entries_set_, p->cache_size_, std::move(after_write));
+        break;
+      }
+      case kEvictionStart:
+        p->eviction_in_progress_ = true;
+        p->eviction_start_time_ = base::TimeTicks::Now();
+        break;
+      case kDoomPush:
+        s.doomed.push_back(a);
+        break;
+      case kDoomSubmit:
+        p->delegate_->DoomEntries(
+            &s.doomed, base::BindOnce(&SimpleIndex::EvictionDone, s.weak));
+        break;
+      case kEvictionTelemetry:
+        SIMPLE_CACHE_UMA(COUNTS_1M, "Eviction.EntryCount", p->cache_type_,
+                         s.doomed.size());
+        SIMPLE_CACHE_UMA(TIMES, "Eviction.TimeToSelectEntries", p->cache_type_,
+                         base::TimeTicks::Now() - p->eviction_start_time_);
+        break;
+      case kEvictionDoneTelemetry:
+        p->eviction_in_progress_ = false;
+        SIMPLE_CACHE_UMA(TIMES, "Eviction.TimeToDone", p->cache_type_,
+                         base::TimeTicks::Now() - p->eviction_start_time_);
+        break;
+      case kInitTelemetry:
+        SIMPLE_CACHE_UMA(CUSTOM_COUNTS, "IndexNumEntriesOnInit2",
+                         p->cache_type_, p->entries_set_.size(), 0, 1000000,
+                         50);
+        SIMPLE_CACHE_UMA(MEMORY_MEDIUM_MB, "CacheSizeOnInit2", p->cache_type_,
+                         static_cast<base::HistogramBase::Sample32>(
+                             p->cache_size_ / (1024 * 1024)));
+        SIMPLE_CACHE_UMA(MEMORY_MEDIUM_MB, "MaxCacheSizeOnInit2",
+                         p->cache_type_,
+                         static_cast<base::HistogramBase::Sample32>(
+                             p->max_size_ / (1024 * 1024)));
+        break;
+      case kQueueReady:
+        p->to_run_when_initialized_.push_back(std::move(s.ready));
+        break;
+      case kPostReady:
+        p->task_runner_->PostTask(FROM_HERE,
+                                  base::BindOnce(std::move(s.ready), net::OK));
+        break;
+      case kReadyCount:
+        return p->to_run_when_initialized_.size();
+      case kPostOne: {
+        auto cb = std::move(p->to_run_when_initialized_.front());
+        p->to_run_when_initialized_.pop_front();
+        p->task_runner_->PostTask(FROM_HERE,
+                                  base::BindOnce(std::move(cb), net::OK));
+        break;
+      }
+      case kAbortOne: {
+        auto cb = std::move(p->to_run_when_initialized_.front());
+        p->to_run_when_initialized_.pop_front();
+        std::move(cb).Run(net::ERR_ABORTED);
+        break;
+      }
+      case kAssertAccounted:
+        DCHECK_GE(p->cache_size_, a);
+        break;
+      case kInvalidSize:
+        LOG(ERROR) << "Could not set the given entry size as it is too large: "
+                   << a;
+        break;
+      default:
+        NOTREACHED() << "Unknown SimpleIndex native service " << op;
+    }
+    return 0;
+  }
+  uint64_t Run(uint32_t op, uint64_t a = 0, uint64_t b = 0) {
+    return rustium_simple_index_run(this, &Dispatch, op, a, b);
+  }
+};
 SimpleIndex::SimpleIndex(
     const scoped_refptr<base::SequencedTaskRunner>& task_runner,
     scoped_refptr<BackendCleanupTracker> cleanup_tracker,
@@ -267,471 +511,193 @@ SimpleIndex::SimpleIndex(
 
 SimpleIndex::~SimpleIndex() {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-
-  // Fail all callbacks waiting for the index to come up.
-  for (auto& callback : to_run_when_initialized_) {
-    std::move(callback).Run(net::ERR_ABORTED);
-  }
+  DiskSimpleIndexRustServices(this).Run(index_rust::kOpShutdown);
 }
-
 void SimpleIndex::Initialize(base::Time cache_mtime) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
 
-#if BUILDFLAG(IS_ANDROID)
-  if (app_status_listener_getter_) {
-    base::android::ApplicationStatusListener* listener =
-        app_status_listener_getter_.Run();
-    if (listener) {
-      listener->SetCallback(
-          base::BindRepeating(&SimpleIndex::OnApplicationStateChange,
-                              weak_ptr_factory_.GetWeakPtr()));
-    }
-    // Not using the fallback on purpose here --- if the getter is set, we may
-    // be in a process where the base::android::ApplicationStatusListener::New
-    // impl is unavailable.
-    // (See https://crbug.com/881572)
-  } else if (base::android::IsJavaAvailable()) {
-    owned_app_status_listener_ = base::android::ApplicationStatusListener::New(
-        base::BindRepeating(&SimpleIndex::OnApplicationStateChange,
-                            weak_ptr_factory_.GetWeakPtr()));
-  }
-#endif
-
-  auto load_result = std::make_unique<SimpleIndexLoadResult>();
-  auto* load_result_ptr = load_result.get();
-  index_file_->LoadIndexEntries(
-      cache_mtime,
-      base::BindOnce(&SimpleIndex::MergeInitializingSet,
-                     weak_ptr_factory_.GetWeakPtr(), std::move(load_result)),
-      load_result_ptr);
+  s.Run(index_rust::kOpInitialize, cache_mtime.ToInternalValue());
 }
-
 void SimpleIndex::SetMaxSize(uint64_t max_bytes) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  bool shrinking = max_bytes < max_size_;
-  max_size_ = max_bytes;
-  high_watermark_ = max_size_ - max_size_ / kEvictionMarginDivisor;
-  low_watermark_ = max_size_ - 2 * (max_size_ / kEvictionMarginDivisor);
-  if (shrinking) {
-    StartEvictionIfNeeded();
-  }
-}
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
 
-void SimpleIndex::ExecuteWhenReady(net::CompletionOnceCallback task) {
+  s.Run(index_rust::kOpSetMax, max_bytes);
+}
+void SimpleIndex::Insert(uint64_t entry_hash) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  if (initialized_)
-    task_runner_->PostTask(FROM_HERE, base::BindOnce(std::move(task), net::OK));
-  else
-    to_run_when_initialized_.push_back(std::move(task));
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  s.Run(index_rust::kOpInsert, entry_hash);
+}
+void SimpleIndex::Remove(uint64_t entry_hash) {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  s.Run(index_rust::kOpRemove, entry_hash);
+}
+bool SimpleIndex::Has(uint64_t entry_hash) const {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  return s.Run(index_rust::kOpHas, entry_hash);
+}
+bool SimpleIndex::UseIfExists(uint64_t entry_hash) {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  return s.Run(index_rust::kOpUse, entry_hash);
+}
+uint8_t SimpleIndex::GetEntryInMemoryData(uint64_t entry_hash) const {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  return s.Run(index_rust::kOpGetMemory, entry_hash);
+}
+void SimpleIndex::SetEntryInMemoryData(uint64_t entry_hash, uint8_t value) {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  if (entries_set_.contains(entry_hash)) {
+    CHECK_LE(value, 3);
+  }
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  s.Run(index_rust::kOpSetMemory, entry_hash, value);
+}
+int32_t SimpleIndex::GetTrailerPrefetchSize(uint64_t entry_hash) const {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DCHECK_EQ(cache_type_, net::APP_CACHE);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  return s.Run(index_rust::kOpGetPrefetch, entry_hash);
+}
+void SimpleIndex::SetTrailerPrefetchSize(uint64_t entry_hash, int32_t size) {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DCHECK_EQ(cache_type_, net::APP_CACHE);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  s.Run(index_rust::kOpSetPrefetch, entry_hash, static_cast<uint32_t>(size));
+}
+bool SimpleIndex::UpdateEntrySize(uint64_t entry_hash,
+                                  base::StrictNumeric<uint64_t> entry_size) {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  return s.Run(index_rust::kOpUpdateSize, entry_hash,
+               static_cast<uint64_t>(entry_size));
+}
+void SimpleIndex::InsertEntryForTesting(uint64_t entry_hash,
+                                        const EntryMetadata& entry_metadata) {
+  DCHECK(!entries_set_.contains(entry_hash));
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  s.Run(index_rust::kOpInsertTest, entry_hash,
+        DiskSimpleIndexRustServices::Encode(entry_metadata));
+}
+void SimpleIndex::ExecuteWhenReady(net::CompletionOnceCallback callback) {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+  s.ready = std::move(callback);
+  s.Run(index_rust::kOpReady);
+}
+void SimpleIndex::PostponeWritingToDisk() {
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  s.Run(index_rust::kOpPostpone);
+}
+void SimpleIndex::StartEvictionIfNeeded() {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  s.Run(index_rust::kOpEvict);
+}
+void SimpleIndex::EvictionDone(int result) {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  s.Run(index_rust::kOpEvictionDone);
+}
+void SimpleIndex::WriteToDisk(IndexWriteToDiskReason reason) {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  s.Run(index_rust::kOpWrite, reason);
+}
+bool SimpleIndex::HasPendingWrite() const {
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+
+  return s.Run(index_rust::kOpPending);
+}
+void SimpleIndex::MergeInitializingSet(
+    std::unique_ptr<SimpleIndexLoadResult> load_result) {
+  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+  TRACE_EVENT("disk_cache", "SimpleIndex::MergeInitializingSet", "cache_type_",
+              cache_type_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+  s.load = load_result.get();
+  s.Run(index_rust::kOpMerge);
 }
 
 std::unique_ptr<SimpleIndex::HashList> SimpleIndex::GetEntriesBetween(
     base::Time initial_time,
     base::Time end_time) {
-  DCHECK_EQ(true, initialized_);
-
-  // The net::APP_CACHE mode does not track access times.  Assert that external
-  // consumers are not relying on access time ranges.
+  DCHECK(initialized_);
   DCHECK(cache_type_ != net::APP_CACHE ||
          (initial_time.is_null() && end_time.is_null()));
-
-  if (!initial_time.is_null())
-    initial_time -= EntryMetadata::GetLowerEpsilonForTimeComparisons();
-  if (end_time.is_null())
-    end_time = base::Time::Max();
-  else
-    end_time += EntryMetadata::GetUpperEpsilonForTimeComparisons();
-  DCHECK(end_time >= initial_time);
-
-  auto ret_hashes = std::make_unique<HashList>();
-  for (const auto& entry : entries_set_) {
-    const EntryMetadata& metadata = entry.second;
-    base::Time entry_time = metadata.GetLastUsedTime();
-    if (initial_time <= entry_time && entry_time < end_time)
-      ret_hashes->push_back(entry.first);
-  }
-  return ret_hashes;
+  auto result = std::make_unique<HashList>();
+  DiskSimpleIndexRustServices s(this);
+  s.output = result.get();
+  DCHECK_GE(
+      base::Time::FromInternalValue(s.Dispatch(&s, index_rust::kRangeUpper,
+                                               end_time.ToInternalValue(), 0)),
+      base::Time::FromInternalValue(s.Dispatch(
+          &s, index_rust::kRangeLower, initial_time.ToInternalValue(), 0)));
+  s.Run(index_rust::kOpRange, initial_time.ToInternalValue(),
+        end_time.ToInternalValue());
+  return result;
 }
-
+uint64_t SimpleIndex::GetCacheSizeBetween(base::Time initial_time,
+                                          base::Time end_time) const {
+  DCHECK(initialized_);
+  DiskSimpleIndexRustServices s(const_cast<SimpleIndex*>(this));
+  DCHECK_GE(
+      base::Time::FromInternalValue(s.Dispatch(&s, index_rust::kRangeUpper,
+                                               end_time.ToInternalValue(), 0)),
+      base::Time::FromInternalValue(s.Dispatch(
+          &s, index_rust::kRangeLower, initial_time.ToInternalValue(), 0)));
+  return s.Run(index_rust::kOpSizeRange, initial_time.ToInternalValue(),
+               end_time.ToInternalValue());
+}
 std::unique_ptr<SimpleIndex::HashList> SimpleIndex::GetAllHashes() {
   return GetEntriesBetween(base::Time(), base::Time());
 }
-
 int32_t SimpleIndex::GetEntryCount() const {
-  // TODO(pasko): return a meaningful initial estimate before initialized.
   return entries_set_.size();
 }
-
 uint64_t SimpleIndex::GetCacheSize() const {
   DCHECK(initialized_);
   return cache_size_;
 }
-
-uint64_t SimpleIndex::GetCacheSizeBetween(base::Time initial_time,
-                                          base::Time end_time) const {
-  DCHECK_EQ(true, initialized_);
-
-  if (!initial_time.is_null())
-    initial_time -= EntryMetadata::GetLowerEpsilonForTimeComparisons();
-  if (end_time.is_null())
-    end_time = base::Time::Max();
-  else
-    end_time += EntryMetadata::GetUpperEpsilonForTimeComparisons();
-
-  DCHECK(end_time >= initial_time);
-  uint64_t size = 0;
-  for (const auto& entry : entries_set_) {
-    const EntryMetadata& metadata = entry.second;
-    base::Time entry_time = metadata.GetLastUsedTime();
-    if (initial_time <= entry_time && entry_time < end_time)
-      size += metadata.GetEntrySize();
-  }
-  return size;
-}
-
 base::Time SimpleIndex::GetLastUsedTime(uint64_t entry_hash) {
   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
   DCHECK_NE(cache_type_, net::APP_CACHE);
-  auto it = entries_set_.find(entry_hash);
-  if (it == entries_set_.end())
-    return base::Time();
-  return it->second.GetLastUsedTime();
+  DiskSimpleIndexRustServices s(this);
+  return DiskSimpleIndexRustServices::Decode(
+             s.Run(index_rust::kOpLastUsed, entry_hash))
+      .GetLastUsedTime();
 }
-
 void SimpleIndex::SetLastUsedTimeForTest(uint64_t entry_hash,
-                                         const base::Time last_used) {
-  auto it = entries_set_.find(entry_hash);
-  CHECK(it != entries_set_.end());
-  it->second.SetLastUsedTime(last_used);
+                                         base::Time last_used) {
+  CHECK(entries_set_.contains(entry_hash));
+  EntryMetadata m;
+  m.SetLastUsedTime(last_used);
+  DiskSimpleIndexRustServices(this).Run(index_rust::kOpSetLastUsed, entry_hash,
+                                        m.RawTimeForSorting());
 }
-
-bool SimpleIndex::HasPendingWrite() const {
-  return write_to_disk_timer_.IsRunning();
-}
-
-void SimpleIndex::Insert(uint64_t entry_hash) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  // Upon insert we don't know yet the size of the entry.
-  // It will be updated later when the SimpleEntryImpl finishes opening or
-  // creating the new entry, and then UpdateEntrySize will be called.
-  bool inserted = false;
-  if (cache_type_ == net::APP_CACHE) {
-    inserted =
-        InsertInEntrySet(entry_hash, EntryMetadata(-1, 0u), &entries_set_);
-  } else {
-    inserted = InsertInEntrySet(
-        entry_hash, EntryMetadata(base::Time::Now(), 0u), &entries_set_);
-  }
-  if (!initialized_)
-    removed_entries_.erase(entry_hash);
-  if (inserted)
-    PostponeWritingToDisk();
-}
-
-void SimpleIndex::Remove(uint64_t entry_hash) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  bool need_write = false;
-  auto it = entries_set_.find(entry_hash);
-  if (it != entries_set_.end()) {
-    UpdateEntryIteratorSize(&it, 0u);
-    entries_set_.erase(it);
-    need_write = true;
-  }
-
-  if (!initialized_)
-    removed_entries_.insert(entry_hash);
-
-  if (need_write)
-    PostponeWritingToDisk();
-}
-
-bool SimpleIndex::Has(uint64_t hash) const {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  // If not initialized, always return true, forcing it to go to the disk.
-  return !initialized_ || entries_set_.count(hash) > 0;
-}
-
-uint8_t SimpleIndex::GetEntryInMemoryData(uint64_t entry_hash) const {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  auto it = entries_set_.find(entry_hash);
-  if (it == entries_set_.end())
-    return 0;
-  return it->second.GetInMemoryData();
-}
-
-void SimpleIndex::SetEntryInMemoryData(uint64_t entry_hash, uint8_t value) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  auto it = entries_set_.find(entry_hash);
-  if (it == entries_set_.end())
-    return;
-  return it->second.SetInMemoryData(value);
-}
-
-bool SimpleIndex::UseIfExists(uint64_t entry_hash) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  // Always update the last used time, even if it is during initialization.
-  // It will be merged later.
-  auto it = entries_set_.find(entry_hash);
-  if (it == entries_set_.end())
-    // If not initialized, always return true, forcing it to go to the disk.
-    return !initialized_;
-  // We do not need to track access times in APP_CACHE mode.
-  if (cache_type_ == net::APP_CACHE)
-    return true;
-  it->second.SetLastUsedTime(base::Time::Now());
-  PostponeWritingToDisk();
-  return true;
-}
-
-void SimpleIndex::StartEvictionIfNeeded() {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  if (eviction_in_progress_ || cache_size_ <= high_watermark_)
-    return;
-  // Take all live key hashes from the index and sort them by time.
-  eviction_in_progress_ = true;
-  eviction_start_time_ = base::TimeTicks::Now();
-
-  const bool use_size_heuristic =
-      (cache_type_ != net::GENERATED_BYTE_CODE_CACHE &&
-       cache_type_ != net::GENERATED_WEBUI_BYTE_CODE_CACHE);
-
-  // Flatten for sorting.
-  std::vector<std::pair<uint64_t, const EntrySet::value_type*>> entries;
-  entries.reserve(entries_set_.size());
-  uint32_t now = (base::Time::Now() - base::Time::UnixEpoch()).InSeconds();
-  for (EntrySet::const_iterator i = entries_set_.begin();
-       i != entries_set_.end(); ++i) {
-    const uint64_t time_since_last_used = now - i->second.RawTimeForSorting();
-    uint64_t sort_value = time_since_last_used;
-    // See crbug.com/736437 for context.
-    //
-    // Will not overflow since we're multiplying two 32-bit values and storing
-    // them in a 64-bit variable.
-    if (use_size_heuristic) {
-      sort_value *= i->second.GetEntrySize() + kEstimatedEntryOverhead;
-      // When prioritized caching is enabled, we want to evict entries that are
-      // not prioritized before entries that are prioritized. So we divide the
-      // sort value by the `caching_prioritization_factor`.
-      if (prioritized_caching_enabled_ &&
-          time_since_last_used < caching_prioritization_period_in_seconds_ &&
-          (i->second.GetInMemoryData() & HINT_HIGH_PRIORITY) ==
-              HINT_HIGH_PRIORITY) {
-        sort_value /= caching_prioritization_factor_;
-      }
-    }
-    // Subtract so we don't need a custom comparator.
-    entries.emplace_back(std::numeric_limits<uint64_t>::max() - sort_value,
-                         &*i);
-  }
-
-  uint64_t evicted_so_far_size = 0;
-  const uint64_t amount_to_evict = cache_size_ - low_watermark_;
-  std::vector<uint64_t> entry_hashes;
-  std::sort(entries.begin(), entries.end());
-  for (const auto& score_metadata_pair : entries) {
-    if (evicted_so_far_size >= amount_to_evict)
-      break;
-    evicted_so_far_size += score_metadata_pair.second->second.GetEntrySize();
-    entry_hashes.push_back(score_metadata_pair.second->first);
-  }
-
-  SIMPLE_CACHE_UMA(COUNTS_1M,
-                   "Eviction.EntryCount", cache_type_, entry_hashes.size());
-  SIMPLE_CACHE_UMA(TIMES,
-                   "Eviction.TimeToSelectEntries", cache_type_,
-                   base::TimeTicks::Now() - eviction_start_time_);
-
-  delegate_->DoomEntries(&entry_hashes,
-                         base::BindOnce(&SimpleIndex::EvictionDone,
-                                        weak_ptr_factory_.GetWeakPtr()));
-}
-
-int32_t SimpleIndex::GetTrailerPrefetchSize(uint64_t entry_hash) const {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  DCHECK_EQ(cache_type_, net::APP_CACHE);
-  auto it = entries_set_.find(entry_hash);
-  if (it == entries_set_.end())
-    return -1;
-  return it->second.GetTrailerPrefetchSize();
-}
-
-void SimpleIndex::SetTrailerPrefetchSize(uint64_t entry_hash, int32_t size) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  DCHECK_EQ(cache_type_, net::APP_CACHE);
-  auto it = entries_set_.find(entry_hash);
-  if (it == entries_set_.end())
-    return;
-  uint32_t original_size = it->second.GetTrailerPrefetchSize();
-  it->second.SetTrailerPrefetchSize(size);
-  if (original_size != it->second.GetTrailerPrefetchSize()) {
-    PostponeWritingToDisk();
-  }
-}
-
-bool SimpleIndex::UpdateEntrySize(uint64_t entry_hash,
-                                  base::StrictNumeric<uint64_t> entry_size) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  auto it = entries_set_.find(entry_hash);
-  if (it == entries_set_.end())
-    return false;
-
-  // Update the entry size.  If there was no change, then there is nothing
-  // else to do here.
-  if (!UpdateEntryIteratorSize(&it, entry_size))
-    return true;
-
-  PostponeWritingToDisk();
-  StartEvictionIfNeeded();
-  return true;
-}
-
-void SimpleIndex::EvictionDone(int result) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-
-  // Ignore the result of eviction. We did our best.
-  eviction_in_progress_ = false;
-  SIMPLE_CACHE_UMA(TIMES,
-                   "Eviction.TimeToDone", cache_type_,
-                   base::TimeTicks::Now() - eviction_start_time_);
-}
-
-// static
-bool SimpleIndex::InsertInEntrySet(
-    uint64_t entry_hash,
-    const disk_cache::EntryMetadata& entry_metadata,
-    EntrySet* entry_set) {
+bool SimpleIndex::InsertInEntrySet(uint64_t entry_hash,
+                                   const EntryMetadata& entry_metadata,
+                                   EntrySet* entry_set) {
   DCHECK(entry_set);
-  auto result = entry_set->emplace(entry_hash, entry_metadata);
-  return result.second;
+  return entry_set->emplace(entry_hash, entry_metadata).second;
 }
-
-void SimpleIndex::InsertEntryForTesting(uint64_t entry_hash,
-                                        const EntryMetadata& entry_metadata) {
-  DCHECK(entries_set_.find(entry_hash) == entries_set_.end());
-  if (InsertInEntrySet(entry_hash, entry_metadata, &entries_set_))
-    cache_size_ += entry_metadata.GetEntrySize();
-}
-
-void SimpleIndex::PostponeWritingToDisk() {
-  if (!initialized_)
-    return;
-  const int delay = app_on_background_ ? kWriteToDiskOnBackgroundDelayMSecs
-                                       : kWriteToDiskDelayMSecs;
-  // If the timer is already active, Start() will just Reset it, postponing it.
-  write_to_disk_timer_.Start(FROM_HERE, base::Milliseconds(delay),
-                             write_to_disk_cb_);
-}
-
-bool SimpleIndex::UpdateEntryIteratorSize(
-    EntrySet::iterator* it,
-    base::StrictNumeric<uint64_t> entry_size) {
-  // Update the total cache size with the new entry size.
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  DCHECK_GE(cache_size_, (*it)->second.GetEntrySize());
-  uint64_t original_size = (*it)->second.GetEntrySize();
-
-  // If SetEntrySize fails, we cannot update the entry iterator correctly.
-  if (!(*it)->second.SetEntrySize(entry_size)) {
-    LOG(ERROR) << "Could not set the given entry size as it is too large: "
-               << static_cast<uint64_t>(entry_size);
-    return false;
-  }
-
-  cache_size_ -= original_size;
-  // We use GetEntrySize to get consistent rounding.
-  cache_size_ += (*it)->second.GetEntrySize();
-  // Return true if the size of the entry actually changed.  Make sure to
-  // compare the rounded values provided by GetEntrySize().
-  return original_size != (*it)->second.GetEntrySize();
-}
-
-void SimpleIndex::MergeInitializingSet(
-    std::unique_ptr<SimpleIndexLoadResult> load_result) {
-  TRACE_EVENT("disk_cache", "SimpleIndex::MergeInitializingSet", "cache_type_",
-              cache_type_);
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-
-  EntrySet* index_file_entries = &load_result->entries;
-
-  for (uint64_t removed_entry : removed_entries_) {
-    index_file_entries->erase(removed_entry);
-  }
-  removed_entries_.clear();
-
-  for (const auto& it : entries_set_) {
-    const uint64_t entry_hash = it.first;
-    std::pair<EntrySet::iterator, bool> insert_result =
-        index_file_entries->insert(EntrySet::value_type(entry_hash,
-                                                        EntryMetadata()));
-    EntrySet::iterator& possibly_inserted_entry = insert_result.first;
-    possibly_inserted_entry->second = it.second;
-  }
-
-  uint64_t merged_cache_size = 0;
-  for (const auto& index_file_entry : *index_file_entries) {
-    merged_cache_size += index_file_entry.second.GetEntrySize();
-  }
-
-  entries_set_.swap(*index_file_entries);
-  cache_size_ = merged_cache_size;
-  initialized_ = true;
-  init_method_ = load_result->init_method;
-
-  // The actual IO is asynchronous, so calling WriteToDisk() shouldn't slow the
-  // merge down much.
-  if (load_result->flush_required)
-    WriteToDisk(INDEX_WRITE_REASON_STARTUP_MERGE);
-
-  SIMPLE_CACHE_UMA(CUSTOM_COUNTS, "IndexNumEntriesOnInit2", cache_type_,
-                   entries_set_.size(), 0, 1000000, 50);
-  SIMPLE_CACHE_UMA(
-      MEMORY_MEDIUM_MB, "CacheSizeOnInit2", cache_type_,
-      static_cast<base::HistogramBase::Sample32>(cache_size_ / kBytesInMiB));
-  SIMPLE_CACHE_UMA(
-      MEMORY_MEDIUM_MB, "MaxCacheSizeOnInit2", cache_type_,
-      static_cast<base::HistogramBase::Sample32>(max_size_ / kBytesInMiB));
-
-  // Run all callbacks waiting for the index to come up.
-  for (auto& callback : to_run_when_initialized_) {
-    task_runner_->PostTask(FROM_HERE,
-                           base::BindOnce(std::move(callback), net::OK));
-  }
-  to_run_when_initialized_.clear();
-}
-
-#if BUILDFLAG(IS_ANDROID)
-void SimpleIndex::OnApplicationStateChange(
-    base::android::ApplicationState state) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  // For more info about android activities, see:
-  // developer.android.com/training/basics/activity-lifecycle/pausing.html
-  if (state == base::android::APPLICATION_STATE_HAS_RUNNING_ACTIVITIES) {
-    app_on_background_ = false;
-  } else if (state ==
-      base::android::APPLICATION_STATE_HAS_STOPPED_ACTIVITIES) {
-    app_on_background_ = true;
-    WriteToDisk(INDEX_WRITE_REASON_ANDROID_STOPPED);
-  }
-}
-#endif
-
-void SimpleIndex::WriteToDisk(IndexWriteToDiskReason reason) {
-  DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
-  if (!initialized_)
-    return;
-
-  // Cancel any pending writes since we are about to write to disk now.
-  write_to_disk_timer_.Stop();
-
-  base::OnceClosure after_write;
-  if (cleanup_tracker_) {
-    // Make anyone synchronizing with our cleanup wait for the index to be
-    // written back.
-    after_write = base::DoNothingWithBoundArgs(cleanup_tracker_);
-  }
-
-  index_file_->WriteToDisk(cache_type_, reason, entries_set_, cache_size_,
-                           std::move(after_write));
-}
-
 }  // namespace disk_cache

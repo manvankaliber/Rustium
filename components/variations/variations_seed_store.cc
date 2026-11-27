@@ -37,9 +37,6 @@
 #include "third_party/protobuf/src/google/protobuf/io/coded_stream.h"
 #include "third_party/zlib/google/compression_utils.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/variations/android/variations_seed_bridge.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
 namespace variations {
 namespace {
@@ -913,13 +910,6 @@ void VariationsSeedStore::StoreValidatedSeed(
     base::Time seed_date,
     bool require_synchronous,
     SeedReaderWriter::ReadSeedDataResult safe_seed_read_result) {
-#if BUILDFLAG(IS_ANDROID)
-  // If currently we do not have any stored seed, then we mark seed storing as
-  // successful on the Java side to avoid repeated seed fetches.
-  if (use_first_run_prefs_ && seed_reader_writer_->IsEmpty()) {
-    android::MarkVariationsSeedAsStored();
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   int milestone = version_info::GetMajorVersionNumberAsInt();
 

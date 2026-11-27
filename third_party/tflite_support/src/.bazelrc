@@ -12,36 +12,9 @@ build --java_toolchain=//third_party/toolchains/java:tf_java_toolchain
 build --host_java_toolchain=//third_party/toolchains/java:tf_java_toolchain
 
 # Suppress C++ compiler warnings, otherwise build logs become 10s of MBs.
-build:android --copt=-w
 build:linux --copt=-w
 build:macos --copt=-w
 build:windows --copt=/w
-
-# Android workspace configurations. Should be replaced by an interative configure in the future.
-build --action_env ANDROID_NDK_HOME
-build --action_env ANDROID_NDK_API_LEVEL
-build --action_env ANDROID_BUILD_TOOLS_VERSION
-build --action_env ANDROID_SDK_API_LEVEL
-build --action_env ANDROID_SDK_HOME
-
-# Android configs. Bazel needs to have --cpu and --fat_apk_cpu both set to the
-# target CPU to build transient dependencies correctly. See
-# https://docs.bazel.build/versions/master/user-manual.html#flag--fat_apk_cpu
-
-build:android --crosstool_top=//external:android/crosstool
-build:android --host_crosstool_top=@bazel_tools//tools/cpp:toolchain
-build:android_arm --config=android
-build:android_arm --cpu=armeabi-v7a
-build:android_arm --fat_apk_cpu=armeabi-v7a
-build:android_arm64 --config=android
-build:android_arm64 --cpu=arm64-v8a
-build:android_arm64 --fat_apk_cpu=arm64-v8a
-build:android_x86 --config=android
-build:android_x86 --cpu=x86
-build:android_x86 --fat_apk_cpu=x86
-build:android_x86_64 --config=android
-build:android_x86_64 --cpu=x86_64
-build:android_x86_64 --fat_apk_cpu=x86_64
 
 # iOS configs for each architecture and the fat binary builds.
 build:ios --apple_platform_type=ios
@@ -68,8 +41,6 @@ build:elinux_armhf --distinct_host_configuration=true
 build:elinux_armhf --copt -mfp16-format=ieee
 
 # By default, build TF in C++ 17 mode.
-build:android --cxxopt=-std=c++17
-build:android --host_cxxopt=-std=c++17
 build:ios --cxxopt=-std=c++17
 build:ios --host_cxxopt=-std=c++17
 build:linux --cxxopt=-std=c++17
@@ -141,7 +112,6 @@ build:c++1z --config=c++17
 # Enable using platform specific build settings, except when cross-compiling for
 # mobile platforms.
 build --enable_platform_specific_config
-build:android --noenable_platform_specific_config
 build:ios --noenable_platform_specific_config
 
 # Suppress all warning messages.

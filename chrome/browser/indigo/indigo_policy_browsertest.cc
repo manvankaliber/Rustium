@@ -23,9 +23,6 @@
 #include "components/signin/public/identity_manager/identity_test_utils.h"
 #include "content/public/test/browser_test.h"
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chromeos/ash/components/install_attributes/stub_install_attributes.h"
-#endif
 
 namespace indigo {
 
@@ -61,9 +58,6 @@ class IndigoPolicyTest : public policy::PolicyTest {
     AccountCapabilitiesTestMutator mutator(&info);
     mutator.set_can_use_model_execution_features(true);
     signin::UpdateAccountInfoForAccount(identity_manager, info);
-#if BUILDFLAG(IS_CHROMEOS)
-    stub_install_attributes_.Get()->SetCloudManaged("example.com", "device_id");
-#endif
   }
 
   void SetPolicyCombination(std::optional<int> indigo_policy,
@@ -86,9 +80,6 @@ class IndigoPolicyTest : public policy::PolicyTest {
 
  private:
   base::test::ScopedFeatureList scoped_feature_list_;
-#if BUILDFLAG(IS_CHROMEOS)
-  ash::ScopedStubInstallAttributes stub_install_attributes_;
-#endif
 };
 
 IN_PROC_BROWSER_TEST_F(IndigoPolicyTest, PolicyEnabledWithModelImprovement) {

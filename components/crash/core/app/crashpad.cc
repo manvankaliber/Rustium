@@ -48,12 +48,6 @@
 
 namespace crash_reporter {
 
-#if BUILDFLAG(IS_IOS)
-crashpad::StringAnnotation<24>& PlatformStorage() {
-  static crashpad::StringAnnotation<24> platform("platform");
-  return platform;
-}
-#endif  // BUILDFLAG(IS_IOS)
 
 namespace {
 
@@ -99,7 +93,7 @@ bool InitializeCrashpadImpl(bool initial_client,
 #endif  // BUILDFLAG(GOOGLE_CHROME_BRANDING)
            process_type == "GCPW Installer" || process_type == "GCPW DLL" ||
            process_type == "elevated-tracing-service");
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
     DCHECK(browser_process);
 #else
 #error Port.
@@ -137,7 +131,6 @@ bool InitializeCrashpadImpl(bool initial_client,
 #endif  // BUILDFLAG(IS_APPLE)
 
   InitializeCrashKeys();
-#if !BUILDFLAG(IS_IOS)
   static crashpad::StringAnnotation<24> ptype_key("ptype");
   ptype_key.Set(browser_process ? std::string_view("browser")
                                 : std::string_view(process_type));
@@ -151,10 +144,6 @@ bool InitializeCrashpadImpl(bool initial_client,
 
   static crashpad::StringAnnotation<24> osarch_key("osarch");
   osarch_key.Set(base::SysInfo::OperatingSystemArchitecture());
-#else
-  // "platform" is used to determine device_model on the crash server.
-  PlatformStorage().Set(base::SysInfo::HardwareModelName());
-#endif  // !BUILDFLAG(IS_IOS)
 
   // If clients called CRASHPAD_SIMULATE_CRASH() instead of
   // base::debug::DumpWithoutCrashing(), these dumps would appear as crashes in
@@ -172,7 +161,7 @@ bool InitializeCrashpadImpl(bool initial_client,
   // other "main, first process" to initialize things. There is no "relauncher"
   // on Windows, so this is synonymous with initial_client.
   const bool should_initialize_database_and_set_upload_policy = initial_client;
-#elif BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#elif BUILDFLAG(IS_LINUX)
   const bool should_initialize_database_and_set_upload_policy = browser_process;
 #endif
   if (should_initialize_database_and_set_upload_policy) {
@@ -181,13 +170,11 @@ bool InitializeCrashpadImpl(bool initial_client,
     g_database =
         crashpad::CrashReportDatabase::Initialize(database_path).release();
 
-#if !BUILDFLAG(IS_CHROMEOS) && !BUILDFLAG(IS_IOS) && !BUILDFLAG(IS_ANDROID)
     // On Android crashpad doesn't handle uploads. Android uses
     // //components/minidump_uploader which queries metrics sample/consent opt
     // in from preferences.
     CrashReporterClient* crash_reporter_client = GetCrashReporterClient();
     SetUploadConsent(crash_reporter_client->GetCollectStatsConsent());
-#endif
   }
   return true;
 }
@@ -243,7 +230,6 @@ void DestroyCrashpadClient() {
   }
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 void SetUploadConsent(bool consent) {
   if (!g_database)
     return;
@@ -264,55 +250,18 @@ void SetUploadConsent(bool consent) {
                               crash_reporter_client->GetCollectStatsInSample());
 }
 
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
-#if !BUILDFLAG(IS_ANDROID)
 void DumpWithoutCrashing() {
   CRASHPAD_SIMULATE_CRASH();
 }
 
-#if BUILDFLAG(IS_IOS)
-void DumpWithoutCrashAndDeferProcessing() {
-  CRASHPAD_SIMULATE_CRASH_AND_DEFER_PROCESSING();
-}
 
-void DumpWithoutCrashAndDeferProcessingAtPath(const base::FilePath& path) {
-  CRASHPAD_SIMULATE_CRASH_AND_DEFER_PROCESSING_AT_PATH(path);
-}
 
-void OverridePlatformValue(const std::string& platform_value) {
-  // "platform" is used to determine device_model on the crash server.
-  PlatformStorage().Set(platform_value);
-}
-
-crashpad::SimpleAddressRangeBag* ExtraMemoryRanges() {
-  return crashpad::CrashpadInfo::GetCrashpadInfo()->extra_memory_ranges();
-}
-
-void SetExtraMemoryRanges(crashpad::SimpleAddressRangeBag* address_range_bag) {
-  crashpad::CrashpadInfo::GetCrashpadInfo()->set_extra_memory_ranges(
-      address_range_bag);
-}
-
-crashpad::SimpleAddressRangeBag* IntermediateDumpExtraMemoryRanges() {
-  return crashpad::CrashpadInfo::GetCrashpadInfo()
-      ->intermediate_dump_extra_memory_ranges();
-}
-
-void SetIntermediateDumpExtraMemoryRanges(
-    crashpad::SimpleAddressRangeBag* address_range_bag) {
-  crashpad::CrashpadInfo::GetCrashpadInfo()
-      ->set_intermediate_dump_extra_memory_ranges(address_range_bag);
-}
-#endif  // BUILDFLAG(IS_IOS)
-
-#endif
-
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_ANDROID)
+#if BUILDFLAG(IS_LINUX)
 void CrashWithoutDumping(const std::string& message) {
   crashpad::CrashpadClient::CrashWithoutDump(message);
 }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ||
+#endif
         // BUILDFLAG(IS_ANDROID)
 
 void GetReports(std::vector<Report>* reports) {

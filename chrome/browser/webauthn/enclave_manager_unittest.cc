@@ -2809,14 +2809,6 @@ TEST_F(EnclaveManagerTest, LockPINThenChange) {
 
 TEST_F(EnclaveManagerTest, HardwareKeyLost) {
   crypto::ScopedFakeUserVerifyingKeyProvider scoped_uv_key_provider;
-#if BUILDFLAG(IS_CHROMEOS)
-  OverrideWebAuthnChromeosUserVerifyingKeyProviderForTesting([]() {
-    return crypto::GetUserVerifyingKeyProvider(
-        crypto::UserVerifyingKeyProvider::Config());
-  });
-  base::ScopedClosureRunner reset_uv_override(base::BindOnce(
-      &OverrideWebAuthnChromeosUserVerifyingKeyProviderForTesting, nullptr));
-#endif
   security_domain_service_->pretend_there_are_members();
   NoArgFuture loaded_future;
   manager_.Load(loaded_future.GetCallback());
@@ -3097,7 +3089,6 @@ class OpportunisticKeyRetrievalEnclaveManagerTest : public EnclaveManagerTest {
       device::kWebAuthnDoNotAlwaysTerminateStateMachineDuringIdentityChange};
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // This test verifies the following scenario:
 // - The system UV is not available.
 // - Imagine that there is an account "Account 1".
@@ -3208,7 +3199,6 @@ TEST_F(OpportunisticKeyRetrievalEnclaveManagerTest,
       "WebAuthentication.Enclave.OpportunisticStoreKeysOutcome",
       EnclaveManager::ActionOutcome::kSuccess, 1);
 }
-#endif
 
 class EnclaveManagerMockTimeTest : public EnclaveManagerTest {
  public:
@@ -3224,7 +3214,6 @@ class OpportunisticKeyRetrievalEnclaveManagerMockTimeTest
       device::kWebAuthnDoNotAlwaysTerminateStateMachineDuringIdentityChange};
 };
 
-#if !BUILDFLAG(IS_CHROMEOS)
 TEST_F(OpportunisticKeyRetrievalEnclaveManagerMockTimeTest,
        DiscardingOpportunisticallyRetrievedKeyAfterTimeout) {
   // Trying to store the opportunistically retrieved key of some other account.
@@ -3324,7 +3313,6 @@ TEST_F(OpportunisticKeyRetrievalEnclaveManagerMockTimeTest,
               kStoreKeysFromOpportunisticFlowCachedKeysRemovedAfterTimeout,
       1);
 }
-#endif
 
 TEST_F(EnclaveManagerMockTimeTest, AutomaticRenewal) {
   const std::string pin = "123456";
@@ -3392,27 +3380,14 @@ class EnclaveUVTest : public EnclaveManagerTest {
   }
 
   void TearDown() override {
-#if BUILDFLAG(IS_CHROMEOS)
-    OverrideWebAuthnChromeosUserVerifyingKeyProviderForTesting(nullptr);
-#endif
   }
 
   void DisableUVKeySupport() {
     fake_provider_.emplace<crypto::ScopedNullUserVerifyingKeyProvider>();
-#if BUILDFLAG(IS_CHROMEOS)
-    // The scoped fake provider doesn't cover ChromeOS.
-    OverrideWebAuthnChromeosUserVerifyingKeyProviderForTesting([]() {
-      return std::unique_ptr<crypto::UserVerifyingKeyProvider>(nullptr);
-    });
-#endif
   }
 
   void UseFailingUVKeySupport() {
     fake_provider_.emplace<crypto::ScopedFailingUserVerifyingKeyProvider>();
-#if BUILDFLAG(IS_CHROMEOS)
-    // The scoped fake provider doesn't cover ChromeOS.
-    NOTIMPLEMENTED();
-#endif
   }
 
   std::variant<crypto::ScopedFakeUserVerifyingKeyProvider,
@@ -3777,7 +3752,6 @@ TEST_F(OpportunisticKeyRetrievalEnclaveUVTest,
       1);
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // On Chrome OS, `AreUserVerifyingKeysSupported` always returns true, thus this
 // test cannot establish its preconditions.
 
@@ -3868,7 +3842,6 @@ TEST_F(OpportunisticKeyRetrievalEnclaveUVTest,
           kDoStoringOpportunisticallyRetrievedKeyFailedNoSystemUvNoGpmPin,
       1);
 }
-#endif
 
 #if BUILDFLAG(IS_MAC)
 // Tests that if biometrics are available on macOS, Chrome will handle prompting

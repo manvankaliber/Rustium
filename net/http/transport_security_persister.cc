@@ -52,11 +52,7 @@ constexpr base::TimeDelta kMaxCommitInterval = base::Minutes(10);
 const base::FeatureParam<base::TimeDelta> kCommitIntervalParam(
     &kTransportSecurityFileWriterSchedule,
     "commit_interval",
-#if BUILDFLAG(IS_ANDROID)
-    kMinCommitInterval
-#else
     kMaxCommitInterval
-#endif
 );
 
 constexpr const char* kHistogramSuffix = "TransportSecurityPersister";

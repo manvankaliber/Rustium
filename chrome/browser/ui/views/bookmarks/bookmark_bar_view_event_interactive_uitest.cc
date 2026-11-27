@@ -1923,7 +1923,7 @@ class BookmarkBarViewTest20 : public BookmarkBarViewEventTestBase {
     // The context menu will consume the event and exit. Thereafter,
     // the event is reposted and delivered to the Test View which
     // increases its press-count.
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS)
+#if BUILDFLAG(IS_LINUX)
     ui_test_utils::MoveMouseToCenterAndClick(
         test_view_, ui_controls::LEFT, ui_controls::DOWN | ui_controls::UP,
         CreateEventTask(this, &BookmarkBarViewTest20::Step3));
@@ -1937,7 +1937,7 @@ class BookmarkBarViewTest20 : public BookmarkBarViewEventTestBase {
   }
 
   void Step3() {
-    EXPECT_EQ(BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) ? 1 : 2,
+    EXPECT_EQ(BUILDFLAG(IS_LINUX) || false ? 1 : 2,
               test_view_->press_count());
     EXPECT_EQ(nullptr, bb_view_->GetMenu());
     Done();

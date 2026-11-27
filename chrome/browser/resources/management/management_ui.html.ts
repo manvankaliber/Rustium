@@ -8,60 +8,29 @@ import type {ManagementUiElement} from './management_ui.js';
 
 export function getHtml(this: ManagementUiElement) {
   return html`<!--_html_template_start_-->
-<if expr="not is_android">
 <cr-toolbar page-name="$i18n{toolbarTitle}" role="banner" autofocus
     @search-changed="${this.onSearchChanged_}" clear-label="$i18n{clearSearch}"
     search-prompt="$i18n{searchPrompt}">
 </cr-toolbar>
-</if>
 <main id="mainContent" class="cr-scrollable">
   <div class="cr-scrollable-top-shadow"></div>
   <div class="cr-centered-card-container">
     <div class="card">
       <section ?hidden="${!this.managed_}" class="page-subtitle">
-<if expr="not is_android">
         <cr-icon-button class="icon-arrow-back" id="closeButton"
             @click="${this.onBackClick_}" aria-label="$i18n{backButton}">
         </cr-icon-button>
-</if>
         <h2 class="cr-title-text">${this.subtitle_}</h2>
       </section>
       ${this.shouldShowPromotion_ ? html`
         <promotion-banner @promotion-dismissed="${this.onPromotionDismissed_}">
         </promotion-banner>
       ` : ''}
-<if expr="is_chromeos">
-      <section class="eol-section" ?hidden="${!this.eolMessage_}">
-        <div class="eol-warning-icon">
-          <cr-icon icon="cr20:warning"></cr-icon>
-        </div>
-        <div class="eol-message">
-          <div>${this.eolMessage_}</div>
-          <div ?hidden="${this.isEolAdminMessageEmpty_()}">
-            <div class="eol-admin-title">
-              $i18n{updateRequiredEolAdminMessageTitle}
-            </div>
-            <div>${this.eolAdminMessage_}</div>
-          </div>
-        </div>
-      </section>
-</if>
 
-<if expr="not is_chromeos">
       <section class="overview-section">
         <div .innerHTML="${this.managementNoticeHtml_}"></div>
       </section>
-</if>
 
-<if expr="is_chromeos">
-      <section class="overview-section" ?hidden="${!this.managementOverview_}">
-        <div class="overview-container">
-          <img .src="${this.customerLogo_}" alt="" aria-hidden="true"
-              ?hidden="${!this.customerLogo_}">
-          <div>${this.managementOverview_}</div>
-        </div>
-      </section>
-</if>
 
       ${this.showThreatProtectionInfo_() ? html`
         <section>
@@ -115,69 +84,6 @@ export function getHtml(this: ManagementUiElement) {
         </section>
       ` : ''}
 
-<if expr="is_chromeos">
-      <div ?hidden="${!this.localTrustRoots_}">
-        <section>
-          <h3 class="cr-title-text">$i18n{localTrustRoots}</h3>
-          <div class="subtitle" id="trust-roots-configuration">
-            ${this.localTrustRoots_}
-          </div>
-        </section>
-      </div>
-      <div ?hidden="${!this.filesUploadToCloud_}">
-        <section>
-          <h3 class="cr-title-text">$i18n{filesCloudUpload}</h3>
-          <div class="subtitle" id="files-upload-to-cloud-configuration">
-            ${this.filesUploadToCloud_}
-          </div>
-        </section>
-      </div>
-      ${this.showDeskSyncSection_() ? html`
-        <section class="desk-sync">
-          <h3 class="cr-title-text">$i18n{deskSync}</h3>
-          <div class="subtitle">
-            $i18n{deskSyncDescription}
-          </div>
-          <ul>
-            <li ?hidden="${!this.showWindowsNoticeForDeskSync_}">
-              $i18n{windowSync}
-            </li>
-            <li ?hidden="${!this.showCookiesNoticeForDeskSync_}">
-              $i18n{cookieSync}
-            </li>
-          </ul>
-          <div class="subtitle"
-              .innerHTML="${this.i18nAdvanced('deskSyncOptOut')}">
-          </div>
-          <div class="subtitle"
-              .innerHTML="${this.i18nAdvanced('deskSyncLearnMore')}">
-          </div>
-        </section>
-      ` : ''}
-      ${this.showDeviceReportingInfo_() ? html`
-        <section>
-          <h3 class="cr-title-text">$i18n{deviceReporting}</h3>
-          <div class="subtitle"
-              ?hidden="${!this.showMonitoredNetworkPrivacyDisclosure_}">
-            $i18n{proxyServerPrivacyDisclosure}
-          </div>
-          <div class="subtitle">$i18n{deviceConfiguration}</div>
-          <div class="content-indented">
-            ${this.deviceReportingInfo_!.map(item => html`
-              <div class="report">
-                <cr-icon
-                    icon="${this.getIconForDeviceReportingType_(
-                        item.reportingType)}">
-                </cr-icon>
-                <div .innerHTML="${this.getDeviceReportingHtmlContent_(item)}">
-                </div>
-              </div>
-            `)}
-          </div>
-        </section>
-      ` : ''}
-</if>
-<if expr="not is_chromeos">
       ${this.showBrowserReportingInfo_() ? html`
         <section>
           <h3 class="cr-title-text">$i18n{browserReporting}</h3>
@@ -213,7 +119,6 @@ export function getHtml(this: ManagementUiElement) {
           </div>
         </section>
       ` : ''}
-</if>
       ${this.showExtensionReportingInfo_() ? html`
         <section class="extension-reporting">
           <h3 class="cr-title-text">$i18n{extensionReporting}</h3>

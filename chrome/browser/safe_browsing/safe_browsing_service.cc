@@ -76,8 +76,7 @@
 #include "services/network/public/cpp/shared_url_loader_factory.h"
 #include "services/preferences/public/mojom/tracked_preference_validation_delegate.mojom.h"
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
 #include "chrome/browser/safe_browsing/security_settings_bundle_toast_helper.h"
 #endif
 
@@ -85,9 +84,6 @@
 #include "chrome/install_static/install_util.h"
 #endif
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/safe_browsing/android/safe_browsing_referring_app_bridge_android.h"
-#endif
 
 #if BUILDFLAG(SAFE_BROWSING_AVAILABLE)
 #include "components/safe_browsing/content/browser/password_protection/password_protection_service.h"
@@ -167,14 +163,13 @@ void TriggerSecuritySettingsBundleToastIfNeeded(
     return;
   }
 
-#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) || \
-    BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_MAC)
   if (GetSecurityBundleSetting(*profile->GetPrefs()) ==
       SecuritySettingsBundleSetting::ENHANCED) {
     SecuritySettingsBundleToastHelper::GetForProfile(profile.get())
         ->TriggerIfNeeded();
   }
-#endif  // BUILDFLAG(IS_LINUX) || BUILDFLAG(IS_CHROMEOS) || BUILDFLAG(IS_WIN) ||
+#endif
         // BUILDFLAG(IS_MAC)
 }
 
@@ -366,15 +361,6 @@ SafeBrowsingServiceImpl::GetReferrerChainProviderFromBrowserContext(
       browser_context);
 }
 
-#if BUILDFLAG(IS_ANDROID)
-internal::ReferringAppInfo SafeBrowsingServiceImpl::GetReferringAppInfo(
-    content::WebContents* web_contents) {
-  // This is currently only used for the chrome://safe-browsing UI, which does
-  // not need WebAPK info.
-  return safe_browsing::GetReferringAppInfo(web_contents,
-                                            /*get_webapk_info=*/false);
-}
-#endif
 
 TriggerManager* SafeBrowsingServiceImpl::trigger_manager() const {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M162);

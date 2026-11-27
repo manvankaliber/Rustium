@@ -169,7 +169,6 @@ TEST_F(FindBackendTest, PolicyRestrictions) {
 }
 
 // FindInPage.SessionOutcome is only recorded on Desktop.
-#if !BUILDFLAG(IS_ANDROID)
 // Ending a session without any completed active search logs nothing.
 TEST_F(FindBackendTest, SessionOutcome_NoActiveSearchCompleted) {
   base::HistogramTester histogram_tester;
@@ -395,5 +394,3 @@ TEST_F(FindBackendTest, SessionOutcome_RecordedOnWebContentsDestruction) {
       "FindInPage.SessionOutcome",
       find_in_page::FindSessionOutcome::kMatchedWithoutSeeingZeroMatch, 1);
 }
-
-#endif  // !BUILDFLAG(IS_ANDROID)

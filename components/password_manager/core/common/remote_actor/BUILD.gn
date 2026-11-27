@@ -11,29 +11,27 @@ source_set("features") {
   deps = [ "//base" ]
 }
 
-if (!is_android) {
-  source_set("remote_actor") {
-    sources = [
-      "remote_actor_credential_sharing_policy.cc",
-      "remote_actor_credential_sharing_policy.h",
-    ]
+source_set("remote_actor") {
+  sources = [
+    "remote_actor_credential_sharing_policy.cc",
+    "remote_actor_credential_sharing_policy.h",
+  ]
 
-    deps = [
-      ":features",
-      "//base",
-      "//url",
-    ]
-  }
+  deps = [
+    ":features",
+    "//base",
+    "//url",
+  ]
+}
 
-  source_set("unit_tests") {
-    testonly = true
-    sources = [ "remote_actor_credential_sharing_policy_unittest.cc" ]
-    deps = [
-      ":features",
-      ":remote_actor",
-      "//base/test:test_support",
-      "//testing/gtest",
-      "//url",
-    ]
-  }
+source_set("unit_tests") {
+  testonly = true
+  sources = [ "remote_actor_credential_sharing_policy_unittest.cc" ]
+  deps = [
+    ":features",
+    ":remote_actor",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url",
+  ]
 }

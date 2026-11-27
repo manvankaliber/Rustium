@@ -27,10 +27,7 @@
 #include "base/process/kill.h"
 #elif BUILDFLAG(IS_POSIX)
 #include <signal.h>
-#elif BUILDFLAG(IS_FUCHSIA)
-#include <zircon/syscalls.h>
 #endif
-
 
 namespace blink {
 
@@ -56,14 +53,17 @@ bool ParseCrashURL(const GURL& url,
 }
 
 bool IsRendererDebugURL(const GURL& url) {
-  if (!url.is_valid())
+  if (!url.is_valid()) {
     return false;
+  }
 
-  if (url.SchemeIs(url::kJavaScriptScheme))
+  if (url.SchemeIs(url::kJavaScriptScheme)) {
     return true;
+  }
 
-  if (!url.SchemeIs("chrome"))
+  if (!url.SchemeIs("chrome")) {
     return false;
+  }
 
   std::string process;
   std::string crash_type;
@@ -93,15 +93,18 @@ bool IsRendererDebugURL(const GURL& url) {
 #endif  // defined(ADDRESS_SANITIZER)
 
 #if BUILDFLAG(IS_WIN)
-  if (url == kChromeUICfgViolationCrashURL)
+  if (url == kChromeUICfgViolationCrashURL) {
     return true;
-  if (url == kChromeUIHeapCorruptionCrashURL)
+  }
+  if (url == kChromeUIHeapCorruptionCrashURL) {
     return true;
+  }
 #endif
 
 #if DCHECK_IS_ON()
-  if (url == kChromeUICrashDcheckURL)
+  if (url == kChromeUICrashDcheckURL) {
     return true;
+  }
 #endif
 
 #if BUILDFLAG(IS_WIN) && defined(ADDRESS_SANITIZER)
@@ -188,8 +191,6 @@ void HandleChromeDebugURL(const GURL& url) {
         base::win::kProcessKilledExitCode);
 #elif BUILDFLAG(IS_POSIX)
     PCHECK(kill(base::Process::Current().Pid(), SIGTERM) == 0);
-#elif BUILDFLAG(IS_FUCHSIA)
-    zx_process_exit(ZX_TASK_RETCODE_SYSCALL_KILL);
 #else
 #error Unsupported platform
 #endif

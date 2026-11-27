@@ -23,18 +23,12 @@
 #include "components/enterprise/client_certificates/core/win/windows_software_private_key_factory.h"
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-#include "components/enterprise/client_certificates/core/android_private_key_factory.h"
-#include "components/enterprise/client_certificates/core/features.h"
-#endif  // BUILDFLAG(IS_ANDROID)
 
-#if !BUILDFLAG(IS_CHROMEOS)
 // Browser (machine) scope provisioning relies on Chrome Browser Cloud
 // Management, which is not available on ChromeOS.
 #include "chrome/browser/enterprise/client_certificates/browser_context_delegate.h"
 #include "components/enterprise/client_certificates/core/browser_cloud_management_delegate.h"
 #include "components/enterprise/client_certificates/core/dm_server_client.h"
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 namespace client_certificates {
 
@@ -69,13 +63,6 @@ std::unique_ptr<PrivateKeyFactory> CreatePrivateKeyFactory() {
   }
 #endif  // BUILDFLAG(IS_WIN)
 
-#if BUILDFLAG(IS_ANDROID)
-  auto android_key_factory = AndroidPrivateKeyFactory::TryCreate();
-  if (android_key_factory) {
-    sub_factories.insert_or_assign(PrivateKeySource::kAndroidKey,
-                                   std::move(android_key_factory));
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 
   sub_factories.insert_or_assign(PrivateKeySource::kSoftwareKey,
                                  std::make_unique<ECPrivateKeyFactory>());
@@ -83,7 +70,6 @@ std::unique_ptr<PrivateKeyFactory> CreatePrivateKeyFactory() {
   return PrivateKeyFactory::Create(std::move(sub_factories));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 std::unique_ptr<client_certificates::CertificateProvisioningService>
 CreateBrowserCertificateProvisioningService(
     PrefService* local_state,
@@ -105,6 +91,5 @@ CreateBrowserCertificateProvisioningService(
               enterprise_attestation::DMServerClient::Create(
                   device_management_service, std::move(url_loader_factory)))));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 }  // namespace client_certificates

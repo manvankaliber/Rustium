@@ -29,9 +29,6 @@ const experimentalFeaturesData: ExperimentalFeaturesData = {
   'needsRestart': false,
   'showBetaChannelPromotion': false,
   'showDevChannelPromotion': false,
-  // <if expr="is_chromeos">
-  'showOwnerWarning': false,
-  // </if>
 };
 const mockFeatures: Feature[] = [
   {

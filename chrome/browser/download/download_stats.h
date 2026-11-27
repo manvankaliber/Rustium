@@ -153,10 +153,6 @@ void RecordDownloadBubbleDragInfo(DownloadDragInfo drag_info);
 
 void RecordDownloadStartPerProfileType(Profile* profile);
 
-#if BUILDFLAG(IS_ANDROID)
-// Records whether the download dialog is shown to the user.
-void RecordDownloadPromptStatus(DownloadPromptStatus status);
-#endif  // BUILDFLAG(IS_ANDROID)
 
 enum class DownloadUiContextMenuAction {
   // Drop down button for download UI context menu is visible

@@ -30,10 +30,8 @@ import {fakeMetricsPrivate} from 'chrome://webui-test/metrics_test_support.js';
 import type {MetricsTracker} from 'chrome://webui-test/metrics_test_support.js';
 import type {TestMock} from 'chrome://webui-test/test_mock.js';
 import {eventToPromise, microtasksFinished} from 'chrome://webui-test/test_util.js';
-// <if expr="not is_android">
 import {getTrustedHtml} from 'chrome://webui-test/trusted_html.js';
 
-// </if>
 import {installMock, MockInputState, simulateUserTextInput} from './composebox_test_utils.js';
 import type {TestComposeboxMixinElement} from './test_composebox_mixin.js';
 
@@ -89,12 +87,10 @@ suite('ComposeboxMixinTest', () => {
     searchboxHandler = installMock(
         SearchboxPageHandlerRemote,
         mock => ComposeboxProxyImpl.getInstance().searchboxHandler = mock);
-    // <if expr="not is_android">
     searchboxHandler.setResultMapperFor(
         'getSmartTabSharingActive', () => Promise.resolve({active: false}));
     searchboxHandler.setResultMapperFor(
         'resetSmartTabSharing', () => Promise.resolve({active: false}));
-    // </if>
     searchboxHandler.setPromiseResolveFor('getInputState', {
       state: new MockInputState(),
     });
@@ -1358,9 +1354,7 @@ suite('ComposeboxMixinTest', () => {
       }],
       mode: 0,
       model: 0,
-      // <if expr="not is_android">
       smartTabSharingActive: false,
-      // </if>
     };
     await microtasksFinished();
     assertTrue(element.attachedContext.has(token));
@@ -1431,9 +1425,7 @@ suite('ComposeboxMixinTest', () => {
           files: [{file: mockFile}],
           mode: ToolMode.kDeepSearch,
           model: ModelMode.kGeminiRegular,
-          // <if expr="not is_android">
           smartTabSharingActive: false,
-          // </if>
         };
         await searchboxHandler.whenCalled('addFileContext');
         await element.updateComplete;
@@ -1487,9 +1479,7 @@ suite('ComposeboxMixinTest', () => {
           files: [],
           mode: ToolMode.kImageGen,
           model: ModelMode.kUnspecified,
-          // <if expr="not is_android">
           smartTabSharingActive: false,
-          // </if>
         };
         await microtasksFinished();
 
@@ -1516,9 +1506,7 @@ suite('ComposeboxMixinTest', () => {
           files: [{token, fileInfo}],
           mode: ToolMode.kUnspecified,
           model: ModelMode.kUnspecified,
-          // <if expr="not is_android">
           smartTabSharingActive: false,
-          // </if>
         };
         await element.updateComplete;
         await microtasksFinished();
@@ -1846,9 +1834,7 @@ suite('ComposeboxMixinTest', () => {
           files: [],
           mode: ToolMode.kUnspecified,
           model: ModelMode.kUnspecified,
-          // <if expr="not is_android">
           smartTabSharingActive: false,
-          // </if>
         };
         await element.updateComplete;
         await microtasksFinished();
@@ -1874,9 +1860,7 @@ suite('ComposeboxMixinTest', () => {
       mode: ToolMode.kUnspecified,
       model: ModelMode.kUnspecified,
       enterAimMode: true,
-      // <if expr="not is_android">
       smartTabSharingActive: false,
-      // </if>
     });
     assertEquals(
         ModelMode.kGeminiRegular,
@@ -2060,7 +2044,6 @@ suite('ComposeboxMixinTest', () => {
     assertFalse((await whenCloseComposebox).detail.afterSubmit);
   });
 
-  // <if expr="not is_android">
   test('STS reset on dismiss', async () => {
     // Enable STS.
     element.smartTabSharingVisible = true;
@@ -2090,7 +2073,6 @@ suite('ComposeboxMixinTest', () => {
     assertEquals(0, searchboxHandler.getCallCount('resetSmartTabSharing'));
     assertTrue(element.smartTabSharingActive);
   });
-  // </if>
 
   test(
       'esc clears input instead of closing when closeOnEscape is false and has content',
@@ -2651,7 +2633,6 @@ suite('ComposeboxMixinTest', () => {
     assertTrue(clicked);
   });
 
-  // <if expr="not is_android">
   test(
       'connectedCallback calls getSmartTabSharingActive when' +
           ' smartTabSharingVisible pre-set to true',
@@ -2913,7 +2894,6 @@ suite('ComposeboxMixinTest', () => {
             searchboxHandler.getArgs('setActiveModelMode')[0]);
       });
 
-  // <if expr="not is_android">
   test(
       'resetSession resets smart tab sharing and adopts the browser value',
       async () => {
@@ -3004,7 +2984,6 @@ suite('ComposeboxMixinTest', () => {
         // The stale reset reply is ignored.
         assertTrue(element.smartTabSharingActive);
       });
-  // </if>
 
   test(
       'hasTabs returns true when tab files are present and tabFaviconChipsToCoinsEnabled is true',
@@ -3041,7 +3020,6 @@ suite('ComposeboxMixinTest', () => {
         element.smartTabSharingActive = false;
         assertFalse(element.hasTabs());
       });
-  // </if>
 
   test(
       'ComposeboxInputModel correctly computes tabs, files, and query state',

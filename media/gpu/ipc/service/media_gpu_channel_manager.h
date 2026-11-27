@@ -14,9 +14,7 @@
 #include "base/memory/weak_ptr.h"
 #include "base/unguessable_token.h"
 #include "build/build_config.h"
-#include "media/base/android_overlay_mojo_factory.h"
 #include "media/video/video_decode_accelerator.h"
-#include "third_party/abseil-cpp/absl/container/flat_hash_map.h"
 
 namespace gpu {
 class GpuChannel;
@@ -25,8 +23,6 @@ class SharedContextState;
 }
 
 namespace media {
-
-class MediaGpuChannel;
 
 class MediaGpuChannelManager final {
  public:
@@ -40,10 +36,6 @@ class MediaGpuChannelManager final {
   void RemoveChannel(int32_t client_id);
   void DestroyAllChannels();
 
-  void SetOverlayFactory(AndroidOverlayMojoFactoryCB overlay_factory_cb);
-  AndroidOverlayMojoFactoryCB GetOverlayFactory();
-
-  // TODO(sandersd): Should we expose the MediaGpuChannel instead?
   gpu::GpuChannel* LookupChannel(const base::UnguessableToken& channel_token);
 
   scoped_refptr<gpu::SharedContextState> GetSharedContextState();
@@ -54,11 +46,8 @@ class MediaGpuChannelManager final {
 
  private:
   const raw_ptr<gpu::GpuChannelManager> channel_manager_;
-  absl::flat_hash_map<int32_t, std::unique_ptr<MediaGpuChannel>>
-      media_gpu_channels_;
   std::map<base::UnguessableToken, int32_t> token_to_channel_;
   std::map<int32_t, base::UnguessableToken> channel_to_token_;
-  AndroidOverlayMojoFactoryCB overlay_factory_cb_;
   base::WeakPtrFactory<MediaGpuChannelManager> weak_ptr_factory_{this};
 };
 

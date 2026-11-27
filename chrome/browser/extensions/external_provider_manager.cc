@@ -53,9 +53,6 @@
 #include "chrome/browser/extensions/policy_dse_ntp_override_metrics_reporter.h"
 #endif
 
-#if BUILDFLAG(IS_CHROMEOS)
-#include "chrome/browser/ash/extensions/install_limiter.h"
-#endif
 
 static_assert(BUILDFLAG(ENABLE_EXTENSIONS_CORE));
 
@@ -141,12 +138,6 @@ void ExternalProviderManager::OnAllExternalProvidersReady() {
   CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M161);
 
   Profile* profile = Profile::FromBrowserContext(context_.get());
-#if BUILDFLAG(IS_CHROMEOS)
-  auto* install_limiter = InstallLimiter::Get(profile);
-  if (install_limiter) {
-    install_limiter->OnAllExternalProvidersReady();
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // Install any pending extensions.
   ExtensionUpdater* updater = ExtensionUpdater::Get(profile);
@@ -285,12 +276,6 @@ bool ExternalProviderManager::OnExternalExtensionFileFound(
     return false;
   }
 
-#if BUILDFLAG(IS_CHROMEOS)
-  if (extension_misc::IsDemoModeChromeApp(info.extension_id)) {
-    pending_extension_manager_->Remove(info.extension_id);
-    return true;
-  }
-#endif  // BUILDFLAG(IS_CHROMEOS)
 
   // no client (silent install)
   scoped_refptr<CrxInstaller> installer(CrxInstaller::CreateSilent(context_));
@@ -308,17 +293,7 @@ bool ExternalProviderManager::OnExternalExtensionFileFound(
       info.path, info.crx_location == mojom::ManifestLocation::kExternalPolicy
                      ? GetPolicyVerifierFormat()
                      : GetExternalVerifierFormat());
-#if BUILDFLAG(IS_CHROMEOS)
-  auto* install_limiter =
-      InstallLimiter::Get(Profile::FromBrowserContext(context_.get()));
-  if (install_limiter) {
-    install_limiter->Add(installer, file_info);
-  } else {
-    installer->InstallCrxFile(file_info);
-  }
-#else
   installer->InstallCrxFile(file_info);
-#endif
 
   // Depending on the source, a new external extension might not need a user
   // notification on installation. For such extensions, mark them acknowledged

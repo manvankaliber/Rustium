@@ -25,7 +25,6 @@
 #include "chrome/browser/tab_list/tab_list_interface.h"
 #include "chrome/browser/ui/browser_element_identifiers.h"
 #include "chrome/browser/ui/browser_window/public/browser_window_interface.h"
-#include "chrome/browser/ui/lens/lens_search_controller.h"
 #include "chrome/browser/ui/views/infobars/infobar_container_view.h"
 #include "chrome/browser/ui/webui/webui_embedding_context.h"
 #include "chrome/common/webui_url_constants.h"
@@ -474,20 +473,6 @@ void ContextualTasksWebView::DidFinishNavigation(
   UpdateToolbarStateForUrl(navigation_handle->GetURL(), ui_service, toolbar_ui);
   toolbar_ui->MaybeTriggerPinningPromo();
 
-  if (ui_service) {
-    const GURL& previous_url =
-        navigation_handle->GetPreviousPrimaryMainFrameURL();
-    const bool was_on_srp = ui_service->IsSearchResultsUrl(previous_url) &&
-                            !ui_service->IsAiUrl(previous_url);
-    if (was_on_srp && ui_service->IsAiUrl(navigation_handle->GetURL())) {
-      if (auto* tab = browser_window_->GetActiveTabInterface()) {
-        if (auto* controller = LensSearchController::From(tab)) {
-          controller->CloseLensAsync(lens::LensOverlayDismissalSource::
-                                         kContextualTasksSrpToAimTransition);
-        }
-      }
-    }
-  }
 }
 
 void ContextualTasksWebView::DidFirstVisuallyNonEmptyPaint() {

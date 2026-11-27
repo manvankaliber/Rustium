@@ -13,7 +13,6 @@
 #include "base/metrics/user_metrics_action.h"
 #include "base/time/time.h"
 #include "chrome/app/vector_icons/vector_icons.h"
-#include "chrome/browser/glic/browser_ui/glic_vector_icon_manager.h"
 #include "chrome/browser/indigo/resources/grit/indigo_strings.h"
 #include "chrome/browser/ui/views/controls/hover_button.h"
 #include "components/strings/grit/components_strings.h"
@@ -186,11 +185,6 @@ class IndigoSparkButton : public views::ImageButton {
         interaction_changed_callback_(std::move(interaction_changed_callback)) {
     SetProperty(views::kElementIdentifierKey,
                 IndigoToolbar::kSparkIconElementId);
-    SetImageModel(views::Button::STATE_NORMAL,
-                  ui::ImageModel::FromVectorIcon(
-                      glic::GlicVectorIconManager::GetVectorIcon(
-                          IDR_GLIC_BUTTON_VECTOR_ICON),
-                      ui::kColorSysOnSurface, kIconSize));
     SetTooltipText(l10n_util::GetStringUTF16(IDS_INDIGO_TOOLBAR_EXPAND));
     SetFocusBehavior(FocusBehavior::ACCESSIBLE_ONLY);
     SetImageHorizontalAlignment(ImageButton::ALIGN_CENTER);

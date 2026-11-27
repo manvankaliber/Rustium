@@ -57,7 +57,6 @@ source_set("browser_tests") {
     "//components/feature_engagement/test:test_support",
     "//components/user_education/common",
     "//components/user_education/test",
-    "//components/user_manager",
     "//testing/gmock",
     "//testing/gtest",
     "//ui/base/interaction:test_support",

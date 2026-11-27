@@ -12,55 +12,7 @@ if (is_win) {
   import("//build/config/win/visual_studio_version.gni")
 }
 
-# Breakpad executables are only built with the system allocator toolchains,
-# because when built with PartitionAlloc-Everywhere enabled, we see that they
-# OOM and crash: https://crbug.com/345514993.
-#
-# IMPORTANT: The executables here may almost all be built for the *host*
-# machine, not the target machine. However they are still built into the
-# root_build_dir where normally you'd find the outputs of the default_toolchain
-# which are meant to run on the *target* machine. This is quite abnormal, but
-# our GN dependencies and test scripts expect the binary to be in the
-# root_build_dir, and expect to run it on the host machine any time the tests
-# are run in a VM or on a device (such as IOS, Android, and ChromeOS). In other
-# cases, where the test launcher is the same as the target (such as any desktop
-# platform), we expect to run it on the target machine.
-#
-# As such, if the executables are built for the default toolchain, they will be
-# built with the host or the default toolchain's settings depending on if we
-# expect the tests to be launched from the target machine or from a host
-# machine. Then they are copied up to the `root_out_dir` of the
-# `default_toolchain.
-#
-# TODO(danakj): There is no support for building these on host A, launching
-# tests on host B, and running tests on target C, where A and B are different
-# machine types. This may become a problem on iOS for blink_web_tests, as on iOS
-# we may build on x86, upload/launch tests from arm64, and run tests on iOS
-# device. In that case, the host_toolchain is x86-mac, the default_toolchain
-# arm64-ios. But there's a third arm64-mac toolchain which
-# _tests_launcher_toolchain should point at, but it's not clear what that is
-# called in GN. It's not the default or the host toolchain. One possibility to
-# support this would be to make the host_system_allocator_toolchain build a
-# multi architecture binary that supports both arm64 and x64 and treat the host
-# as the test-launcher machine for iOS.
-#
-# IMPORTANT ALSO: symupload is different and special. This particular binary is
-# run by official build bots after compiling. It is always run on the host
-# machine, not the test-launcher machine. The official bots build and run
-# `symupload` in the default toolchain, so that binary must redirect from the
-# default toolchain to the *host* and not to the test laucher.
-#
-# TODO(danakj): It would be nice to move the host-targeting `symupload` to a
-# different directory that still remains fixed. Maybe something like
-# `out/Release/host/symupload`. But that will require:
-# - building it into both places temporarily
-# - updating a bunch of scripts in internal repositories.
-# - remove it from the default toolchain's outdir.
-if (is_ios || is_android || is_chromeos) {
-  _tests_launcher_toolchain = host_system_allocator_toolchain
-  _tests_launcher_toolchain_has_exe_suffix = host_os == "win"
-  _include_google_converter = true
-} else if (is_win && (current_cpu == "arm" || current_cpu == "arm64")) {
+if (is_win && (current_cpu == "arm" || current_cpu == "arm64")) {
   # In a build for Windows-ARM, we choose between building things for the host
   # machine, or for the target machine (Windows ARM64). If the host machine is
   # Linux, then there is a problem with each of these:
@@ -136,9 +88,7 @@ config("tools_config") {
     "breakpad/src",
     "breakpad/src/third_party",
   ]
-  if (is_android) {
-    defines = [ "__ANDROID__" ]
-  }
+
   if (is_clang) {
     cflags = [ "-Wno-tautological-constant-out-of-range-compare" ]
   }
@@ -151,19 +101,10 @@ config("internal_config") {
     # This is needed for GTMLogger to work correctly.
     defines += [ "DEBUG" ]
   }
-  if (is_android) {
-    defines += [ "__ANDROID__" ]
-  }
 }
 
 config("client_config") {
   include_dirs = [ "breakpad/src" ]
-  if (is_android) {
-    include_dirs += [ "breakpad/src/common/android/include" ]
-  }
-  if (is_chromeos) {
-    defines = [ "__CHROMEOS__" ]
-  }
 }
 
 config("handler_config") {
@@ -291,7 +232,7 @@ if (!is_win) {
         "breakpad/src/third_party/libdisasm/x86_operand_list.c",
         "breakpad/src/third_party/libdisasm/x86_operand_list.h",
       ]
-      if (is_linux || is_chromeos) {
+      if (is_linux) {
         sources += [
           "breakpad/src/common/linux/scoped_pipe.cc",
           "breakpad/src/common/linux/scoped_pipe.h",
@@ -336,7 +277,7 @@ if (!is_win) {
         "breakpad/src/processor/symbolic_constants_win.h",
       ]
 
-      if (is_linux || is_chromeos) {
+      if (is_linux) {
         sources += [
           "breakpad/src/processor/disassembler_objdump.cc",
           "breakpad/src/processor/disassembler_objdump.h",
@@ -381,7 +322,7 @@ if (!is_win) {
         "breakpad/src/processor/symbolic_constants_win.h",
       ]
 
-      if (is_linux || is_chromeos) {
+      if (is_linux) {
         sources += [
           "breakpad/src/processor/disassembler_objdump.cc",
           "breakpad/src/processor/disassembler_objdump.h",
@@ -560,25 +501,6 @@ if (is_mac) {
 
       deps = [ ":common" ]
     }
-
-    # Include dependencies for Android
-    if (target_os == "android") {
-      copy_exe("generate_test_dump") {
-        testonly = true
-        has_exe_suffix = _tests_launcher_toolchain_has_exe_suffix
-        target = ":$target_name($_tests_launcher_toolchain)"
-      }
-
-      copy_exe("minidump-2-core") {
-        has_exe_suffix = _tests_launcher_toolchain_has_exe_suffix
-        target = ":$target_name($_tests_launcher_toolchain)"
-      }
-
-      copy_exe("core-2-minidump") {
-        has_exe_suffix = _tests_launcher_toolchain_has_exe_suffix
-        target = ":$target_name($_tests_launcher_toolchain)"
-      }
-    }
   } else if (current_toolchain == default_toolchain) {
     # The default toolchain builds the system-allocator binaries, which are
     # placed in the output dir of the default toolchain.
@@ -645,21 +567,7 @@ if (is_mac) {
   }
 }
 
-if (is_ios) {
-  if (current_toolchain == default_toolchain) {
-    copy_exe("dump_syms") {
-      has_exe_suffix = _tests_launcher_toolchain_has_exe_suffix
-      target = ":$target_name($_tests_launcher_toolchain)"
-    }
-
-    copy_exe("symupload") {
-      has_exe_suffix = _symupload_toolchain_has_exe_suffix
-      target = ":$target_name($_symupload_toolchain)"
-    }
-  }
-}
-
-if (is_linux || is_chromeos || is_android) {
+if (is_linux) {
   if (current_toolchain == host_system_allocator_toolchain ||
       current_toolchain == default_system_allocator_toolchain) {
     executable("symupload") {
@@ -844,12 +752,6 @@ if (is_linux || is_chromeos || is_android) {
     configs += [ "//build/config/compiler:no_chromium_code" ]
     public_configs = [ ":client_config" ]
 
-    if (current_cpu == "arm" && is_chromeos) {
-      # Avoid running out of registers in
-      # linux_syscall_support.h:sys_clone()'s inline assembly.
-      cflags = [ "-marm" ]
-    }
-
     libs = [ "dl" ]
 
     include_dirs = [
@@ -952,12 +854,6 @@ if (is_linux || is_chromeos || is_android) {
       cflags = [ "-Wno-unused-value" ]
     }
 
-    if (is_android) {
-      use_raw_android_executable = true
-      libs = [ "log" ]
-      extra_dist_files = [ "$root_out_dir/linux_dumper_unittest_helper" ]
-    }
-
     # Add the breakpad unittest config at the end to override all configs.
     configs += [ ":breakpad_unittest_config" ]
   }
@@ -988,10 +884,6 @@ if (is_linux || is_chromeos || is_android) {
       ]
 
       deps = [ ":client" ]
-
-      if (is_android) {
-        libs = [ "log" ]
-      }
     }
 
     executable("minidump-2-core") {
@@ -1221,78 +1113,6 @@ if (is_win) {
     copy_exe("dump_syms") {
       has_exe_suffix = _tests_launcher_toolchain_has_exe_suffix
       target = ":$target_name($_tests_launcher_toolchain)"
-    }
-  }
-}
-
-if (is_ios) {
-  static_library("client") {
-    sources = [
-      "breakpad/src/client/ios/Breakpad.h",
-      "breakpad/src/client/ios/Breakpad.mm",
-      "breakpad/src/client/ios/BreakpadController.h",
-      "breakpad/src/client/ios/BreakpadController.mm",
-      "breakpad/src/client/ios/handler/ios_exception_minidump_generator.h",
-      "breakpad/src/client/ios/handler/ios_exception_minidump_generator.mm",
-      "breakpad/src/client/mac/crash_generation/ConfigFile.h",
-      "breakpad/src/client/mac/crash_generation/ConfigFile.mm",
-      "breakpad/src/client/mac/handler/breakpad_nlist_64.cc",
-      "breakpad/src/client/mac/handler/breakpad_nlist_64.h",
-      "breakpad/src/client/mac/handler/dynamic_images.cc",
-      "breakpad/src/client/mac/handler/dynamic_images.h",
-      "breakpad/src/client/mac/handler/exception_handler.cc",
-      "breakpad/src/client/mac/handler/exception_handler.h",
-      "breakpad/src/client/mac/handler/minidump_generator.cc",
-      "breakpad/src/client/mac/handler/minidump_generator.h",
-      "breakpad/src/client/mac/handler/protected_memory_allocator.cc",
-      "breakpad/src/client/mac/handler/protected_memory_allocator.h",
-      "breakpad/src/client/mac/sender/uploader.h",
-      "breakpad/src/client/mac/sender/uploader.mm",
-      "breakpad/src/client/minidump_file_writer-inl.h",
-      "breakpad/src/client/minidump_file_writer.cc",
-      "breakpad/src/client/minidump_file_writer.h",
-      "breakpad/src/common/convert_UTF.cc",
-      "breakpad/src/common/convert_UTF.h",
-      "breakpad/src/common/long_string_dictionary.cc",
-      "breakpad/src/common/mac/HTTPMultipartUpload.m",
-      "breakpad/src/common/mac/HTTPRequest.m",
-      "breakpad/src/common/mac/arch_utilities.cc",
-      "breakpad/src/common/mac/arch_utilities.h",
-      "breakpad/src/common/mac/encoding_util.m",
-      "breakpad/src/common/mac/file_id.cc",
-      "breakpad/src/common/mac/file_id.h",
-      "breakpad/src/common/mac/macho_id.cc",
-      "breakpad/src/common/mac/macho_id.h",
-      "breakpad/src/common/mac/macho_utilities.cc",
-      "breakpad/src/common/mac/macho_utilities.h",
-      "breakpad/src/common/mac/macho_walker.cc",
-      "breakpad/src/common/mac/macho_walker.h",
-      "breakpad/src/common/mac/string_utilities.cc",
-      "breakpad/src/common/mac/string_utilities.h",
-      "breakpad/src/common/md5.cc",
-      "breakpad/src/common/md5.h",
-      "breakpad/src/common/simple_string_dictionary.cc",
-      "breakpad/src/common/simple_string_dictionary.h",
-      "breakpad/src/common/string_conversion.cc",
-      "breakpad/src/common/string_conversion.h",
-      "breakpad/src/google_breakpad/common/minidump_format.h",
-    ]
-
-    include_dirs = [
-      "breakpad/src",
-      "breakpad/src/client/mac/Framework",
-      "breakpad/src/common/mac",
-    ]
-
-    public_configs = [ ":client_config" ]
-
-    # Do not compile with ARC because Breakpad code is not compatible with being
-    # compiled with ARC.
-    configs -= [ "//build/config/compiler:enable_arc" ]
-
-    if (is_clang) {
-      # See https://crbug.com/google-breakpad/675.
-      cflags = [ "-Wno-deprecated-declarations" ]
     }
   }
 }

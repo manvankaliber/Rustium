@@ -16,9 +16,6 @@
 #include "base/strings/string_util.h"
 #include "build/build_config.h"
 #include "components/autofill/core/common/html_field_types.h"
-#if BUILDFLAG(IS_ANDROID)
-#include "components/autofill/core/common/autofill_payments_features.h"
-#endif
 
 namespace autofill {
 
@@ -301,11 +298,7 @@ consteval bool IsFillableFieldTypeImpl(FieldType field_type) {
       return true;
 
     case ONE_TIME_CODE:
-#if BUILDFLAG(IS_ANDROID)
-      return true;
-#else
       return false;  // Feature is not applicable on other platforms
-#endif
 
     // Autofill AI types.
     case DRIVERS_LICENSE_EXPIRATION_DATE:

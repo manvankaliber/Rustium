@@ -81,7 +81,6 @@
 #include "components/omnibox/browser/search_provider.h"
 #include "components/omnibox/browser/search_scoring_signals_annotator.h"
 #include "components/omnibox/browser/shortcuts_provider.h"
-#include "components/omnibox/browser/tab_group_provider.h"
 #include "components/omnibox/browser/unscoped_extension_provider.h"
 #include "components/omnibox/browser/url_scoring_signals_annotator.h"
 #include "components/omnibox/browser/verbatim_match.h"
@@ -109,12 +108,10 @@
 #include "url/url_canon.h"
 #include "url/url_util.h"
 
-#if !BUILDFLAG(IS_IOS)
 #include "components/omnibox/browser/actions/history_clusters_action.h"
 #include "components/omnibox/browser/geolocation_header_service.h"
 #include "components/omnibox/browser/history_cluster_provider.h"
 #include "components/open_from_clipboard/clipboard_recent_content_generic.h"
-#endif
 
 #include "components/omnibox/browser/autocomplete_scoring_model_service.h"
 
@@ -125,9 +122,8 @@ using ProviderType = AutocompleteProvider::Type;
 using OEP = metrics::OmniboxEventProto;
 
 constexpr bool kIsDesktop =
-    !(BUILDFLAG(IS_IOS) ||
-      (BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_DESKTOP_ANDROID)));
-constexpr bool is_android = !!BUILDFLAG(IS_ANDROID);
+    !(false ||
+      (false && !false));
 
 void RecordMlScoreCoverage(size_t matches_with_non_null_scores,
                            size_t total_scored_matches) {
@@ -562,7 +558,6 @@ AutocompleteController::AutocompleteController(
   InitializeSyncProviders(config_.provider_types);
 
   // TODO(manukh): Move this to `InitializeAsyncProviders()`.
-#if !BUILDFLAG(IS_IOS)
   // HistoryClusters is not enabled on iOS.
   if (config_.provider_types &
           static_cast<int>(
@@ -572,7 +567,6 @@ AutocompleteController::AutocompleteController(
         provider_client_.get(), this, search_provider_, history_url_provider_,
         history_quick_provider_));
   }
-#endif
 
   // Create URL scoring signal annotators.
   if (OmniboxFieldTrial::IsPopulatingUrlScoringSignalsEnabled() &&
@@ -957,13 +951,11 @@ void AutocompleteController::ResetSession() {
 
 void AutocompleteController::MaybeProcessInlineLocationSuggestionMatch(
     const AutocompleteMatch& match) {
-#if !BUILDFLAG(IS_IOS)
   if (auto* geolocation_header_service =
           provider_client_->GetGeolocationHeaderService()) {
     geolocation_header_service->MaybeRecordInlineLocationSuggestionClicked(
         match);
   }
-#endif
 
   if (match.subtypes.contains(omnibox::SUBTYPE_LOCATION_SUGGEST_TRIGGER) &&
       match.extra_headers.contains(kXGeoHeader)) {
@@ -1029,19 +1021,6 @@ void AutocompleteController::UpdateSearchTermsArgsWithAdditionalSearchboxStats(
   // can stop logging this deprecated field.
   search_terms_args.searchbox_stats.set_experiment_stats(experiment_stats);
 
-#if BUILDFLAG(IS_IOS)
-  // Append the omnibox position when it's set to experiment_stats_v2.
-  if (steady_state_omnibox_position_ != OEP::UNKNOWN_POSITION) {
-    const auto omnibox_position_stat = GetOmniboxPositionExperimentStatsV2();
-    auto* reported_experiment_stats_v2 =
-        search_terms_args.searchbox_stats.add_experiment_stats_v2();
-    reported_experiment_stats_v2->set_type_int(
-        omnibox_position_stat.type_int());
-    reported_experiment_stats_v2->set_int_value(
-        omnibox_position_stat.int_value());
-  }
-#endif
-
   if (smart_compose_stats_.has_value()) {
     *search_terms_args.searchbox_stats.mutable_smart_compose_stats() =
         smart_compose_stats_.value();
@@ -1076,9 +1055,6 @@ void AutocompleteController::SetMatchDestinationURL(
   if (url.is_valid()) {
     match->destination_url = std::move(url);
   }
-#if BUILDFLAG(IS_ANDROID)
-  match->UpdateJavaNavigationDetails();
-#endif
 }
 
 AutocompleteMatch AutocompleteController::ComputeAlternativeNavMatch(
@@ -1176,12 +1152,10 @@ bool AutocompleteController::ShouldRunProvider(
            provider->type() == AutocompleteProvider::Type::kVerbatimMatch;
   }
 
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   // Should only be run for the composebox.
   if (provider->type() == AutocompleteProvider::Type::kVerbatimMatch) {
     return false;
   }
-#endif
 
   // For contextual realbox queries, we only want to run a subset of providers
   // to filter out irrelevant suggestions (like history suggestions).
@@ -1190,18 +1164,6 @@ bool AutocompleteController::ShouldRunProvider(
     return provider->type() == AutocompleteProvider::Type::kZeroSuggest ||
            provider->type() == AutocompleteProvider::Type::kSearch;
   }
-
-#if BUILDFLAG(IS_ANDROID)
-  if (omnibox::IsAndroidHubOrTabSearch(input_.current_page_classification())) {
-    return provider->type() == AutocompleteProvider::Type::kSearch ||
-           provider->type() == AutocompleteProvider::Type::kOpenTab ||
-           provider->type() == AutocompleteProvider::Type::kBookmark ||
-           provider->type() == AutocompleteProvider::Type::kHistoryQuick ||
-           (provider->type() ==
-                AutocompleteProvider::Type::kRecentlyClosedTabs &&
-            omnibox::IsAndroidTabSearch(input_.current_page_classification()));
-  }
-#endif
 
   // Always let the `ContextualSearchProvider` generate the toolbelt match,
   // even when in keyword modes. Note this comes after above checks
@@ -1464,7 +1426,6 @@ void AutocompleteController::InitializeSyncProviders(int provider_types) {
   }
   if (provider_types &
       static_cast<int>(AutocompleteProvider::Type::kClipboard)) {
-#if !BUILDFLAG(IS_IOS)
     // On iOS, a global ClipboardRecentContent should've been created by now
     // (if enabled).  If none has been created (e.g., we're on a different
     // platform), use the generic implementation, which AutocompleteController
@@ -1475,7 +1436,6 @@ void AutocompleteController::InitializeSyncProviders(int provider_types) {
       ClipboardRecentContent::SetInstance(
           std::make_unique<ClipboardRecentContentGeneric>());
     }
-#endif
     // ClipboardRecentContent can be null in iOS tests.  For non-iOS, we
     // create a ClipboardRecentContent as above (for both Chrome and tests).
     if (ClipboardRecentContent::GetInstance()) {
@@ -1521,13 +1481,6 @@ void AutocompleteController::InitializeSyncProviders(int provider_types) {
     providers_.push_back(
         base::MakeRefCounted<CrossDeviceTabProvider>(provider_client_.get()));
   }
-#if BUILDFLAG(IS_ANDROID)
-  if (provider_types &
-      static_cast<int>(AutocompleteProvider::Type::kTabGroup)) {
-    providers_.push_back(
-        base::MakeRefCounted<TabGroupProvider>(provider_client_.get()));
-  }
-#endif
 }
 
 void AutocompleteController::UpdateResult(UpdateType update_type,
@@ -1840,7 +1793,6 @@ void AutocompleteController::AttachActions() {
     return;
   }
 
-#if !BUILDFLAG(IS_IOS)
   if (omnibox_feature_configs::ContextualSearch::Get()
           .contextual_zero_suggest_lens_fulfillment &&
       input_.IsZeroSuggest()) {
@@ -1872,16 +1824,14 @@ void AutocompleteController::AttachActions() {
       return;
     }
   }
-#endif  // !BUILDFLAG(IS_IOS)
 
   // TabMatcher should run for ZPS for the Hub since open tab suggestions are
   // shown there.
-  if (!input_.IsZeroSuggest() ||
-      omnibox::IsAndroidHubOrTabSearch(input_.current_page_classification())) {
+  if ((!(input_.IsZeroSuggest()))) {
     // Do not look for matching tabs on Android unless we collected all the
     // suggestions. Tab matching is an expensive process with multiple JNI calls
     // involved. Run it only when all the suggestions are collected.
-    bool perform_tab_match = is_android ? done() : true;
+    bool perform_tab_match = true;
     if (perform_tab_match) {
       internal_result_.ConvertOpenTabMatches(provider_client_.get(), &input_);
     }
@@ -1890,15 +1840,8 @@ void AutocompleteController::AttachActions() {
   }
 
   internal_result_.TrimOmniboxActions(input_.IsZeroSuggest());
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_IOS)
   internal_result_.SplitActionsToSuggestions();
-#endif
 
-#if BUILDFLAG(IS_ANDROID)
-  if (base::FeatureList::IsEnabled(omnibox::kOmniboxSiteSearch)) {
-    internal_result_.AttachSiteSearchActionToMatches(template_url_service_);
-  }
-#endif  // BUILDFLAG(IS_ANDROID)
 }
 
 void AutocompleteController::UpdateAssociatedKeywords(
@@ -2007,23 +1950,12 @@ void AutocompleteController::UpdateKeywordDescriptions(
     return;
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-  // Do not include search engine name for the DSE.
-  auto* default_engine = template_url_service_->GetDefaultSearchProvider();
-#endif
-
   std::u16string last_keyword;
   for (auto i(result->begin()); i != result->end(); ++i) {
     if (AutocompleteMatch::IsSearchType(i->type)) {
       if (i->HasCustomDescription() || IsUnscopedExtensionMatch(*i)) {
         continue;
       }
-
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
-      if (default_engine && i->keyword == default_engine->keyword()) {
-        continue;
-      }
-#endif
 
       i->description.clear();
       i->description_class.clear();
@@ -2446,13 +2378,6 @@ size_t AutocompleteController::InjectAdHocMatch(AutocompleteMatch match) {
   RequestNotifyChanged(false, false);
   return index;
 }
-
-#if BUILDFLAG(IS_IOS)
-void AutocompleteController::SetSteadyStateOmniboxPosition(
-    OEP::OmniboxPosition position) {
-  steady_state_omnibox_position_ = position;
-}
-#endif
 
 const omnibox::metrics::ChromeSearchboxStats::ExperimentStatsV2
 AutocompleteController::GetOmniboxPositionExperimentStatsV2() const {

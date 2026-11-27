@@ -187,7 +187,6 @@ IN_PROC_BROWSER_TEST_F(FooterInteractiveTest, FooterHiddenOnNonExtensionNtp) {
       WaitForHide(kNtpFooterViewElementId));
 }
 
-#if !BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_F(FooterInteractiveTest, FooterHidesInGuestProfile) {
   LoadNtpOverridingExtension();
   BrowserWindowInterface* const guest_browser = CreateGuestBrowser();
@@ -201,7 +200,6 @@ IN_PROC_BROWSER_TEST_F(FooterInteractiveTest, FooterHidesInGuestProfile) {
       // Ensure footer is not present.
       EnsureNotPresent(kNtpFooterViewElementId));
 }
-#endif  // !BUILDFLAG(IS_CHROMEOS)
 
 IN_PROC_BROWSER_TEST_F(FooterInteractiveTest, FooterHidesInIncognito) {
   LoadNtpOverridingExtension();

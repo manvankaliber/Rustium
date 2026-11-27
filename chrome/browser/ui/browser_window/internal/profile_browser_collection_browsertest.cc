@@ -16,13 +16,8 @@
 #include "testing/gtest/include/gtest/gtest.h"
 #include "ui/base/base_window.h"
 
-#if BUILDFLAG(IS_ANDROID)
-#include "chrome/browser/ui/browser_window/test/android/browser_window_android_browsertest_base.h"
-#define TestBase BrowserWindowAndroidBrowserTestBase
-#else
 #include "chrome/test/base/in_process_browser_test.h"
 #define TestBase InProcessBrowserTest
-#endif  // BUILDFLAG(IS_ANDROID)
 
 // Fixture that sets up 3 browsers in the main profile, and 2 others in separate
 // profiles (if multi-profile is enabled).
@@ -87,17 +82,11 @@ class ProfileBrowserCollectionTest
       browser = CreateBrowserWindow(
           BrowserWindowCreateParams(*profile, /*from_user_gesture=*/true));
     }
-#if !BUILDFLAG(IS_ANDROID)
     {
       BrowserEventWaiter activation_waiter(BrowserEventWaiter::Event::ACTIVATED,
                                            browser);
       browser->GetWindow()->Activate();
     }
-#else
-    // TODO(crbug.com/477251911): Activation tracking is not implemented on
-    // Android yet, so we cannot wait for the ACTIVATED event.
-    browser->GetWindow()->Activate();
-#endif
     return browser;
   }
 
@@ -120,14 +109,10 @@ class ProfileBrowserCollectionTest
 
   void CloseBrowserSynchronouslyCrossPlatform(BrowserWindowInterface* browser) {
     BrowserEventWaiter browser_closed_waiter(BrowserEventWaiter::Event::CLOSED);
-#if BUILDFLAG(IS_ANDROID)
-    browser->GetWindow()->Close();
-#else
     // TODO(crbug.com/478908209): I don't know why, but
     // `browser->GetWindow()->Close();` doesn't seem to trigger
     // GlobalBrowserCollection::OnBrowserClosed() on desktop.
     CloseBrowserSynchronously(browser);
-#endif  // BUILDFLAG(IS_ANDROID)
   }
 
  private:
@@ -140,12 +125,7 @@ class ProfileBrowserCollectionTest
 
 // TODO(crbug.com/483366391): Enable this on ChromeOS once the
 // BaseWindow::Activate() behaviour is fixed.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ForEachIteratesOverAllBrowsers \
-  DISABLED_ForEachIteratesOverAllBrowsers
-#else
 #define MAYBE_ForEachIteratesOverAllBrowsers ForEachIteratesOverAllBrowsers
-#endif  // BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(ProfileBrowserCollectionTest,
                        MAYBE_ForEachIteratesOverAllBrowsers) {
   std::vector<BrowserWindowInterface*> visited;
@@ -171,13 +151,8 @@ IN_PROC_BROWSER_TEST_P(ProfileBrowserCollectionTest,
 
 // TODO(crbug.com/483366391): Enable this on ChromeOS once the
 // BaseWindow::Activate() behaviour is fixed.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ForEachStopsWhenCallbackReturnsFalse \
-  DISABLED_ForEachStopsWhenCallbackReturnsFalse
-#else
 #define MAYBE_ForEachStopsWhenCallbackReturnsFalse \
   ForEachStopsWhenCallbackReturnsFalse
-#endif  // BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(ProfileBrowserCollectionTest,
                        MAYBE_ForEachStopsWhenCallbackReturnsFalse) {
   std::vector<BrowserWindowInterface*> visited;
@@ -199,13 +174,8 @@ IN_PROC_BROWSER_TEST_P(ProfileBrowserCollectionTest,
 
 // TODO(crbug.com/483366391): Enable this on ChromeOS once the
 // BaseWindow::Activate() behaviour is fixed.
-#if BUILDFLAG(IS_CHROMEOS)
-#define MAYBE_ForEachResilientToBrowserDestruction \
-  DISABLED_ForEachResilientToBrowserDestruction
-#else
 #define MAYBE_ForEachResilientToBrowserDestruction \
   ForEachResilientToBrowserDestruction
-#endif  // BUILDFLAG(IS_CHROMEOS)
 IN_PROC_BROWSER_TEST_P(ProfileBrowserCollectionTest,
                        MAYBE_ForEachResilientToBrowserDestruction) {
   std::vector<BrowserWindowInterface*> visited;
@@ -239,10 +209,8 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::Values(BrowserCollection::Order::kCreation
 // TODO(crbug.com/477251911): Enable this on Android once we implement
 // activation tracking in ProfileBrowserCollection for Android.
-#if !BUILDFLAG(IS_ANDROID)
                       ,
                       BrowserCollection::Order::kActivation
-#endif  // !BUILDFLAG(IS_ANDROID)
                       ),
     [](const testing::TestParamInfo<BrowserCollection::Order>& param) {
       switch (param.param) {
