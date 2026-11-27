@@ -18,6 +18,9 @@
 class GURL;
 
 namespace net {
+namespace proxy_matching_rust {
+struct RuleStorage;
+}
 
 // Interface for an individual SchemeHostPortMatcher rule.
 class NET_EXPORT SchemeHostPortMatcherRule {
@@ -44,6 +47,10 @@ class NET_EXPORT SchemeHostPortMatcherRule {
   // Returns true if |this| is an instance of
   // SchemeHostPortMatcherHostnamePatternRule.
   virtual bool IsHostnamePatternRule() const;
+
+  // Internal final parsed rules opt into direct Rust list evaluation. External
+  // virtual rules (including subclasses of public built-ins) retain dispatch.
+  virtual const proxy_matching_rust::RuleStorage* RustRuleForMatcher() const;
 
 #if !BUILDFLAG(CRONET_BUILD)
   // Cronet disables tracing and doesn't provide an implementation of
@@ -74,6 +81,8 @@ class NET_EXPORT SchemeHostPortMatcherHostnamePatternRule
   SchemeHostPortMatcherHostnamePatternRule& operator=(
       const SchemeHostPortMatcherHostnamePatternRule&) = delete;
 
+  ~SchemeHostPortMatcherHostnamePatternRule() override;
+
   // SchemeHostPortMatcherRule implementation:
   SchemeHostPortMatcherResult Evaluate(const GURL& url) const override;
   std::string ToString() const override;
@@ -96,10 +105,10 @@ class NET_EXPORT SchemeHostPortMatcherHostnamePatternRule
   size_t EstimateMemoryUsage() const override;
 #endif  // !BUILDFLAG(CRONET_BUILD)
 
- private:
-  const std::string optional_scheme_;
-  const std::string hostname_pattern_;
-  const int optional_port_;
+ protected:
+  explicit SchemeHostPortMatcherHostnamePatternRule(
+      std::unique_ptr<proxy_matching_rust::RuleStorage> storage);
+  const std::unique_ptr<proxy_matching_rust::RuleStorage> storage_;
 };
 
 // Rule that matches URLs with IP address as hostname, and scheme/port
@@ -122,6 +131,8 @@ class NET_EXPORT SchemeHostPortMatcherIPHostRule
   SchemeHostPortMatcherIPHostRule& operator=(
       const SchemeHostPortMatcherIPHostRule&) = delete;
 
+  ~SchemeHostPortMatcherIPHostRule() override;
+
   // SchemeHostPortMatcherRule implementation:
   SchemeHostPortMatcherResult Evaluate(const GURL& url) const override;
   std::string ToString() const override;
@@ -136,10 +147,10 @@ class NET_EXPORT SchemeHostPortMatcherIPHostRule
   size_t EstimateMemoryUsage() const override;
 #endif  // !BUILDFLAG(CRONET_BUILD)
 
- private:
-  const std::string optional_scheme_;
-  const std::string ip_host_;
-  const int optional_port_;
+ protected:
+  explicit SchemeHostPortMatcherIPHostRule(
+      std::unique_ptr<proxy_matching_rust::RuleStorage> storage);
+  const std::unique_ptr<proxy_matching_rust::RuleStorage> storage_;
 };
 
 // Rule for matching a URL that is an IP address, if that IP address falls
@@ -162,6 +173,8 @@ class NET_EXPORT SchemeHostPortMatcherIPBlockRule
   SchemeHostPortMatcherIPBlockRule& operator=(
       const SchemeHostPortMatcherIPBlockRule&) = delete;
 
+  ~SchemeHostPortMatcherIPBlockRule() override;
+
   // SchemeHostPortMatcherRule implementation:
   SchemeHostPortMatcherResult Evaluate(const GURL& url) const override;
   std::string ToString() const override;
@@ -176,11 +189,10 @@ class NET_EXPORT SchemeHostPortMatcherIPBlockRule
   size_t EstimateMemoryUsage() const override;
 #endif  // !BUILDFLAG(CRONET_BUILD)
 
- private:
-  const std::string description_;
-  const std::string optional_scheme_;
-  const IPAddress ip_prefix_;
-  const size_t prefix_length_in_bits_;
+ protected:
+  explicit SchemeHostPortMatcherIPBlockRule(
+      std::unique_ptr<proxy_matching_rust::RuleStorage> storage);
+  const std::unique_ptr<proxy_matching_rust::RuleStorage> storage_;
 };
 
 }  // namespace net

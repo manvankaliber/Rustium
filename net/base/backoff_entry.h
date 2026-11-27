@@ -114,9 +114,6 @@ class NET_EXPORT BackoffEntry final {
   base::TimeTicks GetTimeTicksNow() const;
 
  private:
-  // Calculates when requests should again be allowed through.
-  base::TimeTicks CalculateReleaseTime() const;
-
   // Timestamp calculated by the exponential back-off algorithm at which we are
   // allowed to start sending requests again.
   base::TimeTicks exponential_backoff_release_time_;

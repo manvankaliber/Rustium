@@ -16,3 +16,9 @@ message SessionProtoDBTestProto {
   // Another field
   optional int32 b = 2;
 }
+
+// Binary payloads for the primary database in the unit tests.
+message SessionProtoDBTestContentProto {
+  optional string key = 1;
+  optional bytes content_data = 2;
+}

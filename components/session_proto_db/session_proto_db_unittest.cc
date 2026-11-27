@@ -21,16 +21,14 @@
 #include "testing/gtest/include/gtest/gtest.h"
 
 using testing::_;
-using KeyValuePair =
-    std::pair<std::string, persisted_state_db::PersistedStateContentProto>;
+using TestContentProto = session_proto_db::SessionProtoDBTestContentProto;
+using KeyValuePair = SessionProtoDB<TestContentProto>::KeyAndValue;
 
 namespace {
-persisted_state_db::PersistedStateContentProto BuildProto(
-    const char* protoKey,
-    const std::vector<uint8_t> byteArray) {
-  persisted_state_db::PersistedStateContentProto proto;
-  proto.set_key(protoKey);
-  proto.set_content_data(byteArray.data(), byteArray.size());
+TestContentProto BuildProto(const char* key, const std::vector<uint8_t>& bytes) {
+  TestContentProto proto;
+  proto.set_key(key);
+  proto.set_content_data(bytes.data(), bytes.size());
   return proto;
 }
 
@@ -45,24 +43,14 @@ session_proto_db::SessionProtoDBTestProto BuildTestProto(const char* key,
 const char kMockKeyA[] = "A_key";
 const char kMockKeyPrefixA[] = "A";
 const std::vector<uint8_t> kMockValueArrayA = {0xfa, 0x5b, 0x4c, 0x12};
-const persisted_state_db::PersistedStateContentProto kMockValueA =
-    BuildProto(kMockKeyA, kMockValueArrayA);
-const std::vector<
-    SessionProtoDB<persisted_state_db::PersistedStateContentProto>::KeyAndValue>
-    kExpectedA = {{kMockKeyA, kMockValueA}};
+const TestContentProto kMockValueA = BuildProto(kMockKeyA, kMockValueArrayA);
+const std::vector<KeyValuePair> kExpectedA = {{kMockKeyA, kMockValueA}};
 const char kMockKeyB[] = "B_key";
 const std::vector<uint8_t> kMockValueArrayB = {0x3c, 0x9f, 0x5e, 0x69};
-const persisted_state_db::PersistedStateContentProto kMockValueB =
-    BuildProto(kMockKeyB, kMockValueArrayB);
-const std::vector<
-    SessionProtoDB<persisted_state_db::PersistedStateContentProto>::KeyAndValue>
-    kExpectedB = {{kMockKeyB, kMockValueB}};
-const std::vector<
-    SessionProtoDB<persisted_state_db::PersistedStateContentProto>::KeyAndValue>
-    kExpectedAB = {{kMockKeyA, kMockValueA}, {kMockKeyB, kMockValueB}};
-const std::vector<
-    SessionProtoDB<persisted_state_db::PersistedStateContentProto>::KeyAndValue>
-    kEmptyExpected = {};
+const TestContentProto kMockValueB = BuildProto(kMockKeyB, kMockValueArrayB);
+const std::vector<KeyValuePair> kExpectedB = {{kMockKeyB, kMockValueB}};
+const std::vector<KeyValuePair> kExpectedAB = {{kMockKeyA, kMockValueA}, {kMockKeyB, kMockValueB}};
+const std::vector<KeyValuePair> kEmptyExpected = {};
 const session_proto_db::SessionProtoDBTestProto kTestProto =
     BuildTestProto(kMockKeyA, 42);
 const std::vector<
@@ -70,20 +58,16 @@ const std::vector<
     kTestProtoExpected = {{kMockKeyA, kTestProto}};
 
 const char kSPTDTab1Key[] = "1_SPTD";
-const persisted_state_db::PersistedStateContentProto kSPTDTab1Value =
-    BuildProto(kSPTDTab1Key, {0x5b, 0x2c});
+const TestContentProto kSPTDTab1Value = BuildProto(kSPTDTab1Key, {0x5b, 0x2c});
 
 const char kSPTDTab2Key[] = "2_SPTD";
-const persisted_state_db::PersistedStateContentProto kSPTDTab2Value =
-    BuildProto(kSPTDTab2Key, {0xfe, 0xab});
+const TestContentProto kSPTDTab2Value = BuildProto(kSPTDTab2Key, {0xfe, 0xab});
 
 const char kSPTDTab3Key[] = "3_SPTD";
-const persisted_state_db::PersistedStateContentProto kSPTDTab3Value =
-    BuildProto(kSPTDTab3Key, {0x0a, 0x1b});
+const TestContentProto kSPTDTab3Value = BuildProto(kSPTDTab3Key, {0x0a, 0x1b});
 
 const char kMPTDTab1Key[] = "1_MPTD";
-const persisted_state_db::PersistedStateContentProto kMPTDTab1Value =
-    BuildProto(kMPTDTab1Key, {0xaa, 0x3b});
+const TestContentProto kMPTDTab1Value = BuildProto(kMPTDTab1Key, {0xaa, 0x3b});
 
 const char kMatchingDataIdForMaintenance[] = "SPTD";
 const char kNonMatchingDataIdForMaintenance[] = "asdf";
@@ -96,10 +80,8 @@ class SessionProtoDBTest : public testing::Test {
   SessionProtoDBTest(const SessionProtoDBTest&) = delete;
   SessionProtoDBTest& operator=(const SessionProtoDBTest&) = delete;
 
-  // The following methods are specific to the database containing
-  // persisted_state_db::PersistedStateContentProto. There is one test which
-  // contains session_proto_db::SessionProtoDBTestProto to test the use case
-  // of multiple SessionProtoDB databases running at the same time.
+  // These methods use the binary-content test database. A second database
+  // with a different proto type exercises simultaneous databases.
 
   // Initialize the test database
   void InitPersistedStateDB() {
@@ -109,11 +91,12 @@ class SessionProtoDBTest : public testing::Test {
   }
 
   void InitPersistedStateDBWithoutCallback() {
-    auto storage_db = std::make_unique<leveldb_proto::test::FakeDB<
-        persisted_state_db::PersistedStateContentProto>>(&content_db_storage_);
+    auto storage_db =
+        std::make_unique<leveldb_proto::test::FakeDB<TestContentProto>>(
+            &content_db_storage_);
     content_db_ = storage_db.get();
     persisted_state_db_ = base::WrapUnique(
-        new SessionProtoDB<persisted_state_db::PersistedStateContentProto>(
+        new SessionProtoDB<TestContentProto>(
             std::move(storage_db),
             base::ThreadPool::CreateSequencedTaskRunner(
                 {base::MayBlock(), base::TaskPriority::USER_VISIBLE}),
@@ -121,32 +104,28 @@ class SessionProtoDBTest : public testing::Test {
   }
 
   void MockInitCallbackPersistedStateDB(
-      leveldb_proto::test::FakeDB<
-          persisted_state_db::PersistedStateContentProto>* storage_db,
+      leveldb_proto::test::FakeDB<TestContentProto>* storage_db,
       leveldb_proto::Enums::InitStatus status) {
     storage_db->InitStatusCallback(status);
     RunUntilIdle();
   }
 
   void MockInsertCallbackPersistedStateDB(
-      leveldb_proto::test::FakeDB<
-          persisted_state_db::PersistedStateContentProto>* storage_db,
+      leveldb_proto::test::FakeDB<TestContentProto>* storage_db,
       bool result) {
     storage_db->UpdateCallback(result);
     RunUntilIdle();
   }
 
   void MockLoadCallbackPersistedStateDB(
-      leveldb_proto::test::FakeDB<
-          persisted_state_db::PersistedStateContentProto>* storage_db,
+      leveldb_proto::test::FakeDB<TestContentProto>* storage_db,
       bool res) {
     storage_db->LoadCallback(res);
     RunUntilIdle();
   }
 
   void MockDeleteCallbackPersistedStateDB(
-      leveldb_proto::test::FakeDB<
-          persisted_state_db::PersistedStateContentProto>* storage_db,
+      leveldb_proto::test::FakeDB<TestContentProto>* storage_db,
       bool res) {
     storage_db->UpdateCallback(res);
     RunUntilIdle();
@@ -154,12 +133,9 @@ class SessionProtoDBTest : public testing::Test {
 
   void GetEvaluationPersistedStateDB(
       base::OnceClosure closure,
-      std::vector<SessionProtoDB<
-          persisted_state_db::PersistedStateContentProto>::KeyAndValue>
-          expected,
+      std::vector<KeyValuePair> expected,
       bool result,
-      std::vector<SessionProtoDB<
-          persisted_state_db::PersistedStateContentProto>::KeyAndValue> found) {
+      std::vector<KeyValuePair> found) {
     for (size_t i = 0; i < expected.size(); i++) {
       EXPECT_EQ(found[i].first, expected[i].first);
       EXPECT_EQ(found[i].second.content_data(),
@@ -171,8 +147,7 @@ class SessionProtoDBTest : public testing::Test {
   void GetEmptyEvaluationPersistedStateDB(
       base::OnceClosure closure,
       bool result,
-      std::vector<SessionProtoDB<
-          persisted_state_db::PersistedStateContentProto>::KeyAndValue> found) {
+      std::vector<KeyValuePair> found) {
     EXPECT_TRUE(result);
     EXPECT_EQ(found.size(), 0U);
     std::move(closure).Run();
@@ -219,14 +194,14 @@ class SessionProtoDBTest : public testing::Test {
 
   void InsertContentAndVerify(
       const std::string& key,
-      const persisted_state_db::PersistedStateContentProto& value) {
+      const TestContentProto& value) {
     InsertContent(key, value);
     VerifyContent(key, value);
   }
 
   void InsertContent(
       const std::string& key,
-      const persisted_state_db::PersistedStateContentProto& value) {
+      const TestContentProto& value) {
     base::RunLoop wait_for_insert;
     persisted_state_db()->InsertContent(
         key, value,
@@ -239,16 +214,14 @@ class SessionProtoDBTest : public testing::Test {
 
   void VerifyContent(
       const std::string& key,
-      const persisted_state_db::PersistedStateContentProto& value) {
+      const TestContentProto& value) {
     base::RunLoop wait_for_load;
     persisted_state_db()->LoadContentWithPrefix(
         key,
         base::BindOnce(
             &SessionProtoDBTest::GetEvaluationPersistedStateDB,
             base::Unretained(this), wait_for_load.QuitClosure(),
-            std::vector<SessionProtoDB<
-                persisted_state_db::PersistedStateContentProto>::KeyAndValue>(
-                {{key, value}})));
+            std::vector<KeyValuePair>{{key, value}}));
     MockLoadCallbackPersistedStateDB(content_db(), true);
     wait_for_load.Run();
   }
@@ -276,13 +249,11 @@ class SessionProtoDBTest : public testing::Test {
     wait_for_maintenance.Run();
   }
 
-  // For persisted_state_db::PersistedStateContentProto database
-  SessionProtoDB<persisted_state_db::PersistedStateContentProto>*
-  persisted_state_db() {
+  // Binary-content test database
+  SessionProtoDB<TestContentProto>* persisted_state_db() {
     return persisted_state_db_.get();
   }
-  leveldb_proto::test::FakeDB<persisted_state_db::PersistedStateContentProto>*
-  content_db() {
+  leveldb_proto::test::FakeDB<TestContentProto>* content_db() {
     return content_db_;
   }
 
@@ -293,8 +264,7 @@ class SessionProtoDBTest : public testing::Test {
   bool InitStatusUnknown() { return persisted_state_db()->InitStatusUnknown(); }
   bool FailedToInit() { return persisted_state_db()->FailedToInit(); }
 
-  std::map<std::string, persisted_state_db::PersistedStateContentProto>
-      content_db_storage_;
+  std::map<std::string, TestContentProto> content_db_storage_;
 
   // For session_proto_db::SessionProtoDBTestProto database
   SessionProtoDB<session_proto_db::SessionProtoDBTestProto>* test_proto_db() {
@@ -317,14 +287,10 @@ class SessionProtoDBTest : public testing::Test {
  private:
   content::BrowserTaskEnvironment task_environment_;
 
-  // For persisted_state_db::PersistedStateContentProto database
-  raw_ptr<leveldb_proto::test::FakeDB<
-              persisted_state_db::PersistedStateContentProto>,
-          DanglingUntriaged>
+  // Binary-content test database
+  raw_ptr<leveldb_proto::test::FakeDB<TestContentProto>, DanglingUntriaged>
       content_db_;
-  std::unique_ptr<
-      SessionProtoDB<persisted_state_db::PersistedStateContentProto>>
-      persisted_state_db_;
+  std::unique_ptr<SessionProtoDB<TestContentProto>> persisted_state_db_;
 
   // For session_proto_db::SessionProtoDBTestProto database
   std::unique_ptr<SessionProtoDB<session_proto_db::SessionProtoDBTestProto>>

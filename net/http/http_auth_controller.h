@@ -160,6 +160,8 @@ class NET_EXPORT_PRIVATE HttpAuthController
   void OnConnectionClosed();
 
  private:
+  friend class ConnectionAuthOriginalPolicy;
+  friend class ConnectionHeaderOriginalPolicy;
   // Actions for InvalidateCurrentHandler()
   enum InvalidateHandlerAction {
     INVALIDATE_HANDLER_AND_CACHED_CREDENTIALS,

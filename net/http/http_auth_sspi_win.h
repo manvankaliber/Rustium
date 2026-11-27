@@ -117,7 +117,7 @@ class NET_EXPORT_PRIVATE SSPILibrary
 
 class SSPILibraryDefault : public SSPILibrary {
  public:
-  explicit SSPILibraryDefault(const wchar_t* package);
+  NET_EXPORT_PRIVATE explicit SSPILibraryDefault(const wchar_t* package);
 
   SECURITY_STATUS AcquireCredentialsHandle(LPWSTR pszPrincipal,
                                            unsigned long fCredentialUse,

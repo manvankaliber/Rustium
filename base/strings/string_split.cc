@@ -4,145 +4,113 @@
 
 #include "base/strings/string_split.h"
 
-#include <stddef.h>
-
 #include <string_view>
+#include <utility>
 
+#include "base/check.h"
+#include "base/check_op.h"
+#include "base/containers/span.h"
+#include "base/containers/span_rust.h"
 #include "base/logging.h"
-#include "base/strings/string_split_internal.h"
-#include "base/strings/string_util.h"
+#include "base/strings/string_split_rust.rs.h"
 
 namespace base {
-
 namespace {
+namespace wire = internal::rust_string_split;
 
-// Helper for the various *SplitStringOnce implementations. When returning a
-// pair of `std::string_view`, does not include the character at `position`.
-std::optional<std::pair<std::string_view, std::string_view>>
-SplitStringAtExclusive(std::string_view input, size_t position) {
-  if (position == std::string_view::npos) {
+rust::Slice<const uint8_t> Bytes(std::string_view input) {
+  // CXX performs its documented null/zero -> nonnull empty slice conversion.
+  return SpanToRustSlice(as_byte_span(input));
+}
+
+std::string_view View(std::string_view input, const wire::Range& range) {
+  if (range.default_empty) {
+    CHECK_EQ(range.length, 0u);
+    return std::string_view();
+  }
+  CHECK_LE(range.offset, input.size());
+  CHECK_LE(range.length, input.size() - range.offset);
+  // Preserve a null native empty input without pointer arithmetic on null.
+  if (range.offset == 0 && range.length == input.size())
+    return input;
+  return input.substr(range.offset, range.length);
+}
+
+std::optional<std::pair<std::string_view, std::string_view>> Once(
+    std::string_view input, std::string_view separators, bool reverse) {
+  auto result = wire::split_once(Bytes(input), Bytes(separators), reverse);
+  if (!result.found)
     return std::nullopt;
-  }
-
-  return std::pair(input.substr(0, position), input.substr(position + 1));
+  return std::pair(View(input, result.first), View(input, result.second));
 }
-
-bool AppendStringViewKeyValue(std::string_view input,
-                              char delimiter,
-                              StringViewPairs* result) {
-  // Always append a new item regardless of success (it might be empty). The
-  // below code will copy the strings directly into the result pair.
-  result->resize(result->size() + 1);
-  auto& result_pair = result->back();
-
-  // Find the delimiter.
-  size_t end_key_pos = input.find_first_of(delimiter);
-  if (end_key_pos == std::string::npos) {
-    DVLOG(1) << "cannot find delimiter in: " << input;
-    return false;  // No delimiter.
-  }
-  result_pair.first = input.substr(0, end_key_pos);
-
-  // Find the value string.
-  std::string_view remains =
-      input.substr(end_key_pos, input.size() - end_key_pos);
-  size_t begin_value_pos = remains.find_first_not_of(delimiter);
-  if (begin_value_pos == std::string_view::npos) {
-    DVLOG(1) << "cannot parse value from input: " << input;
-    return false;  // No value.
-  }
-
-  result_pair.second =
-      remains.substr(begin_value_pos, remains.size() - begin_value_pos);
-
-  return true;
-}
-
 }  // namespace
 
 std::optional<std::pair<std::string_view, std::string_view>> SplitStringOnce(
-    std::string_view input,
-    char separator) {
-  return SplitStringAtExclusive(input, input.find(separator));
+    std::string_view input, char separator) {
+  return Once(input, std::string_view(&separator, 1), false);
 }
-
 std::optional<std::pair<std::string_view, std::string_view>> SplitStringOnce(
-    std::string_view input,
-    std::string_view separators) {
-  return SplitStringAtExclusive(input, input.find_first_of(separators));
+    std::string_view input, std::string_view separators) {
+  return Once(input, separators, false);
 }
-
 std::optional<std::pair<std::string_view, std::string_view>> RSplitStringOnce(
-    std::string_view input,
-    char separator) {
-  return SplitStringAtExclusive(input, input.rfind(separator));
+    std::string_view input, char separator) {
+  return Once(input, std::string_view(&separator, 1), true);
 }
-
 std::optional<std::pair<std::string_view, std::string_view>> RSplitStringOnce(
-    std::string_view input,
-    std::string_view separators) {
-  return SplitStringAtExclusive(input, input.find_last_of(separators));
+    std::string_view input, std::string_view separators) {
+  return Once(input, separators, true);
 }
 
-bool SplitStringIntoKeyValuePairs(std::string_view input,
-                                  char key_value_delimiter,
-                                  char key_value_pair_delimiter,
-                                  StringPairs* key_value_pairs) {
+bool SplitStringIntoKeyValuePairs(std::string_view input, char delimiter,
+                                 char pairs_delimiter, StringPairs* output) {
   return SplitStringIntoKeyValuePairsUsingSubstr(
-      input, key_value_delimiter,
-      std::string_view(&key_value_pair_delimiter, 1), key_value_pairs);
+      input, delimiter, std::string_view(&pairs_delimiter, 1), output);
 }
-
-bool SplitStringIntoKeyValueViewPairs(std::string_view input,
-                                      char key_value_delimiter,
-                                      char key_value_pair_delimiter,
-                                      StringViewPairs* key_value_pairs) {
+bool SplitStringIntoKeyValueViewPairs(std::string_view input, char delimiter,
+                                     char pairs_delimiter,
+                                     StringViewPairs* output) {
   return SplitStringIntoKeyValueViewPairsUsingSubstr(
-      input, key_value_delimiter,
-      std::string_view(&key_value_pair_delimiter, 1), key_value_pairs);
+      input, delimiter, std::string_view(&pairs_delimiter, 1), output);
 }
-
-bool SplitStringIntoKeyValuePairsUsingSubstr(
-    std::string_view input,
-    char key_value_delimiter,
-    std::string_view key_value_pair_delimiter,
-    StringPairs* key_value_pairs) {
-  StringViewPairs key_value_view_pairs;
-  bool success = SplitStringIntoKeyValueViewPairsUsingSubstr(
-      input, key_value_delimiter, key_value_pair_delimiter,
-      &key_value_view_pairs);
-
-  // Copy key_value_view_pairs regardless of success to allow for pairs without
-  // associated value or key.
-  key_value_pairs->clear();
-  key_value_pairs->reserve(key_value_view_pairs.size());
-  for (const auto& [key, value] : key_value_view_pairs) {
-    key_value_pairs->emplace_back(std::string(key), std::string(value));
-  }
-
+bool SplitStringIntoKeyValuePairsUsingSubstr(std::string_view input,
+                                            char delimiter,
+                                            std::string_view pairs_delimiter,
+                                            StringPairs* output) {
+  StringViewPairs views;
+  const bool success = SplitStringIntoKeyValueViewPairsUsingSubstr(
+      input, delimiter, pairs_delimiter, &views);
+  // Preserve the original parse-before-clearing order for owned outputs.
+  output->clear();
+  output->reserve(views.size());
+  for (const auto& [key, value] : views)
+    output->emplace_back(std::string(key), std::string(value));
   return success;
 }
-
 bool SplitStringIntoKeyValueViewPairsUsingSubstr(
-    std::string_view input,
-    char key_value_delimiter,
-    std::string_view key_value_pair_delimiter,
-    StringViewPairs* key_value_pairs) {
-  key_value_pairs->clear();
-
-  std::vector<std::string_view> pairs = SplitStringPieceUsingSubstr(
-      input, key_value_pair_delimiter, TRIM_WHITESPACE, SPLIT_WANT_NONEMPTY);
-  key_value_pairs->reserve(pairs.size());
-
+    std::string_view input, char delimiter, std::string_view pairs_delimiter,
+    StringViewPairs* output) {
+  output->clear();
+  const auto segments = wire::split_bytes(Bytes(input), Bytes(pairs_delimiter),
+                                          true, true, true);
+  output->reserve(segments.size());
   bool success = true;
-  for (std::string_view pair : pairs) {
-    if (!AppendStringViewKeyValue(pair, key_value_delimiter, key_value_pairs)) {
-      // Don't return here, to allow for pairs without associated
-      // value or key; just record that the split failed.
+  for (const auto& segment_range : segments) {
+    const std::string_view segment = View(input, segment_range);
+    // Preserve original callback order: parsing a later segment must observe
+    // mutations made by the diagnostic callback for an earlier segment.
+    auto pair = wire::key_value_segment(Bytes(segment), static_cast<uint8_t>(delimiter));
+    output->emplace_back(View(segment, pair.key), View(segment, pair.value));
+    if (pair.diagnostic != 0) {
       success = false;
+      if (pair.diagnostic == 1) {
+        DVLOG(1) << "cannot find delimiter in: " << segment;
+      } else {
+        CHECK_EQ(pair.diagnostic, 2u);
+        DVLOG(1) << "cannot parse value from input: " << segment;
+      }
     }
   }
   return success;
 }
-
 }  // namespace base

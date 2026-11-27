@@ -6,6 +6,7 @@
 
 #include "base/byte_size.h"
 #include "base/pickle.h"
+#include "base/test/mock_log.h"
 #include "net/base/proxy_chain.h"
 #include "net/cert/signed_certificate_timestamp.h"
 #include "net/cert/signed_certificate_timestamp_and_status.h"
@@ -342,6 +343,120 @@ TEST_F(HttpResponseInfoTest, ZstdUncompressedBodySizeDefault) {
   HttpResponseInfo restored_response_info;
   PickleAndRestore(response_info_, &restored_response_info);
   EXPECT_FALSE(restored_response_info.zstd_uncompressed_body_size.has_value());
+}
+
+// Malformed entries intentionally leave earlier fields updated. These are
+// observable even when InitFromPickle returns false.
+TEST_F(HttpResponseInfoTest, RequestTimeCommitsBeforeResponseTimeFailure) {
+  base::Pickle pickle;
+  pickle.WriteInt(3);
+  pickle.WriteInt64(1234);
+  response_info_.response_time = base::Time::Max();
+  bool truncated = true;
+  EXPECT_FALSE(
+      response_info_.InitFromPickle(base::PickleIterator(pickle), &truncated));
+  EXPECT_EQ(base::Time::FromInternalValue(1234), response_info_.request_time);
+  EXPECT_TRUE(response_info_.was_cached);
+  EXPECT_EQ(base::Time::Max(), response_info_.response_time);
+  EXPECT_TRUE(truncated);
+}
+
+TEST_F(HttpResponseInfoTest, InvalidVersionDoesNotMutateDestination) {
+  base::Pickle pickle;
+  pickle.WriteInt(2);
+  response_info_.request_time = base::Time::Max();
+  bool truncated = true;
+  EXPECT_FALSE(
+      response_info_.InitFromPickle(base::PickleIterator(pickle), &truncated));
+  EXPECT_EQ(base::Time::Max(), response_info_.request_time);
+  EXPECT_FALSE(response_info_.was_cached);
+  EXPECT_TRUE(truncated);
+}
+
+TEST_F(HttpResponseInfoTest, InvalidVersionPreservesDebugDiagnostic) {
+  base::test::MockLog log;
+  EXPECT_CALL(log,
+              Log(testing::_, testing::_, testing::_, testing::_, testing::_))
+      .Times(0);
+#if DCHECK_IS_ON()
+  EXPECT_CALL(log,
+              Log(logging::LOGGING_ERROR, testing::_, testing::_, testing::_,
+                  testing::HasSubstr("unexpected response info version: 2")))
+      .WillOnce(testing::Return(true));
+#endif
+  log.StartCapturingLogs();
+  base::Pickle invalid_version;
+  invalid_version.WriteInt(2);
+  bool truncated = true;
+  EXPECT_FALSE(response_info_.InitFromPickle(
+      base::PickleIterator(invalid_version), &truncated));
+  // An incomplete extra-flags field fails before version validation and must
+  // not produce an additional diagnostic.
+  base::Pickle missing_extra_flags;
+  missing_extra_flags.WriteInt(static_cast<int>(2u | (1u << 31)));
+  EXPECT_FALSE(response_info_.InitFromPickle(
+      base::PickleIterator(missing_extra_flags), &truncated));
+}
+
+void WriteResponseInfoPrefix(base::Pickle& pickle,
+                             uint32_t flags,
+                             int extra_flags) {
+  pickle.WriteInt(static_cast<int>(flags));
+  if (flags & (1u << 31)) {
+    pickle.WriteInt(extra_flags);
+  }
+  pickle.WriteInt64(1);
+  pickle.WriteInt64(2);
+  pickle.WriteString(
+      std::string("HTTP/1.1 200 OK\0\0", sizeof("HTTP/1.1 200 OK\0\0") - 1));
+  pickle.WriteString("");
+  pickle.WriteUInt16(0);
+}
+
+TEST_F(HttpResponseInfoTest, InvalidSignatureCommitsPriorFlags) {
+  base::Pickle pickle;
+  WriteResponseInfoPrefix(pickle, 3u | (1u << 25) | (1u << 13), 0);
+  pickle.WriteInt(65536);
+  response_info_.ssl_info.peer_signature_algorithm = 777;
+  response_info_.did_use_shared_dictionary = true;
+  bool truncated = true;
+  EXPECT_FALSE(
+      response_info_.InitFromPickle(base::PickleIterator(pickle), &truncated));
+  EXPECT_TRUE(response_info_.was_fetched_via_spdy);
+  EXPECT_FALSE(truncated);
+  EXPECT_EQ(777, response_info_.ssl_info.peer_signature_algorithm);
+  EXPECT_TRUE(response_info_.did_use_shared_dictionary);
+}
+
+TEST_F(HttpResponseInfoTest, NegativeZstdCommitsEncodedBodyOnly) {
+  base::Pickle pickle;
+  WriteResponseInfoPrefix(pickle, 3u | (1u << 31), (1 << 3) | (1 << 4));
+  pickle.WriteInt64(123);
+  pickle.WriteInt64(-1);
+  response_info_.zstd_uncompressed_body_size = 91;
+  bool truncated = true;
+  EXPECT_FALSE(
+      response_info_.InitFromPickle(base::PickleIterator(pickle), &truncated));
+  EXPECT_EQ(base::ByteSize(123u), response_info_.encoded_body_size);
+  EXPECT_EQ(91, response_info_.zstd_uncompressed_body_size);
+  EXPECT_FALSE(truncated);
+}
+
+TEST_F(HttpResponseInfoTest, EmptyLegacyFlagsPreserveAbsentMetadata) {
+  base::Pickle pickle;
+  WriteResponseInfoPrefix(pickle, 3, 0);
+  response_info_.original_response_time = base::Time::Max();
+  response_info_.did_send_available_dictionary = true;
+  response_info_.did_use_shared_dictionary = true;
+  response_info_.ssl_info.peer_signature_algorithm = 777;
+  bool truncated = true;
+  EXPECT_TRUE(
+      response_info_.InitFromPickle(base::PickleIterator(pickle), &truncated));
+  EXPECT_EQ(base::Time::Max(), response_info_.original_response_time);
+  EXPECT_EQ(777, response_info_.ssl_info.peer_signature_algorithm);
+  EXPECT_TRUE(response_info_.did_send_available_dictionary);
+  EXPECT_FALSE(response_info_.did_use_shared_dictionary);
+  EXPECT_FALSE(truncated);
 }
 
 }  // namespace

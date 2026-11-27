@@ -7,13 +7,18 @@
 #include <vector>
 
 #include "base/check.h"
+#include "base/compiler_specific.h"
+#include "base/containers/span.h"
 #include "net/base/port_policy_reference.h"
 #include "net/base/port_util.h"
 namespace ref = net::port_policy_reference;
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+  // SAFETY: libFuzzer provides initialized input storage for exactly size
+  // bytes. The bounded view is consumed synchronously and never retained.
+  const auto bytes = UNSAFE_BUFFERS(base::span(data, size));
   std::vector<uint16_t> ports;
-  for (size_t i = 0; i + 1 < size && ports.size() < 24; i += 2) {
-    ports.push_back(static_cast<uint16_t>((data[i] << 8) | data[i + 1]));
+  for (size_t i = 0; i + 1 < bytes.size() && ports.size() < 24; i += 2) {
+    ports.push_back(static_cast<uint16_t>((bytes[i] << 8) | bytes[i + 1]));
   }
   net::SetExplicitlyAllowedPorts({});
   ref::SetExplicitlyAllowedPorts({});

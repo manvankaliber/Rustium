@@ -4,6 +4,7 @@
 
 #ifndef NET_DNS_HOST_RESOLVER_MANAGER_JOB_H_
 #define NET_DNS_HOST_RESOLVER_MANAGER_JOB_H_
+#include "net/dns/dns_resolution_policy_ffi.h"
 
 #include <array>
 #include <deque>
@@ -29,6 +30,8 @@
 #include "net/dns/public/dns_query_type.h"
 #include "net/dns/public/secure_dns_mode.h"
 #include "net/log/net_log_with_source.h"
+
+namespace net { class DnsResolutionFamilyRustPeer; }
 
 namespace net {
 
@@ -215,6 +218,7 @@ class HostResolverManager::Job : public PrioritizedDispatcher::Job,
   }
 
  private:
+  friend class ::net::DnsResolutionFamilyRustPeer;
   // Explains why a Job didn't attempt HTTPS query.
   // These values are persisted to logs. Entries should not be renumbered and
   // numeric values should never be reused.
@@ -251,28 +255,59 @@ class HostResolverManager::Job : public PrioritizedDispatcher::Job,
     size_t total_count() const { return total_count_; }
 
     void Add(RequestPriority req_priority) {
-      ++total_count_;
-      ++counts_[req_priority];
-      if (highest_priority_ < req_priority) {
-        highest_priority_ = req_priority;
-      }
+  using RWords = DnsResolutionWords;
+
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { return RWords::Unsigned(static_cast<uint64_t>(total_count_)); }
+      case 2: { total_count_=args.a;
+        return {}; }
+      case 3: { return RWords::Unsigned(static_cast<uint64_t>(counts_.at(req_priority))); }
+      case 4: { counts_.at(req_priority)=args.a;
+        return {}; }
+      case 5: { return RWords::Unsigned(static_cast<uint64_t>(highest_priority_)); }
+      case 6: { return RWords::Unsigned(static_cast<uint64_t>(req_priority)); }
+      case 7: { highest_priority_=static_cast<RequestPriority>(args.a);
+        return {}; }
+      default: NOTREACHED();
     }
+    return {};
+  };
+  const RWords rust_reply = DnsResolutionRun(2, 40, native_service);
+  (void)rust_reply;
+}
 
     void Remove(RequestPriority req_priority) {
-      DCHECK_GT(total_count_, 0u);
-      DCHECK_GT(counts_[req_priority], 0u);
-      --total_count_;
-      --counts_[req_priority];
-      size_t i;
-      for (i = highest_priority_; i > MINIMUM_PRIORITY && !counts_[i]; --i) {
-      }
-      highest_priority_ = static_cast<RequestPriority>(i);
+  using RWords = DnsResolutionWords;
 
-      // In absence of requests, default to MINIMUM_PRIORITY.
-      if (total_count_ == 0) {
-        DCHECK_EQ(MINIMUM_PRIORITY, highest_priority_);
-      }
+
+
+  auto native_service = [&](uint32_t operation, [[maybe_unused]] RWords args) -> RWords {
+    switch (operation) {
+      case 1: { DCHECK_GT(total_count_,0u);DCHECK_GT(counts_.at(req_priority),0u);
+        return {}; }
+      case 2: { return RWords::Unsigned(static_cast<uint64_t>(total_count_)); }
+      case 3: { total_count_=args.a;
+        return {}; }
+      case 4: { return RWords::Unsigned(static_cast<uint64_t>(counts_.at(req_priority))); }
+      case 5: { counts_.at(req_priority)=args.a;
+        return {}; }
+      case 6: { return RWords::Unsigned(static_cast<uint64_t>(highest_priority_)); }
+      case 7: { return RWords::Unsigned(static_cast<uint64_t>(MINIMUM_PRIORITY)); }
+      case 8: { return RWords::Unsigned(static_cast<uint64_t>(counts_.at(args.a))); }
+      case 9: { highest_priority_=static_cast<RequestPriority>(args.a);
+        return {}; }
+      case 10: { DCHECK_EQ(MINIMUM_PRIORITY,highest_priority_);
+        return {}; }
+      default: NOTREACHED();
     }
+    return {};
+  };
+  const RWords rust_reply = DnsResolutionRun(2, 41, native_service);
+  (void)rust_reply;
+}
 
    private:
     RequestPriority highest_priority_;

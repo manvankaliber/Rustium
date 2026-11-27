@@ -8,6 +8,7 @@ import("//build/config/compiler/compiler.gni")
 import("//build/config/cronet/config.gni")
 import("//build/config/features.gni")
 import("//build/rust/rust_static_library.gni")
+import("//build/rust/rustium_reference_probe.gni")
 import("//crypto/features.gni")
 import("//net/features.gni")
 import("//testing/libfuzzer/fuzzer_test.gni")
@@ -254,7 +255,34 @@ rust_static_library("gzip_header_parser") {
   ]
 }
 
+rust_static_library("retained_request_order_rust") {
+  crate_root = "socket/retained_request_queue_ffi.rs"
+  sources = [
+    "socket/retained_queue.rs",
+    "socket/retained_queue_tests.rs",
+    "socket/retained_request_queue_ffi.rs",
+  ]
+  build_native_rust_unit_tests = true
+  allow_unsafe = true  # Private opaque queue and caller-owned output ABI.
+  visibility = [ ":*" ]
+}
+
+rust_static_library("transport_client_socket_pool_scheduling_rust") {
+  crate_root = "socket/transport_client_socket_pool_scheduling_rust.rs"
+  sources = [ "socket/transport_client_socket_pool_scheduling_rust.rs" ]
+  allow_unsafe = true  # Exported scalar ABI attribute only.
+  visibility = [ ":*" ]
+}
+
+rust_static_library("transport_client_socket_pool_idle_rust") {
+  crate_root = "socket/transport_client_socket_pool_idle_rust_core.rs"
+  sources = [ "socket/transport_client_socket_pool_idle_rust_core.rs" ]
+  allow_unsafe = true  # Exported scalar ABI attributes.
+  visibility = [ ":*" ]
+}
+
 rust_static_library("parse_number_core") {
+  configs += [ ":rust_net_fuzz_feedback" ]
   crate_root = "base/parse_number_parser.rs"
   sources = [ "base/parse_number_parser.rs" ]
   visibility = [ ":*" ]
@@ -335,11 +363,13 @@ fuzzer_test("parse_number_candidate_fuzzer") {
     ":parse_number_parser",
     ":parse_number_test_reference",
     "//base",
+    "//net/base:parse_number_header",
   ]
   seed_corpus = "base/parse_number_fuzzer_corpus"
 }
 
 rust_static_library("hsts_parser") {
+  configs += [ ":rust_net_fuzz_feedback" ]
   crate_root = "http/hsts_ffi.rs"
   sources = [
     "http/hsts_ffi.rs",
@@ -491,6 +521,7 @@ fuzzer_test("mime_sniffer_differential_fuzzer") {
 }
 
 rust_static_library("http_range_parser") {
+  configs += [ ":rust_net_fuzz_feedback" ]
   crate_root = "http/http_range_ffi.rs"
   sources = [
     "http/http_range_ffi.rs",
@@ -532,12 +563,14 @@ source_set("http_range_test_reference") {
 test("http_range_perftests") {
   sources = [
     "http/http_byte_range.cc",
+    "http/http_byte_range_rust_ffi.h",
     "http/http_range_benchmark_adapter.cc",
     "http/http_range_ffi.h",
     "http/http_range_perftest.cc",
   ]
   defines = [ "NET_IMPLEMENTATION" ]
   deps = [
+    ":http_byte_range_rust",
     ":http_range_parser",
     ":http_range_test_reference",
     "//base",
@@ -594,6 +627,7 @@ component("net") {
     "base/backoff_entry.h",
     "base/backoff_entry_serializer.cc",
     "base/backoff_entry_serializer.h",
+    "base/backoff_rust_ffi.h",
     "base/base64.cc",
     "base/base64.h",
     "base/bssl_refcounted.cc",
@@ -630,8 +664,11 @@ component("net") {
     "base/hex_utils.h",
     "base/host_mapping_rules.cc",
     "base/host_mapping_rules.h",
+    "base/host_mapping_rust_ffi.h",
+    "base/host_mapping_rust_services.cc",
     "base/host_port_pair.cc",
     "base/host_port_pair.h",
+    "base/host_port_rust_ffi.h",
     "base/http_user_agent_settings.h",
     "base/idempotency.h",
     "base/interval.h",
@@ -666,6 +703,11 @@ component("net") {
     "base/net_diagnostics_debug_formatting_ffi.h",
     "base/net_error_details.h",
     "base/net_error_list.h",
+    "base/net_error_rust_enum_checks.h",
+    "base/net_error_rust_ffi.h",
+    "base/net_error_rust_posix_constants.inc",
+    "base/net_error_rust_win_constants.inc",
+    "base/net_error_rust_win_sdk_checks.h",
     "base/net_errors.cc",
     "base/net_errors.h",
     "base/net_info_source_list.h",
@@ -710,10 +752,14 @@ component("net") {
     "base/proxy_chain.h",
     "base/proxy_delegate.cc",
     "base/proxy_delegate.h",
+    "base/proxy_matching_rust_ffi.cc",
+    "base/proxy_matching_rust_ffi.h",
     "base/proxy_server.cc",
     "base/proxy_server.h",
     "base/proxy_string_util.cc",
     "base/proxy_string_util.h",
+    "base/proxy_value_rust_adapter.cc",
+    "base/proxy_value_rust_ffi.h",
     "base/rand_callback.h",
     "base/reconnect_notifier.cc",
     "base/reconnect_notifier.h",
@@ -868,8 +914,16 @@ component("net") {
     "cookies/cookie_constants.h",
     "cookies/cookie_deletion_info.cc",
     "cookies/cookie_deletion_info.h",
+    "cookies/cookie_family_canonical_native.cc",
+    "cookies/cookie_family_canonical_native.h",
+    "cookies/cookie_family_ffi.h",
+    "cookies/cookie_family_monster_native.cc",
+    "cookies/cookie_family_monster_native.h",
+    "cookies/cookie_family_native.cc",
+    "cookies/cookie_family_native.h",
     "cookies/cookie_inclusion_status.cc",
     "cookies/cookie_inclusion_status.h",
+    "cookies/cookie_inclusion_status_rust_ffi.h",
     "cookies/cookie_monster.cc",
     "cookies/cookie_monster.h",
     "cookies/cookie_monster_change_dispatcher.cc",
@@ -882,6 +936,7 @@ component("net") {
     "cookies/cookie_partition_key.h",
     "cookies/cookie_partition_key_collection.cc",
     "cookies/cookie_partition_key_collection.h",
+    "cookies/cookie_partition_key_rust_ffi.h",
     "cookies/cookie_setting_override.h",
     "cookies/cookie_store.cc",
     "cookies/cookie_store.h",
@@ -889,6 +944,7 @@ component("net") {
     "cookies/cookie_util.h",
     "cookies/parsed_cookie.cc",
     "cookies/parsed_cookie.h",
+    "cookies/parsed_cookie_rust_ffi.h",
     "cookies/ref_unique_cookie_key.cc",
     "cookies/ref_unique_cookie_key.h",
     "cookies/site_for_cookies.cc",
@@ -979,6 +1035,7 @@ component("net") {
     "disk_cache/memory_entry_data_hints.h",
     "disk_cache/net_log_parameters.cc",
     "disk_cache/net_log_parameters.h",
+    "disk_cache/simple/disk_simple_index_rust.h",
     "disk_cache/simple/post_operation_waiter.cc",
     "disk_cache/simple/post_operation_waiter.h",
     "disk_cache/simple/simple_backend_impl.cc",
@@ -1040,6 +1097,7 @@ component("net") {
     "http/http_auth.h",
     "http/http_auth_cache.cc",
     "http/http_auth_cache.h",
+    "http/http_auth_cache_rust_ffi.h",
     "http/http_auth_challenge_tokenizer.cc",
     "http/http_auth_challenge_tokenizer.h",
     "http/http_auth_controller.cc",
@@ -1068,6 +1126,7 @@ component("net") {
     "http/http_basic_stream.h",
     "http/http_byte_range.cc",
     "http/http_byte_range.h",
+    "http/http_byte_range_rust_ffi.h",
     "http/http_cache.cc",
     "http/http_cache.h",
     "http/http_cache_invalidation_pickle_traits.cc",
@@ -1107,6 +1166,7 @@ component("net") {
     "http/http_raw_request_headers.h",
     "http/http_request_headers.cc",
     "http/http_request_headers.h",
+    "http/http_request_headers_rust_ffi.h",
     "http/http_request_info.cc",
     "http/http_request_info.h",
     "http/http_response_body_drainer.cc",
@@ -1115,6 +1175,7 @@ component("net") {
     "http/http_response_headers.h",
     "http/http_response_info.cc",
     "http/http_response_info.h",
+    "http/http_response_info_rust_ffi.h",
     "http/http_security_headers.cc",
     "http/http_security_headers.h",
     "http/http_server_properties.cc",
@@ -1167,6 +1228,7 @@ component("net") {
     "http/http_util.h",
     "http/http_vary_data.cc",
     "http/http_vary_data.h",
+    "http/http_vary_data_rust_ffi.h",
     "http/http_version.h",
     "http/no_vary_search_cache.cc",
     "http/no_vary_search_cache.h",
@@ -1208,6 +1270,7 @@ component("net") {
     "log/net_log_util.h",
     "log/net_log_values.cc",
     "log/net_log_values.h",
+    "log/net_log_values_rust_ffi.h",
     "log/net_log_with_source.cc",
     "log/net_log_with_source.h",
     "log/trace_net_log_observer.cc",
@@ -1309,6 +1372,7 @@ component("net") {
     "quic/crypto/proof_verifier_chromium.h",
     "quic/dedicated_web_transport_http3_client.cc",
     "quic/dedicated_web_transport_http3_client.h",
+    "quic/http3_client_stream_rust_ffi.h",
     "quic/network_connection.cc",
     "quic/network_connection.h",
     "quic/platform/impl/quic_chromium_clock.cc",
@@ -1426,11 +1490,17 @@ component("net") {
     "socket/connect_job.h",
     "socket/connect_job_factory.cc",
     "socket/connect_job_factory.h",
+    "socket/connect_job_factory_rust_ffi.h",
     "socket/connect_job_params.cc",
     "socket/connect_job_params.h",
     "socket/connect_job_params_factory.cc",
     "socket/connect_job_params_factory.h",
+    "socket/connect_job_params_factory_rust_ffi.h",
+    "socket/connect_job_rust_ffi.h",
+    "socket/connect_job_rust_native.h",
     "socket/connection_attempts.h",
+    "socket/connection_jobs_rust_ffi.h",
+    "socket/connection_jobs_upper_rust_ffi.h",
     "socket/datagram_client_socket.h",
     "socket/datagram_server_socket.h",
     "socket/datagram_socket.h",
@@ -1492,10 +1562,14 @@ component("net") {
     "socket/stream_socket_handle.h",
     "socket/tcp_client_socket.cc",
     "socket/tcp_client_socket.h",
+    "socket/tcp_client_socket_rust_ffi.h",
+    "socket/tcp_connect_fallback_rust_native.h",
     "socket/tcp_connect_job.cc",
     "socket/tcp_connect_job.h",
     "socket/tcp_connect_job_connector.cc",
     "socket/tcp_connect_job_connector.h",
+    "socket/tcp_connect_job_connector_rust_ffi.h",
+    "socket/tcp_connect_job_rust_ffi.h",
     "socket/tcp_server_socket.cc",
     "socket/tcp_server_socket.h",
     "socket/tcp_socket.h",
@@ -1507,10 +1581,16 @@ component("net") {
     "socket/transport_client_socket.h",
     "socket/transport_client_socket_pool.cc",
     "socket/transport_client_socket_pool.h",
+    "socket/transport_assignment_ffi.h",
+    "socket/native_owner_adapter.h",
+    "socket/retained_queue_ffi.h",
+    "socket/transport_client_socket_pool_scheduling_ffi.h",
     "socket/transport_connect_job.cc",
     "socket/transport_connect_job.h",
+    "socket/transport_connect_job_rust_ffi.h",
     "socket/transport_connect_sub_job.cc",
     "socket/transport_connect_sub_job.h",
+    "socket/transport_connect_sub_job_rust_ffi.h",
     "socket/udp_client_socket.cc",
     "socket/udp_client_socket.h",
     "socket/udp_net_log_parameters.cc",
@@ -1528,14 +1608,20 @@ component("net") {
     "socket/websocket_transport_client_socket_pool.h",
     "spdy/alps_decoder.cc",
     "spdy/alps_decoder.h",
+    "spdy/alps_decoder_rust_ffi.h",
     "spdy/bidirectional_stream_spdy_impl.cc",
     "spdy/bidirectional_stream_spdy_impl.h",
     "spdy/buffered_spdy_framer.cc",
     "spdy/buffered_spdy_framer.h",
     "spdy/header_coalescer.cc",
     "spdy/header_coalescer.h",
+    "spdy/header_coalescer_rust_ffi.h",
+    "spdy/http2_family_rust_ffi.h",
     "spdy/http2_priority_dependencies.cc",
     "spdy/http2_priority_dependencies.h",
+    "spdy/http2_priority_rust_ffi.h",
+    "spdy/http2_read_queue_rust_ffi.h",
+    "spdy/http2_write_queue_rust_ffi.h",
     "spdy/multiplexed_http_stream.cc",
     "spdy/multiplexed_http_stream.h",
     "spdy/multiplexed_session.cc",
@@ -1545,6 +1631,7 @@ component("net") {
     "spdy/spdy_buffer.h",
     "spdy/spdy_buffer_producer.cc",
     "spdy/spdy_buffer_producer.h",
+    "spdy/spdy_buffer_rust_ffi.h",
     "spdy/spdy_http_stream.cc",
     "spdy/spdy_http_stream.h",
     "spdy/spdy_http_utils.cc",
@@ -1561,6 +1648,8 @@ component("net") {
     "spdy/spdy_session_key.h",
     "spdy/spdy_session_pool.cc",
     "spdy/spdy_session_pool.h",
+    "spdy/spdy_session_pool_rust_ffi.h",
+    "spdy/spdy_session_rust_ffi.h",
     "spdy/spdy_stream.cc",
     "spdy/spdy_stream.h",
     "spdy/spdy_write_queue.cc",
@@ -1611,6 +1700,7 @@ component("net") {
     "ssl/ssl_server_config.h",
     "ssl/threaded_ssl_private_key.cc",
     "ssl/threaded_ssl_private_key.h",
+    "ssl/tls_session_cache_rust_abi.h",
     "storage_access_api/status.h",
     "url_request/clear_site_data.cc",
     "url_request/clear_site_data.h",
@@ -1654,6 +1744,8 @@ component("net") {
     "url_request/url_request_redirect_job.h",
     "url_request/websocket_handshake_userdata_key.cc",
     "url_request/websocket_handshake_userdata_key.h",
+    "websockets/websocket_extension_rust_ffi.h",
+    "websockets/websocket_frame_rust_ffi.h",
   ]
 
   if (is_posix) {
@@ -1674,20 +1766,51 @@ component("net") {
   }
 
   deps = [
+    ":alps_decoder_rust",
     ":auth_challenge_rust",
+    ":backoff_entry_rust",
+    ":connection_jobs_rust",
     ":content_disposition_parser",
+    ":cookie_inclusion_status_rust",
+    ":cookie_storage_family_rust",
     ":cronet_buildflags",
+    ":disk_simple_index_rust",
     ":gzip_header_parser",
+    ":header_coalescer_rust",
+    ":host_mapping_rust",
+    ":host_port_rust",
     ":hsts_parser",
+    ":http2_family_rust",
+    ":http2_priority_rust",
+    ":http2_read_queue_rust",
+    ":http2_write_queue_rust",
+    ":http3_client_stream_rust",
+    ":http_auth_cache_rust",
+    ":http_byte_range_rust",
     ":http_chunked_decoder_rust",
     ":http_range_parser",
+    ":http_request_headers_rust",
+    ":http_response_info_rust",
     ":http_status_code_rust",
+    ":http_vary_data_rust",
     ":mime_sniffer_parser",
     ":mime_type_parser",
     ":net_deps",
     ":net_diagnostics_debug_formatting_rust",
+    ":net_error_rust",
+    ":net_log_values_rust",
+    ":parsed_cookie_rust",
     ":port_policy_rust",
+    ":proxy_matching_rust_policy",
+    ":proxy_value_rust",
     ":referrer_policy_parser",
+    ":tcp_client_socket_rust",
+    ":tls_session_cache_rust",
+    ":transport_client_socket_pool_idle_rust",
+    ":retained_request_order_rust",
+    ":transport_client_socket_pool_scheduling_rust",
+    ":websocket_extension_rust",
+    ":websocket_frame_rust",
     "//components/network_time/time_tracker",
     "//components/unexportable_keys",
     "//net/http:transport_security_state_generated_files",
@@ -2334,6 +2457,13 @@ component("net") {
   }
 
   deps += [ ":chrome_root_store_data" ]
+
+  if (rustium_reference_probe_enabled) {
+    sources += [
+      "http/rustium_reference_probe.cc",
+      "http/rustium_reference_probe.h",
+    ]
+  }
 }
 
 # Private dependencies for the //net component and for any build targets (e.g.
@@ -2545,6 +2675,34 @@ static_library("gtest_util") {
     "//testing/gmock",
     "//testing/gtest",
   ]
+}
+
+source_set("http_auth_test_support") {
+  testonly = true
+  sources = [
+    "http/mock_allow_http_auth_preferences.cc",
+    "http/mock_allow_http_auth_preferences.h",
+  ]
+
+  if (is_win) {
+    sources += [
+      "http/mock_sspi_library_win.cc",
+      "http/mock_sspi_library_win.h",
+    ]
+  }
+
+  if (use_external_gssapi) {
+    sources += [
+      "http/mock_gssapi_library_posix.cc",
+      "http/mock_gssapi_library_posix.h",
+    ]
+  }
+
+  public_deps = [
+    ":net",
+    "//base",
+  ]
+  deps = [ "//testing/gtest" ]
 }
 
 static_library("test_support") {
@@ -3300,6 +3458,7 @@ target(_test_target_type, "net_unittests") {
     "disk_cache/cache_util_unittest.cc",
     "disk_cache/entry_unittest.cc",
     "disk_cache/memory/mem_backend_impl_unittest.cc",
+    "disk_cache/simple/disk_simple_index_rust_differential_unittest.cc",
     "disk_cache/simple/simple_file_enumerator_unittest.cc",
     "disk_cache/simple/simple_file_tracker_unittest.cc",
     "disk_cache/simple/simple_index_file_unittest.cc",
@@ -3363,8 +3522,6 @@ target(_test_target_type, "net_unittests") {
     "http/http_transaction_test_util_unittest.cc",
     "http/http_util_unittest.cc",
     "http/http_vary_data_unittest.cc",
-    "http/mock_allow_http_auth_preferences.cc",
-    "http/mock_allow_http_auth_preferences.h",
     "http/no_vary_search_cache_storage_file_operations_unittest.cc",
     "http/no_vary_search_cache_storage_unittest.cc",
     "http/no_vary_search_cache_unittest.cc",
@@ -3428,6 +3585,7 @@ target(_test_target_type, "net_unittests") {
     "quic/quic_network_transaction_unittest.cc",
     "quic/quic_proxy_client_socket_test_base.cc",
     "quic/quic_proxy_client_socket_test_base.h",
+    "quic/quic_proxy_client_socket_test_fixture.h",
     "quic/quic_proxy_client_socket_unittest.cc",
     "quic/quic_proxy_datagram_client_socket_unittest.cc",
     "quic/quic_session_attempt_manager_unittest.cc",
@@ -3484,6 +3642,12 @@ target(_test_target_type, "net_unittests") {
     "socket/tcp_socket_unittest.cc",
     "socket/tcp_stream_attempt_unittest.cc",
     "socket/tls_stream_attempt_unittest.cc",
+    "socket/transport_client_socket_pool_idle_rust_original.cc",
+    "socket/transport_client_socket_pool_idle_rust_original.h",
+    "socket/transport_assignment_original_actions.h",
+    "socket/transport_assignment_unittest.cc",
+    "socket/transport_client_socket_pool_scheduling_original.h",
+    "socket/transport_client_socket_pool_scheduling_unittest.cc",
     "socket/transport_client_socket_pool_test_util.cc",
     "socket/transport_client_socket_pool_test_util.h",
     "socket/transport_client_socket_pool_unittest.cc",
@@ -3594,8 +3758,6 @@ target(_test_target_type, "net_unittests") {
       "base/network_cost_change_notifier_win_unittest.cc",
       "base/network_interfaces_win_unittest.cc",
       "http/http_auth_sspi_win_unittest.cc",
-      "http/mock_sspi_library_win.cc",
-      "http/mock_sspi_library_win.h",
       "proxy_resolution/win/dhcp_pac_file_adapter_fetcher_win_unittest.cc",
       "proxy_resolution/win/dhcp_pac_file_fetcher_win_unittest.cc",
       "proxy_resolution/win/proxy_config_service_win_unittest.cc",
@@ -3640,6 +3802,8 @@ target(_test_target_type, "net_unittests") {
 
   deps = [
     ":cronet_buildflags",
+    ":disk_simple_index_rust_reference",
+    ":http_auth_test_support",
     ":http_status_code_reference",
     ":isolation_info_proto",
     ":net",
@@ -3680,6 +3844,14 @@ target(_test_target_type, "net_unittests") {
     "//url",
     "//url:buildflags",
   ]
+
+  if (enable_quic_proxy_support) {
+    sources += [
+      "quic/quic_proxy_connect_job_success_unittest.cc",
+      "socket/connection_jobs_upper_rust_job_workloads.h",
+    ]
+    deps += [ ":connection_jobs_rust_reference" ]
+  }
 
   if (is_linux) {
     deps += [ "//build/config/linux/dbus:buildflags" ]
@@ -3816,11 +3988,7 @@ target(_test_target_type, "net_unittests") {
   }
 
   if (use_external_gssapi) {
-    sources += [
-      "http/http_auth_gssapi_posix_unittest.cc",
-      "http/mock_gssapi_library_posix.cc",
-      "http/mock_gssapi_library_posix.h",
-    ]
+    sources += [ "http/http_auth_gssapi_posix_unittest.cc" ]
     data_deps += [
       ":test_badgssapi",
       ":test_gssapi",
@@ -4721,6 +4889,7 @@ if (is_linux) {
 # net/BUILD.gn. Parent applies and validates canonical GN. Keep historical
 # parse_number_parser/CXX candidate targets unchanged.
 rust_static_library("parse_number_native_parser") {
+  configs += [ ":rust_net_fuzz_feedback" ]
   crate_root = "base/parse_number_native_ffi.rs"
   sources = [ "base/parse_number_native_ffi.rs" ]
   allow_unsafe = true  # Documented raw pointer ABI only; core forbids unsafe.
@@ -4792,11 +4961,10 @@ fuzzer_test("parse_number_native_fuzzer") {
 source_set("http_range_promote_reference") {
   testonly = true
   sources = [
-    "http/http_byte_range.h",
+    "http/http_range_original_byte_range.cc",
+    "http/http_range_original_byte_range.h",
     "http/http_range_promote_reference.cc",
     "http/http_range_promote_reference.h",
-    "http/http_util.h",
-    "http/http_version.h",
   ]
   defines = [ "NET_IMPLEMENTATION" ]
   deps = [
@@ -4829,15 +4997,21 @@ test("http_range_promote_unittests") {
 test("http_range_promote_perftests") {
   sources = [
     "http/http_byte_range.cc",
+    "http/http_byte_range.h",
+    "http/http_byte_range_rust_ffi.h",
     "http/http_range_benchmark_adapter.cc",
     "http/http_range_ffi.h",
     "http/http_range_promote_perftest.cc",
+    "http/http_util.h",
+    "http/http_version.h",
   ]
   defines = [ "NET_IMPLEMENTATION" ]
   deps = [
+    ":http_byte_range_rust",
     ":http_range_parser",
     ":http_range_promote_reference",
     "//base",
+    "//net/base:net_export_header",
     "//url",
   ]
 }
@@ -5134,6 +5308,7 @@ source_set("dns_names_services_header") {
 
 # Apply these fragments to net/BUILD.gn (parent-owned).
 rust_static_library("dns_names_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
   crate_root = "dns/dns_names_ffi.rs"
   sources = [
     "dns/dns_names_core.rs",
@@ -5283,6 +5458,20 @@ rust_static_library("auth_challenge_rust") {
   ]
   allow_unsafe = true  # Narrow pointer adapter; core forbids unsafe.
   visibility = [ ":*" ]
+
+  if (rustium_reference_probe_enabled) {
+    crate_root = "http/auth_challenge_ffi_reference_probe.rs"
+    sources -= [ "http/auth_challenge_ffi.rs" ]
+    sources += [ "http/auth_challenge_ffi_reference_probe.rs" ]
+    if (!defined(rustflags)) {
+      rustflags = []
+    }
+    rustflags += [
+      "--cfg=rustium_reference_probe",
+      "--check-cfg=cfg(rustium_reference_probe)",
+      "--check-cfg=cfg(test)",
+    ]
+  }
 }
 
 # Add :auth_challenge_rust to net's implementation dependencies and
@@ -5441,6 +5630,7 @@ fuzzer_test("net_diagnostics_debug_formatting_fuzzer") {
 
 # Parent-owned net/BUILD.gn fragments. Add rust_static_library import if absent.
 rust_static_library("port_policy_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
   crate_root = "base/port_policy_ffi.rs"
   sources = [
     "base/port_policy_core.rs",
@@ -5552,5 +5742,3636 @@ source_set("mime_type_state") {
   public_deps = [
     "//base",
     "//build/rust:cxx_cppdeps",
+  ]
+}
+
+# Parent Wave2 DNS query
+# Parent-owned net/BUILD.gn additions. Do not apply from the component agent.
+source_set("dns_query_rust_services_header") {
+  sources = [ "dns/dns_query_rust_ffi.h" ]
+  public_deps = [ "//build/rust:cxx_cppdeps" ]
+}
+
+rust_static_library("dns_query_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "dns/dns_query_rust_ffi.rs"
+  sources = [
+    "dns/dns_query_rust_core.rs",
+    "dns/dns_query_rust_ffi.rs",
+  ]
+  cxx_bindings = [ "dns/dns_query_rust_ffi.rs" ]
+  visibility = [
+    ":*",
+    "//net/dns",
+  ]
+  allow_unsafe =
+      true  # CXX and documented pointer-only ABI; core forbids unsafe.
+  deps = [ ":dns_query_rust_services_header" ]
+}
+
+component("dns_query_rust_reference") {
+  testonly = true
+  defines = [ "IS_DNS_QUERY_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "dns/dns_query_rust_names_reference.cc",
+    "dns/dns_query_rust_names_reference.h",
+    "dns/dns_query_rust_reference.cc",
+    "dns/dns_query_rust_reference.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+test("dns_query_rust_unittests") {
+  sources = [
+    "dns/dns_query_rust_test_support.h",
+    "dns/dns_query_rust_unittest.cc",
+    "dns/dns_query_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":dns_query_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("dns_query_rust_perftests") {
+  sources = [
+    "dns/dns_query_rust_perftest.cc",
+    "dns/dns_query_rust_test_support.h",
+  ]
+  deps = [
+    ":dns_query_rust_reference",
+    ":net",
+    "//base",
+    "//base/test:test_support",
+  ]
+}
+
+fuzzer_test("dns_query_rust_fuzzer") {
+  sources = [
+    "dns/dns_query_rust_fuzzer.cc",
+    "dns/dns_query_rust_test_support.h",
+  ]
+  deps = [
+    ":dns_query_rust_reference",
+    ":net",
+    "//base",
+    "//base/test:test_support",
+  ]
+  libfuzzer_options = [ "max_len=1024" ]
+}
+
+# Parent-owned net/dns/BUILD.gn source_set("dns") additions:
+# sources += [ "dns_query_rust_ffi.h" ]
+# deps += [ "//net:dns_query_rust" ]
+# The header source set declares only opaque OptContext, avoiding a cycle from
+# the generated bridge back to the owning dns source set.
+# Existing dns_query_unittest.cc and dns_query_parse_fuzzer.cc stay registered.
+# Use the separate new test target rather than adding new differential sources
+# to net_unittests unless also adding the reference component dependency there.
+
+# Parent Wave2 ParsedCookie
+# Parent-owned net/BUILD.gn integration fragment; do not apply from this agent.
+# Add :parsed_cookie_rust to component("net").deps and
+# cookies/parsed_cookie_rust_ffi.h to its sources. Existing parsed_cookie.cc/h
+# stay in net; no shared HttpUtil or CanonicalCookie/CookieMonster patch needed.
+rust_static_library("parsed_cookie_rust") {
+  crate_root = "cookies/parsed_cookie_rust_ffi.rs"
+  sources = [
+    "cookies/parsed_cookie_rust_core.rs",
+    "cookies/parsed_cookie_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Raw-pointer adapter only; core forbids unsafe_code.
+  visibility = [ ":*" ]
+}
+
+component("parsed_cookie_rust_reference") {
+  defines = [ "IS_PARSED_COOKIE_RUST_REFERENCE_IMPL=1" ]
+  testonly = true
+  sources = [
+    "cookies/parsed_cookie_rust_reference.cc",
+    "cookies/parsed_cookie_rust_reference.h",
+  ]
+  deps = [
+    ":cookie_inclusion_status_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+test("parsed_cookie_rust_unittests") {
+  sources = [
+    "cookies/parsed_cookie_rust_unittest.cc",
+    "cookies/parsed_cookie_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":cookie_inclusion_status_rust_reference",
+    ":net",
+    ":parsed_cookie_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("parsed_cookie_rust_state_fuzz") {
+  sources = [ "cookies/parsed_cookie_rust_fuzz.cc" ]
+  deps = [
+    ":cookie_inclusion_status_rust_reference",
+    ":net",
+    ":parsed_cookie_rust_reference",
+    "//base",
+  ]
+}
+
+test("parsed_cookie_rust_perftests") {
+  sources = [ "cookies/parsed_cookie_rust_perftest.cc" ]
+  deps = [
+    ":cookie_inclusion_status_rust_reference",
+    ":net",
+    ":parsed_cookie_rust_reference",
+    "//base",
+  ]
+}
+
+# Retain the existing parsed_cookie_unittest.cc in net_unittests.
+# Optional: also add parsed_cookie_rust_unittest.cc and the reference target
+# to net_unittests, rather than only using the focused executable above.
+
+# Parent Wave2 host-port
+# net/BUILD.gn (parent-owned; append target definitions and dependencies):
+rust_static_library("host_port_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "base/host_port_rust_ffi.rs"
+  sources = [
+    "base/host_port_rust_core.rs",
+    "base/host_port_rust_ffi.rs",
+  ]
+  cxx_bindings = [ "base/host_port_rust_ffi.rs" ]
+  allow_unsafe = true  # CXX generated bridge only; core forbids unsafe.
+  visibility = [ "//*" ]
+  deps = [ ":host_port_rust_services_header" ]
+  rustflags = [
+    "--check-cfg=cfg(rustium_reference_probe)",
+    "--check-cfg=cfg(test)",
+  ]
+  if (rustium_reference_probe_enabled) {
+    rustflags += [ "--cfg=rustium_reference_probe" ]
+  }
+}
+
+source_set("host_port_rust_services_header") {
+  sources = [ "base/host_port_rust_ffi.h" ]
+  public_deps = [ "//build/rust:cxx_cppdeps" ]
+  visibility = [ "//*" ]
+}
+
+# Add ":host_port_rust" to component("net") deps and
+# "base/host_port_rust_ffi.h" to its sources.
+component("host_port_rust_reference") {
+  testonly = true
+  sources = [
+    "base/host_port_rust_reference.cc",
+    "base/host_port_rust_reference.h",
+  ]
+  defines = [ "IS_HOST_PORT_RUST_REFERENCE_IMPL=1" ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+test("host_port_rust_unittests") {
+  configs += [ "//build/config/compiler:no_exit_time_destructors" ]
+
+  sources = [
+    "base/host_port_pair_unittest.cc",
+    "base/host_port_rust_unittest.cc",
+    "base/host_port_rust_url_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":host_port_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//net/base:host_port_rust_services",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("host_port_rust_perftests") {
+  sources = [ "base/host_port_rust_perftest.cc" ]
+  deps = [
+    ":host_port_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+fuzzer_test("host_port_rust_fuzzer") {
+  sources = [ "base/host_port_rust_fuzzer.cc" ]
+  deps = [
+    ":host_port_rust_reference",
+    ":net",
+    "//base",
+    "//net/base:host_port_rust_services",
+  ]
+  libfuzzer_options = [ "max_len=48" ]
+}
+
+# Parent Wave2 shared host-port policy core
+rust_static_library("host_port_policy_core") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "base/host_port_rust_core.rs"
+  sources = [ "base/host_port_rust_core.rs" ]
+  visibility = [
+    ":*",
+    "//net/base:*",
+  ]
+}
+
+# Parent Wave2 WebSocket extensions
+# Parent-owned net/BUILD.gn fragment. No shared file was edited by this agent.
+rust_static_library("websocket_extension_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "websockets/websocket_extension_rust_ffi.rs"
+  sources = [
+    "websockets/websocket_extension_rust_core.rs",
+    "websockets/websocket_extension_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Documented pointer/callback ABI; core forbids unsafe.
+  visibility = [ ":*" ]
+}
+
+# Add :websocket_extension_rust to component("net").deps and
+# websockets/websocket_extension_rust_ffi.h to that component's sources.
+component("websocket_extension_rust_reference") {
+  testonly = true
+  defines = [ "IS_WEBSOCKET_EXTENSION_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "websockets/websocket_extension_rust_reference.cc",
+    "websockets/websocket_extension_rust_reference.h",
+    "websockets/websocket_extension_rust_reference_parser.cc",
+    "websockets/websocket_extension_rust_reference_tokens.cc",
+  ]
+  deps = [ "//base" ]
+}
+
+test("websocket_extension_rust_unittests") {
+  sources = [
+    "test/run_all_unittests.cc",
+    "websockets/websocket_extension_parser_test.cc",
+    "websockets/websocket_extension_rust_test.cc",
+    "websockets/websocket_extension_rust_test_support.h",
+    "websockets/websocket_extension_test.cc",
+  ]
+  deps = [
+    ":net",
+    ":test_support",
+    ":websocket_extension_rust_reference",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+# Also retain original suites in net_unittests. Add the new rust_test.cc and
+# reference dependency there when integrating its tests.
+fuzzer_test("websocket_extension_rust_fuzzer") {
+  sources = [
+    "websockets/websocket_extension_rust_fuzzer.cc",
+    "websockets/websocket_extension_rust_test_support.h",
+  ]
+  deps = [
+    ":net",
+    ":websocket_extension_rust_reference",
+    "//base",
+  ]
+}
+
+test("websocket_extension_rust_perftests") {
+  sources = [
+    "websockets/websocket_extension_rust_perftest.cc",
+    "websockets/websocket_extension_rust_test_support.h",
+  ]
+  deps = [
+    ":net",
+    ":websocket_extension_rust_reference",
+    "//base",
+  ]
+}
+
+# Parent Wave2 backoff
+rust_static_library("backoff_entry_rust") {
+  crate_root = "base/backoff_rust_ffi.rs"
+  sources = [
+    "base/backoff_rust_core.rs",
+    "base/backoff_rust_ffi.rs",
+  ]
+  allow_unsafe = true
+  visibility = [ ":*" ]
+}
+
+component("backoff_rust_reference") {
+  testonly = true
+  defines = [ "IS_BACKOFF_RUST_REFERENCE_IMPL=1" ]
+  sources = [
+    "base/backoff_rust_original_entry.cc",
+    "base/backoff_rust_original_entry.h",
+    "base/backoff_rust_original_serializer.cc",
+    "base/backoff_rust_original_serializer.h",
+  ]
+  deps = [
+    "//base",
+    "//net/base:net_export_header",
+  ]
+}
+
+test("backoff_entry_rust_unittests") {
+  sources = [
+    "//base/test/run_all_unittests.cc",
+    "base/backoff_entry_serializer_unittest.cc",
+    "base/backoff_entry_unittest.cc",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//base/test:test_support",
+    "//testing/gtest",
+  ]
+}
+
+# Both complete adapters are compiled locally with the same deterministic RNG
+# primitive. The production DLL remains free of the test hook.
+test("backoff_entry_rust_differential_unittests") {
+  defines = [
+    "NET_IMPLEMENTATION",
+    "BACKOFF_RUST_REFERENCE_STATIC",
+    "BACKOFF_RUST_DETERMINISTIC_TEST",
+  ]
+  sources = [
+    "//base/test/run_all_unittests.cc",
+    "base/backoff_entry.cc",
+    "base/backoff_entry.h",
+    "base/backoff_entry_serializer.cc",
+    "base/backoff_entry_serializer.h",
+    "base/backoff_rust_differential_unittest.cc",
+    "base/backoff_rust_ffi.h",
+    "base/backoff_rust_original_entry.cc",
+    "base/backoff_rust_original_entry.h",
+    "base/backoff_rust_original_serializer.cc",
+    "base/backoff_rust_original_serializer.h",
+  ]
+  deps = [
+    ":backoff_entry_rust",
+    "//base",
+    "//base/test:test_support",
+    "//net/base:net_export_header",
+    "//testing/gtest",
+  ]
+}
+
+# Production and frozen public APIs both cross component boundaries here.
+test("backoff_entry_rust_perftests") {
+  sources = [ "base/backoff_rust_perftest.cc" ]
+  deps = [
+    ":backoff_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+# Parent Wave2 NetLog values
+# Parent applies to net/BUILD.gn. This file is a fragment, not an applied edit.
+# Existing net target:
+#   sources += [ "log/net_log_values_rust_ffi.h" ]
+#   deps += [ ":net_log_values_rust" ]
+# Existing net_unittests target, optionally:
+#   sources += [ "log/net_log_values_rust_unittest.cc" ]
+#   deps += [ ":net_log_values_rust_reference" ]
+
+rust_static_library("net_log_values_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "log/net_log_values_rust_ffi.rs"
+  sources = [
+    "log/net_log_values_rust_core.rs",
+    "log/net_log_values_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Only the documented synchronous pointer ABI.
+
+  if (rustium_reference_probe_enabled) {
+    crate_root = "log/net_log_values_rust_ffi_reference_probe.rs"
+    sources -= [ "log/net_log_values_rust_ffi.rs" ]
+    sources += [ "log/net_log_values_rust_ffi_reference_probe.rs" ]
+    if (!defined(rustflags)) {
+      rustflags = []
+    }
+    rustflags += [
+      "--cfg=rustium_reference_probe",
+      "--check-cfg=cfg(rustium_reference_probe)",
+    ]
+  }
+}
+
+component("net_log_values_rust_reference") {
+  testonly = true
+  defines = [ "IS_NET_LOG_VALUES_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "log/net_log_values_rust_reference.cc",
+    "log/net_log_values_rust_reference.h",
+  ]
+  deps = [
+    "//base",
+    "//net/base:net_export_header",
+  ]
+}
+
+test("net_log_values_rust_unittests") {
+  sources = [
+    "log/net_log_values_rust_differential.h",
+    "log/net_log_values_rust_unittest.cc",
+    "log/net_log_values_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":net_log_values_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("net_log_values_rust_perftests") {
+  sources = [ "log/net_log_values_rust_perftest.cc" ]
+  deps = [
+    ":net",
+    ":net_log_values_rust_reference",
+    "//base",
+  ]
+}
+
+fuzzer_test("net_log_values_rust_fuzzer") {
+  sources = [
+    "log/net_log_values_rust_differential.h",
+    "log/net_log_values_rust_fuzzer.cc",
+  ]
+  deps = [
+    ":net",
+    ":net_log_values_rust_reference",
+    "//base",
+  ]
+}
+
+# Parent Wave2 request headers
+# Parent-owned net/BUILD.gn additions. Do not apply automatically.
+# In component("net") add "http/http_request_headers_rust_ffi.h" to sources
+# and ":http_request_headers_rust" to implementation deps. Existing
+# http_request_headers.{cc,h} entries remain. No shared method replacements.
+rust_static_library("http_request_headers_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "http/http_request_headers_rust_ffi.rs"
+  sources = [
+    "http/http_request_headers_rust_core.rs",
+    "http/http_request_headers_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Narrow documented ABI; core has forbid(unsafe_code).
+  visibility = [ ":*" ]
+
+  if (rustium_reference_probe_enabled) {
+    crate_root = "http/http_request_headers_rust_ffi_reference_probe.rs"
+    sources -= [ "http/http_request_headers_rust_ffi.rs" ]
+    sources += [ "http/http_request_headers_rust_ffi_reference_probe.rs" ]
+    if (!defined(rustflags)) {
+      rustflags = []
+    }
+    rustflags += [
+      "--cfg=rustium_reference_probe",
+      "--check-cfg=cfg(rustium_reference_probe)",
+    ]
+  }
+}
+
+component("http_request_headers_rust_reference") {
+  defines = [ "IS_HTTP_REQUEST_HEADERS_RUST_REFERENCE_IMPL=1" ]
+  testonly = true
+  sources = [
+    "http/http_request_headers_rust_original.cc",
+    "http/http_request_headers_rust_original.h",
+    "http/http_request_headers_rust_original_helpers.h",
+  ]
+  deps = [
+    ":connection_original_log_reference",
+    ":net",
+    ":net_error_rust_reference",
+    "//base",
+    "//third_party/abseil-cpp:absl",
+    "//url",
+  ]
+}
+
+test("http_request_headers_rust_unittests") {
+  sources = [
+    "http/http_request_headers_rust_test_support.h",
+    "http/http_request_headers_rust_unittest.cc",
+    "http/http_request_headers_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http_request_headers_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+  if (rustium_reference_probe_enabled) {
+    defines = [ "RUSTIUM_COMPONENT_REQUEST_HEADERS_TEST" ]
+  } else {
+    deps += [ ":http_request_headers_rust" ]
+  }
+}
+
+# Also add http/http_request_headers_rust_unittest.cc to net_unittests and
+# :http_request_headers_rust_reference AND :http_request_headers_rust to its
+# deps. Preserve upstream.
+test("http_request_headers_rust_differential_fuzz") {
+  sources = [
+    "http/http_request_headers_rust_fuzzer.cc",
+    "http/http_request_headers_rust_test_support.h",
+  ]
+  deps = [
+    ":http_request_headers_rust_reference",
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+test("http_request_headers_rust_perftests") {
+  sources = [
+    "http/http_request_headers_rust_perftest.cc",
+    "http/http_request_headers_rust_test_support.h",
+  ]
+  deps = [
+    ":http_request_headers_rust_reference",
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+# Parent Wave2 Vary data Parent applies to net/BUILD.gn; no shared files
+# modified by worker. Add :http_vary_data_rust to component("net") deps and
+# http/http_vary_data_rust_ffi.h to its sources. Existing vary .cc/.h stay
+# listed.
+rust_static_library("http_vary_data_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "http/http_vary_data_rust_ffi.rs"
+  sources = [
+    "http/http_vary_data_rust_core.rs",
+    "http/http_vary_data_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Documented ABI only; policy core forbids unsafe.
+  visibility = [ ":*" ]
+}
+
+component("http_vary_data_rust_reference") {
+  testonly = true
+  defines = [ "IS_HTTP_VARY_DATA_RUST_REFERENCE_IMPL=1" ]
+  if (is_component_build) {
+    defines += [ "HTTP_VARY_DATA_RUST_REFERENCE_FACTORY" ]
+  }
+  sources = [
+    "http/http_vary_data_rust_reference.cc",
+    "http/http_vary_data_rust_reference.h",
+    "http/http_vary_data_rust_test_support.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//crypto",
+  ]
+}
+
+# Add http/http_vary_data_rust_unittest.cc to net_unittests and this reference
+# to deps. Keep the existing http_vary_data_unittest.cc unchanged.
+test("http_vary_data_rust_unittests") {
+  sources = [
+    "http/http_vary_data_rust_unittest.cc",
+    "http/http_vary_data_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http_vary_data_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//crypto",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("http_vary_data_rust_perftests") {
+  sources = [ "http/http_vary_data_rust_perftest.cc" ]
+  deps = [
+    ":http_vary_data_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+fuzzer_test("http_vary_data_rust_fuzzer") {
+  sources = [ "http/http_vary_data_rust_fuzzer.cc" ]
+  deps = [
+    ":http_vary_data_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+# Parent Wave2 WebSocket frames Parent-owned net/BUILD.gn integration. This is a
+# fragment, not an applied edit. In component("net"): add
+# websocket_frame_rust_ffi.h to sources and :websocket_frame_rust to deps.
+# Existing frame/parser .cc/.h stay in net.
+rust_static_library("websocket_frame_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "websockets/websocket_frame_rust_ffi.rs"
+  sources = [
+    "websockets/websocket_frame_rust_core.rs",
+    "websockets/websocket_frame_rust_ffi.rs",
+  ]
+  visibility = [ ":*" ]
+
+  # Only raw-pointer ABI adapters; core has #![forbid(unsafe_code)].
+  allow_unsafe = true
+}
+
+component("websocket_frame_rust_reference") {
+  defines = [ "IS_WEBSOCKET_FRAME_RUST_REFERENCE_IMPL=1" ]
+  testonly = true
+  sources = [
+    "websockets/websocket_frame_rust_reference.cc",
+    "websockets/websocket_frame_rust_reference.h",
+    "websockets/websocket_frame_rust_reference_icu_utf.h",
+    "websockets/websocket_frame_rust_reference_parser.cc",
+    "websockets/websocket_frame_rust_reference_parser.h",
+    "websockets/websocket_frame_rust_reference_utf8.cc",
+    "websockets/websocket_frame_rust_reference_utf8.h",
+    "websockets/websocket_frame_rust_test_support.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+test("websocket_frame_rust_perftests") {
+  sources = [ "websockets/websocket_frame_rust_perftest.cc" ]
+  deps = [
+    ":net",
+    ":websocket_frame_rust_reference",
+    "//base",
+  ]
+}
+
+test("websocket_frame_rust_unittests") {
+  sources = [
+    "test/run_all_unittests.cc",
+    "websockets/websocket_frame_parser_test.cc",
+    "websockets/websocket_frame_rust_test.cc",
+    "websockets/websocket_frame_test.cc",
+  ]
+  deps = [
+    ":net",
+    ":test_support",
+    ":websocket_frame_rust_reference",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+fuzzer_test("websocket_frame_rust_fuzzer") {
+  sources = [ "websockets/websocket_frame_rust_fuzzer.cc" ]
+  deps = [
+    ":net",
+    ":websocket_frame_rust_reference",
+    "//base",
+  ]
+  dict = "data/fuzzer_dictionaries/net_websocket_frame_parser_fuzzer.dict"
+}
+
+# Also retain/build the original net_websocket_frame_parser_fuzzer and the
+# existing frame/parser cases in net_unittests. No shared method replacement is
+# required. Configured acceptance targets: net, net_unittests,
+# websocket_frame_rust_unittests, net_websocket_frame_parser_fuzzer,
+# websocket_frame_rust_fuzzer, websocket_frame_rust_perftests. Run the paired
+# perftest with --validate-only before scheduling quiet timing. For canonical
+# timing this target uses the net DLL production methods while the namespaced
+# C++ reference is a local source_set (original helper calls preserved except
+# the frozen UTF-8 helper has its own local out-of-line TU).
+
+# Parent Wave2 proxy-value reference
+# Parent applies to net/BUILD.gn. Shared by proxy-values native compatibility
+# tests/perftests and response-info's independent ORIGINAL C++ reference.
+component("proxy_value_rust_reference") {
+  testonly = true
+  defines = [ "IS_PROXY_VALUE_RUST_REFERENCE_IMPL=1" ]
+  sources = [
+    "base/proxy_value_rust_reference_host_port_pair.cc",
+    "base/proxy_value_rust_reference_host_port_pair.h",
+    "base/proxy_value_rust_reference_proxy_chain.cc",
+    "base/proxy_value_rust_reference_proxy_chain.h",
+    "base/proxy_value_rust_reference_proxy_server.cc",
+    "base/proxy_value_rust_reference_proxy_server.h",
+    "base/proxy_value_rust_reference_proxy_string_util.cc",
+    "base/proxy_value_rust_reference_proxy_string_util.h",
+    "base/url_util.h",
+  ]
+  deps = [
+    ":buildflags",
+    "//base",
+    "//net/base:net_export_header",
+    "//url",
+  ]
+}
+
+# Namespace: net::proxy_value_rust_reference (not net).
+# Public ProxyChain, ProxyServer and HostPortPair proxy-facing APIs match their
+# frozen before/ snapshots. HostPortPair is an INDEPENDENT type with frozen
+# port_/host_ field order. Do not pass a production net::HostPortPair to it;
+# construct ref::HostPortPair(host, port) if conversion is required.
+# Unused HostPortPair URL/IPEndPoint/Value conversion APIs are intentionally
+# absent. Proxy-facing FromString, ToString, HostForURL and constructors are
+# independent ORIGINAL C++ implementations. ParseHostAndPort and HttpUtil LWS
+# closure are frozen locally, never routed through production Rust methods.
+# Base pickle/strings/logging, URL canonicalization/authority/IPv6 primitives
+# and compile-time build flags are explicit shared primitives only.
+# No Rust dependency, no :net dependency, no exported reference symbols.
+# Source/header hashes are frozen in reference-manifest.json. The four .cc
+# files link together: proxy_server's ostream references string conversion and
+# chain's debug formatting references it too. Link the full source_set once.
+
+# Parent Wave2 response-info
+# Apply in net/BUILD.gn; parent owns all GN edits.
+# Add http/http_response_info_rust_ffi.h to component("net") sources and
+# :http_response_info_rust to its deps. Existing response_info.cc/.h stay.
+rust_static_library("http_response_info_rust") {
+  crate_root = "http/http_response_info_rust_ffi.rs"
+  sources = [
+    "http/http_response_info_rust_core.rs",
+    "http/http_response_info_rust_ffi.rs",
+    "http/http_response_info_rust_ids.rs",
+  ]
+  allow_unsafe = true  # Callback ABI only; policy forbids unsafe_code.
+  visibility = [ ":*" ]
+}
+
+component("http_response_info_rust_reference") {
+  testonly = true
+  sources = [
+    "http/http_response_info_rust_original_vary.cc",
+    "http/http_response_info_rust_original_vary.h",
+    "http/http_response_info_rust_reference.cc",
+    "http/http_response_info_rust_reference.h",
+  ]
+  defines = [ "IS_HTTP_RESPONSE_INFO_RUST_REFERENCE_IMPL=1" ]
+  public_deps = [ ":proxy_value_rust_reference" ]
+  deps = [
+    ":net",
+    "//base",
+    "//crypto",
+    "//third_party/boringssl",
+    "//url",
+  ]
+}
+
+test("http_response_info_rust_unittests") {
+  sources = [
+    "http/http_response_info_rust_original_unittest.cc",
+    "http/http_response_info_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http_response_info_rust_reference",
+    ":net",
+    ":proxy_value_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("http_response_info_rust_differential_tests") {
+  sources = [
+    "http/http_response_info_rust_differential_test.cc",
+    "http/http_response_info_rust_test_support.h",
+  ]
+  deps = [
+    ":http_response_info_rust",
+    ":http_response_info_rust_reference",
+    ":net",
+    "//base",
+    "//crypto",
+    "//third_party/boringssl",
+    "//url",
+  ]
+}
+
+test("http_response_info_rust_perftests") {
+  sources = [
+    "http/http_response_info_rust_perftest.cc",
+    "http/http_response_info_rust_test_support.h",
+  ]
+  deps = [
+    ":http_response_info_rust",
+    ":http_response_info_rust_reference",
+    ":net",
+    ":proxy_value_rust_reference",
+    "//base",
+    "//crypto",
+    "//third_party/boringssl",
+    "//url",
+  ]
+}
+
+# Parent Wave2 proxy values Parent owns application to net/BUILD.gn; do not
+# replace existing public source list entries for proxy_server/chain/string_util
+# (their .cc bodies are adapted).
+rust_static_library("proxy_value_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "base/proxy_value_rust_ffi.rs"
+  sources = [
+    "base/proxy_value_rust_core.rs",
+    "base/proxy_value_rust_ffi.rs",
+  ]
+  cxx_bindings = [ "base/proxy_value_rust_ffi.rs" ]
+  allow_unsafe = true  # Generated CXX only; authored policy forbids unsafe.
+  deps = [
+    ":host_port_policy_core",
+    "//base",
+  ]  # FFI service handle header.
+  aliased_deps = {
+    host_port_policy_core = ":host_port_policy_core"
+  }
+  visibility = [ ":*" ]
+}
+
+# Add ":proxy_value_rust" to component("net") implementation deps.
+# Add base/proxy_value_rust_adapter.cc and base/proxy_value_rust_ffi.h to its
+# sources. CXX services are implemented there, with no original proxy fallback.
+# Preserve all three upstream test files. Add base/proxy_value_rust_unittest.cc
+# and ":proxy_value_rust_reference" to net_unittests sources/deps.
+# Include reference-target.gn.txt's source_set, also used by response-info.
+test("proxy_value_rust_perftests") {
+  sources = [ "base/proxy_value_rust_perftest.cc" ]
+  deps = [
+    ":net",
+    ":proxy_value_rust_reference",
+    "//base",
+    "//base:i18n",
+  ]
+}
+
+fuzzer_test("proxy_value_rust_fuzzer") {
+  sources = [ "base/proxy_value_rust_fuzzer.cc" ]
+  deps = [
+    ":net",
+    ":proxy_value_rust_reference",
+    "//base",
+    "//base:i18n",
+  ]
+  libfuzzer_options = [ "max_len=4096" ]
+}
+
+# Upstream ORIGINAL test copies for the native-only harness are reproducibly
+# generated from before/; production net_unittests keeps originals unchanged.
+# Perftest --verify performs checksums only; --benchmark performs all 20 pairs.
+# No shared HttpUtil/url_util method replacement is needed for this component.
+
+# Parent Wave2 proxy matching
+# Parent-owned integration fragments; do not apply from this agent.
+# Add to net/BUILD.gn (rust_static_library import is already present):
+rust_static_library("proxy_matching_rust_policy") {
+  crate_root = "base/proxy_matching_rust_ffi.rs"
+  sources = [
+    "base/proxy_matching_rust_core.rs",
+    "base/proxy_matching_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # generated CXX boundary; core forbids unsafe_code
+  cxx_bindings = [ "base/proxy_matching_rust_ffi.rs" ]
+  deps = [
+    "//base",
+    "//net/base:net_export_header",
+    "//third_party/rust/cxx/v1:lib",
+  ]
+}
+
+# In the existing //net:net component:
+# sources += [ "base/proxy_matching_rust_ffi.cc", "base/proxy_matching_rust_ffi.h" ]
+# deps += [ ":proxy_matching_rust_policy" ]
+# The existing matcher/proxy .cc and .h paths remain in the component's sources.
+
+source_set("proxy_matching_rust_original_reference") {
+  testonly = true
+  sources = [
+    "base/proxy_matching_rust_reference.cc",
+    "base/proxy_matching_rust_reference.h",
+    "base/proxy_matching_rust_reference_pattern.cc",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+# Add to existing net_unittests sources/deps:
+# sources += [ "base/proxy_matching_rust_unittest.cc", "base/proxy_matching_rust_differential.h" ]
+# deps += [ ":proxy_matching_rust_original_reference" ]
+# Keep all existing upstream tests and parse_proxy_host_matching_rules_fuzzer.
+
+executable("proxy_matching_rust_perftest") {
+  testonly = true
+  sources = [
+    "base/proxy_matching_rust_differential.h",
+    "base/proxy_matching_rust_perftest.cc",
+  ]
+  deps = [
+    ":net",
+    ":proxy_matching_rust_original_reference",
+    "//base",
+    "//base:i18n",
+    "//url",
+  ]
+}
+
+executable("proxy_matching_rust_differential_fuzz") {
+  testonly = true
+  sources = [
+    "base/proxy_matching_rust_differential.h",
+    "base/proxy_matching_rust_fuzzer.cc",
+  ]
+  deps = [
+    ":net",
+    ":proxy_matching_rust_original_reference",
+    "//base",
+    "//base:i18n",
+    "//url",
+  ]
+}
+
+# Parent Wave2 DNS response
+# Parent-owned net/BUILD.gn additions. Do not apply from the component agent.
+source_set("dns_response_rust_services_header") {
+  sources = [ "dns/dns_response_rust_ffi.h" ]
+  public_deps = [ "//build/rust:cxx_cppdeps" ]
+}
+
+rust_static_library("dns_response_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "dns/dns_response_rust_ffi.rs"
+  sources = [
+    "dns/dns_response_rust_core.rs",
+    "dns/dns_response_rust_ffi.rs",
+  ]
+  cxx_bindings = [ "dns/dns_response_rust_ffi.rs" ]
+  visibility = [
+    ":*",
+    "//net/dns",
+  ]
+  allow_unsafe =
+      true  # CXX and documented pointer-only ABI; core forbids unsafe.
+  deps = [ ":dns_response_rust_services_header" ]
+}
+
+component("dns_response_rust_reference") {
+  testonly = true
+  defines = [
+    "IS_DNS_RESPONSE_RUST_REFERENCE_IMPL",
+    "IS_DNS_RESPONSE_RUST_NAMES_REFERENCE_IMPL",
+  ]
+  sources = [
+    "dns/dns_response_rust_names_reference.cc",
+    "dns/dns_response_rust_names_reference.h",
+    "dns/dns_response_rust_query_reference.cc",
+    "dns/dns_response_rust_query_reference.h",
+    "dns/dns_response_rust_reference.cc",
+    "dns/dns_response_rust_reference.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+test("dns_response_rust_unittests") {
+  sources = [
+    "dns/dns_response_rust_test_support.h",
+    "dns/dns_response_rust_unittest.cc",
+    "dns/dns_response_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":dns_response_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("dns_response_rust_perftests") {
+  sources = [
+    "dns/dns_response_rust_perftest.cc",
+    "dns/dns_response_rust_test_support.h",
+  ]
+  deps = [
+    ":dns_response_rust_reference",
+    ":net",
+    "//base",
+    "//base/test:test_support",
+  ]
+}
+
+fuzzer_test("dns_response_rust_fuzzer") {
+  sources = [
+    "dns/dns_response_rust_fuzzer.cc",
+    "dns/dns_response_rust_test_support.h",
+  ]
+  deps = [
+    ":dns_response_rust_reference",
+    ":net",
+    "//base",
+    "//base/test:test_support",
+  ]
+  libfuzzer_options = [ "max_len=1024" ]
+}
+
+# Parent-owned net/dns/BUILD.gn source_set("dns") additions:
+# sources += [ "dns_response_rust_ffi.h" ]
+# deps += [ "//net:dns_response_rust" ]
+# The header source set declares only opaque ParserContext, avoiding a cycle from
+# the generated bridge back to the owning dns source set.
+# Existing dns_response_unittest.cc and dns_response_fuzzer.cc stay registered.
+# Use the separate new test target rather than adding new differential sources
+# to net_unittests unless also adding the reference component dependency there.
+
+# Parent Wave2 HTTP byte-range value Parent integration fragment; this file
+# deliberately does not edit net/BUILD.gn. Append :http_byte_range_rust to :net
+# deps and any target compiling http/http_byte_range.cc locally (notably
+# :http_range_promote_perftests). Keep :net's existing public
+# http_byte_range.cc/.h entries. Append "http/http_byte_range_rust_ffi.h" to
+# :net sources for GN header ownership.
+rust_static_library("http_byte_range_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "http/http_byte_range_rust_ffi.rs"
+  sources = [
+    "http/http_byte_range_rust_core.rs",
+    "http/http_byte_range_rust_ffi.rs",
+  ]
+
+  # Only exported-symbol attributes require the unsafe opt-in; neither file
+  # has unsafe blocks, and the core forbids unsafe_code.
+  allow_unsafe = true
+  visibility = [ ":*" ]
+}
+
+component("http_byte_range_rust_reference") {
+  testonly = true
+  sources = [
+    "http/http_byte_range_rust_reference.cc",
+    "http/http_byte_range_rust_reference.h",
+  ]
+  defines = [ "IS_HTTP_BYTE_RANGE_RUST_REFERENCE_IMPL=1" ]
+  deps = [
+    "//base",
+    "//third_party/abseil-cpp:absl",
+  ]
+}
+
+test("http_byte_range_rust_unittests") {
+  sources = [
+    "http/http_byte_range_rust_test_support.h",
+    "http/http_byte_range_rust_unittest.cc",
+    "http/http_byte_range_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http_byte_range_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+executable("http_byte_range_rust_state_fuzzer") {
+  testonly = true
+  sources = [
+    "http/http_byte_range_rust_fuzzer.cc",
+    "http/http_byte_range_rust_test_support.h",
+  ]
+  deps = [
+    ":http_byte_range_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+test("http_byte_range_rust_perftests") {
+  sources = [
+    "http/http_byte_range_rust_perftest.cc",
+    "http/http_byte_range_rust_test_support.h",
+  ]
+  deps = [
+    ":http_byte_range_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+# Parent must evaluate existing Range baselines that call public HttpByteRange:
+# after migration those calls enter Rust. This frozen byte-range reference does
+# not call public HttpByteRange. Do not silently time mixed Range baselines.
+
+# Parent Wave2 cookie inclusion status
+# Parent-owned net/BUILD.gn integration fragment. Implementation agent does not
+# edit shared GN or invoke configured GN/Ninja.
+# Add :cookie_inclusion_status_rust to component("net").deps and the FFI header
+# to sources. Existing cookie_inclusion_status.cc/.h remain in net.
+rust_static_library("cookie_inclusion_status_rust") {
+  crate_root = "cookies/cookie_inclusion_status_rust_ffi.rs"
+  sources = [
+    "cookies/cookie_inclusion_status_rust_core.rs",
+    "cookies/cookie_inclusion_status_rust_ffi.rs",
+  ]
+  allow_unsafe =
+      true  # Only initialized output-slice conversion in ABI wrapper.
+  visibility = [ ":*" ]
+}
+
+# Retain the original exported public-call boundary, independent from net.dll.
+component("cookie_inclusion_status_rust_reference") {
+  testonly = true
+  defines = [ "IS_COOKIE_INCLUSION_STATUS_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "cookies/cookie_inclusion_status_rust_enum_set.h",
+    "cookies/cookie_inclusion_status_rust_reference.cc",
+    "cookies/cookie_inclusion_status_rust_reference.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+test("cookie_inclusion_status_rust_unittests") {
+  sources = [
+    "cookies/cookie_inclusion_status_rust_unittest.cc",
+    "cookies/cookie_inclusion_status_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    # Direct private ABI-guard tests require the static library as well.
+    ":cookie_inclusion_status_rust",
+    ":cookie_inclusion_status_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("cookie_inclusion_status_rust_state_fuzz") {
+  sources = [ "cookies/cookie_inclusion_status_rust_fuzz.cc" ]
+  deps = [
+    ":cookie_inclusion_status_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+test("cookie_inclusion_status_rust_perftests") {
+  sources = [ "cookies/cookie_inclusion_status_rust_perftest.cc" ]
+  deps = [
+    ":cookie_inclusion_status_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+# Retain upstream cookie_inclusion_status_unittest.cc in net_unittests.
+# --verify-only performs checksum validation with no clock reads.
+# --timing is parent-only; configured runner arguments must include --timing.
+
+# Parent Wave2 authentication cache
+# Parent applies this fragment to net/BUILD.gn. No shared GN files were edited.
+rust_static_library("http_auth_cache_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "http/http_auth_cache_rust_ffi.rs"
+  sources = [
+    "http/http_auth_cache_rust_core.rs",
+    "http/http_auth_cache_rust_ffi.rs",
+  ]
+  allow_unsafe =
+      true  # Only synchronous documented pointer ABI; safe core forbids unsafe.
+  visibility = [ ":*" ]
+
+  if (rustium_reference_probe_enabled) {
+    crate_root = "http/http_auth_cache_rust_ffi_reference_probe.rs"
+    sources -= [ "http/http_auth_cache_rust_ffi.rs" ]
+    sources += [ "http/http_auth_cache_rust_ffi_reference_probe.rs" ]
+    if (!defined(rustflags)) {
+      rustflags = []
+    }
+    rustflags += [
+      "--cfg=rustium_reference_probe",
+      "--check-cfg=cfg(rustium_reference_probe)",
+    ]
+  }
+}
+
+# Add :http_auth_cache_rust to component("net").deps, and
+# http/http_auth_cache_rust_ffi.h to its sources. Existing cache cc/h remain.
+component("http_auth_cache_rust_reference") {
+  testonly = true
+  defines = [ "IS_HTTP_AUTH_CACHE_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "http/http_auth_cache_rust_original.cc",
+    "http/http_auth_cache_rust_original.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+test("http_auth_cache_rust_unittests") {
+  sources = [
+    "http/http_auth_cache_rust_test_support.h",
+    "http/http_auth_cache_rust_unittest.cc",
+    "http/http_auth_cache_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http_auth_cache_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+# Also retain the original test in net_unittests. If adding the new test there,
+# include the reference dependency and test support header there as well.
+fuzzer_test("http_auth_cache_rust_fuzzer") {
+  sources = [
+    "http/http_auth_cache_rust_fuzzer.cc",
+    "http/http_auth_cache_rust_test_support.h",
+  ]
+  deps = [
+    ":http_auth_cache_rust_reference",
+    ":net",
+    "//base",
+    "//url",
+  ]
+  libfuzzer_options = [ "max_len=192" ]
+}
+
+test("http_auth_cache_rust_perftests") {
+  sources = [
+    "http/http_auth_cache_rust_perftest.cc",
+    "http/http_auth_cache_rust_test_support.h",
+  ]
+  deps = [
+    ":http_auth_cache_rust_reference",
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+# Parent Wave2 focused proxy integration tests
+test("proxy_value_rust_unittests") {
+  sources = [
+    "base/proxy_chain_unittest.cc",
+    "base/proxy_server_unittest.cc",
+    "base/proxy_string_util_unittest.cc",
+    "base/proxy_value_rust_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  configs += [ "//build/config/compiler:no_exit_time_destructors" ]
+  deps = [
+    ":net",
+    ":proxy_value_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base:i18n",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+test("proxy_matching_rust_unittests") {
+  sources = [
+    "base/proxy_matching_rust_differential.h",
+    "base/proxy_matching_rust_unittest.cc",
+    "base/scheme_host_port_matcher_rule_unittest.cc",
+    "base/scheme_host_port_matcher_unittest.cc",
+    "proxy_resolution/proxy_host_matching_rules_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  configs += [ "//build/config/compiler:no_exit_time_destructors" ]
+  deps = [
+    ":net",
+    ":proxy_matching_rust_original_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base:i18n",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+# Parent Wave2 Host mapping
+# Parent-owned net/BUILD.gn: proposed additions, no shared GN edited.
+rust_static_library("host_mapping_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "base/host_mapping_rust_ffi.rs"
+  sources = [
+    "base/host_mapping_rust_core.rs",
+    "base/host_mapping_rust_ffi.rs",
+  ]
+  cxx_bindings = [ "base/host_mapping_rust_ffi.rs" ]
+  allow_unsafe =
+      true  # Generated CXX ABI only; authored rule core forbids unsafe.
+  deps = [
+    ":host_mapping_rust_services_header",
+    ":host_port_policy_core",
+  ]
+  aliased_deps = {
+    host_port_policy_core = ":host_port_policy_core"
+  }
+}
+
+source_set("host_mapping_rust_services_header") {
+  sources = [ "base/host_mapping_rust_ffi.h" ]
+  public_deps = [ "//build/rust:cxx_cppdeps" ]
+}
+
+# Add ":host_mapping_rust" to component("net") deps and
+# "base/host_mapping_rust_services.cc", "base/host_mapping_rust_ffi.h" to
+# sources. Existing host_mapping_rules.cc remains the production public adapter.
+component("host_mapping_rust_reference") {
+  sources = [
+    "base/host_mapping_rust_reference.cc",
+    "base/host_mapping_rust_reference.h",
+    "base/host_mapping_rust_reference_icu.h",
+    "base/host_mapping_rust_reference_pattern.cc",
+  ]
+  testonly = true
+  defines = [ "IS_HOST_MAPPING_RUST_REFERENCE_IMPL=1" ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+# Direct byte-pattern tests/fuzz use the exact safe production crate too.
+# Compile services locally for the direct Rust probes: its symbols inside
+# net.dll are deliberately not exported. Normal state tests call the public
+# net.dll API.
+source_set("host_mapping_rust_test_core") {
+  testonly = true
+  sources = []
+  if (is_component_build) {
+    sources = [ "base/host_mapping_rust_services.cc" ]
+  }
+  deps = [
+    ":host_mapping_rust",
+    ":host_mapping_rust_services_header",
+    "//base",
+    "//url",
+  ]
+}
+
+test("host_mapping_rust_unittests") {
+  sources = [
+    "base/host_mapping_rules_unittest.cc",
+    "base/host_mapping_rust_test_support.h",
+    "base/host_mapping_rust_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":host_mapping_rust",
+    ":host_mapping_rust_reference",
+    ":host_mapping_rust_test_core",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("host_mapping_rust_perftests") {
+  sources = [ "base/host_mapping_rust_perftest.cc" ]
+  deps = [
+    ":host_mapping_rust_reference",
+    ":net",
+    "//base",
+  ]
+}
+
+fuzzer_test("host_mapping_rust_fuzzer") {
+  sources = [
+    "base/host_mapping_rust_fuzzer.cc",
+    "base/host_mapping_rust_test_support.h",
+  ]
+  deps = [
+    ":host_mapping_rust",
+    ":host_mapping_rust_reference",
+    ":host_mapping_rust_test_core",
+    ":net",
+    "//base",
+    "//base:i18n",
+    "//url",
+  ]
+  libfuzzer_options = [ "max_len=192" ]
+}
+
+# Shared method patch: none. Do not alter HostPortPair or URL util for this
+# module. Original upstream tests remain byte-identical; native harness
+# additionally compiles a renamed copy against the independent frozen C++
+# reference.
+
+# Parent Wave2 HTTP2 write queue
+# Parent-owned integration proposal. No shared GN file was edited.
+rust_static_library("http2_write_queue_rust") {
+  crate_root = "spdy/http2_write_queue_rust_ffi.rs"
+  sources = [
+    "spdy/http2_write_queue_rust_core.rs",
+    "spdy/http2_write_queue_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Only the synchronous documented opaque-context ABI.
+  visibility = [ ":*" ]
+}
+
+# Add :http2_write_queue_rust to component("net").deps and
+# spdy/http2_write_queue_rust_ffi.h to its sources. Existing queue cc/h remain.
+# Historical queue C++ baseline retains the original out-of-line native
+# Stream weak-factory getter; the Rust side keeps the integrated public API.
+component("http2_write_queue_stream_reference") {
+  testonly = true
+  defines = [ "IS_HTTP2_WRITE_QUEUE_STREAM_REFERENCE_IMPL" ]
+  sources = [
+    "spdy/http2_write_queue_original_stream_access.cc",
+    "spdy/http2_write_queue_original_stream_access.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//net/third_party/quiche",
+  ]
+}
+
+component("http2_write_queue_rust_reference") {
+  testonly = true
+  defines = [ "IS_HTTP2_WRITE_QUEUE_REFERENCE_IMPL" ]
+  sources = [
+    "spdy/http2_write_queue_rust_original.cc",
+    "spdy/http2_write_queue_rust_original.h",
+  ]
+
+  # Transitive fixture users inherit header/link ownership; the frozen
+  # queue algorithm source itself stays untouched.
+  public_deps = [ ":http2_write_queue_stream_reference" ]
+  deps = [
+    ":net",
+    ":spdy_buffer_rust_reference",
+    "//base",
+    "//net/third_party/quiche",
+  ]
+}
+
+# The reference has its own export macro; never define NET_IMPLEMENTATION here.
+# Stream priority/ID and WeakPtr are explicitly shared foreign services, not
+# independently frozen stream/session policy or a whole-HTTP/2 baseline.
+test("http2_write_queue_rust_unittests") {
+  sources = [
+    "spdy/http2_write_queue_original_stream_access_unittest.cc",
+    "spdy/http2_write_queue_rust_test_support.cc",
+    "spdy/http2_write_queue_rust_test_support.h",
+    "spdy/http2_write_queue_rust_unittest.cc",
+    "spdy/spdy_write_queue_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http2_write_queue_rust_reference",
+    ":net",
+    ":spdy_buffer_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+# Retain the original queue suite in net_unittests. Keep the new differential
+# suite in this dedicated target (it depends on the frozen reference).
+test("http2_write_queue_rust_perftests") {
+  sources = [
+    "spdy/http2_write_queue_rust_perftest.cc",
+    "spdy/http2_write_queue_rust_test_support.cc",
+    "spdy/http2_write_queue_rust_test_support.h",
+  ]
+  deps = [
+    ":http2_write_queue_rust_reference",
+    ":net",
+    ":spdy_buffer_rust_reference",
+    "//base",
+    "//net/third_party/quiche",
+    "//net/traffic_annotation:test_support",
+    "//url",
+  ]
+}
+
+# Default invocation refuses timing; pass --verify-only. Parent's quiet runner
+# must explicitly pass --timing and collect complete paired JSONL/provenance.
+
+# Parent Wave2 TCP client socket
+# Parent-only additions to net/BUILD.gn. Do not replace shared source lists.
+# net target: sources += [ "socket/tcp_client_socket_rust_ffi.h" ]
+# net target: deps += [ ":tcp_client_socket_rust" ]
+rust_static_library("tcp_client_socket_rust") {
+  crate_root = "socket/tcp_client_socket_rust_ffi.rs"
+  sources = [
+    "socket/tcp_client_socket_rust_core.rs",
+    "socket/tcp_client_socket_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # ABI only; safe core forbids unsafe_code.
+  visibility = [ ":*" ]
+}
+
+component("tcp_client_socket_rust_reference") {
+  testonly = true
+  defines = [ "IS_TCP_CLIENT_SOCKET_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "socket/tcp_client_socket_rust_reference.cc",
+    "socket/tcp_client_socket_rust_reference.h",
+  ]
+  public_deps = [ ":tcp_client_socket_rust_native_reference" ]
+  deps = [
+    ":net",
+    ":port_policy_reference",
+    "//base",
+  ]
+}
+
+test("tcp_client_socket_rust_unittests") {
+  sources = [
+    "socket/tcp_client_socket_rust_native_reference_unittest.cc",
+    "socket/tcp_client_socket_rust_test.cc",
+    "socket/tcp_client_socket_rust_test_support.cc",
+    "socket/tcp_client_socket_rust_test_support.h",
+    "socket/tcp_client_socket_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":tcp_client_socket_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+if (is_win) {
+  executable("tcp_client_socket_rust_perftests") {
+    testonly = true
+    sources = [
+      "socket/tcp_client_socket_rust_perftest.cc",
+      "socket/tcp_client_socket_rust_test_support.cc",
+      "socket/tcp_client_socket_rust_test_support.h",
+    ]
+    deps = [
+      ":net",
+      ":tcp_client_socket_rust_reference",
+      "//base",
+      "//base/test:test_support",
+      "//net/traffic_annotation:test_support",
+    ]
+  }
+}
+
+# Existing port_policy_reference target provides independently frozen originals.
+# Production headers/classes keep their normal NET_EXPORT annotation. The
+# TCP_CLIENT_SOCKET_RUST_NATIVE_ADAPTER macro is only for isolated native
+# builds. Do not add the scratch overlay/import-slot workaround to the
+# configured build.
+
+# Parent Wave2 TLS client session cache
+# Parent applies this fragment to net/BUILD.gn; no shared GN file was edited.
+rust_static_library("tls_session_cache_rust") {
+  crate_root = "ssl/tls_session_cache_rust_ffi.rs"
+  sources = [
+    "ssl/tls_session_cache_rust_core.rs",
+    "ssl/tls_session_cache_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Narrow documented ABI only; core forbids unsafe code.
+  visibility = [ ":*" ]
+}
+
+# Add :tls_session_cache_rust to component("net").deps and add
+# ssl/tls_session_cache_rust_abi.h to sources. Existing cache cc/h remain.
+component("tls_session_cache_rust_reference") {
+  testonly = true
+  defines = [ "IS_TLS_SESSION_CACHE_REFERENCE_IMPL" ]
+  sources = [
+    "ssl/tls_session_cache_rust_original.cc",
+    "ssl/tls_session_cache_rust_original.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//third_party/boringssl",
+    "//url",
+  ]
+}
+
+test("tls_session_cache_rust_unittests") {
+  sources = [
+    "ssl/ssl_client_session_cache_unittest.cc",
+    "ssl/tls_session_cache_rust_test_support.h",
+    "ssl/tls_session_cache_rust_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":test_support",
+    ":tls_session_cache_rust_reference",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//third_party/boringssl",
+    "//url",
+    "//url:buildflags",
+  ]
+  data = [ "data/ssl/certificates/ok_cert.pem" ]
+}
+
+# Also retain upstream test in net_unittests; add new tests/reference dep there
+# if parent prefers the existing suite. Deterministic native million-state
+# fuzzing is part of the new unit source, no separate fuzz-engine target needed.
+test("tls_session_cache_rust_perftests") {
+  sources = [
+    "ssl/tls_session_cache_rust_perftest.cc",
+    "ssl/tls_session_cache_rust_test_support.h",
+  ]
+  deps = [
+    ":net",
+    ":tls_session_cache_rust_reference",
+    "//base",
+    "//base/test:test_support",
+    "//third_party/boringssl",
+    "//url",
+  ]
+  data = [ "data/ssl/certificates/ok_cert.pem" ]
+}
+
+# Verification: executable --verify-only (default). Timing: --benchmark only
+# in parent-coordinated window, with TLS_SESSION_CACHE_RUST_CERT_FILE pointing
+# at the test PEM if cwd is not the configured output directory.
+
+# Parent Wave2 DNS host cache
+# Parent applies only these narrow additions; component agent never edits GN.
+# In component("net"): add :dns_host_cache_rust to deps and
+# dns/dns_host_cache_rust_ffi.h to sources. Keep host_cache.cc/h as production.
+source_set("dns_host_cache_rust_services_header") {
+  sources = [ "dns/dns_host_cache_rust_ffi.h" ]
+  public_deps = [
+    "//base",
+    "//build/rust:cxx_cppdeps",
+  ]
+}
+
+rust_static_library("dns_host_cache_rust") {
+  crate_root = "dns/dns_host_cache_rust_ffi.rs"
+  sources = [
+    "dns/dns_host_cache_rust_core.rs",
+    "dns/dns_host_cache_rust_ffi.rs",
+    "dns/dns_host_cache_rust_ops.rs",
+  ]
+  cxx_bindings = [ "dns/dns_host_cache_rust_ffi.rs" ]
+  allow_unsafe =
+      true  # CXX opaque synchronous service ABI; core forbids unsafe.
+  visibility = [
+    ":*",
+    "//net/dns",
+  ]
+  deps = [ ":dns_host_cache_rust_services_header" ]
+}
+
+component("dns_host_cache_rust_reference") {
+  testonly = true
+  defines = [ "IS_DNS_HOST_CACHE_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "dns/dns_host_cache_rust_reference.cc",
+    "dns/dns_host_cache_rust_reference.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+test("dns_host_cache_rust_unittests") {
+  sources = [
+    "dns/dns_host_cache_rust_unittest.cc",
+    "dns/host_cache_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":dns_host_cache_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:fuzztest_support",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//third_party/fuzztest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+test("dns_host_cache_rust_perftests") {
+  sources = [ "dns/dns_host_cache_rust_perftest.cc" ]
+  deps = [
+    ":dns_host_cache_rust_reference",
+    ":net",
+    "//base",
+    "//base/test:test_support",
+    "//url",
+  ]
+}
+
+# deterministic >=1M stateful public-native differential:
+# dns_host_cache_rust_perftests.exe --verify 1000000
+# workload preparation verification WITHOUT harness timing clock reads:
+# dns_host_cache_rust_perftests.exe --verify-only
+# only in a parent-coordinated quiet configured window:
+# dns_host_cache_rust_perftests.exe --benchmark
+# Retain original host_cache_unittest.cc in net_unittests. Add the new test
+# only with the reference target dependency. No Android conditions are changed.
+
+# Parent Wave2 simple disk index
+# Parent applies to net/BUILD.gn. No configured build by this worker.
+rust_static_library("disk_simple_index_rust") {
+  crate_root = "disk_cache/simple/disk_simple_index_rust_ffi.rs"
+  sources = [
+    "disk_cache/simple/disk_simple_index_rust.rs",
+    "disk_cache/simple/disk_simple_index_rust_ffi.rs",
+  ]
+  allow_unsafe =
+      true  # Opaque stack context/callback ABI only; core forbids unsafe.
+  visibility = [ ":*" ]
+}
+
+# Add :disk_simple_index_rust to component("net").deps and
+# disk_cache/simple/disk_simple_index_rust.h to its sources.
+# Keep the existing simple_index.cc/h production source entries.
+component("disk_simple_index_rust_reference") {
+  testonly = true
+  defines = [ "IS_SIMPLE_INDEX_REFERENCE_IMPL" ]
+  sources = [
+    "disk_cache/simple/disk_simple_index_rust_original.cc",
+    "disk_cache/simple/disk_simple_index_rust_original.h",
+    "disk_cache/simple/disk_simple_index_rust_original_file.cc",
+    "disk_cache/simple/disk_simple_index_rust_original_file.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//third_party/abseil-cpp:absl",
+  ]
+}
+
+executable("disk_simple_index_rust_perftests") {
+  testonly = true
+  sources = [
+    "disk_cache/simple/disk_simple_index_rust_perftest.cc",
+    "disk_cache/simple/disk_simple_index_rust_test_support.h",
+  ]
+  deps = [
+    ":disk_simple_index_rust_reference",
+    ":net",
+    "//base",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//third_party/abseil-cpp:absl",
+  ]
+}
+
+# Add disk_cache/simple/disk_simple_index_rust_differential_unittest.cc and
+# :disk_simple_index_rust_reference to the real net_unittests sources/deps.
+
+# Parent Wave2 HTTP3 client stream
+# Parent-owned net/BUILD.gn additions. No shared file changed by this worker.
+rust_static_library("http3_client_stream_rust") {
+  crate_root = "quic/http3_client_stream_rust_ffi.rs"
+  sources = [
+    "quic/http3_client_stream_rust_core.rs",
+    "quic/http3_client_stream_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Only synchronous documented callback ABI.
+  visibility = [ ":*" ]
+}
+
+# Add :http3_client_stream_rust to component("net").deps, and
+# quic/http3_client_stream_rust_ffi.h to its sources. Existing Stream/Base
+# production source lists and upstream test source lists stay in place.
+
+component("http3_client_stream_rust_reference") {
+  testonly = true
+  defines = [ "IS_HTTP3_REFERENCE_IMPL" ]
+  sources = [
+    "quic/http3_client_stream_rust_reference.cc",
+    "quic/http3_client_stream_rust_reference.h",
+    "quic/http3_client_stream_rust_reference_base.cc",
+    "quic/http3_client_stream_rust_reference_base.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//net/third_party/quiche",
+  ]
+}
+
+executable("http3_client_stream_rust_perftests") {
+  testonly = true
+  sources = [
+    "quic/http3_client_stream_rust_perftest.cc",
+    "quic/http3_client_stream_rust_test_support.h",
+  ]
+  deps = [
+    ":http3_client_stream_rust_reference",
+    ":net",
+    ":quic_test_tools",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//net/third_party/quiche:quiche_test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+  ]
+}
+
+# Parent Wave2 focused disk-index and HTTP3 tests
+test("disk_simple_index_rust_unittests") {
+  sources = [
+    "disk_cache/simple/disk_simple_index_rust_differential_unittest.cc",
+    "disk_cache/simple/disk_simple_index_rust_test_support.h",
+    "disk_cache/simple/simple_index_unittest.cc",
+    "disk_cache/simple/simple_test_util.h",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":disk_simple_index_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//third_party/abseil-cpp:absl",
+    "//url:buildflags",
+  ]
+}
+
+test("http3_client_stream_rust_unittests") {
+  sources = [
+    "quic/quic_chromium_client_stream_test.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":quic_test_tools",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//net/third_party/quiche:quiche_test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//third_party/boringssl",
+    "//url:buildflags",
+  ]
+}
+
+# Windows Rust instrumentation for the dedicated ASan/libFuzzer build.
+config("rust_net_fuzz_feedback") {
+  if (is_win && use_libfuzzer) {
+    rustflags = [
+      "-Cpasses=sancov-module",
+      "-Cllvm-args=-sanitizer-coverage-level=3",
+      "-Cllvm-args=-sanitizer-coverage-inline-8bit-counters",
+      "-Cllvm-args=-sanitizer-coverage-pc-table",
+      "-Cllvm-args=-sanitizer-coverage-trace-compares",
+    ]
+  }
+}
+
+# Parent wave4 integration.
+# Parent-owned integration proposal; no configured or shared file edited.
+rust_static_library("http2_read_queue_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "spdy/http2_read_queue_rust_ffi.rs"
+  sources = [
+    "spdy/http2_read_queue_rust_core.rs",
+    "spdy/http2_read_queue_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Narrow opaque Box ABI; core forbids unsafe_code.
+  visibility = [ ":*" ]
+}
+
+# component("net"): add :http2_read_queue_rust to deps and
+# spdy/http2_read_queue_rust_ffi.h to sources. Existing queue cc/h stay. All
+# owners of SpdyReadQueue must rebuild: layout changed to one opaque pointer.
+component("http2_read_queue_rust_reference") {
+  testonly = true
+  defines = [ "IS_HTTP2_READ_QUEUE_REFERENCE_IMPL" ]
+  sources = [
+    "spdy/http2_read_queue_rust_original.cc",
+    "spdy/http2_read_queue_rust_original.h",
+  ]
+  deps = [
+    ":net",
+    ":spdy_buffer_rust_reference",
+    "//base",
+  ]
+}
+
+# Never define NET_IMPLEMENTATION on the reference. Its independent export
+# annotation is COMPONENT_EXPORT(HTTP2_READ_QUEUE_REFERENCE). Independently
+# frozen SpdyBufferOriginal supplies original buffer/producer policy; native
+# IOBuffer/base/QUICHE ownership services remain explicitly shared.
+test("http2_read_queue_rust_unittests") {
+  sources = [
+    "spdy/http2_read_queue_rust_original_unittest.cc",
+    "spdy/http2_read_queue_rust_test_support.h",
+    "spdy/http2_read_queue_rust_unittest.cc",
+    "spdy/spdy_read_queue_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http2_read_queue_rust_reference",
+    ":net",
+    ":spdy_buffer_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+# Keep original+new production tests in net_unittests. The differential test
+# depends on the reference and belongs only to the dedicated target above.
+test("http2_read_queue_rust_perftests") {
+  sources = [
+    "spdy/http2_read_queue_rust_perftest.cc",
+    "spdy/http2_read_queue_rust_test_support.h",
+  ]
+  deps = [
+    ":http2_read_queue_rust_reference",
+    ":net",
+    ":spdy_buffer_rust_reference",
+    "//base",
+  ]
+}
+
+# Only --verify-only was executed. Parent's quiet configured runner must pass
+# --timing explicitly to collect all paired cases; default invocation refuses.
+
+# Parent wave4 integration.
+# Parent-only additions to net/BUILD.gn. No shared GN files changed here.
+# component("net"): add deps += [ ":http2_priority_rust" ] and
+# sources += [ "spdy/http2_priority_rust_ffi.h" ]. Existing cc/h remain.
+# Keep the existing upstream suite in net_unittests.
+
+rust_static_library("http2_priority_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "spdy/http2_priority_rust_ffi.rs"
+  sources = [
+    "spdy/http2_priority_rust_core.rs",
+    "spdy/http2_priority_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Only opaque-owner ABI and raw output initialization.
+  visibility = [ ":*" ]
+}
+
+component("http2_priority_rust_reference") {
+  testonly = true
+  defines = [ "IS_HTTP2_PRIORITY_REFERENCE_IMPL" ]
+  sources = [
+    "spdy/http2_priority_rust_original.cc",
+    "spdy/http2_priority_rust_original.h",
+  ]
+  deps = [
+    "//base",
+    "//net/base:net_export_header",
+    "//net/third_party/quiche",
+  ]
+}
+
+# Never add NET_IMPLEMENTATION to this independently exported reference.
+# Its frozen QUICHE weight/clamp policies live in the reference translation
+# unit.
+
+test("http2_priority_rust_unittests") {
+  sources = [
+    "spdy/http2_priority_dependencies_unittest.cc",
+    "spdy/http2_priority_rust_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http2_priority_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+test("http2_priority_rust_perftests") {
+  sources = [ "spdy/http2_priority_rust_perftest.cc" ]
+  deps = [
+    ":http2_priority_rust_reference",
+    ":net",
+    "//base",
+    "//net/third_party/quiche",
+  ]
+}
+
+# --verify-only never enters a clock/Measure. --timing is parent-only and must
+# use a non-coverage configured build after quiet-window acceptance.
+
+# Parent-only additions to net/BUILD.gn. No shared files edited by this worker.
+# component("net"): deps += [ ":net_error_rust" ] Keep existing
+# base/net_errors{,_win,_posix}.cc selection and public header. Add
+# base/net_error_rust_ffi.h, enum_checks.h and both *_constants.inc to sources.
+# Preserve upstream net_errors_unittest.cc membership in net_unittests.
+rust_static_library("net_error_rust") {
+  configs += [ ":rust_net_fuzz_feedback" ]
+  crate_root = "base/net_error_rust_ffi.rs"
+  build_native_rust_unit_tests = true
+  unit_test_target = "net_error_rust_policy_unittests"
+  sources = [
+    "base/net_error_rust_core.rs",
+    "base/net_error_rust_core_tests.rs",
+    "base/net_error_rust_ffi.rs",
+    "base/net_error_rust_ffi_tests.rs",
+    "base/net_error_rust_ids.rs",
+    "base/net_error_rust_names.rs",
+    "base/net_error_rust_posix.rs",
+    "base/net_error_rust_posix_tests.rs",
+    "base/net_error_rust_win.rs",
+    "base/net_error_rust_win_native.rs",
+    "base/net_error_rust_win_native_tests.rs",
+    "base/net_error_rust_win_tests.rs",
+  ]
+  allow_unsafe = true  # Only immutable POD/input views and raw output copies.
+  visibility = [ ":*" ]
+  if (is_win) {
+    deps = [ "//third_party/rust/windows_sys/v0_52:lib" ]
+  }
+
+  if (rustium_reference_probe_enabled) {
+    crate_root = "base/net_error_rust_ffi_reference_probe.rs"
+    sources -= [ "base/net_error_rust_ffi.rs" ]
+    sources += [ "base/net_error_rust_ffi_reference_probe.rs" ]
+    if (!defined(rustflags)) {
+      rustflags = []
+    }
+    rustflags += [
+      "--cfg=rustium_reference_probe",
+      "--check-cfg=cfg(rustium_reference_probe)",
+      "--check-cfg=cfg(test)",
+    ]
+  }
+}
+
+component("net_error_rust_reference") {
+  testonly = true
+  defines = [ "IS_NET_ERROR_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "base/net_error_rust_reference.cc",
+    "base/net_error_rust_reference.h",
+    "base/net_error_rust_reference_list.h",
+  ]
+  if (is_win) {
+    sources += [ "base/net_error_rust_reference_win.cc" ]
+  } else if (is_posix) {
+    sources += [ "base/net_error_rust_reference_posix.cc" ]
+  }
+  deps = [
+    "//base",
+    "//net/base:net_export_header",
+  ]
+}
+
+# Reference QUIC enum and function are self-contained in the frozen .cc.
+# Never define NET_IMPLEMENTATION for reference.
+test("net_error_rust_unittests") {
+  sources = [
+    "base/net_error_rust_unittest.cc",
+    "base/net_errors_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":net_error_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+test("net_error_rust_perftests") {
+  sources = [ "base/net_error_rust_perftest.cc" ]
+  deps = [
+    ":net",
+    ":net_error_rust_reference",
+    "//base",
+  ]
+}
+
+# --verify-only is untimed. --timing is parent-only after configured acceptance,
+# using a non-instrumented configured build and a coordinated quiet CPU window.
+# python net/base/net_error_rust_generate.py --check validates generated tables.
+
+# Parent-only addition to net/BUILD.gn. Do not create a new component/DLL.
+# The native originals are internal implementations of the existing reference.
+source_set("tcp_client_socket_rust_native_reference") {
+  testonly = true
+  visibility = [ ":tcp_client_socket_rust_reference" ]
+  defines = [ "IS_TCP_CLIENT_SOCKET_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "socket/tcp_client_socket_rust_native_reference.h",
+    "socket/tcp_client_socket_rust_native_reference_descriptor.cc",
+    "socket/tcp_client_socket_rust_native_reference_descriptor.h",
+    "socket/tcp_client_socket_rust_native_reference_error.h",
+    "socket/tcp_client_socket_rust_native_reference_error_list.h",
+    "socket/tcp_client_socket_rust_native_reference_log.cc",
+    "socket/tcp_client_socket_rust_native_reference_log.h",
+    "socket/tcp_client_socket_rust_native_reference_options.cc",
+    "socket/tcp_client_socket_rust_native_reference_options.h",
+  ]
+  if (is_win) {
+    sources += [
+      "socket/tcp_client_socket_rust_native_reference_error_win.cc",
+      "socket/tcp_client_socket_rust_native_reference_iocp_win.cc",
+      "socket/tcp_client_socket_rust_native_reference_iocp_win.h",
+      "socket/tcp_client_socket_rust_native_reference_win.cc",
+      "socket/tcp_client_socket_rust_native_reference_win.h",
+      "socket/tcp_client_socket_rust_native_reference_winsock.cc",
+      "socket/tcp_client_socket_rust_native_reference_winsock.h",
+    ]
+    libs = [ "ws2_32.lib" ]
+  } else if (is_posix) {
+    sources += [
+      "socket/tcp_client_socket_rust_native_reference_error_posix.cc",
+      "socket/tcp_client_socket_rust_native_reference_socket_posix.cc",
+      "socket/tcp_client_socket_rust_native_reference_socket_posix.h",
+      "socket/tcp_client_socket_rust_native_reference_tcp_posix.cc",
+      "socket/tcp_client_socket_rust_native_reference_tcp_posix.h",
+    ]
+  }
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+# Parent merges into net/BUILD.gn only after checking independent changes.
+# Existing production/reference targets stay unchanged. fuzzer_test is already
+# imported by net/BUILD.gn. No GTest driver or seed-only wrapper is linked.
+fuzzer_test("http2_read_queue_rust_fuzzer") {
+  sources = [ "spdy/http2_read_queue_rust_fuzzer.cc" ]
+  deps = [
+    ":http2_read_queue_rust_reference",
+    ":net",
+    "//base",
+  ]
+  libfuzzer_options = [ "max_len=8192" ]
+}
+
+fuzzer_test("http2_priority_rust_fuzzer") {
+  sources = [ "spdy/http2_priority_rust_fuzzer.cc" ]
+  deps = [
+    ":http2_priority_rust_reference",
+    ":net",
+    "//base",
+    "//net/third_party/quiche",
+  ]
+  libfuzzer_options = [ "max_len=1024" ]
+}
+
+fuzzer_test("net_error_rust_fuzzer") {
+  sources = [ "base/net_error_rust_fuzzer.cc" ]
+  deps = [
+    ":net",
+    ":net_error_rust_reference",
+    "//base",
+  ]
+  libfuzzer_options = [ "max_len=1024" ]
+}
+
+# Proposed next parent-controlled integration: header-coalescer
+# Parent-owned net/BUILD.gn additions; no shared GN was edited by worker.
+# Existing imports already include rust_static_library/test/fuzzer_test.
+# In component("net"), add deps += [ ":header_coalescer_rust" ] and
+# sources += [ "spdy/header_coalescer_rust_ffi.h" ]. Existing cc/h stay listed.
+# Existing upstream header_coalescer_test.cc stays in net_unittests.
+rust_static_library("header_coalescer_rust") {
+  build_native_rust_unit_tests = true
+  unit_test_target = "header_coalescer_rust_policy_unittests"
+  crate_root = "spdy/header_coalescer_rust_ffi.rs"
+  sources = [
+    "spdy/header_coalescer_rust_core.rs",
+    "spdy/header_coalescer_rust_ffi.rs",
+  ]
+  allow_unsafe =
+      true  # Two immutable raw FFI slice reads; safe core forbids unsafe.
+  visibility = [ ":*" ]
+}
+
+component("header_coalescer_rust_reference") {
+  testonly = true
+  defines = [ "IS_HEADER_COALESCER_REFERENCE_IMPL" ]
+  sources = [
+    "spdy/header_coalescer_rust_original.cc",
+    "spdy/header_coalescer_rust_original.h",
+    "spdy/header_coalescer_rust_original_helpers.h",
+  ]
+
+  # NetLog ownership/event services only; policy helpers remain frozen.
+  deps = [
+    ":net",
+    "//base",
+    "//net/third_party/quiche",
+  ]
+}
+
+# Do not define NET_IMPLEMENTATION for the reference. Its independent export
+# and frozen helper policy must never resolve through production net policy.
+test("header_coalescer_rust_unittests") {
+  sources = [
+    "spdy/header_coalescer_rust_unittest.cc",
+    "spdy/header_coalescer_test.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":header_coalescer_rust",
+    ":header_coalescer_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+# The unit target links Rust directly only for the value-snapshot ABI probes;
+# production public methods still call the Rust implementation inside net.
+test("header_coalescer_rust_perftests") {
+  sources = [ "spdy/header_coalescer_rust_perftest.cc" ]
+  deps = [
+    ":header_coalescer_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//net/third_party/quiche",
+  ]
+}
+
+# --verify-only is clock-free. --timing is parent-only, using a non-coverage
+# configured build and quiet timing window. Archive every case; no publication
+# before the whole batch gate. Component storage layout is unchanged.
+
+# Proposed next parent-controlled integration: alps-decoder
+# Parent-only net/BUILD.gn fragment. Do not apply during active source leases.
+# Existing component("net"):
+#   deps += [ ":alps_decoder_rust" ]
+#   sources += [ "spdy/alps_decoder_rust_ffi.h" ]
+# Keep the existing alps_decoder.cc/.h and upstream tests in their current lists.
+rust_static_library("alps_decoder_rust") {
+  build_native_rust_unit_tests = true
+  unit_test_target = "alps_decoder_rust_policy_unittests"
+  crate_root = "spdy/alps_decoder_rust_ffi.rs"
+  sources = [
+    "spdy/alps_decoder_rust_core.rs",
+    "spdy/alps_decoder_rust_ffi.rs",
+  ]
+  allow_unsafe = true  # Only initialized input and owned offset-array ABI.
+  visibility = [ ":*" ]
+}
+
+component("alps_decoder_rust_reference") {
+  testonly = true
+  defines = [ "IS_ALPS_REFERENCE_IMPL" ]
+  sources = [
+    "spdy/alps_decoder_rust_reference.cc",
+    "spdy/alps_decoder_rust_reference.h",
+  ]
+  deps = [
+    ":net",  # Feature symbols only; no original AlpsDecoder methods invoked.
+    "//base",
+    "//net/third_party/quiche",
+  ]
+}
+
+test("alps_decoder_rust_unittests") {
+  sources = [
+    "spdy/alps_decoder_rust_unittest.cc",
+    "spdy/alps_decoder_test.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":alps_decoder_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url:buildflags",
+  ]
+}
+
+test("alps_decoder_rust_perftests") {
+  sources = [ "spdy/alps_decoder_rust_perftest.cc" ]
+  deps = [
+    ":alps_decoder_rust_reference",
+    ":net",
+    "//base",
+    "//base/test:test_support",  # Untimed feature scope only.
+    "//net/third_party/quiche",
+    "//testing/gmock",
+    "//testing/gtest",
+  ]
+}
+
+# Additional campaign work is deferred by the current user instruction.
+# Production AlpsDecoder header/layout is unchanged; local validation changes
+# only the export macro in an overlay to avoid old DLL method calls.
+
+# Whole-family proposal: http2
+# Unapplied family proposal. Merge partner session/pool modules and sources at
+# the SAME milestone; no per-function/per-class build or measurement cycle.
+rust_static_library("http2_policy_core") {
+  crate_root = "spdy/http2_family_rust_core.rs"
+  sources = [
+    "spdy/http2_family_rust_core.rs",
+    "spdy/http2_family_rust_tests.rs",
+    "spdy/http2_session_family_rust_tests.rs",
+    "spdy/spdy_buffer_producer_rust_core.rs",
+    "spdy/spdy_buffer_rust_core.rs",
+    "spdy/spdy_http_stream_rust_core.rs",
+    "spdy/spdy_session_pool_rust_core.rs",
+
+    # Owner-sealed session/pool modules are merged below.
+    "spdy/spdy_session_rust_core.rs",
+    "spdy/spdy_stream_rust_core.rs",
+  ]
+  build_native_rust_unit_tests = true
+  unit_test_target = "http2_family_rust_policy_unittests"
+  allow_unsafe = false
+  visibility = [ ":*" ]
+}
+
+rust_static_library("http2_family_rust") {
+  crate_root = "spdy/http2_family_rust_ffi.rs"
+  sources = [
+    "spdy/http2_family_rust_ffi.rs",
+    "spdy/spdy_buffer_rust_ffi.rs",
+    "spdy/spdy_session_pool_rust_ffi.rs",
+    "spdy/spdy_session_rust_ffi.rs",
+  ]
+  deps = [ ":http2_policy_core" ]
+  aliased_deps = {
+    http2_policy_core = ":http2_policy_core"
+  }
+  allow_unsafe = true  # Ephemeral scalar primitive callbacks only.
+  visibility = [ ":*" ]
+}
+
+# component("net") adds :http2_family_rust and these private ABI headers:
+# spdy/http2_family_rust_ffi.h, spdy/spdy_buffer_rust_ffi.h.
+# Existing public cc/h entries remain. Do not also link old P01 private ABI
+# root.
+
+# ONE reference component is mandatory: session/stream original classes call
+# each other, so two reference components would create circular GN dependencies.
+component("http2_family_rust_reference") {
+  testonly = true
+  defines = [ "IS_HTTP2_STREAM_FAMILY_REFERENCE_IMPL" ]
+  sources = [
+    "base/net_diagnostics_privacy_mode_reference.cc",
+    "base/net_diagnostics_privacy_mode_reference.h",
+    "http/http2_request_headers_iterator_rust_original.h",
+    "spdy/buffered_spdy_framer_rust_original.cc",
+    "spdy/buffered_spdy_framer_rust_original.h",
+    "spdy/http2_family_original_secure_dns_policy.cc",
+    "spdy/http2_family_original_secure_dns_policy.h",
+    "spdy/http2_family_write_queue_original.cc",
+    "spdy/http2_family_write_queue_original.h",
+    "spdy/multiplexed_http_stream_family_original.cc",
+    "spdy/multiplexed_http_stream_family_original.h",
+    "spdy/multiplexed_session_handle_family_original.cc",
+    "spdy/multiplexed_session_handle_family_original.h",
+    "spdy/spdy_http_stream_family_original.cc",
+    "spdy/spdy_http_stream_family_original.h",
+    "spdy/spdy_http_utils_family_original.cc",
+    "spdy/spdy_http_utils_family_original.h",
+
+    # Owner-sealed original session/pool/family-queue and framer merged below.
+    # Independent original request-header iterator is listed below.
+    "spdy/spdy_session_family_original.cc",
+    "spdy/spdy_session_family_original.h",
+    "spdy/spdy_session_pool_family_original.cc",
+    "spdy/spdy_session_pool_family_original.h",
+    "spdy/spdy_stream_family_original.cc",
+    "spdy/spdy_stream_family_original.h",
+  ]
+
+  # Exported original stream callbacks transfer original buffer ownership.
+  public_deps = [ ":spdy_buffer_rust_reference" ]
+  deps = [
+    ":alps_decoder_rust_reference",
+    ":connection_original_log_reference",
+    ":header_coalescer_rust_reference",
+    ":http2_priority_rust_reference",
+    ":http2_read_queue_rust_reference",
+    ":net",  # Declared external primitive services, never original class
+             # bodies.
+    ":net_error_rust_reference",
+    ":proxy_value_rust_reference",
+    ":spdy_session_key_rust_reference",
+    "//base",
+    "//net/third_party/quiche",
+    "//url",
+  ]
+}
+
+test("http2_stream_family_rust_unittests") {
+  sources = [
+    "spdy/http2_session_family_factory.h",
+    "spdy/http2_session_family_unittest.cc",
+    "spdy/http2_stream_family_io_fixture.cc",
+    "spdy/http2_stream_family_io_fixture.h",
+    "spdy/http2_stream_family_io_unittest.cc",
+    "spdy/http2_stream_family_rust_test_support.h",
+    "spdy/http2_stream_family_rust_test_support_native_fixture.cc",
+    "spdy/http2_stream_family_rust_unittest.cc",
+    "spdy/spdy_http_stream_unittest.cc",
+    "spdy/spdy_session_pool_unittest.cc",
+    "spdy/spdy_session_test_util.cc",
+    "spdy/spdy_session_test_util.h",
+    "spdy/spdy_session_unittest.cc",
+    "spdy/spdy_stream_test_util.cc",
+    "spdy/spdy_stream_test_util.h",
+    "spdy/spdy_stream_unittest.cc",  # Original upstream production tests kept.
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":http2_family_rust_reference",
+    ":net",
+    ":proxy_value_rust_reference",
+    ":spdy_session_key_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+    "//net/third_party/quiche:quiche_test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+test("http2_stream_family_rust_perftests") {
+  sources = [
+    "spdy/http2_stream_family_rust_perftest.cc",
+    "spdy/http2_stream_family_rust_test_support.h",
+    "spdy/http2_stream_family_rust_test_support_native_fixture.cc",
+  ]
+  deps = [
+    ":http2_family_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+  ]
+}
+
+# Retain P01 12 cases and all historical queue benchmarks, applying the sealed
+# original buffer/producer queue closure first. Merge family socket-path paired
+# fixture/targets once the independent original pool factory is accepted.
+# No sanitizer/fuzzer targets or campaigns proposed by this fragment.
+
+test("http2_stream_family_io_perftests") {
+  sources = [
+    "spdy/http2_session_family_factory.h",
+    "spdy/http2_stream_family_io_fixture.cc",
+    "spdy/http2_stream_family_io_fixture.h",
+    "spdy/http2_stream_family_io_perftest.cc",
+  ]
+  deps = [
+    ":http2_family_rust_reference",
+    ":net",
+    ":proxy_value_rust_reference",
+    ":spdy_session_key_rust_reference",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+    "//url",
+  ]
+}
+
+# Whole-family proposal: http2
+# Parent-only additions to net/BUILD.gn after copying staged sources.
+# Production Rust targets/adapter dependency are supplied by the paired writer.
+# Never define NET_IMPLEMENTATION on the independent reference target.
+component("spdy_buffer_rust_reference") {
+  testonly = true
+  defines = [ "IS_SPDY_BUFFER_RUST_REFERENCE_IMPL" ]
+  sources = [
+    "spdy/spdy_buffer_producer_rust_original.cc",
+    "spdy/spdy_buffer_producer_rust_original.h",
+    "spdy/spdy_buffer_rust_original.cc",
+    "spdy/spdy_buffer_rust_original.h",
+  ]
+  deps = [
+    ":net",  # IOBuffer ownership/virtual destructor primitives only.
+    "//base",
+    "//net/third_party/quiche",
+  ]
+}
+
+test("spdy_buffer_rust_unittests") {
+  sources = [
+    "spdy/spdy_buffer_rust_original_unittest.cc",
+    "spdy/spdy_buffer_rust_unittest.cc",
+    "spdy/spdy_buffer_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":net",
+    ":spdy_buffer_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+    "//net/third_party/quiche:quiche_test_support",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+test("spdy_buffer_rust_perftests") {
+  sources = [ "spdy/spdy_buffer_rust_perftest.cc" ]
+  deps = [
+    ":net",
+    ":spdy_buffer_rust_reference",
+    "//base",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+  ]
+}
+
+# Existing targets below must EACH add deps += [ ":spdy_buffer_rust_reference" ]
+# in the same parent edit that applies parent-queue-baseline-closure.patch:
+# component("http2_read_queue_rust_reference")
+# test("http2_read_queue_rust_unittests")
+# test("http2_read_queue_rust_perftests")
+# component("http2_write_queue_rust_reference")
+# test("http2_write_queue_rust_unittests")
+# test("http2_write_queue_rust_perftests")
+#
+# Replace the old read-reference comment saying SpdyBuffer is unchanged/shared:
+# read-reference now exclusively calls independently frozen SpdyBufferOriginal.
+# Keep native IOBuffer/base/QUICHE primitives explicitly shared. Read/write
+# queue policy bodies, workload inputs, case names and clocks remain unchanged.
+# Optional inactive campaign targets are deferred by user override. Their old
+# helper/output fixture types must be adapted before any future enablement.
+
+# Whole-family proposal: http2
+# Parent-only scratch proposal; helper source has never been compiled.
+component("spdy_session_key_rust_reference") {
+  testonly = true
+  defines = [ "IS_SPDY_SESSION_KEY_RUST_REFERENCE_IMPL=1" ]
+  sources = [
+    "spdy/spdy_session_key_rust_original.cc",
+    "spdy/spdy_session_key_rust_original.h",
+  ]
+
+  # Frozen proxy types are imported from one reference component owner.
+  public_deps = [ ":proxy_value_rust_reference" ]
+  deps = [
+    ":net",
+    "//base",
+  ]
+}
+
+# The HTTP2 original session/pool targets and implementation-specific fixtures
+# add this dependency and use SpdySessionKeyOriginal end-to-end.
+# Do not convert a live production SpdySessionKey inside the measured baseline.
+# Construct both implementation-specific keys from the same untimed raw fields.
+# Do not mix these frozen key types with public native-key maps or callbacks.
+
+# Whole-family proposal: connection-jobs
+# SOURCE-ONLY complete family revision2, unapplied. No GN/Ninja/compile.
+# One coordinated family milestone; this does not replace normal //net tests.
+rust_static_library("connection_jobs_rust") {
+  crate_root = "socket/connection_jobs_rust_ffi.rs"
+  sources = [
+    "base/net_error_rust_ids.rs",
+    "http/http_proxy_connect_job_family_rust.rs",
+    "socket/client_socket_handle_family_rust.rs",
+    "socket/client_socket_pool_family_rust.rs",
+    "socket/connect_job_factory_rust_core.rs",
+    "socket/connect_job_params_factory_rust_core.rs",
+    "socket/connect_job_rust_core.rs",
+    "socket/connect_job_rust_ffi.rs",
+    "socket/connection_jobs_family_rust_tests.rs",
+    "socket/connection_jobs_rust_core.rs",
+    "socket/connection_jobs_rust_ffi.rs",
+    "socket/connection_jobs_upper_rust_common.rs",
+    "socket/socket_pool_additional_capacity_family_rust.rs",
+    "socket/socks_connect_job_family_rust.rs",
+    "socket/ssl_connect_job_family_rust.rs",
+    "socket/stream_socket_handle_family_rust.rs",
+    "socket/tcp_connect_job_connector_rust_core.rs",
+    "socket/tcp_connect_job_rust_core.rs",
+    "socket/transport_connect_job_rust_core.rs",
+    "socket/transport_connect_sub_job_rust_core.rs",
+  ]
+  allow_unsafe =
+      true  # Invocation-local scalar ABI only; safe policy forbids it.
+  visibility = [ ":*" ]
+  deps = [ ":net_error_policy_core" ]
+  aliased_deps = {
+    net_error_policy_core = ":net_error_policy_core"
+  }
+  build_native_rust_unit_tests = true
+  unit_test_target = "connection_jobs_rust_core_unittests"
+}
+
+# Existing :net sources retain all14 production cc/h ownership and add the
+# new native projection/FFI headers + :connection_jobs_rust dependency.
+# The Rust crate must NEVER depend on :net (would cycle).
+
+# Unapplied test/reference-only declaration target.
+source_set("connection_jobs_proxy_server_rust_original_access") {
+  testonly = true
+  sources = [ "base/connection_jobs_proxy_server_rust_original_access.h" ]
+  public_deps = [ ":net" ]
+}
+
+# Original connection-family target/fixtures add this dependency only after
+# parent applies proxy-server-storage-friend.patch. Never depend on this target
+# from production :net; no live policy or public accessor is replaced.
+
+# Parent-only reference provider; no original TCP/native code is duplicated.
+component("connection_jobs_tcp_factory_rust_original") {
+  testonly = true
+  defines = [ "IS_CONNECTION_JOBS_TCP_FACTORY_ORIGINAL_IMPL=1" ]
+  sources = [
+    "socket/connection_jobs_tcp_factory_rust_original.cc",
+    "socket/connection_jobs_tcp_factory_rust_original.h",
+  ]
+  deps = [
+    ":net",
+    ":tcp_client_socket_rust_reference",
+    "//base",
+  ]
+}
+
+# The connection original family and its matching fixtures depend on this
+# component and pass its native ClientSocketFactory* through ORIGINAL params.
+# Keep the existing :tcp_client_socket_rust_reference -> public_deps
+# :tcp_client_socket_rust_native_reference closure untouched. Do not widen
+# native helper visibility or compile a second copy of its platform sources.
+
+source_set("connection_jobs_rust_reference") {
+  testonly = true
+  public_deps = [
+    ":http2_family_rust_reference",
+    ":http2_read_queue_rust_reference",
+    ":spdy_buffer_rust_reference",
+    ":spdy_session_key_rust_reference",
+  ]
+  sources = [
+    "base/connection_jobs_proxy_server_rust_original_access.h",
+    "http/connection_auth_original_basic.cc",
+    "http/connection_auth_original_basic.h",
+    "http/connection_auth_original_cache.cc",
+    "http/connection_auth_original_cache.h",
+    "http/connection_auth_original_controller.cc",
+    "http/connection_auth_original_factory.cc",
+    "http/connection_auth_original_handler.cc",
+    "http/connection_auth_original_policy.h",
+    "http/connection_header_original_helpers.h",
+    "http/connection_header_original_log.cc",
+    "http/connection_header_original_policy.cc",
+    "http/connection_header_original_policy.h",
+    "http/http_proxy_client_socket_rust_original.cc",
+    "http/http_proxy_client_socket_rust_original.h",
+    "http/http_proxy_connect_job_rust_original.cc",
+    "http/http_proxy_connect_job_rust_original.h",
+    "http/http_stream_parser_rust_original.cc",
+    "http/http_stream_parser_rust_original.h",
+    "socket/client_socket_handle_rust_original.cc",
+    "socket/client_socket_handle_rust_original.h",
+    "socket/client_socket_pool_rust_original.cc",
+    "socket/client_socket_pool_rust_original.h",
+    "socket/connect_job_factory_rust_original.cc",
+    "socket/connect_job_factory_rust_original.h",
+    "socket/connect_job_params_factory_rust_original.cc",
+    "socket/connect_job_params_factory_rust_original.h",
+    "socket/connect_job_params_rust_original.cc",
+    "socket/connect_job_params_rust_original.h",
+    "socket/connect_job_rust_original.cc",
+    "socket/connect_job_rust_original.h",
+    "socket/connect_job_rust_original_helpers.h",
+    "socket/connect_job_test_util_rust_original.cc",
+    "socket/connect_job_test_util_rust_original.h",
+    "socket/connection_jobs_http2_rust_original_context.cc",
+    "socket/connection_jobs_http2_rust_original_context.h",
+    "socket/connection_jobs_rust_original_helpers.h",
+    "socket/connection_jobs_upper_rust_original_helpers.h",
+    "socket/socket_pool_additional_capacity_rust_original.cc",
+    "socket/socket_pool_additional_capacity_rust_original.h",
+    "socket/socks_connect_job_rust_original.cc",
+    "socket/socks_connect_job_rust_original.h",
+    "socket/ssl_connect_job_rust_original.cc",
+    "socket/ssl_connect_job_rust_original.h",
+    "socket/stream_socket_handle_rust_original.cc",
+    "socket/stream_socket_handle_rust_original.h",
+    "socket/tcp_connect_job_connector_rust_original.cc",
+    "socket/tcp_connect_job_connector_rust_original.h",
+    "socket/tcp_connect_job_rust_original.cc",
+    "socket/tcp_connect_job_rust_original.h",
+    "socket/transport_connect_job_rust_original.cc",
+    "socket/transport_connect_job_rust_original.h",
+    "socket/transport_connect_sub_job_rust_original.cc",
+    "socket/transport_connect_sub_job_rust_original.h",
+    "spdy/spdy_proxy_client_socket_rust_original.cc",
+    "spdy/spdy_proxy_client_socket_rust_original.h",
+    "spdy/spdy_session_pool_family_original_test_peer.h",
+  ]
+  deps = [
+    ":auth_challenge_reference",
+    ":connection_jobs_proxy_server_rust_original_access",
+    ":connection_jobs_tcp_factory_rust_original",
+    ":connection_original_log_reference",
+    ":net",
+    ":net_error_rust_reference",
+    ":net_log_values_rust_reference",
+    ":proxy_value_rust_reference",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//third_party/abseil-cpp:absl",
+    "//third_party/boringssl",
+    "//url",
+  ]
+
+  connection_reference_additional_sources = [
+    "http/connection_auth_original_digest_factory.cc",
+    "http/connection_auth_original_digest_factory.h",
+    "http/connection_auth_original_parameters.cc",
+    "http/connection_auth_original_parameters.h",
+    "http/connection_auth_original_ntlm_handler.cc",
+    "http/connection_auth_original_ntlm_handler.h",
+    "http/connection_auth_original_providers.cc",
+    "http/connection_auth_original_providers.h",
+    "http/connection_auth_original_rounds.cc",
+    "http/connection_auth_original_rounds.h",
+  ]
+  if (is_win) {
+    connection_reference_additional_sources += [
+      "http/connection_auth_original_sspi.cc",
+      "http/connection_auth_original_sspi.h",
+    ]
+  } else {
+    connection_reference_additional_sources += [
+      "http/connection_auth_original_ntlm_mechanism.cc",
+      "http/connection_auth_original_ntlm_mechanism.h",
+    ]
+  }
+  if (use_kerberos) {
+    connection_reference_additional_sources += [
+      "http/connection_auth_original_negotiate_factory.cc",
+      "http/connection_auth_original_negotiate_factory.h",
+      "http/connection_auth_original_negotiate_handler.cc",
+      "http/connection_auth_original_negotiate_handler.h",
+    ]
+    if (is_posix) {
+      connection_reference_additional_sources +=
+          [ "http/connection_auth_original_gssapi.cc" ]
+    }
+  }
+
+  sources += connection_reference_additional_sources
+  deps += [ ":net_log_values_rust_reference" ]
+}
+
+test("connection_jobs_family_rust_unittests") {
+  sources = [
+    "base/proxy_reference_component_unittest.cc",
+    "base/test_proxy_delegate.cc",
+    "base/test_proxy_delegate.h",
+    "http/connection_auth_baseline_unittest.cc",
+    "http/connection_auth_original_mock.cc",
+    "http/connection_auth_original_mock.h",
+    "http/connection_header_baseline_unittest.cc",
+    "http/http_proxy_connect_job_rust_original_unittest.cc",
+    "http/http_proxy_connect_job_unittest.cc",
+    "socket/client_socket_pool_rust_original_unittest.cc",
+    "socket/client_socket_pool_unittest.cc",
+    "socket/connect_job_factory_rust_original_unittest.cc",
+    "socket/connect_job_factory_unittest.cc",
+    "socket/connect_job_params_factory_rust_original_unittest.cc",
+    "socket/connect_job_params_factory_unittest.cc",
+    "socket/connect_job_rust_test_support.cc",
+    "socket/connect_job_rust_test_support.h",
+    "socket/connect_job_rust_unittest.cc",
+    "socket/connect_job_test_util.cc",
+    "socket/connect_job_test_util.h",
+    "socket/connect_job_unittest.cc",
+    "socket/connection_baseline_original_split_internal.h",
+    "socket/connection_baseline_original_string_split.h",
+    "socket/connection_baseline_original_trim.h",
+    "socket/connection_baseline_original_whitespace.h",
+    "socket/connection_jobs_const_layout_unittest.cc",
+    "socket/connection_jobs_family_flow_fixture.cc",
+    "socket/connection_jobs_family_flow_fixture.h",
+    "socket/connection_jobs_family_flow_unittest.cc",
+    "socket/connection_jobs_family_rust_test_support.h",
+    "socket/connection_jobs_family_rust_unittest.cc",
+    "socket/connection_jobs_http2_baseline_unittest.cc",
+    "socket/connection_jobs_provider_wiring_unittest.cc",
+    "socket/connection_jobs_upper_rust_job_workloads.cc",
+    "socket/connection_jobs_upper_rust_job_workloads.h",
+    "socket/connection_jobs_upper_rust_jobs_unittest.cc",
+    "socket/connection_jobs_upper_rust_test_support.cc",
+    "socket/connection_jobs_upper_rust_test_support.h",
+    "socket/connection_jobs_upper_rust_unittest.cc",
+    "socket/socket_pool_additional_capacity_rust_original_unittest.cc",
+    "socket/socket_pool_additional_capacity_unittest.cc",
+    "socket/socks_connect_job_rust_original_unittest.cc",
+    "socket/socks_connect_job_unittest.cc",
+    "socket/ssl_connect_job_rust_original_unittest.cc",
+    "socket/ssl_connect_job_unittest.cc",
+    "socket/tcp_connect_job_rust_original_unittest.cc",
+    "socket/tcp_connect_job_unittest.cc",
+    "socket/transport_client_socket_pool_test_util.cc",
+    "socket/transport_client_socket_pool_test_util.h",
+    "socket/transport_connect_job_rust_original_unittest.cc",
+    "socket/transport_connect_job_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":connection_jobs_rust_reference",
+    ":connection_jobs_tcp_factory_rust_original",
+    ":connection_original_log_reference",
+    ":http_auth_cache_rust_reference",
+    ":http_auth_test_support",
+    ":http_request_headers_rust_reference",
+    ":net",
+    ":tcp_client_socket_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:fuzztest_support",
+    "//base/test:test_support",
+    "//net/third_party/quiche",
+    "//net/third_party/quiche:quiche_test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//third_party/fuzztest",
+    "//url",
+    "//url:buildflags",
+  ]
+
+  # Existing upstream ordinary-unit registration and utility dependencies are
+  # included above. No campaign target or execution mode is added.
+
+  sources += [
+    "http/connection_auth_original_provider_unittest.cc",
+    "http/connection_auth_original_rounds_unittest.cc",
+  ]
+  if (rustium_reference_probe_enabled) {
+    defines = [ "RUSTIUM_HOST_PORT_REFERENCE_PROBE=1" ]
+    sources += [
+      "http/connection_auth_reference_qualification_unittest.cc",
+      "http/rustium_reference_probe_test_support.h",
+    ]
+    if (use_kerberos) {
+      sources += [
+        "http/connection_auth_reference_test_mechanism.cc",
+        "http/connection_auth_reference_test_mechanism.h",
+      ]
+    }
+  }
+}
+
+# Sealed BASE15 existing cases. Prepared only; no verification or timing has
+# run.
+executable("connect_job_rust_perftests") {
+  testonly = true
+  sources = [
+    "socket/connect_job_rust_perftest.cc",
+    "socket/connect_job_rust_test_support.cc",
+    "socket/connect_job_rust_test_support.h",
+  ]
+  deps = [
+    ":connection_jobs_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url",
+  ]
+}
+
+# All16 lower job/recursive params paths. Prepared only; no verification or
+# timing has run.
+executable("connection_jobs_family_rust_perftests") {
+  testonly = true
+  sources = [
+    "socket/connection_jobs_family_rust_perftest.cc",
+    "socket/connection_jobs_family_rust_test_support.h",
+    "socket/transport_client_socket_pool_test_util.cc",
+    "socket/transport_client_socket_pool_test_util.h",
+  ]
+  deps = [
+    ":connection_jobs_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url",
+  ]
+}
+
+# All21 upper public boundary/lifecycle cases. Prepared only; no verification or
+# timing has run.
+executable("connection_jobs_upper_rust_perftests") {
+  testonly = true
+  sources = [
+    "socket/connect_job_rust_test_support.cc",
+    "socket/connect_job_rust_test_support.h",
+    "socket/connection_jobs_upper_rust_perftest.cc",
+    "socket/connection_jobs_upper_rust_test_support.cc",
+    "socket/connection_jobs_upper_rust_test_support.h",
+  ]
+  deps = [
+    ":connection_jobs_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url",
+  ]
+}
+
+# All16 upper connected protocol job paths. Prepared only; no verification or
+# timing has run.
+executable("connection_jobs_upper_rust_jobs_perftests") {
+  testonly = true
+  sources = [
+    "socket/connection_jobs_upper_rust_job_workloads.cc",
+    "socket/connection_jobs_upper_rust_job_workloads.h",
+    "socket/connection_jobs_upper_rust_jobs_perftest.cc",
+  ]
+  deps = [
+    ":connection_jobs_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url",
+  ]
+}
+
+# Whole-family proposal: connection-jobs
+rust_static_library("net_error_policy_core") {
+  crate_root = "base/net_error_rust_core.rs"
+  sources = [
+    "base/net_error_rust_core.rs",
+    "base/net_error_rust_core_tests.rs",
+    "base/net_error_rust_ids.rs",
+    "base/net_error_rust_names.rs",
+    "base/net_error_rust_posix.rs",
+    "base/net_error_rust_posix_tests.rs",
+    "base/net_error_rust_win.rs",
+    "base/net_error_rust_win_native.rs",
+    "base/net_error_rust_win_native_tests.rs",
+    "base/net_error_rust_win_tests.rs",
+  ]
+  allow_unsafe = false
+  visibility = [
+    ":*",
+    "//net/dns:*",
+  ]
+  if (is_win) {
+    # This existing dependency already has //net:* visibility and required
+    # named WinSock/Foundation features; no third-party change is proposed.
+    deps = [ "//third_party/rust/windows_sys/v0_52:lib" ]
+  }
+}
+
+# Whole-family proposal: dns-resolution DNS7 ordinary targets at //net normal
+# visibility; no engine/campaign declarations.
+test("dns_resolution_family_rust_unittests") {
+  sources = [
+    "dns/dns_request_family_async_workloads.h",
+    "dns/dns_request_family_http_workloads.cc",
+    "dns/dns_request_family_http_workloads.h",
+    "dns/dns_request_family_platform_workloads.h",
+    "dns/dns_request_family_rust_unittest.cc",
+    "dns/dns_request_family_whole_path_unittest.cc",
+    "dns/dns_resolution_family_attached_rust_unittest.cc",
+    "dns/dns_resolution_family_rust_test_support.h",
+    "dns/dns_resolution_family_rust_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":backoff_rust_reference",
+    ":dns_response_rust_reference",
+    ":host_port_rust_reference",
+    ":host_resolver_cache_rust_reference",
+    ":net",
+    ":net_error_rust_reference",
+    ":net_log_values_rust_reference",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//net/dns:dns_request_family_ffi",
+    "//net/dns:dns_resolution_original",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+executable("dns_resolution_family_rust_perftests") {
+  testonly = true
+  sources = [
+    "dns/dns_resolution_family_rust_perftest.cc",
+    "dns/dns_resolution_family_rust_test_support.h",
+  ]
+  deps = [
+    ":backoff_rust_reference",
+    ":dns_response_rust_reference",
+    ":host_port_rust_reference",
+    ":host_resolver_cache_rust_reference",
+    ":net",
+    ":net_error_rust_reference",
+    ":net_log_values_rust_reference",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//net/dns:dns_resolution_original",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+  ]
+}
+
+executable("dns_request_family_async_perftests") {
+  testonly = true
+  sources = [
+    "dns/dns_request_family_async_perftest.cc",
+    "dns/dns_request_family_async_workloads.h",
+    "dns/dns_request_family_http_workloads.cc",
+    "dns/dns_request_family_http_workloads.h",
+    "dns/dns_request_family_platform_workloads.h",
+  ]
+  deps = [
+    ":backoff_rust_reference",
+    ":dns_response_rust_reference",
+    ":host_port_rust_reference",
+    ":host_resolver_cache_rust_reference",
+    ":net",
+    ":net_error_rust_reference",
+    ":net_log_values_rust_reference",
+    ":test_support",
+    "//base",
+    "//base/test:test_support",
+    "//net/dns:dns_resolution_original",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+  ]
+}
+
+# Whole-family proposal: dns-resolution
+# Draft only: parent applies after interface/source review and resource release.
+# Copy support/staged/net/dns/* to the same repo-relative paths first.
+# Writer supplies :host_resolver_cache_rust and production :net dependency.
+component("host_resolver_cache_rust_reference") {
+  testonly = true
+  defines = [ "IS_HOST_RESOLVER_CACHE_REFERENCE_IMPL=1" ]
+  sources = [
+    "dns/host_resolver_cache_result_reference.cc",
+    "dns/host_resolver_cache_result_reference.h",
+    "dns/host_resolver_cache_rust_reference.cc",
+    "dns/host_resolver_cache_rust_reference.h",
+    "dns/host_resolver_cache_source_reference.cc",
+    "dns/host_resolver_cache_source_reference.h",
+  ]
+
+  # :net supplies unchanged NAK/IP/metadata primitives only. Hash-bind and
+  # audit their transitive policy closure before integration/timing.
+  # The reference has no cache Rust dependency or public HPP policy call.
+  deps = [
+    ":host_port_rust_reference",
+    ":net",
+    "//base",
+    "//third_party/abseil-cpp:absl",
+    "//url",
+  ]
+}
+
+test("host_resolver_cache_rust_unittests") {
+  configs += [ "//build/config/compiler:no_exit_time_destructors" ]
+  sources = [
+    "dns/host_resolver_cache_reference_upstream_unittest.cc",
+    "dns/host_resolver_cache_regular_upstream_unittest.cc",
+    "dns/host_resolver_cache_result_reference_test_util.cc",
+    "dns/host_resolver_cache_result_reference_test_util.h",
+    "dns/host_resolver_cache_rust_test_support.cc",
+    "dns/host_resolver_cache_rust_test_support.h",
+    "dns/host_resolver_cache_rust_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":host_port_rust_reference",
+    ":host_resolver_cache_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+executable("host_resolver_cache_rust_perftests") {
+  testonly = true
+  sources = [
+    "dns/host_resolver_cache_rust_perftest.cc",
+    "dns/host_resolver_cache_rust_test_support.cc",
+    "dns/host_resolver_cache_rust_test_support.h",
+  ]
+  deps = [
+    ":host_port_rust_reference",
+    ":host_resolver_cache_rust_reference",
+    ":net",
+    "//base",
+    "//base/test:test_support",
+    "//url",
+  ]
+}
+
+# Whole-family proposal: dns-resolution
+rust_static_library("dns_names_policy_core") {
+  crate_root = "dns/dns_names_core.rs"
+  sources = [ "dns/dns_names_core.rs" ]
+  allow_unsafe = false
+  visibility = [
+    ":*",
+    "//net/dns:*",
+  ]
+}
+
+# Whole-family proposal: cookie-storage
+# Parent-only whole-family integration proposal; no shared GN was modified.
+# In component("net"), add one dependency :cookie_storage_family_rust and:
+#   "cookies/cookie_family_native.cc",
+#   "cookies/cookie_family_native.h",
+#   "cookies/cookie_family_ffi.h",
+# Keep all twelve owned public source/header paths and paired canonical/monster
+# paths in net's existing source lists. Add paired native adapter .cc/.h paths
+# from that owner's seal. Rebuild every changed-header and vtable consumer.
+rust_static_library("cookie_storage_family_rust") {
+  crate_root = "cookies/cookie_storage_family_rust.rs"
+  sources = [
+    "cookies/cookie_family_base.rs",
+    "cookies/cookie_family_canonical.rs",
+    "cookies/cookie_family_canonical_dispatch.rs",
+    "cookies/cookie_family_collection.rs",
+    "cookies/cookie_family_ffi.rs",
+    "cookies/cookie_family_monster.rs",
+    "cookies/cookie_family_monster_dispatch.rs",
+    "cookies/cookie_family_options.rs",
+    "cookies/cookie_family_tests.rs",
+    "cookies/cookie_family_types.rs",
+    "cookies/cookie_family_util.rs",
+    "cookies/cookie_inclusion_status_rust_core.rs",
+    "cookies/cookie_partition_key_rust_core.rs",
+    "cookies/cookie_partition_key_rust_ffi.rs",
+    "cookies/cookie_storage_family_rust.rs",
+    "cookies/parsed_cookie_rust_core.rs",
+  ]
+  allow_unsafe =
+      true  # Initialized C ABI and synchronous native primitive calls.
+  build_native_rust_unit_tests = true
+  unit_test_target = "cookie_storage_family_rust_policy_unittests"
+  visibility = [ ":*" ]
+}
+
+static_library("cookie_storage_family_original") {
+  testonly = true
+  sources = [
+    "cookies/cookie_family_original/base/network_isolation_key.cc",
+    "cookies/cookie_family_original/base/network_isolation_key.h",
+    "cookies/cookie_family_original/base/network_isolation_partition.cc",
+    "cookies/cookie_family_original/base/network_isolation_partition.h",
+    "cookies/cookie_family_original/base/schemeful_site.cc",
+    "cookies/cookie_family_original/base/schemeful_site.h",
+    "cookies/cookie_family_original/cookies/canonical_cookie.cc",
+    "cookies/cookie_family_original/cookies/canonical_cookie.h",
+    "cookies/cookie_family_original/cookies/cookie_access_delegate.cc",
+    "cookies/cookie_family_original/cookies/cookie_access_delegate.h",
+    "cookies/cookie_family_original/cookies/cookie_access_params.h",
+    "cookies/cookie_family_original/cookies/cookie_access_result.cc",
+    "cookies/cookie_family_original/cookies/cookie_access_result.h",
+    "cookies/cookie_family_original/cookies/cookie_base.cc",
+    "cookies/cookie_family_original/cookies/cookie_base.h",
+    "cookies/cookie_family_original/cookies/cookie_change_dispatcher.cc",
+    "cookies/cookie_family_original/cookies/cookie_change_dispatcher.h",
+    "cookies/cookie_family_original/cookies/cookie_constants.cc",
+    "cookies/cookie_family_original/cookies/cookie_constants.h",
+    "cookies/cookie_family_original/cookies/cookie_deletion_info.cc",
+    "cookies/cookie_family_original/cookies/cookie_deletion_info.h",
+    "cookies/cookie_family_original/cookies/cookie_inclusion_status.cc",
+    "cookies/cookie_family_original/cookies/cookie_inclusion_status.h",
+    "cookies/cookie_family_original/cookies/cookie_inclusion_status_rust_enum_set.h",
+    "cookies/cookie_family_original/cookies/cookie_monster.cc",
+    "cookies/cookie_family_original/cookies/cookie_monster.h",
+    "cookies/cookie_family_original/cookies/cookie_monster_change_dispatcher.cc",
+    "cookies/cookie_family_original/cookies/cookie_monster_change_dispatcher.h",
+    "cookies/cookie_family_original/cookies/cookie_monster_netlog_params.cc",
+    "cookies/cookie_family_original/cookies/cookie_monster_netlog_params.h",
+    "cookies/cookie_family_original/cookies/cookie_options.cc",
+    "cookies/cookie_family_original/cookies/cookie_options.h",
+    "cookies/cookie_family_original/cookies/cookie_partition_key.cc",
+    "cookies/cookie_family_original/cookies/cookie_partition_key.h",
+    "cookies/cookie_family_original/cookies/cookie_partition_key_collection.cc",
+    "cookies/cookie_family_original/cookies/cookie_partition_key_collection.h",
+    "cookies/cookie_family_original/cookies/cookie_store.cc",
+    "cookies/cookie_family_original/cookies/cookie_store.h",
+    "cookies/cookie_family_original/cookies/cookie_util.cc",
+    "cookies/cookie_family_original/cookies/cookie_util.h",
+    "cookies/cookie_family_original/cookies/parsed_cookie.cc",
+    "cookies/cookie_family_original/cookies/parsed_cookie.h",
+    "cookies/cookie_family_original/cookies/ref_unique_cookie_key.cc",
+    "cookies/cookie_family_original/cookies/ref_unique_cookie_key.h",
+    "cookies/cookie_family_original/cookies/site_for_cookies.cc",
+    "cookies/cookie_family_original/cookies/site_for_cookies.h",
+    "cookies/cookie_family_original/cookies/unique_cookie_key.cc",
+    "cookies/cookie_family_original/cookies/unique_cookie_key.h",
+    "cookies/cookie_family_original/url_helpers.cc",
+    "cookies/cookie_family_original/url_helpers.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//crypto",
+    "//url",
+  ]
+  public_deps = [ "//mojo/public/cpp/bindings:default_construct_tag" ]
+}
+
+test("cookie_storage_family_unittests") {
+  sources = [
+    "cookies/cookie_family_test_support.h",
+    "cookies/cookie_family_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":cookie_storage_family_original",
+    ":cookie_storage_family_test_support",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+test("cookie_storage_family_perftests") {
+  sources = [
+    "cookies/cookie_family_perftest.cc",
+    "cookies/cookie_family_test_support.h",
+  ]
+  deps = [
+    ":cookie_storage_family_original",
+    ":cookie_storage_family_test_support",
+    ":net",
+    "//base",
+    "//base/test:test_support",
+    "//url",
+  ]
+}
+
+# Retain net_unittests upstream CookieUtil/CookieOptions/CanonicalCookie/
+# CookieMonster/PartitionKey/Collection suites and all sealed C01 fixtures.
+# Merge paired store ordinary/perftest sources into the same milestone before
+# claiming a complete configured target or fixing timing batch membership.
+# Original static linkage/source qualification and actual provider exports must
+# be checked by the configured compiler/linker and symbol audit, not inferred.
+
+# Whole-family proposal: cookie-storage
+# Parent-only unapplied additions to the connected family GN proposal.
+# Keep canonical_cookie.cc/.h and cookie_monster.cc/.h on existing :net lists;
+# use the shared family crate, not separate leaf C ABI libraries.
+# In component("net") append:
+#   "cookies/cookie_family_canonical_native.cc",
+#   "cookies/cookie_family_canonical_native.h",
+#   "cookies/cookie_family_monster_native.cc",
+#   "cookies/cookie_family_monster_native.h",
+# and depend on :cookie_storage_family_rust once (shared partner fragment).
+# Shared crate sources already name our four owned Rust files:
+#   cookie_family_canonical.rs, cookie_family_canonical_dispatch.rs,
+#   cookie_family_monster.rs, cookie_family_monster_dispatch.rs.
+# The 18 owned #[test] cases live in the two safe cores, no extra module needed.
+# No source/header fields or native vtable slots are added/removed. Comparison
+# and a few predicates move out of line; rebuild every native caller before run.
+
+test("cookie_storage_family_store_unittests") {
+  sources = [
+    "cookies/cookie_family_store_test_support.h",
+    "cookies/cookie_family_store_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":cookie_storage_family_original",
+    ":cookie_storage_family_test_support",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gmock",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+test("cookie_storage_family_store_perftests") {
+  sources = [
+    "cookies/cookie_family_store_perftest.cc",
+    "cookies/cookie_family_store_test_support.h",
+  ]
+  deps = [
+    ":cookie_storage_family_original",
+    ":cookie_storage_family_test_support",
+    ":net",
+    "//base",
+    "//base/test:test_support",
+    "//url",
+  ]
+}
+
+# Parent may combine these with shared family targets at the same milestone.
+# Retain the complete upstream CanonicalCookie, CookieMonster and store tests.
+# Namespace-adapted frozen upstream sources are preserved in original/; they
+# are not silently added to one target with production namespaces.
+
+# Whole-family proposal: cookie-storage
+# Draft only. Parent applies after the implementation/support source handoff.
+# Original source and public object layout remain in //net:net; merge the
+# implementation partner's Rust library additions separately.
+source_set("cookie_partition_key_rust_reference") {
+  testonly = true
+  sources = [
+    "cookies/cookie_partition_key_rust_reference.cc",
+    "cookies/cookie_partition_key_rust_reference.h",
+    "cookies/cookie_partition_key_rust_reference_network_isolation_key.cc",
+    "cookies/cookie_partition_key_rust_reference_network_isolation_key.h",
+    "cookies/cookie_partition_key_rust_reference_network_isolation_partition.cc",
+    "cookies/cookie_partition_key_rust_reference_network_isolation_partition.h",
+    "cookies/cookie_partition_key_rust_reference_schemeful_site.cc",
+    "cookies/cookie_partition_key_rust_reference_schemeful_site.h",
+    "cookies/cookie_partition_key_rust_reference_site_for_cookies.cc",
+    "cookies/cookie_partition_key_rust_reference_site_for_cookies.h",
+    "cookies/cookie_partition_key_rust_reference_url_helpers.cc",
+    "cookies/cookie_partition_key_rust_reference_url_helpers.h",
+  ]
+  deps = [
+    ":net",
+    "//base",
+    "//url",
+  ]
+  public_deps = [ "//mojo/public/cpp/bindings:default_construct_tag" ]
+}
+
+test("cookie_partition_key_rust_unittests") {
+  sources = [
+    "cookies/cookie_partition_key_rust_original_unittest.cc",
+    "cookies/cookie_partition_key_rust_test_support.h",
+    "cookies/cookie_partition_key_rust_unittest.cc",
+    "cookies/cookie_partition_key_unittest.cc",
+    "test/run_all_unittests.cc",
+  ]
+  deps = [
+    ":cookie_partition_key_rust_reference",
+    ":net",
+    ":test_support",
+    "//base",
+    "//base:build_time",
+    "//base/test:test_support",
+    "//testing/gtest",
+    "//url",
+    "//url:buildflags",
+  ]
+}
+
+executable("cookie_partition_key_rust_perftests") {
+  testonly = true
+  sources = [
+    "cookies/cookie_partition_key_rust_perftest.cc",
+    "cookies/cookie_partition_key_rust_test_support.h",
+  ]
+  deps = [
+    ":cookie_partition_key_rust_reference",
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+# Keep existing CookiePartitionKeyTest.* in net_unittests. Add the following
+# sources/dependency there if parent chooses the aggregate suite as well:
+# sources += [ "cookies/cookie_partition_key_rust_unittest.cc",
+#              "cookies/cookie_partition_key_rust_original_unittest.cc",
+#              "cookies/cookie_partition_key_rust_test_support.h" ]
+# deps += [ ":cookie_partition_key_rust_reference" ]
+# No fuzz/sanitizer target or run is introduced by this fragment.
+
+# Header-only shared fixture ownership for all connected cookie tests.
+source_set("cookie_storage_family_test_support") {
+  testonly = true
+  sources = [ "cookies/cookie_family_test_support.h" ]
+  public_deps = [
+    ":cookie_storage_family_original",
+    ":net",
+    "//base",
+    "//url",
+  ]
+}
+
+# Parent-only v3 intake. Inline frozen logging is shared without duplicating
+# original HTTP2 implementations or introducing a connection/HTTP2 cycle.
+source_set("connection_original_log_reference") {
+  testonly = true
+  sources = [ "log/connection_original_log.h" ]
+  public_deps = [
+    ":auth_challenge_reference",
+    ":net",
+    ":net_log_values_rust_reference",
+    "//base",
+    "//net/third_party/quiche",
   ]
 }

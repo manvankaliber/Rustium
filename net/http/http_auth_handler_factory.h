@@ -248,6 +248,7 @@ class NET_EXPORT HttpAuthHandlerRegistryFactory
   bool IsSchemeAllowedForTesting(const std::string& scheme) const;
 
  private:
+  friend class ConnectionAuthOriginalRegistry;
   bool IsSchemeAllowed(const std::string& scheme) const;
 
   // Retrieve the factory for the specified |scheme|. If no factory exists

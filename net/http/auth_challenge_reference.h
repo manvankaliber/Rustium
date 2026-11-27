@@ -10,6 +10,11 @@
 #include "net/http/http_auth.h"
 #include "net/http/http_util.h"
 namespace net::auth_challenge_reference {
+// Reference-only access to the existing strict decoder and frozen encoder.
+COMPONENT_EXPORT(AUTH_CHALLENGE_REFERENCE)
+bool FrozenDecode(std::string_view input, std::string* output);
+COMPONENT_EXPORT(AUTH_CHALLENGE_REFERENCE)
+std::string FrozenEncode(std::string_view input);
 // Frozen original algorithm. It never calls the production tokenizer or Rust.
 class COMPONENT_EXPORT(AUTH_CHALLENGE_REFERENCE) Tokenizer {
  public:

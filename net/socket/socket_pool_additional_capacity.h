@@ -12,6 +12,8 @@
 
 namespace net {
 
+struct SocketPoolAdditionalCapacityFamilyRustBridge;
+
 // Socket pools update their expandability before every socket allocation and
 // release.
 enum class SocketPoolExpandability {
@@ -69,13 +71,11 @@ class NET_EXPORT_PRIVATE SocketPoolAdditionalCapacity {
         base_, capacity_, minimum_, noise_);
   }
 
-  friend bool operator==(const SocketPoolAdditionalCapacity& lhs,
-                         const SocketPoolAdditionalCapacity& rhs) {
-    return lhs.base_ == rhs.base_ && lhs.capacity_ == rhs.capacity_ &&
-           lhs.minimum_ == rhs.minimum_ && lhs.noise_ == rhs.noise_;
-  }
+  friend NET_EXPORT_PRIVATE bool operator==(const SocketPoolAdditionalCapacity& lhs,
+                         const SocketPoolAdditionalCapacity& rhs);
 
  private:
+  friend struct SocketPoolAdditionalCapacityFamilyRustBridge;
   enum class SocketPoolAction { kAllocation, kRelease };
 
   static void LogExpandabilityTransition(

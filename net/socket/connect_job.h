@@ -37,6 +37,8 @@
 namespace net {
 
 class ClientSocketFactory;
+struct ConnectJobRustBridge;
+struct ConnectJobRustTestAccess;
 class HostPortPair;
 class HostResolver;
 struct HostResolverEndpointResult;
@@ -337,6 +339,12 @@ class NET_EXPORT_PRIVATE ConnectJob {
   LoadTimingInfo::ConnectTiming connect_timing_;
 
  private:
+  friend struct transport_connect_jobRustBridge;
+  friend struct tcp_connect_jobRustBridge;
+  friend struct transport_connect_sub_jobRustBridge;
+  friend struct tcp_connect_job_connectorRustBridge;
+  friend struct ConnectJobRustBridge;
+  friend struct ConnectJobRustTestAccess;
   virtual int ConnectInternal() = 0;
 
   virtual void ChangePriorityInternal(RequestPriority priority) = 0;

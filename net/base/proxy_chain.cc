@@ -16,21 +16,13 @@
 #include "build/buildflag.h"
 #include "net/base/proxy_server.h"
 #include "net/base/proxy_string_util.h"
+#include "net/base/proxy_value_rust_ffi.h"
+#include "net/base/proxy_value_rust_ffi.rs.h"
 #include "net/net_buildflags.h"
 
 namespace net {
 
-namespace {
-bool ShouldAllowQuicForAllChains() {
-  bool should_allow = false;
-
-#if BUILDFLAG(ENABLE_QUIC_PROXY_SUPPORT)
-  should_allow = true;
-#endif  // BUILDFLAG(ENABLE_QUIC_PROXY_SUPPORT)
-
-  return should_allow;
-}
-}  // namespace
+namespace pv = proxy_value_rust;
 
 ProxyChain::ProxyChain() = default;
 
@@ -58,43 +50,18 @@ ProxyChain::ProxyChain(std::vector<ProxyServer> proxy_server_list)
 // static
 std::optional<ProxyChain> ProxyChain::InitFromPickle(
     base::PickleIterator& pickle_iter) {
-  // Read and discard the deprecated `ip_protection_chain_id` field to preserve
-  // backwards compatibility with ProxyChains persisted to the HTTP cache.
-  int unused_ip_protection_chain_id;
-  if (!pickle_iter.ReadInt(&unused_ip_protection_chain_id)) {
+  pv::Reader reader{&pickle_iter};
+  auto result = pv::read_chain(reader, pv::QuicEnabled(), pv::MultiEnabled());
+  if (!result.valid) {
     return std::nullopt;
   }
-  size_t chain_length = 0;
-  if (!pickle_iter.ReadLength(&chain_length)) {
-    return std::nullopt;
-  }
-
-  std::vector<ProxyServer> proxy_server_list;
-  for (size_t i = 0; i < chain_length; ++i) {
-    proxy_server_list.push_back(ProxyServer::CreateFromPickle(&pickle_iter));
-  }
-
-  ProxyChain chain(std::move(proxy_server_list));
-  if (!chain.IsValid()) {
-    return std::nullopt;
-  }
-  return chain;
+  return pv::Restore(result);
 }
 
 void ProxyChain::Persist(base::Pickle* pickle) const {
   DCHECK(IsValid());
-  // Write a dummy value (-1, formerly `kNotIpProtectionChainId`) for the
-  // removed `ip_protection_chain_id_` field to preserve the pickle format for
-  // ProxyChains persisted to the HTTP cache.
-  pickle->WriteInt(-1);
-  if (length() > static_cast<size_t>(INT_MAX) - 1) {
-    pickle->WriteInt(0);
-    return;
-  }
-  pickle->WriteInt(static_cast<int>(length()));
-  for (const auto& proxy_server : proxy_server_list_.value()) {
-    proxy_server.Persist(pickle);
-  }
+  pv::Writer writer{pickle};
+  pv::persist_chain(writer, pv::Slice(pv::Snapshot(*this)));
 }
 
 const ProxyServer& ProxyChain::GetProxyServer(size_t chain_index) const {
@@ -142,23 +109,9 @@ const ProxyServer& ProxyChain::Last() const {
 }
 
 std::string ProxyChain::ToDebugString() const {
-  if (!IsValid()) {
-    return "INVALID PROXY CHAIN";
-  }
-  std::string debug_string =
-      proxy_server_list_.value().empty() ? "direct://" : "";
-  for (const ProxyServer& proxy_server : proxy_server_list_.value()) {
-    if (!debug_string.empty()) {
-      debug_string += ", ";
-    }
-    debug_string += ProxyServerToProxyUri(proxy_server);
-  }
-  debug_string = base::StrCat({"[", debug_string, "]"});
-
-  if (opaque_data_.has_value()) {
-    debug_string += base::StringPrintf(" (Opaque data %d)", *opaque_data_);
-  }
-  return debug_string;
+  return pv::String(pv::debug_chain(IsValid(), pv::Slice(pv::Snapshot(*this)),
+                                    opaque_data_.has_value(),
+                                    opaque_data_.value_or(0)));
 }
 
 ProxyChain::ProxyChain(std::vector<ProxyServer> proxy_server_list,
@@ -171,45 +124,28 @@ ProxyChain::ProxyChain(std::vector<ProxyServer> proxy_server_list,
 }
 
 bool ProxyChain::IsValidInternal() const {
-  if (!proxy_server_list_.has_value()) {
-    return false;
-  }
-  if (is_direct()) {
-    return true;
-  }
-  bool should_allow_quic = ShouldAllowQuicForAllChains();
-  if (is_single_proxy()) {
-    bool is_valid = proxy_server_list_.value().at(0).is_valid();
-    if (proxy_server_list_.value().at(0).is_quic()) {
-      is_valid = is_valid && should_allow_quic;
-    }
-    return is_valid;
-  }
-  DCHECK(is_multi_proxy());
+  return proxy_server_list_.has_value() &&
+         pv::valid_chain(pv::Slice(pv::Snapshot(*this)), pv::QuicEnabled(),
+                         pv::MultiEnabled());
+}
 
-#if BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
-  // Verify that the chain is zero or more SCHEME_QUIC servers followed by zero
-  // or more SCHEME_HTTPS servers.
-  bool seen_quic = false;
-  bool seen_https = false;
-  for (const auto& proxy_server : proxy_server_list_.value()) {
-    if (proxy_server.is_quic()) {
-      if (seen_https) {
-        // SCHEME_QUIC cannot follow SCHEME_HTTPS.
-        return false;
-      }
-      seen_quic = true;
-    } else if (proxy_server.is_https()) {
-      seen_https = true;
-    } else {
-      return false;
-    }
-  }
+bool ProxyChain::is_get_to_proxy_allowed() const {
+  return pv::get_allowed(length(), is_single_proxy()
+                                       ? First().scheme()
+                                       : ProxyServer::SCHEME_INVALID);
+}
 
-  return !seen_quic || should_allow_quic;
-#else
-  return false;
-#endif  // BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
+std::strong_ordering operator<=>(const ProxyChain& a, const ProxyChain& b) {
+  const int c = pv::compare_chain(
+      a.IsValid(), pv::Slice(pv::Snapshot(a)), a.opaque_data_.has_value(),
+      a.opaque_data_.value_or(0), b.IsValid(), pv::Slice(pv::Snapshot(b)),
+      b.opaque_data_.has_value(), b.opaque_data_.value_or(0));
+  return c < 0   ? std::strong_ordering::less
+         : c > 0 ? std::strong_ordering::greater
+                 : std::strong_ordering::equal;
+}
+bool operator==(const ProxyChain& a, const ProxyChain& b) {
+  return (a <=> b) == 0;
 }
 
 std::ostream& operator<<(std::ostream& os, const ProxyChain& proxy_chain) {

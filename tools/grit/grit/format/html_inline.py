@@ -457,15 +457,22 @@ def DoInline(
 
     filename = filename.replace('%DISTRIBUTION%', distribution)
 
-    if filename.startswith("%ROOT_GEN_DIR%"):
-      # Expand %ROOT_GEN_DIR%  placeholder to allow inlining generated files.
+    generated_file = filename.startswith("%ROOT_GEN_DIR%")
+    if generated_file:
+      # Expand %ROOT_GEN_DIR% to allow inlining generated files.
       filename = filename.replace(
         '%ROOT_GEN_DIR%', os.path.relpath(os.environ['root_gen_dir'], base_path)
       )
 
     if filename_expansion_function:
       filename = filename_expansion_function(filename)
-    return os.path.normpath(os.path.join(base_path, filename))
+    path = os.path.normpath(os.path.join(base_path, filename))
+    if generated_file and not os.path.isabs(path):
+      # Rebase against the build directory before opening the file. A relative
+      # HTML path outside a nested output can leave an unnecessary ../ detour
+      # in the generated path, exceeding Windows' relative path limit.
+      path = os.path.relpath(path)
+    return path
 
   def InlineFileContents(
     src_match, pattern, inlined_files=inlined_files, strip_whitespace=False

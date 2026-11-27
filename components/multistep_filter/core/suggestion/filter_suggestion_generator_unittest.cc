@@ -33,6 +33,7 @@ namespace {
 
 constexpr char kTestUrl[] = "https://example.com";
 constexpr char kTestDomain[] = "example.com";
+constexpr char kTestTaskType[] = "TASK_TYPE";
 constexpr char kTestAttributeKey[] = "category";
 constexpr char kTestAttributeValue[] = "shoes";
 constexpr char16_t kTestAttributeValue16[] = u"shoes";
@@ -99,7 +100,7 @@ class FilterSuggestionGeneratorTest : public testing::Test {
   FilterSuggestionGenerator* generator() { return generator_.get(); }
   void DestroyGenerator() { generator_.reset(); }
   base::test::TaskEnvironment& task_environment() { return task_environment_; }
-  const std::vector<std::string> kSupportedTaskTypes = {kShoppingTask};
+  const std::vector<std::string> kSupportedTaskTypes = {kTestTaskType};
 
  private:
   base::test::ScopedFeatureList feature_list_;
@@ -119,6 +120,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -148,7 +151,7 @@ TEST_F(FilterSuggestionGeneratorTest,
       .attribute_ui_labels = std::move(attribute_ui_labels),
       .triggering_navigation_id = kTestNavigationId,
       .triggering_host = kTestDomain,
-      .task_type = kShoppingTask,
+      .task_type = kTestTaskType,
       .suggestion_message = u"Template",
       .short_suggestion_message = u"Template"});
 
@@ -162,6 +165,7 @@ TEST_F(FilterSuggestionGeneratorTest,
                         callback,
                     int64_t navigation_id) {
         ASSERT_EQ(filter_annotations.size(), 1u);
+        EXPECT_EQ(filter_annotations[0].task_type, kTestTaskType);
         std::move(callback).Run(
             std::vector<FilterSuggestionCandidate>{expected_candidate});
       });
@@ -182,6 +186,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -231,6 +237,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -280,6 +288,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -332,6 +342,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -364,7 +376,7 @@ TEST_F(FilterSuggestionGeneratorTest,
       .attribute_ui_labels = std::move(attribute_ui_labels),
       .triggering_navigation_id = kTestNavigationId,
       .triggering_host = url.GetHost(),
-      .task_type = kShoppingTask,
+      .task_type = kTestTaskType,
       .suggestion_message = u"Template",
       .short_suggestion_message = u"Template"});
 
@@ -397,6 +409,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -430,7 +444,7 @@ TEST_F(FilterSuggestionGeneratorTest,
       .attribute_ui_labels = std::move(attribute_ui_labels),
       .triggering_navigation_id = kTestNavigationId,
       .triggering_host = url.GetHost(),
-      .task_type = kShoppingTask,
+      .task_type = kTestTaskType,
       .suggestion_message = u"Template",
       .short_suggestion_message = u"Template"});
 
@@ -462,6 +476,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -506,6 +522,8 @@ TEST_F(FilterSuggestionGeneratorTest,
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2},
       {kTestAttributeKey3, kTestAttributeValue3}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -554,6 +572,8 @@ TEST_F(FilterSuggestionGeneratorTest,
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2},
       {kTestAttributeKey3, kTestAttributeValue3}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -600,6 +620,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   const GURL url("https://example.com/search?category=shoes&size=large");
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -641,7 +663,7 @@ TEST_F(FilterSuggestionGeneratorTest,
   const GURL url(kTestUrl);
 
   FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain,
+      CreateDummyAnnotation(kTestTaskType, kTestDomain,
                             {{kTestAttributeKey, kTestAttributeValue},
                              {kTestAttributeKey3, kTestAttributeValue3}});
 
@@ -704,7 +726,7 @@ TEST_F(FilterSuggestionGeneratorTest, GenerateSuggestion_NoMatchingKeys) {
   const GURL url(kTestUrl);
 
   FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, {{"key1", "val1"}});
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, {{"key1", "val1"}});
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -783,6 +805,8 @@ TEST_F(FilterSuggestionGeneratorTest,
 
   std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
@@ -827,7 +851,7 @@ TEST_F(FilterSuggestionGeneratorTest,
   const GURL url(kTestUrl);
 
   FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, {{"key1", "val1"}});
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, {{"key1", "val1"}});
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
       .WillOnce(base::test::RunOnceCallback<1>(
@@ -865,7 +889,7 @@ TEST_F(FilterSuggestionGeneratorTest,
   const GURL url(kTestUrl);
 
   FilterAnnotation annotation =
-      CreateDummyAnnotation(kShoppingTask, kTestDomain, {{"key1", "val1"}});
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, {{"key1", "val1"}});
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
                             kSupportedTaskTypes, _, 10u, _))
       .WillOnce(base::test::RunOnceCallback<1>(
@@ -1013,6 +1037,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   const std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, kTestDomain, attributes);
   annotation.creation_timestamp = now;
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(
@@ -1076,6 +1102,8 @@ TEST_F(FilterSuggestionGeneratorTest,
   const std::vector<FilterAttribute> attributes = {
       {kTestAttributeKey, kTestAttributeValue},
       {kTestAttributeKey2, kTestAttributeValue2}};
+  FilterAnnotation annotation =
+      CreateDummyAnnotation(kTestTaskType, "different-domain.com", attributes);
   annotation.creation_timestamp = now;
 
   EXPECT_CALL(*store(), GetAnnotationsForTasksSortedByCreationTimestamp(

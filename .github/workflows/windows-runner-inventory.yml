@@ -1,0 +1,53 @@
+name: Windows runner inventory
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rustium-windows-builder
+  cancel-in-progress: false
+
+jobs:
+  inventory:
+    runs-on: [self-hosted, Windows, X64, rustium-build]
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Inventory the selected builder
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $os = Get-CimInstance Win32_OperatingSystem
+          $cpus = @(Get-CimInstance Win32_Processor)
+          $tools = @{}
+          foreach ($name in @('git', 'python', 'pwsh', 'gclient', 'gn', 'ninja', 'rustc')) {
+            $command = Get-Command $name -ErrorAction SilentlyContinue | Select-Object -First 1
+            $tools[$name] = if ($command) { $command.Source } else { $null }
+          }
+          $record = [ordered]@{
+            observed_utc = [DateTime]::UtcNow.ToString('o')
+            runner_name = $env:RUNNER_NAME
+            operating_system = $os.Caption
+            cpu = @($cpus | Select-Object Name,NumberOfCores,NumberOfLogicalProcessors)
+            physical_ram_bytes = [int64]$os.TotalVisibleMemorySize * 1024
+            available_ram_bytes = [int64]$os.FreePhysicalMemory * 1024
+            disks = @(Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' | Select-Object DeviceID,Size,FreeSpace)
+            tools_on_path = $tools
+            subsystem_compilation = 'not run'
+            subsystem_tests = 'not run'
+          }
+          $folder = Join-Path $env:RUNNER_TEMP 'rustium-runner-inventory'
+          New-Item -ItemType Directory -Path $folder -Force | Out-Null
+          $record | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $folder 'inventory.json') -Encoding UTF8
+          'Windows runner connected. Toolchain inventory only; no Network compile or test acceptance.' | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+      - name: Retain the machine inventory
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: windows-runner-inventory-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/rustium-runner-inventory/inventory.json
+          if-no-files-found: error
+          retention-days: 3

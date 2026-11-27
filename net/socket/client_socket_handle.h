@@ -32,6 +32,8 @@
 
 namespace net {
 
+struct ClientSocketHandleFamilyRustBridge;
+
 class ConnectJob;
 struct NetworkTrafficAnnotationTag;
 class SocketTag;
@@ -180,6 +182,7 @@ class NET_EXPORT ClientSocketHandle : public StreamSocketHandle {
   }
 
  private:
+  friend struct ClientSocketHandleFamilyRustBridge;
   // Called on asynchronous completion of an Init() request.
   void OnIOComplete(int result);
 

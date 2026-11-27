@@ -168,9 +168,7 @@ class NET_EXPORT_PRIVATE QuicChromiumClientStream
     // session are closed.
     quic::QuicPacketLength GetGuaranteedLargestMessagePayload() const;
 
-    bool SupportsH3Datagram() const {
-      return stream_ && stream_->SupportsH3Datagram();
-    }
+    bool SupportsH3Datagram() const;
 
     // Getter for the time the stream request spent waiting.
     base::TimeDelta max_stream_limit_pending_delay() const;

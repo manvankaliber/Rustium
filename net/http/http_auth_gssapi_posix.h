@@ -246,6 +246,8 @@ class NET_EXPORT_PRIVATE HttpAuthGSSAPI : public HttpAuthMechanism {
   void SetDelegation(HttpAuth::DelegationType delegation_type) override;
 
  private:
+  friend class ConnectionAuthOriginalProviders;
+  friend class ConnectionAuthOriginalGSSAPI;
   int GetNextSecurityToken(const std::string& spn,
                            const std::string& channel_bindings,
                            gss_buffer_t in_token,

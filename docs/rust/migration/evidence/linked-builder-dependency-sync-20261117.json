@@ -1,0 +1,36 @@
+{
+  "task_id": "NET-CI-BUILDER-READINESS",
+  "scope": "Dedicated laptop checkout and dependency synchronization with hooks disabled",
+  "host": "HQC-VAN_KALIBER",
+  "checkout": "C:/Users/micro/rb/src",
+  "source_revision": "4485cc56f5f0e151d8433886976cdf679355e872",
+  "checkout_shallow": true,
+  "checkout_status_at_inspection": "clean",
+  "gclient_sha256": "91bb6420605ca3e95a7706e1fd2877a8aaf2689c04586d03c5ba0d8dcdb0fbfc",
+  "original_sync_exit": null,
+  "resumed_sync": {
+    "completed_utc": "2026-11-17T18:31:18Z",
+    "exit_code": 0,
+    "git_entries_including_source": 155,
+    "gcs_entries": 48,
+    "cipd_entries": 43,
+    "entries_inactive_for_configuration": 952
+  },
+  "checkout_settings": {
+    "core.autocrlf": false,
+    "core.longpaths": true,
+    "lf_index_lf_worktree": 301216,
+    "lf_index_crlf_worktree": 42391,
+    "files_rewritten_in_recovery": false
+  },
+  "runner_observation": "GitHub API reported online and idle after receipt intake",
+  "remote_receipt": "C:/Users/micro/actions-runner-rustium/NET-CI-BUILDER-READINESS-receipt-20261117.json",
+  "remote_receipt_sha256_reported": "bb36f8aec55c0db3f73c064cda2c2d04618ccc6aa9643b058d7e28ac832c8fbc",
+  "verification_limit": "Receipt details are attributed to the laptop delegate. This desktop intake did not rehash the remote file.",
+  "pending": [
+    "Candidate-specific checkout, line-ending qualification and hooks",
+    "Approved exact-candidate input record",
+    "First GitHub workflow run and Network compilation",
+    "Ordinary Network test execution"
+  ]
+}

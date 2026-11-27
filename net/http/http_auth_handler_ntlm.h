@@ -47,7 +47,7 @@ class NET_EXPORT_PRIVATE HttpAuthHandlerNTLM : public HttpAuthHandler {
  public:
   class Factory : public HttpAuthHandlerFactory {
    public:
-    Factory();
+    NET_EXPORT_PRIVATE Factory();
 
     Factory(const Factory&) = delete;
     Factory& operator=(const Factory&) = delete;

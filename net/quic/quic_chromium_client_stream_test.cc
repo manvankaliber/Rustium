@@ -6,13 +6,16 @@
 
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "base/functional/bind.h"
 #include "base/functional/callback_helpers.h"
 #include "base/memory/ptr_util.h"
 #include "base/memory/raw_ptr.h"
+#include "base/numerics/safe_conversions.h"
 #include "base/run_loop.h"
 #include "base/strings/string_number_conversions.h"
+#include "base/test/bind.h"
 #include "base/test/metrics/histogram_tester.h"
 #include "net/base/io_buffer.h"
 #include "net/base/net_errors.h"
@@ -447,7 +450,7 @@ TEST_P(QuicChromiumClientStreamTest, OnDataAvailable) {
   // Read the body and verify that it arrives correctly.
   TestCompletionCallback callback;
   auto buffer = base::MakeRefCounted<IOBufferWithSize>(2 * data_len);
-  EXPECT_EQ(data_len,
+  EXPECT_EQ(base::checked_cast<int>(data_len),
             handle_->ReadBody(buffer.get(), 2 * data_len, callback.callback()));
   EXPECT_EQ(std::string_view(data), std::string_view(buffer->data(), data_len));
 }
@@ -480,7 +483,7 @@ TEST_P(QuicChromiumClientStreamTest, OnDataAvailableAfterReadBody) {
       /*fin=*/false,
       /*offset=*/offset, data));
 
-  EXPECT_EQ(data_len, callback.WaitForResult());
+  EXPECT_EQ(base::checked_cast<int>(data_len), callback.WaitForResult());
   EXPECT_EQ(std::string_view(data), std::string_view(buffer->data(), data_len));
   base::RunLoop().RunUntilIdle();
 }
@@ -551,6 +554,160 @@ TEST_P(QuicChromiumClientStreamTest, OnError) {
   stream_->OnError(ERR_INTERNET_DISCONNECTED);
 }
 
+TEST_P(QuicChromiumClientStreamTest, ErrorCompletesPendingReadsInOrder) {
+  std::vector<int> completions;
+  quiche::HttpHeaderBlock headers;
+  auto buffer = base::MakeRefCounted<IOBufferWithSize>(16);
+  EXPECT_EQ(ERR_IO_PENDING,
+            handle_->ReadInitialHeaders(
+                &headers, base::BindLambdaForTesting([&](int rv) {
+                  EXPECT_EQ(ERR_INTERNET_DISCONNECTED, rv);
+                  completions.push_back(1);
+                })));
+  EXPECT_EQ(ERR_IO_PENDING,
+            handle_->ReadBody(buffer.get(), 16,
+                              base::BindLambdaForTesting([&](int rv) {
+                                EXPECT_EQ(ERR_INTERNET_DISCONNECTED, rv);
+                                completions.push_back(2);
+                              })));
+
+  stream_->OnError(ERR_INTERNET_DISCONNECTED);
+  EXPECT_FALSE(handle_->IsOpen());
+  EXPECT_TRUE(completions.empty());
+  base::RunLoop().RunUntilIdle();
+  EXPECT_EQ((std::vector<int>{1, 2}), completions);
+  EXPECT_EQ(ERR_INTERNET_DISCONNECTED,
+            handle_->ReadInitialHeaders(&headers, CompletionOnceCallback()));
+}
+
+TEST_P(QuicChromiumClientStreamTest, ErrorCallbackMayDestroyHandle) {
+  bool body_completed = false;
+  quiche::HttpHeaderBlock headers;
+  auto buffer = base::MakeRefCounted<IOBufferWithSize>(16);
+  EXPECT_EQ(ERR_IO_PENDING,
+            handle_->ReadInitialHeaders(
+                &headers, base::BindLambdaForTesting([&](int rv) {
+                  EXPECT_EQ(ERR_INTERNET_DISCONNECTED, rv);
+                  handle_.reset();
+                })));
+  EXPECT_EQ(
+      ERR_IO_PENDING,
+      handle_->ReadBody(buffer.get(), 16, base::BindLambdaForTesting([&](int) {
+                          body_completed = true;
+                        })));
+
+  stream_->OnError(ERR_INTERNET_DISCONNECTED);
+  base::RunLoop().RunUntilIdle();
+  EXPECT_FALSE(handle_);
+  EXPECT_FALSE(body_completed);
+}
+
+TEST_P(QuicChromiumClientStreamTest, ErrorCallbackMayReenterDetachedHandle) {
+  quiche::HttpHeaderBlock headers;
+  auto buffer = base::MakeRefCounted<IOBufferWithSize>(16);
+  std::vector<int> results;
+  EXPECT_EQ(ERR_IO_PENDING,
+            handle_->ReadInitialHeaders(
+                &headers, base::BindLambdaForTesting([&](int rv) {
+                  results.push_back(rv);
+                  results.push_back(
+                      handle_->ReadBody(buffer.get(), 16, base::DoNothing()));
+                  handle_->OnFinRead();
+                })));
+  EXPECT_EQ(ERR_IO_PENDING,
+            handle_->ReadBody(buffer.get(), 16,
+                              base::BindLambdaForTesting(
+                                  [&](int rv) { results.push_back(rv); })));
+  stream_->OnError(ERR_INTERNET_DISCONNECTED);
+  base::RunLoop().RunUntilIdle();
+  EXPECT_EQ(
+      (std::vector<int>{ERR_INTERNET_DISCONNECTED, ERR_INTERNET_DISCONNECTED,
+                        ERR_INTERNET_DISCONNECTED}),
+      results);
+}
+
+TEST_P(QuicChromiumClientStreamTest, PendingHeaderTaskMayOutliveHandle) {
+  InitializeHeaders();
+  ProcessHeaders(headers_);
+  handle_.reset();
+  base::RunLoop().RunUntilIdle();
+  handle_ = stream_->CreateHandle();
+  quiche::HttpHeaderBlock headers;
+  EXPECT_GT(handle_->ReadInitialHeaders(&headers, base::DoNothing()), 0);
+  EXPECT_EQ(headers_, headers);
+}
+
+TEST_P(QuicChromiumClientStreamTest, DatagramVisitorAndUnsupportedUdpPayload) {
+  class Visitor : public quic::QuicSpdyStream::Http3DatagramVisitor {
+   public:
+    void OnHttp3Datagram(quic::QuicStreamId, std::string_view) override {}
+    void OnUnknownCapsule(quic::QuicStreamId,
+                          const quiche::UnknownCapsule&) override {}
+  } visitor;
+  EXPECT_FALSE(handle_->SupportsH3Datagram());
+  handle_->RegisterHttp3DatagramVisitor(&visitor);
+  EXPECT_EQ(OK, handle_->WriteConnectUdpPayload("payload"));
+  stream_->OnError(ERR_ABORTED);
+  EXPECT_EQ(ERR_ABORTED, handle_->WriteConnectUdpPayload("payload"));
+  handle_->UnregisterHttp3DatagramVisitor();
+  base::RunLoop().RunUntilIdle();
+}
+
+TEST_P(QuicChromiumClientStreamTest, InitialHeadersCallbackMayDestroyHandle) {
+  quiche::HttpHeaderBlock headers;
+  int result = ERR_IO_PENDING;
+  EXPECT_EQ(ERR_IO_PENDING,
+            handle_->ReadInitialHeaders(&headers,
+                                        base::BindLambdaForTesting([&](int rv) {
+                                          result = rv;
+                                          handle_.reset();
+                                        })));
+  InitializeHeaders();
+  ProcessHeaders(headers_);
+  base::RunLoop().RunUntilIdle();
+  EXPECT_GT(result, 0);
+  EXPECT_FALSE(handle_);
+  EXPECT_EQ(headers_, headers);
+}
+
+TEST_P(QuicChromiumClientStreamTest, TrailingHeadersCallbackMayDestroyHandle) {
+  InitializeHeaders();
+  ProcessHeadersFull(headers_);
+  quiche::HttpHeaderBlock trailers;
+  auto buffer = base::MakeRefCounted<IOBufferWithSize>(16);
+  bool body_completed = false;
+  int result = ERR_IO_PENDING;
+  EXPECT_EQ(ERR_IO_PENDING,
+            handle_->ReadTrailingHeaders(
+                &trailers, base::BindLambdaForTesting([&](int rv) {
+                  result = rv;
+                  handle_.reset();
+                })));
+  EXPECT_EQ(
+      ERR_IO_PENDING,
+      handle_->ReadBody(buffer.get(), 16, base::BindLambdaForTesting([&](int) {
+                          body_completed = true;
+                        })));
+  quiche::HttpHeaderBlock sent;
+  sent["x-trailer"] = "value";
+  ProcessTrailers(sent);
+  base::RunLoop().RunUntilIdle();
+  EXPECT_GT(result, 0);
+  EXPECT_FALSE(handle_);
+  EXPECT_FALSE(body_completed);
+  EXPECT_EQ(sent, trailers);
+}
+
+TEST_P(QuicChromiumClientStreamTest, DeliveredInitialHeadersRemainConsumed) {
+  InitializeHeaders();
+  ProcessHeaders(headers_);
+  quiche::HttpHeaderBlock first;
+  EXPECT_GT(handle_->ReadInitialHeaders(&first, base::DoNothing()), 0);
+  quiche::HttpHeaderBlock second;
+  EXPECT_EQ(ERR_INVALID_RESPONSE,
+            handle_->ReadInitialHeaders(&second, base::DoNothing()));
+}
+
 TEST_P(QuicChromiumClientStreamTest, OnTrailers) {
   InitializeHeaders();
   ProcessHeadersFull(headers_);
@@ -574,7 +731,7 @@ TEST_P(QuicChromiumClientStreamTest, OnTrailers) {
   // Read the body and verify that it arrives correctly.
   TestCompletionCallback callback;
   auto buffer = base::MakeRefCounted<IOBufferWithSize>(2 * data_len);
-  EXPECT_EQ(data_len,
+  EXPECT_EQ(base::checked_cast<int>(data_len),
             handle_->ReadBody(buffer.get(), 2 * data_len, callback.callback()));
   EXPECT_EQ(std::string_view(data), std::string_view(buffer->data(), data_len));
 
@@ -621,7 +778,7 @@ TEST_P(QuicChromiumClientStreamTest, MarkTrailersConsumedWhenNotifyDelegate) {
   // Read the body and verify that it arrives correctly.
   TestCompletionCallback callback;
   auto buffer = base::MakeRefCounted<IOBufferWithSize>(2 * data_len);
-  EXPECT_EQ(data_len,
+  EXPECT_EQ(base::checked_cast<int>(data_len),
             handle_->ReadBody(buffer.get(), 2 * data_len, callback.callback()));
   EXPECT_EQ(std::string_view(data), std::string_view(buffer->data(), data_len));
 
@@ -675,7 +832,7 @@ TEST_P(QuicChromiumClientStreamTest, ReadAfterTrailersReceivedButNotDelivered) {
   // Read the body and verify that it arrives correctly.
   TestCompletionCallback callback;
   auto buffer = base::MakeRefCounted<IOBufferWithSize>(2 * data_len);
-  EXPECT_EQ(data_len,
+  EXPECT_EQ(base::checked_cast<int>(data_len),
             handle_->ReadBody(buffer.get(), 2 * data_len, callback.callback()));
   EXPECT_EQ(std::string_view(data), std::string_view(buffer->data(), data_len));
 
@@ -917,7 +1074,8 @@ TEST_P(QuicChromiumClientStreamTest, HeadersAndDataBeforeHandle) {
   // Now explicitly read the data.
   static_assert(data_len + 1 == std::size(data));
   auto buffer = base::MakeRefCounted<IOBufferWithSize>(data_len + 1);
-  ASSERT_EQ(data_len, stream2->Read(buffer.get(), data_len + 1));
+  ASSERT_EQ(base::checked_cast<int>(data_len),
+            stream2->Read(buffer.get(), data_len + 1));
   EXPECT_EQ(std::string_view(data), std::string_view(buffer->data(), data_len));
 }
 

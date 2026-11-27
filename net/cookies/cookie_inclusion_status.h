@@ -319,13 +319,10 @@ class NET_EXPORT CookieInclusionStatus {
   // 3PCD.
   bool ExcludedByUserPreferencesOrTPCD() const;
 
-  void ResetForTesting() {
-    exclusion_reasons_.Clear();
-    warning_reasons_.Clear();
-    exemption_reason_ = ExemptionReason::kNone;
-  }
+  void ResetForTesting();
 
  private:
+  void ApplyRustTransition(uint32_t operation, int32_t reason, uint64_t mask);
   // Returns the `exclusion_reasons_` with the given `reasons` unset.
   ExclusionReasonBitset ExclusionReasonsWithout(
       ExclusionReasonBitset reasons) const;

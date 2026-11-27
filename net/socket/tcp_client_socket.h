@@ -10,6 +10,7 @@
 #include <memory>
 
 #include "base/compiler_specific.h"
+#include "base/component_export.h"
 #include "base/memory/raw_ptr.h"
 #include "base/memory/weak_ptr.h"
 #include "base/power_monitor/power_observer.h"
@@ -46,8 +47,17 @@ class SocketPerformanceWatcher;
 class NetworkQualityEstimator;
 
 // A client socket that uses TCP as the transport layer.
-class NET_EXPORT TCPClientSocket : public TransportClientSocket,
-                                   public base::PowerSuspendObserver {
+// A local validation build exports only this class, keeping native services
+// imported. Production retains the net component's normal export annotation.
+#if defined(TCP_CLIENT_SOCKET_RUST_NATIVE_ADAPTER)
+#define TCP_CLIENT_SOCKET_RUST_EXPORT \
+  COMPONENT_EXPORT(TCP_CLIENT_SOCKET_RUST_ADAPTER)
+#else
+#define TCP_CLIENT_SOCKET_RUST_EXPORT NET_EXPORT
+#endif
+class TCP_CLIENT_SOCKET_RUST_EXPORT TCPClientSocket
+    : public TransportClientSocket,
+      public base::PowerSuspendObserver {
  public:
   // The IP address(es) and port number to connect to. The TCP socket will try
   // each IP address in the list until it succeeds in establishing a
@@ -134,6 +144,9 @@ class NET_EXPORT TCPClientSocket : public TransportClientSocket,
   void OnSuspend() override;
 
  private:
+  struct RustContext;
+  friend class TCPClientSocketRustTestPeer;
+
   // State machine for connecting the socket.
   enum ConnectState {
     CONNECT_STATE_CONNECT,
@@ -160,25 +173,15 @@ class NET_EXPORT TCPClientSocket : public TransportClientSocket,
                  const CompletionOnceCallback callback,
                  bool read_if_ready);
 
-  // State machine used by Connect().
-  int DoConnectLoop(int result);
-  int DoConnect();
-  int DoConnectComplete(int result);
-
   void OnConnectAttemptTimeout();
 
   // Calls the connect method of |socket_|. Used in tests, to ensure a socket
   // never connects.
   virtual int ConnectInternal(const IPEndPoint& endpoint);
 
-  // Helper used by Disconnect(), which disconnects minus resetting
-  // current_address_index_ and bind_address_.
-  void DoDisconnect();
-
   void DidCompleteConnect(int result);
   void DidCompleteRead(int result);
   void DidCompleteWrite(int result);
-  void DidCompleteReadWrite(CompletionOnceCallback callback, int result);
 
   int OpenSocket(AddressFamily family);
 
@@ -245,6 +248,8 @@ class NET_EXPORT TCPClientSocket : public TransportClientSocket,
 
   base::WeakPtrFactory<TCPClientSocket> weak_ptr_factory_{this};
 };
+
+#undef TCP_CLIENT_SOCKET_RUST_EXPORT
 
 }  // namespace net
 

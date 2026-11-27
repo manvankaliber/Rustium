@@ -15,6 +15,7 @@
 #include "net/base/address_list.h"
 #include "net/base/load_states.h"
 #include "net/socket/transport_connect_job.h"
+#include "net/socket/transport_connect_sub_job_rust_ffi.h"
 
 namespace net {
 
@@ -41,7 +42,7 @@ class TransportConnectSubJob {
   // Start connecting.
   int Start();
 
-  bool started() { return next_state_ != STATE_NONE; }
+  bool started() { return connection_jobs_rust_run(9, 6, next_state_, nullptr, nullptr); }
 
   LoadState GetLoadState() const;
 
@@ -52,6 +53,7 @@ class TransportConnectSubJob {
   }
 
  private:
+  friend struct transport_connect_sub_jobRustBridge;
   enum State {
     STATE_NONE,
     STATE_TRANSPORT_CONNECT,

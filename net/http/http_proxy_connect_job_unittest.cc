@@ -88,22 +88,6 @@ const char kQuicProxyHost[] = "quicproxy.example.test";
 const char kHttpsNestedProxyHost[] = "last-hop-https-proxy.example.test";
 #endif  // BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
 
-const ProxyServer kHttpProxyServer{ProxyServer::SCHEME_HTTP,
-                                   HostPortPair(kHttpProxyHost, 80)};
-const ProxyServer kHttpsProxyServer{ProxyServer::SCHEME_HTTPS,
-                                    HostPortPair(kHttpsProxyHost, 443)};
-#if BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
-const ProxyServer kHttpsNestedProxyServer{
-    ProxyServer::SCHEME_HTTPS, HostPortPair(kHttpsNestedProxyHost, 443)};
-#endif  // BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
-
-const ProxyChain kHttpProxyChain{kHttpProxyServer};
-const ProxyChain kHttpsProxyChain{kHttpsProxyServer};
-#if BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
-const ProxyChain kHttpsNestedProxyChain({kHttpsProxyServer,
-                                         kHttpsNestedProxyServer});
-#endif  // BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
-
 constexpr char kTestHeaderName[] = "Foo";
 // Note: `kTestSpdyHeaderName` should be a lowercase version of
 // `kTestHeaderName`.
@@ -177,6 +161,22 @@ class HttpProxyConnectJobTestBase : public WithTaskEnvironment {
   }
 
  protected:
+const ProxyServer kHttpProxyServer{ProxyServer::SCHEME_HTTP,
+                                   HostPortPair(kHttpProxyHost, 80)};
+const ProxyServer kHttpsProxyServer{ProxyServer::SCHEME_HTTPS,
+                                    HostPortPair(kHttpsProxyHost, 443)};
+#if BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
+const ProxyServer kHttpsNestedProxyServer{
+    ProxyServer::SCHEME_HTTPS, HostPortPair(kHttpsNestedProxyHost, 443)};
+#endif  // BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
+
+const ProxyChain kHttpProxyChain{kHttpProxyServer};
+const ProxyChain kHttpsProxyChain{kHttpsProxyServer};
+#if BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
+const ProxyChain kHttpsNestedProxyChain = ProxyChain({kHttpsProxyServer,
+                                         kHttpsNestedProxyServer});
+#endif  // BUILDFLAG(ENABLE_BRACKETED_PROXY_URIS)
+
   std::unique_ptr<TestProxyDelegate> proxy_delegate_;
 
   // These data providers may be pointed to by the socket factory in

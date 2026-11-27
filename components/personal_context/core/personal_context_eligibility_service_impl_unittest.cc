@@ -55,7 +55,7 @@ class PersonalContextEligibilityServiceImplTest : public testing::Test {
  public:
   PersonalContextEligibilityServiceImplTest() {
     SetPrefs();
-    CreateService("us");
+    CreateEligibilityService("us");
     SignIn("test@gmail.com");
   }
   ~PersonalContextEligibilityServiceImplTest() override = default;
@@ -79,6 +79,13 @@ class PersonalContextEligibilityServiceImplTest : public testing::Test {
     identity_test_env_.SetPrimaryAccount(email, signin::ConsentLevel::kSignin);
   }
 
+  void CreateEligibilityService(const std::string& country_code,
+                                const std::string& locale = "en-US") {
+    service_ = std::make_unique<PersonalContextEligibilityServiceImpl>(
+        &mock_account_settings_service_, identity_test_env_.identity_manager(),
+        &pref_service_, GeoIpCountryCode(base::ToUpperASCII(country_code)),
+        locale);
+  }
 
   void SetPrefs() {
     personal_context::prefs::RegisterProfilePrefs(pref_service_.registry());
@@ -342,7 +349,7 @@ INSTANTIATE_TEST_SUITE_P(
 // (e.g. "US" only).
 TEST_P(PersonalContextEligibilityServiceImplGeolocationTest,
        CheckCountryEnablement) {
-  CreateService(std::get<0>(GetParam()));
+  CreateEligibilityService(std::get<0>(GetParam()));
   EXPECT_EQ(service().GetEligibilityState(), std::get<1>(GetParam()));
 
   if (std::get<1>(GetParam()) == PersonalContextEligibilityState::kEligible) {
@@ -388,7 +395,7 @@ INSTANTIATE_TEST_SUITE_P(
 
 // Verifies that the service is only enabled for supported English locales.
 TEST_P(PersonalContextEligibilityServiceImplLocaleTest, CheckLocaleEnablement) {
-  CreateService("us", std::get<0>(GetParam()));
+  CreateEligibilityService("us", std::get<0>(GetParam()));
   EXPECT_EQ(service().GetEligibilityState(), std::get<1>(GetParam()));
 
   if (std::get<1>(GetParam()) == PersonalContextEligibilityState::kEligible) {
@@ -514,7 +521,7 @@ TEST_F(PersonalContextEligibilityServiceImplTest,
        IsInitialized_AccountSettingsLoading) {
   ON_CALL(mock_account_settings_service_, IsLoaded())
       .WillByDefault(Return(false));
-  CreateService("us");
+  CreateEligibilityService("us");
 
   MockPersonalContextEligibilityServiceObserver observer;
   base::ScopedObservation<PersonalContextEligibilityService,
@@ -537,7 +544,7 @@ TEST_F(PersonalContextEligibilityServiceImplTest,
 TEST_F(PersonalContextEligibilityServiceImplTest,
        IsInitialized_RefreshTokensLoading) {
   identity_test_env_.ResetToAccountsNotYetLoadedFromDiskState();
-  CreateService("us");
+  CreateEligibilityService("us");
 
   MockPersonalContextEligibilityServiceObserver observer;
   base::ScopedObservation<PersonalContextEligibilityService,
@@ -559,7 +566,7 @@ TEST_F(PersonalContextEligibilityServiceImplTest,
        EncryptionEligibilityRequiresSettingsToggle) {
   base::test::ScopedFeatureList feature_list{
       features::kPersonalContextRequireSettingsToggleForEncryption};
-  CreateService("us");
+  CreateEligibilityService("us");
 
   testing::StrictMock<MockPersonalContextEligibilityServiceObserver> observer;
   base::ScopedObservation<PersonalContextEligibilityService,

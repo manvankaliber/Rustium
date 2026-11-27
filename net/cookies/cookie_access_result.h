@@ -34,8 +34,8 @@ struct NET_EXPORT CookieAccessResult {
 
   ~CookieAccessResult();
 
-  friend bool operator==(const CookieAccessResult&,
-                         const CookieAccessResult&) = default;
+  friend NET_EXPORT bool operator==(const CookieAccessResult&,
+                                    const CookieAccessResult&);
 
   CookieInclusionStatus status;
   CookieEffectiveSameSite effective_same_site =

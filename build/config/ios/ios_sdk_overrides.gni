@@ -1,0 +1,7 @@
+# Copyright 2026 The Chromium Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# The pinned V8 gni/v8.gni imports this file on desktop builds. Rustium's
+# BUILDCONFIG.gn disables iOS, so this import needs no SDK overrides.
+assert(!is_ios, "Rustium does not support iOS builds.")

@@ -5,14 +5,13 @@
 #ifndef NET_SPDY_HTTP2_PRIORITY_DEPENDENCIES_H_
 #define NET_SPDY_HTTP2_PRIORITY_DEPENDENCIES_H_
 
-#include <array>
-#include <list>
-#include <map>
-#include <utility>
+#include <memory>
 #include <vector>
 
 #include "net/base/net_export.h"
 #include "net/third_party/quiche/src/quiche/http2/core/spdy_protocol.h"
+
+struct Http2PriorityRustState;
 
 namespace net {
 
@@ -28,6 +27,10 @@ class NET_EXPORT_PRIVATE Http2PriorityDependencies {
  public:
   Http2PriorityDependencies();
   ~Http2PriorityDependencies();
+
+  // Preserve the formerly implicit copy API with independent owned state.
+  Http2PriorityDependencies(const Http2PriorityDependencies& other);
+  Http2PriorityDependencies& operator=(const Http2PriorityDependencies& other);
 
   // Called when a stream is created. This is used for both client-initiated
   // and server-initiated (pushed) streams.
@@ -59,38 +62,12 @@ class NET_EXPORT_PRIVATE Http2PriorityDependencies {
                                                spdy::SpdyPriority new_priority);
 
  private:
-  // The requirements for the internal data structure for this class are:
-  //     a) Constant time insertion of entries at the end of the list,
-  //     b) Fast removal of any entry based on its id.
-  //     c) Constant time lookup of the entry at the end of the list.
-  // std::list would satisfy (a) & (c), but some form of map is
-  // needed for (b).  The priority must be included in the map
-  // entries so that deletion can determine which list in id_priority_lists_
-  // to erase from.
-  using IdList = std::list<std::pair<spdy::SpdyStreamId, spdy::SpdyPriority>>;
-  using EntryMap = std::map<spdy::SpdyStreamId, IdList::iterator>;
-
-  std::array<IdList, spdy::kV3LowestPriority + 1> id_priority_lists_;
-
-  // Tracks the location of an id anywhere in the above vector of lists.
-  // Iterators to list elements remain valid until those particular elements
-  // are erased.
-  EntryMap entry_by_stream_id_;
-
-  // Finds the lowest-priority stream that has a priority >= |priority|.
-  // Returns false if there are no such streams.
-  // Otherwise, returns true and sets |*bound|.
-  bool PriorityLowerBound(spdy::SpdyPriority priority, IdList::iterator* bound);
-
-  // Finds the stream just above |id| in the total order.
-  // Returns false if there are no streams with a higher priority.
-  // Otherwise, returns true and sets |*parent|.
-  bool ParentOfStream(spdy::SpdyStreamId id, IdList::iterator* parent);
-
-  // Finds the stream just below |id| in the total order.
-  // Returns false if there are no streams with a lower priority.
-  // Otherwise, returns true and sets |*child|.
-  bool ChildOfStream(spdy::SpdyStreamId id, IdList::iterator* child);
+  struct StateDeleter {
+    void operator()(Http2PriorityRustState* state) const;
+  };
+  // Layout changed: rebuild all callers; never use old-DLL object methods.
+  // Rust owns the full priority ordering, ID index, storage and weight policy.
+  std::unique_ptr<Http2PriorityRustState, StateDeleter> state_;
 };
 
 }  // namespace net

@@ -47,12 +47,20 @@ namespace base {
 class TickClock;
 }  // namespace base
 
+#ifndef HOST_CACHE_RUST_EXPORT
+#define HOST_CACHE_RUST_EXPORT NET_EXPORT
+#endif
+
 namespace net {
+class DnsHostCacheRustServices;
+struct DnsHostCacheRustLifetimeFrame;
 
 class HostResolverInternalResult;
 
 // Cache used by HostResolver to map hostnames to their resolved result.
-class NET_EXPORT HostCache {
+class HOST_CACHE_RUST_EXPORT HostCache {
+  friend class DnsHostCacheRustServices;
+
  public:
   // The result of cache lookup.
   //
@@ -68,7 +76,7 @@ class NET_EXPORT HostCache {
     kMaxValue = kLookupHitStale
   };
   // LINT.ThenChange(//tools/metrics/histograms/metadata/net/enums.xml:LookupOutcome)
-  struct NET_EXPORT Key {
+  struct HOST_CACHE_RUST_EXPORT Key {
     // Hostnames in `host` must not be IP literals. IP literals should be
     // resolved directly to the IP address and not be stored/queried in
     // HostCache.
@@ -93,13 +101,9 @@ class NET_EXPORT HostCache {
                       key->secure, key->target_network);
     }
 
-    bool operator==(const Key& other) const {
-      return GetTuple(this) == GetTuple(&other);
-    }
+    bool operator==(const Key& other) const;
 
-    bool operator<(const Key& other) const {
-      return GetTuple(this) < GetTuple(&other);
-    }
+    bool operator<(const Key& other) const;
 
     std::variant<url::SchemeHostPort, std::string> host;
     DnsQueryType dns_query_type = DnsQueryType::UNSPECIFIED;
@@ -110,7 +114,7 @@ class NET_EXPORT HostCache {
     handles::NetworkHandle target_network = handles::kInvalidNetworkHandle;
   };
 
-  struct NET_EXPORT EntryStaleness {
+  struct HOST_CACHE_RUST_EXPORT EntryStaleness {
     // Time since the entry's TTL has expired. Negative if not expired.
     base::TimeDelta expired_by;
 
@@ -120,13 +124,13 @@ class NET_EXPORT HostCache {
     // Number of hits to the cache entry while stale (expired or past-network).
     int stale_hits;
 
-    bool is_stale() const {
-      return network_changes > 0 || expired_by >= base::TimeDelta();
-    }
+    bool is_stale() const;
   };
 
   // Stores the latest address list that was looked up for a hostname.
-  class NET_EXPORT Entry {
+  class HOST_CACHE_RUST_EXPORT Entry {
+    friend class DnsHostCacheRustServices;
+
    public:
     enum Source : int {
       // Address list was obtained from an unknown source.
@@ -184,29 +188,12 @@ class NET_EXPORT HostCache {
     Entry& operator=(const Entry& entry);
     Entry& operator=(Entry&& entry);
 
-    bool operator==(const Entry& other) const {
-      return ContentsEqual(other) &&
-             std::tie(source_, pinning_, ttl_, expires_, network_changes_,
-                      total_hits_, stale_hits_) ==
-                 std::tie(other.source_, other.pinning_, other.ttl_,
-                          other.expires_, other.network_changes_,
-                          other.total_hits_, other.stale_hits_);
-    }
+    bool operator==(const Entry& other) const;
 
-    bool ContentsEqual(const Entry& other) const {
-      return std::tie(error_, ip_endpoints_, endpoint_metadatas_, aliases_,
-                      text_records_, hostnames_, canonical_names_) ==
-             std::tie(other.error_, other.ip_endpoints_,
-                      other.endpoint_metadatas_, other.aliases_,
-                      other.text_records_, other.hostnames_,
-                      other.canonical_names_);
-    }
+    bool ContentsEqual(const Entry& other) const;
 
     int error() const { return error_; }
-    bool did_complete() const {
-      return error_ != ERR_NETWORK_CHANGED &&
-             error_ != ERR_HOST_RESOLVER_QUEUE_TOO_LARGE;
-    }
+    bool did_complete() const;
     void set_error(int error) { error_ = error; }
     std::vector<HostResolverEndpointResult> GetEndpoints() const;
     const std::vector<IPEndPoint>& ip_endpoints() const {
@@ -242,7 +229,7 @@ class NET_EXPORT HostCache {
     }
 
     Source source() const { return source_; }
-    bool has_ttl() const { return ttl_ >= base::TimeDelta(); }
+    bool has_ttl() const;
     base::TimeDelta ttl() const { return ttl_; }
     std::optional<base::TimeDelta> GetOptionalTtl() const;
     void set_ttl(base::TimeDelta ttl) { ttl_ = ttl; }
@@ -552,6 +539,8 @@ class NET_EXPORT HostCache {
   // Shared tick clock, overridden for testing.
   raw_ptr<const base::TickClock> tick_clock_;
 
+  // Stack-linked synchronous callback frames; no cross-sequence access.
+  raw_ptr<DnsHostCacheRustLifetimeFrame> rust_callback_frames_ = nullptr;
   THREAD_CHECKER(thread_checker_);
 };
 

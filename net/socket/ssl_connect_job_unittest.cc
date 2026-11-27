@@ -104,16 +104,6 @@ void CheckConnectTimesExceptDnsSet(
   EXPECT_EQ(base::TimeTicks::Now(), connect_timing.connect_end);
 }
 
-const url::SchemeHostPort kHostHttps{url::kHttpsScheme, "host", 443};
-const HostPortPair kHostHttp{"host", 80};
-const ProxyServer kSocksProxyServer{ProxyServer::SCHEME_SOCKS5,
-                                    HostPortPair("sockshost", 443)};
-const ProxyServer kHttpProxyServer{ProxyServer::SCHEME_HTTP,
-                                   HostPortPair("proxy", 443)};
-
-const ProxyChain kHttpProxyChain{kHttpProxyServer};
-
-
 // Test fixture runs with Happy Eyeballs v2 both enabled and disabled, based on
 // the boolean test parameter.
 //
@@ -226,6 +216,16 @@ class SSLConnectJobTestBase : public ::testing::Test {
   }
 
  protected:
+const url::SchemeHostPort kHostHttps{url::kHttpsScheme, "host", 443};
+const HostPortPair kHostHttp{"host", 80};
+const ProxyServer kSocksProxyServer{ProxyServer::SCHEME_SOCKS5,
+                                    HostPortPair("sockshost", 443)};
+const ProxyServer kHttpProxyServer{ProxyServer::SCHEME_HTTP,
+                                   HostPortPair("proxy", 443)};
+
+const ProxyChain kHttpProxyChain{kHttpProxyServer};
+
+
   base::test::ScopedFeatureList scoped_feature_list_;
   base::test::TaskEnvironment task_environment_{
       base::test::TaskEnvironment::TimeSource::MOCK_TIME};

@@ -12,6 +12,7 @@
 #include "base/values.h"
 #include "net/base/completion_once_callback.h"
 #include "net/base/net_errors.h"
+#include "net/base/net_export.h"
 #include "net/dns/dns_query.h"
 #include "net/dns/dns_response.h"
 #include "net/dns/public/dns_protocol.h"
@@ -33,7 +34,7 @@ class DnsAttempt {
 
   static const net::NetworkTrafficAnnotationTag kTrafficAnnotation;
 
-  explicit DnsAttempt(size_t server_index);
+  NET_EXPORT_PRIVATE explicit DnsAttempt(size_t server_index);
 
   DnsAttempt(const DnsAttempt&) = delete;
   DnsAttempt& operator=(const DnsAttempt&) = delete;
@@ -59,7 +60,8 @@ class DnsAttempt {
   // TODO(crbug.com/485672648): This method is specific to DnsHttpAttempt and
   // breaks the DnsAttempt abstraction. Remove this once we gather enough data
   // for the DoH performance.
-  virtual std::optional<DohResolutionDetails> GetDohResolutionDetails() const;
+  NET_EXPORT_PRIVATE virtual std::optional<DohResolutionDetails>
+  GetDohResolutionDetails() const;
 
   // Returns the net log bound to the source of the socket.
   virtual const NetLogWithSource& GetSocketNetLog() const = 0;

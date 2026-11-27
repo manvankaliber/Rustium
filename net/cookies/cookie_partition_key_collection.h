@@ -55,10 +55,10 @@ class NET_EXPORT CookiePartitionKeyCollection {
 
   // CookieMonster can check if the key collection is empty to avoid searching
   // the PartitionedCookieMap at all.
-  bool IsEmpty() const { return state_ && state_->empty(); }
+  bool IsEmpty() const;
 
   // Returns if the key collection contains every partition key.
-  bool ContainsAllKeys() const { return !state_; }
+  bool ContainsAllKeys() const;
 
   // Iterate over all keys in the key collection, do not call this method if
   // `ContainsAllKeys()` is true.
@@ -71,10 +71,11 @@ class NET_EXPORT CookiePartitionKeyCollection {
   // Returns true if the collection contains the passed key.
   bool Contains(const CookiePartitionKey& key) const;
 
-  friend bool operator==(const CookiePartitionKeyCollection& lhs,
-                         const CookiePartitionKeyCollection& rhs) = default;
+  friend NET_EXPORT bool operator==(const CookiePartitionKeyCollection& lhs,
+                                    const CookiePartitionKeyCollection& rhs);
 
  private:
+  friend struct CookieFamilyNativeAccess;
   using InternalState = std::optional<base::flat_set<CookiePartitionKey>>;
   // Used to disambiguate the ctors that accept std::optional values, since
   // usage of std::nullopt would be ambiguous otherwise.

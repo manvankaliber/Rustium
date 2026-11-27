@@ -2,9 +2,13 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include <array>
+#include <limits>
+#include <memory>
+#include <string>
 #include <optional>
 #include <string_view>
 #include <utility>
@@ -24,6 +28,7 @@
 #include "base/strings/string_number_conversions.h"
 #include "base/strings/stringprintf.h"
 #include "base/task/single_thread_task_runner.h"
+#include "base/test/bind.h"
 #include "base/test/scoped_feature_list.h"
 #include "base/threading/platform_thread.h"
 #include "base/time/time.h"
@@ -35,6 +40,7 @@
 #include "net/base/load_timing_info_test_util.h"
 #include "net/base/net_errors.h"
 #include "net/base/network_anonymization_key.h"
+#include "net/base/prioritized_dispatcher.h"
 #include "net/base/privacy_mode.h"
 #include "net/base/proxy_chain.h"
 #include "net/base/proxy_string_util.h"
@@ -56,6 +62,7 @@
 #include "net/socket/client_socket_handle.h"
 #include "net/socket/connect_job_factory.h"
 #include "net/socket/datagram_client_socket.h"
+#include "net/socket/retained_queue_ffi.h"
 #include "net/socket/socket_performance_watcher.h"
 #include "net/socket/socket_pool_additional_capacity.h"
 #include "net/socket/socket_tag.h"
@@ -85,6 +92,21 @@ using ::testing::Return;
 namespace net {
 
 namespace {
+
+TEST(TransportRetainedQueueAbiTest, ReplyLayoutMatchesRust) {
+  EXPECT_EQ(sizeof(RustRequestOrderReply),
+            RetainedQueueReplyLayoutForTesting(0));
+  EXPECT_EQ(alignof(RustRequestOrderReply),
+            RetainedQueueReplyLayoutForTesting(1));
+  EXPECT_EQ(offsetof(RustRequestOrderReply, token),
+            RetainedQueueReplyLayoutForTesting(2));
+  EXPECT_EQ(offsetof(RustRequestOrderReply, rank),
+            RetainedQueueReplyLayoutForTesting(3));
+  EXPECT_EQ(offsetof(RustRequestOrderReply, donor),
+            RetainedQueueReplyLayoutForTesting(4));
+  EXPECT_EQ(offsetof(RustRequestOrderReply, action),
+            RetainedQueueReplyLayoutForTesting(5));
+}
 
 const int kDefaultMaxSockets = 4;
 const int kDefaultMaxSocketsPerGroup = 2;
@@ -154,10 +176,47 @@ void TestLoadTimingInfoNotConnected(const ClientSocketHandle& handle) {
   ExpectLoadTimingHasOnlyConnectionTimes(load_timing_info);
 }
 
+// Optional provider script for observing the real pool's lazy socket calls.
+// Shared state outlives a socket whose destruction is part of the assertion.
+struct IdleSocketScript {
+  std::string name;
+  std::shared_ptr<std::vector<std::string>> events;
+  std::vector<bool> used;
+  std::vector<bool> idle;
+  std::vector<bool> connected;
+  size_t used_index = 0;
+  size_t idle_index = 0;
+  size_t connected_index = 0;
+  raw_ptr<RecordingNetLogObserver> observer = nullptr;
+  bool destroyed = false;
+  bool close_logged_before_destruction = false;
+
+  bool Observe(char kind, const std::vector<bool>& answers, size_t& index,
+               bool fallback) {
+    events->push_back(name + kind);
+    return index < answers.size() ? answers[index++] : fallback;
+  }
+};
+
 class MockClientSocket : public StreamSocket {
  public:
   explicit MockClientSocket(net::NetLog* net_log)
       : net_log_(NetLogWithSource::Make(net_log, NetLogSourceType::SOCKET)) {}
+
+  ~MockClientSocket() override {
+    if (script_) {
+      script_->events->push_back(script_->name + 'D');
+      script_->destroyed = true;
+      script_->close_logged_before_destruction =
+          !script_->observer->GetEntriesForSourceWithType(
+              net_log_.source(), NetLogEventType::SOCKET_POOL_CLOSING_SOCKET,
+              NetLogEventPhase::NONE).empty();
+    }
+  }
+
+  void SetIdleScript(std::shared_ptr<IdleSocketScript> script) {
+    script_ = std::move(script);
+  }
 
   MockClientSocket(const MockClientSocket&) = delete;
   MockClientSocket& operator=(const MockClientSocket&) = delete;
@@ -198,9 +257,16 @@ class MockClientSocket : public StreamSocket {
   }
 
   void Disconnect() override { connected_ = false; }
-  bool IsConnected() const override { return connected_; }
+  bool IsConnected() const override {
+    return script_ ? script_->Observe('C', script_->connected,
+                                      script_->connected_index, connected_)
+                   : connected_;
+  }
   bool IsConnectedAndIdle() const override {
-    return connected_ && !has_unread_data_;
+    const bool idle = connected_ && !has_unread_data_;
+    return script_ ? script_->Observe('I', script_->idle, script_->idle_index,
+                                      idle)
+                   : idle;
   }
 
   int GetPeerAddress(IPEndPoint* /* address */) const override {
@@ -213,7 +279,11 @@ class MockClientSocket : public StreamSocket {
 
   const NetLogWithSource& NetLog() const override { return net_log_; }
 
-  bool WasEverUsed() const override { return was_used_to_convey_data_; }
+  bool WasEverUsed() const override {
+    return script_ ? script_->Observe('W', script_->used, script_->used_index,
+                                      was_used_to_convey_data_)
+                   : was_used_to_convey_data_;
+  }
   NextProto GetNegotiatedProtocol() const override {
     return NextProto::kProtoUnknown;
   }
@@ -229,6 +299,7 @@ class MockClientSocket : public StreamSocket {
   bool has_unread_data_ = false;
   NetLogWithSource net_log_;
   bool was_used_to_convey_data_ = false;
+  std::shared_ptr<IdleSocketScript> script_;
 };
 
 class TestConnectJob;
@@ -276,7 +347,15 @@ class MockClientSocketFactory : public ClientSocketFactory {
 
   void SignalJob(size_t job);
 
+  size_t waiting_job_count() const { return waiting_jobs_.size(); }
+  void ForgetWaitingJobs() { waiting_jobs_.clear(); }
+
   void SetJobLoadState(size_t job, LoadState load_state);
+
+  void ExpectJobPriority(size_t job, RequestPriority priority);
+  void SetJobPriorityCallback(
+      size_t job,
+      base::RepeatingCallback<void(RequestPriority)> callback);
 
   // Sets the HasConnectionEstablished value of the specified job to true,
   // without invoking the callback.
@@ -341,6 +420,11 @@ class TestConnectJob : public ConnectJob {
 
   void Signal() {
     DoConnect(waiting_success_, true /* async */, false /* recoverable */);
+  }
+
+  void SetPriorityCallback(
+      base::RepeatingCallback<void(RequestPriority)> callback) {
+    priority_callback_ = std::move(callback);
   }
 
   void set_load_state(LoadState load_state) { load_state_ = load_state; }
@@ -474,7 +558,10 @@ class TestConnectJob : public ConnectJob {
     }
   }
 
-  void ChangePriorityInternal(RequestPriority priority) override {}
+  void ChangePriorityInternal(RequestPriority priority) override {
+    if (priority_callback_)
+      priority_callback_.Run(priority);
+  }
 
   int DoConnect(bool succeed, bool was_async, bool cert_error) {
     int result = OK;
@@ -526,6 +613,7 @@ class TestConnectJob : public ConnectJob {
                        succeed_after_last_challenge));
   }
 
+  base::RepeatingCallback<void(RequestPriority)> priority_callback_;
   bool waiting_success_;
   const JobType job_type_;
   const raw_ptr<MockClientSocketFactory> client_socket_factory_;
@@ -643,6 +731,19 @@ void MockClientSocketFactory::SetJobLoadState(size_t job,
   waiting_jobs_[job]->set_load_state(load_state);
 }
 
+void MockClientSocketFactory::ExpectJobPriority(size_t job,
+                                                RequestPriority priority) {
+  ASSERT_LT(job, waiting_jobs_.size());
+  EXPECT_EQ(priority, waiting_jobs_[job]->priority());
+}
+
+void MockClientSocketFactory::SetJobPriorityCallback(
+    size_t job,
+    base::RepeatingCallback<void(RequestPriority)> callback) {
+  ASSERT_LT(job, waiting_jobs_.size());
+  waiting_jobs_[job]->SetPriorityCallback(std::move(callback));
+}
+
 void MockClientSocketFactory::SetJobHasEstablishedConnection(size_t job) {
   ASSERT_LT(job, waiting_jobs_.size());
   waiting_jobs_[job]->set_has_established_connection();
@@ -727,6 +828,113 @@ class ClientSocketPoolBaseTest : public TestWithTaskEnvironment {
     EXPECT_EQ(expected_reason, *reason);
   }
 
+  void RunIdleSelectionScript(bool proxy, bool change_handout_usage) {
+    const auto group = TestGroupId("idle-script");
+    CreatePoolWithIdleTimeouts(
+        4, 4, base::Minutes(1), base::Minutes(1), false,
+        proxy ? ProxyUriToProxyChain("http://proxy.test:80",
+                                    ProxyServer::SCHEME_HTTP)
+              : ProxyChain::Direct());
+    TestCompletionCallback callback1;
+    TestCompletionCallback callback2;
+    ClientSocketHandle first;
+    ClientSocketHandle second;
+    ASSERT_THAT(first.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                           ClientSocketPool::RespectLimits::ENABLED,
+                           callback1.callback(), ClientSocketPool::ProxyAuthCallback(),
+                           pool_.get(), NetLogWithSource()), IsOk());
+    ASSERT_THAT(second.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                            ClientSocketPool::RespectLimits::ENABLED,
+                            callback2.callback(), ClientSocketPool::ProxyAuthCallback(),
+                            pool_.get(), NetLogWithSource()), IsOk());
+    auto* first_socket = static_cast<MockClientSocket*>(first.socket());
+    auto* second_socket = static_cast<MockClientSocket*>(second.socket());
+    const NetLogSource first_source = first_socket->NetLog().source();
+    const NetLogSource second_source = second_socket->NetLog().source();
+    ASSERT_EQ(1, first_socket->Write(nullptr, 1, CompletionOnceCallback(),
+                                     TRAFFIC_ANNOTATION_FOR_TESTS));
+    ASSERT_EQ(1, second_socket->Write(nullptr, 1, CompletionOnceCallback(),
+                                      TRAFFIC_ANNOTATION_FOR_TESTS));
+    first.Reset();
+    second.Reset();
+    ASSERT_EQ(2u, pool_->IdleSocketCount());
+    ASSERT_EQ(0u, pool_->NumActiveSocketsInGroupForTesting(group));
+
+    auto events = std::make_shared<std::vector<std::string>>();
+    auto a = std::make_shared<IdleSocketScript>();
+    a->name = "A";
+    a->events = events;
+    a->observer = &net_log_observer_;
+    if (change_handout_usage) {
+      a->used = {true, true, true, true, false};
+    }
+    auto b = std::make_shared<IdleSocketScript>();
+    b->name = "B";
+    b->events = events;
+    b->observer = &net_log_observer_;
+    // B survives cleanup, then disconnects after A has become the candidate.
+    b->idle = {true, false};
+    b->connected = {false};
+    first_socket->SetIdleScript(a);
+    second_socket->SetIdleScript(b);
+
+    const NetLogWithSource request_log =
+        NetLogWithSource::Make(NetLogSourceType::NONE);
+    TestCompletionCallback callback3;
+    ClientSocketHandle selected;
+    ASSERT_THAT(selected.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                              ClientSocketPool::RespectLimits::ENABLED,
+                              callback3.callback(), ClientSocketPool::ProxyAuthCallback(),
+                              pool_.get(), request_log), IsOk());
+    ASSERT_TRUE(selected.socket());
+    EXPECT_EQ(first_source.id, selected.socket()->NetLog().source().id);
+    EXPECT_EQ(change_handout_usage ? StreamSocketHandle::SocketReuseType::kUnusedIdle
+                                  : StreamSocketHandle::SocketReuseType::kReusedIdle,
+              selected.reuse_type());
+    EXPECT_EQ(base::TimeDelta(), selected.idle_time());
+    EXPECT_EQ(0, selected.group_generation());
+    EXPECT_EQ(0u, pool_->IdleSocketCount());
+    EXPECT_EQ(1u, pool_->NumActiveSocketsInGroupForTesting(group));
+    EXPECT_EQ(1u, pool_->SocketsInUse());
+    ExpectSocketClosedWithReason(
+        second_source, TransportClientSocketPool::kRemoteSideClosedConnection);
+
+    // Closing the rejected socket is logged before the selected socket is bound.
+    size_t close_index = std::numeric_limits<size_t>::max();
+    size_t bind_index = std::numeric_limits<size_t>::max();
+    auto entries = net_log_observer_.GetEntries();
+    for (size_t i = 0; i < entries.size(); ++i) {
+      if (entries[i].source.id == second_source.id &&
+          entries[i].type == NetLogEventType::SOCKET_POOL_CLOSING_SOCKET) {
+        close_index = i;
+      }
+      if (entries[i].source.id == request_log.source().id &&
+          entries[i].type == NetLogEventType::SOCKET_POOL_BOUND_TO_SOCKET) {
+        bind_index = i;
+      }
+    }
+    ASSERT_NE(std::numeric_limits<size_t>::max(), bind_index);
+    EXPECT_LT(close_index, bind_index);
+    std::vector<std::string> expected = {"AW", "AW", "AI", "BW", "BW", "BI",
+                                         "AW", "AI", "AW", "BW", "BI", "BC"};
+    if (!proxy) {
+      expected.push_back("BD");
+    }
+    expected.push_back("AW");
+    EXPECT_EQ(expected, *events);
+    EXPECT_EQ(!proxy, b->destroyed);
+    if (proxy) {
+      base::RunLoop().RunUntilIdle();
+      expected.push_back("BD");
+      EXPECT_EQ(expected, *events);
+    }
+    EXPECT_TRUE(b->destroyed);
+    EXPECT_TRUE(b->close_logged_before_destruction);
+    selected.Reset();
+    pool_->CloseIdleSockets("test cleanup");
+    base::RunLoop().RunUntilIdle();
+  }
+
   TestSocketRequest* request(int i) { return test_base_.request(i); }
   size_t requests_size() const { return test_base_.requests_size(); }
   std::vector<std::unique_ptr<TestSocketRequest>>* requests() {
@@ -770,6 +978,162 @@ class ClientSocketPoolBaseTest : public TestWithTaskEnvironment {
   raw_ptr<TestConnectJobFactory> connect_job_factory_;
   ClientSocketPoolTest test_base_;
 };
+
+TEST_F(ClientSocketPoolBaseTest, IdleSelectionDirectDestructionAndChangingUsage) {
+  RunIdleSelectionScript(/*proxy=*/false, /*change_handout_usage=*/true);
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleSelectionProxyDeferredDestruction) {
+  RunIdleSelectionScript(/*proxy=*/true, /*change_handout_usage=*/false);
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleSelectionYoungestUsedAndOldestUnused) {
+  CreatePool(4, 4);
+  const auto group = TestGroupId("idle-choice");
+  TestCompletionCallback callback;
+  std::array<ClientSocketHandle, 3> handles;
+  for (auto& handle : handles) {
+    ASSERT_THAT(handle.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                            ClientSocketPool::RespectLimits::ENABLED,
+                            callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                            pool_.get(), NetLogWithSource()), IsOk());
+  }
+  const auto youngest_used = handles[2].socket()->NetLog().source().id;
+  for (size_t i : {size_t{1}, size_t{2}}) {
+    ASSERT_EQ(1, handles[i].socket()->Write(nullptr, 1, CompletionOnceCallback(),
+                                           TRAFFIC_ANNOTATION_FOR_TESTS));
+  }
+  for (auto& handle : handles) {
+    handle.Reset();
+  }
+  EXPECT_EQ(3u, pool_->IdleSocketCount());
+  EXPECT_EQ(0u, pool_->NumActiveSocketsInGroupForTesting(group));
+  ASSERT_THAT(handles[0].Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                              ClientSocketPool::RespectLimits::ENABLED,
+                              callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                              pool_.get(), NetLogWithSource()), IsOk());
+  EXPECT_EQ(youngest_used, handles[0].socket()->NetLog().source().id);
+  EXPECT_EQ(StreamSocketHandle::SocketReuseType::kReusedIdle,
+            handles[0].reuse_type());
+  EXPECT_EQ(2u, pool_->IdleSocketCount());
+  EXPECT_EQ(1u, pool_->NumActiveSocketsInGroupForTesting(group));
+  handles[0].Reset();
+  pool_->CloseIdleSockets("test cleanup");
+
+  const auto unused_group = TestGroupId("unused-choice");
+  for (size_t i : {size_t{0}, size_t{1}}) {
+    ASSERT_THAT(handles[i].Init(unused_group, params_, std::nullopt, LOWEST,
+                                SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
+                                callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                                pool_.get(), NetLogWithSource()), IsOk());
+  }
+  const auto oldest_unused = handles[0].socket()->NetLog().source().id;
+  handles[0].Reset();
+  handles[1].Reset();
+  EXPECT_EQ(2u, pool_->IdleSocketCount());
+  ASSERT_THAT(handles[0].Init(unused_group, params_, std::nullopt, LOWEST,
+                              SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
+                              callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                              pool_.get(), NetLogWithSource()), IsOk());
+  EXPECT_EQ(oldest_unused, handles[0].socket()->NetLog().source().id);
+  EXPECT_EQ(StreamSocketHandle::SocketReuseType::kUnusedIdle,
+            handles[0].reuse_type());
+  EXPECT_EQ(1u, pool_->IdleSocketCount());
+  EXPECT_EQ(1u, pool_->NumActiveSocketsInGroupForTesting(unused_group));
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleCleanupReasonPrecedenceAndObservationOrder) {
+  const auto group = TestGroupId("idle-cleanup-script");
+  CreatePoolWithIdleTimeouts(2, 2, base::TimeDelta(), base::TimeDelta());
+  TestCompletionCallback callback;
+  ClientSocketHandle handle;
+  ASSERT_THAT(handle.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                          ClientSocketPool::RespectLimits::ENABLED,
+                          callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                          pool_.get(), NetLogWithSource()), IsOk());
+  auto* socket = static_cast<MockClientSocket*>(handle.socket());
+  const NetLogSource source = socket->NetLog().source();
+  ASSERT_EQ(1, socket->Write(nullptr, 1, CompletionOnceCallback(),
+                             TRAFFIC_ANNOTATION_FOR_TESTS));
+  handle.Reset();
+  ASSERT_EQ(1u, pool_->IdleSocketCount());
+  auto script = std::make_shared<IdleSocketScript>();
+  script->name = "S";
+  script->events = std::make_shared<std::vector<std::string>>();
+  script->observer = &net_log_observer_;
+  script->idle = {false};
+  script->connected = {true};
+  socket->SetIdleScript(script);
+  pool_->CloseIdleSockets("forced reason");
+  EXPECT_EQ((std::vector<std::string>{"SW", "SW", "SI", "SC", "SD"}),
+            *script->events);
+  EXPECT_TRUE(script->destroyed);
+  EXPECT_TRUE(script->close_logged_before_destruction);
+  EXPECT_EQ(0u, pool_->IdleSocketCount());
+  EXPECT_EQ(0u, pool_->SocketsInUse());
+  EXPECT_FALSE(pool_->HasGroupForTesting(group));
+  ExpectSocketClosedWithReason(
+      source, TransportClientSocketPool::kDataReceivedUnexpectedly);
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleReleaseClosedPrecedesStaleGeneration) {
+  const auto group = TestGroupId("idle-release-script");
+  CreatePool(2, 2);
+  TestCompletionCallback callback;
+  ClientSocketHandle handle;
+  ASSERT_THAT(handle.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                          ClientSocketPool::RespectLimits::ENABLED,
+                          callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                          pool_.get(), NetLogWithSource()), IsOk());
+  auto* socket = static_cast<MockClientSocket*>(handle.socket());
+  const NetLogSource source = socket->NetLog().source();
+  pool_->FlushWithError(ERR_ABORTED, "generation changed");
+  auto script = std::make_shared<IdleSocketScript>();
+  script->name = "S";
+  script->events = std::make_shared<std::vector<std::string>>();
+  script->observer = &net_log_observer_;
+  script->idle = {false};
+  script->connected = {false};
+  socket->SetIdleScript(script);
+  handle.Reset();
+  EXPECT_EQ((std::vector<std::string>{"SI", "SC", "SD"}), *script->events);
+  EXPECT_TRUE(script->destroyed);
+  EXPECT_TRUE(script->close_logged_before_destruction);
+  EXPECT_EQ(0u, pool_->IdleSocketCount());
+  EXPECT_EQ(0u, pool_->SocketsInUse());
+  EXPECT_FALSE(pool_->HasGroupForTesting(group));
+  ExpectSocketClosedWithReason(
+      source, TransportClientSocketPool::kClosedConnectionReturnedToPool);
+}
+
+TEST_F(ClientSocketPoolBaseTest, IdleReleaseStaleGenerationSkipsConnectedQuery) {
+  const auto group = TestGroupId("idle-release-stale");
+  CreatePool(2, 2);
+  TestCompletionCallback callback;
+  ClientSocketHandle handle;
+  ASSERT_THAT(handle.Init(group, params_, std::nullopt, LOWEST, SocketTag(),
+                          ClientSocketPool::RespectLimits::ENABLED,
+                          callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                          pool_.get(), NetLogWithSource()), IsOk());
+  auto* socket = static_cast<MockClientSocket*>(handle.socket());
+  const NetLogSource source = socket->NetLog().source();
+  pool_->FlushWithError(ERR_ABORTED, "generation changed");
+  auto script = std::make_shared<IdleSocketScript>();
+  script->name = "S";
+  script->events = std::make_shared<std::vector<std::string>>();
+  script->observer = &net_log_observer_;
+  script->idle = {true};
+  socket->SetIdleScript(script);
+  handle.Reset();
+  EXPECT_EQ((std::vector<std::string>{"SI", "SD"}), *script->events);
+  EXPECT_TRUE(script->destroyed);
+  EXPECT_TRUE(script->close_logged_before_destruction);
+  EXPECT_EQ(0u, pool_->IdleSocketCount());
+  EXPECT_EQ(0u, pool_->SocketsInUse());
+  EXPECT_FALSE(pool_->HasGroupForTesting(group));
+  ExpectSocketClosedWithReason(
+      source, TransportClientSocketPool::kSocketGenerationOutOfDate);
+}
 
 TEST_F(ClientSocketPoolBaseTest, BasicSynchronous) {
   CreatePool(kDefaultMaxSockets, kDefaultMaxSocketsPerGroup);
@@ -1106,6 +1470,27 @@ TEST_F(ClientSocketPoolBaseTest, TotalLimitRespectsPriority) {
   EXPECT_EQ(ClientSocketPoolTest::kIndexOutOfBounds, GetOrderOfRequest(9));
 }
 
+TEST_F(ClientSocketPoolBaseTest, StalledGroupTiesFollowGroupIdOrder) {
+  CreatePool(2, 1);
+  const auto saturated_group = TestGroupId("saturated");
+  ASSERT_THAT(StartRequest(TestGroupId("held"), LOWEST), IsOk());
+  ASSERT_THAT(StartRequest(saturated_group, LOWEST), IsOk());
+
+  // The high-priority request cannot use another slot in its own group.
+  ASSERT_THAT(StartRequest(saturated_group, HIGHEST), IsError(ERR_IO_PENDING));
+  // Register the equal-priority groups in reverse GroupId order.
+  ASSERT_THAT(StartRequest(TestGroupId("z"), MEDIUM), IsError(ERR_IO_PENDING));
+  ASSERT_THAT(StartRequest(TestGroupId("a"), MEDIUM), IsError(ERR_IO_PENDING));
+
+  ASSERT_TRUE(ReleaseOneConnection(ClientSocketPoolTest::NO_KEEP_ALIVE));
+  EXPECT_TRUE(request(4)->handle()->socket());
+  EXPECT_FALSE(request(3)->handle()->socket());
+  EXPECT_FALSE(request(2)->handle()->socket());
+  EXPECT_EQ(3, GetOrderOfRequest(5));
+
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
 // Test reprioritizing a request before completion doesn't interfere with
 // its completion.
 TEST_F(ClientSocketPoolBaseTest, ReprioritizeOne) {
@@ -1184,6 +1569,119 @@ TEST_F(ClientSocketPoolBaseTest, ReprioritizeDownReorder) {
   EXPECT_EQ(1, GetOrderOfRequest(1));
   EXPECT_EQ(3, GetOrderOfRequest(2));
   EXPECT_EQ(2, GetOrderOfRequest(3));
+}
+
+TEST_F(ClientSocketPoolBaseTest, RetainedQueueSameAndChangedPriority) {
+  CreatePool(1, 1);
+  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+  TestCompletionCallback first_callback, second_callback, third_callback;
+  ClientSocketHandle first, second, third;
+  auto start = [&](ClientSocketHandle& handle, TestCompletionCallback& callback) {
+    return handle.Init(TestGroupId("a"), params_, std::nullopt, LOW,
+                       SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
+                       callback.callback(),
+                       ClientSocketPool::ProxyAuthCallback(), pool_.get(),
+                       NetLogWithSource());
+  };
+  ASSERT_EQ(ERR_IO_PENDING, start(first, first_callback));
+  ASSERT_EQ(ERR_IO_PENDING, start(second, second_callback));
+  ASSERT_EQ(ERR_IO_PENDING, start(third, third_callback));
+  second.SetPriority(LOW);  // Must preserve its position before third.
+  first.Reset();
+  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &second));
+  EXPECT_FALSE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                               &third));
+  second.SetPriority(MEDIUM);
+  second.SetPriority(LOW);  // Reinsert after third at the same priority.
+  EXPECT_FALSE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                               &second));
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &third));
+  third.Reset();
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &second));
+}
+
+class TestDispatchJob : public PrioritizedDispatcher::Job {
+ public:
+  MOCK_METHOD(void, Start, (), (override));
+};
+
+TEST_F(ClientSocketPoolBaseTest,
+       RetainedQueueReprioritizeDuringSynchronousDispatch) {
+  CreatePool(1, 1);
+  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+  const auto group = TestGroupId("a");
+
+  // The resolver's dispatcher may start a promoted job before returning.
+  // Simulate that provider boundary and post, rather than inline, completion.
+  PrioritizedDispatcher::Limits limits(NUM_PRIORITIES, 2);
+  limits.reserved_slots[LOW] = 1;
+  PrioritizedDispatcher dispatcher(limits);
+  testing::StrictMock<TestDispatchJob> blocker;
+  testing::StrictMock<TestDispatchJob> promoted;
+  EXPECT_CALL(blocker, Start());
+  ASSERT_TRUE(dispatcher.Add(&blocker, IDLE).is_null());
+  auto queued = dispatcher.Add(&promoted, IDLE);
+  ASSERT_FALSE(queued.is_null());
+  base::ScopedClosureRunner finish_dispatch(base::BindLambdaForTesting([&] {
+    if (queued.is_null()) {
+      dispatcher.OnJobFinished();
+    } else {
+      dispatcher.Cancel(queued);
+    }
+    dispatcher.OnJobFinished();
+  }));
+
+  // The fixture pool can outlive local state after a fatal expectation.
+  base::ScopedClosureRunner forget_waiters(base::BindOnce(
+      &MockClientSocketFactory::ForgetWaitingJobs,
+      base::Unretained(&client_socket_factory_)));
+  ASSERT_THAT(StartRequest(group, HIGHEST), IsError(ERR_IO_PENDING));
+  ASSERT_THAT(StartRequest(group, LOW), IsError(ERR_IO_PENDING));
+  ASSERT_EQ(1u, client_socket_factory_.waiting_job_count());
+
+  bool dispatched = false;
+  EXPECT_CALL(promoted, Start()).WillOnce([&] {
+    dispatched = true;
+    const base::Value pool_info = pool_->GetInfoAsValue("pool", "test");
+    const auto* groups = pool_info.GetDict().FindDict("groups");
+    ASSERT_TRUE(groups);
+    const auto* group_info = groups->FindDict(group.ToString());
+    ASSERT_TRUE(group_info);
+    // While the old job is reassigned, the reprioritized request is detached.
+    EXPECT_EQ(1, group_info->FindInt("pending_request_count"));
+  });
+
+  std::vector<RequestPriority> priorities;
+  client_socket_factory_.SetJobPriorityCallback(
+      0, base::BindLambdaForTesting([&](RequestPriority priority) {
+        priorities.push_back(priority);
+        if (!queued.is_null()) {
+          queued = dispatcher.ChangePriority(queued, priority);
+        }
+      }));
+
+  request(0)->handle()->SetPriority(MEDIUM);
+  client_socket_factory_.SetJobPriorityCallback(0, {});
+  EXPECT_TRUE(dispatched);
+  EXPECT_TRUE(queued.is_null());
+  EXPECT_THAT(priorities, testing::ElementsAre(LOW, MEDIUM));
+  EXPECT_FALSE(request(0)->have_result());
+  EXPECT_FALSE(request(1)->have_result());
+
+  // Drain a posted completion, then check the result without waiting on a
+  // request that may never receive the socket if the scheduler regresses.
+  ASSERT_EQ(1u, client_socket_factory_.waiting_job_count());
+  ASSERT_TRUE(base::SingleThreadTaskRunner::GetCurrentDefault()->PostTask(
+      FROM_HERE, base::BindOnce(&MockClientSocketFactory::SignalJob,
+                               base::Unretained(&client_socket_factory_),
+                               size_t{0})));
+  base::RunLoop().RunUntilIdle();
+  EXPECT_FALSE(request(1)->have_result());
+  ASSERT_TRUE(request(0)->have_result());
+  EXPECT_THAT(request(0)->WaitForResult(), IsOk());
 }
 
 // Reprioritize a request to the same level as another and confirm it is
@@ -4186,6 +4684,100 @@ TEST_F(ClientSocketPoolBaseTest, PreconnectJobsTakenByNormalRequests) {
   EXPECT_EQ(1u, pool_->IdleSocketCountInGroup(TestGroupId("a")));
 }
 
+TEST_F(ClientSocketPoolBaseTest, CancelledPreconnectClaimIsNotRestored) {
+  CreatePool(4, 2);
+  AddScopedFeatureList().InitAndEnableFeature(
+      features::kEnableErrorCodePropagationForPreconnect);
+
+  for (bool remove_job : {false, true}) {
+    SCOPED_TRACE(remove_job);
+    const auto group = TestGroupId(remove_job ? "remove" : "retain");
+    connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob);
+    TestPreconnectCompletionCallback preconnect_callback;
+    ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 1,
+                                      preconnect_callback.callback(),
+                                      NetLogWithSource()),
+                IsError(ERR_IO_PENDING));
+    ASSERT_EQ(1u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+    TestCompletionCallback callback;
+    ClientSocketHandle handle;
+    ASSERT_THAT(
+        handle.Init(group, params_, std::nullopt, DEFAULT_PRIORITY, SocketTag(),
+                    ClientSocketPool::RespectLimits::ENABLED,
+                    callback.callback(), ClientSocketPool::ProxyAuthCallback(),
+                    pool_.get(), NetLogWithSource()),
+        IsError(ERR_IO_PENDING));
+    EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+    ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(group, &handle));
+
+    if (remove_job) {
+      handle.ResetAndCloseSocket();
+      EXPECT_FALSE(pool_->HasGroupForTesting(group));
+    } else {
+      handle.Reset();
+      ASSERT_TRUE(pool_->HasGroupForTesting(group));
+      EXPECT_EQ(1u, pool_->NumUnassignedConnectJobsInGroupForTesting(group));
+      EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+    }
+
+    // There is room for a fresh job and no claim to block that allocation.
+    connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+    const int allocations = client_socket_factory_.allocation_count();
+    EXPECT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+    EXPECT_EQ(allocations + 1, client_socket_factory_.allocation_count());
+
+    FastForwardBy(base::Milliseconds(TestConnectJob::kPendingConnectDelay));
+    EXPECT_FALSE(callback.have_result());
+    ASSERT_TRUE(preconnect_callback.have_result());
+    EXPECT_EQ(!remove_job, preconnect_callback.WaitForResult());
+  }
+
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
+TEST_F(ClientSocketPoolBaseTest, FailedAndFlushedPreconnectsClearClaims) {
+  CreatePool(3, 3);
+  AddScopedFeatureList().InitAndEnableFeature(
+      features::kEnableErrorCodePropagationForPreconnect);
+  const auto group = TestGroupId("a");
+  ASSERT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+
+  // An active socket preserves the group even after its preconnect fails.
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingFailingJob);
+  TestPreconnectCompletionCallback failed;
+  ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 2,
+                                    failed.callback(), NetLogWithSource()),
+              IsError(ERR_IO_PENDING));
+  EXPECT_EQ(1u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+  FastForwardBy(base::Milliseconds(TestConnectJob::kPendingConnectDelay));
+  ASSERT_TRUE(failed.have_result());
+  // RequestSockets counts the existing active slot as OK and reports the
+  // maximum of that result and the new job's negative error.
+  EXPECT_TRUE(failed.WaitForResult());
+  EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+  EXPECT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+  connect_job_factory_->set_job_type(TestConnectJob::kMockPendingJob);
+  TestPreconnectCompletionCallback flushed;
+  ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 3,
+                                    flushed.callback(), NetLogWithSource()),
+              IsError(ERR_IO_PENDING));
+  EXPECT_EQ(1u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  pool_->FlushWithError(ERR_ABORTED, "test flush");
+  base::RunLoop().RunUntilIdle();
+  ASSERT_TRUE(flushed.have_result());
+  // The existing active slots still contribute OK after the flush.
+  EXPECT_TRUE(flushed.WaitForResult());
+  EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+  EXPECT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
 // Checks that fully connected preconnect jobs have no connect times, and are
 // marked as reused.
 TEST_F(ClientSocketPoolBaseTest, ConnectedPreconnectJobsHaveNoConnectTimes) {
@@ -4595,6 +5187,40 @@ TEST_F(ClientSocketPoolBaseTest, PreconnectJobGetsAssignedToRequest) {
                                                               &handle1));
 }
 
+TEST_F(ClientSocketPoolBaseTest, PreconnectClaimsOldestUnassignedJob) {
+  CreatePool(2, 2);
+  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+  const auto group = TestGroupId("a");
+  TestPreconnectCompletionCallback preconnect_callback;
+  ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 2,
+                                   preconnect_callback.callback(),
+                                   NetLogWithSource()),
+              IsError(ERR_IO_PENDING));
+  ASSERT_EQ(2u, pool_->NumUnassignedConnectJobsInGroupForTesting(group));
+  client_socket_factory_.SetJobLoadState(0, LOAD_STATE_RESOLVING_HOST);
+  client_socket_factory_.SetJobLoadState(1, LOAD_STATE_SSL_HANDSHAKE);
+  client_socket_factory_.ExpectJobPriority(0, IDLE);
+  client_socket_factory_.ExpectJobPriority(1, IDLE);
+
+  ASSERT_THAT(StartRequest(group, HIGHEST), IsError(ERR_IO_PENDING));
+  EXPECT_EQ(LOAD_STATE_RESOLVING_HOST, request(0)->handle()->GetLoadState());
+  EXPECT_EQ(1u, pool_->NumUnassignedConnectJobsInGroupForTesting(group));
+  client_socket_factory_.ExpectJobPriority(0, HIGHEST);
+  client_socket_factory_.ExpectJobPriority(1, IDLE);
+
+  ASSERT_THAT(StartRequest(group, MEDIUM), IsError(ERR_IO_PENDING));
+  EXPECT_EQ(LOAD_STATE_SSL_HANDSHAKE, request(1)->handle()->GetLoadState());
+  EXPECT_EQ(0u, pool_->NumUnassignedConnectJobsInGroupForTesting(group));
+  client_socket_factory_.ExpectJobPriority(0, HIGHEST);
+  client_socket_factory_.ExpectJobPriority(1, MEDIUM);
+
+  client_socket_factory_.SignalJobs();
+  EXPECT_THAT(request(0)->WaitForResult(), IsOk());
+  EXPECT_THAT(request(1)->WaitForResult(), IsOk());
+  EXPECT_TRUE(preconnect_callback.WaitForResult());
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
 TEST_F(ClientSocketPoolBaseTest, HigherPriorityRequestStealsJob) {
   CreatePool(kDefaultMaxSockets, 1);
   connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
@@ -4641,6 +5267,39 @@ TEST_F(ClientSocketPoolBaseTest, HigherPriorityRequestStealsJob) {
                                                               &handle2));
   EXPECT_FALSE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
                                                                &handle1));
+}
+
+TEST_F(ClientSocketPoolBaseTest, AssignmentStealsLastAndReturnsReleasedJob) {
+  CreatePool(2, 2);
+  connect_job_factory_->set_job_type(TestConnectJob::kMockWaitingJob);
+  TestCompletionCallback first_callback, second_callback, high_callback;
+  ClientSocketHandle first, second, high;
+  auto start = [&](ClientSocketHandle& handle, RequestPriority priority,
+                   TestCompletionCallback& callback) {
+    return handle.Init(TestGroupId("a"), params_, std::nullopt, priority,
+                       SocketTag(), ClientSocketPool::RespectLimits::ENABLED,
+                       callback.callback(),
+                       ClientSocketPool::ProxyAuthCallback(), pool_.get(),
+                       NetLogWithSource());
+  };
+  ASSERT_EQ(ERR_IO_PENDING, start(first, DEFAULT_PRIORITY, first_callback));
+  ASSERT_EQ(ERR_IO_PENDING, start(second, DEFAULT_PRIORITY, second_callback));
+  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &first));
+  ASSERT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &second));
+  ASSERT_EQ(ERR_IO_PENDING, start(high, HIGHEST, high_callback));
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &first));
+  EXPECT_FALSE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                               &second));
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &high));
+  high.Reset();
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &first));
+  EXPECT_TRUE(pool_->RequestInGroupWithHandleHasJobForTesting(TestGroupId("a"),
+                                                              &second));
 }
 
 TEST_F(ClientSocketPoolBaseTest, RequestStealsJobFromLowestRequestWithJob) {
@@ -5395,6 +6054,65 @@ class TestAuthHelper {
   int auth_count_ = 0;
   TestCompletionCallback callback_;
 };
+
+TEST_F(ClientSocketPoolBaseTest, StalledGroupExcludesAuthBoundSlot) {
+  CreatePool(2, 1);
+  const auto auth_group = TestGroupId("auth");
+  const auto eligible_group = TestGroupId("eligible");
+  ASSERT_THAT(StartRequest(TestGroupId("held"), LOWEST), IsOk());
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockAuthChallengeOnceJob);
+  TestAuthHelper auth;
+  auth.InitHandle(params_, pool_.get(), LOW,
+                  ClientSocketPool::RespectLimits::ENABLED, auth_group);
+  auth.WaitForAuth();
+  ASSERT_EQ(1, auth.auth_count());
+  ASSERT_EQ(1u, pool_->NumConnectJobsInGroupForTesting(auth_group));
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+  ASSERT_THAT(StartRequest(auth_group, HIGHEST), IsError(ERR_IO_PENDING));
+  ASSERT_THAT(StartRequest(eligible_group, MEDIUM), IsError(ERR_IO_PENDING));
+
+  ASSERT_TRUE(ReleaseOneConnection(ClientSocketPoolTest::NO_KEEP_ALIVE));
+  EXPECT_TRUE(request(2)->handle()->socket());
+  EXPECT_FALSE(request(1)->have_result());
+  EXPECT_FALSE(auth.have_result());
+  EXPECT_EQ(1u, pool_->NumConnectJobsInGroupForTesting(auth_group));
+
+  auth.handle()->Reset();
+  EXPECT_THAT(request(1)->WaitForResult(), IsOk());
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
+
+TEST_F(ClientSocketPoolBaseTest, AuthBoundPreconnectDoesNotRestoreClaim) {
+  CreatePool(2, 2);
+  const auto group = TestGroupId("a");
+  connect_job_factory_->set_job_type(TestConnectJob::kMockAuthChallengeOnceJob);
+  TestPreconnectCompletionCallback preconnect_callback;
+  ASSERT_THAT(pool_->RequestSockets(group, params_, std::nullopt, 1,
+                                    preconnect_callback.callback(),
+                                    NetLogWithSource()),
+              IsError(ERR_IO_PENDING));
+  EXPECT_EQ(1u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  TestAuthHelper auth;
+  auth.InitHandle(params_, pool_.get(), DEFAULT_PRIORITY);
+  EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+  base::RunLoop().RunUntilIdle();
+  ASSERT_EQ(1, auth.auth_count());
+  EXPECT_EQ(1u, pool_->NumConnectJobsInGroupForTesting(group));
+  EXPECT_EQ(0u, pool_->NumNeverAssignedConnectJobsInGroupForTesting(group));
+
+  connect_job_factory_->set_job_type(TestConnectJob::kMockJob);
+  EXPECT_THAT(StartRequest(group, DEFAULT_PRIORITY), IsOk());
+  auth.RestartWithAuth();
+  base::RunLoop().RunUntilIdle();
+  ASSERT_TRUE(auth.have_result());
+  EXPECT_THAT(auth.WaitForResult(), IsOk());
+  ASSERT_TRUE(preconnect_callback.have_result());
+  EXPECT_TRUE(preconnect_callback.WaitForResult());
+  ReleaseAllConnections(ClientSocketPoolTest::NO_KEEP_ALIVE);
+}
 
 TEST_F(ClientSocketPoolBaseTest, ProxyAuthOnce) {
   CreatePool(1, 1);

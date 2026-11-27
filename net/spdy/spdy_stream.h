@@ -407,6 +407,8 @@ class NET_EXPORT_PRIVATE SpdyStream {
 
  private:
   friend class test::SpdyStreamTest;
+  // Test-only frozen native getter for historical queue baseline fixtures.
+  friend class Http2WriteQueueOriginalStreamAccess;
 
   class HeadersBufferProducer;
 

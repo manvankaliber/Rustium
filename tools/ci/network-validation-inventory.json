@@ -1,0 +1,1000 @@
+{
+  "schema_version": 1,
+  "status": "prepared-inventory; not executable or CI-qualified",
+  "scope": "Network ordinary validation inventory. Preserve program order and all workload cases. No timing, campaigns, production acceptance or cutover is established.",
+  "source_basis": {
+    "source_manifest_sha256": "e6ce572ada636ed753132f44ffca42e3c2784d55102fb665fb0cb329d9018e2e",
+    "source_inputs": 1270,
+    "historical_plan_sha256": "a7bddd6ecafbfb3aad846bf887ecaa90388c8c1ab06ceaacd77a4e020412decc",
+    "configured_graph_result_sha256": "48579477156c84514966dfa8ce6953d43dbde5ead8e75f350bc83b24fe4a2b52",
+    "configured_args_sha256": "b865c8a8cf26b97a622a12e9c13e6855679827f8b45407121a8fd4d0c47340e2",
+    "graph_finished_utc": "2026-11-17T15:09:44.952620+00:00",
+    "authority": "docs/rust/net-migration-execution.json#resumed_delivery_intake",
+    "historical_discovery_only": true,
+    "assembled_source_commit": "fe18b237de48d2fbc0026a534c61ae8281dbddef",
+    "portable_assembly": "docs/rust/migration/evidence/network-ci-source-assembly-v1.json",
+    "raw_inputs_archive": "docs/rust/migration/evidence/network-ci-raw-source-inputs.zip",
+    "raw_inputs_archive_sha256": "2af0bafa6f9c77a491b96a9b68260143f3dc48ff055d7ee5b834178cc960cd43",
+    "entrypoint_byte_policy": "Candidate Git blobs and qualified LF checkout bytes; raw pre-normalization hashes remain historical",
+    "auth_union": "Included in clean candidate; fresh normal/probe graph and qualification pending"
+  },
+  "membership": {
+    "programs": 36,
+    "paired_workloads": 232,
+    "logical_build_roots": 96,
+    "families": [
+      "connection-jobs",
+      "cookie-storage",
+      "dns-resolution",
+      "http2"
+    ],
+    "deferred_cases": []
+  },
+  "build_roots": [
+    "//base/test:run_all_unittests",
+    "//base:base",
+    "//base:base(//build/toolchain/win:win_clang_x64_with_system_allocator)",
+    "//base:base_unittests",
+    "//base:string_split_rust",
+    "//base:string_split_rust(//build/toolchain/win:win_clang_x64_with_system_allocator)",
+    "//base:string_split_rust_cxx_generated_gen",
+    "//base:string_split_rust_cxx_generated_gen(//build/toolchain/win:win_clang_x64_with_system_allocator)",
+    "//net/dns/public:tests",
+    "//net/dns:dns",
+    "//net/dns:dns_request_family_ffi",
+    "//net/dns:dns_resolution_original",
+    "//net/dns:dns_resolution_policy",
+    "//net/dns:dns_resolution_policy_ffi",
+    "//net/dns:dns_resolution_policy_unittests",
+    "//net/dns:dns_resolution_policy_unittests_exe",
+    "//net/dns:test_support",
+    "//net/dns:tests",
+    "//net/third_party/quiche:blind_sign_auth",
+    "//net/third_party/quiche:quiche",
+    "//net/third_party/uri_template:uri_template",
+    "//net:alps_decoder_rust_perftests",
+    "//net:alps_decoder_rust_reference",
+    "//net:alps_decoder_rust_unittests",
+    "//net:backoff_entry_rust_differential_unittests",
+    "//net:backoff_entry_rust_unittests",
+    "//net:backoff_rust_reference",
+    "//net:connect_job_rust_perftests",
+    "//net:connection_jobs_family_rust_perftests",
+    "//net:connection_jobs_family_rust_unittests",
+    "//net:connection_jobs_rust",
+    "//net:connection_jobs_rust_core_unittests",
+    "//net:connection_jobs_rust_core_unittests_exe",
+    "//net:connection_jobs_rust_reference",
+    "//net:connection_jobs_tcp_factory_rust_original",
+    "//net:connection_jobs_upper_rust_jobs_perftests",
+    "//net:connection_jobs_upper_rust_perftests",
+    "//net:connection_original_log_reference",
+    "//net:cookie_partition_key_rust_perftests",
+    "//net:cookie_partition_key_rust_reference",
+    "//net:cookie_partition_key_rust_unittests",
+    "//net:cookie_storage_family_original",
+    "//net:cookie_storage_family_perftests",
+    "//net:cookie_storage_family_rust",
+    "//net:cookie_storage_family_rust_policy_unittests",
+    "//net:cookie_storage_family_rust_policy_unittests_exe",
+    "//net:cookie_storage_family_store_perftests",
+    "//net:cookie_storage_family_store_unittests",
+    "//net:cookie_storage_family_test_support",
+    "//net:cookie_storage_family_unittests",
+    "//net:disk_simple_index_rust_reference",
+    "//net:dns_request_family_async_perftests",
+    "//net:dns_resolution_family_rust_perftests",
+    "//net:dns_resolution_family_rust_unittests",
+    "//net:dns_response_rust_reference",
+    "//net:extras",
+    "//net:header_coalescer_rust_perftests",
+    "//net:header_coalescer_rust_reference",
+    "//net:header_coalescer_rust_unittests",
+    "//net:host_port_rust_reference",
+    "//net:host_resolver_cache_rust_perftests",
+    "//net:host_resolver_cache_rust_reference",
+    "//net:host_resolver_cache_rust_unittests",
+    "//net:http2_family_rust",
+    "//net:http2_family_rust_policy_unittests",
+    "//net:http2_family_rust_policy_unittests_exe",
+    "//net:http2_family_rust_reference",
+    "//net:http2_priority_rust_perftests",
+    "//net:http2_priority_rust_reference",
+    "//net:http2_priority_rust_unittests",
+    "//net:http2_read_queue_rust_perftests",
+    "//net:http2_read_queue_rust_reference",
+    "//net:http2_read_queue_rust_unittests",
+    "//net:http2_stream_family_io_perftests",
+    "//net:http2_stream_family_rust_perftests",
+    "//net:http2_stream_family_rust_unittests",
+    "//net:http2_write_queue_rust_perftests",
+    "//net:http2_write_queue_rust_reference",
+    "//net:http2_write_queue_rust_unittests",
+    "//net:http2_write_queue_stream_reference",
+    "//net:http_request_headers_rust_reference",
+    "//net:net",
+    "//net:net_error_rust_reference",
+    "//net:net_log_values_rust_reference",
+    "//net:net_unittests",
+    "//net:port_policy_reference",
+    "//net:proxy_value_rust_reference",
+    "//net:quic_test_tools",
+    "//net:shared_dictionary_info",
+    "//net:spdy_buffer_rust_perftests",
+    "//net:spdy_buffer_rust_reference",
+    "//net:spdy_buffer_rust_unittests",
+    "//net:spdy_session_key_rust_reference",
+    "//net:tcp_client_socket_rust_reference",
+    "//net:test_support",
+    "//url:url"
+  ],
+  "cases": [
+    {
+      "family": "broad-net",
+      "target": "net_unittests",
+      "label": "//net:net_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "http2",
+      "target": "http2_family_rust_policy_unittests",
+      "label": "//net:http2_family_rust_policy_unittests",
+      "kind": "rust",
+      "arguments": [
+        "--test-threads=1"
+      ],
+      "expected_tests": 28,
+      "count_basis": "Historical source-bound suite count; execution must confirm unchanged scope"
+    },
+    {
+      "family": "http2",
+      "target": "spdy_buffer_rust_unittests",
+      "label": "//net:spdy_buffer_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "http2",
+      "target": "spdy_buffer_rust_perftests",
+      "label": "//net:spdy_buffer_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "raw_small",
+        "raw_large",
+        "owned_frame",
+        "remaining_views",
+        "consume_chunks",
+        "callback_one",
+        "callback_eight",
+        "discard_partial",
+        "discard_full",
+        "nested_consume",
+        "callback_registration",
+        "io_view_lifetime"
+      ],
+      "expected_workloads": 12,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified 12 paired SpdyBuffer workloads; no timing."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/spdy/spdy_buffer_rust_perftest.cc",
+        "sha256": "f85ab75b558206d61448637b5f6fd2b49fc4f0eaf79e0aab4ce8364de3a880f0"
+      }
+    },
+    {
+      "family": "http2",
+      "target": "http2_stream_family_rust_unittests",
+      "label": "//net:http2_stream_family_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "http2",
+      "target": "http2_stream_family_rust_perftests",
+      "label": "//net:http2_stream_family_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "stream_lifecycle",
+        "response_headers_cycle",
+        "early_hints_and_trailers",
+        "flow_window_adjustments",
+        "closed_window_noop"
+      ],
+      "expected_workloads": 5,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified five isolated public stream-control paths; no timing"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/spdy/http2_stream_family_rust_perftest.cc",
+        "sha256": "2ae3ab93fef6916f5cd72daefd73096d1165f96f6a8b8aba0ca5c6a87be64c3b"
+      }
+    },
+    {
+      "family": "http2",
+      "target": "http2_stream_family_io_perftests",
+      "label": "//net:http2_stream_family_io_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "get_buffered",
+        "get_pending_read",
+        "chunked_upload_echo",
+        "flow_controlled_upload",
+        "cancel_pending_read"
+      ],
+      "expected_workloads": 5,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified five complete scripted public HTTP2 paths; no timing"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/spdy/http2_stream_family_io_perftest.cc",
+        "sha256": "eeb5439ef87164fb632f6c9567536f50173e61297fcb64215497e7c05bfa2cd4"
+      }
+    },
+    {
+      "family": "http2",
+      "target": "http2_read_queue_rust_unittests",
+      "label": "//net:http2_read_queue_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "http2",
+      "target": "http2_read_queue_rust_perftests",
+      "label": "//net:http2_read_queue_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "empty_queries",
+        "empty_dequeue",
+        "single_full",
+        "fragmented_fifo",
+        "partial_reads",
+        "clear",
+        "destruction"
+      ],
+      "expected_workloads": 7,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified seven public-API workloads; no timing."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/spdy/http2_read_queue_rust_perftest.cc",
+        "sha256": "0ea02f6f976d63241f57b863dde716050a3b23f18b4ce7741280b6374228cb9e"
+      }
+    },
+    {
+      "family": "http2",
+      "target": "http2_write_queue_rust_unittests",
+      "label": "//net:http2_write_queue_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "http2",
+      "target": "http2_write_queue_rust_perftests",
+      "label": "//net:http2_write_queue_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "frame_caps",
+        "empty_queries",
+        "priority_fifo",
+        "remove_stream",
+        "remove_after",
+        "change_priority",
+        "clear_reentrant",
+        "destruction",
+        "remove_stream_hit",
+        "change_priority_hit"
+      ],
+      "expected_workloads": 10,
+      "completion": {
+        "method": "silent-checked-loop",
+        "limitation": "Source-bound loop covers all cases with CHECK comparisons; executable emits no per-case completion proof. Exit zero alone cannot independently enumerate runtime case coverage."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/spdy/http2_write_queue_rust_perftest.cc",
+        "sha256": "4ba774cef11e4bf1cdc6253d6fb11759d4f274e04ab0cbe6aecf6e06d0768592"
+      }
+    },
+    {
+      "family": "http2",
+      "target": "http2_priority_rust_unittests",
+      "label": "//net:http2_priority_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "http2",
+      "target": "http2_priority_rust_perftests",
+      "label": "//net:http2_priority_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "create_fifo",
+        "create_bands",
+        "destroy_hit",
+        "destroy_miss",
+        "lifetime",
+        "update_reparent",
+        "update_noop",
+        "update_missing",
+        "update_same_parent",
+        "duplicate_create"
+      ],
+      "expected_workloads": 10,
+      "completion": {
+        "method": "json-cases",
+        "key": "case",
+        "verified_required": true
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/spdy/http2_priority_rust_perftest.cc",
+        "sha256": "d445067e6587597cc4237189de0839248b444266a300ef1a2236a6a40ee7cc2e",
+        "historical_raw_sha256": "093ec91088062761ba5a72e0177bbbfafc3a55073501790846abbd89f40d498d"
+      }
+    },
+    {
+      "family": "http2",
+      "target": "header_coalescer_rust_unittests",
+      "label": "//net:header_coalescer_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "http2",
+      "target": "header_coalescer_rust_perftests",
+      "label": "//net:header_coalescer_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "request",
+        "duplicates",
+        "cookies",
+        "large_value",
+        "obs_text",
+        "invalid_name",
+        "uppercase",
+        "ordering",
+        "size_limit",
+        "invalid_value"
+      ],
+      "expected_workloads": 10,
+      "completion": {
+        "method": "json-cases",
+        "key": "case",
+        "verified_required": true
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/spdy/header_coalescer_rust_perftest.cc",
+        "sha256": "f0d0a859c4b29a7aecabb8c3ac1932ffe6f264da290c55fb36e038e127a7c773",
+        "historical_raw_sha256": "673cfe5de2961852effe2386c5eeb8d49c506331969bc344e13d0a51078bc73d"
+      }
+    },
+    {
+      "family": "http2",
+      "target": "alps_decoder_rust_unittests",
+      "label": "//net:alps_decoder_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "http2",
+      "target": "alps_decoder_rust_perftests",
+      "label": "//net:alps_decoder_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "empty",
+        "settings_duplicates",
+        "accept_bytes",
+        "accept_many",
+        "malformed_tail",
+        "disabled",
+        "forbidden",
+        "settings_ack",
+        "invalid_stream",
+        "partial_frame"
+      ],
+      "expected_workloads": 10,
+      "completion": {
+        "method": "json-cases",
+        "key": "case",
+        "verified_required": true
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/spdy/alps_decoder_rust_perftest.cc",
+        "sha256": "005e3990b1053e4ecb1a2245d6031f10caf29afaeaaf7a8e9f337afc3aca9644"
+      }
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_rust_core_unittests",
+      "label": "//net:connection_jobs_rust_core_unittests",
+      "kind": "rust",
+      "arguments": [
+        "--test-threads=1"
+      ],
+      "expected_tests": 23,
+      "count_basis": "Historical source-bound suite count; execution must confirm unchanged scope"
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_family_rust_unittests",
+      "label": "//net:connection_jobs_family_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connect_job_rust_perftests",
+      "label": "//net:connect_job_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "ctor_top",
+        "ctor_nested",
+        "sync_ok_timer",
+        "sync_error",
+        "pending_cancel",
+        "async_ok",
+        "async_error",
+        "timeout",
+        "reset_timer",
+        "priority_changes",
+        "socket_aliases",
+        "pass_socket",
+        "proxy_auth",
+        "done_replace",
+        "const_queries"
+      ],
+      "expected_workloads": 15,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified15 complete ConnectJob BASE lifecycle workloads; no timing"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/socket/connect_job_rust_perftest.cc",
+        "sha256": "88c939d3121acb4ce68b40c21eb908e11c045f213f9ee3136ac1dd2e72ee303c"
+      }
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_family_rust_perftests",
+      "label": "//net:connection_jobs_family_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "transport_sync_v4",
+        "transport_fail_three",
+        "transport_sync_v6",
+        "transport_dual_sync",
+        "transport_dual_fail",
+        "transport_cancel_unstarted",
+        "tcp_sync_v4",
+        "tcp_fail_three",
+        "tcp_sync_v6",
+        "tcp_dual_sync",
+        "tcp_dual_fail",
+        "tcp_cancel_unstarted",
+        "params_direct_http",
+        "params_direct_https",
+        "params_http_proxy",
+        "params_socks5"
+      ],
+      "expected_workloads": 16,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified sixteen full-path fixtures; no timing."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/socket/connection_jobs_family_rust_perftest.cc",
+        "sha256": "7ec2866809c4472475775af6c605576673130b3729483623c99802a5aa77478f"
+      }
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_upper_rust_perftests",
+      "label": "//net:connection_jobs_upper_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "handle_sync",
+        "handle_async",
+        "handle_cancel",
+        "handle_close",
+        "handle_recoverable",
+        "handle_fatal",
+        "handle_reentry",
+        "handle_delete",
+        "handle_priority",
+        "handle_higher",
+        "group_plain",
+        "group_prefixes",
+        "group_partitioned",
+        "idle_timeout",
+        "expand_boundaries",
+        "stream_empty",
+        "stream_fresh",
+        "stream_reused",
+        "stream_transfer",
+        "capacity_invalid",
+        "capacity_probability"
+      ],
+      "expected_workloads": 21,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified21 upper-family public lifecycle workloads; no measurement clock reads"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/socket/connection_jobs_upper_rust_perftest.cc",
+        "sha256": "f59bb020dab28686a29a0b7033fc717064c2ebf5ca0f97e3594d16abf7db15f7"
+      }
+    },
+    {
+      "family": "connection-jobs",
+      "target": "connection_jobs_upper_rust_jobs_perftests",
+      "label": "//net:connection_jobs_upper_rust_jobs_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "tls_sync",
+        "tls_async",
+        "tls_error",
+        "tls_transport_error",
+        "tls_timeout",
+        "socks4",
+        "socks5",
+        "socks_error",
+        "http_direct",
+        "http_tunnel",
+        "http_auth",
+        "https_direct",
+        "https_tunnel",
+        "http2_pending",
+        "quic_pending",
+        "quic_error"
+      ],
+      "expected_workloads": 16,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Verified16 connected job lifecycles; no measurement clock reads"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/socket/connection_jobs_upper_rust_jobs_perftest.cc",
+        "sha256": "67216e249582f18fd78ed563991e0b04e90699b08654534fd30226e9037ed896"
+      }
+    },
+    {
+      "family": "dns-resolution",
+      "target": "dns_resolution_policy_unittests",
+      "label": "//net/dns:dns_resolution_policy_unittests",
+      "kind": "rust",
+      "arguments": [
+        "--test-threads=1"
+      ],
+      "expected_tests": 36,
+      "count_basis": "Historical source-bound suite count; execution must confirm unchanged scope"
+    },
+    {
+      "family": "dns-resolution",
+      "target": "dns_resolution_family_rust_unittests",
+      "label": "//net:dns_resolution_family_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "dns-resolution",
+      "target": "host_resolver_cache_rust_unittests",
+      "label": "//net:host_resolver_cache_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "dns-resolution",
+      "target": "host_resolver_cache_rust_perftests",
+      "label": "//net:host_resolver_cache_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "lookup_hit_64",
+        "lookup_canonical_64",
+        "lookup_miss_64",
+        "lookup_security_64",
+        "lookup_stale_64",
+        "replace_64",
+        "insert_evict_64",
+        "evict_stale_64",
+        "wildcard_replace_64",
+        "network_partition_64",
+        "serialize_64",
+        "logging_64",
+        "restore_64",
+        "restore_full_64",
+        "move_64"
+      ],
+      "expected_workloads": 15,
+      "completion": {
+        "method": "silent-checked-loop",
+        "limitation": "Source-bound loop covers all cases with CHECK comparisons; executable emits no per-case completion proof. Exit zero alone cannot independently enumerate runtime case coverage."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/dns/host_resolver_cache_rust_perftest.cc",
+        "sha256": "80417c1df73a3f70d7d8d92be236c85ecf1e5e43ff18df64d8daa2982c333da5"
+      }
+    },
+    {
+      "family": "dns-resolution",
+      "target": "dns_resolution_family_rust_perftests",
+      "label": "//net:dns_resolution_family_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "literal_ipv4",
+        "literal_ipv6",
+        "literal_canonical_alias",
+        "literal_wrong_family",
+        "literal_non_address",
+        "localhost_dual",
+        "localhost_ipv4",
+        "localhost_ipv6",
+        "localhost_trailing_dot",
+        "empty_name",
+        "oversize_name",
+        "cache_fresh",
+        "cache_negative",
+        "cache_stale",
+        "cache_disallowed"
+      ],
+      "expected_workloads": 15,
+      "completion": {
+        "method": "silent-checked-loop",
+        "limitation": "Source-bound loop covers all cases with CHECK comparisons; executable emits no per-case completion proof. Exit zero alone cannot independently enumerate runtime case coverage."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/dns/dns_resolution_family_rust_perftest.cc",
+        "sha256": "6702006e43b5c45d573a7d67a81401cb62ab805e009b8cc1a607d19a2ac40d89"
+      }
+    },
+    {
+      "family": "dns-resolution",
+      "target": "dns_request_family_async_perftests",
+      "label": "//net:dns_request_family_async_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "dns_udp_async_ok",
+        "dns_udp_sync_ok",
+        "dns_udp_nxdomain",
+        "dns_udp_server_failure",
+        "dns_udp_truncated_tcp_retry",
+        "dns_suffix_nxdomain_then_success",
+        "dns_cancel_pending",
+        "dns_invalid_name_posted_error",
+        "dns_target_network_error",
+        "dns_transaction_survives_factory",
+        "dns_doh_get_ok",
+        "dns_doh_post_ok",
+        "dns_doh_post_nxdomain",
+        "dns_doh_invalid_mime",
+        "dns_doh_cancel_pending",
+        "dns_probe_data_success",
+        "dns_probe_empty_response",
+        "dns_probe_http_error",
+        "dns_probe_already_available",
+        "dns_probe_context_destroyed",
+        "dns_platform_async_success",
+        "dns_platform_sync_success",
+        "dns_platform_server_failure",
+        "dns_platform_cancel_pending",
+        "dns_platform_specific_network"
+      ],
+      "expected_workloads": 25,
+      "completion": {
+        "method": "silent-checked-loop",
+        "limitation": "Source-bound loop covers all cases with CHECK comparisons; executable emits no per-case completion proof. Exit zero alone cannot independently enumerate runtime case coverage."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/dns/dns_request_family_async_perftest.cc",
+        "sha256": "4fa13223b38e0e84e8d34edb75ab20ee3fd0ccc49f6a3dd7186d2cca39e0e34d"
+      }
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_rust_policy_unittests",
+      "label": "//net:cookie_storage_family_rust_policy_unittests",
+      "kind": "rust",
+      "arguments": [
+        "--test-threads=1"
+      ],
+      "expected_tests": 54,
+      "count_basis": "Historical source-bound suite count; execution must confirm unchanged scope"
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_unittests",
+      "label": "//net:cookie_storage_family_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_perftests",
+      "label": "//net:cookie_storage_family_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "create_include_domain",
+        "secure_prefix",
+        "host_http_prefix",
+        "file_expiration",
+        "invalid_domain",
+        "hidden_prefix",
+        "strict_redirect",
+        "partitioned",
+        "nonced_partition",
+        "expiry_and_quote"
+      ],
+      "expected_workloads": 10,
+      "completion": {
+        "method": "json-cases",
+        "key": "verify_case"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/cookies/cookie_family_perftest.cc",
+        "sha256": "c7e91ad111dde0bd3e1784432a833a4b454914af7641d96ff7bd52d6f2c1b996"
+      }
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_store_unittests",
+      "label": "//net:cookie_storage_family_store_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_storage_family_store_perftests",
+      "label": "//net:cookie_storage_family_store_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "store_empty_queries",
+        "store_set_get_delete",
+        "store_overwrite_same_value",
+        "store_overwrite_changed_value",
+        "store_expired_overwrite",
+        "store_secure_overwrite_rejection",
+        "store_http_only_rejection",
+        "store_partitioned_isolation",
+        "store_nonced_partition",
+        "store_domain_priority_gc",
+        "store_partition_bytes_gc",
+        "store_load_deduplicate",
+        "store_load_control_chars",
+        "store_key_load_queue",
+        "store_global_load_queue"
+      ],
+      "expected_workloads": 15,
+      "completion": {
+        "method": "json-cases",
+        "key": "verify_case"
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/cookies/cookie_family_store_perftest.cc",
+        "sha256": "8153dcf6daa9c8bdf15d26ecbb94fb369b314e9eb641f7473186f82165a266a1"
+      }
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_partition_key_rust_unittests",
+      "label": "//net:cookie_partition_key_rust_unittests",
+      "kind": "gtest",
+      "arguments": []
+    },
+    {
+      "family": "cookie-storage",
+      "target": "cookie_partition_key_rust_perftests",
+      "label": "//net:cookie_partition_key_rust_perftests",
+      "kind": "workload",
+      "arguments": [
+        "--verify-only"
+      ],
+      "measurement_clocks_requested": false,
+      "case_ids": [
+        "storage_empty",
+        "storage_canonical",
+        "storage_rejected",
+        "untrusted_normalize",
+        "untrusted_rejected",
+        "nik_first_party",
+        "nik_cross_site",
+        "nik_nonce_frame",
+        "nik_rejected",
+        "storage_components",
+        "serialize_sites",
+        "serialize_rejected",
+        "comparison_order",
+        "copy_move",
+        "debug_outputs"
+      ],
+      "expected_workloads": 15,
+      "completion": {
+        "method": "exact-completion-message",
+        "message": "Prepared 15 public-API workload checksums match; no clock read."
+      },
+      "clock_scope": "No harness measurement clock; normal native/mock task clocks are not instrumented",
+      "blockers": [],
+      "entrypoint": {
+        "path": "net/cookies/cookie_partition_key_rust_perftest.cc",
+        "sha256": "a81ef43211d7d933f55ebe887b13e3b0748da1ccb9604bc323deb0b4d0aa054c"
+      }
+    }
+  ],
+  "additional_obligations": [
+    "Re-evaluate the included complete46-file auth/probe union in fresh candidate normal/probe graphs; retain every existing member and seven positive controls.",
+    "Reconcile changed-header, inline, link, export and ABI consumers. These96 necessary roots are not proof of complete consumer closure.",
+    "Qualify all16 connection reference lifecycles, including cancellation, reentry and provider lifetime behavior.",
+    "Retain separately defined optimized-QUIC phase; verify-only workload completion does not establish it.",
+    "Rebuild and rerun affected Foundation Strings callers; retain historical evidence under its original identity.",
+    "Record platform/provider gaps explicitly. Windows host results do not establish POSIX or other supported platforms."
+  ],
+  "execution_prerequisites": [
+    "Prepared inventory is not an executable CI profile. Port and review the ordinary conductor, source/build/ABI freshness and copied runtime before/after identity checks.",
+    "Bind a clean integration-PR revision, pinned dependencies, configuration/toolchains and complete source closure; no machine-local scratch inputs may be required.",
+    "Resolve each GN label against freshly generated outputs on the laptop. Do not reuse desktop output names, Rust hashes, DLL/PDB paths or default-toolchain aliases for nondefault owners.",
+    "Discover and reconcile gtest/Rust counts; require exact workload membership, fixture/schema checks and raw execution evidence, not completion text alone.",
+    "Rebind the cookie-store clock/source contract to current reviewed output changes; preserve the prior contract and compare two source/binary-qualified verify captures.",
+    "Retain short external TMP/TEMP and route logging outside sealed runtime copies.",
+    "Qualify runner/tool/helper execution under existing host policy. Inventory success and runner heartbeat are not Network acceptance."
+  ],
+  "entrypoint_changes_since_original_plan": [
+    {
+      "path": "net/cookies/cookie_family_perftest.cc",
+      "original_plan_sha256": "5307402519af0531e3d19215c34034e34956a8c8884220f3e18f4fac80b3b770",
+      "current_sha256": "c7e91ad111dde0bd3e1784432a833a4b454914af7641d96ff7bd52d6f2c1b996",
+      "disposition": "Source changed since original plan; fresh controller/source/clock qualification required"
+    },
+    {
+      "path": "net/cookies/cookie_family_store_perftest.cc",
+      "original_plan_sha256": "05a5987e7efcce0e7500232ff77225deddafa9c504d1f8662d3075187da26740",
+      "current_sha256": "8153dcf6daa9c8bdf15d26ecbb94fb369b314e9eb641f7473186f82165a266a1",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/socket/connect_job_rust_perftest.cc",
+      "original_plan_sha256": "fb390770b45d48ffe2e05a39ce60ea41fdcb25d31a2f9597591788bfba516a96",
+      "current_sha256": "88c939d3121acb4ce68b40c21eb908e11c045f213f9ee3136ac1dd2e72ee303c",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/socket/connection_jobs_family_rust_perftest.cc",
+      "original_plan_sha256": "5e22d090abc3d2b9d5a582c801f58e07f3e1395df7fc371a47e27a17583bc9d1",
+      "current_sha256": "7ec2866809c4472475775af6c605576673130b3729483623c99802a5aa77478f",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_perftest.cc",
+      "original_plan_sha256": "5d67d071e0e59c47733c965385d76dbe7bdf865d4b5d75accf696acb96b2edcd",
+      "current_sha256": "f59bb020dab28686a29a0b7033fc717064c2ebf5ca0f97e3594d16abf7db15f7",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/socket/connection_jobs_upper_rust_jobs_perftest.cc",
+      "original_plan_sha256": "2130738183e891d2ce9a99483c9438cd45b537499b9fc7f8f6a7756790179c18",
+      "current_sha256": "67216e249582f18fd78ed563991e0b04e90699b08654534fd30226e9037ed896",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/dns/dns_resolution_family_rust_perftest.cc",
+      "original_plan_sha256": "d375afb9f6e6b0a1158808ab7153aac99c40bed6178e41169bf2048a2410b1f7",
+      "current_sha256": "6702006e43b5c45d573a7d67a81401cb62ab805e009b8cc1a607d19a2ac40d89",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    },
+    {
+      "path": "net/dns/dns_request_family_async_perftest.cc",
+      "original_plan_sha256": "7fab6c223519a434929ed881c4a0b6f090d7e64adc1877acd0e3fb14a9e412b4",
+      "current_sha256": "4fa13223b38e0e84e8d34edb75ab20ee3fd0ccc49f6a3dd7186d2cca39e0e34d",
+      "disposition": "Initialize standalone test timeouts and route logging to stderr. Preserve verify-only case membership and requalify source and executable."
+    }
+  ],
+  "campaigns": {
+    "sanitizer": "off by user instruction",
+    "fuzz": "off by user instruction",
+    "security_campaigns": "off by user instruction",
+    "timing": "not requested",
+    "publication": "held"
+  }
+}

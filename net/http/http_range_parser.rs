@@ -75,14 +75,28 @@ fn legacy_i64(input: &[u8]) -> Option<i64> {
     }
 }
 
-pub fn parse_ranges(input: &[u8], mut emit: impl FnMut(Range)) -> bool {
-    let Some(equal) = input.iter().position(|&byte| byte == b'=') else {
-        return false;
-    };
-    if !trim(&input[..equal]).eq_ignore_ascii_case(b"bytes") {
-        return false;
+// Validate the unit before entering the allocation/tokenizer path. This is
+// exactly trim(input[..first '=']) == bytes, but can reject a wrong unit
+// without scanning an arbitrarily long field or setting up result storage.
+#[inline(always)]
+pub fn ranges_start(input: &[u8]) -> Option<usize> {
+    let begin = input.iter().position(|&byte| !lws(byte))?;
+    if !input.get(begin..begin + 5)?.eq_ignore_ascii_case(b"bytes") {
+        return None;
     }
-    let mut pos = equal + 1;
+    let mut pos = begin + 5;
+    while input.get(pos).is_some_and(|&byte| lws(byte)) {
+        pos += 1;
+    }
+    (input.get(pos) == Some(&b'=')).then_some(pos + 1)
+}
+
+pub fn parse_ranges(input: &[u8], emit: impl FnMut(Range)) -> bool {
+    let Some(pos) = ranges_start(input) else { return false };
+    parse_ranges_body(input, pos, emit)
+}
+
+pub fn parse_ranges_body(input: &[u8], mut pos: usize, mut emit: impl FnMut(Range)) -> bool {
     while pos < input.len() {
         let start = pos;
         let mut quote = false;
@@ -159,15 +173,35 @@ fn delimiter(input: &[u8], pos: &mut usize, expected: u8, whitespace: bool) -> b
 
 fn fetch_decimal(input: &[u8], pos: &mut usize) -> Option<i64> {
     let start = *pos;
-    while input.get(*pos).is_some_and(u8::is_ascii_digit) {
+    let mut value = 0i64;
+    // Eighteen digits always fit. Parse and locate the delimiter together,
+    // rather than scanning the same common field twice.
+    while *pos - start < 18 {
+        let Some(&byte) = input.get(*pos) else { break };
+        let digit = byte.wrapping_sub(b'0');
+        if digit > 9 {
+            break;
+        }
+        value = value * 10 + i64::from(digit);
         *pos += 1;
     }
-    if *pos == start {
-        None
-    } else {
-        // This slice contains only digits, so overflow is its only parse error.
-        Some(parse_i64(&input[start..*pos], 0, false).unwrap_or(i64::MAX))
+    while let Some(&byte) = input.get(*pos) {
+        let digit = byte.wrapping_sub(b'0');
+        if digit > 9 {
+            break;
+        }
+        *pos += 1;
+        let Some(next) = value.checked_mul(10).and_then(|v| v.checked_add(i64::from(digit))) else {
+            // Fetch saturates overlong values but still consumes all digits;
+            // trailing non-digits remain visible to the surrounding grammar.
+            while input.get(*pos).is_some_and(u8::is_ascii_digit) {
+                *pos += 1;
+            }
+            return Some(i64::MAX);
+        };
+        value = next;
     }
+    (*pos != start).then_some(value)
 }
 
 pub fn parse_fetch(input: &[u8], whitespace: bool) -> Option<Range> {

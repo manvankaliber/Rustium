@@ -3,8 +3,10 @@
 // found in the LICENSE file.
 #include "net/http/auth_challenge_reference.h"
 
+#include <cstdint>
 #include <utility>
 
+#include "base/check_op.h"
 #include "base/strings/string_util.h"
 #include "net/http/auth_challenge_reference_modp.h"
 #include "net/http/auth_challenge_reference_tokenizer.h"
@@ -35,6 +37,18 @@ bool Decode(std::string_view input, std::string* output) {
   return true;
 }
 }  // namespace
+bool FrozenDecode(std::string_view input, std::string* output) {
+  return Decode(input, output);
+}
+std::string FrozenEncode(std::string_view input) {
+  CHECK_LE(input.size(), AUTH_CHALLENGE_REF_B64_MAX_INPUT_LEN);
+  const size_t size = auth_challenge_ref_modp_encode_data_len(input.size());
+  std::string output(size, '\0');
+  const size_t written = auth_challenge_ref_modp_encode_data(
+      output.data(), input.data(), input.size());
+  CHECK_EQ(written, size);
+  return output;
+}
 // Frozen copies of StringViewTokenizer's original algorithm and the original
 // TrimLWS helper. ASCII normalization uses the unchanged original base DLL.
 [[clang::noinline]] std::string_view FrozenTrim(std::string_view string) {

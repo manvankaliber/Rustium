@@ -17,6 +17,7 @@
 #include "base/functional/bind.h"
 #include "base/functional/callback.h"
 #include "base/strings/string_view_util.h"
+#include "base/test/bind.h"
 #include "net/spdy/spdy_buffer.h"
 #include "testing/gmock/include/gmock/gmock-matchers.h"
 #include "testing/gtest/include/gtest/gtest.h"
@@ -189,6 +190,127 @@ TEST_F(SpdyReadQueueTest, ReentrantDequeue) {
   EXPECT_EQ(copied, kUserBufLen);
   EXPECT_TRUE(reentry_fired);
   EXPECT_EQ(second_callback_called, 2);
+}
+
+// Clear detaches a snapshot. Read-only callbacks retain the original view;
+// mutation switches to the live queue independently of the discarded snapshot.
+TEST_F(SpdyReadQueueTest, ClearReentrantEnqueueDequeueAndClear) {
+  SpdyReadQueue queue;
+  int callbacks = 0;
+  auto first = std::make_unique<SpdyBuffer>(kData);
+  first->AddConsumeCallback(base::BindLambdaForTesting(
+      [&](size_t bytes, SpdyBuffer::ConsumeSource source) {
+        EXPECT_EQ(bytes, kData.size());
+        EXPECT_EQ(source, SpdyBuffer::DISCARD);
+        EXPECT_FALSE(queue.IsEmpty());
+        EXPECT_EQ(queue.GetTotalSize(), 2 * kData.size());
+        queue.Clear();
+        EXPECT_TRUE(queue.IsEmpty());
+        EXPECT_EQ(queue.GetTotalSize(), 0u);
+        queue.Enqueue(std::make_unique<SpdyBuffer>(kData));
+        std::array<uint8_t, 1> out;
+        EXPECT_EQ(queue.Dequeue(out), 1u);
+        EXPECT_EQ(queue.GetTotalSize(), kData.size() - 1);
+        ++callbacks;
+      }));
+  queue.Enqueue(std::move(first));
+  queue.Enqueue(std::make_unique<SpdyBuffer>(kData));
+  queue.Clear();
+  EXPECT_EQ(callbacks, 1);
+  EXPECT_EQ(queue.GetTotalSize(), kData.size() - 1);
+  queue.Clear();
+  EXPECT_TRUE(queue.IsEmpty());
+}
+
+TEST_F(SpdyReadQueueTest, ClearCallbackDeletesOwner) {
+  auto queue = std::make_unique<SpdyReadQueue>();
+  int callbacks = 0;
+  for (int i = 0; i < 3; ++i) {
+    auto buffer = std::make_unique<SpdyBuffer>(kData);
+    buffer->AddConsumeCallback(
+        base::BindLambdaForTesting([&](size_t, SpdyBuffer::ConsumeSource) {
+          ++callbacks;
+          queue.reset();
+        }));
+    queue->Enqueue(std::move(buffer));
+  }
+  queue->Clear();
+  EXPECT_FALSE(queue);
+  EXPECT_EQ(callbacks, 3);
+}
+
+TEST_F(SpdyReadQueueTest, PartialConsumeDeletesOwnerBeforeDetachedDiscards) {
+  auto queue = std::make_unique<SpdyReadQueue>();
+  int consumes = 0;
+  int discards = 0;
+  int second_callbacks = 0;
+  for (int i = 0; i < 3; ++i) {
+    auto buffer = std::make_unique<SpdyBuffer>(kData);
+    buffer->AddConsumeCallback(base::BindLambdaForTesting(
+        [&](size_t, SpdyBuffer::ConsumeSource source) {
+          if (source == SpdyBuffer::CONSUME) {
+            ++consumes;
+            EXPECT_EQ(queue->GetTotalSize(), kData.size() * 2 - 1);
+            queue.reset();
+          } else {
+            ++discards;
+          }
+        }));
+    buffer->AddConsumeCallback(base::BindLambdaForTesting(
+        [&](size_t, SpdyBuffer::ConsumeSource) { ++second_callbacks; }));
+    queue->Enqueue(std::move(buffer));
+  }
+  std::vector<uint8_t> out(kData.size() + 1);
+  EXPECT_EQ(queue->Dequeue(out), out.size());
+  EXPECT_FALSE(queue);
+  EXPECT_EQ(consumes, 1);
+  EXPECT_EQ(discards, 3);
+  EXPECT_EQ(second_callbacks, 4);
+}
+
+TEST_F(SpdyReadQueueTest, CompleteDiscardDeletesOwner) {
+  auto queue = std::make_unique<SpdyReadQueue>();
+  int callbacks = 0;
+  for (int i = 0; i < 3; ++i) {
+    auto buffer = std::make_unique<SpdyBuffer>(kData);
+    buffer->AddConsumeCallback(
+        base::BindLambdaForTesting([&](size_t, SpdyBuffer::ConsumeSource) {
+          ++callbacks;
+          queue.reset();
+        }));
+    queue->Enqueue(std::move(buffer));
+  }
+  std::vector<uint8_t> out(kData.size() * 2);
+  EXPECT_EQ(queue->Dequeue(out), out.size());
+  EXPECT_FALSE(queue);
+  EXPECT_EQ(callbacks, 3);
+}
+
+TEST_F(SpdyReadQueueTest, DestructorRejectsReentrantEnqueue) {
+  auto queue = std::make_unique<SpdyReadQueue>();
+  auto* raw = queue.get();
+  int rejected = 0;
+  auto buffer = std::make_unique<SpdyBuffer>(kData);
+  buffer->AddConsumeCallback(
+      base::BindLambdaForTesting([&](size_t, SpdyBuffer::ConsumeSource) {
+        EXPECT_FALSE(raw->IsEmpty());
+        EXPECT_EQ(raw->GetTotalSize(), kData.size());
+        raw->Clear();
+        EXPECT_TRUE(raw->IsEmpty());
+        EXPECT_EQ(raw->GetTotalSize(), 0u);
+        std::array<uint8_t, 1> out;
+        EXPECT_EQ(raw->Dequeue(out), 0u);
+        auto incoming = std::make_unique<SpdyBuffer>(kData);
+        incoming->AddConsumeCallback(base::BindLambdaForTesting(
+            [&](size_t, SpdyBuffer::ConsumeSource source) {
+              EXPECT_EQ(source, SpdyBuffer::DISCARD);
+              ++rejected;
+            }));
+        raw->Enqueue(std::move(incoming));
+      }));
+  queue->Enqueue(std::move(buffer));
+  queue.reset();
+  EXPECT_EQ(rejected, 1);
 }
 
 }  // namespace net::test

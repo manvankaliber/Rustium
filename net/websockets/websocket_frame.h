@@ -50,31 +50,17 @@ struct NET_EXPORT WebSocketFrameHeader {
 
   // Return true if |opcode| is one of the data opcodes known to this
   // implementation.
-  static bool IsKnownDataOpCode(OpCode opcode) {
-    return opcode == kOpCodeContinuation || opcode == kOpCodeText ||
-           opcode == kOpCodeBinary;
-  }
+  static bool IsKnownDataOpCode(OpCode opcode);
 
   // Return true if |opcode| is one of the control opcodes known to this
   // implementation.
-  static bool IsKnownControlOpCode(OpCode opcode) {
-    return opcode == kOpCodeClose || opcode == kOpCodePing ||
-           opcode == kOpCodePong;
-  }
+  static bool IsKnownControlOpCode(OpCode opcode);
 
   // Return true if |opcode| is one of the reserved data opcodes.
-  static bool IsReservedDataOpCode(OpCode opcode) {
-    return opcode == kOpCodeDataUnused3 || opcode == kOpCodeDataUnused4 ||
-           opcode == kOpCodeDataUnused5 || opcode == kOpCodeDataUnused6 ||
-           opcode == kOpCodeDataUnused7;
-  }
+  static bool IsReservedDataOpCode(OpCode opcode);
 
   // Return true if |opcode| is one of the reserved control opcodes.
-  static bool IsReservedControlOpCode(OpCode opcode) {
-    return opcode == kOpCodeControlUnusedB || opcode == kOpCodeControlUnusedC ||
-           opcode == kOpCodeControlUnusedD || opcode == kOpCodeControlUnusedE ||
-           opcode == kOpCodeControlUnusedF;
-  }
+  static bool IsReservedControlOpCode(OpCode opcode);
 
   // These values must be compile-time constants.
   static constexpr size_t kBaseHeaderSize = 2;

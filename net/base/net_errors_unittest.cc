@@ -88,3 +88,16 @@ TEST(NetErrorsTest, IsOkOrDefinedError) {
 }  // namespace
 
 }  // namespace net
+
+namespace net {
+TEST(NetErrorsTest, RustFormattingAndFileMappingPublicApi) {
+  EXPECT_EQ(ErrorToString(OK), "net::OK");
+  EXPECT_EQ(ErrorToShortString(ERR_FAILED), "ERR_FAILED");
+  EXPECT_EQ(ExtendedErrorToString(ERR_QUIC_PROTOCOL_ERROR, 1),
+            "net::ERR_QUIC_PROTOCOL_ERROR.QUIC_INTERNAL_ERROR");
+  EXPECT_EQ(FileErrorToNetError(base::File::FILE_ERROR_NOT_FOUND),
+            ERR_FILE_NOT_FOUND);
+  EXPECT_TRUE(IsRequestBlockedError(ERR_BLOCKED_BY_CSP));
+  EXPECT_TRUE(IsHostnameResolutionError(ERR_NAME_NOT_RESOLVED));
+}
+}  // namespace net

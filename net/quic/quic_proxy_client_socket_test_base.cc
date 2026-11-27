@@ -116,7 +116,7 @@ size_t QuicProxyClientSocketTestBase::GetStreamFrameDataLengthFromPacketLength(
   return min_data_length + packet_length - min_packet_length;
 }
 
-void QuicProxyClientSocketTestBase::InitializeSession() {
+void QuicProxyClientSocketTestBase::InitializeSession(bool create_stream) {
   auto socket = std::make_unique<MockUDPClientSocket>(
       mock_quic_data_.InitializeAndGetSequencedSocketData(), NetLog::Get());
   socket->Connect(peer_addr_);
@@ -220,6 +220,9 @@ void QuicProxyClientSocketTestBase::InitializeSession() {
 
   session_handle_ = session_->CreateHandle(
       url::SchemeHostPort(url::kHttpsScheme, "mail.example.org", 80));
+  if (!create_stream) {
+    return;
+  }
   EXPECT_THAT(session_handle_->RequestStream(true, callback.callback(),
                                              TRAFFIC_ANNOTATION_FOR_TESTS),
               test::IsOk());

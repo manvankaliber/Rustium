@@ -16,7 +16,7 @@
 #include "net/http/http_util.h"
 namespace {
 namespace reference = net::http_range_promote_internal::test;
-void Equal(const net::HttpByteRange& a, const net::HttpByteRange& b) {
+void Equal(const net::HttpByteRange& a, const reference::ByteRange& b) {
   CHECK_EQ(a.first_byte_position(), b.first_byte_position());
   CHECK_EQ(a.last_byte_position(), b.last_byte_position());
   CHECK_EQ(a.suffix_length(), b.suffix_length());
@@ -26,7 +26,10 @@ void Compare(std::string_view input, uint8_t control) {
   if (control & 1) {
     a.push_back(net::HttpByteRange::Bounded(12, 34));
   }
-  auto b = a;
+  std::vector<reference::ByteRange> b;
+  if (control & 1) {
+    b.push_back(reference::ByteRange::Bounded(12, 34));
+  }
   CHECK_EQ(net::HttpUtil::ParseRangeHeader(input, &a),
            reference::ParseRangeHeader(input, &b));
   CHECK_EQ(a.size(), b.size());
