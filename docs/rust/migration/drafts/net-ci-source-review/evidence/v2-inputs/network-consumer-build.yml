@@ -1,0 +1,119 @@
+name: Network selected consumer build
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Reviewed full40-character commit in this repository
+        required: true
+        type: string
+      reference_probe:
+        description: Also build the separate reference-probe configuration
+        type: boolean
+        default: false
+      compiler_jobs:
+        description: Compiler ceiling; two requires8GiB available memory
+        type: choice
+        options: ['1', '2']
+        default: '1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rustium-windows-builder
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: >-
+      github.repository == 'manvankaliber/Rustium' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.pull_request.head.repo.full_name == github.repository &&
+        contains(github.event.pull_request.labels.*.name, 'rustium-build-approved')))
+    runs-on: [self-hosted, Windows, X64, rustium-build]
+    timeout-minutes: 1440
+    defaults:
+      run:
+        shell: powershell
+    env:
+      RUSTIUM_REVISION: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || inputs.revision }}
+      RUSTIUM_COMPILER_JOBS: ${{ inputs.compiler_jobs || '1' }}
+      DEPOT_TOOLS_WIN_TOOLCHAIN: '0'
+      DEPOT_TOOLS_UPDATE: '0'
+    steps:
+      - name: Bind the dedicated checkout and exact revision
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:COMPUTERNAME -ne 'HQC-VAN_KALIBER') { throw 'Wrong compilation machine.' }
+          if ($env:RUSTIUM_REVISION -cnotmatch '^[0-9a-f]{40}$') { throw 'Expected reviewed full Git SHA.' }
+          $builder = Join-Path $env:USERPROFILE 'rb'
+          $source = Join-Path $builder 'src'
+          $depot = Join-Path $env:USERPROFILE 'chromium-tools\depot_tools'
+          if (-not (Test-Path -LiteralPath (Join-Path $source '.git'))) { throw 'Provision the dedicated checkout first.' }
+          if (-not (Test-Path -LiteralPath (Join-Path $builder '.gclient'))) { throw 'Provision the pinned dependency configuration first.' }
+          if (-not (Test-Path -LiteralPath (Join-Path $depot 'gclient.bat'))) { throw 'Missing qualified depot_tools.' }
+          $remote = & git -C $source remote get-url origin
+          if ($LASTEXITCODE -ne 0 -or $remote.TrimEnd('/') -notin @('https://github.com/manvankaliber/Rustium', 'https://github.com/manvankaliber/Rustium.git')) { throw 'Checkout repository differs.' }
+          $dirty = & git -C $source status --porcelain=v1 --untracked-files=no
+          if ($LASTEXITCODE -ne 0 -or $dirty) { throw 'Preserve dirty builder source; reconcile it before checkout.' }
+          $busy = @(Get-CimInstance Win32_Process | Where-Object { $_.Name -match '^(gn|ninja|clang-cl|lld-link|rustc|cargo|.*_unittests|.*_perftests)(\.exe)?$' })
+          if ($busy.Count -ne 0) { throw 'Another native process owns the builder window; source checkout held.' }
+          $checkoutPolicy = & git -C $source config --get core.autocrlf
+          if ($LASTEXITCODE -ne 0 -or $checkoutPolicy -ne 'false') { throw 'Qualify LF checkout policy before running CI.' }
+          $evidence = Join-Path $builder ('evidence\build-' + $env:GITHUB_RUN_ID + '-' + $env:GITHUB_RUN_ATTEMPT)
+          if (Test-Path -LiteralPath $evidence) { throw 'Retain existing evidence; choose a new run.' }
+          New-Item -ItemType Directory -Path $evidence | Out-Null
+          "RUSTIUM_SOURCE=$source" | Add-Content -LiteralPath $env:GITHUB_ENV
+          "RUSTIUM_DEPOT=$depot" | Add-Content -LiteralPath $env:GITHUB_ENV
+          "RUSTIUM_EVIDENCE=$evidence" | Add-Content -LiteralPath $env:GITHUB_ENV
+          Start-Transcript -LiteralPath (Join-Path $evidence 'source-preparation.txt') | Out-Null
+          # In Windows PowerShell5.1 merging native stderr can turn successful progress output into an exception.
+          & git -C $source -c credential.interactive=false fetch --no-tags --depth=1 origin $env:RUSTIUM_REVISION
+          if ($LASTEXITCODE -ne 0) { throw 'Fetch failed; no source reset attempted.' }
+          & git -C $source checkout --detach $env:RUSTIUM_REVISION
+          if ($LASTEXITCODE -ne 0) { throw 'Exact source checkout failed.' }
+          $actual = & git -C $source rev-parse HEAD
+          if ($LASTEXITCODE -ne 0 -or $actual -ne $env:RUSTIUM_REVISION) { throw 'Source identity mismatch.' }
+          if (-not (Test-Path -LiteralPath (Join-Path $source 'tools\ci\build_network_consumers.py'))) { throw 'Reviewed revision lacks the build driver.' }
+          Stop-Transcript | Out-Null
+      - name: Synchronize pinned dependencies and tool hooks
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:PATH = $env:RUSTIUM_DEPOT + ';' + $env:PATH
+          Set-Location -LiteralPath (Split-Path -Parent $env:RUSTIUM_SOURCE)
+          Start-Transcript -LiteralPath (Join-Path $env:RUSTIUM_EVIDENCE 'dependency-preparation.txt') | Out-Null
+          & (Join-Path $env:RUSTIUM_DEPOT 'gclient.bat') sync --nohooks --revision ('src@' + $env:RUSTIUM_REVISION)
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned dependency sync failed.' }
+          & (Join-Path $env:RUSTIUM_DEPOT 'gclient.bat') runhooks
+          if ($LASTEXITCODE -ne 0) { throw 'Pinned tool hooks failed.' }
+          Stop-Transcript | Out-Null
+      - name: Build the recorded consumer roots
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:PATH = $env:RUSTIUM_DEPOT + ';' + $env:PATH
+          $buildEvidence = Join-Path $env:RUSTIUM_EVIDENCE 'selected-consumer-build'
+          $arguments = @((Join-Path $env:RUSTIUM_SOURCE 'tools\ci\build_network_consumers.py'), '--revision', $env:RUSTIUM_REVISION, '--evidence', $buildEvidence, '--jobs', $env:RUSTIUM_COMPILER_JOBS)
+          & (Join-Path $env:RUSTIUM_DEPOT 'python3.bat') @arguments
+          if ($LASTEXITCODE -ne 0) { throw 'Selected-consumer build failed; raw evidence retained.' }
+          'Recorded Network consumer build completed. Ordinary tests, ABI/runtime/platform and cutover acceptance remain pending.' | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+      - name: Build the additional reference-probe configuration
+        if: inputs.reference_probe || contains(github.event.pull_request.labels.*.name, 'rustium-probe-build-approved')
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:PATH = $env:RUSTIUM_DEPOT + ';' + $env:PATH
+          $buildEvidence = Join-Path $env:RUSTIUM_EVIDENCE 'reference-probe-build'
+          $arguments = @((Join-Path $env:RUSTIUM_SOURCE 'tools\ci\build_network_consumers.py'), '--revision', $env:RUSTIUM_REVISION, '--evidence', $buildEvidence, '--jobs', $env:RUSTIUM_COMPILER_JOBS, '--reference-probe')
+          & (Join-Path $env:RUSTIUM_DEPOT 'python3.bat') @arguments
+          if ($LASTEXITCODE -ne 0) { throw 'Reference-probe build failed; raw evidence retained.' }
+          'Additional probe configuration compiled. Counter controls and native reference independence are still unqualified.' | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+      - name: Retain build records
+        if: always() && env.RUSTIUM_EVIDENCE != ''
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: network-consumer-build-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ env.RUSTIUM_EVIDENCE }}
+          if-no-files-found: error
+          retention-days: 3
